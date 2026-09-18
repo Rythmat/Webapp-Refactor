@@ -25,22 +25,22 @@ export const it_takes_two: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -51,29 +51,29 @@ export const it_takes_two: Song = {
       measuresPerRow: 6,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
           restBars: 4,
         },

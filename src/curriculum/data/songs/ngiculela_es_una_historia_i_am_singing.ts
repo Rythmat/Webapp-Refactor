@@ -88,7 +88,7 @@ export const ngiculela_es_una_historia_i_am_singing: Song = {
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -230,7 +230,7 @@ export const ngiculela_es_una_historia_i_am_singing: Song = {
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
           ],
         },
       ],

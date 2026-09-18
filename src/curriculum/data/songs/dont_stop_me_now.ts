@@ -35,10 +35,12 @@ export const dont_stop_me_now: Song = {
       label: 'Verse',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '♭7 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -60,7 +62,7 @@ export const dont_stop_me_now: Song = {
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
             { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
@@ -82,7 +84,7 @@ export const dont_stop_me_now: Song = {
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
             { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
@@ -98,7 +100,9 @@ export const dont_stop_me_now: Song = {
       id: 'chorus',
       label: 'Chorus',
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -121,7 +125,9 @@ export const dont_stop_me_now: Song = {
       label: 'Section G',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -144,8 +150,10 @@ export const dont_stop_me_now: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '♭7 7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -153,7 +161,7 @@ export const dont_stop_me_now: Song = {
       label: 'Section I',
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -193,7 +201,7 @@ export const dont_stop_me_now: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 maj', chordName: 'F', beat: 1, duration: 1 },
+            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 2, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 3, duration: 1 },
             { degree: '5 min7', chordName: 'Dmin7', beat: 4, duration: 1 },
@@ -214,7 +222,7 @@ export const dont_stop_me_now: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 maj', chordName: 'F', beat: 1, duration: 1 },
+            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 2, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 3, duration: 1 },
             { degree: '5 min7', chordName: 'Dmin7', beat: 4, duration: 1 },
@@ -240,7 +248,7 @@ export const dont_stop_me_now: Song = {
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
             { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
@@ -251,7 +259,7 @@ export const dont_stop_me_now: Song = {
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
             { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
@@ -270,12 +278,12 @@ export const dont_stop_me_now: Song = {
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭2 maj/3', chordName: 'A♭/B♭', beat: 1, duration: 4 },
+            { degree: '♭2 maj/♭3', chordName: 'A♭/B♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 maj/3', chordName: 'A♭/B♭', beat: 1, duration: 4 },
+            { degree: '♭2 maj/♭3', chordName: 'A♭/B♭', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -284,7 +292,9 @@ export const dont_stop_me_now: Song = {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -307,7 +317,9 @@ export const dont_stop_me_now: Song = {
       label: 'Section P',
       bars: [
         { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -330,8 +342,10 @@ export const dont_stop_me_now: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '♭7 7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -339,7 +353,7 @@ export const dont_stop_me_now: Song = {
       label: 'Section R',
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -384,7 +398,9 @@ export const dont_stop_me_now: Song = {
       id: 'section_u',
       label: 'Section U',
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -407,7 +423,9 @@ export const dont_stop_me_now: Song = {
       label: 'Section V',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -430,8 +448,10 @@ export const dont_stop_me_now: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '♭7 7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -439,7 +459,7 @@ export const dont_stop_me_now: Song = {
       label: 'Section X',
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -479,7 +499,7 @@ export const dont_stop_me_now: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 maj', chordName: 'F', beat: 1, duration: 1 },
+            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 2, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 3, duration: 1 },
             { degree: '5 min7', chordName: 'Dmin7', beat: 4, duration: 1 },
@@ -500,7 +520,7 @@ export const dont_stop_me_now: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 maj', chordName: 'F', beat: 1, duration: 1 },
+            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 2, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 3, duration: 1 },
             { degree: '5 min7', chordName: 'Dmin7', beat: 4, duration: 1 },
@@ -526,7 +546,7 @@ export const dont_stop_me_now: Song = {
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
             { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
@@ -537,7 +557,7 @@ export const dont_stop_me_now: Song = {
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
             { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
@@ -556,12 +576,12 @@ export const dont_stop_me_now: Song = {
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭2 maj/3', chordName: 'A♭/B♭', beat: 1, duration: 4 },
+            { degree: '♭2 maj/♭3', chordName: 'A♭/B♭', beat: 1, duration: 4 },
           ],
           fermata: true,
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
           fermata: true,
         },
       ],

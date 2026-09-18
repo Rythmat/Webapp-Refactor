@@ -58,16 +58,24 @@ export const on_on: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [

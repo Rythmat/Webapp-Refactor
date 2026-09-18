@@ -29,14 +29,14 @@ export const love_and_happiness: Song = {
           ],
           fermata: true,
         },
-        { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -50,10 +50,12 @@ export const love_and_happiness: Song = {
       label: 'Verse',
       measuresPerRow: 6,
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '3 7/♭2', chordName: 'B7/A', beat: 1, duration: 4 },
+            { degree: '♭3 7/♭2', chordName: 'B7/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -62,7 +64,7 @@ export const love_and_happiness: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -70,7 +72,7 @@ export const love_and_happiness: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -85,27 +87,27 @@ export const love_and_happiness: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '♭5 maj', chordName: 'D', beat: 1, duration: 1 },
             { degree: '4 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '3 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭5 maj', chordName: 'D', beat: 1, duration: 1 },
             { degree: '4 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '3 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭5 maj', chordName: 'D', beat: 1, duration: 1 },
             { degree: '4 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '3 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -115,14 +117,14 @@ export const love_and_happiness: Song = {
       label: 'Chorus',
       measuresPerRow: 6,
       bars: [
-        { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -162,14 +164,14 @@ export const love_and_happiness: Song = {
       label: 'Section F',
       measuresPerRow: 6,
       bars: [
-        { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -183,10 +185,12 @@ export const love_and_happiness: Song = {
       label: 'Verse 2',
       measuresPerRow: 6,
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '3 7/♭2', chordName: 'B7/A', beat: 1, duration: 4 },
+            { degree: '♭3 7/♭2', chordName: 'B7/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -195,7 +199,7 @@ export const love_and_happiness: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -203,7 +207,7 @@ export const love_and_happiness: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -218,27 +222,27 @@ export const love_and_happiness: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '♭5 maj', chordName: 'D', beat: 1, duration: 1 },
             { degree: '4 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '3 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭5 maj', chordName: 'D', beat: 1, duration: 1 },
             { degree: '4 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '3 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭5 maj', chordName: 'D', beat: 1, duration: 1 },
             { degree: '4 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '3 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -248,14 +252,14 @@ export const love_and_happiness: Song = {
       label: 'Section E',
       measuresPerRow: 6,
       bars: [
-        { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -295,14 +299,14 @@ export const love_and_happiness: Song = {
       label: 'Section G',
       measuresPerRow: 6,
       bars: [
-        { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
         {
           chords: [

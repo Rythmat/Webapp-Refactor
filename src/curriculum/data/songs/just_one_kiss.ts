@@ -37,13 +37,17 @@ export const just_one_kiss: Song = {
       label: 'Verse',
       repeatCount: 5,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -55,7 +59,9 @@ export const just_one_kiss: Song = {
       id: 'section_c',
       label: 'Section C',
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -74,13 +80,17 @@ export const just_one_kiss: Song = {
       label: 'Chorus',
       repeatCount: 3,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -92,7 +102,9 @@ export const just_one_kiss: Song = {
       id: 'section_e',
       label: 'Section E',
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -110,13 +122,17 @@ export const just_one_kiss: Song = {
       id: 'bridge',
       label: 'Bridge',
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -128,7 +144,9 @@ export const just_one_kiss: Song = {
       id: 'section_g',
       label: 'Section G',
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -146,13 +164,17 @@ export const just_one_kiss: Song = {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },

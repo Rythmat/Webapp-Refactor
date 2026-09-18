@@ -84,10 +84,10 @@ export const saturday_in_the_park: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♯6 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],
@@ -175,10 +175,10 @@ export const saturday_in_the_park: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♯6 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],
@@ -259,45 +259,45 @@ export const saturday_in_the_park: Song = {
         {
           chords: [
             {
-              degree: '3 min7/6',
+              degree: '♭3 min7/♭6',
               chordName: 'B♭min7/E♭',
               beat: 1,
               duration: 2,
             },
-            { degree: '6 maj', chordName: 'E♭', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'E♭', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             {
-              degree: '3 min7/6',
+              degree: '♭3 min7/♭6',
               chordName: 'B♭min7/E♭',
               beat: 1,
               duration: 2,
             },
-            { degree: '6 maj', chordName: 'E♭', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'E♭', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             {
-              degree: '3 min7/6',
+              degree: '♭3 min7/♭6',
               chordName: 'B♭min7/E♭',
               beat: 1,
               duration: 2,
             },
-            { degree: '6 maj', chordName: 'E♭', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'E♭', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             {
-              degree: '3 min7/6',
+              degree: '♭3 min7/♭6',
               chordName: 'B♭min7/E♭',
               beat: 1,
               duration: 2,
             },
-            { degree: '6 maj', chordName: 'E♭', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'E♭', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -394,10 +394,10 @@ export const saturday_in_the_park: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♯6 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],

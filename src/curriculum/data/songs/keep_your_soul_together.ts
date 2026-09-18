@@ -42,7 +42,12 @@ export const keep_your_soul_together: Song = {
         },
         {
           chords: [
-            { degree: '1 min7/3', chordName: 'Cmin7/E♭', beat: 1, duration: 4 },
+            {
+              degree: '1 min7/♭3',
+              chordName: 'Cmin7/E♭',
+              beat: 1,
+              duration: 4,
+            },
           ],
         },
         {
@@ -52,7 +57,7 @@ export const keep_your_soul_together: Song = {
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'A♭', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'G7', beat: 3, duration: 2 },
           ],
         },
@@ -67,9 +72,13 @@ export const keep_your_soul_together: Song = {
             { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯6 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 7', chordName: 'A♭7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -94,8 +103,8 @@ export const keep_your_soul_together: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E♭', beat: 1, duration: 2 },
-            { degree: '1 7/♯3', chordName: 'C7/E', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 2 },
+            { degree: '1 7/3', chordName: 'C7/E', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -111,16 +120,18 @@ export const keep_your_soul_together: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
             { degree: '2 7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 7', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -146,7 +157,7 @@ export const keep_your_soul_together: Song = {
         },
         {
           chords: [
-            { degree: '♯7 7', chordName: 'B7sus', beat: 1, duration: 2 },
+            { degree: '7 7', chordName: 'B7sus', beat: 1, duration: 2 },
             { degree: '♭2 dim7', chordName: 'D♭dim7', beat: 3, duration: 2 },
           ],
         },
@@ -164,7 +175,12 @@ export const keep_your_soul_together: Song = {
         },
         {
           chords: [
-            { degree: '1 min7/3', chordName: 'Cmin7/E♭', beat: 1, duration: 4 },
+            {
+              degree: '1 min7/♭3',
+              chordName: 'Cmin7/E♭',
+              beat: 1,
+              duration: 4,
+            },
           ],
         },
         {
@@ -174,7 +190,7 @@ export const keep_your_soul_together: Song = {
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'A♭', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'G7', beat: 3, duration: 2 },
           ],
         },

@@ -34,14 +34,14 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj/3', chordName: 'A/E', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭6 maj/♭3', chordName: 'A/E', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -63,19 +63,19 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj/3', chordName: 'A/E', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭6 maj/♭3', chordName: 'A/E', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
+            { degree: '♭7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -98,19 +98,19 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj/3', chordName: 'A/E', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭6 maj/♭3', chordName: 'A/E', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 7', chordName: 'C7(♯5)', beat: 1, duration: 2 },
+            { degree: '7 7', chordName: 'C7(♯5)', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -128,19 +128,21 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '3 7/7', chordName: 'E7/B', beat: 1, duration: 4 },
+            { degree: '♭3 7/♭7', chordName: 'E7/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '3 maj/5', chordName: 'E/G♯', beat: 1, duration: 2 },
+            { degree: '♭3 maj/5', chordName: 'E/G♯', beat: 1, duration: 2 },
             { degree: '4 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'B', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -163,19 +165,19 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj/3', chordName: 'A/E', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭6 maj/♭3', chordName: 'A/E', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 7', chordName: 'C7(♯5)', beat: 1, duration: 2 },
+            { degree: '7 7', chordName: 'C7(♯5)', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -188,19 +190,19 @@ export const look_what_i_found: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
-            { degree: '♯7 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '7 7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'B', beat: 1, duration: 1 },
-            { degree: '2 maj/♯6', chordName: 'D♯/A♯', beat: 2, duration: 1 },
-            { degree: '6 maj', chordName: 'A', beat: 3, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 1, duration: 1 },
+            { degree: '2 maj/6', chordName: 'D♯/A♯', beat: 2, duration: 1 },
+            { degree: '♭6 maj', chordName: 'A', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'B', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -228,19 +230,19 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj/3', chordName: 'A/E', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭6 maj/♭3', chordName: 'A/E', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
+            { degree: '♭7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -263,19 +265,19 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj/3', chordName: 'A/E', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭6 maj/♭3', chordName: 'A/E', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
+            { degree: '7 7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -292,19 +294,21 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '3 7/7', chordName: 'E7/B', beat: 1, duration: 4 },
+            { degree: '♭3 7/♭7', chordName: 'E7/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '3 maj/5', chordName: 'E/G♯', beat: 1, duration: 2 },
+            { degree: '♭3 maj/5', chordName: 'E/G♯', beat: 1, duration: 2 },
             { degree: '4 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'B', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -327,18 +331,18 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj/3', chordName: 'A/E', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭3', chordName: 'A/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
+            { degree: '7 7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -350,25 +354,25 @@ export const look_what_i_found: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
-            { degree: '♯7 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '7 7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'B', beat: 1, duration: 1 },
-            { degree: '2 maj/♯6', chordName: 'D♯/A♯', beat: 2, duration: 1 },
-            { degree: '6 maj', chordName: 'A', beat: 3, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 1, duration: 1 },
+            { degree: '2 maj/6', chordName: 'D♯/A♯', beat: 2, duration: 1 },
+            { degree: '♭6 maj', chordName: 'A', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'B', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'B/D♯', beat: 1, duration: 4 },
+            { degree: '♭7 maj/2', chordName: 'B/D♯', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -388,8 +392,12 @@ export const look_what_i_found: Song = {
             { degree: '5 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '4 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -400,8 +408,12 @@ export const look_what_i_found: Song = {
             { degree: '5 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -421,19 +433,19 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj/3', chordName: 'A/E', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭6 maj/♭3', chordName: 'A/E', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
+            { degree: '7 7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -445,19 +457,19 @@ export const look_what_i_found: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
-            { degree: '♯7 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '7 7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'B', beat: 1, duration: 1 },
-            { degree: '2 maj/♯6', chordName: 'D♯/A♯', beat: 2, duration: 1 },
-            { degree: '6 maj', chordName: 'A', beat: 3, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 1, duration: 1 },
+            { degree: '2 maj/6', chordName: 'D♯/A♯', beat: 2, duration: 1 },
+            { degree: '♭6 maj', chordName: 'A', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'B', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -485,19 +497,19 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj/3', chordName: 'A/E', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭6 maj/♭3', chordName: 'A/E', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
+            { degree: '7 7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -509,17 +521,19 @@ export const look_what_i_found: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
-            { degree: '♯7 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '7 7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'B', beat: 1, duration: 1 },
-            { degree: '2 maj/♯6', chordName: 'D♯/A♯', beat: 2, duration: 1 },
-            { degree: '6 maj', chordName: 'A', beat: 3, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 1, duration: 1 },
+            { degree: '2 maj/6', chordName: 'D♯/A♯', beat: 2, duration: 1 },
+            { degree: '♭6 maj', chordName: 'A', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },

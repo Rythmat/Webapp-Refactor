@@ -29,13 +29,13 @@ export const way_over_yonder: Song = {
       label: 'Verse',
       bars: [
         {
-          chords: [{ degree: '7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'G♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 6 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
         },
         {
           chords: [
@@ -70,13 +70,13 @@ export const way_over_yonder: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'G♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 6 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
         },
       ],
     },
@@ -133,7 +133,7 @@ export const way_over_yonder: Song = {
       measuresPerRow: 6,
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'G♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 6 }],
         },
         {
           chords: [
@@ -146,13 +146,13 @@ export const way_over_yonder: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'G♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 6 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
         },
         {
           chords: [
@@ -172,13 +172,13 @@ export const way_over_yonder: Song = {
       measuresPerRow: 5,
       bars: [
         {
-          chords: [{ degree: '7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'G♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 6 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
         },
         {
           chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 6 }],
@@ -214,13 +214,13 @@ export const way_over_yonder: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'G♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 6 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
         },
       ],
     },
@@ -257,12 +257,12 @@ export const way_over_yonder: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 maj/4', chordName: 'D♭/A♭', beat: 1, duration: 6 },
+            { degree: '♭7 maj/4', chordName: 'D♭/A♭', beat: 1, duration: 6 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/4', chordName: 'D♭/A♭', beat: 1, duration: 6 },
+            { degree: '♭7 maj/4', chordName: 'D♭/A♭', beat: 1, duration: 6 },
           ],
         },
         {
@@ -276,11 +276,11 @@ export const way_over_yonder: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'G♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 6 }],
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'D♭/F', beat: 1, duration: 6 },
+            { degree: '♭7 maj/2', chordName: 'D♭/F', beat: 1, duration: 6 },
           ],
         },
         {
@@ -306,13 +306,13 @@ export const way_over_yonder: Song = {
       measuresPerRow: 5,
       bars: [
         {
-          chords: [{ degree: '7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'G♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 6 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
         },
         {
           chords: [
@@ -352,7 +352,7 @@ export const way_over_yonder: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 6 }],
         },
         {
           chords: [
@@ -378,12 +378,12 @@ export const way_over_yonder: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 6 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 6 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 6 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 6 },
           ],
         },
       ],
@@ -422,12 +422,12 @@ export const way_over_yonder: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 6 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 6 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 6 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 6 },
           ],
         },
       ],
@@ -470,7 +470,7 @@ export const way_over_yonder: Song = {
         {
           chords: [
             {
-              degree: '♯3 min7/♯6',
+              degree: '3 min7/6',
               chordName: 'Gmin7/C',
               beat: 1,
               duration: 6,
@@ -480,7 +480,7 @@ export const way_over_yonder: Song = {
         {
           chords: [
             {
-              degree: '♯3 min7/♯6',
+              degree: '3 min7/6',
               chordName: 'Gmin7/C',
               beat: 1,
               duration: 6,
@@ -519,7 +519,7 @@ export const way_over_yonder: Song = {
         },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'E♭/G', beat: 1, duration: 1 },
+            { degree: '1 maj/3', chordName: 'E♭/G', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Fmin7', beat: 2, duration: 1 },
             { degree: '2 min7/5', chordName: 'Fmin7/B♭', beat: 3, duration: 1 },
             { degree: '4 maj', chordName: 'A♭', beat: 4, duration: 3 },
@@ -527,7 +527,7 @@ export const way_over_yonder: Song = {
         },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'E♭/G', beat: 1, duration: 6 },
+            { degree: '1 maj/3', chordName: 'E♭/G', beat: 1, duration: 6 },
           ],
         },
         {

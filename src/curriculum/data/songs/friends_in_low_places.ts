@@ -25,7 +25,7 @@ export const friends_in_low_places: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -44,7 +44,7 @@ export const friends_in_low_places: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -71,7 +71,7 @@ export const friends_in_low_places: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -169,7 +169,7 @@ export const friends_in_low_places: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -196,7 +196,7 @@ export const friends_in_low_places: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
           ],
         },
         {

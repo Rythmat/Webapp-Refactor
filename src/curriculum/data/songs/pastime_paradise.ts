@@ -28,12 +28,12 @@ export const pastime_paradise: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'G/B', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'G/B', beat: 1, duration: 4 },
           ],
         },
         {
@@ -46,12 +46,12 @@ export const pastime_paradise: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'G/B', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'G/B', beat: 1, duration: 4 },
           ],
         },
         {
@@ -71,7 +71,7 @@ export const pastime_paradise: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },
@@ -85,7 +85,7 @@ export const pastime_paradise: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },
@@ -106,7 +106,7 @@ export const pastime_paradise: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },
@@ -120,7 +120,7 @@ export const pastime_paradise: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },
@@ -141,7 +141,7 @@ export const pastime_paradise: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },
@@ -155,7 +155,7 @@ export const pastime_paradise: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },
@@ -203,7 +203,7 @@ export const pastime_paradise: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -217,7 +217,7 @@ export const pastime_paradise: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -233,7 +233,7 @@ export const pastime_paradise: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },
@@ -244,7 +244,7 @@ export const pastime_paradise: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },

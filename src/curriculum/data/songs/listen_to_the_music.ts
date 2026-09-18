@@ -61,7 +61,7 @@ export const listen_to_the_music: Song = {
         },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'B/D♯', beat: 1, duration: 2 },
+            { degree: '2 maj/♯4', chordName: 'B/D♯', beat: 1, duration: 2 },
             { degree: '3 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -104,7 +104,7 @@ export const listen_to_the_music: Song = {
         },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'B/D♯', beat: 1, duration: 2 },
+            { degree: '2 maj/♯4', chordName: 'B/D♯', beat: 1, duration: 2 },
             { degree: '3 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },

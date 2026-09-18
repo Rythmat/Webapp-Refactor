@@ -588,7 +588,7 @@ export const burn_this_disco_out: Song = {
         },
         {
           chords: [
-            { degree: '♭3 maj', chordName: 'B', beat: 1, duration: 1 },
+            { degree: '♯2 maj', chordName: 'B', beat: 1, duration: 1 },
             { degree: '♭7 maj/2', chordName: 'G♭/B♭', beat: 2, duration: 1 },
             { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
           ],

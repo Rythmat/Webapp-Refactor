@@ -23,8 +23,12 @@ export const suit_tie: Song = {
       label: 'Section A',
       measuresPerRow: 2,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -59,22 +63,22 @@ export const suit_tie: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 maj/1', chordName: 'D/E', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/1', chordName: 'D/E', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/1', chordName: 'D/E', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/1', chordName: 'D/E', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -111,17 +115,19 @@ export const suit_tie: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 maj/1', chordName: 'D/E', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/1', chordName: 'D/E', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
           fermata: true,
         },
       ],
@@ -166,8 +172,12 @@ export const suit_tie: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -210,8 +220,12 @@ export const suit_tie: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -228,8 +242,12 @@ export const suit_tie: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -246,8 +264,12 @@ export const suit_tie: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -264,8 +286,12 @@ export const suit_tie: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -282,8 +308,12 @@ export const suit_tie: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -316,10 +346,18 @@ export const suit_tie: Song = {
       id: 'section_o',
       label: 'Section O',
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -352,10 +390,18 @@ export const suit_tie: Song = {
       id: 'section_q',
       label: 'Section Q',
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -372,8 +418,12 @@ export const suit_tie: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -390,8 +440,12 @@ export const suit_tie: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -434,8 +488,12 @@ export const suit_tie: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -478,8 +536,12 @@ export const suit_tie: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
   ],

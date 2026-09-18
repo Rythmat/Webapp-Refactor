@@ -149,10 +149,18 @@ export const aint_nobody: Song = {
       id: 'section_f',
       label: 'Section F',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -185,10 +193,18 @@ export const aint_nobody: Song = {
       id: 'section_h',
       label: 'Section H',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -205,11 +221,13 @@ export const aint_nobody: Song = {
             { degree: '5 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '6 maj/7', chordName: 'B/D♭', beat: 1, duration: 2 },
-            { degree: '6 maj/♯7', chordName: 'B/D', beat: 3, duration: 2 },
+            { degree: '♯5 maj/♭7', chordName: 'B/D♭', beat: 1, duration: 2 },
+            { degree: '♯5 maj/7', chordName: 'B/D', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -400,10 +418,18 @@ export const aint_nobody: Song = {
       id: 'section_q',
       label: 'Section Q',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -436,10 +462,18 @@ export const aint_nobody: Song = {
       id: 'section_s',
       label: 'Section S',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -456,11 +490,13 @@ export const aint_nobody: Song = {
             { degree: '5 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '6 maj/7', chordName: 'B/D♭', beat: 1, duration: 2 },
-            { degree: '6 maj/♯7', chordName: 'B/D', beat: 3, duration: 2 },
+            { degree: '♯5 maj/♭7', chordName: 'B/D♭', beat: 1, duration: 2 },
+            { degree: '♯5 maj/7', chordName: 'B/D', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -562,7 +598,9 @@ export const aint_nobody: Song = {
             { degree: '4 min7', chordName: 'A♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'D♭7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {

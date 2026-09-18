@@ -33,8 +33,8 @@ export const love_never_felt_so_good: Song = {
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'E♭', beat: 1, duration: 2 },
-            { degree: '6 maj/7', chordName: 'E♭/F', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 2 },
+            { degree: '♭6 maj/♭7', chordName: 'E♭/F', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -50,10 +50,12 @@ export const love_never_felt_so_good: Song = {
         },
         {
           chords: [
-            { degree: '3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
+            { degree: '♭3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Amin7b5', beat: 1, duration: 4 },
@@ -78,7 +80,7 @@ export const love_never_felt_so_good: Song = {
         },
         {
           chords: [
-            { degree: '3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
+            { degree: '♭3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -94,10 +96,12 @@ export const love_never_felt_so_good: Song = {
         },
         {
           chords: [
-            { degree: '3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
+            { degree: '♭3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Amin7b5', beat: 1, duration: 4 },
@@ -122,7 +126,7 @@ export const love_never_felt_so_good: Song = {
         },
         {
           chords: [
-            { degree: '3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
+            { degree: '♭3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -143,14 +147,14 @@ export const love_never_felt_so_good: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
+            { degree: '♭3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -165,7 +169,9 @@ export const love_never_felt_so_good: Song = {
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
       ],
     },
@@ -179,7 +185,9 @@ export const love_never_felt_so_good: Song = {
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
       ],
     },
@@ -194,18 +202,20 @@ export const love_never_felt_so_good: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '7 maj/2', chordName: 'F/A', beat: 2, duration: 1 },
-            { degree: '3 maj/4', chordName: 'B♭/C', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭7 maj/2', chordName: 'F/A', beat: 2, duration: 1 },
+            { degree: '♭3 maj/4', chordName: 'B♭/C', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 1 },
             { degree: '5 min7', chordName: 'Dmin7', beat: 2, duration: 1 },
-            { degree: '6 maj', chordName: 'E♭', beat: 3, duration: 1 },
-            { degree: '6 maj/7', chordName: 'E♭/F', beat: 4, duration: 1 },
+            { degree: '♭6 maj', chordName: 'E♭', beat: 3, duration: 1 },
+            { degree: '♭6 maj/♭7', chordName: 'E♭/F', beat: 4, duration: 1 },
           ],
         },
       ],
@@ -220,7 +230,9 @@ export const love_never_felt_so_good: Song = {
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Amin7b5', beat: 1, duration: 4 },
@@ -245,7 +257,7 @@ export const love_never_felt_so_good: Song = {
         },
         {
           chords: [
-            { degree: '3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
+            { degree: '♭3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -260,7 +272,9 @@ export const love_never_felt_so_good: Song = {
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Amin7b5', beat: 1, duration: 4 },
@@ -285,7 +299,7 @@ export const love_never_felt_so_good: Song = {
         },
         {
           chords: [
-            { degree: '3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
+            { degree: '♭3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -306,14 +320,14 @@ export const love_never_felt_so_good: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
+            { degree: '♭3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -328,7 +342,9 @@ export const love_never_felt_so_good: Song = {
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
       ],
     },
@@ -345,22 +361,22 @@ export const love_never_felt_so_good: Song = {
         { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 1 },
-            { degree: '7 min7', chordName: 'Fmin7', beat: 2, duration: 1 },
-            { degree: '♯7 maj', chordName: 'G♭', beat: 3, duration: 2 },
+            { degree: '♭3 min7', chordName: 'B♭min7', beat: 1, duration: 1 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 2, duration: 1 },
+            { degree: '7 maj', chordName: 'G♭', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 maj/♭2', chordName: 'G♭/A♭', beat: 1, duration: 1 },
+            { degree: '7 maj/♭2', chordName: 'G♭/A♭', beat: 1, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 2, duration: 1 },
             { degree: '5 min7', chordName: 'Dmin7', beat: 3, duration: 1 },
-            { degree: '6 maj', chordName: 'E♭', beat: 4, duration: 1 },
+            { degree: '♭6 maj', chordName: 'E♭', beat: 4, duration: 1 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj/7', chordName: 'E♭/F', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'E♭/F', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -376,7 +392,9 @@ export const love_never_felt_so_good: Song = {
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -385,9 +403,9 @@ export const love_never_felt_so_good: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '7 maj/2', chordName: 'F/A', beat: 2, duration: 1 },
-            { degree: '3 maj/4', chordName: 'B♭/C', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭7 maj/2', chordName: 'F/A', beat: 2, duration: 1 },
+            { degree: '♭3 maj/4', chordName: 'B♭/C', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -397,20 +415,24 @@ export const love_never_felt_so_good: Song = {
       label: 'Section J',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
+            { degree: '♭3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭3 maj/4', chordName: 'B♭/C', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
           fermata: true,
         },
       ],

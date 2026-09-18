@@ -86,15 +86,10 @@ export const yellow_moon: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -102,10 +97,15 @@ export const yellow_moon: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -156,15 +156,10 @@ export const yellow_moon: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -172,10 +167,15 @@ export const yellow_moon: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [

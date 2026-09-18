@@ -25,12 +25,12 @@ export const aint_no_mountain_high_enough: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯3 min7/2', chordName: 'Bmin7/A', beat: 1, duration: 4 },
+            { degree: '3 min7/2', chordName: 'Bmin7/A', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 min7/2', chordName: 'Bmin7/A', beat: 1, duration: 4 },
+            { degree: '3 min7/2', chordName: 'Bmin7/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -46,15 +46,15 @@ export const aint_no_mountain_high_enough: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '♯7 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
+            { degree: '7 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Emin7', beat: 1, duration: 1 },
-            { degree: '5 maj/♯7', chordName: 'D/F♯', beat: 2, duration: 1 },
+            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 1 },
+            { degree: '5 maj/7', chordName: 'D/F♯', beat: 2, duration: 1 },
             { degree: '1 maj', chordName: 'G', beat: 3, duration: 1 },
-            { degree: '♯6 maj/♭2', chordName: 'E/G♯', beat: 4, duration: 1 },
+            { degree: '6 maj/♯1', chordName: 'E/G♯', beat: 4, duration: 1 },
           ],
         },
       ],
@@ -67,33 +67,33 @@ export const aint_no_mountain_high_enough: Song = {
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -106,32 +106,28 @@ export const aint_no_mountain_high_enough: Song = {
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [
-            { degree: '♯6 7', chordName: 'E7sus', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '6 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '6 7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♯6 7', chordName: 'E7sus', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 maj/♯7', chordName: 'D/F♯', beat: 1, duration: 4 },
+            { degree: '5 maj/7', chordName: 'D/F♯', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -144,12 +140,12 @@ export const aint_no_mountain_high_enough: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯3 min7/2', chordName: 'Bmin7/A', beat: 1, duration: 4 },
+            { degree: '3 min7/2', chordName: 'Bmin7/A', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 min7/2', chordName: 'Bmin7/A', beat: 1, duration: 4 },
+            { degree: '3 min7/2', chordName: 'Bmin7/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -165,15 +161,15 @@ export const aint_no_mountain_high_enough: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '♯7 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
+            { degree: '7 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Emin7', beat: 1, duration: 1 },
-            { degree: '5 maj/♯7', chordName: 'D/F♯', beat: 2, duration: 1 },
+            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 1 },
+            { degree: '5 maj/7', chordName: 'D/F♯', beat: 2, duration: 1 },
             { degree: '1 maj', chordName: 'G', beat: 3, duration: 1 },
-            { degree: '♯6 maj/♭2', chordName: 'E/G♯', beat: 4, duration: 1 },
+            { degree: '6 maj/♯1', chordName: 'E/G♯', beat: 4, duration: 1 },
           ],
         },
       ],
@@ -186,33 +182,33 @@ export const aint_no_mountain_high_enough: Song = {
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -225,32 +221,28 @@ export const aint_no_mountain_high_enough: Song = {
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [
-            { degree: '♯6 7', chordName: 'E7sus', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '6 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '6 7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♯6 7', chordName: 'E7sus', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 maj/♯7', chordName: 'D/F♯', beat: 1, duration: 4 },
+            { degree: '5 maj/7', chordName: 'D/F♯', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -281,23 +273,19 @@ export const aint_no_mountain_high_enough: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯7 7', chordName: 'F♯7sus', beat: 1, duration: 4 },
+            { degree: '7 7', chordName: 'F♯7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 7', chordName: 'F♯7sus', beat: 1, duration: 4 },
+            { degree: '7 7', chordName: 'F♯7sus', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [
-            { degree: '♯3 7', chordName: 'B7sus', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '3 7', chordName: 'B7sus', beat: 1, duration: 4 }],
         },
         {
-          chords: [
-            { degree: '♯3 7', chordName: 'B7sus', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '3 7', chordName: 'B7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -320,32 +308,52 @@ export const aint_no_mountain_high_enough: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯3 min7/2', chordName: 'Bmin7/A', beat: 1, duration: 4 },
+            { degree: '3 min7/2', chordName: 'Bmin7/A', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 min7/2', chordName: 'Bmin7/A', beat: 1, duration: 4 },
+            { degree: '3 min7/2', chordName: 'Bmin7/A', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 min7/3', chordName: 'Cmin7/B♭', beat: 1, duration: 4 },
+            {
+              degree: '4 min7/♭3',
+              chordName: 'Cmin7/B♭',
+              beat: 1,
+              duration: 4,
+            },
           ],
         },
         {
           chords: [
-            { degree: '4 min7/3', chordName: 'Cmin7/B♭', beat: 1, duration: 4 },
+            {
+              degree: '4 min7/♭3',
+              chordName: 'Cmin7/B♭',
+              beat: 1,
+              duration: 4,
+            },
           ],
         },
         {
           chords: [
-            { degree: '4 min7/3', chordName: 'Cmin7/B♭', beat: 1, duration: 4 },
+            {
+              degree: '4 min7/♭3',
+              chordName: 'Cmin7/B♭',
+              beat: 1,
+              duration: 4,
+            },
           ],
         },
         {
           chords: [
-            { degree: '4 min7/3', chordName: 'Cmin7/B♭', beat: 1, duration: 4 },
+            {
+              degree: '4 min7/♭3',
+              chordName: 'Cmin7/B♭',
+              beat: 1,
+              duration: 4,
+            },
           ],
         },
       ],
@@ -357,12 +365,22 @@ export const aint_no_mountain_high_enough: Song = {
       bars: [
         {
           chords: [
-            { degree: '4 min7/3', chordName: 'Cmin7/B♭', beat: 1, duration: 4 },
+            {
+              degree: '4 min7/♭3',
+              chordName: 'Cmin7/B♭',
+              beat: 1,
+              duration: 4,
+            },
           ],
         },
         {
           chords: [
-            { degree: '4 min7/3', chordName: 'Cmin7/B♭', beat: 1, duration: 4 },
+            {
+              degree: '4 min7/♭3',
+              chordName: 'Cmin7/B♭',
+              beat: 1,
+              duration: 4,
+            },
           ],
         },
         {
@@ -383,10 +401,10 @@ export const aint_no_mountain_high_enough: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 1 },
-            { degree: '6 maj/1', chordName: 'E♭/G', beat: 2, duration: 1 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 1 },
+            { degree: '♭6 maj/1', chordName: 'E♭/G', beat: 2, duration: 1 },
             { degree: '♭2 maj', chordName: 'A♭', beat: 3, duration: 1 },
-            { degree: '7 7/2', chordName: 'F7/A', beat: 4, duration: 1 },
+            { degree: '♭7 7/2', chordName: 'F7/A', beat: 4, duration: 1 },
           ],
         },
       ],
@@ -401,7 +419,7 @@ export const aint_no_mountain_high_enough: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -419,7 +437,7 @@ export const aint_no_mountain_high_enough: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -444,7 +462,7 @@ export const aint_no_mountain_high_enough: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -458,14 +476,18 @@ export const aint_no_mountain_high_enough: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'F7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '7 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'F7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
-            { degree: '6 maj/1', chordName: 'E♭/G', beat: 1, duration: 4 },
+            { degree: '♭7 7', chordName: 'F7sus', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/1', chordName: 'E♭/G', beat: 1, duration: 4 },
           ],
         },
         {
@@ -483,7 +505,7 @@ export const aint_no_mountain_high_enough: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -501,7 +523,7 @@ export const aint_no_mountain_high_enough: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {

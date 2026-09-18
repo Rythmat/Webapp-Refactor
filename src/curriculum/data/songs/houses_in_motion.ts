@@ -30,7 +30,7 @@ export const houses_in_motion: Song = {
         },
         {
           chords: [
-            { degree: '1 min7/7', chordName: 'Emin7/D', beat: 1, duration: 4 },
+            { degree: '1 min7/♭7', chordName: 'Emin7/D', beat: 1, duration: 4 },
           ],
         },
         {
@@ -40,7 +40,7 @@ export const houses_in_motion: Song = {
         },
         {
           chords: [
-            { degree: '1 min7/7', chordName: 'Emin7/D', beat: 1, duration: 4 },
+            { degree: '1 min7/♭7', chordName: 'Emin7/D', beat: 1, duration: 4 },
           ],
         },
         {
@@ -50,7 +50,7 @@ export const houses_in_motion: Song = {
         },
         {
           chords: [
-            { degree: '1 min7/7', chordName: 'Emin7/D', beat: 1, duration: 4 },
+            { degree: '1 min7/♭7', chordName: 'Emin7/D', beat: 1, duration: 4 },
           ],
         },
         {
@@ -60,7 +60,7 @@ export const houses_in_motion: Song = {
         },
         {
           chords: [
-            { degree: '1 min7/7', chordName: 'Emin7/D', beat: 1, duration: 4 },
+            { degree: '1 min7/♭7', chordName: 'Emin7/D', beat: 1, duration: 4 },
           ],
         },
       ],

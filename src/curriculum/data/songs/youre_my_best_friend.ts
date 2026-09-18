@@ -147,7 +147,7 @@ export const youre_my_best_friend: Song = {
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj/♭6', chordName: 'E/G♯', beat: 1, duration: 4 },
+            { degree: '3 maj/♯5', chordName: 'E/G♯', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -202,7 +202,7 @@ export const youre_my_best_friend: Song = {
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj/♭6', chordName: 'E/G♯', beat: 1, duration: 4 },
+            { degree: '3 maj/♯5', chordName: 'E/G♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -380,7 +380,7 @@ export const youre_my_best_friend: Song = {
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj/♭6', chordName: 'E/G♯', beat: 1, duration: 4 },
+            { degree: '3 maj/♯5', chordName: 'E/G♯', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -438,7 +438,7 @@ export const youre_my_best_friend: Song = {
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj/♭6', chordName: 'E/G♯', beat: 1, duration: 4 },
+            { degree: '3 maj/♯5', chordName: 'E/G♯', beat: 1, duration: 4 },
           ],
         },
         {

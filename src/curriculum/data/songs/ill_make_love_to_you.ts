@@ -199,7 +199,7 @@ export const ill_make_love_to_you: Song = {
         },
         {
           chords: [
-            { degree: '6 7/♭2', chordName: 'B7/D♯', beat: 1, duration: 4 },
+            { degree: '6 7/♯1', chordName: 'B7/D♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -215,7 +215,7 @@ export const ill_make_love_to_you: Song = {
         },
         {
           chords: [
-            { degree: '6 7/♭2', chordName: 'B7/D♯', beat: 1, duration: 4 },
+            { degree: '6 7/♯1', chordName: 'B7/D♯', beat: 1, duration: 4 },
           ],
         },
         {

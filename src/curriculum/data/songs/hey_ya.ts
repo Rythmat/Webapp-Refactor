@@ -23,10 +23,18 @@ export const hey_ya: Song = {
       label: 'Verse',
       measuresPerRow: 6,
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },

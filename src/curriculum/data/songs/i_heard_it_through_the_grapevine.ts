@@ -82,7 +82,7 @@ export const i_heard_it_through_the_grapevine: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -91,7 +91,7 @@ export const i_heard_it_through_the_grapevine: Song = {
         {
           chords: [
             {
-              degree: '♯6 min7/1',
+              degree: '6 min7/1',
               chordName: 'Cmin7/E♭',
               beat: 1,
               duration: 4,
@@ -237,7 +237,7 @@ export const i_heard_it_through_the_grapevine: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -246,7 +246,7 @@ export const i_heard_it_through_the_grapevine: Song = {
         {
           chords: [
             {
-              degree: '♯6 min7/1',
+              degree: '6 min7/1',
               chordName: 'Cmin7/E♭',
               beat: 1,
               duration: 4,

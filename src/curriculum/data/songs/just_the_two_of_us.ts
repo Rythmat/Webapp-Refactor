@@ -124,7 +124,7 @@ export const just_the_two_of_us: Song = {
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 1 },
-            { degree: '♭3 min7', chordName: 'Emin7', beat: 2, duration: 1 },
+            { degree: '♯2 min7', chordName: 'Emin7', beat: 2, duration: 1 },
             { degree: '2 min7', chordName: 'E♭min7', beat: 3, duration: 1 },
             { degree: '5 7', chordName: 'A♭7', beat: 4, duration: 1 },
           ],
@@ -152,7 +152,7 @@ export const just_the_two_of_us: Song = {
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 1 },
-            { degree: '♭3 min7', chordName: 'Emin7', beat: 2, duration: 1 },
+            { degree: '♯2 min7', chordName: 'Emin7', beat: 2, duration: 1 },
             { degree: '2 min7', chordName: 'E♭min7', beat: 3, duration: 1 },
             { degree: '5 7', chordName: 'A♭7', beat: 4, duration: 1 },
           ],
@@ -178,11 +178,11 @@ export const just_the_two_of_us: Song = {
         },
         { chords: [{ degree: '7 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯6 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '6 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯5 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
@@ -201,11 +201,11 @@ export const just_the_two_of_us: Song = {
         },
         { chords: [{ degree: '7 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯6 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '6 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯5 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
@@ -319,7 +319,7 @@ export const just_the_two_of_us: Song = {
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 1 },
-            { degree: '♭3 min7', chordName: 'Emin7', beat: 2, duration: 1 },
+            { degree: '♯2 min7', chordName: 'Emin7', beat: 2, duration: 1 },
             { degree: '2 min7', chordName: 'E♭min7', beat: 3, duration: 1 },
             { degree: '5 7', chordName: 'A♭7', beat: 4, duration: 1 },
           ],
@@ -347,7 +347,7 @@ export const just_the_two_of_us: Song = {
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 1 },
-            { degree: '♭3 min7', chordName: 'Emin7', beat: 2, duration: 1 },
+            { degree: '♯2 min7', chordName: 'Emin7', beat: 2, duration: 1 },
             { degree: '2 min7', chordName: 'E♭min7', beat: 3, duration: 1 },
             { degree: '5 7', chordName: 'A♭7', beat: 4, duration: 1 },
           ],

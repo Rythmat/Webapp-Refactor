@@ -116,7 +116,7 @@ export const boogie_on_reggae_woman: Song = {
         {
           chords: [
             { degree: '1 7', chordName: 'A♭7', beat: 1, duration: 2 },
-            { degree: '♭2 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '♯1 7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -150,7 +150,7 @@ export const boogie_on_reggae_woman: Song = {
         {
           chords: [
             { degree: '1 7', chordName: 'A♭7', beat: 1, duration: 2 },
-            { degree: '♭2 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '♯1 7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
       ],

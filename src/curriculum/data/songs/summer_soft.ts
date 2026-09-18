@@ -31,9 +31,11 @@ export const summer_soft: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♯7 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '7 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯6 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '♯2 7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -61,13 +63,13 @@ export const summer_soft: Song = {
         },
         {
           chords: [
-            { degree: '♯7 7/♭5', chordName: 'F7/C', beat: 1, duration: 4 },
+            { degree: '7 7/♯4', chordName: 'F7/C', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -78,7 +80,7 @@ export const summer_soft: Song = {
       bars: [
         {
           chords: [
-            { degree: '4 maj/3', chordName: 'B/A', beat: 1, duration: 4 },
+            { degree: '4 maj/♯2', chordName: 'B/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -90,15 +92,15 @@ export const summer_soft: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'G♭', beat: 1, duration: 1 },
-            { degree: '7 maj', chordName: 'E', beat: 2, duration: 1 },
-            { degree: '♯6 min7', chordName: 'E♭min7', beat: 3, duration: 2 },
+            { degree: '♯6 maj', chordName: 'E', beat: 2, duration: 1 },
+            { degree: '6 min7', chordName: 'E♭min7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'D7', beat: 1, duration: 1 },
+            { degree: '♯5 7', chordName: 'D7', beat: 1, duration: 1 },
             { degree: '5 7', chordName: 'D♭7', beat: 2, duration: 1 },
-            { degree: '♭5 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♯4 7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -112,13 +114,13 @@ export const summer_soft: Song = {
             { degree: '4 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '4 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯6 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -135,8 +137,8 @@ export const summer_soft: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'G♭', beat: 1, duration: 1 },
-            { degree: '7 maj', chordName: 'E', beat: 2, duration: 1 },
-            { degree: '♯6 min7', chordName: 'E♭min7', beat: 3, duration: 2 },
+            { degree: '♯6 maj', chordName: 'E', beat: 2, duration: 1 },
+            { degree: '6 min7', chordName: 'E♭min7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -154,9 +156,11 @@ export const summer_soft: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♯7 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '7 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯6 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '♯2 7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -184,13 +188,13 @@ export const summer_soft: Song = {
         },
         {
           chords: [
-            { degree: '♯7 7/♭5', chordName: 'F7/C', beat: 1, duration: 4 },
+            { degree: '7 7/♯4', chordName: 'F7/C', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -201,7 +205,7 @@ export const summer_soft: Song = {
       bars: [
         {
           chords: [
-            { degree: '4 maj/3', chordName: 'B/A', beat: 1, duration: 4 },
+            { degree: '4 maj/♯2', chordName: 'B/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -213,13 +217,13 @@ export const summer_soft: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'G♭', beat: 1, duration: 1 },
-            { degree: '7 maj', chordName: 'E', beat: 2, duration: 1 },
-            { degree: '♯6 min7', chordName: 'E♭min7', beat: 3, duration: 2 },
+            { degree: '♯6 maj', chordName: 'E', beat: 2, duration: 1 },
+            { degree: '6 min7', chordName: 'E♭min7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'D7', beat: 1, duration: 2 },
+            { degree: '♯5 7', chordName: 'D7', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'D♭7', beat: 3, duration: 2 },
           ],
         },
@@ -231,16 +235,16 @@ export const summer_soft: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭5 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '♯4 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♯7 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '7 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭5 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '♯4 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♯7 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '7 7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -248,20 +252,22 @@ export const summer_soft: Song = {
       label: 'Section M',
       bars: [
         {
-          chords: [{ degree: '♭2 maj', chordName: 'G', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯1 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '♭2 maj', chordName: 'G', beat: 1, duration: 1 },
-            { degree: '♯7 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '7 min7', chordName: 'Emin7', beat: 3, duration: 2 },
+            { degree: '♯1 maj', chordName: 'G', beat: 1, duration: 1 },
+            { degree: '7 maj', chordName: 'F', beat: 2, duration: 1 },
+            { degree: '♯6 min7', chordName: 'Emin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 7', chordName: 'E♭7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'D7', beat: 3, duration: 2 },
+            { degree: '6 7', chordName: 'E♭7', beat: 1, duration: 2 },
+            { degree: '♯5 7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -292,19 +298,19 @@ export const summer_soft: Song = {
           chords: [{ degree: '2 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♯6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '2 maj', chordName: 'A♭', beat: 1, duration: 1 },
             { degree: '1 maj', chordName: 'G♭', beat: 2, duration: 1 },
-            { degree: '♯7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
+            { degree: '7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 7', chordName: 'E7', beat: 1, duration: 2 },
-            { degree: '♯6 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '♯6 7', chordName: 'E7', beat: 1, duration: 2 },
+            { degree: '6 7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -315,35 +321,39 @@ export const summer_soft: Song = {
       bars: [
         {
           chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '♯5 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭2 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯1 7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '♯5 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭2 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯1 7', chordName: 'G7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_q',
       label: 'Section Q',
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯2 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯6 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '3 maj', chordName: 'A', beat: 1, duration: 1 },
-            { degree: '♭2 maj', chordName: 'G', beat: 2, duration: 1 },
+            { degree: '♯2 maj', chordName: 'A', beat: 1, duration: 1 },
+            { degree: '♯1 maj', chordName: 'G', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 7', chordName: 'F7', beat: 1, duration: 2 },
-            { degree: '7 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '7 7', chordName: 'F7', beat: 1, duration: 2 },
+            { degree: '♯6 7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -354,13 +364,13 @@ export const summer_soft: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '2 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '2 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
@@ -371,22 +381,22 @@ export const summer_soft: Song = {
       label: 'Section S',
       bars: [
         {
-          chords: [{ degree: '♯3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♯7 maj', chordName: 'F', beat: 1, duration: 4 }],
+          chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♯3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 maj', chordName: 'A♭', beat: 2, duration: 1 },
-            { degree: '♭2 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
+            { degree: '♯1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 7', chordName: 'F♯7', beat: 1, duration: 2 },
-            { degree: '♯7 7', chordName: 'F7', beat: 3, duration: 2 },
+            { degree: '7 7', chordName: 'F7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -397,16 +407,16 @@ export const summer_soft: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '♯6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯2 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '♯6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯2 7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -420,15 +430,15 @@ export const summer_soft: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'B', beat: 1, duration: 1 },
-            { degree: '3 maj', chordName: 'A', beat: 2, duration: 1 },
+            { degree: '♯2 maj', chordName: 'A', beat: 2, duration: 1 },
             { degree: '2 min7', chordName: 'G♯min7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 7', chordName: 'G7', beat: 1, duration: 1 },
+            { degree: '♯1 7', chordName: 'G7', beat: 1, duration: 1 },
             { degree: '1 7', chordName: 'F♯7', beat: 2, duration: 1 },
-            { degree: '♯7 7', chordName: 'F7', beat: 3, duration: 2 },
+            { degree: '7 7', chordName: 'F7', beat: 3, duration: 2 },
           ],
         },
       ],

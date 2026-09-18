@@ -317,8 +317,12 @@ export const moondance: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'Emin7', beat: 1, duration: 4 },

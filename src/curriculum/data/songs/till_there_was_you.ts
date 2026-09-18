@@ -26,7 +26,7 @@ export const till_there_was_you: Song = {
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -38,7 +38,7 @@ export const till_there_was_you: Song = {
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -58,12 +58,12 @@ export const till_there_was_you: Song = {
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -97,7 +97,7 @@ export const till_there_was_you: Song = {
         {
           chords: [
             { degree: '1 maj/3', chordName: 'F/A', beat: 1, duration: 1 },
-            { degree: '♭3 dim7', chordName: 'G♯dim7', beat: 2, duration: 1 },
+            { degree: '♯2 dim7', chordName: 'G♯dim7', beat: 2, duration: 1 },
             { degree: '2 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
@@ -125,12 +125,12 @@ export const till_there_was_you: Song = {
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -164,7 +164,7 @@ export const till_there_was_you: Song = {
         {
           chords: [
             { degree: '1 maj/3', chordName: 'F/A', beat: 1, duration: 1 },
-            { degree: '♭3 dim7', chordName: 'G♯dim7', beat: 2, duration: 1 },
+            { degree: '♯2 dim7', chordName: 'G♯dim7', beat: 2, duration: 1 },
             { degree: '2 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
@@ -241,12 +241,12 @@ export const till_there_was_you: Song = {
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -280,7 +280,7 @@ export const till_there_was_you: Song = {
         {
           chords: [
             { degree: '1 maj/3', chordName: 'F/A', beat: 1, duration: 1 },
-            { degree: '♭3 dim7', chordName: 'G♯dim7', beat: 2, duration: 1 },
+            { degree: '♯2 dim7', chordName: 'G♯dim7', beat: 2, duration: 1 },
             { degree: '2 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
@@ -304,12 +304,12 @@ export const till_there_was_you: Song = {
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -343,7 +343,7 @@ export const till_there_was_you: Song = {
         {
           chords: [
             { degree: '1 maj/3', chordName: 'F/A', beat: 1, duration: 1 },
-            { degree: '♭3 dim7', chordName: 'G♯dim7', beat: 2, duration: 1 },
+            { degree: '♯2 dim7', chordName: 'G♯dim7', beat: 2, duration: 1 },
             { degree: '2 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
@@ -420,12 +420,12 @@ export const till_there_was_you: Song = {
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -458,7 +458,7 @@ export const till_there_was_you: Song = {
         {
           chords: [
             { degree: '1 maj/3', chordName: 'F/A', beat: 1, duration: 1 },
-            { degree: '♭3 dim7', chordName: 'G♯dim7', beat: 2, duration: 1 },
+            { degree: '♯2 dim7', chordName: 'G♯dim7', beat: 2, duration: 1 },
             { degree: '2 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
@@ -474,14 +474,14 @@ export const till_there_was_you: Song = {
         {
           chords: [
             { degree: '5 7', chordName: 'C7', beat: 1, duration: 1 },
-            { degree: '♭5 7', chordName: 'B7', beat: 2, duration: 1 },
+            { degree: '♯4 7', chordName: 'B7', beat: 2, duration: 1 },
             { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '5 7', chordName: 'C7', beat: 1, duration: 1 },
-            { degree: '♭5 7', chordName: 'B7', beat: 2, duration: 1 },
+            { degree: '♯4 7', chordName: 'B7', beat: 2, duration: 1 },
             { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },

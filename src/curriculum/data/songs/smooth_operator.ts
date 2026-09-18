@@ -32,7 +32,7 @@ export const smooth_operator: Song = {
         {
           chords: [
             {
-              degree: '4 min7/♯3',
+              degree: '4 min7/3',
               chordName: 'Dmin7/C♯',
               beat: 1,
               duration: 4,
@@ -41,12 +41,12 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '4 min7/3', chordName: 'Dmin7/C', beat: 1, duration: 4 },
+            { degree: '4 min7/♭3', chordName: 'Dmin7/C', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'G/B', beat: 1, duration: 4 },
+            { degree: '♭7 maj/2', chordName: 'G/B', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -68,7 +68,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -88,7 +88,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -105,7 +105,7 @@ export const smooth_operator: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -121,7 +121,7 @@ export const smooth_operator: Song = {
         {
           chords: [
             {
-              degree: '4 min7/♯3',
+              degree: '4 min7/3',
               chordName: 'Dmin7/C♯',
               beat: 1,
               duration: 4,
@@ -130,7 +130,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '4 min7/3', chordName: 'Dmin7/C', beat: 1, duration: 4 },
+            { degree: '4 min7/♭3', chordName: 'Dmin7/C', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -141,7 +141,7 @@ export const smooth_operator: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -167,7 +167,7 @@ export const smooth_operator: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -204,7 +204,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -224,7 +224,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -251,7 +251,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -271,7 +271,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -298,7 +298,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -318,7 +318,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -344,7 +344,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -370,7 +370,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -397,7 +397,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -417,7 +417,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -444,7 +444,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -464,7 +464,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -481,7 +481,7 @@ export const smooth_operator: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -497,7 +497,7 @@ export const smooth_operator: Song = {
         {
           chords: [
             {
-              degree: '4 min7/♯3',
+              degree: '4 min7/3',
               chordName: 'Dmin7/C♯',
               beat: 1,
               duration: 4,
@@ -506,7 +506,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '4 min7/3', chordName: 'Dmin7/C', beat: 1, duration: 4 },
+            { degree: '4 min7/♭3', chordName: 'Dmin7/C', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -517,7 +517,7 @@ export const smooth_operator: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -543,7 +543,7 @@ export const smooth_operator: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -580,7 +580,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -600,7 +600,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -627,7 +627,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -647,7 +647,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -674,7 +674,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -694,7 +694,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {

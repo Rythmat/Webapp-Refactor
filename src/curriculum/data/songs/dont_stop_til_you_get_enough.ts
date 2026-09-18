@@ -25,13 +25,13 @@ export const dont_stop_til_you_get_enough: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'B', beat: 1, duration: 2 },
-            { degree: '7 maj/1', chordName: 'A/B', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'A/B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'B', beat: 1, duration: 2 },
-            { degree: '7 maj/1', chordName: 'A/B', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'A/B', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -56,12 +56,12 @@ export const dont_stop_til_you_get_enough: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'A', beat: 1, duration: 2 },
             { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
@@ -77,12 +77,12 @@ export const dont_stop_til_you_get_enough: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'A', beat: 1, duration: 2 },
             { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
@@ -95,13 +95,13 @@ export const dont_stop_til_you_get_enough: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'B', beat: 1, duration: 2 },
-            { degree: '7 maj/1', chordName: 'A/B', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'A/B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'B', beat: 1, duration: 2 },
-            { degree: '7 maj/1', chordName: 'A/B', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'A/B', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },

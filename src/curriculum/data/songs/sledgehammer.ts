@@ -37,7 +37,9 @@ export const sledgehammer: Song = {
       id: 'section_b',
       label: 'Section B',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
@@ -91,12 +93,12 @@ export const sledgehammer: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
@@ -129,8 +131,8 @@ export const sledgehammer: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D♭', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D♭', beat: 3, duration: 2 },
           ],
         },
         {
@@ -140,8 +142,8 @@ export const sledgehammer: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D♭', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D♭', beat: 3, duration: 2 },
           ],
         },
         {
@@ -157,8 +159,8 @@ export const sledgehammer: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D♭', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D♭', beat: 3, duration: 2 },
           ],
         },
         {
@@ -168,8 +170,8 @@ export const sledgehammer: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D♭', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D♭', beat: 3, duration: 2 },
           ],
         },
         {
@@ -215,8 +217,8 @@ export const sledgehammer: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D♭', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D♭', beat: 3, duration: 2 },
           ],
         },
         {
@@ -226,8 +228,8 @@ export const sledgehammer: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D♭', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D♭', beat: 3, duration: 2 },
           ],
         },
         {
@@ -243,8 +245,8 @@ export const sledgehammer: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D♭', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D♭', beat: 3, duration: 2 },
           ],
         },
         {
@@ -254,8 +256,8 @@ export const sledgehammer: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D♭', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D♭', beat: 3, duration: 2 },
           ],
         },
         {
@@ -271,8 +273,8 @@ export const sledgehammer: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D♭', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D♭', beat: 3, duration: 2 },
           ],
         },
         {
@@ -282,8 +284,8 @@ export const sledgehammer: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D♭', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D♭', beat: 3, duration: 2 },
           ],
         },
         {
@@ -333,7 +335,9 @@ export const sledgehammer: Song = {
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
@@ -351,7 +355,9 @@ export const sledgehammer: Song = {
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
@@ -369,7 +375,9 @@ export const sledgehammer: Song = {
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
@@ -387,7 +395,9 @@ export const sledgehammer: Song = {
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
@@ -405,7 +415,9 @@ export const sledgehammer: Song = {
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
@@ -423,7 +435,9 @@ export const sledgehammer: Song = {
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
@@ -441,7 +455,9 @@ export const sledgehammer: Song = {
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
@@ -459,7 +475,9 @@ export const sledgehammer: Song = {
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
@@ -477,7 +495,9 @@ export const sledgehammer: Song = {
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
@@ -495,7 +515,9 @@ export const sledgehammer: Song = {
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },

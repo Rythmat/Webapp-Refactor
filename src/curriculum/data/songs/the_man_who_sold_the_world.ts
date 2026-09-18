@@ -35,8 +35,12 @@ export const the_man_who_sold_the_world: Song = {
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -68,8 +72,12 @@ export const the_man_who_sold_the_world: Song = {
         },
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -77,8 +85,12 @@ export const the_man_who_sold_the_world: Song = {
       label: 'Section C',
       measuresPerRow: 7,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
@@ -103,11 +115,21 @@ export const the_man_who_sold_the_world: Song = {
       label: 'Bridge',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -118,20 +140,26 @@ export const the_man_who_sold_the_world: Song = {
         {
           chords: [
             {
-              degree: '6 min7/♯7',
+              degree: '♭6 min7/7',
               chordName: 'B♭min7/D♭',
               beat: 1,
               duration: 4,
             },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             {
-              degree: '6 min7/♯7',
+              degree: '♭6 min7/7',
               chordName: 'B♭min7/D♭',
               beat: 1,
               duration: 4,
@@ -157,8 +185,12 @@ export const the_man_who_sold_the_world: Song = {
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -176,20 +208,28 @@ export const the_man_who_sold_the_world: Song = {
       label: 'Section E',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             {
-              degree: '6 min7/♯7',
+              degree: '♭6 min7/7',
               chordName: 'B♭min7/D♭',
               beat: 1,
               duration: 4,
             },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -197,14 +237,22 @@ export const the_man_who_sold_the_world: Song = {
       label: 'Section H',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             {
-              degree: '6 min7/♯7',
+              degree: '♭6 min7/7',
               chordName: 'B♭min7/D♭',
               beat: 1,
               duration: 4,
@@ -230,8 +278,12 @@ export const the_man_who_sold_the_world: Song = {
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },

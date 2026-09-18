@@ -25,7 +25,7 @@ export const treasure: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '♭3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -40,7 +40,7 @@ export const treasure: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -65,7 +65,7 @@ export const treasure: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -90,7 +90,7 @@ export const treasure: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -115,17 +115,17 @@ export const treasure: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '♭3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '♭3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -140,7 +140,7 @@ export const treasure: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -165,7 +165,7 @@ export const treasure: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -190,17 +190,17 @@ export const treasure: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '♭3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '♭3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -215,7 +215,7 @@ export const treasure: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -240,17 +240,17 @@ export const treasure: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '♭3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '♭3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -265,7 +265,7 @@ export const treasure: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -290,17 +290,17 @@ export const treasure: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '♭3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '♭3 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -315,7 +315,7 @@ export const treasure: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
         {

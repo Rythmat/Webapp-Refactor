@@ -28,7 +28,9 @@ export const cisco_kid: Song = {
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
@@ -90,18 +92,22 @@ export const cisco_kid: Song = {
       label: 'Chorus',
       measuresPerRow: 6,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♯7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♯7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -142,18 +148,22 @@ export const cisco_kid: Song = {
       label: 'Verse 2',
       measuresPerRow: 6,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♯7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♯7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
         {
           chords: [

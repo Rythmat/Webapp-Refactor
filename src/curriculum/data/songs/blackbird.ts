@@ -62,13 +62,13 @@ export const blackbird: Song = {
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 3 }] },
         {
           chords: [
-            { degree: '2 7/♭5', chordName: 'A7/C♯', beat: 1, duration: 3 },
+            { degree: '2 7/♯4', chordName: 'A7/C♯', beat: 1, duration: 3 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 3 }] },
         {
           chords: [
-            { degree: '3 7/♭6', chordName: 'B7/D♯', beat: 1, duration: 3 },
+            { degree: '3 7/♯5', chordName: 'B7/D♯', beat: 1, duration: 3 },
           ],
         },
         {
@@ -89,7 +89,7 @@ export const blackbird: Song = {
         {
           chords: [
             { degree: '1 maj/5', chordName: 'G/D', beat: 1, duration: 1 },
-            { degree: '2 7/♭5', chordName: 'A7/C♯', beat: 2, duration: 1 },
+            { degree: '2 7/♯4', chordName: 'A7/C♯', beat: 2, duration: 1 },
             { degree: '2 min7/4', chordName: 'Amin7/C', beat: 3, duration: 2 },
             { degree: '4 min7', chordName: 'Cmin7', beat: 5, duration: 1 },
           ],
@@ -140,13 +140,13 @@ export const blackbird: Song = {
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 3 }] },
         {
           chords: [
-            { degree: '2 7/♭5', chordName: 'A7/C♯', beat: 1, duration: 3 },
+            { degree: '2 7/♯4', chordName: 'A7/C♯', beat: 1, duration: 3 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 3 }] },
         {
           chords: [
-            { degree: '3 7/♭6', chordName: 'B7/D♯', beat: 1, duration: 3 },
+            { degree: '3 7/♯5', chordName: 'B7/D♯', beat: 1, duration: 3 },
           ],
         },
         {
@@ -174,7 +174,7 @@ export const blackbird: Song = {
         {
           chords: [
             { degree: '1 maj/5', chordName: 'G/D', beat: 1, duration: 1 },
-            { degree: '2 7/♭5', chordName: 'A7/C♯', beat: 2, duration: 1 },
+            { degree: '2 7/♯4', chordName: 'A7/C♯', beat: 2, duration: 1 },
             { degree: '2 min7/4', chordName: 'Amin7/C', beat: 3, duration: 2 },
             { degree: '4 min7', chordName: 'Cmin7', beat: 5, duration: 1 },
           ],
@@ -297,13 +297,13 @@ export const blackbird: Song = {
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 3 }] },
         {
           chords: [
-            { degree: '2 7/♭5', chordName: 'A7/C♯', beat: 1, duration: 3 },
+            { degree: '2 7/♯4', chordName: 'A7/C♯', beat: 1, duration: 3 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 3 }] },
         {
           chords: [
-            { degree: '3 7/♭6', chordName: 'B7/D♯', beat: 1, duration: 3 },
+            { degree: '3 7/♯5', chordName: 'B7/D♯', beat: 1, duration: 3 },
           ],
         },
       ],
@@ -331,7 +331,7 @@ export const blackbird: Song = {
         {
           chords: [
             { degree: '1 maj/5', chordName: 'G/D', beat: 1, duration: 1 },
-            { degree: '2 7/♭5', chordName: 'A7/C♯', beat: 2, duration: 1 },
+            { degree: '2 7/♯4', chordName: 'A7/C♯', beat: 2, duration: 1 },
             { degree: '2 min7/4', chordName: 'Amin7/C', beat: 3, duration: 2 },
             { degree: '4 min7', chordName: 'Cmin7', beat: 5, duration: 1 },
           ],

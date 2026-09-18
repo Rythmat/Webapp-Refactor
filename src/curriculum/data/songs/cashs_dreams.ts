@@ -63,8 +63,8 @@ export const cashs_dreams: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
+            { degree: '♭3 7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -75,8 +75,8 @@ export const cashs_dreams: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
+            { degree: '♭3 7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -93,8 +93,8 @@ export const cashs_dreams: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
+            { degree: '♭3 7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -105,8 +105,8 @@ export const cashs_dreams: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
+            { degree: '♭3 7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -155,8 +155,8 @@ export const cashs_dreams: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
+            { degree: '♭3 7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -167,8 +167,8 @@ export const cashs_dreams: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
+            { degree: '♭3 7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -218,8 +218,8 @@ export const cashs_dreams: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
+            { degree: '♭3 7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -230,8 +230,8 @@ export const cashs_dreams: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
+            { degree: '♭3 7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -241,8 +241,10 @@ export const cashs_dreams: Song = {
       label: 'Section I',
       bars: [
         { chords: [] },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯7 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '7 7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }],
           fermata: true,

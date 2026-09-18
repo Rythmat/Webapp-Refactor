@@ -65,19 +65,19 @@ export const respect: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '♯1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '♯1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'B', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'B', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -87,12 +87,12 @@ export const respect: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '♯1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '♯1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '2 maj', chordName: 'G', beat: 1, duration: 4 }] },

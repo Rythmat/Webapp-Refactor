@@ -258,7 +258,7 @@ export const beyond: Song = {
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'B', beat: 1, duration: 2 },
+            { degree: '♯6 maj', chordName: 'B', beat: 1, duration: 2 },
             { degree: '4 maj', chordName: 'G♭', beat: 3, duration: 2 },
           ],
         },
@@ -271,7 +271,7 @@ export const beyond: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'D♭', beat: 1, duration: 2 },
-            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♯6 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -280,7 +280,7 @@ export const beyond: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'D♭', beat: 1, duration: 2 },
-            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♯6 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -341,7 +341,7 @@ export const beyond: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'D♭', beat: 1, duration: 2 },
-            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♯6 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -350,7 +350,7 @@ export const beyond: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'D♭', beat: 1, duration: 2 },
-            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♯6 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {

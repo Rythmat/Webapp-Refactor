@@ -29,13 +29,13 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -43,13 +43,13 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -63,10 +63,10 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         { chords: [], restBars: 6 },
       ],
@@ -82,10 +82,10 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -93,10 +93,10 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -111,13 +111,13 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -125,10 +125,10 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -143,13 +143,13 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -157,13 +157,13 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -179,10 +179,10 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -190,10 +190,10 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -208,13 +208,13 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -222,10 +222,10 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -241,13 +241,13 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -255,13 +255,13 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -289,10 +289,10 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -300,10 +300,10 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -319,13 +319,13 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -333,13 +333,13 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -354,13 +354,13 @@ export const little_talks: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         { chords: [], restBars: 6 },
       ],

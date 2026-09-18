@@ -29,10 +29,31 @@ describe('degreeFromChord', () => {
     expect(degreeFromChord('G/B', 60, 'major')).toBe('5 maj/7');
   });
 
-  it('uses the minor map for minor-family modes', () => {
-    // In C minor, E♭ is the natural (unaccidented) 3rd.
-    expect(degreeFromChord('E♭', 60, 'minor')).toBe('3 maj');
+  it('counts from the tonic major scale in every mode', () => {
+    // In C minor, E♭ is still ♭3 (hybrid numbering, not natural minor).
+    expect(degreeFromChord('E♭', 60, 'minor')).toBe('♭3 maj');
     expect(degreeFromChord('C', 60, 'aeolian')).toBe('1 maj');
+    // A minor: G → ♭7, F → ♭6, E7 → 5 7.
+    expect(degreeFromChord('G', 69, 'minor')).toBe('♭7 maj');
+    expect(degreeFromChord('F', 69, 'minor')).toBe('♭6 maj');
+    expect(degreeFromChord('E7', 69, 'minor')).toBe('5 7');
+    // D dorian: F → ♭3, G → 4.
+    expect(degreeFromChord('F', 62, 'dorian')).toBe('♭3 maj');
+    expect(degreeFromChord('G', 62, 'dorian')).toBe('4 maj');
+  });
+
+  it('takes the accidental from the root letter', () => {
+    expect(degreeFromChord('D♭', 60, 'major')).toBe('♭2 maj');
+    expect(degreeFromChord('C♯', 60, 'major')).toBe('♯1 maj');
+    expect(degreeFromChord('F♯dim', 60, 'major')).toBe('♯4 dim');
+  });
+
+  it('follows a supplied tonic spelling', () => {
+    // A 'D♭ minor' chart spelled from C♯: E is ♭3 of C♯, not ♯2.
+    const cSharp = { letterIndex: 0, accidental: 1 };
+    expect(degreeFromChord('E', 61, 'minor', cSharp)).toBe('♭3 maj');
+    // A stale tonic that no longer matches keyRoot is ignored.
+    expect(degreeFromChord('E', 60, 'minor', cSharp)).toBe('3 maj');
   });
 
   it('respects a non-C key center', () => {

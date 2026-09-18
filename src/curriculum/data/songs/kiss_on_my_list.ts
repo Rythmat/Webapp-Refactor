@@ -63,11 +63,11 @@ export const kiss_on_my_list: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '♭7 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -100,11 +100,11 @@ export const kiss_on_my_list: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '♭7 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -223,10 +223,10 @@ export const kiss_on_my_list: Song = {
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [

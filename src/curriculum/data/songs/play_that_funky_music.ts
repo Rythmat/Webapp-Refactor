@@ -172,10 +172,18 @@ export const play_that_funky_music: Song = {
       id: 'chorus',
       label: 'Chorus',
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -183,8 +191,12 @@ export const play_that_funky_music: Song = {
       label: 'Section I',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
@@ -227,7 +239,9 @@ export const play_that_funky_music: Song = {
       label: 'Section K',
       measuresPerRow: 3,
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         { chords: [], restBars: 6 },
         { chords: [] },
       ],

@@ -28,7 +28,7 @@ export const how_come_you_dont_call_me: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭6 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -40,7 +40,7 @@ export const how_come_you_dont_call_me: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭6 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -83,7 +83,7 @@ export const how_come_you_dont_call_me: Song = {
         },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'E♭/G', beat: 1, duration: 2 },
+            { degree: '2 maj/♯4', chordName: 'E♭/G', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'A♭7sus', beat: 3, duration: 2 },
           ],
         },
@@ -99,7 +99,7 @@ export const how_come_you_dont_call_me: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭6 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -111,7 +111,7 @@ export const how_come_you_dont_call_me: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭6 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -154,7 +154,7 @@ export const how_come_you_dont_call_me: Song = {
         },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'E♭/G', beat: 1, duration: 2 },
+            { degree: '2 maj/♯4', chordName: 'E♭/G', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'A♭7sus', beat: 3, duration: 2 },
           ],
         },
@@ -169,7 +169,7 @@ export const how_come_you_dont_call_me: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭6 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -181,7 +181,7 @@ export const how_come_you_dont_call_me: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭6 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -205,7 +205,7 @@ export const how_come_you_dont_call_me: Song = {
         },
         {
           chords: [
-            { degree: '♭6 dim7', chordName: 'Adim7', beat: 1, duration: 4 },
+            { degree: '♯5 dim7', chordName: 'Adim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -225,7 +225,7 @@ export const how_come_you_dont_call_me: Song = {
         },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'E♭/G', beat: 1, duration: 2 },
+            { degree: '2 maj/♯4', chordName: 'E♭/G', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'A♭7sus', beat: 3, duration: 2 },
           ],
           fermata: true,
@@ -241,7 +241,7 @@ export const how_come_you_dont_call_me: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭6 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -253,7 +253,7 @@ export const how_come_you_dont_call_me: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭6 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -286,13 +286,13 @@ export const how_come_you_dont_call_me: Song = {
         },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'E♭/G', beat: 1, duration: 2 },
+            { degree: '2 maj/♯4', chordName: 'E♭/G', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'A♭7sus', beat: 3, duration: 2 },
           ],
         },
         { chords: [], fermata: true },
         {
-          chords: [{ degree: '♭2 7', chordName: 'D7', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯1 7', chordName: 'D7', beat: 1, duration: 4 }],
           fermata: true,
         },
         {

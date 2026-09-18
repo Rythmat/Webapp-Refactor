@@ -33,34 +33,50 @@ export const maneater: Song = {
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'section_b',
       label: 'Section B',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'verse',
       label: 'Verse',
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'A/C♯', beat: 1, duration: 4 },
+            { degree: '♭7 maj/2', chordName: 'A/C♯', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'A/C♯', beat: 1, duration: 4 },
+            { degree: '♭7 maj/2', chordName: 'A/C♯', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -93,10 +109,12 @@ export const maneater: Song = {
             { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '♯7 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
+            { degree: '7 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -148,16 +166,24 @@ export const maneater: Song = {
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'section_h',
       label: 'Section H',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '5 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
@@ -180,8 +206,12 @@ export const maneater: Song = {
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -198,8 +228,12 @@ export const maneater: Song = {
             { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -232,16 +266,20 @@ export const maneater: Song = {
       id: 'section_e',
       label: 'Section E',
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'A/C♯', beat: 1, duration: 4 },
+            { degree: '♭7 maj/2', chordName: 'A/C♯', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'A/C♯', beat: 1, duration: 4 },
+            { degree: '♭7 maj/2', chordName: 'A/C♯', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -274,10 +312,12 @@ export const maneater: Song = {
             { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '♯7 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
+            { degree: '7 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -323,16 +363,24 @@ export const maneater: Song = {
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'section_q',
       label: 'Section Q',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '5 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
@@ -355,8 +403,12 @@ export const maneater: Song = {
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -373,8 +425,12 @@ export const maneater: Song = {
             { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -417,18 +473,30 @@ export const maneater: Song = {
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'section_v',
       label: 'Section V',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -445,8 +513,12 @@ export const maneater: Song = {
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -485,16 +557,24 @@ export const maneater: Song = {
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'section_z',
       label: 'Section Z',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '5 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
@@ -517,8 +597,12 @@ export const maneater: Song = {
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -535,8 +619,12 @@ export const maneater: Song = {
             { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
   ],

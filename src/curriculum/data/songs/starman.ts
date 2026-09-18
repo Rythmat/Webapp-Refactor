@@ -157,7 +157,7 @@ export const starman: Song = {
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '6 maj/♭2', chordName: 'D/F♯', beat: 1, duration: 4 },
+            { degree: '6 maj/♯1', chordName: 'D/F♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -266,7 +266,7 @@ export const starman: Song = {
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '6 maj/♭2', chordName: 'D/F♯', beat: 1, duration: 4 },
+            { degree: '6 maj/♯1', chordName: 'D/F♯', beat: 1, duration: 4 },
           ],
         },
         {

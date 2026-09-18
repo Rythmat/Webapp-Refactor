@@ -91,19 +91,19 @@ export const cigarettes_and_chocolate_milk: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 maj/7', chordName: 'E/D', beat: 3, duration: 2 },
+            { degree: '1 maj/♭7', chordName: 'E/D', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
             { degree: '5 maj/2', chordName: 'B/F♯', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             {
-              degree: '2 min7/♯6',
+              degree: '2 min7/6',
               chordName: 'F♯min7/C♯',
               beat: 1,
               duration: 2,
@@ -156,19 +156,19 @@ export const cigarettes_and_chocolate_milk: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 maj/7', chordName: 'E/D', beat: 3, duration: 2 },
+            { degree: '1 maj/♭7', chordName: 'E/D', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
             { degree: '5 maj/2', chordName: 'B/F♯', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             {
-              degree: '2 min7/♯6',
+              degree: '2 min7/6',
               chordName: 'F♯min7/C♯',
               beat: 1,
               duration: 2,
@@ -221,19 +221,19 @@ export const cigarettes_and_chocolate_milk: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
-            { degree: '1 min7/7', chordName: 'Emin7/D', beat: 3, duration: 2 },
+            { degree: '1 min7/♭7', chordName: 'Emin7/D', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 min7/6', chordName: 'Amin7/C', beat: 1, duration: 2 },
+            { degree: '4 min7/♭6', chordName: 'Amin7/C', beat: 1, duration: 2 },
             { degree: '2 dim7', chordName: 'F♯dim7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             {
-              degree: '2 min7/6',
+              degree: '2 min7/♭6',
               chordName: 'F♯min7b5/C',
               beat: 1,
               duration: 2,
@@ -250,13 +250,13 @@ export const cigarettes_and_chocolate_milk: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
-            { degree: '1 min7/3', chordName: 'Emin7/G', beat: 3, duration: 2 },
+            { degree: '1 min7/♭3', chordName: 'Emin7/G', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 min7/5', chordName: 'Emin7/B', beat: 1, duration: 2 },
-            { degree: '1 min7/7', chordName: 'Emin7/D', beat: 3, duration: 2 },
+            { degree: '1 min7/♭7', chordName: 'Emin7/D', beat: 3, duration: 2 },
           ],
         },
         {
@@ -273,17 +273,19 @@ export const cigarettes_and_chocolate_milk: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 7', chordName: 'D7', beat: 1, duration: 2 },
-            { degree: '7 maj/2', chordName: 'D/F♯', beat: 3, duration: 2 },
+            { degree: '♭7 7', chordName: 'D7', beat: 1, duration: 2 },
+            { degree: '♭7 maj/2', chordName: 'D/F♯', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/4', chordName: 'D/A', beat: 1, duration: 2 },
-            { degree: '7 7', chordName: 'D7', beat: 3, duration: 2 },
+            { degree: '♭7 maj/4', chordName: 'D/A', beat: 1, duration: 2 },
+            { degree: '♭7 7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '5 7', chordName: 'B7sus', beat: 1, duration: 4 }],
         },
@@ -352,13 +354,13 @@ export const cigarettes_and_chocolate_milk: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [] },
         {
           chords: [
-            { degree: '3 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
@@ -372,7 +374,7 @@ export const cigarettes_and_chocolate_milk: Song = {
         {
           chords: [
             { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 1 },
-            { degree: '3 maj', chordName: 'G', beat: 2, duration: 1 },
+            { degree: '♭3 maj', chordName: 'G', beat: 2, duration: 1 },
             { degree: '2 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -409,7 +411,7 @@ export const cigarettes_and_chocolate_milk: Song = {
         },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'E/G♯', beat: 1, duration: 2 },
+            { degree: '1 maj/3', chordName: 'E/G♯', beat: 1, duration: 2 },
             { degree: '5 maj/2', chordName: 'B/F♯', beat: 3, duration: 2 },
           ],
         },
@@ -445,7 +447,7 @@ export const cigarettes_and_chocolate_milk: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'C♯min7', beat: 1, duration: 1 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 1 },
             { degree: '5 7', chordName: 'B7', beat: 2, duration: 1 },
             { degree: '4 g♯min7', chordName: 'AG♯min7', beat: 3, duration: 1 },
             { degree: '5 maj', chordName: 'B', beat: 4, duration: 1 },
@@ -497,19 +499,19 @@ export const cigarettes_and_chocolate_milk: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 maj/7', chordName: 'E/D', beat: 3, duration: 2 },
+            { degree: '1 maj/♭7', chordName: 'E/D', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
             { degree: '5 maj/2', chordName: 'B/F♯', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             {
-              degree: '2 min7/♯6',
+              degree: '2 min7/6',
               chordName: 'F♯min7/C♯',
               beat: 1,
               duration: 2,

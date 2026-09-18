@@ -29,14 +29,18 @@ export const mary_janes_last_dance: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -62,7 +66,9 @@ export const mary_janes_last_dance: Song = {
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -76,14 +82,18 @@ export const mary_janes_last_dance: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -109,7 +119,9 @@ export const mary_janes_last_dance: Song = {
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -123,14 +135,18 @@ export const mary_janes_last_dance: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -156,7 +172,9 @@ export const mary_janes_last_dance: Song = {
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -169,14 +187,18 @@ export const mary_janes_last_dance: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [

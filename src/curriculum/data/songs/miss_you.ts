@@ -334,7 +334,9 @@ export const miss_you: Song = {
       id: 'section_f_2',
       label: 'Section F',
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -356,7 +358,9 @@ export const miss_you: Song = {
       id: 'section_n',
       label: 'Section N',
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },

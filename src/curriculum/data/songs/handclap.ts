@@ -30,7 +30,7 @@ export const handclap: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -43,7 +43,7 @@ export const handclap: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -63,7 +63,7 @@ export const handclap: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -81,7 +81,7 @@ export const handclap: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -106,7 +106,7 @@ export const handclap: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -124,7 +124,7 @@ export const handclap: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -149,7 +149,7 @@ export const handclap: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -167,7 +167,7 @@ export const handclap: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -191,7 +191,7 @@ export const handclap: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -216,7 +216,7 @@ export const handclap: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -234,7 +234,7 @@ export const handclap: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -259,7 +259,7 @@ export const handclap: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -277,7 +277,7 @@ export const handclap: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -302,7 +302,7 @@ export const handclap: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -320,7 +320,7 @@ export const handclap: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -335,16 +335,16 @@ export const handclap: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -374,16 +374,16 @@ export const handclap: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -413,16 +413,16 @@ export const handclap: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -452,16 +452,16 @@ export const handclap: Song = {
       measuresPerRow: 5,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         { chords: [], restBars: 2 },
       ],
@@ -472,16 +472,16 @@ export const handclap: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -511,16 +511,16 @@ export const handclap: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -550,16 +550,16 @@ export const handclap: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -599,7 +599,7 @@ export const handclap: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -617,7 +617,7 @@ export const handclap: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [

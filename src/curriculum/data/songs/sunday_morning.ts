@@ -310,7 +310,7 @@ export const sunday_morning: Song = {
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'C♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'C♯dim7', beat: 1, duration: 4 },
           ],
         },
       ],

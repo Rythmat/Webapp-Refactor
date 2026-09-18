@@ -31,14 +31,14 @@ export const doo_wop_that_thing: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
@@ -73,7 +73,7 @@ export const doo_wop_that_thing: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
@@ -107,7 +107,7 @@ export const doo_wop_that_thing: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
@@ -146,28 +146,28 @@ export const doo_wop_that_thing: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
@@ -201,7 +201,7 @@ export const doo_wop_that_thing: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
@@ -236,7 +236,7 @@ export const doo_wop_that_thing: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
@@ -270,7 +270,7 @@ export const doo_wop_that_thing: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
@@ -304,7 +304,7 @@ export const doo_wop_that_thing: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
@@ -317,28 +317,28 @@ export const doo_wop_that_thing: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
@@ -398,7 +398,7 @@ export const doo_wop_that_thing: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
@@ -433,7 +433,7 @@ export const doo_wop_that_thing: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],

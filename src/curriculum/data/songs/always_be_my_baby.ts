@@ -26,19 +26,19 @@ export const always_be_my_baby: Song = {
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -55,12 +55,12 @@ export const always_be_my_baby: Song = {
         {
           chords: [
             { degree: '2 maj', chordName: 'B', beat: 1, duration: 2 },
-            { degree: '3 dim', chordName: 'C dim', beat: 3, duration: 2 },
+            { degree: '♭3 dim', chordName: 'C dim', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -79,23 +79,23 @@ export const always_be_my_baby: Song = {
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'B/D♯', beat: 1, duration: 4 },
+            { degree: '2 maj/♯4', chordName: 'B/D♯', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '2 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -111,12 +111,12 @@ export const always_be_my_baby: Song = {
         {
           chords: [
             { degree: '2 maj', chordName: 'B', beat: 1, duration: 2 },
-            { degree: '3 dim', chordName: 'C dim', beat: 3, duration: 2 },
+            { degree: '♭3 dim', chordName: 'C dim', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -135,7 +135,7 @@ export const always_be_my_baby: Song = {
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -143,7 +143,7 @@ export const always_be_my_baby: Song = {
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -158,23 +158,23 @@ export const always_be_my_baby: Song = {
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'B/D♯', beat: 1, duration: 4 },
+            { degree: '2 maj/♯4', chordName: 'B/D♯', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '2 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -190,12 +190,12 @@ export const always_be_my_baby: Song = {
         {
           chords: [
             { degree: '2 maj', chordName: 'B', beat: 1, duration: 2 },
-            { degree: '3 dim', chordName: 'C dim', beat: 3, duration: 2 },
+            { degree: '♭3 dim', chordName: 'C dim', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -213,31 +213,31 @@ export const always_be_my_baby: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♯6 7', chordName: 'F♯7', beat: 1, duration: 4 }],
+          chords: [{ degree: '6 7', chordName: 'F♯7', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♯7 7', chordName: 'G♯7', beat: 1, duration: 2 },
+            { degree: '7 7', chordName: 'G♯7', beat: 1, duration: 2 },
             { degree: '1 maj', chordName: 'A', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -249,25 +249,27 @@ export const always_be_my_baby: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♯6 7', chordName: 'F♯7', beat: 1, duration: 4 }],
+          chords: [{ degree: '6 7', chordName: 'F♯7', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♯7 7', chordName: 'G♯7', beat: 1, duration: 2 },
+            { degree: '7 7', chordName: 'G♯7', beat: 1, duration: 2 },
             { degree: '1 maj', chordName: 'A', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '2 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -275,14 +277,16 @@ export const always_be_my_baby: Song = {
       label: 'Section H',
       measuresPerRow: 7,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭2 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '♯3 dim', chordName: 'C♯dim', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '3 dim', chordName: 'C♯dim', beat: 3, duration: 2 },
           ],
         },
         {
@@ -300,7 +304,7 @@ export const always_be_my_baby: Song = {
         },
         {
           chords: [
-            { degree: '♭2 maj/3', chordName: 'B♭/C', beat: 1, duration: 4 },
+            { degree: '♭2 maj/♭3', chordName: 'B♭/C', beat: 1, duration: 4 },
           ],
         },
       ],

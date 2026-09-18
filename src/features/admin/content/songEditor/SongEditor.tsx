@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { songTonic } from '@/curriculum/songLibrary/hybridDegree';
 import type { Song } from '@/curriculum/types/songLibrary';
 import type { StructuredEditorProps } from '../editorTypes';
 import {
@@ -80,6 +81,14 @@ export const SongEditor = ({ body, onChange }: StructuredEditorProps) => {
 
   const sections = song.sections ?? [];
   const setSections = (next: typeof sections) => patch({ sections: next });
+  // The spelled tonic the chart's chords are written against, so auto-derived
+  // degrees match the song-library convention (see songTonic).
+  const tonic = songTonic(
+    song.key ?? '',
+    sections.flatMap((s) =>
+      s.bars.flatMap((b) => b.chords.map((c) => c.chordName)),
+    ),
+  );
   const selectedChord = selection
     ? (sections[selection.sectionIdx]?.bars[selection.barIdx]?.chords[
         selection.chordIdx
@@ -325,6 +334,7 @@ export const SongEditor = ({ body, onChange }: StructuredEditorProps) => {
             chord={selectedChord}
             keyRoot={song.keyRoot}
             mode={song.mode}
+            tonic={tonic}
             onChange={(p) =>
               setSections(
                 updateChord(

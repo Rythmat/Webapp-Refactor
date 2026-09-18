@@ -31,7 +31,7 @@ export const cosmic_girl: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -42,7 +42,7 @@ export const cosmic_girl: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -156,7 +156,7 @@ export const cosmic_girl: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -167,7 +167,7 @@ export const cosmic_girl: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {

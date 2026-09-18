@@ -45,7 +45,7 @@ export const tell_me_something_good: Song = {
         },
         {
           chords: [
-            { degree: '♭3 maj', chordName: 'B', beat: 1, duration: 1 },
+            { degree: '♯2 maj', chordName: 'B', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'B♭min7', beat: 2, duration: 1 },
             { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 1 },
             { degree: '♭7 7', chordName: 'G♭7', beat: 4, duration: 1 },
@@ -83,9 +83,9 @@ export const tell_me_something_good: Song = {
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'D dim7', beat: 1, duration: 1 },
+            { degree: '♯4 dim7', chordName: 'D dim7', beat: 1, duration: 1 },
             { degree: '5 7', chordName: 'E♭7', beat: 2, duration: 1 },
-            { degree: '♭6 dim7', chordName: 'E dim7', beat: 3, duration: 1 },
+            { degree: '♯5 dim7', chordName: 'E dim7', beat: 3, duration: 1 },
             { degree: '4 maj/6', chordName: 'D♭/F', beat: 4, duration: 1 },
           ],
         },
@@ -152,7 +152,7 @@ export const tell_me_something_good: Song = {
         },
         {
           chords: [
-            { degree: '♭3 maj', chordName: 'B', beat: 1, duration: 1 },
+            { degree: '♯2 maj', chordName: 'B', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'B♭min7', beat: 2, duration: 1 },
             { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 1 },
             { degree: '♭7 7', chordName: 'G♭7', beat: 4, duration: 1 },
@@ -190,9 +190,9 @@ export const tell_me_something_good: Song = {
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'D dim7', beat: 1, duration: 1 },
+            { degree: '♯4 dim7', chordName: 'D dim7', beat: 1, duration: 1 },
             { degree: '5 7', chordName: 'E♭7', beat: 2, duration: 1 },
-            { degree: '♭6 dim7', chordName: 'E dim7', beat: 3, duration: 1 },
+            { degree: '♯5 dim7', chordName: 'E dim7', beat: 3, duration: 1 },
             { degree: '4 maj/6', chordName: 'D♭/F', beat: 4, duration: 1 },
           ],
         },

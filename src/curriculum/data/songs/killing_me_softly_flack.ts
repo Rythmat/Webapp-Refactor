@@ -34,10 +34,10 @@ export const killing_me_softly_flack: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -46,14 +46,14 @@ export const killing_me_softly_flack: Song = {
         },
         {
           chords: [
-            { degree: '4 maj/♯6', chordName: 'B♭/D', beat: 1, duration: 4 },
+            { degree: '4 maj/6', chordName: 'B♭/D', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -63,10 +63,10 @@ export const killing_me_softly_flack: Song = {
       measuresPerRow: 6,
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♭2 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -84,22 +84,22 @@ export const killing_me_softly_flack: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
+            { degree: '♭7 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
+            { degree: '♭7 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
+            { degree: '♭7 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
+            { degree: '♭7 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -115,13 +115,13 @@ export const killing_me_softly_flack: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -129,7 +129,7 @@ export const killing_me_softly_flack: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -154,10 +154,10 @@ export const killing_me_softly_flack: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
@@ -171,10 +171,10 @@ export const killing_me_softly_flack: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -190,20 +190,20 @@ export const killing_me_softly_flack: Song = {
         },
         {
           chords: [
-            { degree: '4 maj/♯6', chordName: 'B♭/D', beat: 1, duration: 4 },
+            { degree: '4 maj/6', chordName: 'B♭/D', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♭2 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -227,10 +227,10 @@ export const killing_me_softly_flack: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -239,11 +239,11 @@ export const killing_me_softly_flack: Song = {
         },
         {
           chords: [
-            { degree: '4 maj/♯6', chordName: 'B♭/D', beat: 1, duration: 4 },
+            { degree: '4 maj/6', chordName: 'B♭/D', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -253,13 +253,13 @@ export const killing_me_softly_flack: Song = {
       measuresPerRow: 7,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♭2 maj', chordName: 'G♭', beat: 1, duration: 4 }],

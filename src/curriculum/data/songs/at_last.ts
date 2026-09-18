@@ -34,7 +34,7 @@ export const at_last: Song = {
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'Bdim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'Bdim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -125,7 +125,7 @@ export const at_last: Song = {
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 1 },
             { degree: '4 maj', chordName: 'B♭', beat: 2, duration: 1 },
             { degree: '1 maj', chordName: 'F', beat: 3, duration: 1 },
-            { degree: '♭2 dim7', chordName: 'F♯dim7', beat: 4, duration: 1 },
+            { degree: '♯1 dim7', chordName: 'F♯dim7', beat: 4, duration: 1 },
           ],
         },
       ],
@@ -154,7 +154,7 @@ export const at_last: Song = {
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 1 },
             { degree: '2 7', chordName: 'G7', beat: 2, duration: 1 },
             { degree: '5 maj', chordName: 'C', beat: 3, duration: 1 },
-            { degree: '♭6 dim7', chordName: 'C♯dim7', beat: 4, duration: 1 },
+            { degree: '♯5 dim7', chordName: 'C♯dim7', beat: 4, duration: 1 },
           ],
         },
         {
@@ -212,7 +212,7 @@ export const at_last: Song = {
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'Bdim7', beat: 1, duration: 1 },
+            { degree: '♯4 dim7', chordName: 'Bdim7', beat: 1, duration: 1 },
             { degree: '1 maj/5', chordName: 'F/C', beat: 2, duration: 1 },
             { degree: '1 7/♭7', chordName: 'F7/E♭', beat: 3, duration: 1 },
             { degree: '6 7', chordName: 'D7b9', beat: 4, duration: 1 },
@@ -242,16 +242,16 @@ export const at_last: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'B', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♭5 maj/♭6', chordName: 'B/D♭', beat: 1, duration: 4 },
+            { degree: '♯4 maj/♭6', chordName: 'B/D♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 maj/6', chordName: 'B/D', beat: 1, duration: 4 },
+            { degree: '♯4 maj/6', chordName: 'B/D', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -366,7 +366,7 @@ export const at_last: Song = {
       measuresPerRow: 2,
       bars: [
         {
-          chords: [{ degree: '♭5 maj', chordName: 'B', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
         { chords: [] },
       ],
@@ -390,7 +390,7 @@ export const at_last: Song = {
       measuresPerRow: 2,
       bars: [
         {
-          chords: [{ degree: '♭5 maj', chordName: 'B', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
         { chords: [] },
       ],
@@ -405,16 +405,16 @@ export const at_last: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'B', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♭5 maj/♭6', chordName: 'B/D♭', beat: 1, duration: 4 },
+            { degree: '♯4 maj/♭6', chordName: 'B/D♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 maj/6', chordName: 'B/D', beat: 1, duration: 4 },
+            { degree: '♯4 maj/6', chordName: 'B/D', beat: 1, duration: 4 },
           ],
         },
       ],

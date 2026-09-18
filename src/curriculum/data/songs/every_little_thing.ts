@@ -145,7 +145,7 @@ export const every_little_thing: Song = {
         {
           chords: [
             { degree: '♭2 13', chordName: 'G♭13', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'A♭7sus', beat: 3, duration: 2 },
+            { degree: '♭3 7', chordName: 'A♭7sus', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -168,13 +168,13 @@ export const every_little_thing: Song = {
         {
           chords: [
             { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
-            { degree: '6 maj/3', chordName: 'D♭/A♭', beat: 3, duration: 2 },
+            { degree: '♭6 maj/♭3', chordName: 'D♭/A♭', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭2 maj', chordName: 'G♭', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'A♭7sus', beat: 3, duration: 2 },
+            { degree: '♭3 7', chordName: 'A♭7sus', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -197,7 +197,7 @@ export const every_little_thing: Song = {
         {
           chords: [
             { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
-            { degree: '6 maj/3', chordName: 'D♭/A♭', beat: 3, duration: 2 },
+            { degree: '♭6 maj/♭3', chordName: 'D♭/A♭', beat: 3, duration: 2 },
           ],
         },
         {
@@ -289,19 +289,19 @@ export const every_little_thing: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '♭3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '♭3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -337,12 +337,12 @@ export const every_little_thing: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯3 7', chordName: 'A7(♯5)', beat: 1, duration: 4 },
+            { degree: '3 7', chordName: 'A7(♯5)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 7', chordName: 'A7(♯5)', beat: 1, duration: 4 },
+            { degree: '3 7', chordName: 'A7(♯5)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -361,10 +361,12 @@ export const every_little_thing: Song = {
       id: 'section_n',
       label: 'Section N',
       bars: [
-        { chords: [{ degree: '3 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 7', chordName: 'A♭7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '♯3 dim7', chordName: 'Adim7', beat: 1, duration: 4 },
+            { degree: '3 dim7', chordName: 'Adim7', beat: 1, duration: 4 },
           ],
         },
         {

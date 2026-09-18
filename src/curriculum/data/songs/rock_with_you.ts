@@ -79,7 +79,7 @@ export const rock_with_you: Song = {
         },
         {
           chords: [
-            { degree: '3 maj/4', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '♭3 maj/4', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
         {
@@ -111,7 +111,7 @@ export const rock_with_you: Song = {
         },
         {
           chords: [
-            { degree: '3 maj/4', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '♭3 maj/4', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
         {
@@ -132,20 +132,22 @@ export const rock_with_you: Song = {
       measuresPerRow: 5,
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '3 maj/4', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '♭3 maj/4', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -158,7 +160,7 @@ export const rock_with_you: Song = {
           chords: [
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Fmin7', beat: 2, duration: 1 },
-            { degree: '3 maj', chordName: 'G♭', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'G♭', beat: 3, duration: 2 },
           ],
         },
         { chords: [], restBars: 1 },
@@ -166,7 +168,7 @@ export const rock_with_you: Song = {
           chords: [
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Fmin7', beat: 2, duration: 1 },
-            { degree: '3 maj', chordName: 'G♭', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'G♭', beat: 3, duration: 2 },
           ],
         },
         {
@@ -251,14 +253,16 @@ export const rock_with_you: Song = {
       label: 'Section J',
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'D♭/F', beat: 1, duration: 4 },
+            { degree: '♭7 maj/2', chordName: 'D♭/F', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -304,17 +308,17 @@ export const rock_with_you: Song = {
         {
           chords: [
             { degree: '4 maj/5', chordName: 'A♭/B♭', beat: 1, duration: 2 },
-            { degree: '5 maj/♯6', chordName: 'B♭/C', beat: 3, duration: 2 },
+            { degree: '5 maj/6', chordName: 'B♭/C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj/7', chordName: 'B/D♭', beat: 1, duration: 4 },
+            { degree: '♯5 maj/♭7', chordName: 'B/D♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 maj/♯7', chordName: 'C/D', beat: 1, duration: 4 },
+            { degree: '6 maj/7', chordName: 'C/D', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -326,21 +330,25 @@ export const rock_with_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '♯1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '♯1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '♭2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '♯1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -350,20 +358,22 @@ export const rock_with_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '♯1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '♯1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
       ],
     },

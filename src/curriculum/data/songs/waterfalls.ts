@@ -48,10 +48,10 @@ export const waterfalls: Song = {
         { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],

@@ -33,20 +33,28 @@ export const wish_you_were_here: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -78,7 +86,9 @@ export const wish_you_were_here: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -86,22 +96,34 @@ export const wish_you_were_here: Song = {
       label: 'Bridge',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -109,22 +131,34 @@ export const wish_you_were_here: Song = {
       label: 'Verse 2',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -142,20 +176,28 @@ export const wish_you_were_here: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -187,7 +229,9 @@ export const wish_you_were_here: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -195,22 +239,34 @@ export const wish_you_were_here: Song = {
       label: 'Section G',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -218,22 +274,34 @@ export const wish_you_were_here: Song = {
       label: 'Section H',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -251,20 +319,28 @@ export const wish_you_were_here: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -296,7 +372,9 @@ export const wish_you_were_here: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
   ],

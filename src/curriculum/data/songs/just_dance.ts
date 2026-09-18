@@ -30,8 +30,8 @@ export const just_dance: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -54,8 +54,8 @@ export const just_dance: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -70,8 +70,8 @@ export const just_dance: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -85,8 +85,12 @@ export const just_dance: Song = {
       id: 'chorus',
       label: 'Chorus',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -103,14 +107,20 @@ export const just_dance: Song = {
       id: 'section_d',
       label: 'Section D',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -125,8 +135,8 @@ export const just_dance: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -141,8 +151,8 @@ export const just_dance: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -169,8 +179,8 @@ export const just_dance: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -185,8 +195,8 @@ export const just_dance: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -200,8 +210,12 @@ export const just_dance: Song = {
       id: 'section_e',
       label: 'Section E',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -218,14 +232,20 @@ export const just_dance: Song = {
       id: 'section_h',
       label: 'Section H',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -241,8 +261,8 @@ export const just_dance: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -257,8 +277,8 @@ export const just_dance: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -272,8 +292,12 @@ export const just_dance: Song = {
       id: 'section_g',
       label: 'Section G',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -290,14 +314,20 @@ export const just_dance: Song = {
       id: 'section_k',
       label: 'Section K',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -313,8 +343,8 @@ export const just_dance: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -329,8 +359,8 @@ export const just_dance: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -376,13 +406,17 @@ export const just_dance: Song = {
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -395,8 +429,12 @@ export const just_dance: Song = {
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '4 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -409,8 +447,8 @@ export const just_dance: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -432,8 +470,8 @@ export const just_dance: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -448,8 +486,8 @@ export const just_dance: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {

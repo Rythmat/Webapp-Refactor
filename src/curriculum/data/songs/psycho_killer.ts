@@ -27,11 +27,13 @@ export const psycho_killer: Song = {
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '7 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '1 7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -42,11 +44,13 @@ export const psycho_killer: Song = {
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '7 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '1 7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -57,11 +61,13 @@ export const psycho_killer: Song = {
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '7 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '1 7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -69,9 +75,15 @@ export const psycho_killer: Song = {
       label: 'Chorus',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -89,11 +101,21 @@ export const psycho_killer: Song = {
       label: 'Section E',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -101,9 +123,15 @@ export const psycho_killer: Song = {
       label: 'Bridge',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -121,13 +149,27 @@ export const psycho_killer: Song = {
       label: 'Section G',
       measuresPerRow: 7,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -138,11 +180,13 @@ export const psycho_killer: Song = {
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '7 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '1 7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -159,8 +203,12 @@ export const psycho_killer: Song = {
             { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -169,8 +217,12 @@ export const psycho_killer: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -181,11 +233,13 @@ export const psycho_killer: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '7 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '1 maj', chordName: 'A', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -193,9 +247,15 @@ export const psycho_killer: Song = {
       label: 'Section F',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -213,11 +273,21 @@ export const psycho_killer: Song = {
       label: 'Section M',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -225,11 +295,19 @@ export const psycho_killer: Song = {
       label: 'Section N',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -241,13 +319,13 @@ export const psycho_killer: Song = {
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '7 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '1 7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '1 7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },

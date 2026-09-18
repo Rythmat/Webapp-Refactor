@@ -113,7 +113,9 @@ export const long_train_running: Song = {
       id: 'section_e',
       label: 'Section E',
       bars: [
-        { chords: [{ degree: '6 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 7', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -183,7 +185,9 @@ export const long_train_running: Song = {
       id: 'section_h',
       label: 'Section H',
       bars: [
-        { chords: [{ degree: '6 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 7', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -253,7 +257,9 @@ export const long_train_running: Song = {
       id: 'section_k',
       label: 'Section K',
       bars: [
-        { chords: [{ degree: '6 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 7', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -324,7 +330,9 @@ export const long_train_running: Song = {
       label: 'Section N',
       measuresPerRow: 3,
       bars: [
-        { chords: [{ degree: '6 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 7', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
           chords: [

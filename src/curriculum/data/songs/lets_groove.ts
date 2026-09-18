@@ -25,7 +25,7 @@ export const lets_groove: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'A', beat: 1, duration: 2 },
             { degree: '4 min7', chordName: 'Emin7', beat: 3, duration: 2 },
           ],
         },
@@ -54,7 +54,7 @@ export const lets_groove: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -65,7 +65,7 @@ export const lets_groove: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -87,8 +87,8 @@ export const lets_groove: Song = {
         },
         {
           chords: [
-            { degree: '3 min7', chordName: 'Dmin7', beat: 1, duration: 2 },
-            { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
+            { degree: '♭3 min7', chordName: 'Dmin7', beat: 1, duration: 2 },
+            { degree: '♭6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {

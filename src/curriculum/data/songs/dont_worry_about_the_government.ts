@@ -23,14 +23,30 @@ export const dont_worry_about_the_government: Song = {
       label: 'Section A',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -38,12 +54,20 @@ export const dont_worry_about_the_government: Song = {
       label: 'Verse',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
@@ -57,13 +81,13 @@ export const dont_worry_about_the_government: Song = {
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj/4', chordName: 'F/G', beat: 1, duration: 2 },
+            { degree: '♭3 maj/4', chordName: 'F/G', beat: 1, duration: 2 },
             { degree: '5 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj/4', chordName: 'F/G', beat: 1, duration: 2 },
+            { degree: '♭3 maj/4', chordName: 'F/G', beat: 1, duration: 2 },
             { degree: '5 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },
@@ -71,13 +95,13 @@ export const dont_worry_about_the_government: Song = {
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj/4', chordName: 'F/G', beat: 1, duration: 2 },
+            { degree: '♭3 maj/4', chordName: 'F/G', beat: 1, duration: 2 },
             { degree: '5 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj/4', chordName: 'F/G', beat: 1, duration: 2 },
+            { degree: '♭3 maj/4', chordName: 'F/G', beat: 1, duration: 2 },
             { degree: '5 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },
@@ -88,12 +112,20 @@ export const dont_worry_about_the_government: Song = {
       label: 'Chorus',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
@@ -107,18 +139,20 @@ export const dont_worry_about_the_government: Song = {
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj/4', chordName: 'F/G', beat: 1, duration: 2 },
+            { degree: '♭3 maj/4', chordName: 'F/G', beat: 1, duration: 2 },
             { degree: '5 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj/4', chordName: 'F/G', beat: 1, duration: 2 },
+            { degree: '♭3 maj/4', chordName: 'F/G', beat: 1, duration: 2 },
             { degree: '5 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -201,25 +235,25 @@ export const dont_worry_about_the_government: Song = {
         { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♯3', chordName: 'E/F♯', beat: 1, duration: 4 },
+            { degree: '2 maj/3', chordName: 'E/F♯', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♯3', chordName: 'E/F♯', beat: 1, duration: 4 },
+            { degree: '2 maj/3', chordName: 'E/F♯', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -232,25 +266,25 @@ export const dont_worry_about_the_government: Song = {
         { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♯3', chordName: 'E/F♯', beat: 1, duration: 4 },
+            { degree: '2 maj/3', chordName: 'E/F♯', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♯3', chordName: 'E/F♯', beat: 1, duration: 4 },
+            { degree: '2 maj/3', chordName: 'E/F♯', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
       ],

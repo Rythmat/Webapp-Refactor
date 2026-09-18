@@ -137,7 +137,7 @@ export const will_you_be_there: Song = {
         {
           chords: [
             {
-              degree: '♭5 min7/3',
+              degree: '♯4 min7/3',
               chordName: 'G♯min7/F♯',
               beat: 1,
               duration: 4,
@@ -150,7 +150,7 @@ export const will_you_be_there: Song = {
         {
           chords: [
             {
-              degree: '♭5 min7/3',
+              degree: '♯4 min7/3',
               chordName: 'G♯min7/F♯',
               beat: 1,
               duration: 4,

@@ -94,7 +94,7 @@ export const when_im_sixty_four: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'G♭', beat: 1, duration: 2 },
-            { degree: '♭5 dim7', chordName: 'Gdim7', beat: 3, duration: 2 },
+            { degree: '♯4 dim7', chordName: 'Gdim7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -268,7 +268,7 @@ export const when_im_sixty_four: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'G♭', beat: 1, duration: 2 },
-            { degree: '♭5 dim7', chordName: 'Gdim7', beat: 3, duration: 2 },
+            { degree: '♯4 dim7', chordName: 'Gdim7', beat: 3, duration: 2 },
           ],
         },
         {

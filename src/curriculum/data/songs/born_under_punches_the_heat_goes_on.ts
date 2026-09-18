@@ -28,7 +28,7 @@ export const born_under_punches_the_heat_goes_on: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [

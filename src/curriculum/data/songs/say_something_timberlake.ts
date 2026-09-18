@@ -35,10 +35,10 @@ export const say_something_timberlake: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
       ],
@@ -48,7 +48,7 @@ export const say_something_timberlake: Song = {
       label: 'Chorus',
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -56,10 +56,10 @@ export const say_something_timberlake: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -68,7 +68,7 @@ export const say_something_timberlake: Song = {
       label: 'Section D',
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -76,10 +76,10 @@ export const say_something_timberlake: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -94,10 +94,10 @@ export const say_something_timberlake: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
       ],
@@ -107,7 +107,7 @@ export const say_something_timberlake: Song = {
       label: 'Verse 2',
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -115,10 +115,10 @@ export const say_something_timberlake: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -132,10 +132,10 @@ export const say_something_timberlake: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
       ],

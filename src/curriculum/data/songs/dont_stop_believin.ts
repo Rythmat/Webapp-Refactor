@@ -49,7 +49,9 @@ export const dontStopBelievin: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 maj/7', chordName: 'B/D♯', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
@@ -57,7 +59,9 @@ export const dontStopBelievin: Song = {
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 maj/7', chordName: 'B/D♯', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
@@ -75,7 +79,9 @@ export const dontStopBelievin: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 maj/7', chordName: 'B/D♯', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
@@ -83,7 +89,9 @@ export const dontStopBelievin: Song = {
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 maj/7', chordName: 'B/D♯', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
@@ -101,7 +109,9 @@ export const dontStopBelievin: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 maj/7', chordName: 'B/D♯', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
@@ -109,7 +119,9 @@ export const dontStopBelievin: Song = {
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 maj/7', chordName: 'B/D♯', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
@@ -166,7 +178,9 @@ export const dontStopBelievin: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 maj/7', chordName: 'B/D♯', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
@@ -184,7 +198,9 @@ export const dontStopBelievin: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 maj/7', chordName: 'B/D♯', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
@@ -192,7 +208,9 @@ export const dontStopBelievin: Song = {
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5/7', chordName: 'B/D♯', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 maj/7', chordName: 'B/D♯', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],

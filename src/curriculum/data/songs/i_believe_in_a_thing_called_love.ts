@@ -29,11 +29,17 @@ export const i_believe_in_a_thing_called_love: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -46,11 +52,17 @@ export const i_believe_in_a_thing_called_love: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -63,11 +75,17 @@ export const i_believe_in_a_thing_called_love: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -75,18 +93,22 @@ export const i_believe_in_a_thing_called_love: Song = {
       label: 'Chorus',
       measuresPerRow: 6,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -103,7 +125,9 @@ export const i_believe_in_a_thing_called_love: Song = {
       id: 'section_e',
       label: 'Section E',
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -111,8 +135,8 @@ export const i_believe_in_a_thing_called_love: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '♯3 maj', chordName: 'A♯', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '3 maj', chordName: 'A♯', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -123,16 +147,24 @@ export const i_believe_in_a_thing_called_love: Song = {
       label: 'Bridge',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -146,8 +178,12 @@ export const i_believe_in_a_thing_called_love: Song = {
       label: 'Section G',
       measuresPerRow: 6,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -159,7 +195,9 @@ export const i_believe_in_a_thing_called_love: Song = {
             { degree: '5 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -172,11 +210,17 @@ export const i_believe_in_a_thing_called_love: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -189,11 +233,17 @@ export const i_believe_in_a_thing_called_love: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -206,11 +256,17 @@ export const i_believe_in_a_thing_called_love: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -218,18 +274,22 @@ export const i_believe_in_a_thing_called_love: Song = {
       label: 'Section E',
       measuresPerRow: 6,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -246,7 +306,9 @@ export const i_believe_in_a_thing_called_love: Song = {
       id: 'section_l',
       label: 'Section L',
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -254,8 +316,8 @@ export const i_believe_in_a_thing_called_love: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '♯3 maj', chordName: 'A♯', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '3 maj', chordName: 'A♯', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -266,16 +328,24 @@ export const i_believe_in_a_thing_called_love: Song = {
       label: 'Section F',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -289,8 +359,12 @@ export const i_believe_in_a_thing_called_love: Song = {
       label: 'Section N',
       measuresPerRow: 6,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -302,7 +376,9 @@ export const i_believe_in_a_thing_called_love: Song = {
             { degree: '5 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -315,11 +391,17 @@ export const i_believe_in_a_thing_called_love: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -332,11 +414,17 @@ export const i_believe_in_a_thing_called_love: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -349,11 +437,17 @@ export const i_believe_in_a_thing_called_love: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -366,11 +460,17 @@ export const i_believe_in_a_thing_called_love: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -378,18 +478,22 @@ export const i_believe_in_a_thing_called_love: Song = {
       label: 'Section I',
       measuresPerRow: 6,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -406,7 +510,9 @@ export const i_believe_in_a_thing_called_love: Song = {
       id: 'section_t',
       label: 'Section T',
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -414,8 +520,8 @@ export const i_believe_in_a_thing_called_love: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '♯3 maj', chordName: 'A♯', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '3 maj', chordName: 'A♯', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -437,8 +543,12 @@ export const i_believe_in_a_thing_called_love: Song = {
             { degree: '5 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -447,16 +557,24 @@ export const i_believe_in_a_thing_called_love: Song = {
       measuresPerRow: 8,
       repeatCount: 4,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -469,11 +587,17 @@ export const i_believe_in_a_thing_called_love: Song = {
       id: 'section_l_2',
       label: 'Section L',
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
           fermata: true,
         },
       ],

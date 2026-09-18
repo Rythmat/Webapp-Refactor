@@ -65,7 +65,7 @@ export const in_love_with_a_girl: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '4 min7', chordName: 'Cmin7', beat: 2, duration: 1 },
             { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
@@ -105,10 +105,10 @@ export const in_love_with_a_girl: Song = {
       repeatCount: 3,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -117,10 +117,10 @@ export const in_love_with_a_girl: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -151,7 +151,7 @@ export const in_love_with_a_girl: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '4 min7', chordName: 'Cmin7', beat: 2, duration: 1 },
             { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
@@ -191,10 +191,10 @@ export const in_love_with_a_girl: Song = {
       repeatCount: 3,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -203,10 +203,10 @@ export const in_love_with_a_girl: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -222,7 +222,7 @@ export const in_love_with_a_girl: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -236,7 +236,7 @@ export const in_love_with_a_girl: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -257,7 +257,7 @@ export const in_love_with_a_girl: Song = {
       measuresPerRow: 6,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -271,7 +271,7 @@ export const in_love_with_a_girl: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],
@@ -283,10 +283,10 @@ export const in_love_with_a_girl: Song = {
       repeatCount: 4,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -295,10 +295,10 @@ export const in_love_with_a_girl: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {

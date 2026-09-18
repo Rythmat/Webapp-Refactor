@@ -28,9 +28,13 @@ export const wonderwall: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -42,9 +46,13 @@ export const wonderwall: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -63,9 +71,13 @@ export const wonderwall: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -77,9 +89,13 @@ export const wonderwall: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -98,18 +114,26 @@ export const wonderwall: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -129,9 +153,13 @@ export const wonderwall: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -143,9 +171,13 @@ export const wonderwall: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -159,9 +191,13 @@ export const wonderwall: Song = {
       label: 'Bridge',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -169,9 +205,13 @@ export const wonderwall: Song = {
           ],
         },
         { chords: [] },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -185,12 +225,16 @@ export const wonderwall: Song = {
       id: 'section_f',
       label: 'Section F',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '3 maj', chordName: 'A', beat: 1, duration: 1 },
-            { degree: '7 maj/2', chordName: 'E/G♯', beat: 2, duration: 1 },
+            { degree: '♭3 maj', chordName: 'A', beat: 1, duration: 1 },
+            { degree: '♭7 maj/2', chordName: 'E/G♯', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -206,25 +250,33 @@ export const wonderwall: Song = {
       label: 'Verse 2',
       measuresPerRow: 9,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -243,9 +295,13 @@ export const wonderwall: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -257,9 +313,13 @@ export const wonderwall: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -273,9 +333,13 @@ export const wonderwall: Song = {
       label: 'Section F',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -283,9 +347,13 @@ export const wonderwall: Song = {
           ],
         },
         { chords: [] },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -299,12 +367,16 @@ export const wonderwall: Song = {
       id: 'section_j',
       label: 'Section J',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '3 maj', chordName: 'A', beat: 1, duration: 1 },
-            { degree: '7 maj/2', chordName: 'E/G♯', beat: 2, duration: 1 },
+            { degree: '♭3 maj', chordName: 'A', beat: 1, duration: 1 },
+            { degree: '♭7 maj/2', chordName: 'E/G♯', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -321,25 +393,33 @@ export const wonderwall: Song = {
       measuresPerRow: 8,
       repeatCount: 8,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },

@@ -25,7 +25,7 @@ export const beautiful: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'C min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C min7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -48,13 +48,13 @@ export const beautiful: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'C min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '2 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'E♭/G', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'E♭/G', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -80,8 +80,8 @@ export const beautiful: Song = {
             { degree: '1 maj/5', chordName: 'E♭/B♭', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 7', chordName: 'B7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯5 7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 maj/5', chordName: 'E♭/B♭', beat: 1, duration: 4 },
@@ -116,18 +116,18 @@ export const beautiful: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'C min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'C min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
             {
-              degree: '♯6 min7/5',
+              degree: '6 min7/5',
               chordName: 'C min7/B♭',
               beat: 1,
               duration: 4,
@@ -137,7 +137,7 @@ export const beautiful: Song = {
         {
           chords: [
             {
-              degree: '♯6 min7/5',
+              degree: '6 min7/5',
               chordName: 'C min7/B♭',
               beat: 1,
               duration: 4,
@@ -147,7 +147,7 @@ export const beautiful: Song = {
         {
           chords: [
             {
-              degree: '♯6 min7/♭5',
+              degree: '6 min7/♯4',
               chordName: 'C min7/A',
               beat: 1,
               duration: 4,
@@ -157,7 +157,7 @@ export const beautiful: Song = {
         {
           chords: [
             {
-              degree: '♯6 min7/♭5',
+              degree: '6 min7/♯4',
               chordName: 'C min7/A',
               beat: 1,
               duration: 4,
@@ -178,22 +178,22 @@ export const beautiful: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '♯3 maj', chordName: 'G', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♯3 maj', chordName: 'G', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♯7 7', chordName: 'D7b9', beat: 1, duration: 4 }],
+          chords: [{ degree: '7 7', chordName: 'D7b9', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♯7 7', chordName: 'D7b9', beat: 1, duration: 4 }],
+          chords: [{ degree: '7 7', chordName: 'D7b9', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♯3 maj', chordName: 'G', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♯3 maj', chordName: 'G', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -214,35 +214,35 @@ export const beautiful: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'E♭/G', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'E♭/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'E♭/G', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'E♭/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
+            { degree: '♯2 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
+            { degree: '♯2 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♯3 maj', chordName: 'G', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♯3 maj', chordName: 'G', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♯3 maj', chordName: 'G', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♯3 maj', chordName: 'G', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -253,7 +253,7 @@ export const beautiful: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'C min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C min7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -276,13 +276,13 @@ export const beautiful: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'C min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '2 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'E♭/G', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'E♭/G', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -308,8 +308,8 @@ export const beautiful: Song = {
             { degree: '1 maj/5', chordName: 'E♭/B♭', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 7', chordName: 'B7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯5 7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 maj/5', chordName: 'E♭/B♭', beat: 1, duration: 4 },
@@ -348,16 +348,20 @@ export const beautiful: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 6', chordName: 'D♭6', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 6', chordName: 'D♭6', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 6', chordName: 'D♭6', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 6', chordName: 'D♭6', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '4 maj/♯6', chordName: 'A♭/C', beat: 1, duration: 4 },
+            { degree: '4 maj/6', chordName: 'A♭/C', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 maj/♯6', chordName: 'A♭/C', beat: 1, duration: 4 },
+            { degree: '4 maj/6', chordName: 'A♭/C', beat: 1, duration: 4 },
           ],
         },
         {
@@ -365,22 +369,22 @@ export const beautiful: Song = {
         },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'E♭/G', beat: 1, duration: 2 },
+            { degree: '1 maj/3', chordName: 'E♭/G', beat: 1, duration: 2 },
             { degree: '2 min7', chordName: 'F min7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'E♭/G', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'E♭/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'E♭/G', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'E♭/G', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 7', chordName: 'B7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯5 7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -390,28 +394,38 @@ export const beautiful: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '♯6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '7 min7/6', chordName: 'C♯min7/B', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '7 min7/6', chordName: 'C♯min7/B', beat: 1, duration: 4 },
+            { degree: '♯6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
             {
-              degree: '7 min7/5',
+              degree: '♯6 min7/♯5',
+              chordName: 'C♯min7/B',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '♯6 min7/♯5',
+              chordName: 'C♯min7/B',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '♯6 min7/5',
               chordName: 'C♯min7/A♯',
               beat: 1,
               duration: 4,
@@ -421,7 +435,7 @@ export const beautiful: Song = {
         {
           chords: [
             {
-              degree: '7 min7/5',
+              degree: '♯6 min7/5',
               chordName: 'C♯min7/A♯',
               beat: 1,
               duration: 4,
@@ -429,10 +443,10 @@ export const beautiful: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -461,12 +475,12 @@ export const beautiful: Song = {
         },
         {
           chords: [
-            { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '♯2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '♯2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -478,22 +492,22 @@ export const beautiful: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭2 maj/4', chordName: 'E/G♯', beat: 1, duration: 4 },
+            { degree: '♯1 maj/4', chordName: 'E/G♯', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 maj/4', chordName: 'E/G♯', beat: 1, duration: 4 },
+            { degree: '♯1 maj/4', chordName: 'E/G♯', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 dim7', chordName: 'Gdim7', beat: 1, duration: 4 },
+            { degree: '3 dim7', chordName: 'Gdim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 dim7', chordName: 'Gdim7', beat: 1, duration: 4 },
+            { degree: '3 dim7', chordName: 'Gdim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -517,58 +531,58 @@ export const beautiful: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '♯6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '♯6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 maj/6', chordName: 'E/B', beat: 1, duration: 4 },
+            { degree: '♯1 maj/♯5', chordName: 'E/B', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 maj/6', chordName: 'E/B', beat: 1, duration: 4 },
+            { degree: '♯1 maj/♯5', chordName: 'E/B', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'A', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♯4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '♯2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 maj/6', chordName: 'E/B', beat: 1, duration: 4 },
+            { degree: '♯2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 maj/6', chordName: 'E/B', beat: 1, duration: 4 },
+            { degree: '♯1 maj/♯5', chordName: 'E/B', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '♯1 maj/♯5', chordName: 'E/B', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '♯6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -578,29 +592,31 @@ export const beautiful: Song = {
       label: 'Section M',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '3 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯2 7', chordName: 'F♯7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '♭2 maj/4', chordName: 'E/G♯', beat: 1, duration: 1 },
-            { degree: '♭5 min7', chordName: 'Amin7', beat: 2, duration: 1 },
-            { degree: '3 7/5', chordName: 'F♯7/A♯', beat: 3, duration: 1 },
-            { degree: '♭5 maj', chordName: 'A', beat: 4, duration: 1 },
+            { degree: '♯1 maj/4', chordName: 'E/G♯', beat: 1, duration: 1 },
+            { degree: '♯4 min7', chordName: 'Amin7', beat: 2, duration: 1 },
+            { degree: '♯2 7/5', chordName: 'F♯7/A♯', beat: 3, duration: 1 },
+            { degree: '♯4 maj', chordName: 'A', beat: 4, duration: 1 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 maj/6', chordName: 'E/B', beat: 1, duration: 4 },
+            { degree: '♯1 maj/♯5', chordName: 'E/B', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 maj/6', chordName: 'E/B', beat: 1, duration: 4 },
+            { degree: '♯1 maj/♯5', chordName: 'E/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♯6 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯6 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯6 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯6 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -610,42 +626,42 @@ export const beautiful: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '♯2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '♯2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 dim7', chordName: 'Gdim7', beat: 1, duration: 4 },
+            { degree: '3 dim7', chordName: 'Gdim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 dim7', chordName: 'Gdim7', beat: 1, duration: 4 },
+            { degree: '3 dim7', chordName: 'Gdim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 maj/6', chordName: 'E/B', beat: 1, duration: 4 },
+            { degree: '♯1 maj/♯5', chordName: 'E/B', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 maj/6', chordName: 'E/B', beat: 1, duration: 4 },
+            { degree: '♯1 maj/♯5', chordName: 'E/B', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 maj/6', chordName: 'A/B', beat: 1, duration: 4 },
+            { degree: '♯4 maj/♯5', chordName: 'A/B', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 maj/6', chordName: 'A/B', beat: 1, duration: 4 },
+            { degree: '♯4 maj/♯5', chordName: 'A/B', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -656,53 +672,55 @@ export const beautiful: Song = {
       measuresPerRow: 12,
       bars: [
         {
-          chords: [{ degree: '♭2 maj', chordName: 'E', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯1 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'E', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯1 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♭2 7/♯7', chordName: 'E7/D', beat: 1, duration: 4 },
+            { degree: '♯1 7/7', chordName: 'E7/D', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 7/♯7', chordName: 'E7/D', beat: 1, duration: 4 },
+            { degree: '♯1 7/7', chordName: 'E7/D', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'A', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♯4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '♯2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 maj/6', chordName: 'E/B', beat: 1, duration: 4 },
+            { degree: '♯2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '♯1 maj/♯5', chordName: 'E/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭2 maj/4', chordName: 'E/G♯', beat: 1, duration: 1 },
-            { degree: '♭5 min7', chordName: 'Amin7', beat: 2, duration: 1 },
-            { degree: '3 7/5', chordName: 'F♯7/A♯', beat: 3, duration: 2 },
+            { degree: '♯6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♯2 7', chordName: 'F♯7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♯1 maj/4', chordName: 'E/G♯', beat: 1, duration: 1 },
+            { degree: '♯4 min7', chordName: 'Amin7', beat: 2, duration: 1 },
+            { degree: '♯2 7/5', chordName: 'F♯7/A♯', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -713,26 +731,26 @@ export const beautiful: Song = {
       measuresPerRow: 7,
       bars: [
         {
-          chords: [{ degree: '♭5 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♭2 maj/6', chordName: 'E/B', beat: 1, duration: 4 },
+            { degree: '♯1 maj/♯5', chordName: 'E/B', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 maj/6', chordName: 'E/B', beat: 1, duration: 4 },
+            { degree: '♯1 maj/♯5', chordName: 'E/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♯6 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯6 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '♯2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
       ],

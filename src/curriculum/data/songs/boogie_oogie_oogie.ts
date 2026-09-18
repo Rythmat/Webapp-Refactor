@@ -61,10 +61,14 @@ export const boogie_oogie_oogie: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
@@ -84,10 +88,14 @@ export const boogie_oogie_oogie: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
@@ -111,7 +119,7 @@ export const boogie_oogie_oogie: Song = {
             { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -127,7 +135,7 @@ export const boogie_oogie_oogie: Song = {
             { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -146,10 +154,14 @@ export const boogie_oogie_oogie: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
@@ -173,7 +185,7 @@ export const boogie_oogie_oogie: Song = {
             { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -189,7 +201,7 @@ export const boogie_oogie_oogie: Song = {
             { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -208,10 +220,14 @@ export const boogie_oogie_oogie: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
@@ -237,10 +253,14 @@ export const boogie_oogie_oogie: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
@@ -264,7 +284,7 @@ export const boogie_oogie_oogie: Song = {
             { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -280,7 +300,7 @@ export const boogie_oogie_oogie: Song = {
             { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -303,7 +323,7 @@ export const boogie_oogie_oogie: Song = {
             { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -319,7 +339,7 @@ export const boogie_oogie_oogie: Song = {
             { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -337,10 +357,14 @@ export const boogie_oogie_oogie: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },

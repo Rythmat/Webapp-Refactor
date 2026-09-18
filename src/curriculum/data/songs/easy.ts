@@ -30,7 +30,7 @@ export const easy: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -53,7 +53,7 @@ export const easy: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -83,7 +83,7 @@ export const easy: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -106,7 +106,7 @@ export const easy: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -136,7 +136,7 @@ export const easy: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -159,7 +159,7 @@ export const easy: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -189,7 +189,7 @@ export const easy: Song = {
       measuresPerRow: 7,
       bars: [
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -212,16 +212,16 @@ export const easy: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '3 maj/5', chordName: 'D♭/F', beat: 1, duration: 2 },
-            { degree: '3 maj/4', chordName: 'D♭/E♭', beat: 3, duration: 2 },
+            { degree: '♭3 maj/5', chordName: 'D♭/F', beat: 1, duration: 2 },
+            { degree: '♭3 maj/4', chordName: 'D♭/E♭', beat: 3, duration: 2 },
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -231,7 +231,7 @@ export const easy: Song = {
       measuresPerRow: 6,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -242,16 +242,16 @@ export const easy: Song = {
         {
           chords: [
             {
-              degree: '4 min7/7',
+              degree: '4 min7/♭7',
               chordName: 'E♭min7/A♭',
               beat: 1,
               duration: 2,
             },
-            { degree: '3 maj/5', chordName: 'D♭/F', beat: 3, duration: 2 },
+            { degree: '♭3 maj/5', chordName: 'D♭/F', beat: 3, duration: 2 },
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -262,12 +262,12 @@ export const easy: Song = {
         {
           chords: [
             {
-              degree: '4 min7/7',
+              degree: '4 min7/♭7',
               chordName: 'E♭min7/A♭',
               beat: 1,
               duration: 2,
             },
-            { degree: '3 maj/5', chordName: 'D♭/F', beat: 3, duration: 2 },
+            { degree: '♭3 maj/5', chordName: 'D♭/F', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -277,10 +277,10 @@ export const easy: Song = {
       label: 'Section G',
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -291,7 +291,7 @@ export const easy: Song = {
         {
           chords: [
             {
-              degree: '1 min7/7',
+              degree: '1 min7/♭7',
               chordName: 'B♭min7/A♭',
               beat: 1,
               duration: 4,
@@ -305,18 +305,18 @@ export const easy: Song = {
       label: 'Section H',
       bars: [
         {
-          chords: [{ degree: '♭2 maj', chordName: 'B', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯1 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♭2 maj/4', chordName: 'B/E♭', beat: 1, duration: 4 },
+            { degree: '♯1 maj/4', chordName: 'B/E♭', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -326,7 +326,7 @@ export const easy: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -349,7 +349,7 @@ export const easy: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -379,7 +379,7 @@ export const easy: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -402,7 +402,7 @@ export const easy: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -417,7 +417,7 @@ export const easy: Song = {
         {
           chords: [
             {
-              degree: '♭2 min7/♭5',
+              degree: '♯1 min7/♯4',
               chordName: 'Bmin7/E',
               beat: 1,
               duration: 4,
@@ -432,22 +432,22 @@ export const easy: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '♯7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '♯2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '♯1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
             {
-              degree: '♭2 min7/♭5',
+              degree: '♯1 min7/♯4',
               chordName: 'Bmin7/E',
               beat: 1,
               duration: 4,
@@ -455,22 +455,22 @@ export const easy: Song = {
           ],
         },
         {
-          chords: [{ degree: '♯7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '♯2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '♯1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
             {
-              degree: '♭2 min7/♭5',
+              degree: '♯1 min7/♯4',
               chordName: 'Bmin7/E',
               beat: 1,
               duration: 4,

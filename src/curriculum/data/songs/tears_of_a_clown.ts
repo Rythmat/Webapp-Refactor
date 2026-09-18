@@ -97,7 +97,7 @@ export const tears_of_a_clown: Song = {
         { chords: [] },
         {
           chords: [
-            { degree: '7 maj/♭3', chordName: 'F/A', beat: 1, duration: 4 },
+            { degree: '7 maj/♯2', chordName: 'F/A', beat: 1, duration: 4 },
           ],
         },
         { chords: [] },
@@ -191,7 +191,7 @@ export const tears_of_a_clown: Song = {
         { chords: [] },
         {
           chords: [
-            { degree: '7 maj/♭3', chordName: 'F/A', beat: 1, duration: 4 },
+            { degree: '7 maj/♯2', chordName: 'F/A', beat: 1, duration: 4 },
           ],
         },
         { chords: [] },

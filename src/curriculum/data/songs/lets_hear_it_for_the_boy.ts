@@ -88,7 +88,7 @@ export const lets_hear_it_for_the_boy: Song = {
         {
           chords: [
             { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 2 },
-            { degree: '♭5 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
+            { degree: '♯4 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -175,7 +175,7 @@ export const lets_hear_it_for_the_boy: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '♯4 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -261,7 +261,7 @@ export const lets_hear_it_for_the_boy: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '♯4 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },

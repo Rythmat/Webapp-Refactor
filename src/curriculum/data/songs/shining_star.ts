@@ -77,7 +77,7 @@ export const shining_star: Song = {
         {
           chords: [
             { degree: '4 7', chordName: 'A7', beat: 1, duration: 1 },
-            { degree: '♭5 7', chordName: 'A♯7', beat: 2, duration: 1 },
+            { degree: '♯4 7', chordName: 'A♯7', beat: 2, duration: 1 },
             { degree: '5 7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },

@@ -253,37 +253,37 @@ export const tapestry: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '♭5 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 maj/♭5', chordName: 'B/F♯', beat: 1, duration: 4 },
+            { degree: '7 maj/♯4', chordName: 'B/F♯', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 maj/♭5', chordName: 'B/F♯', beat: 1, duration: 4 },
+            { degree: '7 maj/♯4', chordName: 'B/F♯', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 maj/♭5', chordName: 'B/F♯', beat: 1, duration: 4 },
+            { degree: '7 maj/♯4', chordName: 'B/F♯', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 maj', chordName: 'F♯', beat: 1, duration: 2 },
-            { degree: '7 maj/♭5', chordName: 'B/F♯', beat: 3, duration: 2 },
+            { degree: '♯4 maj', chordName: 'F♯', beat: 1, duration: 2 },
+            { degree: '7 maj/♯4', chordName: 'B/F♯', beat: 3, duration: 2 },
           ],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -294,29 +294,29 @@ export const tapestry: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '♯5 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♭6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '♯5 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭7 min7', chordName: 'A♯min7', beat: 1, duration: 2 },
-            { degree: '♭6 min7', chordName: 'G♯min7', beat: 3, duration: 2 },
+            { degree: '♯6 min7', chordName: 'A♯min7', beat: 1, duration: 2 },
+            { degree: '♯5 min7', chordName: 'G♯min7', beat: 3, duration: 2 },
           ],
         },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -327,27 +327,27 @@ export const tapestry: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '♯5 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 7', chordName: 'C♯7sus', beat: 1, duration: 4 },
+            { degree: '♯1 7', chordName: 'C♯7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 7', chordName: 'C♯7sus', beat: 1, duration: 4 },
+            { degree: '♯1 7', chordName: 'C♯7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/♭2', chordName: 'B/C♯', beat: 1, duration: 4 },
+            { degree: '7 maj/♯1', chordName: 'B/C♯', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/♭2', chordName: 'B/C♯', beat: 1, duration: 4 },
+            { degree: '7 maj/♯1', chordName: 'B/C♯', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -358,34 +358,34 @@ export const tapestry: Song = {
       measuresPerRow: 7,
       bars: [
         {
-          chords: [{ degree: '♭5 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 maj/♭5', chordName: 'B/F♯', beat: 1, duration: 4 },
+            { degree: '7 maj/♯4', chordName: 'B/F♯', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 maj/♭5', chordName: 'B/F♯', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭5 maj/♭2', chordName: 'F♯/C♯', beat: 1, duration: 4 },
+            { degree: '7 maj/♯4', chordName: 'B/F♯', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/♭2', chordName: 'B/C♯', beat: 1, duration: 2 },
-            { degree: '♭2 7', chordName: 'C♯7', beat: 3, duration: 2 },
+            { degree: '♯4 maj/♯1', chordName: 'F♯/C♯', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '7 maj/♯1', chordName: 'B/C♯', beat: 1, duration: 2 },
+            { degree: '♯1 7', chordName: 'C♯7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [{ degree: '♯4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
           fermata: true,
         },
       ],

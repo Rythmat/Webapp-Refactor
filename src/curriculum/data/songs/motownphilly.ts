@@ -104,7 +104,7 @@ export const motownphilly: Song = {
         },
         {
           chords: [
-            { degree: '6 dim7', chordName: 'B♭dim7', beat: 1, duration: 2 },
+            { degree: '♭6 dim7', chordName: 'B♭dim7', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
@@ -143,12 +143,12 @@ export const motownphilly: Song = {
         },
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '5 7/♯7', chordName: 'A7/C♯', beat: 3, duration: 2 },
+            { degree: '♭7 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '5 7/7', chordName: 'A7/C♯', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -174,7 +174,7 @@ export const motownphilly: Song = {
         },
         {
           chords: [
-            { degree: '6 dim7', chordName: 'B♭dim7', beat: 1, duration: 2 },
+            { degree: '♭6 dim7', chordName: 'B♭dim7', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
@@ -207,7 +207,7 @@ export const motownphilly: Song = {
         },
         {
           chords: [
-            { degree: '6 dim7', chordName: 'B♭dim7', beat: 1, duration: 2 },
+            { degree: '♭6 dim7', chordName: 'B♭dim7', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
@@ -246,12 +246,12 @@ export const motownphilly: Song = {
         },
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '5 7/♯7', chordName: 'A7/C♯', beat: 3, duration: 2 },
+            { degree: '♭7 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '5 7/7', chordName: 'A7/C♯', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -277,7 +277,7 @@ export const motownphilly: Song = {
         },
         {
           chords: [
-            { degree: '6 dim7', chordName: 'B♭dim7', beat: 1, duration: 2 },
+            { degree: '♭6 dim7', chordName: 'B♭dim7', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
@@ -377,7 +377,7 @@ export const motownphilly: Song = {
         },
         {
           chords: [
-            { degree: '6 dim7', chordName: 'B♭dim7', beat: 1, duration: 2 },
+            { degree: '♭6 dim7', chordName: 'B♭dim7', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },

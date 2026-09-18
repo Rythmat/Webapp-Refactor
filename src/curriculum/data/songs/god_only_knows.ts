@@ -26,7 +26,7 @@ export const god_only_knows: Song = {
         { chords: [], restBars: 3 },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'E/G♯', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'E/G♯', beat: 1, duration: 4 },
           ],
         },
         { chords: [] },
@@ -39,7 +39,7 @@ export const god_only_knows: Song = {
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'E/G♯', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'E/G♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -51,7 +51,7 @@ export const god_only_knows: Song = {
           chords: [
             { degree: '4 maj/1', chordName: 'A/E', beat: 1, duration: 1 },
             { degree: '5 maj/2', chordName: 'B/F♯', beat: 2, duration: 1 },
-            { degree: '6 maj/3', chordName: 'C/G', beat: 3, duration: 2 },
+            { degree: '♭6 maj/♭3', chordName: 'C/G', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -62,7 +62,7 @@ export const god_only_knows: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 maj/4', chordName: 'D/A', beat: 1, duration: 4 },
+            { degree: '♭7 maj/4', chordName: 'D/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -93,7 +93,7 @@ export const god_only_knows: Song = {
         },
         {
           chords: [
-            { degree: '6 dim7', chordName: 'Cdim7', beat: 1, duration: 4 },
+            { degree: '♭6 dim7', chordName: 'Cdim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -115,7 +115,7 @@ export const god_only_knows: Song = {
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'E/G♯', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'E/G♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -127,7 +127,7 @@ export const god_only_knows: Song = {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 1 },
             { degree: '2 maj', chordName: 'F♯', beat: 2, duration: 1 },
-            { degree: '3 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -138,7 +138,7 @@ export const god_only_knows: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 maj/4', chordName: 'D/A', beat: 1, duration: 4 },
+            { degree: '♭7 maj/4', chordName: 'D/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -169,7 +169,7 @@ export const god_only_knows: Song = {
         },
         {
           chords: [
-            { degree: '6 dim7', chordName: 'Cdim7', beat: 1, duration: 4 },
+            { degree: '♭6 dim7', chordName: 'Cdim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -192,7 +192,7 @@ export const god_only_knows: Song = {
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'E/G♯', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'E/G♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -211,7 +211,7 @@ export const god_only_knows: Song = {
             { degree: '4 maj/1', chordName: 'A/E', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'F♯min7', beat: 2, duration: 1 },
             { degree: '4 maj/1', chordName: 'A/E', beat: 3, duration: 1 },
-            { degree: '3 maj', chordName: 'G', beat: 4, duration: 1 },
+            { degree: '♭3 maj', chordName: 'G', beat: 4, duration: 1 },
           ],
         },
         {
@@ -219,7 +219,7 @@ export const god_only_knows: Song = {
             { degree: '4 maj/1', chordName: 'A/E', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'F♯min7', beat: 2, duration: 1 },
             { degree: '4 maj/1', chordName: 'A/E', beat: 3, duration: 1 },
-            { degree: '3 maj', chordName: 'G', beat: 4, duration: 1 },
+            { degree: '♭3 maj', chordName: 'G', beat: 4, duration: 1 },
           ],
         },
         {
@@ -227,7 +227,7 @@ export const god_only_knows: Song = {
             { degree: '4 maj/1', chordName: 'A/E', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'F♯min7', beat: 2, duration: 1 },
             { degree: '4 maj/1', chordName: 'A/E', beat: 3, duration: 1 },
-            { degree: '3 maj', chordName: 'G', beat: 4, duration: 1 },
+            { degree: '♭3 maj', chordName: 'G', beat: 4, duration: 1 },
           ],
         },
         {
@@ -235,7 +235,7 @@ export const god_only_knows: Song = {
             { degree: '4 maj/1', chordName: 'A/E', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'F♯min7', beat: 2, duration: 1 },
             { degree: '4 maj/1', chordName: 'A/E', beat: 3, duration: 1 },
-            { degree: '3 maj', chordName: 'G', beat: 4, duration: 1 },
+            { degree: '♭3 maj', chordName: 'G', beat: 4, duration: 1 },
           ],
         },
       ],
@@ -246,7 +246,7 @@ export const god_only_knows: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 maj/7', chordName: 'G/D', beat: 1, duration: 4 },
+            { degree: '♭3 maj/♭7', chordName: 'G/D', beat: 1, duration: 4 },
           ],
         },
         {
@@ -262,7 +262,7 @@ export const god_only_knows: Song = {
         },
         {
           chords: [
-            { degree: '1 maj/7', chordName: 'E/D', beat: 1, duration: 4 },
+            { degree: '1 maj/♭7', chordName: 'E/D', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -288,7 +288,7 @@ export const god_only_knows: Song = {
         },
         {
           chords: [
-            { degree: '♯7 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
+            { degree: '7 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -298,10 +298,12 @@ export const god_only_knows: Song = {
       label: 'Section L',
       measuresPerRow: 3,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '4 maj/♯6', chordName: 'A/C♯', beat: 1, duration: 4 },
+            { degree: '4 maj/6', chordName: 'A/C♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -317,7 +319,7 @@ export const god_only_knows: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 maj/4', chordName: 'D/A', beat: 1, duration: 4 },
+            { degree: '♭7 maj/4', chordName: 'D/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -348,7 +350,7 @@ export const god_only_knows: Song = {
         },
         {
           chords: [
-            { degree: '6 dim7', chordName: 'Cdim7', beat: 1, duration: 4 },
+            { degree: '♭6 dim7', chordName: 'Cdim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -370,7 +372,7 @@ export const god_only_knows: Song = {
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'E/G♯', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'E/G♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -380,7 +382,7 @@ export const god_only_knows: Song = {
         },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'E/G♯', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'E/G♯', beat: 1, duration: 4 },
           ],
         },
       ],

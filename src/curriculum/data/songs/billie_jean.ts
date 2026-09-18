@@ -159,13 +159,17 @@ export const billie_jean: Song = {
       id: 'bridge',
       label: 'Bridge',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -177,13 +181,17 @@ export const billie_jean: Song = {
       id: 'section_h',
       label: 'Section H',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
       ],
     },
@@ -321,13 +329,17 @@ export const billie_jean: Song = {
       id: 'section_f_2',
       label: 'Section F',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -339,13 +351,17 @@ export const billie_jean: Song = {
       id: 'section_o',
       label: 'Section O',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
       ],
     },

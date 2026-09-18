@@ -35,9 +35,11 @@ export const golden: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
@@ -47,7 +49,7 @@ export const golden: Song = {
           chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
           chords: [

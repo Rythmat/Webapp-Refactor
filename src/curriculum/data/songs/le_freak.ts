@@ -32,7 +32,7 @@ export const le_freak: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
@@ -43,7 +43,7 @@ export const le_freak: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -60,12 +60,14 @@ export const le_freak: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -81,14 +83,14 @@ export const le_freak: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '3 maj', chordName: 'C', beat: 2, duration: 1 },
+            { degree: '♭3 maj', chordName: 'C', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '4 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
@@ -106,14 +108,14 @@ export const le_freak: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '3 maj', chordName: 'C', beat: 2, duration: 1 },
+            { degree: '♭3 maj', chordName: 'C', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '4 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
@@ -124,7 +126,7 @@ export const le_freak: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },
@@ -135,7 +137,9 @@ export const le_freak: Song = {
       label: 'Section E',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -144,7 +148,7 @@ export const le_freak: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '3 maj', chordName: 'C', beat: 2, duration: 1 },
+            { degree: '♭3 maj', chordName: 'C', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },
@@ -158,7 +162,7 @@ export const le_freak: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
@@ -169,14 +173,14 @@ export const le_freak: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '3 maj', chordName: 'C', beat: 2, duration: 1 },
+            { degree: '♭3 maj', chordName: 'C', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '4 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -194,12 +198,14 @@ export const le_freak: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -227,14 +233,14 @@ export const le_freak: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '4 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
@@ -245,7 +251,7 @@ export const le_freak: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -263,14 +269,14 @@ export const le_freak: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '3 maj', chordName: 'C', beat: 2, duration: 1 },
+            { degree: '♭3 maj', chordName: 'C', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '4 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
       ],

@@ -52,15 +52,23 @@ export const could_you_be_loved: Song = {
       label: 'Verse',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -68,15 +76,23 @@ export const could_you_be_loved: Song = {
       label: 'Section C',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -121,7 +137,7 @@ export const could_you_be_loved: Song = {
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '5 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -148,11 +164,13 @@ export const could_you_be_loved: Song = {
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '5 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -160,15 +178,23 @@ export const could_you_be_loved: Song = {
       label: 'Verse 2',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -176,15 +202,23 @@ export const could_you_be_loved: Song = {
       label: 'Section H',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -256,7 +290,7 @@ export const could_you_be_loved: Song = {
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '5 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -284,7 +318,7 @@ export const could_you_be_loved: Song = {
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '5 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -295,8 +329,12 @@ export const could_you_be_loved: Song = {
       label: 'Section M',
       measuresPerRow: 2,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -304,15 +342,23 @@ export const could_you_be_loved: Song = {
       label: 'Section H',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -320,15 +366,23 @@ export const could_you_be_loved: Song = {
       label: 'Section O',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {

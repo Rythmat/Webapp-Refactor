@@ -17,6 +17,7 @@ import {
   KEY_COLORS,
   CHORD_COLORS,
   getChordColor,
+  ionianToModeLabel,
 } from '@prism/engine';
 import { LearnRoutes } from '@/constants/routes';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
@@ -252,10 +253,12 @@ export function InsightContent() {
   const insights = useMemo(() => {
     if (rootNote === null) return [];
 
-    // Prefer stringSeq (manual chord builder), fall back to chordRegions (recording)
+    // Prefer stringSeq (manual chord builder), fall back to chordRegions
+    // (recording). stringSeq counts from the parent major; the cards count
+    // from the key's tonic, like chord regions.
     const source: string[] =
       stringSeq.length > 0
-        ? stringSeq
+        ? stringSeq.map((key) => ionianToModeLabel(key, mode))
         : chordRegions
             .map((r) => r.degreeKey)
             .filter((k): k is string => k != null);

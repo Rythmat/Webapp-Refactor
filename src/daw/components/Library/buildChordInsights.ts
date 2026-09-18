@@ -7,8 +7,6 @@ import {
   chordToneNames,
   respellLeadingChords,
   getChordColor,
-  getModeOffset,
-  ionianToModeLabel,
 } from '@prism/engine';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import type { UnisonChordRegion, UnisonDocument } from '@/unison/types/schema';
@@ -39,7 +37,11 @@ export function unisonChordLookup(
 /**
  * Insight chord cards for a list of degree keys ("2 minor9", "5 dominant13"),
  * one per distinct chord, in first-appearance order — enriched with the
- * matching UNISON chord (roman numeral, diatonic / borrowed) when given.
+ * matching UNISON chord (diatonic / borrowed) when given.
+ *
+ * Degrees count from the key's tonic, as chord-lane regions and UNISON write
+ * them: in A minor, "1 minor" is A minor and "b7 major" is G major. Parent-
+ * relative keys (Prism's stringSeq) go through ionianToModeLabel first.
  */
 export function buildChordInsights(
   degreeKeys: readonly string[],
@@ -49,12 +51,11 @@ export function buildChordInsights(
 ): ChordInsight[] {
   const rootMidi = rootNote + 48;
   // Leading diminished chords are named by where they resolve (Priority 1).
-  const parentRootMidi = rootMidi - getModeOffset(mode);
   const leadingRoots = new Map<string, string>();
   respellLeadingChords(
     degreeKeys.map((degree) => {
       const root = noteNameInKey(
-        degreeMidi(parentRootMidi, degree) % 12,
+        degreeMidi(rootMidi, degree) % 12,
         rootNote,
         mode,
       );
@@ -73,8 +74,7 @@ export function buildChordInsights(
     seen.add(degreeName);
 
     const quality = unstepChord(degreeName);
-    const parentRoot = rootMidi - getModeOffset(mode);
-    const bassMidi = degreeMidi(parentRoot, degreeName);
+    const bassMidi = degreeMidi(rootMidi, degreeName);
     const pitchedNotes = generateChord(bassMidi, quality);
     const chordRoot =
       leadingRoots.get(degreeName) ??
@@ -88,7 +88,7 @@ export function buildChordInsights(
     const rootLetter = displayAccidentals(chordRoot);
     const intervals = CHORDS[quality];
 
-    const [r, g, b] = getChordColor(degreeName, parentRoot);
+    const [r, g, b] = getChordColor(degreeName, rootMidi, mode);
 
     const chordRootPc = bassMidi % 12;
     const chordRootMode = getChordTheory(quality).mode;
@@ -123,8 +123,8 @@ export function buildChordInsights(
     const unisonRegion = unisonChordMap.get(degreeName);
 
     results.push({
-      degreeName: ionianToModeLabel(degreeName, mode),
-      hybrid: degreeToHybrid(ionianToModeLabel(degreeName, mode)),
+      degreeName,
+      hybrid: degreeToHybrid(degreeName),
       quality,
       chordLabel: `${rootLetter} ${formatQuality(quality)}`,
       rootLetter,

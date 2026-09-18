@@ -1,5 +1,6 @@
 import { Suspense, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router';
+import { MobileChordNotationBar } from '@/components/ClassroomLayout/ChordNotationSwitcher';
 import { TopRail } from '@/components/ClassroomLayout/TopRail';
 import { cn } from '@/components/utilities';
 import { useProgressBootstrap } from '@/hooks/data';
@@ -30,6 +31,7 @@ export const ClassroomDashboard = (props: { fallback?: React.ReactNode }) => {
         className="flex min-w-0 flex-1 flex-col overflow-hidden"
       >
         <TopRail />
+        <MobileChordNotationBar />
         <div
           className={cn(
             'relative flex-1 min-w-0',

@@ -25,6 +25,8 @@ import { FileMenu } from './FileMenu';
 import { CircleOfFifths } from '../Prism/CircleOfFifths';
 import { RainbowBorderButton } from '@/components/ui/rainbow-borders-button';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
+import { chordNotationLockTitle } from '@/daw/utils/chordRegionNotation';
+import { useChordNotation } from '@/lib/chordNotation';
 import { CollabToolbar } from '@/daw/collab/ui/CollabToolbar';
 import { ConfirmModal } from '@/daw/components/common/ConfirmModal';
 import { LeaveSavePrompt } from '@/daw/collab/ui/LeaveSavePrompt';
@@ -164,6 +166,9 @@ export const TransportBar = memo(function TransportBar({
   const toggleSnap = useStore((s) => s.toggleTimelineSnap);
   const chordRulerShowNotes = useStore((s) => s.chordRulerShowNotes);
   const toggleChordRulerLabels = useStore((s) => s.toggleChordRulerLabels);
+  // Jazz / Roman decide the chord ruler's labels; the toggle only applies to hybrid.
+  const chordNotation = useChordNotation();
+  const chordRulerLocked = chordNotation !== 'hybrid';
   const libraryOpen = useStore((s) => s.libraryOpen);
   const toggleLibrary = useStore((s) => s.toggleLibrary);
   const userListOpen = useStore((s) => s.userListOpen);
@@ -707,18 +712,26 @@ export const TransportBar = memo(function TransportBar({
 
           {/* Chord Ruler: Numbers ↔ Notes */}
           <motion.button
-            onClick={toggleChordRulerLabels}
-            whileTap={{ scale: 0.85 }}
-            className="flex size-7 cursor-pointer items-center justify-center rounded-md transition-colors hover:bg-white/5"
+            onClick={chordRulerLocked ? undefined : toggleChordRulerLabels}
+            whileTap={chordRulerLocked ? undefined : { scale: 0.85 }}
+            aria-disabled={chordRulerLocked || undefined}
+            className={
+              chordRulerLocked
+                ? 'flex size-7 cursor-default items-center justify-center rounded-md opacity-40'
+                : 'flex size-7 cursor-pointer items-center justify-center rounded-md transition-colors hover:bg-white/5'
+            }
             style={{
-              color: chordRulerShowNotes
-                ? 'var(--color-accent)'
-                : 'var(--color-text-dim)',
+              color:
+                chordRulerShowNotes && !chordRulerLocked
+                  ? 'var(--color-accent)'
+                  : 'var(--color-text-dim)',
             }}
             title={
-              chordRulerShowNotes
-                ? 'Chord Ruler: Degree Numbers'
-                : 'Chord Ruler: Note Names'
+              chordRulerLocked
+                ? chordNotationLockTitle(chordNotation)
+                : chordRulerShowNotes
+                  ? 'Chord Ruler: Degree Numbers'
+                  : 'Chord Ruler: Note Names'
             }
           >
             <Hash size={14} strokeWidth={2} />

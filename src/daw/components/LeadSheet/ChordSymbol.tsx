@@ -1,11 +1,20 @@
 import { memo, useState, useCallback, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { formatChordSymbol, type ChordFormat } from '@/daw/midi/leadSheetUtils';
+import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
+import type { ChordNotation } from '@/lib/chordNotation';
 
 interface ChordSymbolProps {
   noteName: string;
   degreeName?: string;
+  /** Long degree key of the region ("2 minor7"), when it has one. */
+  degreeKey?: string;
   format: ChordFormat;
+  /** Global chord notation; jazz / roman override `format`. Default hybrid. */
+  notation?: ChordNotation;
+  /** Key tonic pitch class and mode, for jazz / roman. */
+  keyRootPc?: number | null;
+  keyMode?: string;
   x: number;
   y: number;
   isSelected: boolean;
@@ -26,7 +35,11 @@ interface ChordSymbolProps {
 export const ChordSymbol = memo(function ChordSymbol({
   noteName,
   degreeName,
+  degreeKey,
   format,
+  notation = 'hybrid',
+  keyRootPc,
+  keyMode,
   x,
   y,
   isSelected,
@@ -65,7 +78,16 @@ export const ChordSymbol = memo(function ChordSymbol({
     [onSelect, regionId],
   );
 
-  const displayText = formatChordSymbol(noteName, format, degreeName);
+  const formattedText = formatChordSymbol(noteName, format, degreeName);
+  const displayText =
+    notation === 'hybrid'
+      ? formattedText
+      : formatChordRegion(
+          { name: degreeName ?? noteName, noteName, degreeKey },
+          notation,
+          { keyRootPc, mode: keyMode },
+          formattedText,
+        );
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {

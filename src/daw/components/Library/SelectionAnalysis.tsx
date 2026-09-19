@@ -8,10 +8,20 @@ import {
   noteSelectionKey,
   resolveNoteSelection,
 } from '@/daw/utils/insightSelection';
+import {
+  formatChord,
+  useChordNotation,
+  type ChordNotation,
+} from '@/lib/chordNotation';
 import type { UnisonDocument } from '@/unison/types/schema';
 import { buildChordInsights, unisonChordLookup } from './buildChordInsights';
 import { ChordCard } from './ChordCard';
 import { degreeToHybrid } from './insightConstants';
+import {
+  analyzedChordSpec,
+  chordLabelSymbol,
+  keyContext,
+} from './insightNotation';
 import { UnisonSections } from './UnisonSections';
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
@@ -38,6 +48,9 @@ export function SelectionAnalysis() {
   const analyzeChordSelection = useStore((s) => s.analyzeChordSelection);
   const analyzeNoteSelection = useStore((s) => s.analyzeNoteSelection);
   const clearSelectionAnalysis = useStore((s) => s.clearSelectionAnalysis);
+  const rootNote = useStore((s) => s.rootNote);
+  const mode = useStore((s) => s.mode);
+  const notation = useChordNotation();
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
   // Selected chords that still exist (re-deriving chords gives them new ids),
@@ -103,6 +116,11 @@ export function SelectionAnalysis() {
 
   const count = kind === 'notes' ? noteCount : selectedChords.length;
   const unit = kind === 'notes' ? 'note' : 'chord';
+  // The chord lane is named in the session key; without one, the analysis's.
+  const chipContext =
+    rootNote !== null
+      ? keyContext(rootNote, mode)
+      : keyContext(doc?.analysis.key.rootPc, doc?.analysis.key.mode);
 
   return (
     <div
@@ -146,7 +164,7 @@ export function SelectionAnalysis() {
           {kind === 'chords'
             ? selectedChords.map((r) => (
                 <Chip key={r.id} rgb={r.color}>
-                  {displayAccidentals(r.noteName)}
+                  {chordLabelSymbol(r.noteName, notation, chipContext)}
                 </Chip>
               ))
             : pickedNotes.map(({ track, events }) => (
@@ -179,8 +197,8 @@ export function SelectionAnalysis() {
 
       {doc && (
         <>
-          <HarmonySummary doc={doc} />
-          <VoiceLeading doc={doc} />
+          <HarmonySummary doc={doc} notation={notation} />
+          <VoiceLeading doc={doc} notation={notation} />
           {cards.map((chord) => (
             <ChordCard
               key={chord.degreeName}
@@ -257,12 +275,26 @@ function Badge({
   );
 }
 
-/** The selection's chords as roman numerals in the key, and how far they
- *  stray from it. */
-function HarmonySummary({ doc }: { doc: UnisonDocument }) {
+/** The selection's chords in the chosen notation, in the key, and how far
+ *  they stray from it. */
+function HarmonySummary({
+  doc,
+  notation,
+}: {
+  doc: UnisonDocument;
+  notation: ChordNotation;
+}) {
   const { key, chordTimeline, modalInterchangeSummary, tonalRegions } =
     doc.analysis;
   const diatonic = chordTimeline.filter((c) => c.isDiatonic !== false).length;
+  // Jazz / Roman: one symbol per chord, so the letter line keeps only the key.
+  const context = keyContext(key.rootPc, key.mode);
+  const symbols =
+    notation === 'hybrid'
+      ? null
+      : chordTimeline.map((c) =>
+          formatChord(analyzedChordSpec(c), notation, context),
+        );
   const tonicizations = (tonalRegions ?? [])
     .filter((t) => t.type === 'tonicization')
     .map((t) => `${displayAccidentals(t.key.rootName)} ${t.key.modeDisplay}`);
@@ -288,17 +320,27 @@ function HarmonySummary({ doc }: { doc: UnisonDocument }) {
             className="text-[11px] font-semibold"
             style={{ color: 'var(--color-text)' }}
           >
-            {chordTimeline
-              .map((c) =>
-                degreeToHybrid(ionianToModeLabel(c.hybridName, key.mode)),
-              )
-              .join(' → ')}
+            {symbols
+              ? symbols.join(' → ')
+              : chordTimeline
+                  .map((c) =>
+                    degreeToHybrid(ionianToModeLabel(c.hybridName, key.mode)),
+                  )
+                  .join(' → ')}
           </span>
           <span className="text-[9px]" style={labelStyle}>
-            {chordTimeline
-              .map((c) => displayAccidentals(c.noteName))
-              .join(' – ')}{' '}
-            · in {displayAccidentals(key.rootName)} {key.modeDisplay}
+            {symbols ? (
+              <>
+                in {displayAccidentals(key.rootName)} {key.modeDisplay}
+              </>
+            ) : (
+              <>
+                {chordTimeline
+                  .map((c) => displayAccidentals(c.noteName))
+                  .join(' – ')}{' '}
+                · in {displayAccidentals(key.rootName)} {key.modeDisplay}
+              </>
+            )}
           </span>
           <div className="flex flex-wrap gap-1">
             <Badge tone="dim">
@@ -337,13 +379,22 @@ function HarmonySummary({ doc }: { doc: UnisonDocument }) {
 }
 
 /** How the voices move from each chord in the selection to the next. */
-function VoiceLeading({ doc }: { doc: UnisonDocument }) {
+function VoiceLeading({
+  doc,
+  notation,
+}: {
+  doc: UnisonDocument;
+  notation: ChordNotation;
+}) {
   const summary = doc.analysis.voiceLeading;
   if (!summary) return null;
+  const context = keyContext(doc.analysis.key.rootPc, doc.analysis.key.mode);
   const names = new Map(
     doc.analysis.chordTimeline.map((c) => [
       c.id,
-      displayAccidentals(c.noteName),
+      notation === 'hybrid'
+        ? displayAccidentals(c.noteName)
+        : formatChord(analyzedChordSpec(c), notation, context),
     ]),
   );
 

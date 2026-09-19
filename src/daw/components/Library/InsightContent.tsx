@@ -21,7 +21,9 @@ import {
 import { LearnRoutes } from '@/constants/routes';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
+import { useChordNotation } from '@/lib/chordNotation';
 import { getChordTheory } from './chordTheoryMap';
+import { keyContext, liveChordLabels } from './insightNotation';
 import {
   PARENT_SCALE_INFO,
   FAMILY_INTERVALS,
@@ -48,6 +50,7 @@ export function InsightContent() {
   const stringSeq = useStore((s) => s.stringSeq);
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
+  const notation = useChordNotation();
   const hwActiveNotes = useStore((s) => s.hwActiveNotes);
   const audioActiveNotes = useStore((s) => s.audioActiveNotes);
 
@@ -215,6 +218,8 @@ export function InsightContent() {
     return {
       chordLabel,
       hybrid,
+      quality,
+      inversion,
       rootLetter,
       noteNames: sorted.map((n) =>
         displayAccidentals(
@@ -236,6 +241,11 @@ export function InsightContent() {
       alternatives,
     };
   }, [activeNotes, rootNote, mode]);
+
+  // The live chord's label in the chosen notation (hybrid: as above).
+  const liveLabels =
+    liveChord &&
+    liveChordLabels(liveChord, notation, keyContext(rootNote, mode));
 
   // ── Progression insights (with UNISON enrichment) ──
 
@@ -290,14 +300,14 @@ export function InsightContent() {
                 className="text-[11px] font-semibold"
                 style={{ color: 'var(--color-text)' }}
               >
-                {liveChord.chordLabel}
+                {liveLabels?.title}
               </span>
-              {liveChord.hybrid && (
+              {liveLabels?.detail && (
                 <span
                   className="text-[10px]"
                   style={{ color: 'var(--color-text-dim)' }}
                 >
-                  {liveChord.hybrid}
+                  {liveLabels.detail}
                 </span>
               )}
             </div>

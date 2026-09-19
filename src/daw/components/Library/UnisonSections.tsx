@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useStore } from '@/daw/store';
+import { formatProgression, useChordNotation } from '@/lib/chordNotation';
 import { midiToNoteName } from './insightConstants';
+import { keyContext } from './insightNotation';
 import type { UnisonDocument } from '@/unison/types/schema';
 
 interface UnisonSectionsProps {
@@ -17,6 +19,12 @@ export function UnisonSections({
   const [expandedMatches, setExpandedMatches] = useState(false);
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
+  const notation = useChordNotation();
+  // Progression degrees in the session key; without one, the analysis's key.
+  const progressionContext =
+    rootNote !== null
+      ? keyContext(rootNote, mode)
+      : keyContext(unisonDoc.analysis.key.rootPc, unisonDoc.analysis.key.mode);
 
   return (
     <>
@@ -46,7 +54,11 @@ export function UnisonSections({
                   className="text-[10px] font-medium"
                   style={{ color: 'var(--color-text)' }}
                 >
-                  {match.progression}
+                  {formatProgression(
+                    match.progression,
+                    notation,
+                    progressionContext,
+                  )}
                 </span>
                 <span
                   className="text-[9px] font-mono"

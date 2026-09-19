@@ -8,6 +8,8 @@ interface SegmentedControlProps<V extends string> {
   options: { value: V; label: string }[];
   value: V;
   onChange: (v: V) => void;
+  /** 'lg' gives touch-sized (44px) segments, for phone layouts. */
+  size?: 'sm' | 'lg';
 }
 
 export const SegmentedControl = <V extends string>({
@@ -15,6 +17,7 @@ export const SegmentedControl = <V extends string>({
   options,
   value,
   onChange,
+  size = 'sm',
 }: SegmentedControlProps<V>) => {
   return (
     <div
@@ -28,7 +31,9 @@ export const SegmentedControl = <V extends string>({
           type="button"
           onClick={() => onChange(opt.value)}
           aria-pressed={opt.value === value}
-          className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+          className={`rounded-full font-medium transition-colors ${
+            size === 'lg' ? 'min-h-11 px-4 text-sm' : 'px-3 py-1 text-xs'
+          } ${
             opt.value === value
               ? 'bg-white text-black'
               : 'text-white/60 hover:text-white'

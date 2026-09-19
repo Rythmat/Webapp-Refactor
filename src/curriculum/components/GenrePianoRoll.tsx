@@ -43,6 +43,10 @@ export interface PianoRollProps {
   playSpeed?: number; // beats per minute traversal speed
   isPlaying?: boolean;
   onPlayingChange?: (playing: boolean) => void;
+  /** Ticks since in-time playback began, read from the audio clock, or null
+   *  before it starts. When given, the playhead follows it every frame instead
+   *  of advancing by frame time, so it stays on what the student hears. */
+  playbackTicks?: () => number | null;
   activeMidis?: number[];
   noteHoldMeta?: Record<string, NoteHoldMeta>;
   performanceMeta?: Record<string, { startTick: number; endTick?: number }>;
@@ -223,6 +227,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   playSpeed = 60,
   isPlaying,
   onPlayingChange,
+  playbackTicks,
   activeMidis = [],
   noteHoldMeta,
   performanceMeta,
@@ -305,6 +310,17 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
     let rafId: number;
     let lastTime: number | null = null;
     const maxTick = bars * ticksPerBar;
+    // The transport takes a moment to start after a run begins; hold at the
+    // count-in until its clock is seen to advance. If it never does — audio
+    // failed to start, or the read is stuck — run on this clock rather than
+    // freezing the lesson.
+    let firstClockTicks: number | null = null;
+    let clockAlive = false;
+    let waitedSeconds = 0;
+    const CLOCK_GRACE_SEC = 1;
+    // A stuck read still wobbles by float crumbs; real playback moves this far
+    // within a few frames at any lesson tempo.
+    const CLOCK_ALIVE_TICKS = 30;
 
     const animate = (timestamp: number) => {
       if (lastTime === null) {
@@ -315,10 +331,41 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
 
       const deltaSeconds = (timestamp - lastTime) / 1000;
       lastTime = timestamp;
+      let clockTicks: number | null | undefined;
+      try {
+        clockTicks = playbackTicks?.();
+      } catch {
+        clockTicks = null; // a failed read must never stop the playhead
+      }
+      if (clockTicks != null && !clockAlive) {
+        if (firstClockTicks == null) firstClockTicks = clockTicks;
+        else if (clockTicks - firstClockTicks > CLOCK_ALIVE_TICKS)
+          clockAlive = true;
+      }
+      if (!clockAlive) waitedSeconds += deltaSeconds;
 
       let reachedEnd = false;
       setPlayheadTick((prev) => {
-        let next = prev + deltaSeconds * playheadTicksPerSecond;
+        const freeRunning = prev + deltaSeconds * playheadTicksPerSecond;
+        let next: number;
+        if (playbackTicks === undefined) {
+          next = freeRunning;
+        } else if (clockAlive) {
+          // Follow the transport; once it stops, the run is over — hold.
+          next = clockTicks != null ? clockTicks - countInTicks : prev;
+        } else if (waitedSeconds > CLOCK_GRACE_SEC) {
+          if (
+            import.meta.env.DEV &&
+            waitedSeconds - deltaSeconds <= CLOCK_GRACE_SEC
+          ) {
+            console.warn(
+              `[GenrePianoRoll] transport clock ${clockTicks == null ? 'never started' : `stuck at ${clockTicks.toFixed(0)} ticks`}; playhead is running on its own clock`,
+            );
+          }
+          next = freeRunning;
+        } else {
+          next = prev; // waiting for the transport to start
+        }
         if (next >= maxTick) {
           next = maxTick;
           reachedEnd = true;
@@ -348,6 +395,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
     beatsPerBar,
     playing,
     onTickChange,
+    playbackTicks,
     ticksPerBar,
   ]);
 

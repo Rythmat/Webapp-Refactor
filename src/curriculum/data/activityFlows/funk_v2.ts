@@ -1581,13 +1581,13 @@ const funkL1SectionD: ActivitySectionV2 = {
       targetNotes: [
         // LH — D2 root groove
         { midi: 38, onset: 0, duration: 460, hand: 'lh' }, // D2 beat1
-        { midi: 38, onset: 400, duration: 120, hand: 'lh' }, // D2 a-of-1
+        { midi: 38, onset: 360, duration: 120, hand: 'lh' }, // D2 a-of-1
         { midi: 38, onset: 960, duration: 460, hand: 'lh' }, // D2 beat3
-        { midi: 38, onset: 1360, duration: 120, hand: 'lh' }, // D2 a-of-3
+        { midi: 38, onset: 1320, duration: 120, hand: 'lh' }, // D2 a-of-3
         { midi: 38, onset: 1920, duration: 460, hand: 'lh' }, // D2 beat1 bar2
-        { midi: 38, onset: 2320, duration: 120, hand: 'lh' }, // D2 a-of-1
+        { midi: 38, onset: 2280, duration: 120, hand: 'lh' }, // D2 a-of-1
         { midi: 38, onset: 2880, duration: 460, hand: 'lh' }, // D2 beat3
-        { midi: 38, onset: 3280, duration: 120, hand: 'lh' }, // D2 a-of-3
+        { midi: 38, onset: 3240, duration: 120, hand: 'lh' }, // D2 a-of-3
         // RH bar1 — call phrase
         { midi: 69, onset: 0, duration: 480, hand: 'rh' }, // A4 beat1
         { midi: 65, onset: 600, duration: 240, hand: 'rh' }, // F4 e-of-2
@@ -5440,9 +5440,9 @@ const funkL3SectionC: ActivitySectionV2 = {
     // ── C3: Bass Play-Along (2 steps) ────────────────────────────────────
 
     // C3.1 / C3.2 — 4-Bar Bass Line: Amin9→Ddom13→Amin9→E7#5
-    // Bar 1 (Amin9):  A1[0,120], rest×2, A1[360,120], 8th rest, G1[720,240], A1[960,240], C2[1200,240], C#2[1440,240]
+    // Bar 1 (Amin9):  A1[0,120], rest×2, A1[360,120], 8th rest, G1[720,240], A1[960,240], C2[1440,240], C#2[1680,240]
     // Bar 2 (Ddom13): D2[1920,120], rest×2, D2[2280,120], 8th rest, C2[2640,240], D2[2880,240], C2[3120,240]
-    // Bar 3 (Amin9):  A1[3840,120], rest×2, A1[4200,120], 8th rest, G1[4560,240], A1[4800,240], D2[5040,240], D#2[5280,240]
+    // Bar 3 (Amin9):  A1[3840,120], rest×2, A1[4200,120], 8th rest, G1[4560,240], A1[4800,240], D2[5280,240], D#2[5520,240]
     // Bar 4 (E7#5):   E2[5760,120], rest×2, E2[6120,120], 8th rest, D2[6480,240], E2[6720,240], 8th rest, G1[7200,120], 16th rest, G#1[7440,120]
     // Final downbeat: A1[7680]
     // NOTE: Bar 2 ends at 3840 (C2 ends 3360, quarter rest to 3840).
@@ -5522,8 +5522,8 @@ const funkL3SectionC: ActivitySectionV2 = {
         { midi: 33, onset: 360, duration: 120 },
         { midi: 31, onset: 720, duration: 240 },
         { midi: 33, onset: 960, duration: 240 },
-        { midi: 36, onset: 1200, duration: 240 },
-        { midi: 37, onset: 1440, duration: 240 },
+        { midi: 36, onset: 1440, duration: 240 },
+        { midi: 37, onset: 1680, duration: 240 },
         { midi: 38, onset: 1920, duration: 120 },
         { midi: 38, onset: 2280, duration: 120 },
         { midi: 36, onset: 2640, duration: 240 },
@@ -5533,8 +5533,8 @@ const funkL3SectionC: ActivitySectionV2 = {
         { midi: 33, onset: 4200, duration: 120 },
         { midi: 31, onset: 4560, duration: 240 },
         { midi: 33, onset: 4800, duration: 240 },
-        { midi: 38, onset: 5040, duration: 240 },
-        { midi: 39, onset: 5280, duration: 240 },
+        { midi: 38, onset: 5280, duration: 240 },
+        { midi: 39, onset: 5520, duration: 240 },
         { midi: 40, onset: 5760, duration: 120 },
         { midi: 40, onset: 6120, duration: 120 },
         { midi: 38, onset: 6480, duration: 240 },

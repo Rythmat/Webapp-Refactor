@@ -60,8 +60,8 @@ describe('chord cards', () => {
   });
 
   it('numbers from the mode tonic', () => {
-    // Degree keys are relative to the parent major scale: D dorian's i is "2".
-    const [card] = buildChordInsights(['2 minor7'], 2, 'dorian', new Map());
+    // Degree keys count from the key's tonic: D dorian's i is "1".
+    const [card] = buildChordInsights(['1 minor7'], 2, 'dorian', new Map());
     const D = keyContext(2, 'dorian');
     expect(chordCardLabels(card, 'jazz', D).title).toBe('D−7');
     expect(chordCardLabels(card, 'roman', D).title).toBe('i7');

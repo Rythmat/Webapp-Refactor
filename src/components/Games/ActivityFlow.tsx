@@ -182,6 +182,17 @@ function PracticeLevelPicker({
 
 type SectionId = 'O' | 'A' | 'B';
 
+/** One activity as the flow builds it, before it gets its ids and events. */
+type FlowSequenceItem = {
+  key: string;
+  label: string;
+  Component: (props: FlowActivityProps) => JSX.Element;
+  seq: NoteEvent[];
+  direction: string;
+  section: SectionId;
+  chordSymbols?: readonly LessonChordSymbol[];
+};
+
 type ActivityDefinition = {
   activityDefId: string;
   activityInstanceId: string;
@@ -417,7 +428,9 @@ export const ActivityFlow = ({
     // Already resolved to MIDI and constrained by the `melodyPhrases` memo
     // below — see content/melodyConstraints.ts.
 
-    const sequences = [
+    // Typed up front: the first entries carry no chord symbols, and an
+    // inferred type would then reject the chord activities that do.
+    const sequences: FlowSequenceItem[] = [
       overviewItem,
       {
         key: 'asc-nh',

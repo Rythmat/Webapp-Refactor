@@ -79,7 +79,7 @@ describe('advancePlayhead', () => {
     // At 95 BPM the transport passes the 30-tick threshold in well under a
     // beat, so the hold is imperceptible rather than a count.
     const perFrame = TICKS_PER_SECOND * FRAME; // ~12.7 ticks
-    const readings = [null, null];
+    const readings: (number | null)[] = [null, null];
     for (let i = 0; i < 6; i++) readings.push(5000 + i * perFrame);
     const { ticks } = run(readings);
     const moving = ticks.findIndex((t) => t !== -COUNT_IN);

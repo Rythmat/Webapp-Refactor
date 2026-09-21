@@ -6,11 +6,13 @@
 > The mockup guide (`docs/renovation/mockup-guide.md`) records the product decisions made since.
 >
 > - **S0-1 firewall.** `findForbiddenKey` was already narrowed to key names only in `2f64f180` (Sep 3). A `'clo'` message can only come from the client-side check, and current code can't produce it on a normal lesson, so the report most likely came from an older deployed build: **confirm the deployed build first**. Still worth doing:
+>
 >   - switch to exact-key matching;
 >   - fix the outdated text-based check in `slides/contentRefs.ts:113`, which still blocks e.g. `tears_of_a_clown`;
 >   - rebuild published snapshots, which are reused forever by `PlanPage.handleStartSession` and have no per-snapshot version.
 >
 >   The Present path is `PlanPage.tsx:437` → `handleStartSession` → `publishDayToClassroom` → `window.alert`.
+>
 > - **S0-2 Console.** An exit button alone won't work. `src/contexts/AuthContext/ProtectedPage.tsx:87-92` redirects every admin or editor back to `/console`, and so does `AuthPage.tsx:23-25`. Fix the redirect, then add the exit link. Flag for Ryan: do teachers wrongly hold the `editor` role?
 > - **S0-3 Globe links.** The bug is in `src/features/songs/useSongActions.ts:66`, not the files listed below. It goes to `/atlas?event=` (the dashboard, which ignores `event`) instead of `/atlas/globe`. Use the existing `songGlobeRoute` (`slides/songDeepLinks.ts:86`). The same hook also serves `SongCard`, `SongLibraryPage` and `FeaturedSongCard`.
 > - **S3-1 / D5 co-teacher invites.** A generated `/classrooms/:id/teachers` endpoint with `viewer|editor` roles already exists and no UI uses it. That is a quicker path than waiting on the new `/invitations` endpoint.
@@ -60,18 +62,18 @@ Orientation for anyone (or any agent) reading this cold.
 `src/features/classroom/` is 281 files and already implements most of the
 Plan/Present blueprint:
 
-| Capability | Location |
-|---|---|
-| Slide deck model (6 slide kinds, freeform 1280×720 block layout, per-block text style) | `slides/types.ts` |
-| Deck editor (filmstrip, canvas, add-slide menu, content picker) | `plan/deckEditor/` |
-| Content picker tabs: Songs, Globe, Genre, Theory, Studio, Eras, Events, Regions | `plan/deckEditor/contentPicker/` |
-| Live sessions (socket controller, slide gating, roster, projector, timers, pairing, showcase) | `live/` |
-| 7 interaction input types + response aggregation and viz | `live/interactions/`, `slides/viz/` |
-| MSP — Atlas module as live answer (token mint, response inbox, completion) | `msp/` |
-| Assignments (composer, runner, progress, response dashboard) | `assignments/` |
-| Enrollments with status state machine | `enrollments/` |
-| Annual plan (calendar, DnD, school calendar, stub materialization, unit alignment) | `annual/` |
-| Student-safe projection + firewall | `publish/publishDay.ts`, `buildStudentView.ts` |
+| Capability                                                                                    | Location                                       |
+| --------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| Slide deck model (6 slide kinds, freeform 1280×720 block layout, per-block text style)        | `slides/types.ts`                              |
+| Deck editor (filmstrip, canvas, add-slide menu, content picker)                               | `plan/deckEditor/`                             |
+| Content picker tabs: Songs, Globe, Genre, Theory, Studio, Eras, Events, Regions               | `plan/deckEditor/contentPicker/`               |
+| Live sessions (socket controller, slide gating, roster, projector, timers, pairing, showcase) | `live/`                                        |
+| 7 interaction input types + response aggregation and viz                                      | `live/interactions/`, `slides/viz/`            |
+| MSP — Atlas module as live answer (token mint, response inbox, completion)                    | `msp/`                                         |
+| Assignments (composer, runner, progress, response dashboard)                                  | `assignments/`                                 |
+| Enrollments with status state machine                                                         | `enrollments/`                                 |
+| Annual plan (calendar, DnD, school calendar, stub materialization, unit alignment)            | `annual/`                                      |
+| Student-safe projection + firewall                                                            | `publish/publishDay.ts`, `buildStudentView.ts` |
 
 Stable IDs already exist where the blueprint needs them: `Day.id`,
 `Day.scheduledDate`, `Unit.dayIds` (cross-reference, not containment).
@@ -91,12 +93,12 @@ Stable IDs already exist where the blueprint needs them: `Day.id`,
 **Everything in `features/classroom` is localStorage-backed.** This is deliberate and
 documented in the source, but it governs what Stage 1 can deliver.
 
-| Store | Key | Note in source |
-|---|---|---|
-| `plan/useLocalPlan.ts` | `ma-teacher:plan:v1` | "nothing hits the server until v2's Supabase schema ships" |
-| `live/sessionsStore.ts` | `ma-teacher:sessions:v1` | "local CustomEvent + storage broadcast mocks realtime… Ryan's PartyKit handler in Sprint 5 binds to this shape 1:1" |
-| `enrollments/enrollmentsStore.ts` | `ma-teacher:enrollments:v1` | "matches Ryan's REST shape" |
-| `publish/usePublishedDays.ts` | (local) | "there is no GET-one endpoint on the backend" |
+| Store                             | Key                         | Note in source                                                                                                      |
+| --------------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `plan/useLocalPlan.ts`            | `ma-teacher:plan:v1`        | "nothing hits the server until v2's Supabase schema ships"                                                          |
+| `live/sessionsStore.ts`           | `ma-teacher:sessions:v1`    | "local CustomEvent + storage broadcast mocks realtime… Ryan's PartyKit handler in Sprint 5 binds to this shape 1:1" |
+| `enrollments/enrollmentsStore.ts` | `ma-teacher:enrollments:v1` | "matches Ryan's REST shape"                                                                                         |
+| `publish/usePublishedDays.ts`     | (local)                     | "there is no GET-one endpoint on the backend"                                                                       |
 
 `src/lib/classroom-sessions/api.ts` calls a real endpoint but catches all errors and
 returns `[]`, "so the feature is inert until the backend ships."
@@ -114,13 +116,13 @@ referenced throughout the source but **are not tracked in this repo**. See `S3-0
 These block or reshape work downstream. Defaults are proposed so implementation is
 not stalled; changing a default after the fact is expensive where noted.
 
-| # | Decision | Blocks | Proposed default |
-|---|---|---|---|
-| D1 | **Image storage.** Teacher uploads to our bucket, or selection from a curated Atlas media library, or both? | `S1-4`, `S1-5` | Both, phased: library picker first (no new infra), upload second. |
-| D2 | **Four phases or five.** The renovation sketches show Connect / Practice / Create / Wrap-Up. The code implements five, with `presentPerform` as a first-class phase. | Nothing in Stage 1 | Keep five. Sketches were a brainstorm; changing `PHASES` touches taxonomy, seeds, activity records, reports, and every deck. Revisit as its own project. |
-| D3 | **"Make it Google Slides."** Does this mean freeform drag-and-drop authoring parity, or specific missing primitives (text box, image, link)? | `S1` scope | Primitives, not parity. `SlideLayout` already supports freeform blocks. |
-| D4 | **Firewall posture on Present.** Hard-fail or fail-soft? | `S0-1` | Fail-soft on read/present, hard-fail on write/publish. Rationale in `S0-1`. |
-| D5 | **Co-teacher invites**: extend the existing platform-level `musicAtlas.teachers.postTeachersInvitations`, or ship classroom-scoped `POST /classrooms/:id/invitations`? | `S3-1` | Ryan's call. Client is already written against the latter. |
+| #   | Decision                                                                                                                                                               | Blocks             | Proposed default                                                                                                                                         |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | **Image storage.** Teacher uploads to our bucket, or selection from a curated Atlas media library, or both?                                                            | `S1-4`, `S1-5`     | Both, phased: library picker first (no new infra), upload second.                                                                                        |
+| D2  | **Four phases or five.** The renovation sketches show Connect / Practice / Create / Wrap-Up. The code implements five, with `presentPerform` as a first-class phase.   | Nothing in Stage 1 | Keep five. Sketches were a brainstorm; changing `PHASES` touches taxonomy, seeds, activity records, reports, and every deck. Revisit as its own project. |
+| D3  | **"Make it Google Slides."** Does this mean freeform drag-and-drop authoring parity, or specific missing primitives (text box, image, link)?                           | `S1` scope         | Primitives, not parity. `SlideLayout` already supports freeform blocks.                                                                                  |
+| D4  | **Firewall posture on Present.** Hard-fail or fail-soft?                                                                                                               | `S0-1`             | Fail-soft on read/present, hard-fail on write/publish. Rationale in `S0-1`.                                                                              |
+| D5  | **Co-teacher invites**: extend the existing platform-level `musicAtlas.teachers.postTeachersInvitations`, or ship classroom-scoped `POST /classrooms/:id/invitations`? | `S3-1`             | Ryan's call. Client is already written against the latter.                                                                                               |
 
 ---
 
@@ -133,10 +135,11 @@ everything else.
 
 **Priority:** P0. A teacher standing in front of a class currently cannot present.
 
-**Reported as:** *"Pressing Present on a lesson brings up Error Rule 1 firewall
-violation: 'clo'"*
+**Reported as:** _"Pressing Present on a lesson brings up Error Rule 1 firewall
+violation: 'clo'"_
 
 **Files:**
+
 - `src/features/classroom/publish/publishDay.ts`
 - `src/features/classroom/publish/usePublishedDays.ts` (throw sites ~171–174, ~304–307, ~325)
 - `src/features/classroom/assignments/AssignmentDayRunner.tsx` (~49)
@@ -144,7 +147,7 @@ violation: 'clo'"*
 
 **Diagnosis.** Two separate problems.
 
-*Problem A — the matcher is too broad.* `FORBIDDEN_SUBSTRINGS` contains the
+_Problem A — the matcher is too broad._ `FORBIDDEN_SUBSTRINGS` contains the
 three-character string `'clo'`, and `findForbiddenKey` tests
 `key.toLowerCase().includes(forbidden)` recursively over every object key. That
 matches `onClose`, `clock`, `cloud`, `clone`, `closeable`, `disclosure`. `'notes'`
@@ -152,7 +155,7 @@ matches `footnotes` and `annotations`. `'standard'` matches `standardLayout`.
 `'impact'` matches `impactRadius`. Any future slide field with those letters
 hard-fails Present.
 
-*Problem B — probable stale snapshots (hypothesis, needs confirmation).* The
+_Problem B — probable stale snapshots (hypothesis, needs confirmation)._ The
 projection path in `publishDay` is airtight for a well-formed `Day`: every field is
 explicitly named, nothing is spread, and both `switch` statements are exhaustive. A
 freshly projected snapshot cannot contain a `clo*` key. But
@@ -171,16 +174,19 @@ dump `localStorage` keys matching `ma-teacher:published*` and inspect the stored
 
 1. Replace `FORBIDDEN_SUBSTRINGS` with an exact-match key set derived from the real
    `CellRationale` field names:
+
    ```
    assessment, standards, commonAnchors, selCompetencies, impactTags,
    cloRefs, cloText, cloIds, activityRefs, notes, initiationStyle,
    scaffoldLaneIds, createdBy, localContext, rationale
    ```
+
    Match on `key === forbidden` (case-insensitive), not `includes`.
    Keep the export name if other modules import it; rename the constant to
    `FORBIDDEN_KEYS` and leave a deprecated alias for one cycle if needed.
 
 2. Split the check into two functions:
+
    - `findForbiddenKey(snapshot)` — unchanged semantics, used on the **write** path
      (`publishDayForUser`, `publishDayToClassroom`). Still throws.
    - `sanitizeSnapshot(snapshot)` — strips any forbidden key, returns
@@ -197,6 +203,7 @@ dump `localStorage` keys matching `ma-teacher:published*` and inspect the stored
    available, or sanitizes in place when not.
 
 **Acceptance:**
+
 - A `Day` whose stored snapshot contains a stray `cloRefs` key presents successfully,
   with the key absent from what renders and a telemetry event emitted.
 - A publish attempt on a `Day` with a genuine rationale leak still throws.
@@ -208,7 +215,7 @@ dump `localStorage` keys matching `ma-teacher:published*` and inspect the stored
 
 ### S0-2 — Exit route from the Content Console
 
-**Reported as:** *"Users Locked into Music Atlas content Console! Need button out of there!"*
+**Reported as:** _"Users Locked into Music Atlas content Console! Need button out of there!"_
 
 **Files:** `src/features/admin/`, `src/layouts/`
 
@@ -224,9 +231,10 @@ role's home route. Verified for teacher and admin roles.
 
 ### S0-3 — Globe links from chord chart resolve to the correct song
 
-**Reported as:** *"Globe links from chord chart updated so they actually go to the songs."*
+**Reported as:** _"Globe links from chord chart updated so they actually go to the songs."_
 
 **Files:**
+
 - `src/features/classroom/slides/songDeepLinks.ts`
 - `src/features/classroom/slides/resolveContentHref.ts`
 - `src/features/classroom/slides/contentRefs.ts`
@@ -251,7 +259,7 @@ Plan sketch's "ADD AN ELEMENT" menu requires.
 **Design note before starting:** `SlideBlockKey` / `SlideLayout` / `SlideTextStyle` in
 `slides/types.ts` already model independently positioned, individually hideable blocks
 on a 1280×720 canvas. The freeform substrate exists. Most of this workstream is adding
-block *kinds* and the editor affordances to place them — not building a layout engine.
+block _kinds_ and the editor affordances to place them — not building a layout engine.
 
 **Firewall constraint for every task in S1:** any new field added to a `Slide` or to
 `CellPresentation` must be explicitly named in `publishDay.ts`'s projection functions
@@ -271,6 +279,7 @@ key set from `S0-1`. Add a projection test with each new field.
 Add the keys S1-2 through S1-5 need. Proposed additions: `link`, `image`, `infoCard`.
 
 Update in lockstep:
+
 - `SLIDE_BLOCK_KEYS` (the canonical allow-list the publish projector iterates)
 - `defaultLayoutForKind` in `slides/slideLayout.ts`
 - the block renderer switch in `slides/parts/`
@@ -285,7 +294,7 @@ kind.
 
 ### S1-2 — Insert link element
 
-**Reported as:** *"Insert link option"*
+**Reported as:** _"Insert link option"_
 
 **Files:** `plan/deckEditor/AddSlideMenu.tsx`, new
 `plan/deckEditor/LinkBlockEditor.tsx`, `slides/parts/SlideLink.tsx` (new),
@@ -295,6 +304,7 @@ kind.
 
 Decide and document the href policy, because it interacts with the Atlas-native
 architectural constraint:
+
 - **Atlas-internal** (`/songs/:id`, `/globe/...`) — always allowed, resolved through
   `resolveContentHref`.
 - **External URL** — allowed or not? The Atlas-native-resources-only decision predates
@@ -312,9 +322,9 @@ surfaces. Link survives publish projection. External links open in a new tab wit
 
 ### S1-3 — Song block split: info card and chord-chart link as separate elements
 
-**Reported as:** *"Put song into slide, pull info from Globe along with link to Chord
+**Reported as:** _"Put song into slide, pull info from Globe along with link to Chord
 Chart page. Make sure the info box is separate from the link so teacher can erase it if
-they want without erasing the link."*
+they want without erasing the link."_
 
 **Blocked by:** S1-1
 
@@ -323,6 +333,7 @@ they want without erasing the link."*
 
 **Change:** When a teacher inserts a song, emit **two independent blocks** rather than
 one composite:
+
 1. `infoCard` — song metadata pulled from Globe (title, artist, era, region, whatever
    the Globe record exposes). Store the **song id only**; resolve at render, matching
    the existing `artistImage` / `globePathway` pattern. Do not denormalize Globe copy
@@ -340,7 +351,7 @@ survive publish. Info card reflects a Globe metadata edit without re-inserting t
 
 ### S1-4 — Image element (library picker)
 
-**Reported as:** *"Import image option – pictures, pdfs?"* / *"Image storage urls"*
+**Reported as:** _"Import image option – pictures, pdfs?"_ / _"Image storage urls"_
 **Gated by:** D1
 
 **Files:** `plan/deckEditor/contentPicker/` (new `MediaTab.tsx`), `slides/types.ts`
@@ -402,8 +413,8 @@ decks unaffected.
 
 ### S2-1 — Duplicate Lesson
 
-**Reported as:** *"Need Duplicate Lesson feature – easy button for copying any given
-lesson and assigning which day or multiple days."*
+**Reported as:** _"Need Duplicate Lesson feature – easy button for copying any given
+lesson and assigning which day or multiple days."_
 
 This is the blueprint's Warehouse `COPY TO...` action.
 
@@ -412,6 +423,7 @@ This is the blueprint's Warehouse `COPY TO...` action.
 `annual/stubMaterialization.ts`
 
 **Change:**
+
 1. `duplicateDay(dayId): Day` — deep copy with a fresh `Day.id`, fresh ids for every
    slide and interaction (ids must not collide; response records key off
    `interactionId`), `scheduledDate: null`, and `sourceSeedId` preserved for provenance.
@@ -460,8 +472,8 @@ actually live.
 
 ### S3-1 — `POST /classrooms/:id/invitations`
 
-**Reported as:** *"Teachers can't invite Teachers to classrooms (says Could Not send
-the Invitation)"*
+**Reported as:** _"Teachers can't invite Teachers to classrooms (says Could Not send
+the Invitation)"_
 
 Not a frontend bug. `src/hooks/data/classrooms/useCreateClassroomInvitation.ts` is a
 hand-rolled call written against an endpoint that does not exist; its own comment says
@@ -508,7 +520,7 @@ asked for it in the current request list — they are asking for authoring tools
 administration. It is also the surface most dependent on S3-3, since all of it is
 per-student persistent state. Stage 2.
 
-**Light / dark mode.** *"Make light mode choice vs dark mode."* This is not a toggle.
+**Light / dark mode.** _"Make light mode choice vs dark mode."_ This is not a toggle.
 `next-themes` is installed but only `components/ui/sonner.tsx` uses it.
 `tailwind.config.ts` sets `darkMode: ['class']`, and there are **four** `dark:`
 utilities in the entire application. Every color is hardcoded. Delivering this means a

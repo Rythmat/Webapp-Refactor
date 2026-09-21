@@ -3,7 +3,10 @@ import { isHandSplit, resolveStaves } from '../handSplit';
 
 const rh = (midi: number) => ({ midi, hand: 'rh' as const });
 const lh = (midi: number) => ({ midi, hand: 'lh' as const });
-const untagged = (midi: number) => ({ midi });
+// A note that could name its hand but doesn't.
+const untagged = (midi: number): { midi: number; hand?: 'lh' | 'rh' } => ({
+  midi,
+});
 
 describe('isHandSplit', () => {
   it('sees a part whose notes name their hand', () => {

@@ -23,7 +23,9 @@ export const saving_all_my_love_for_you: Song = {
       label: 'Intro',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -35,7 +37,9 @@ export const saving_all_my_love_for_you: Song = {
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -54,7 +58,9 @@ export const saving_all_my_love_for_you: Song = {
       label: 'Verse',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -66,7 +72,9 @@ export const saving_all_my_love_for_you: Song = {
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -105,7 +113,9 @@ export const saving_all_my_love_for_you: Song = {
             { degree: '1 maj/5', chordName: 'B/F♯', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -113,7 +123,7 @@ export const saving_all_my_love_for_you: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '2 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
@@ -126,13 +136,15 @@ export const saving_all_my_love_for_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 maj', chordName: 'D', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'D', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Bmin7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -151,7 +163,9 @@ export const saving_all_my_love_for_you: Song = {
       label: 'Chorus',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -163,7 +177,9 @@ export const saving_all_my_love_for_you: Song = {
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -202,7 +218,9 @@ export const saving_all_my_love_for_you: Song = {
             { degree: '1 maj/5', chordName: 'B/F♯', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -210,7 +228,7 @@ export const saving_all_my_love_for_you: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '2 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
@@ -223,13 +241,15 @@ export const saving_all_my_love_for_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 maj', chordName: 'D', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'D', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Bmin7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -239,7 +259,7 @@ export const saving_all_my_love_for_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '2 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
@@ -259,7 +279,9 @@ export const saving_all_my_love_for_you: Song = {
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -269,11 +291,11 @@ export const saving_all_my_love_for_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯3 7', chordName: 'D♯7sus', beat: 1, duration: 4 },
+            { degree: '3 7', chordName: 'D♯7sus', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♯6 7', chordName: 'G♯7', beat: 1, duration: 4 }],
+          chords: [{ degree: '6 7', chordName: 'G♯7', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '2 maj', chordName: 'C♯', beat: 1, duration: 4 }],
@@ -295,7 +317,9 @@ export const saving_all_my_love_for_you: Song = {
       label: 'Verse 2',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -307,7 +331,9 @@ export const saving_all_my_love_for_you: Song = {
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -346,7 +372,9 @@ export const saving_all_my_love_for_you: Song = {
             { degree: '1 maj/5', chordName: 'B/F♯', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -354,7 +382,7 @@ export const saving_all_my_love_for_you: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '2 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
@@ -366,21 +394,21 @@ export const saving_all_my_love_for_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 maj', chordName: 'D', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'D', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Bmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'D', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'D', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Bmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'D', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'D', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Bmin7', beat: 3, duration: 2 },
           ],
@@ -393,7 +421,9 @@ export const saving_all_my_love_for_you: Song = {
       label: 'Section E',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -405,7 +435,9 @@ export const saving_all_my_love_for_you: Song = {
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -444,7 +476,9 @@ export const saving_all_my_love_for_you: Song = {
             { degree: '1 maj/5', chordName: 'B/F♯', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -452,7 +486,7 @@ export const saving_all_my_love_for_you: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '2 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
@@ -464,21 +498,21 @@ export const saving_all_my_love_for_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 maj', chordName: 'D', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'D', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Bmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'D', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'D', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Bmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'D', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'D', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Bmin7', beat: 3, duration: 2 },
           ],
@@ -491,7 +525,9 @@ export const saving_all_my_love_for_you: Song = {
       label: 'Section F',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -503,7 +539,9 @@ export const saving_all_my_love_for_you: Song = {
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },

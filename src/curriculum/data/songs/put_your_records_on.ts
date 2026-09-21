@@ -26,7 +26,7 @@ export const put_your_records_on: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },

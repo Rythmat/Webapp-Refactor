@@ -49,7 +49,7 @@ export const hallelujah_i_love_her_so: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'E♭', beat: 1, duration: 2 },
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 3, duration: 2 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -71,7 +71,7 @@ export const hallelujah_i_love_her_so: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'E♭', beat: 1, duration: 2 },
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 3, duration: 2 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -86,7 +86,7 @@ export const hallelujah_i_love_her_so: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'E♭', beat: 1, duration: 2 },
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 3, duration: 2 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -121,12 +121,12 @@ export const hallelujah_i_love_her_so: Song = {
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -170,7 +170,7 @@ export const hallelujah_i_love_her_so: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'E♭', beat: 1, duration: 2 },
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 3, duration: 2 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -185,7 +185,7 @@ export const hallelujah_i_love_her_so: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'E♭', beat: 1, duration: 2 },
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 3, duration: 2 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -220,12 +220,12 @@ export const hallelujah_i_love_her_so: Song = {
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -266,12 +266,12 @@ export const hallelujah_i_love_her_so: Song = {
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -323,7 +323,7 @@ export const hallelujah_i_love_her_so: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'E♭', beat: 1, duration: 2 },
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 3, duration: 2 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -338,7 +338,7 @@ export const hallelujah_i_love_her_so: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'E♭', beat: 1, duration: 2 },
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 3, duration: 2 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -373,12 +373,12 @@ export const hallelujah_i_love_her_so: Song = {
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
           ],
         },
       ],

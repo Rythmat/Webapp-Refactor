@@ -60,7 +60,7 @@ function extractPresetData(state: SynthStore, name: string): PresetData {
 }
 
 /** Apply preset data to store (returns partial state for set()) */
-function applyPresetData(data: PresetData): Partial<SynthStore> {
+export function applyPresetData(data: PresetData): Partial<SynthStore> {
   // Migrate LFO data: old presets may lack the `smooths` field
   const lfos = structuredClone(data.lfos);
   for (const lfo of lfos) {

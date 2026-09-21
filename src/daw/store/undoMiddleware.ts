@@ -85,6 +85,25 @@ export function canRedo(): boolean {
   return redoStack.length > 0;
 }
 
+/**
+ * Forget undo/redo history — when a different project loads, so undo can't
+ * bring back the previous project. Auto-capture re-baselines on the store as
+ * it is now.
+ */
+export function resetUndoHistory(): void {
+  undoStack.length = 0;
+  redoStack.length = 0;
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+    debounceTimer = null;
+  }
+  const state = useStore.getState();
+  lastTrackJson = JSON.stringify(state.tracks);
+  lastChordJson = JSON.stringify(state.chordRegions);
+  lastTracksRef = state.tracks;
+  lastChordsRef = state.chordRegions;
+}
+
 // ── Auto-capture on significant store changes ───────────────────────────
 // Subscribe to store and push undo snapshots when tracks change significantly.
 // We debounce to avoid capturing every micro-change during drags.

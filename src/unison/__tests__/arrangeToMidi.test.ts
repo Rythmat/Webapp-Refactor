@@ -23,7 +23,6 @@ function chordRegion(
     noteName: '',
     degree: '1',
     hybridName: `1 ${quality}`,
-    romanNumeral: 'I',
     color: [0, 0, 0],
     inversion: 0,
     confidence: 1,

@@ -25,30 +25,12 @@ export const this_is_not_america: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7/2', chordName: 'Dmin7/F', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '♯7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♯3 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♯7 min7/2', chordName: 'Dmin7/F', beat: 1, duration: 4 },
+            { degree: '7 min7/2', chordName: 'Dmin7/F', beat: 1, duration: 4 },
           ],
         },
         {
@@ -56,7 +38,25 @@ export const this_is_not_america: Song = {
         },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '7 min7/2', chordName: 'Dmin7/F', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -68,12 +68,12 @@ export const this_is_not_america: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7/2', chordName: 'Dmin7/F', beat: 1, duration: 4 },
+            { degree: '7 min7/2', chordName: 'Dmin7/F', beat: 1, duration: 4 },
           ],
         },
         {
@@ -81,27 +81,27 @@ export const this_is_not_america: Song = {
         },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7/2', chordName: 'Dmin7/F', beat: 1, duration: 4 },
+            { degree: '7 min7/2', chordName: 'Dmin7/F', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 min7', chordName: 'Emin7b5', beat: 1, duration: 4 },
+            { degree: '♯1 min7', chordName: 'Emin7b5', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '♯4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -116,7 +116,7 @@ export const this_is_not_america: Song = {
         },
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -124,17 +124,17 @@ export const this_is_not_america: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [] },
@@ -148,37 +148,37 @@ export const this_is_not_america: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭2 min7', chordName: 'Emin7b5', beat: 1, duration: 4 },
+            { degree: '♯1 min7', chordName: 'Emin7b5', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭2 min7', chordName: 'Emin7b5', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '♯7 min7', chordName: 'Dmin7', beat: 1, duration: 2 },
-            { degree: '♯3 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♯7 min7/2', chordName: 'Dmin7/F', beat: 1, duration: 4 },
+            { degree: '♯1 min7', chordName: 'Emin7b5', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
           chords: [
-            { degree: '♯7 min7/2', chordName: 'Dmin7/F', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'Dmin7', beat: 1, duration: 2 },
+            { degree: '3 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '7 min7/2', chordName: 'Dmin7/F', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '7 min7/2', chordName: 'Dmin7/F', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -196,7 +196,7 @@ export const this_is_not_america: Song = {
         {
           chords: [
             {
-              degree: '1 min7/3',
+              degree: '1 min7/♯2',
               chordName: 'D♯min7/F♯',
               beat: 1,
               duration: 4,
@@ -204,7 +204,7 @@ export const this_is_not_america: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'E', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯1 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -219,7 +219,7 @@ export const this_is_not_america: Song = {
         {
           chords: [
             {
-              degree: '1 min7/3',
+              degree: '1 min7/♯2',
               chordName: 'D♯min7/F♯',
               beat: 1,
               duration: 4,
@@ -243,18 +243,20 @@ export const this_is_not_america: Song = {
       label: 'Section E',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '4 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'E', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯1 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '♯6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -287,10 +289,10 @@ export const this_is_not_america: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'E', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯1 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'E', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯1 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -301,7 +303,7 @@ export const this_is_not_america: Song = {
         {
           chords: [
             {
-              degree: '1 min7/3',
+              degree: '1 min7/♯2',
               chordName: 'D♯min7/F♯',
               beat: 1,
               duration: 4,
@@ -309,12 +311,12 @@ export const this_is_not_america: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'E', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯1 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
         {
           chords: [
             {
-              degree: '1 min7/3',
+              degree: '1 min7/♯2',
               chordName: 'D♯min7/F♯',
               beat: 1,
               duration: 4,

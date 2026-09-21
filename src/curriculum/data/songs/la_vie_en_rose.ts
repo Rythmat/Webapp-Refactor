@@ -38,7 +38,7 @@ export const la_vie_en_rose: Song = {
         },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'Adim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'Adim7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },

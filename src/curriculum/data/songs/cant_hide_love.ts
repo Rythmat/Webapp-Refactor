@@ -316,17 +316,17 @@ export const cant_hide_love: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭5 7', chordName: 'B7sus', beat: 1, duration: 4 },
+            { degree: '♯4 7', chordName: 'B7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 7', chordName: 'B7sus', beat: 1, duration: 4 },
+            { degree: '♯4 7', chordName: 'B7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 7', chordName: 'B7sus', beat: 1, duration: 4 },
+            { degree: '♯4 7', chordName: 'B7sus', beat: 1, duration: 4 },
           ],
         },
         { chords: [] },

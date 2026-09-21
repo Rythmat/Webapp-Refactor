@@ -5,6 +5,8 @@ import {
 import { ensureSamplerSampleId } from '@/daw/instruments/samplerChops';
 import { useStore } from '@/daw/store';
 import type { Track } from '@/daw/store/tracksSlice';
+import type { ChordRegion } from '@/daw/store/prismSlice';
+import { resetUndoHistory } from '@/daw/store/undoMiddleware';
 import { defaultReturns, type ReturnBus } from '@/daw/store/returnsSlice';
 import type { MidiNoteEvent } from '@/daw/prism-engine/types';
 import { guessTrackRole } from '@/daw/utils/trackRole';
@@ -214,7 +216,12 @@ export interface SessionData {
       rhythmName: string;
       genre: string;
       swing: number;
+      // Optional — older saves predate it and load as Ionian.
+      mode?: string;
     };
+    // The project's chord symbols (the chord lane). Optional — older saves
+    // predate it and load with none.
+    chordRegions?: ChordRegion[];
     // Global aux return buses (Phase 4). Optional — older saves predate it and
     // fall back to defaultReturns() on load.
     returns?: ReturnBus[];
@@ -301,7 +308,9 @@ export function serializeSession(): SessionData {
         rhythmName: state.rhythmName,
         genre: state.genre,
         swing: state.swing,
+        mode: state.mode,
       },
+      chordRegions: state.chordRegions,
       returns: state.returns,
     },
   };
@@ -465,6 +474,40 @@ export function serializeSessionForCloud(
   };
 }
 
+/**
+ * State that belongs to one project's harmony: its chord lane, Prism
+ * progression, analyses, selections and lead sheet layout. Every load starts
+ * from this, so none of it carries over from the previous project.
+ */
+function freshProjectHarmony() {
+  return {
+    chordRegions: [],
+    chordSeq: [],
+    stringSeq: [],
+    availableNextChords: [],
+    measuresPerLine: 4,
+    measureRowSizes: null,
+    measureRestMap: null,
+    measureFermatas: null,
+    melodyOverrides: [],
+    mode: 'ionian',
+    unisonDoc: null,
+    unisonError: null,
+    selectionAnalysis: null,
+    chordAnalysis: null,
+    chordAnalysisPromptOpen: false,
+    selectedChordIds: [],
+    selectedNotes: [],
+    selectedClipId: null,
+    selectedClipTrackId: null,
+    editingClipId: null,
+    editingClipTrackId: null,
+    leadSheetSelectedChordIdx: null,
+    leadSheetSections: [],
+    leadSheetRepeats: [],
+  } satisfies Partial<ReturnType<typeof useStore.getState>>;
+}
+
 export function deserializeCloudProject(project: CloudProjectDetail): void {
   // Cloud load remints track ids, so build a saved-id → new-id map to remap
   // cross-track references (ducker keyTrackId) below.
@@ -531,6 +574,8 @@ export function deserializeCloudProject(project: CloudProjectDetail): void {
   remapDuckerKeys(tracks, cloudMap);
 
   useStore.setState({
+    // Chord symbols aren't part of a cloud project yet, so it opens with none.
+    ...freshProjectHarmony(),
     projectId: project.id,
     projectName: project.name,
     composerName: project.composerName ?? '',
@@ -544,6 +589,7 @@ export function deserializeCloudProject(project: CloudProjectDetail): void {
     swing: project.prism.swing,
     returns: restoreReturns(project.returns),
   });
+  resetUndoHistory();
 }
 
 /**
@@ -572,13 +618,13 @@ export function resetSessionToEmpty(): void {
     pitchData: {},
 
     // Prism
-    chordRegions: [],
+    ...freshProjectHarmony(),
     rootNote: null,
-    mode: 'ionian',
     rhythmName: 'Quarters',
     genre: 'Pop',
     swing: 0,
   });
+  resetUndoHistory();
 }
 
 // ── Deserialize ──────────────────────────────────────────────────────────
@@ -682,13 +728,17 @@ export function deserializeSession(session: SessionData): void {
     // Tracks
     tracks,
 
-    // Prism (partial — only restore serialized fields)
+    // Prism (partial — only restore serialized fields) and chord symbols
+    ...freshProjectHarmony(),
     rootNote: d.prism.rootNote,
+    mode: d.prism.mode ?? 'ionian',
     rhythmName: d.prism.rhythmName,
     genre: d.prism.genre,
     swing: d.prism.swing,
+    chordRegions: d.chordRegions ?? [],
 
     // Aux return buses
     returns: restoreReturns(d.returns),
   });
+  resetUndoHistory();
 }

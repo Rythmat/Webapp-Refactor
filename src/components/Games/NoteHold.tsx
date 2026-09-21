@@ -14,6 +14,8 @@ import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import { useLearnInputStable } from '@/learn/context/LearnInputContext';
 import {
   pitchNameToMidi,
+  THEORY_ACTIVITY_BPM,
+  WRONG_NOTE_KEY_COLOR,
   type NoteEvent,
   type NoteHoldMeta,
 } from './PianoRollPlay';
@@ -47,6 +49,10 @@ type NoteHoldProps = {
   activityColor?: string;
   isActive?: boolean;
   startSignal?: number;
+  /** Tint every target note on the keyboard (Practice mode scaffolding). */
+  showTargetKeys?: boolean;
+  /** Lesson spelling map, passed through to the piano roll's lane labels. */
+  noteSpelling?: Map<number, string>;
 };
 
 export const NoteHold = ({
@@ -55,6 +61,8 @@ export const NoteHold = ({
   activityColor = '#60a5fa',
   isActive = true,
   startSignal = 0,
+  showTargetKeys = false,
+  noteSpelling,
 }: NoteHoldProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
   const activeMidiSetRef = useRef(new Set<number>());
@@ -130,6 +138,11 @@ export const NoteHold = ({
     return map;
   }, [activityColor, resolvedEvents]);
 
+  const targetMidiSet = useMemo(
+    () => new Set(noteColorByMidi.keys()),
+    [noteColorByMidi],
+  );
+
   const requiredBars = useMemo(() => {
     const maxEnd = resolvedEvents.reduce(
       (max, ev) => Math.max(max, ev.startTicks + ev.durationTicks),
@@ -166,7 +179,7 @@ export const NoteHold = ({
 
   const handleKeyboardNoteOn = useCallback(
     (midi: number) => {
-      const color = noteColorByMidi.get(midi) ?? activityColor;
+      const color = noteColorByMidi.get(midi) ?? WRONG_NOTE_KEY_COLOR;
 
       const id = `keyboard-${midi}`;
       setKeyboardPlayingNotes((prev) => [
@@ -182,7 +195,7 @@ export const NoteHold = ({
         },
       ]);
     },
-    [activityColor, noteColorByMidi],
+    [noteColorByMidi],
   );
 
   const handleKeyboardNoteOff = useCallback((midi: number) => {
@@ -422,10 +435,13 @@ export const NoteHold = ({
             inTime={false}
             isPlaying={isPlaying}
             noteHoldMeta={noteHoldMeta}
-            playSpeed={80}
+            playSpeed={THEORY_ACTIVITY_BPM}
             rowHeight={28 * 18}
             subdivision={1}
             keyColor={activityColor}
+            colorActiveLanesByTarget
+            targetMidiSet={targetMidiSet}
+            noteSpelling={noteSpelling}
             onPlayingChange={setIsPlaying}
           />
           <div className="flex items-stretch gap-3">
@@ -436,6 +452,7 @@ export const NoteHold = ({
                 activeWhiteKeyColor={activityColor}
                 className="mx-auto"
                 endC={6}
+                hintNotes={showTargetKeys ? noteColorByMidi : undefined}
                 playingNotes={keyboardPlayingNotes}
                 startC={2}
               />

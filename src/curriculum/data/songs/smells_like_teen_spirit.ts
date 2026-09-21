@@ -33,10 +33,10 @@ export const smells_like_teen_spirit: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -47,10 +47,10 @@ export const smells_like_teen_spirit: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -68,10 +68,10 @@ export const smells_like_teen_spirit: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -82,10 +82,10 @@ export const smells_like_teen_spirit: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -104,10 +104,10 @@ export const smells_like_teen_spirit: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -118,10 +118,10 @@ export const smells_like_teen_spirit: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -140,10 +140,10 @@ export const smells_like_teen_spirit: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -154,10 +154,10 @@ export const smells_like_teen_spirit: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -182,7 +182,7 @@ export const smells_like_teen_spirit: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'A♭', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'A♭', beat: 3, duration: 2 },
           ],
         },
         {
@@ -201,7 +201,7 @@ export const smells_like_teen_spirit: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'A♭', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'A♭', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -221,10 +221,10 @@ export const smells_like_teen_spirit: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -235,10 +235,10 @@ export const smells_like_teen_spirit: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -257,10 +257,10 @@ export const smells_like_teen_spirit: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -271,10 +271,10 @@ export const smells_like_teen_spirit: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -299,7 +299,7 @@ export const smells_like_teen_spirit: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'A♭', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'A♭', beat: 3, duration: 2 },
           ],
         },
         {
@@ -318,7 +318,7 @@ export const smells_like_teen_spirit: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'A♭', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'A♭', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -338,10 +338,10 @@ export const smells_like_teen_spirit: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -352,10 +352,10 @@ export const smells_like_teen_spirit: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -374,10 +374,10 @@ export const smells_like_teen_spirit: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -388,10 +388,10 @@ export const smells_like_teen_spirit: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -410,10 +410,10 @@ export const smells_like_teen_spirit: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -424,10 +424,10 @@ export const smells_like_teen_spirit: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [

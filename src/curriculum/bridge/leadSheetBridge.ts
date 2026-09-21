@@ -13,7 +13,7 @@ import type { MidiNoteEvent } from '../engine/melodyPipeline';
 // ---------------------------------------------------------------------------
 
 export interface LeadSheetChord {
-  /** Chord name (e.g., "Imaj7", "IVm7") */
+  /** Chord name in hybrid numbering (e.g., "1 maj7", "4 min7", "♭7 maj") */
   name: string;
   /** Start position in ticks */
   startTick: number;
@@ -105,39 +105,30 @@ export function curriculumToLeadSheet(
 }
 
 /**
- * Format degree + quality into a chord symbol.
+ * Format degree + quality into a hybrid-numbering chord name
+ * (e.g., "4 maj7", "♭7 maj", "5 dom7♭9"), matching `degreeToHybrid`.
  */
 function formatDegreeQuality(degree: string, quality: string): string {
-  const degreeMap: Record<string, string> = {
-    '1': 'I',
-    '2': 'II',
-    '3': 'III',
-    '4': 'IV',
-    '5': 'V',
-    '6': 'VI',
-    '7': 'VII',
-    b2: 'bII',
-    b3: 'bIII',
-    b5: 'bV',
-    b6: 'bVI',
-    b7: 'bVII',
-  };
-  const qualityMap: Record<string, string> = {
-    maj: '',
-    min: 'm',
-    dom7: '7',
-    maj7: 'maj7',
-    min7: 'm7',
-    dim: 'dim',
-    aug: 'aug',
-    dim7: 'dim7',
-    min7b5: 'm7b5',
-    dom9: '9',
-    maj9: 'maj9',
-    min9: 'm9',
-  };
+  const match = /^(b|\u266D|#|s)?(\d+)$/.exec(degree);
+  const accidental = match?.[1];
+  const prefix = !accidental
+    ? ''
+    : accidental === '#' || accidental === 's'
+      ? '#'
+      : '\u266D';
+  const degreeLabel = match ? `${prefix}${match[2]}` : degree;
 
-  const d = degreeMap[degree] ?? degree;
-  const q = qualityMap[quality] ?? quality;
-  return `${d}${q}`;
+  const qualityLabel =
+    quality === 'min_maj7'
+      ? 'min(maj7)'
+      : quality
+          .replace(/dominant/g, 'dom')
+          .replace(/diminished/g, 'dim')
+          .replace(/minor/g, 'min')
+          .replace(/major/g, 'maj')
+          .replace(/_/g, '')
+          .replace(/(\d)s(?=\d)/g, '$1#')
+          .replace(/(\d)b(?=\d)/g, '$1\u266D');
+
+  return `${degreeLabel} ${qualityLabel}`;
 }

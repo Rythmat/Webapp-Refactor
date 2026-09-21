@@ -32,6 +32,15 @@ import { showError } from '@/components/utils/toast';
 import { RotaryKnob } from './RotaryKnob';
 import { SamplerWaveform } from './SamplerWaveform';
 import { PianoKeyboard } from '@/daw/oracle-synth/components/keyboard/PianoKeyboard';
+import { pitchNameToMidi } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
+import { midiNameInKey } from '@/daw/prism-engine/data/notes';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
+
+/** Dropdown label for a sampler root note: "C#4" reads "D♭4". The stored value is unchanged. */
+function rootNoteLabel(value: string): string {
+  const midi = pitchNameToMidi(value);
+  return midi === null ? value : displayAccidentals(midiNameInKey(midi, 0));
+}
 
 // Decode on the engine's context when running, else one shared fallback —
 // mirrors load-audio.ts's getDecodeContext (module-private there).
@@ -536,7 +545,7 @@ export function SamplerChopsView({ trackId }: { trackId: string }) {
           >
             {SAMPLER_ROOT_NOTE_OPTIONS.map((n) => (
               <option key={n} value={n}>
-                {n}
+                {rootNoteLabel(n)}
               </option>
             ))}
           </select>

@@ -38,8 +38,8 @@ export const contusion: Song = {
         },
         {
           chords: [
-            { degree: '♭2 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '♭5 maj', chordName: 'D', beat: 3, duration: 2 },
+            { degree: '♯1 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '♯4 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
         {
@@ -88,8 +88,8 @@ export const contusion: Song = {
         },
         {
           chords: [
-            { degree: '♭3 maj', chordName: 'B', beat: 1, duration: 1 },
-            { degree: '♭2 maj', chordName: 'A', beat: 2, duration: 3 },
+            { degree: '♯2 maj', chordName: 'B', beat: 1, duration: 1 },
+            { degree: '♯1 maj', chordName: 'A', beat: 2, duration: 3 },
           ],
         },
       ],
@@ -141,28 +141,28 @@ export const contusion: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭7 maj/♭6', chordName: 'F♯/E', beat: 1, duration: 4 },
+            { degree: '♯6 maj/♯5', chordName: 'F♯/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭6 maj/♭2', chordName: 'E/A', beat: 1, duration: 4 },
+            { degree: '♯5 maj/♯1', chordName: 'E/A', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj/♭6', chordName: 'F♯/E', beat: 1, duration: 2 },
-            { degree: '♭6 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♯6 maj/♯5', chordName: 'F♯/E', beat: 1, duration: 2 },
+            { degree: '♯5 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 maj/♭6', chordName: 'D/E', beat: 1, duration: 4 },
+            { degree: '♯4 maj/♯5', chordName: 'D/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭6 maj/♭2', chordName: 'E/A', beat: 1, duration: 4 },
+            { degree: '♯5 maj/♯1', chordName: 'E/A', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -177,8 +177,8 @@ export const contusion: Song = {
         },
         {
           chords: [
-            { degree: '♭2 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '♭5 maj', chordName: 'D', beat: 3, duration: 2 },
+            { degree: '♯1 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '♯4 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
         {
@@ -227,8 +227,8 @@ export const contusion: Song = {
         },
         {
           chords: [
-            { degree: '♭3 maj', chordName: 'B', beat: 1, duration: 1 },
-            { degree: '♭2 maj', chordName: 'A', beat: 2, duration: 3 },
+            { degree: '♯2 maj', chordName: 'B', beat: 1, duration: 1 },
+            { degree: '♯1 maj', chordName: 'A', beat: 2, duration: 3 },
           ],
         },
       ],
@@ -280,28 +280,28 @@ export const contusion: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭7 maj/♭6', chordName: 'F♯/E', beat: 1, duration: 4 },
+            { degree: '♯6 maj/♯5', chordName: 'F♯/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭6 maj/♭2', chordName: 'E/A', beat: 1, duration: 4 },
+            { degree: '♯5 maj/♯1', chordName: 'E/A', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj/♭6', chordName: 'F♯/E', beat: 1, duration: 2 },
-            { degree: '♭6 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♯6 maj/♯5', chordName: 'F♯/E', beat: 1, duration: 2 },
+            { degree: '♯5 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 maj/♭6', chordName: 'D/E', beat: 1, duration: 4 },
+            { degree: '♯4 maj/♯5', chordName: 'D/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭6 maj/♭2', chordName: 'E/A', beat: 1, duration: 4 },
+            { degree: '♯5 maj/♯1', chordName: 'E/A', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -316,8 +316,8 @@ export const contusion: Song = {
         },
         {
           chords: [
-            { degree: '♭2 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '♭5 maj', chordName: 'D', beat: 3, duration: 2 },
+            { degree: '♯1 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '♯4 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
         {
@@ -366,8 +366,8 @@ export const contusion: Song = {
         },
         {
           chords: [
-            { degree: '♭3 maj', chordName: 'B', beat: 1, duration: 1 },
-            { degree: '♭2 maj', chordName: 'A', beat: 2, duration: 3 },
+            { degree: '♯2 maj', chordName: 'B', beat: 1, duration: 1 },
+            { degree: '♯1 maj', chordName: 'A', beat: 2, duration: 3 },
           ],
         },
       ],
@@ -396,8 +396,8 @@ export const contusion: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭3 maj', chordName: 'B', beat: 1, duration: 1 },
-            { degree: '♭2 maj', chordName: 'A', beat: 2, duration: 3 },
+            { degree: '♯2 maj', chordName: 'B', beat: 1, duration: 1 },
+            { degree: '♯1 maj', chordName: 'A', beat: 2, duration: 3 },
           ],
         },
         { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },

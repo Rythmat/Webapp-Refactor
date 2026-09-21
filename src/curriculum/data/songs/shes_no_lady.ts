@@ -66,7 +66,7 @@ export const shes_no_lady: Song = {
         },
         {
           chords: [
-            { degree: '♭3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '♯2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -134,7 +134,7 @@ export const shes_no_lady: Song = {
         },
         {
           chords: [
-            { degree: '♭3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '♯2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -162,9 +162,9 @@ export const shes_no_lady: Song = {
         { chords: [{ degree: '4 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭2 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭5 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯4 7', chordName: 'D7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -181,7 +181,7 @@ export const shes_no_lady: Song = {
         },
         {
           chords: [
-            { degree: '♭3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '♯2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -237,7 +237,7 @@ export const shes_no_lady: Song = {
         },
         {
           chords: [
-            { degree: '♭3 min7', chordName: 'Bmin7', beat: 1, duration: 2 },
+            { degree: '♯2 min7', chordName: 'Bmin7', beat: 1, duration: 2 },
             { degree: '2 min7', chordName: 'B♭min7', beat: 3, duration: 2 },
           ],
         },
@@ -263,7 +263,7 @@ export const shes_no_lady: Song = {
           fermata: true,
         },
         {
-          chords: [{ degree: '♭2 7', chordName: 'A7', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯1 7', chordName: 'A7', beat: 1, duration: 4 }],
           fermata: true,
         },
         {

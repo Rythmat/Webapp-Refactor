@@ -27,7 +27,7 @@ export const beast_of_burden: Song = {
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'B/D♯', beat: 1, duration: 4 },
+            { degree: '2 maj/♯4', chordName: 'B/D♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -46,7 +46,7 @@ export const beast_of_burden: Song = {
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'B/D♯', beat: 1, duration: 4 },
+            { degree: '2 maj/♯4', chordName: 'B/D♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -58,7 +58,7 @@ export const beast_of_burden: Song = {
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'B/D♯', beat: 1, duration: 4 },
+            { degree: '2 maj/♯4', chordName: 'B/D♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -227,7 +227,7 @@ export const beast_of_burden: Song = {
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'B/D♯', beat: 1, duration: 4 },
+            { degree: '2 maj/♯4', chordName: 'B/D♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -239,7 +239,7 @@ export const beast_of_burden: Song = {
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'B/D♯', beat: 1, duration: 4 },
+            { degree: '2 maj/♯4', chordName: 'B/D♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -258,7 +258,7 @@ export const beast_of_burden: Song = {
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'B/D♯', beat: 1, duration: 4 },
+            { degree: '2 maj/♯4', chordName: 'B/D♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -270,7 +270,7 @@ export const beast_of_burden: Song = {
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'B/D♯', beat: 1, duration: 4 },
+            { degree: '2 maj/♯4', chordName: 'B/D♯', beat: 1, duration: 4 },
           ],
         },
         {

@@ -7,6 +7,7 @@ import {
   ticksToDuration,
   PPQ,
 } from './leadSheetUtils';
+import { parseNoteName } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 
 // ── Types ────────────────────────────────────────────────────────────────
 
@@ -123,13 +124,12 @@ interface HarmonyParts {
 function parseChordForXml(noteName: string): HarmonyParts {
   const { root, quality } = parseChordDisplay(noteName);
 
-  // Parse root letter + accidental
-  const step = root[0].toUpperCase();
-  let alter = 0;
-  if (root.length > 1) {
-    if (root[1] === 'b' || root[1] === '\u266D') alter = -1;
-    if (root[1] === '#' || root[1] === '\u266F') alter = 1;
-  }
+  // Parse root letter + accidental (any spelling: Bb, B♭, B#, Cb, Ebb …)
+  const parsedRoot = parseNoteName(root);
+  const step = parsedRoot
+    ? 'CDEFGAB'[parsedRoot.letterIndex]
+    : root[0].toUpperCase();
+  const alter = parsedRoot?.accidental ?? 0;
 
   const kindValue = QUALITY_TO_KIND[quality] ?? 'other';
 

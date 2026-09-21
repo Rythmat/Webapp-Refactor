@@ -31,7 +31,9 @@ export const one_fine_day: Song = {
             { degree: '2 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 7', chordName: 'C♯7sus', beat: 1, duration: 4 },
@@ -45,7 +47,9 @@ export const one_fine_day: Song = {
             { degree: '2 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 7', chordName: 'C♯7sus', beat: 1, duration: 4 },
@@ -82,12 +86,12 @@ export const one_fine_day: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -105,7 +109,9 @@ export const one_fine_day: Song = {
             { degree: '2 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
@@ -117,7 +123,9 @@ export const one_fine_day: Song = {
             { degree: '2 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 7', chordName: 'C♯7sus', beat: 1, duration: 4 },
@@ -154,12 +162,12 @@ export const one_fine_day: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -177,14 +185,18 @@ export const one_fine_day: Song = {
             { degree: '2 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
@@ -210,10 +222,18 @@ export const one_fine_day: Song = {
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -276,12 +296,12 @@ export const one_fine_day: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -299,7 +319,9 @@ export const one_fine_day: Song = {
             { degree: '2 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 7', chordName: 'C♯7sus', beat: 1, duration: 4 },
@@ -313,7 +335,9 @@ export const one_fine_day: Song = {
             { degree: '2 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 7', chordName: 'C♯7sus', beat: 1, duration: 4 },
@@ -350,12 +374,12 @@ export const one_fine_day: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -373,7 +397,9 @@ export const one_fine_day: Song = {
             { degree: '2 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
@@ -385,7 +411,9 @@ export const one_fine_day: Song = {
             { degree: '2 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },

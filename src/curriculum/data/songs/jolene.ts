@@ -56,8 +56,8 @@ export const jolene: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -65,7 +65,9 @@ export const jolene: Song = {
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -80,8 +82,8 @@ export const jolene: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -89,7 +91,9 @@ export const jolene: Song = {
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -112,14 +116,18 @@ export const jolene: Song = {
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
+            { degree: '♭7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -137,14 +145,18 @@ export const jolene: Song = {
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
+            { degree: '♭7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -164,8 +176,8 @@ export const jolene: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -173,7 +185,9 @@ export const jolene: Song = {
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -188,8 +202,8 @@ export const jolene: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -197,7 +211,9 @@ export const jolene: Song = {
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -220,14 +236,18 @@ export const jolene: Song = {
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
+            { degree: '♭7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -245,14 +265,18 @@ export const jolene: Song = {
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
+            { degree: '♭7 maj/2', chordName: 'B/D♯', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -272,8 +296,8 @@ export const jolene: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -281,7 +305,9 @@ export const jolene: Song = {
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -301,8 +327,8 @@ export const jolene: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
@@ -310,7 +336,9 @@ export const jolene: Song = {
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },

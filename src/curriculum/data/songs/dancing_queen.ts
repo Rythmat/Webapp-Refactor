@@ -56,7 +56,7 @@ export const dancing_queen: Song = {
         },
         {
           chords: [
-            { degree: '2 7/♭5', chordName: 'B7/D♯', beat: 1, duration: 4 },
+            { degree: '2 7/♯4', chordName: 'B7/D♯', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -148,7 +148,7 @@ export const dancing_queen: Song = {
         },
         {
           chords: [
-            { degree: '2 7/♭5', chordName: 'B7/D♯', beat: 1, duration: 4 },
+            { degree: '2 7/♯4', chordName: 'B7/D♯', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -229,7 +229,7 @@ export const dancing_queen: Song = {
         },
         {
           chords: [
-            { degree: '2 7/♭5', chordName: 'B7/D♯', beat: 1, duration: 4 },
+            { degree: '2 7/♯4', chordName: 'B7/D♯', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },

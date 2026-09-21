@@ -28,13 +28,17 @@ export const raging: Song = {
             { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 5', chordName: 'F♯5', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 5', chordName: 'F♯5', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 5', chordName: 'F♯5', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 5', chordName: 'F♯5', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -49,16 +53,18 @@ export const raging: Song = {
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'C♯/F', beat: 1, duration: 4 },
+            { degree: '♭7 maj/2', chordName: 'C♯/F', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 5', chordName: 'F♯5', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 5', chordName: 'F♯5', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'C♯/F', beat: 1, duration: 4 },
+            { degree: '♭7 maj/2', chordName: 'C♯/F', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -68,14 +74,16 @@ export const raging: Song = {
       label: 'Bridge',
       repeatCount: 6,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -94,19 +102,25 @@ export const raging: Song = {
             { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 5', chordName: 'F♯5', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 5', chordName: 'F♯5', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 5', chordName: 'F♯5', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 5', chordName: 'F♯5', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 5', chordName: 'F♯5', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 5', chordName: 'F♯5', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -121,16 +135,18 @@ export const raging: Song = {
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'C♯/F', beat: 1, duration: 4 },
+            { degree: '♭7 maj/2', chordName: 'C♯/F', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 5', chordName: 'F♯5', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 5', chordName: 'F♯5', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 maj/2', chordName: 'C♯/F', beat: 1, duration: 4 },
+            { degree: '♭7 maj/2', chordName: 'C♯/F', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -140,14 +156,16 @@ export const raging: Song = {
       label: 'Section F',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -162,14 +180,16 @@ export const raging: Song = {
       label: 'Section G',
       repeatCount: 6,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
         {
           chords: [

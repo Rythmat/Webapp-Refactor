@@ -26,7 +26,7 @@ export const rockStyleDna: StyleDnaLevel[] = [
       {
         name: 'The Beatles (early)',
         description:
-          'Simple triads, I-IV-V power, singable melodies, tight arrangements. "Let It Be," "Hey Jude," "Twist and Shout."',
+          'Simple triads, 1-4-5 power, singable melodies, tight arrangements. "Let It Be," "Hey Jude," "Twist and Shout."',
         tags: [
           'rock:beatles:simple_triad_power',
           'rock',

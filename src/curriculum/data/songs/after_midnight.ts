@@ -55,7 +55,7 @@ export const after_midnight: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
@@ -96,7 +96,7 @@ export const after_midnight: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
@@ -163,7 +163,7 @@ export const after_midnight: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
@@ -204,7 +204,7 @@ export const after_midnight: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {

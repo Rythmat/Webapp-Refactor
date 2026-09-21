@@ -7,6 +7,9 @@ export class TrackEngine {
   private gainNode: GainNode;
   private pannerNode: StereoPannerNode;
   private effectChain: EffectChain;
+  // Mute/solo gate: post-FX, pre-pan, so it silences the main out, the aux
+  // sends and the meter together.
+  private audibleGain: GainNode;
   private analyserNode: AnalyserNode;
   // Post-fader aux sends: pannerNode → sendGain → returnBus input, keyed by
   // return id. `bus` is remembered so a return recreated with a new input node
@@ -21,14 +24,16 @@ export class TrackEngine {
     this.gainNode.channelInterpretation = 'speakers';
     this.pannerNode = ctx.createStereoPanner();
     this.effectChain = new EffectChain(ctx);
+    this.audibleGain = ctx.createGain();
 
     this.analyserNode = ctx.createAnalyser();
     this.analyserNode.fftSize = 256;
     this.analyserNode.smoothingTimeConstant = 0;
 
-    // Signal chain: instrument → gainNode → effectChain → pannerNode → destination
+    // Signal chain: instrument → gainNode → effectChain → audibleGain → pannerNode → destination
     this.gainNode.connect(this.effectChain.getInputNode());
-    this.effectChain.getOutputNode().connect(this.pannerNode);
+    this.effectChain.getOutputNode().connect(this.audibleGain);
+    this.audibleGain.connect(this.pannerNode);
     this.pannerNode.connect(destination);
 
     // Parallel metering tap (dead-end branch — does not alter signal path)
@@ -88,6 +93,16 @@ export class TrackEngine {
   setVolume(vol: number): void {
     if (!Number.isFinite(vol)) return;
     this.gainNode.gain.value = Math.max(0, Math.min(2, vol));
+  }
+
+  /** Mute/solo gate (see isTrackAudible). Ramps over a few ms so toggling
+   *  mid-note doesn't click. */
+  setAudible(audible: boolean): void {
+    this.audibleGain.gain.setTargetAtTime(
+      audible ? 1 : 0,
+      this.ctx.currentTime,
+      0.005,
+    );
   }
 
   setPan(pan: number): void {
@@ -170,6 +185,7 @@ export class TrackEngine {
     this.instrument?.dispose();
     this.effectChain.dispose();
     this.gainNode.disconnect();
+    this.audibleGain.disconnect();
     this.pannerNode.disconnect();
     this.analyserNode.disconnect();
     for (const { gain } of this.sends.values()) gain.disconnect();

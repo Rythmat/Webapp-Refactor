@@ -59,7 +59,7 @@ export const ebony_eyes: Song = {
         { chords: [{ degree: '2 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭3 dim7', chordName: 'C♯dim7', beat: 1, duration: 4 },
+            { degree: '♯2 dim7', chordName: 'C♯dim7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -80,7 +80,7 @@ export const ebony_eyes: Song = {
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -98,7 +98,7 @@ export const ebony_eyes: Song = {
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -153,7 +153,7 @@ export const ebony_eyes: Song = {
         { chords: [{ degree: '2 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭3 dim7', chordName: 'C♯dim7', beat: 1, duration: 4 },
+            { degree: '♯2 dim7', chordName: 'C♯dim7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -174,7 +174,7 @@ export const ebony_eyes: Song = {
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -192,7 +192,7 @@ export const ebony_eyes: Song = {
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
           ],
         },
       ],

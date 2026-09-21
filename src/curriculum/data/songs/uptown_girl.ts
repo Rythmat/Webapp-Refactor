@@ -201,7 +201,7 @@ export const uptown_girl: Song = {
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -222,7 +222,7 @@ export const uptown_girl: Song = {
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },

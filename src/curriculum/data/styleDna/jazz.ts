@@ -26,7 +26,7 @@ export const jazzStyleDna: StyleDnaLevel[] = [
       {
         name: 'Duke Ellington / Billy Strayhorn',
         description:
-          'The foundation of jazz harmony — swing feel, standard progressions, elegant simplicity. "Satin Doll" (ii-V pairs), "Take the A Train," "C Jam Blues."',
+          'The foundation of jazz harmony — swing feel, standard progressions, elegant simplicity. "Satin Doll" (2-5 pairs), "Take the A Train," "C Jam Blues."',
         tags: [
           'jazz:duke_ellington:swing_comping',
           'jazz',
@@ -63,7 +63,7 @@ export const jazzStyleDna: StyleDnaLevel[] = [
       {
         category: 'Progressions',
         description:
-          'ii-V-I (2 min7 - 5 dom7 - 1 maj7), 12-bar blues with 7ths, simple standards',
+          '2-5-1 (2 min7 - 5 dom7 - 1 maj7), 12-bar blues with 7ths, simple standards',
       },
       {
         category: 'Techniques',
@@ -159,17 +159,17 @@ export const jazzStyleDna: StyleDnaLevel[] = [
       {
         category: 'Progressions',
         description:
-          'ii-V-I in multiple keys, turnarounds, rhythm changes (A section), standard forms (AABA, ABAC). Blues with ii-V turnarounds.',
+          '2-5-1 in multiple keys, turnarounds, rhythm changes (A section), standard forms (AABA, ABAC). Blues with 2-5 turnarounds.',
       },
       {
         category: 'Techniques',
         description:
-          'LH rootless voicings + RH melody. "Drop the sizzle" ii-V formula from both starting voicings (7-3-5 and 3-7-9). Spread voicings with LH shells. Comping with rhythmic variety (Charleston, bebop, swing).',
+          'LH rootless voicings + RH melody. "Drop the sizzle" 2-5 formula from both starting voicings (7-3-5 and 3-7-9). Spread voicings with LH shells. Comping with rhythmic variety (Charleston, bebop, swing).',
       },
       {
         category: 'Melody',
         description:
-          'Bebop-influenced lines, approach notes (above, below, enclosure), chord tone targeting. ii-V licks.',
+          'Bebop-influenced lines, approach notes (above, below, enclosure), chord tone targeting. 2-5 licks.',
       },
       {
         category: 'Bass',
@@ -266,7 +266,7 @@ export const jazzStyleDna: StyleDnaLevel[] = [
       {
         category: 'Progressions',
         description:
-          'Coltrane changes, backdoor ii-V, tritone substitution, extended ii-V chains through multiple keys. Full standard forms.',
+          'Coltrane changes, backdoor 2-5, tritone substitution, extended 2-5 chains through multiple keys. Full standard forms.',
       },
       {
         category: 'Techniques',

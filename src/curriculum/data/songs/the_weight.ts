@@ -80,21 +80,21 @@ export const the_weight: Song = {
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'E/G♯', beat: 1, duration: 4 },
+            { degree: '2 maj/♯4', chordName: 'E/G♯', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'E/G♯', beat: 1, duration: 4 },
+            { degree: '2 maj/♯4', chordName: 'E/G♯', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'E/G♯', beat: 1, duration: 4 },
+            { degree: '2 maj/♯4', chordName: 'E/G♯', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -110,7 +110,7 @@ export const the_weight: Song = {
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'E/G♯', beat: 1, duration: 1 },
+            { degree: '2 maj/♯4', chordName: 'E/G♯', beat: 1, duration: 1 },
             { degree: '3 min7', chordName: 'F♯min7', beat: 2, duration: 1 },
             { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
@@ -126,7 +126,7 @@ export const the_weight: Song = {
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'E/G♯', beat: 1, duration: 4 },
+            { degree: '2 maj/♯4', chordName: 'E/G♯', beat: 1, duration: 4 },
           ],
         },
         {

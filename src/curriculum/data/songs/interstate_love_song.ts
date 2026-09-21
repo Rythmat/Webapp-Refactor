@@ -91,7 +91,7 @@ export const interstate_love_song: Song = {
         },
         {
           chords: [
-            { degree: '♭5 min7', chordName: 'A♯min7b5', beat: 1, duration: 4 },
+            { degree: '♯4 min7', chordName: 'A♯min7b5', beat: 1, duration: 4 },
           ],
         },
         {
@@ -208,7 +208,7 @@ export const interstate_love_song: Song = {
         },
         {
           chords: [
-            { degree: '♭5 min7', chordName: 'A♯min7b5', beat: 1, duration: 4 },
+            { degree: '♯4 min7', chordName: 'A♯min7b5', beat: 1, duration: 4 },
           ],
         },
         {

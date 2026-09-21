@@ -5,6 +5,7 @@ import { ChannelStrip } from '@/daw/components/ChannelStrip/ChannelStrip';
 import { LibraryPanel } from '@/daw/components/Library/LibraryPanel';
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import { PianoRollModal } from '@/daw/components/PianoRoll/PianoRollModal';
+import { ChordAnalysisPrompt } from '@/daw/components/Library/ChordAnalysisPrompt';
 import { PitchEditorModal } from '@/daw/components/PitchEditor/PitchEditorModal';
 import { LeadSheetView } from '@/daw/components/LeadSheet/LeadSheetView';
 import { StudioView } from '@/daw/components/Studio/StudioView';
@@ -45,6 +46,9 @@ import { CollabProvider, useCollab } from '@/daw/collab/CollabProvider';
 import { UserList } from '@/daw/collab/ui/UserList';
 import { ChatPanel } from '@/daw/collab/ui/ChatPanel';
 import { getDemoProject } from '@/daw/data/demoProjects';
+import { applyDemoDrums } from '@/daw/data/applyDemoDrums';
+import { withDemoSynthPresets } from '@/daw/data/demoSynthPresets';
+import { deriveChordRegionsFromSession } from '@/daw/store/prismSlice';
 import { getSong } from '@/curriculum/data/songs';
 import { seedStudioFromSong } from '@/features/songs/seedStudioFromSong';
 import { seedStudioFromPracticeTrack } from '@/features/practiceTracks/seedStudioFromPracticeTrack';
@@ -111,6 +115,7 @@ function DawAppInner() {
         try {
           const project = await studioProjectsApi.get(authToken, projectParam);
           deserializeCloudProject(project);
+          useStore.getState().offerChordAnalysis();
           // Audio buffers download + decode in the background; clips appear in
           // the timeline immediately and become playable as bytes arrive.
           void loadCloudProjectAudio(authToken).catch((err) => {
@@ -150,9 +155,23 @@ function DawAppInner() {
       resetSessionToEmpty();
       const demo = getDemoProject(demoParam);
       if (demo) {
-        deserializeCloudProject(demo.bundle);
+        deserializeCloudProject(
+          withDemoSynthPresets(demo.bundle, demo.synthPresets),
+        );
         useStore.getState().setProjectId(null);
         useStore.getState().setProjectName(demo.label);
+        // Chord regions aren't part of a project bundle, so derive them from
+        // the demo's MIDI (as a clip paste does) to give Insight its analysis.
+        const { tracks, rootNote, mode, setChordRegions } = useStore.getState();
+        if (rootNote !== null) {
+          setChordRegions(
+            deriveChordRegionsFromSession(tracks, rootNote + 48, mode),
+            true,
+          );
+        }
+        if (demo.drumGrooveId) {
+          void applyDemoDrums(demo.drumGrooveId, demo.label);
+        }
       } else {
         showError('That demo could not be found.');
       }
@@ -292,6 +311,7 @@ function DawAppInner() {
       clearLocalSession();
       resetSessionToEmpty();
       importPendingJamSession();
+      useStore.getState().offerChordAnalysis();
       clearQuery();
       return;
     }
@@ -398,6 +418,7 @@ function DawAppInner() {
           )}
         </div>
       )}
+      <ChordAnalysisPrompt />
       <SettingsModal />
       <PrismSuggestionModal />
       <RecordingLimitModal />

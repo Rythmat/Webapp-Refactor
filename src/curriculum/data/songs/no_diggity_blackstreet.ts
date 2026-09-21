@@ -37,17 +37,17 @@ export const no_diggity_blackstreet: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '♭3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '♭3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '♭3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {

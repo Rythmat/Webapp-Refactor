@@ -258,12 +258,12 @@ export const hard_rock_cafe: Song = {
         },
         {
           chords: [
-            { degree: '7 7/♭3', chordName: 'E7/G♯', beat: 1, duration: 4 },
+            { degree: '7 7/♯2', chordName: 'E7/G♯', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 7/♭3', chordName: 'E7/G♯', beat: 1, duration: 4 },
+            { degree: '7 7/♯2', chordName: 'E7/G♯', beat: 1, duration: 4 },
           ],
         },
         {

@@ -23,14 +23,16 @@ export const canned_heat: Song = {
       label: 'Intro',
       measuresPerRow: 7,
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -74,10 +76,10 @@ export const canned_heat: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -107,18 +109,18 @@ export const canned_heat: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Bmin7', beat: 1, duration: 1 },
-            { degree: '7 min7', chordName: 'Cmin7', beat: 2, duration: 1 },
-            { degree: '♯7 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 1 },
+            { degree: '♭7 min7', chordName: 'Cmin7', beat: 2, duration: 1 },
+            { degree: '7 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -130,7 +132,7 @@ export const canned_heat: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -138,11 +140,13 @@ export const canned_heat: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -150,7 +154,9 @@ export const canned_heat: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
@@ -175,10 +181,10 @@ export const canned_heat: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -208,18 +214,18 @@ export const canned_heat: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Bmin7', beat: 1, duration: 1 },
-            { degree: '7 min7', chordName: 'Cmin7', beat: 2, duration: 1 },
-            { degree: '♯7 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 1 },
+            { degree: '♭7 min7', chordName: 'Cmin7', beat: 2, duration: 1 },
+            { degree: '7 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -231,7 +237,7 @@ export const canned_heat: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -239,11 +245,13 @@ export const canned_heat: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -251,7 +259,9 @@ export const canned_heat: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
@@ -293,10 +303,10 @@ export const canned_heat: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -326,18 +336,18 @@ export const canned_heat: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Bmin7', beat: 1, duration: 1 },
-            { degree: '7 min7', chordName: 'Cmin7', beat: 2, duration: 1 },
-            { degree: '♯7 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 1 },
+            { degree: '♭7 min7', chordName: 'Cmin7', beat: 2, duration: 1 },
+            { degree: '7 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -349,7 +359,7 @@ export const canned_heat: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -357,11 +367,13 @@ export const canned_heat: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -369,7 +381,9 @@ export const canned_heat: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
@@ -386,7 +400,7 @@ export const canned_heat: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -395,12 +409,12 @@ export const canned_heat: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -409,7 +423,7 @@ export const canned_heat: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
       ],

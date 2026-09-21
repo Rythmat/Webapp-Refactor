@@ -25,15 +25,20 @@ export const easy_goin_evening_my_mamas_call: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭2 maj/6', chordName: 'A♭/E♭', beat: 1, duration: 1 },
+            { degree: '♭2 maj/♭6', chordName: 'A♭/E♭', beat: 1, duration: 1 },
             { degree: '2 maj/1', chordName: 'A/G', beat: 2, duration: 1 },
-            { degree: '♯3 maj/1', chordName: 'B/G', beat: 3, duration: 2 },
+            { degree: '3 maj/1', chordName: 'B/G', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭2 maj/1', chordName: 'A♭/G', beat: 1, duration: 1 },
-            { degree: '3 min7/1', chordName: 'B♭min7/G', beat: 2, duration: 3 },
+            {
+              degree: '♭3 min7/1',
+              chordName: 'B♭min7/G',
+              beat: 2,
+              duration: 3,
+            },
           ],
         },
         {
@@ -44,7 +49,7 @@ export const easy_goin_evening_my_mamas_call: Song = {
         },
         {
           chords: [
-            { degree: '♯3 maj/1', chordName: 'B/G', beat: 1, duration: 1 },
+            { degree: '3 maj/1', chordName: 'B/G', beat: 1, duration: 1 },
             { degree: '1 dim7', chordName: 'Gdim7', beat: 2, duration: 1 },
             { degree: '5 maj/1', chordName: 'D/G', beat: 3, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7b5', beat: 4, duration: 1 },
@@ -59,8 +64,8 @@ export const easy_goin_evening_my_mamas_call: Song = {
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -69,22 +74,22 @@ export const easy_goin_evening_my_mamas_call: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/3', chordName: 'G/B♭', beat: 1, duration: 4 },
+            { degree: '1 maj/♭3', chordName: 'G/B♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/3', chordName: 'G/B♭', beat: 1, duration: 4 },
+            { degree: '1 maj/♭3', chordName: 'G/B♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
+            { degree: '♭6 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
+            { degree: '♭6 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -95,12 +100,12 @@ export const easy_goin_evening_my_mamas_call: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 maj/♭2', chordName: 'F/A♭', beat: 1, duration: 4 },
+            { degree: '♭7 maj/♭2', chordName: 'F/A♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/♭2', chordName: 'F/A♭', beat: 1, duration: 4 },
+            { degree: '♭7 maj/♭2', chordName: 'F/A♭', beat: 1, duration: 4 },
           ],
         },
         {
@@ -183,19 +188,19 @@ export const easy_goin_evening_my_mamas_call: Song = {
       label: 'Verse 2',
       bars: [
         {
-          chords: [{ degree: '♯7 7', chordName: 'G♭7', beat: 1, duration: 4 }],
+          chords: [{ degree: '7 7', chordName: 'G♭7', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♯7 7', chordName: 'G♭7', beat: 1, duration: 4 }],
+          chords: [{ degree: '7 7', chordName: 'G♭7', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♯7 7', chordName: 'G♭7(♯5)', beat: 1, duration: 4 },
+            { degree: '7 7', chordName: 'G♭7(♯5)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 7', chordName: 'G♭7(♯5)', beat: 1, duration: 4 },
+            { degree: '7 7', chordName: 'G♭7(♯5)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -206,12 +211,12 @@ export const easy_goin_evening_my_mamas_call: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯7 dim7', chordName: 'G♭dim7', beat: 1, duration: 4 },
+            { degree: '7 dim7', chordName: 'G♭dim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯7 dim7', chordName: 'G♭dim7', beat: 1, duration: 4 },
+            { degree: '7 dim7', chordName: 'G♭dim7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -226,8 +231,8 @@ export const easy_goin_evening_my_mamas_call: Song = {
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -236,22 +241,22 @@ export const easy_goin_evening_my_mamas_call: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/3', chordName: 'G/B♭', beat: 1, duration: 4 },
+            { degree: '1 maj/♭3', chordName: 'G/B♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/3', chordName: 'G/B♭', beat: 1, duration: 4 },
+            { degree: '1 maj/♭3', chordName: 'G/B♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
+            { degree: '♭6 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
+            { degree: '♭6 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -262,12 +267,12 @@ export const easy_goin_evening_my_mamas_call: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 maj/♭2', chordName: 'F/A♭', beat: 1, duration: 4 },
+            { degree: '♭7 maj/♭2', chordName: 'F/A♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/♭2', chordName: 'F/A♭', beat: 1, duration: 4 },
+            { degree: '♭7 maj/♭2', chordName: 'F/A♭', beat: 1, duration: 4 },
           ],
         },
         {
@@ -306,7 +311,7 @@ export const easy_goin_evening_my_mamas_call: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
           fermata: true,
         },

@@ -25,14 +25,14 @@ export const aint_no_other_man: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 min7', chordName: 'A♭min7', beat: 1, duration: 2 },
-            { degree: '♭5 dim7', chordName: 'Bdim7', beat: 3, duration: 2 },
+            { degree: '♭3 min7', chordName: 'A♭min7', beat: 1, duration: 2 },
+            { degree: '♯4 dim7', chordName: 'Bdim7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 min7/5', chordName: 'Fmin7/C', beat: 1, duration: 2 },
-            { degree: '♭2 7/6', chordName: 'G♭7/D♭', beat: 3, duration: 2 },
+            { degree: '♭2 7/♭6', chordName: 'G♭7/D♭', beat: 3, duration: 2 },
           ],
         },
         {
@@ -113,7 +113,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'D♭7', beat: 1, duration: 2 },
+            { degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
@@ -276,7 +276,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'D♭7', beat: 1, duration: 2 },
+            { degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
@@ -371,7 +371,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'D♭7', beat: 1, duration: 2 },
+            { degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
@@ -382,18 +382,22 @@ export const aint_no_other_man: Song = {
       label: 'Section E',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '6 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '6 7', chordName: 'D♭7', beat: 1, duration: 2 },
+            { degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '6 7', chordName: 'D♭7', beat: 1, duration: 2 },
+            { degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
@@ -404,11 +408,15 @@ export const aint_no_other_man: Song = {
       label: 'Section M',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '6 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '6 7', chordName: 'D♭7', beat: 1, duration: 2 },
+            { degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
@@ -488,7 +496,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'D♭7', beat: 1, duration: 2 },
+            { degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
@@ -512,8 +520,8 @@ export const aint_no_other_man: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Dmin7b5', beat: 1, duration: 1 },
-            { degree: '7 7', chordName: 'E♭7', beat: 2, duration: 1 },
+            { degree: '6 min7', chordName: 'Dmin7b5', beat: 1, duration: 1 },
+            { degree: '♭7 7', chordName: 'E♭7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -524,8 +532,8 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Dmin7b5', beat: 1, duration: 1 },
-            { degree: '7 7', chordName: 'E♭7', beat: 2, duration: 1 },
+            { degree: '6 min7', chordName: 'Dmin7b5', beat: 1, duration: 1 },
+            { degree: '♭7 7', chordName: 'E♭7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },

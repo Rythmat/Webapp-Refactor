@@ -26,25 +26,25 @@ export const this_must_be_the_place: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'A', beat: 1, duration: 1 },
-            { degree: '3 maj/7', chordName: 'G/D', beat: 2, duration: 1 },
+            { degree: '♭3 maj/♭7', chordName: 'G/D', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Emin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Emin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj/7', chordName: 'G/D', beat: 1, duration: 2 },
+            { degree: '♭3 maj/♭7', chordName: 'G/D', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Emin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Emin7', beat: 3, duration: 2 },
           ],
         },

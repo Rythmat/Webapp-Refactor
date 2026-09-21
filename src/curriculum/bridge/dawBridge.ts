@@ -113,51 +113,32 @@ function progressionToChordRegions(
 }
 
 /**
- * Format a human-readable chord name from degree + quality.
+ * Format a hybrid-numbering chord name from degree + quality
+ * (e.g., "4 maj7", "♭7 maj", "5 dom7♭9"), matching `degreeToHybrid`.
  */
-function formatChordName(degree: string, qualityId: string): string {
-  const degreeLabels: Record<string, string> = {
-    '1': 'I',
-    '2': 'II',
-    '3': 'III',
-    '4': 'IV',
-    '5': 'V',
-    '6': 'VI',
-    '7': 'VII',
-    b2: 'bII',
-    b3: 'bIII',
-    b5: 'bV',
-    b6: 'bVI',
-    b7: 'bVII',
-    s4: '#IV',
-    s5: '#V',
-  };
+function formatChordName(degree: string, quality: string): string {
+  const match = /^(b|\u266D|#|s)?(\d+)$/.exec(degree);
+  const accidental = match?.[1];
+  const prefix = !accidental
+    ? ''
+    : accidental === '#' || accidental === 's'
+      ? '#'
+      : '\u266D';
+  const degreeLabel = match ? `${prefix}${match[2]}` : degree;
 
-  const qualityLabels: Record<string, string> = {
-    maj: '',
-    min: 'm',
-    dom7: '7',
-    maj7: 'maj7',
-    min7: 'm7',
-    dim: 'dim',
-    aug: 'aug',
-    dom9: '9',
-    maj9: 'maj9',
-    min9: 'm9',
-    dom11: '11',
-    min11: 'm11',
-    dom13: '13',
-    min13: 'm13',
-    maj13: 'maj13',
-    min7b5: 'm7b5',
-    dim7: 'dim7',
-    sus2: 'sus2',
-    sus4: 'sus4',
-  };
+  const qualityLabel =
+    quality === 'min_maj7'
+      ? 'min(maj7)'
+      : quality
+          .replace(/dominant/g, 'dom')
+          .replace(/diminished/g, 'dim')
+          .replace(/minor/g, 'min')
+          .replace(/major/g, 'maj')
+          .replace(/_/g, '')
+          .replace(/(\d)s(?=\d)/g, '$1#')
+          .replace(/(\d)b(?=\d)/g, '$1\u266D');
 
-  const dLabel = degreeLabels[degree] ?? degree;
-  const qLabel = qualityLabels[qualityId] ?? qualityId;
-  return `${dLabel}${qLabel}`;
+  return `${degreeLabel} ${qualityLabel}`;
 }
 
 /**

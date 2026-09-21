@@ -79,7 +79,7 @@ export const if_i_aint_got_you: Song = {
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'G♯dim7', beat: 1, duration: 6 },
+            { degree: '♯1 dim7', chordName: 'G♯dim7', beat: 1, duration: 6 },
           ],
         },
         {

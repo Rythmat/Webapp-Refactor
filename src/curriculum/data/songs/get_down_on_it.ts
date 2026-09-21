@@ -31,7 +31,9 @@ export const get_down_on_it: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -39,7 +41,9 @@ export const get_down_on_it: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
@@ -76,7 +80,9 @@ export const get_down_on_it: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
@@ -90,7 +96,9 @@ export const get_down_on_it: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -98,7 +106,9 @@ export const get_down_on_it: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
@@ -135,7 +145,9 @@ export const get_down_on_it: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
@@ -149,7 +161,9 @@ export const get_down_on_it: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -157,7 +171,9 @@ export const get_down_on_it: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
@@ -193,7 +209,9 @@ export const get_down_on_it: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },

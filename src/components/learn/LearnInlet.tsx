@@ -237,10 +237,14 @@ function getTileCompletion(
   return 0;
 }
 
+// `activity` is the chapter's first activityDefId in the mode lesson flow
+// (buildFlowDefinitions in src/components/Games/ActivityFlow.tsx), passed as
+// `?activity=` so each chapter opens at its own start. Practice Track has no
+// activity — it hands off to Studio instead.
 const THEORY_SECTIONS = [
-  { id: 'O', name: 'Overview' },
-  { id: 'A', name: 'Melody' },
-  { id: 'B', name: 'Chords' },
+  { id: 'O', name: 'Overview', activity: 'lesson-overview' },
+  { id: 'A', name: 'Melody', activity: 'asc-nh' },
+  { id: 'B', name: 'Chords', activity: 'arpeggiate-1-nh' },
   { id: 'D', name: 'Practice Track' },
 ];
 
@@ -1482,19 +1486,18 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     // Practice Track is only offered for the 7 diatonic modes (DIATONIC_MODES
     // above already enumerates exactly those slugs).
     const isDiatonicMode = DIATONIC_MODES.some((m) => m.slug === mode);
-    const sections = isDiatonicMode
-      ? THEORY_SECTIONS.map((section) =>
-          section.id === 'D'
-            ? {
-                ...section,
-                route: `${StudioRoutes.editor.definition}?practiceMode=${mode}&practiceRoot=${keyLabelToUrlParam(keyLabel)}&practiceOpen=melody`,
-              }
-            : section,
-        )
-      : THEORY_SECTIONS.filter((section) => section.id !== 'D');
+    const keyParam = keyLabelToUrlParam(keyLabel);
+    const sections = THEORY_SECTIONS.filter(
+      (section) => isDiatonicMode || section.id !== 'D',
+    ).map(({ activity, ...section }) => ({
+      ...section,
+      route: activity
+        ? LearnRoutes.lesson({ mode, key: keyParam }, { activity })
+        : `${StudioRoutes.editor.definition}?practiceMode=${mode}&practiceRoot=${keyParam}&practiceOpen=melody`,
+    }));
     setSelectedSubItem({
       label: `${keyLabel} ${modeTitle}`,
-      route: LearnRoutes.lesson({ mode, key: keyLabelToUrlParam(keyLabel) }),
+      route: LearnRoutes.lesson({ mode, key: keyParam }),
       completionPct: pct,
       sections,
     });

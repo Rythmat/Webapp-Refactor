@@ -48,7 +48,7 @@ export const bluesStyleDna: StyleDnaLevel[] = [
       },
       {
         category: 'Progressions',
-        description: '12-bar blues (I-I-I-I / IV-IV-I-I / V-IV-I-I)',
+        description: '12-bar blues (1-1-1-1 / 4-4-1-1 / 5-4-1-1)',
       },
       {
         category: 'Techniques',
@@ -105,7 +105,7 @@ export const bluesStyleDna: StyleDnaLevel[] = [
       },
       {
         category: 'Progressions',
-        description: '12-bar with 7-3-5 voicings, ii-V turnaround',
+        description: '12-bar with 7-3-5 voicings, 2-5 turnaround',
       },
       {
         category: 'Tempo',

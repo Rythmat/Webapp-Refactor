@@ -83,12 +83,12 @@ export const footloose: Song = {
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -208,12 +208,12 @@ export const footloose: Song = {
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
           ],
         },
       ],

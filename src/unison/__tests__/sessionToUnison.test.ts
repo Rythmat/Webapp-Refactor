@@ -93,11 +93,10 @@ describe('sessionToUnison', () => {
     expect(doc.analysis.key.confidence).toBeGreaterThan(0);
   });
 
-  it('enriches chord regions with hybrid names and roman numerals', () => {
+  it('enriches chord regions with hybrid names', () => {
     const doc = sessionToUnison(makeSnapshot());
     expect(doc.analysis.chordTimeline).toHaveLength(1);
     expect(doc.analysis.chordTimeline[0].hybridName).toBe('1 major');
-    expect(doc.analysis.chordTimeline[0].romanNumeral).toBe('I');
   });
 
   it('converts tracks to UNISON format', () => {

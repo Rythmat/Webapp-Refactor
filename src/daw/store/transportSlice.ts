@@ -6,6 +6,29 @@ import type { AllSlices } from './index';
 // Controls playback state, tempo, position, metronome, and loop region.
 // Ticks: 480 ticks per quarter note (standard MIDI resolution).
 
+export interface LoopState {
+  enabled: boolean;
+  start: number; // tick
+  end: number; // tick
+}
+
+/** The loop playback follows: the piano roll editor's own loop while that
+ *  editor is open, otherwise the project loop. */
+export function getPlaybackLoop(
+  s: Pick<
+    TransportSlice,
+    'editorLoop' | 'loopEnabled' | 'loopStart' | 'loopEnd'
+  >,
+): LoopState {
+  return (
+    s.editorLoop ?? {
+      enabled: s.loopEnabled,
+      start: s.loopStart,
+      end: s.loopEnd,
+    }
+  );
+}
+
 export interface TransportSlice {
   isPlaying: boolean;
   isRecording: boolean;
@@ -23,6 +46,10 @@ export interface TransportSlice {
   loopEnabled: boolean;
   loopStart: number; // tick
   loopEnd: number; // tick (default: 4 bars = 7680)
+  // The piano roll editor's own loop — a tool inside that editor, kept apart
+  // from the project loop above (never saved, never shown in the timeline).
+  // Non-null only while the editor is open; playback loops on it then.
+  editorLoop: LoopState | null;
   liveRecordingNotes: MidiNoteEvent[];
   liveRecordingTrackId: string | null;
   liveRecordingStartTick: number;
@@ -42,7 +69,10 @@ export interface TransportSlice {
   setLastSeekPosition: (tick: number) => void;
   toggleMetronome: () => void;
   toggleLoop: () => void;
+  setLoopEnabled: (enabled: boolean) => void;
   setLoopRange: (start: number, end: number) => void;
+  setEditorLoop: (loop: LoopState | null) => void;
+  updateEditorLoop: (patch: Partial<LoopState>) => void;
   setLiveRecording: (
     trackId: string,
     notes: MidiNoteEvent[],
@@ -78,6 +108,7 @@ export const createTransportSlice: StateCreator<
   loopEnabled: false,
   loopStart: 0,
   loopEnd: 7680, // 4 bars × 4 beats × 480 ticks
+  editorLoop: null,
   liveRecordingNotes: [],
   liveRecordingTrackId: null,
   liveRecordingStartTick: 0,
@@ -199,6 +230,18 @@ export const createTransportSlice: StateCreator<
       }
       return { loopEnabled: true };
     }),
+
+  // Plain on/off that keeps the current range — toggleLoop instead refits the
+  // range to the selected clip when turning the loop on.
+  setLoopEnabled: (enabled) => set({ loopEnabled: enabled }),
+
+  setEditorLoop: (loop) => set({ editorLoop: loop }),
+
+  // No-op unless the editor loop exists (i.e. the piano roll editor is open).
+  updateEditorLoop: (patch) =>
+    set((state) =>
+      state.editorLoop ? { editorLoop: { ...state.editorLoop, ...patch } } : {},
+    ),
 
   setLoopRange: (start, end) =>
     set({ loopStart: Math.max(0, start), loopEnd: Math.max(0, end) }),

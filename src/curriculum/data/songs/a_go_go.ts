@@ -74,22 +74,22 @@ export const a_go_go: Song = {
       bars: [
         {
           chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -100,22 +100,22 @@ export const a_go_go: Song = {
       bars: [
         {
           chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -149,7 +149,7 @@ export const a_go_go: Song = {
         { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
       ],

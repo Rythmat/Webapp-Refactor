@@ -90,12 +90,12 @@ export const tightrope: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -218,12 +218,12 @@ export const tightrope: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -345,12 +345,12 @@ export const tightrope: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -446,12 +446,12 @@ export const tightrope: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -463,12 +463,12 @@ export const tightrope: Song = {
         { chords: [], restBars: 6 },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [], restBars: 8 },
@@ -516,12 +516,12 @@ export const tightrope: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -564,12 +564,12 @@ export const tightrope: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],

@@ -46,7 +46,9 @@ export const tighten_up: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
@@ -80,7 +82,7 @@ export const tighten_up: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'A', beat: 1, duration: 2 },
             { degree: '4 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
@@ -99,7 +101,9 @@ export const tighten_up: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
@@ -138,7 +142,7 @@ export const tighten_up: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'A', beat: 1, duration: 2 },
             { degree: '4 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
@@ -171,7 +175,7 @@ export const tighten_up: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'A', beat: 1, duration: 2 },
             { degree: '4 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },

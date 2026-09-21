@@ -28,14 +28,18 @@ export const kiss_from_a_rose: Song = {
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
       ],
     },
@@ -46,14 +50,18 @@ export const kiss_from_a_rose: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
       ],
     },
@@ -62,7 +70,9 @@ export const kiss_from_a_rose: Song = {
       label: 'Section C',
       measuresPerRow: 9,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
@@ -71,13 +81,17 @@ export const kiss_from_a_rose: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
       ],
     },
@@ -89,11 +103,15 @@ export const kiss_from_a_rose: Song = {
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
       ],
     },
@@ -103,20 +121,26 @@ export const kiss_from_a_rose: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
       ],
     },
@@ -127,19 +151,25 @@ export const kiss_from_a_rose: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
       ],
     },
     {
@@ -149,9 +179,11 @@ export const kiss_from_a_rose: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
           chords: [
@@ -159,13 +191,17 @@ export const kiss_from_a_rose: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
       ],
     },
@@ -177,16 +213,22 @@ export const kiss_from_a_rose: Song = {
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
       ],
     },
     {
@@ -195,25 +237,33 @@ export const kiss_from_a_rose: Song = {
       measuresPerRow: 10,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
       ],
     },
     {
@@ -221,25 +271,29 @@ export const kiss_from_a_rose: Song = {
       label: 'Section E',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         {
           chords: [
-            { degree: '4 maj/7', chordName: 'C/F', beat: 1, duration: 6 },
+            { degree: '4 maj/♭7', chordName: 'C/F', beat: 1, duration: 6 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         {
           chords: [
-            { degree: '4 maj/7', chordName: 'C/F', beat: 1, duration: 6 },
+            { degree: '4 maj/♭7', chordName: 'C/F', beat: 1, duration: 6 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 6 }],
         },
       ],
     },
@@ -248,25 +302,29 @@ export const kiss_from_a_rose: Song = {
       label: 'Section K',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         {
           chords: [
-            { degree: '4 maj/7', chordName: 'C/F', beat: 1, duration: 6 },
+            { degree: '4 maj/♭7', chordName: 'C/F', beat: 1, duration: 6 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         {
           chords: [
-            { degree: '4 maj/7', chordName: 'C/F', beat: 1, duration: 6 },
+            { degree: '4 maj/♭7', chordName: 'C/F', beat: 1, duration: 6 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 6 }],
         },
       ],
     },
@@ -277,19 +335,25 @@ export const kiss_from_a_rose: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
       ],
     },
     {
@@ -299,9 +363,11 @@ export const kiss_from_a_rose: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
           chords: [
@@ -309,13 +375,17 @@ export const kiss_from_a_rose: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
       ],
     },
@@ -327,11 +397,15 @@ export const kiss_from_a_rose: Song = {
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
       ],
     },
@@ -341,20 +415,26 @@ export const kiss_from_a_rose: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }],
           fermata: true,

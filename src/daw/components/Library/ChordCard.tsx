@@ -11,11 +11,15 @@ import {
   type ChordInsight,
 } from './insightConstants';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
+import { formatSecondaryLabel, useChordNotation } from '@/lib/chordNotation';
+import { chordCardLabels, keyContext } from './insightNotation';
 
 interface ChordCardProps {
   chord: ChordInsight;
   keyLetter: string | null;
   rootNote: number | null;
+  /** Session mode (ALL_MODES key), for spelling note names. */
+  mode?: string;
   expanded: boolean;
   onToggleExpand: () => void;
 }
@@ -24,9 +28,20 @@ export function ChordCard({
   chord,
   keyLetter,
   rootNote,
+  mode,
   expanded,
   onToggleExpand,
 }: ChordCardProps) {
+  const notation = useChordNotation();
+  const context = keyContext(rootNote, mode);
+  // Hybrid: the hybrid number plus the letter name; jazz / Roman: one symbol.
+  const labels = chordCardLabels(chord, notation, context);
+  const formatTarget = (target: string) =>
+    formatSecondaryLabel(target, notation, context);
+  const secondaryTarget = chord.modalInterchange?.secondaryTarget;
+  const shownTarget =
+    secondaryTarget === undefined ? undefined : formatTarget(secondaryTarget);
+
   return (
     <div
       className="flex flex-col gap-1.5 px-3 py-2.5 border-b"
@@ -42,24 +57,14 @@ export function ChordCard({
           className="text-[11px] font-semibold"
           style={{ color: 'var(--color-text)' }}
         >
-          {chord.hybrid}
+          {labels.title}
         </span>
-        <span
-          className="text-[10px]"
-          style={{ color: 'var(--color-text-dim)' }}
-        >
-          {chord.chordLabel}
-        </span>
-        {/* Roman numeral badge (UNISON enrichment) */}
-        {chord.romanNumeral && (
+        {labels.detail !== null && (
           <span
-            className="text-[9px] font-mono px-1 py-0.5 rounded ml-auto"
-            style={{
-              backgroundColor: 'var(--color-surface-2)',
-              color: 'var(--color-text)',
-            }}
+            className="text-[10px]"
+            style={{ color: 'var(--color-text-dim)' }}
           >
-            {chord.romanNumeral}
+            {labels.detail}
           </span>
         )}
       </div>
@@ -84,9 +89,9 @@ export function ChordCard({
           {chord.modalInterchange.type === 'borrowed'
             ? `Borrowed from ${chord.modalInterchange.sourceModeDisplay ?? chord.sourceMode ?? ''}`
             : chord.modalInterchange.type === 'secondary-dominant'
-              ? (chord.modalInterchange.secondaryTarget ?? 'Secondary dom.')
+              ? (shownTarget ?? 'Secondary dom.')
               : chord.modalInterchange.type === 'secondary-leading-tone'
-                ? (chord.modalInterchange.secondaryTarget ?? 'Secondary LT')
+                ? (shownTarget ?? 'Secondary LT')
                 : 'Mode mixture'}
         </span>
       )}
@@ -135,7 +140,7 @@ export function ChordCard({
         className="text-[9px] leading-snug"
         style={{ color: 'var(--color-text-dim)' }}
       >
-        {getEnrichedDescription(chord)}
+        {getEnrichedDescription(chord, formatTarget)}
       </div>
 
       {/* Mode links */}
@@ -266,6 +271,7 @@ export function ChordCard({
                       noteNameInKey(
                         (rootNote! - alt.parentOffset + 12) % 12,
                         rootNote!,
+                        mode,
                       ),
                     )}{' '}
                     {MODE_DISPLAY[FAMILY_MODES[alt.family]?.[0]] ?? alt.family}

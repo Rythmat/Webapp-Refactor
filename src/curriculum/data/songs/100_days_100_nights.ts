@@ -80,7 +80,7 @@ export const _100_days_100_nights: Song = {
       id: 'section_d',
       label: 'Section D',
       bars: [
-        { chords: [{ degree: '6 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭6 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -238,7 +238,7 @@ export const _100_days_100_nights: Song = {
       id: 'section_k',
       label: 'Section K',
       bars: [
-        { chords: [{ degree: '6 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭6 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -327,7 +327,7 @@ export const _100_days_100_nights: Song = {
       label: 'Section O',
       bars: [
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭6 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
@@ -374,7 +374,7 @@ export const _100_days_100_nights: Song = {
         },
         {
           chords: [
-            { degree: '♭5 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
+            { degree: '♯4 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -460,7 +460,7 @@ export const _100_days_100_nights: Song = {
       measuresPerRow: 6,
       bars: [
         {
-          chords: [{ degree: '6 7', chordName: 'F7', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 7', chordName: 'F7', beat: 1, duration: 4 }],
           fermata: true,
         },
         {

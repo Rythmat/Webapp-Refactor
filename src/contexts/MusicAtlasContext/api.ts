@@ -50,6 +50,16 @@ const getClient = (params?: ClientParams) => {
     headers,
   });
 
+  // Path params are interpolated unencoded by the generated client, and axios
+  // drops everything after a `#` as a URL fragment — so a mode slug like
+  // `lydian#2#6` would request `/prism/modes/lydian`. Encode it into the path.
+  client.instance.interceptors.request.use((config) => {
+    if (config.url?.includes('#')) {
+      config.url = config.url.replace(/#/g, '%23');
+    }
+    return config;
+  });
+
   // Intercept 401 responses to detect app-session errors
   client.instance.interceptors.response.use(
     (response) => response,

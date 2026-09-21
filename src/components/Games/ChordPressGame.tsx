@@ -6,6 +6,7 @@ import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { useOptionalLearnInputStable } from '@/learn/context/LearnInputContext';
+import { formatChord, useChordNotation } from '@/lib/chordNotation';
 import { ArcadeGameHeader } from './ArcadeGameHeader';
 import { playGrandPianoNote } from './chordPressAudio';
 import { useGameAudio, type GameAudioEngine } from './useGameAudio';
@@ -103,6 +104,18 @@ function chordName(rootPc: number, type: ChordType) {
     case 'min7':
       return `${root} Minor 7`;
   }
+}
+
+/**
+ * The chord as a jazz symbol ("C♯−"), rooted on the game's own sharp spelling.
+ * Hybrid shows chordName, and so does Roman: it needs a key and this game has
+ * none. Display only — the answer is checked by pitch class.
+ */
+function jazzChordName(rootPc: number, type: ChordType) {
+  return formatChord(
+    { root: PITCH_CLASS_NAMES[pc(rootPc)], quality: type },
+    'jazz',
+  );
 }
 
 function toEvents(midi: number[], color?: string): PlaybackEvent[] {
@@ -348,7 +361,12 @@ export function ChordPressGame({
   }, [selected, checked, isCorrect]);
 
   const keyboardId = useMemo(() => `kbd-${seed}`, [seed]);
-  const title = targetLabel ?? chordName(current.rootPc, current.type);
+  const notation = useChordNotation();
+  const title =
+    targetLabel ??
+    (notation === 'jazz'
+      ? jazzChordName(current.rootPc, current.type)
+      : chordName(current.rootPc, current.type));
 
   const handleContinue = useCallback(() => {
     if (!checked || submitted) return;

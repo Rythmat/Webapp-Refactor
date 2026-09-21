@@ -16,11 +16,12 @@ import {
   startPianoSampler,
 } from '@/audio/pianoSampler';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
-import { CurriculumRoutes } from '@/constants/routes';
+import { CurriculumRoutes, SettingsRoutes } from '@/constants/routes';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import DualStaffPianoRoll from '@/curriculum/components/DualStaffPianoRoll';
 import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
 import { useMspModuleCompletion } from '@/features/classroom/msp';
+import { useSettingsStore } from '@/features/settings/useSettingsStore';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { useLessonVolume } from '@/learn/audio/useLessonVolume';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
@@ -28,6 +29,13 @@ import {
   LearnInputProvider,
   useLearnInputStable,
 } from '@/learn/context/LearnInputContext';
+import {
+  formatChord,
+  parseChord,
+  useChordNotation,
+  type ChordContext,
+  type ChordNotation,
+} from '@/lib/chordNotation';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import {
   resolveStepContent,
@@ -125,6 +133,28 @@ function parseKeyRoot(keyName: string): number {
   return KEY_MAP[keyName] ?? 60;
 }
 
+// ── Chord symbols ────────────────────────────────────────────────────────────
+
+/**
+ * A step's hand-written chord symbol ('Dm7', 'Bb/D') in the chosen notation.
+ * Hybrid shows it as written, as does a chord the notation can't write
+ * ('Afunk9'), rather than the formatter's hybrid fallback ("5 funk9").
+ */
+function chordSymbolForDisplay(
+  symbol: string,
+  notation: ChordNotation,
+  context: ChordContext,
+): string {
+  const written = formatAccidentalsForDisplay(symbol);
+  if (notation === 'hybrid') return written;
+  const spec = parseChord(symbol);
+  if (!spec) return written;
+  const formatted = formatChord(spec, notation, context);
+  return formatted === formatChord(spec, 'hybrid', context)
+    ? written
+    : formatted;
+}
+
 // ── Inner component (needs LearnInputProvider wrapper) ────────────────────────
 
 function GenreLessonContainerV2Inner({
@@ -140,6 +170,9 @@ function GenreLessonContainerV2Inner({
   onBackendSync,
 }: GenreLessonContainerV2Props) {
   const navigate = useNavigate();
+  // Shown in the tempo bar: how far the student's output (Bluetooth headphones)
+  // runs behind, so the backing can be brought back in line from the activity.
+  const outputLatencyMs = useSettingsStore((s) => s.outputLatencyMs);
   const genreDisplayName =
     displayName ?? genre.charAt(0).toUpperCase() + genre.slice(1);
 
@@ -211,6 +244,16 @@ function GenreLessonContainerV2Inner({
     const keyName = flow.params.defaultKey.split(' ')[0];
     return parseKeyRoot(keyName);
   }, [flow.params.defaultKey]);
+
+  // Chord symbols follow the chord notation setting; Roman numbers from the key.
+  const chordNotation = useChordNotation();
+  const chordContext = useMemo<ChordContext>(
+    () => ({
+      keyRootPc: keyRoot % 12,
+      mode: SCALE_TO_MODE[flow.params.defaultScaleId ?? ''] ?? null,
+    }),
+    [keyRoot, flow.params.defaultScaleId],
+  );
 
   // Key color from app's color system — mode-shifted to match Music Atlas key center colors
   const keyColor = useMemo(() => {
@@ -292,6 +335,11 @@ function GenreLessonContainerV2Inner({
 
   // For IT activities, offset all notes by 1 bar to create a genuine count-in
   const COUNT_IN_OFFSET = 1920; // one bar at 4/4
+  // In time, the student's bar 1 arrives two bars after transport start: the
+  // piano roll's own count-in bar (its playhead starts a bar early) plus the
+  // one-bar note offset above. Audio scheduled on the transport — the practice
+  // guide and the Play Now backing track — must start its bar 1 there.
+  const LEAD_IN_TICKS = COUNT_IN_OFFSET * 2;
 
   // Convert to PianoRoll format (with IT count-in offset)
   const pianoRollEvents = useMemo(() => {
@@ -678,6 +726,51 @@ function GenreLessonContainerV2Inner({
     return () => stopTickCounter();
   }, [stopTickCounter]);
 
+  const ticksAt = useCallback((time: number): number | null => {
+    const transport = Tone.getTransport();
+    if (transport.state !== 'started') return null;
+    let ticks: number;
+    try {
+      // Tone throws for a time before the transport's recorded history, and a
+      // latency-compensated read reaches back there in a run's first moments
+      // (Play Now restarts the transport just before). Treat it as not started.
+      ticks =
+        (transport.getTicksAtTime(Math.max(0, time)) / transport.PPQ) * 480;
+    } catch {
+      return null;
+    }
+    return Number.isFinite(ticks) ? ticks : null;
+  }, []);
+
+  const playbackTicks = useCallback((): number | null => {
+    const context = Tone.getContext().rawContext as AudioContext;
+    // Browsers can report a stale device latency after an output switch; a
+    // real one is well under half a second, so cap it rather than let a bogus
+    // value park the playhead before the run.
+    const deviceLatency = Math.min(
+      MAX_DEVICE_LATENCY_SEC,
+      Math.max(0, (context.outputLatency ?? 0) + (context.baseLatency ?? 0)),
+    );
+    return ticksAt(
+      context.currentTime -
+        deviceLatency -
+        useSettingsStore.getState().outputLatencyMs / 1000,
+    );
+  }, [ticksAt]);
+
+  // Where a note played right now lands in the music: it sounds from the audio
+  // clock's "now", travels to the speakers alongside the backing track, and so
+  // reaches the student's ear beside it. Hits are stamped and scored here, not
+  // at the playhead — a player with output latency presses early so that what
+  // they hear of themselves lands on the beat, and that's the playing to judge.
+  const soundingTicks = useCallback((): number | null => {
+    const context = Tone.getContext().rawContext as AudioContext;
+    const ticks = ticksAt(context.currentTime);
+    // Into the piano roll's space, where its own count-in bar puts tick 0 one
+    // bar after the transport starts — that's how user notes are stored.
+    return ticks == null ? null : ticks - COUNT_IN_OFFSET;
+  }, [ticksAt, COUNT_IN_OFFSET]);
+
   // ── MIDI input subscription (dongle connection — read-only) ──────────────
 
   const {
@@ -694,8 +787,6 @@ function GenreLessonContainerV2Inner({
   }, [startInput, stopInput]);
 
   useEffect(() => {
-    const MIDI_LATENCY_TICKS = 60; // ~60 ticks compensation for metronome↔pianoroll sync
-
     const unsubOn = subscribeNoteOn((event: MidiNoteEvent) => {
       const state = activityStateRef.current;
       if (state !== 'performance' && state !== 'practice') return;
@@ -710,16 +801,13 @@ function GenreLessonContainerV2Inner({
       const noteName = midiToPitchName(event.number, keyRoot);
       void triggerPianoAttack(noteName, event.velocity);
 
-      // Capture notes for visual rendering (both practice + performance)
-      const compensatedOnset = Math.max(
-        0,
-        currentTickRef.current - MIDI_LATENCY_TICKS,
-      );
+      // Capture notes for visual rendering (both practice + performance).
+      const hitTick = soundingTicks() ?? currentTickRef.current;
       setUserNotes((prev) => [
         ...prev,
         {
           midi: event.number,
-          onset: compensatedOnset,
+          onset: Math.max(0, hitTick),
           duration: 0,
           velocity: event.velocity,
         },
@@ -738,10 +826,11 @@ function GenreLessonContainerV2Inner({
       setActiveMidis((prev) => prev.filter((m) => m !== event.number));
 
       // Update note duration (both practice + performance)
+      const releaseTick = soundingTicks() ?? currentTickRef.current;
       setUserNotes((prev) =>
         prev.map((n) =>
           n.midi === event.number && n.duration === 0
-            ? { ...n, duration: currentTickRef.current - n.onset }
+            ? { ...n, duration: releaseTick - n.onset }
             : n,
         ),
       );
@@ -751,7 +840,7 @@ function GenreLessonContainerV2Inner({
       unsubOn();
       unsubOff();
     };
-  }, [subscribeNoteOn, subscribeNoteOff, keyRoot]);
+  }, [subscribeNoteOn, subscribeNoteOff, keyRoot, soundingTicks]);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
@@ -824,6 +913,11 @@ function GenreLessonContainerV2Inner({
     currentTickRef.current = tick;
   }, []);
 
+  // In time, the playhead reads the transport: its position at the moment the
+  // student hears it (the audio clock less the output latency the browser
+  // reports, and less any extra set in Settings ▸ Audio for Bluetooth
+  // headphones). It can't drift from the backing track, metronome or practice
+  // guide, and scoring follows what the student hears.
   const handleNext = useCallback(() => {
     stopTickCounter();
     if (stepIndex < currentSection.steps.length - 1) {
@@ -1095,7 +1189,7 @@ function GenreLessonContainerV2Inner({
     if (targetNotes.length > 0) {
       const spt = 60 / (tempo * 480); // seconds per tick
       const noteEvents = targetNotes.map((n) => ({
-        time: (n.onset + COUNT_IN_OFFSET * 2) * spt,
+        time: (n.onset + LEAD_IN_TICKS) * spt,
         midi: n.midi,
         durationSec: n.duration * spt,
       }));
@@ -1189,6 +1283,7 @@ function GenreLessonContainerV2Inner({
         targetNotes,
         undefined, // no metronome in Play Now with backing track — drums provide the pulse
         flow.genre,
+        isIT ? LEAD_IN_TICKS : 0, // backing bar 1 = the student's bar 1
       );
 
       // Wait for Transport start offset + Web Audio latency
@@ -1321,7 +1416,9 @@ function GenreLessonContainerV2Inner({
                 }}
               >
                 {resolvedStep.chordSymbols
-                  .map(formatAccidentalsForDisplay)
+                  .map((symbol) =>
+                    chordSymbolForDisplay(symbol, chordNotation, chordContext),
+                  )
                   .join(' → ')}
               </div>
             )}
@@ -1586,6 +1683,23 @@ function GenreLessonContainerV2Inner({
             }}
           />
           <span style={{ fontSize: '12px', color: '#888' }}>BPM</span>
+          <button
+            type="button"
+            onClick={() => navigate(`${SettingsRoutes.root()}/audio`)}
+            title="Backing track not lining up with what you hear? Bluetooth headphones delay sound — calibrate it here."
+            style={{
+              marginLeft: 'auto',
+              background: 'transparent',
+              border: 'none',
+              color: '#888',
+              fontSize: '12px',
+              textDecoration: 'underline',
+              cursor: 'pointer',
+              padding: 0,
+            }}
+          >
+            Audio timing{outputLatencyMs > 0 ? ` · ${outputLatencyMs} ms` : ''}
+          </button>
         </div>
       )}
 
@@ -1623,6 +1737,7 @@ function GenreLessonContainerV2Inner({
               playSpeed={tempo}
               isPlaying={isActive && isIT}
               onPlayingChange={() => {}}
+              playbackTicks={isIT ? playbackTicks : undefined}
               onTickChange={handleTickChange}
               activeMidis={activeMidis}
               noteHoldMeta={isActive && !isIT ? noteHoldMeta : undefined}
@@ -1646,6 +1761,7 @@ function GenreLessonContainerV2Inner({
               playSpeed={tempo}
               isPlaying={isActive && isIT}
               onPlayingChange={() => {}}
+              playbackTicks={isIT ? playbackTicks : undefined}
               onTickChange={handleTickChange}
               activeMidis={activeMidis}
               noteHoldMeta={isActive && !isIT ? noteHoldMeta : undefined}
@@ -1980,6 +2096,8 @@ function GenreLessonContainerV2Inner({
 }
 
 // ── Exported component with provider wrapper ─────────────────────────────────
+
+const MAX_DEVICE_LATENCY_SEC = 0.5;
 
 export function GenreLessonContainerV2(props: GenreLessonContainerV2Props) {
   return (

@@ -4,6 +4,8 @@
 import { memo, type ReactNode, useCallback, useMemo } from 'react';
 import { useTuner } from '@/daw/hooks/useTuner';
 import { useStore } from '@/daw/store';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
+import { noteNameToPitchClass } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 
 // ── Constants ────────────────────────────────────────────────────────────
 
@@ -163,21 +165,7 @@ function StringIndicator({
 }
 
 function noteToSemitone(note: string): number {
-  const map: Record<string, number> = {
-    C: 0,
-    'C#': 1,
-    D: 2,
-    'D#': 3,
-    E: 4,
-    F: 5,
-    'F#': 6,
-    G: 7,
-    'G#': 8,
-    A: 9,
-    'A#': 10,
-    B: 11,
-  };
-  return map[note] ?? 0;
+  return noteNameToPitchClass(note) ?? 0;
 }
 
 // ── Main Component ───────────────────────────────────────────────────────
@@ -295,7 +283,7 @@ export const TunerDisplay = memo(function TunerDisplay({
         >
           {hasNote ? (
             <>
-              <span className="text-[18px]">{note}</span>
+              <span className="text-[18px]">{displayAccidentals(note)}</span>
               <span className="text-[12px] opacity-70">{octave}</span>
             </>
           ) : (

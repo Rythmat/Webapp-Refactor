@@ -3,6 +3,8 @@ import * as Tone from 'tone';
 import { showError } from '@/components/utils/toast';
 import { useStore, type InstrumentType, type Track } from '@/daw/store';
 import { audioEngine } from '@/daw/audio/AudioEngine';
+import { isTrackAudible } from '@/daw/audio/trackAudibility';
+import { getPlaybackLoop } from '@/daw/store/transportSlice';
 import { TrackEngine } from '@/daw/audio/TrackEngine';
 import { MidiScheduler } from '@/daw/audio/MidiScheduler';
 import { AudioClipScheduler } from '@/daw/audio/AudioClipScheduler';
@@ -318,7 +320,8 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   const metronomeEnabled = useStore((s) => s.metronomeEnabled);
   const tsNum = useStore((s) => s.timeSignatureNumerator);
   const tsDen = useStore((s) => s.timeSignatureDenominator);
-  const loopEnabled = useStore((s) => s.loopEnabled);
+  // The piano roll editor's own loop while it's open, else the project loop.
+  const loopEnabled = useStore((s) => getPlaybackLoop(s).enabled);
   const masteringEffects = useStore((s) => s.masteringEffects);
   const masterVolume = useStore((s) => s.masterVolume);
   const returns = useStore((s) => s.returns);
@@ -369,6 +372,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
         } else {
           // Just update volume/pan/effects on existing track
           existing.trackEngine.setVolume(track.volume);
+          existing.trackEngine.setAudible(isTrackAudible(track, tracks));
           existing.trackEngine.setPan(track.pan);
           existing.trackEngine.updateEffects(track.effects);
           // Kit changes from the store (view, project load, collab peer)
@@ -410,6 +414,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
 
       const trackEngine = new TrackEngine(ctx, masterGain);
       trackEngine.setVolume(track.volume);
+      trackEngine.setAudible(isTrackAudible(track, tracks));
       trackEngine.setPan(track.pan);
       trackEngine.updateEffects(track.effects);
       applySends(trackEngine, track);
@@ -580,7 +585,9 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       const bpm = storeState.bpm;
 
       for (const track of currentTracks) {
-        if (track.mute) continue;
+        // Muted and solo-excluded tracks are still scheduled: the TrackEngine's
+        // audible gate (set in the track sync above) silences them, so toggling
+        // mute/solo mid-playback takes effect immediately.
         const state = audioMap.get(track.id);
         if (!state) continue;
 
@@ -760,11 +767,9 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       audioClipScheduler.cancelAll();
       const storeSnap = useStore.getState();
       const currentTracks = storeSnap.tracks;
-      const loopStart = storeSnap.loopStart;
-      const loopEnd = storeSnap.loopEnd;
+      const { start: loopStart, end: loopEnd } = getPlaybackLoop(storeSnap);
       const bpm = storeSnap.bpm;
       for (const track of currentTracks) {
-        if (track.mute) continue;
         const state = audioMap.get(track.id);
         if (!state) continue;
         const pedalInput =

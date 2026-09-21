@@ -3,6 +3,7 @@ import type { AllSlices } from './index';
 import type { MidiClip, AudioClip } from './tracksSlice';
 import type { AllGridSize } from '@/daw/utils/quantize';
 import type { ThemeId } from '@/daw/constants/themes';
+import type { ClipNoteSelection } from '@/daw/utils/insightSelection';
 
 // ── UI Slice ──────────────────────────────────────────────────────────────
 // Global UI state: active tool, selected clip, timeline zoom/scroll/grid.
@@ -137,6 +138,14 @@ export interface UiSlice {
   setLeadSheetChordFormat: (format: LeadSheetChordFormat) => void;
   leadSheetSelectedChordIdx: string | null;
   setLeadSheetSelectedChordIdx: (id: string | null) => void;
+  // What Insight's "Analyze" button analyzes: chords selected in the
+  // timeline's chord lane (ChordRegion ids, timeline order), or notes selected
+  // inside clips (⌘-drag in the timeline, or the piano roll). Selecting one
+  // kind clears the other.
+  selectedChordIds: string[];
+  setSelectedChordIds: (ids: string[]) => void;
+  selectedNotes: ClipNoteSelection[];
+  setSelectedNotes: (selection: ClipNoteSelection[]) => void;
   leadSheetSections: LeadSheetSection[];
   setLeadSheetSections: (sections: LeadSheetSection[]) => void;
   addLeadSheetSection: (section: LeadSheetSection) => void;
@@ -291,6 +300,20 @@ export const createUiSlice: StateCreator<
   leadSheetSelectedChordIdx: null,
   setLeadSheetSelectedChordIdx: (idx) =>
     set({ leadSheetSelectedChordIdx: idx }),
+  selectedChordIds: [],
+  setSelectedChordIds: (ids) =>
+    set(
+      ids.length > 0
+        ? { selectedChordIds: ids, selectedNotes: [] }
+        : { selectedChordIds: ids },
+    ),
+  selectedNotes: [],
+  setSelectedNotes: (selection) =>
+    set(
+      selection.length > 0
+        ? { selectedNotes: selection, selectedChordIds: [] }
+        : { selectedNotes: selection },
+    ),
   leadSheetSections: [],
   setLeadSheetSections: (sections) => set({ leadSheetSections: sections }),
   addLeadSheetSection: (section) =>

@@ -2,7 +2,9 @@
 /* eslint-disable tailwindcss/classnames-order */
 import { Volume2 } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { MAX_OUTPUT_LATENCY_MS } from '../latencyCalibration';
 import { useSettingsStore } from '../useSettingsStore';
+import { LatencyCalibration } from './LatencyCalibration';
 
 const HEADING: React.CSSProperties = {
   fontSize: '11px',
@@ -27,6 +29,18 @@ const LABEL: React.CSSProperties = {
   color: 'var(--color-text-dim)',
 };
 
+const VALUE: React.CSSProperties = {
+  fontSize: '0.75rem',
+  color: 'var(--color-text)',
+  minWidth: '3.5rem',
+  textAlign: 'right',
+};
+
+const HINT: React.CSSProperties = {
+  fontSize: '0.75rem',
+  color: 'var(--color-text-dim)',
+};
+
 const DROPDOWN: React.CSSProperties = {
   background: 'var(--color-surface-2)',
   border: '1px solid var(--color-border)',
@@ -40,9 +54,9 @@ const DROPDOWN: React.CSSProperties = {
 export const AudioSettings = () => {
   const outputDevice = useSettingsStore((s) => s.outputDevice);
   const outputChannel = useSettingsStore((s) => s.outputChannel);
-  const latency = useSettingsStore((s) => s.latency);
+  const outputLatencyMs = useSettingsStore((s) => s.outputLatencyMs);
   const volume = useSettingsStore((s) => s.volume);
-  const setLatency = useSettingsStore((s) => s.setLatency);
+  const setOutputLatencyMs = useSettingsStore((s) => s.setOutputLatencyMs);
   const setVolume = useSettingsStore((s) => s.setVolume);
 
   return (
@@ -85,20 +99,31 @@ export const AudioSettings = () => {
           </div>
         </div>
 
-        {/* Latency */}
-        <div className="flex items-center justify-between gap-4">
-          <span style={LABEL}>Latency</span>
-          <div className="flex-1 max-w-sm">
-            <Slider
-              value={[latency]}
-              onValueChange={([v]) => setLatency(v)}
-              min={0}
-              max={100}
-              step={1}
-              trackClassName="bg-white/10"
-              rangeClassName="bg-[#7ecfcf]"
-            />
+        {/* Output latency */}
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-4">
+            <span style={LABEL}>Output Latency</span>
+            <div className="flex flex-1 max-w-sm items-center gap-3">
+              <div className="flex-1">
+                <Slider
+                  value={[outputLatencyMs]}
+                  onValueChange={([v]) => setOutputLatencyMs(v)}
+                  min={0}
+                  max={MAX_OUTPUT_LATENCY_MS}
+                  step={5}
+                  trackClassName="bg-white/10"
+                  rangeClassName="bg-[#7ecfcf]"
+                />
+              </div>
+              <span style={VALUE}>{outputLatencyMs} ms</span>
+            </div>
           </div>
+          <p style={HINT}>
+            Extra delay from Bluetooth headphones or speakers. Lesson playheads
+            and scoring shift by this much so they match what you hear. Built-in
+            speakers and wired headphones usually need 0.
+          </p>
+          <LatencyCalibration />
         </div>
 
         {/* Main Volume */}

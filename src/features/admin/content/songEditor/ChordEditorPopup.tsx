@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext';
+import type { SpelledNote } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import { chordNameToMidi } from '@/curriculum/songLibrary/chordParser';
 import type { ChordHit, SongMode } from '@/curriculum/types/songLibrary';
 import { normalizeAccidentals } from '../songChart/chartOps';
@@ -70,6 +71,7 @@ export const ChordEditorPopup = ({
   chord,
   keyRoot,
   mode,
+  tonic,
   onChange,
   onRemove,
   onClose,
@@ -77,6 +79,8 @@ export const ChordEditorPopup = ({
   chord: ChordHit;
   keyRoot: number;
   mode: SongMode;
+  /** The song's spelled tonic (songTonic); falls back to keyRoot's spelling. */
+  tonic?: SpelledNote | null;
   onChange: (patch: Partial<ChordHit>) => void;
   onRemove: () => void;
   onClose: () => void;
@@ -86,7 +90,10 @@ export const ChordEditorPopup = ({
 
   const setName = (next: string) => {
     const name = normalizeAccidentals(next);
-    onChange({ chordName: name, degree: degreeFromChord(name, keyRoot, mode) });
+    onChange({
+      chordName: name,
+      degree: degreeFromChord(name, keyRoot, mode, tonic),
+    });
   };
 
   const root = parseRoot(chord.chordName) || 'C';

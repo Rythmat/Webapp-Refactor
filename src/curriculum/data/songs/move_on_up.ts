@@ -29,7 +29,7 @@ export const move_on_up: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -54,7 +54,7 @@ export const move_on_up: Song = {
           fermata: true,
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
           fermata: true,
         },
         { chords: [] },
@@ -63,7 +63,7 @@ export const move_on_up: Song = {
           fermata: true,
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
           fermata: true,
         },
         { chords: [] },
@@ -87,7 +87,7 @@ export const move_on_up: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {

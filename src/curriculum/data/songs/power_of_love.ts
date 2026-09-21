@@ -214,10 +214,10 @@ export const power_of_love: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -249,24 +249,19 @@ export const power_of_love: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '3 maj/5', chordName: 'E♭/G', beat: 1, duration: 4 },
+            { degree: '♭3 maj/5', chordName: 'E♭/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj/5', chordName: 'E♭/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭3 maj/5', chordName: 'E♭/G', beat: 1, duration: 4 },
           ],
         },
         {
@@ -276,12 +271,17 @@ export const power_of_love: Song = {
         },
         {
           chords: [
-            { degree: '3 maj/5', chordName: 'E♭/G', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj/5', chordName: 'E♭/G', beat: 1, duration: 4 },
+            { degree: '♭3 maj/5', chordName: 'E♭/G', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭3 maj/5', chordName: 'E♭/G', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -291,10 +291,10 @@ export const power_of_love: Song = {
       label: 'Section L',
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '5 7', chordName: 'G7sus', beat: 1, duration: 4 }],

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
-import { MODE_GROUPS, MODE_DISPLAY } from '@prism/engine';
+import { MODE_GROUPS, MODE_DISPLAY, NOTES } from '@prism/engine';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { useSynthStore } from '../../store';
-import { NOTE_NAMES } from '../../audio/constants';
 import type { SnapMode } from '../../audio/ScaleQuantizer';
 import { Toggle } from '../controls/Toggle';
 import { Dropdown } from '../controls/Dropdown';
@@ -10,9 +10,10 @@ import styles from './KeyScaleBar.module.css';
 
 const KEYSCALE_ACCENT = '#8fd694';
 
-const KEY_OPTIONS = NOTE_NAMES.map((name, pc) => ({
+// Key centers per the enharmonic rules: C, Db, D, Eb, E, F, F#, G, Ab, A, Bb, B.
+const KEY_OPTIONS = Array.from({ length: 12 }, (_, pc) => ({
   value: String(pc),
-  label: name,
+  label: displayAccidentals(NOTES[pc]),
 }));
 
 const SNAP_OPTIONS = [
@@ -101,7 +102,7 @@ export const KeyScaleBar: React.FC<KeyScaleBarProps> = React.memo(
             onClick={handleSnapToSongKey}
             title={
               songKey
-                ? `Follow the project's detected key (${NOTE_NAMES[songKey.rootPc]} ${MODE_DISPLAY[songKey.mode] ?? songKey.mode})`
+                ? `Follow the project's detected key (${displayAccidentals(NOTES[songKey.rootPc])} ${MODE_DISPLAY[songKey.mode] ?? songKey.mode})`
                 : 'No key detected yet — run project analysis'
             }
           >

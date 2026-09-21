@@ -1,11 +1,13 @@
 import { useCallback } from 'react';
 import * as Slider from '@radix-ui/react-slider';
 import { useStore } from '@/daw/store';
+import { formatChord, useChordNotation } from '@/lib/chordNotation';
 import {
   abbreviateSequence,
   ionianToModeLabel,
   isDiatonicMode,
   StrumMode,
+  unstepChord,
   VelocityTilt,
 } from '@prism/engine';
 import { ChordSequenceDisplay } from './ChordSequenceDisplay';
@@ -141,6 +143,17 @@ export function ChordSelection() {
   const undoChord = useStore((s) => s.undoChord);
   const clearSequence = useStore((s) => s.clearSequence);
   const mode = useStore((s) => s.mode);
+  const rootNote = useStore((s) => s.rootNote);
+  const notation = useChordNotation();
+
+  // Display only: option names stay the degree keys passed to addChord.
+  const chordLabel = (name: string) =>
+    notation === 'hybrid'
+      ? abbreviateSequence(ionianToModeLabel(name, mode))
+      : formatChord({ degree: name, quality: unstepChord(name) }, notation, {
+          keyRootPc: rootNote ?? 0,
+          mode,
+        });
 
   const hasDiatonicProgressions = isDiatonicMode(mode);
   const chordOptions = !hasDiatonicProgressions
@@ -185,7 +198,7 @@ export function ChordSelection() {
               border: '1px solid var(--color-border)',
             }}
           >
-            {abbreviateSequence(ionianToModeLabel(name, mode))}
+            {chordLabel(name)}
           </button>
         ))}
         {!hasDiatonicProgressions && (

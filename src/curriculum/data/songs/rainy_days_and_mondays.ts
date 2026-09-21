@@ -33,30 +33,45 @@ export const rainy_days_and_mondays: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 min7/3', chordName: 'Fmin7/B♭', beat: 1, duration: 2 },
-            { degree: '1 min7/3', chordName: 'Gmin7/B♭', beat: 3, duration: 2 },
+            {
+              degree: '♭7 min7/♭3',
+              chordName: 'Fmin7/B♭',
+              beat: 1,
+              duration: 2,
+            },
+            {
+              degree: '1 min7/♭3',
+              chordName: 'Gmin7/B♭',
+              beat: 3,
+              duration: 2,
+            },
           ],
         },
         {
           chords: [
-            { degree: '7 min7/3', chordName: 'Fmin7/B♭', beat: 1, duration: 2 },
-            { degree: '6 maj/3', chordName: 'E♭/B♭', beat: 3, duration: 2 },
+            {
+              degree: '♭7 min7/♭3',
+              chordName: 'Fmin7/B♭',
+              beat: 1,
+              duration: 2,
+            },
+            { degree: '♭6 maj/♭3', chordName: 'E♭/B♭', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -67,7 +82,7 @@ export const rainy_days_and_mondays: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -82,7 +97,7 @@ export const rainy_days_and_mondays: Song = {
         { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -115,7 +130,7 @@ export const rainy_days_and_mondays: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -125,24 +140,49 @@ export const rainy_days_and_mondays: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7/3', chordName: 'Fmin7/B♭', beat: 1, duration: 2 },
-            { degree: '1 min7/3', chordName: 'Gmin7/B♭', beat: 3, duration: 2 },
+            {
+              degree: '♭7 min7/♭3',
+              chordName: 'Fmin7/B♭',
+              beat: 1,
+              duration: 2,
+            },
+            {
+              degree: '1 min7/♭3',
+              chordName: 'Gmin7/B♭',
+              beat: 3,
+              duration: 2,
+            },
           ],
         },
         {
           chords: [
-            { degree: '7 min7/3', chordName: 'Fmin7/B♭', beat: 1, duration: 2 },
-            { degree: '1 min7/3', chordName: 'Gmin7/B♭', beat: 3, duration: 2 },
+            {
+              degree: '♭7 min7/♭3',
+              chordName: 'Fmin7/B♭',
+              beat: 1,
+              duration: 2,
+            },
+            {
+              degree: '1 min7/♭3',
+              chordName: 'Gmin7/B♭',
+              beat: 3,
+              duration: 2,
+            },
           ],
         },
         {
           chords: [
-            { degree: '7 min7/3', chordName: 'Fmin7/B♭', beat: 1, duration: 4 },
+            {
+              degree: '♭7 min7/♭3',
+              chordName: 'Fmin7/B♭',
+              beat: 1,
+              duration: 4,
+            },
           ],
         },
       ],
@@ -153,7 +193,7 @@ export const rainy_days_and_mondays: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -168,7 +208,7 @@ export const rainy_days_and_mondays: Song = {
         { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -201,7 +241,7 @@ export const rainy_days_and_mondays: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -211,24 +251,44 @@ export const rainy_days_and_mondays: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7/3', chordName: 'Fmin7/B♭', beat: 1, duration: 2 },
-            { degree: '1 min7/3', chordName: 'Gmin7/B♭', beat: 3, duration: 2 },
+            {
+              degree: '♭7 min7/♭3',
+              chordName: 'Fmin7/B♭',
+              beat: 1,
+              duration: 2,
+            },
+            {
+              degree: '1 min7/♭3',
+              chordName: 'Gmin7/B♭',
+              beat: 3,
+              duration: 2,
+            },
           ],
         },
         {
           chords: [
-            { degree: '7 min7/3', chordName: 'Fmin7/B♭', beat: 1, duration: 2 },
-            { degree: '1 min7/3', chordName: 'Gmin7/B♭', beat: 3, duration: 2 },
+            {
+              degree: '♭7 min7/♭3',
+              chordName: 'Fmin7/B♭',
+              beat: 1,
+              duration: 2,
+            },
+            {
+              degree: '1 min7/♭3',
+              chordName: 'Gmin7/B♭',
+              beat: 3,
+              duration: 2,
+            },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'G/B', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'G/B', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -248,12 +308,12 @@ export const rainy_days_and_mondays: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'B♭7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
+            { degree: '♭3 7', chordName: 'B♭7', beat: 3, duration: 2 },
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -265,12 +325,12 @@ export const rainy_days_and_mondays: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 2 },
             { degree: '1 7', chordName: 'G7', beat: 3, duration: 2 },
           ],
         },
@@ -291,8 +351,8 @@ export const rainy_days_and_mondays: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'B♭7', beat: 2, duration: 1 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 1 },
+            { degree: '♭3 7', chordName: 'B♭7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
@@ -301,16 +361,20 @@ export const rainy_days_and_mondays: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -319,7 +383,7 @@ export const rainy_days_and_mondays: Song = {
       measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -334,7 +398,7 @@ export const rainy_days_and_mondays: Song = {
         { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -367,7 +431,7 @@ export const rainy_days_and_mondays: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -377,24 +441,44 @@ export const rainy_days_and_mondays: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7/3', chordName: 'Fmin7/B♭', beat: 1, duration: 2 },
-            { degree: '1 min7/3', chordName: 'Gmin7/B♭', beat: 3, duration: 2 },
+            {
+              degree: '♭7 min7/♭3',
+              chordName: 'Fmin7/B♭',
+              beat: 1,
+              duration: 2,
+            },
+            {
+              degree: '1 min7/♭3',
+              chordName: 'Gmin7/B♭',
+              beat: 3,
+              duration: 2,
+            },
           ],
         },
         {
           chords: [
-            { degree: '7 min7/3', chordName: 'Fmin7/B♭', beat: 1, duration: 2 },
-            { degree: '1 min7/3', chordName: 'Gmin7/B♭', beat: 3, duration: 2 },
+            {
+              degree: '♭7 min7/♭3',
+              chordName: 'Fmin7/B♭',
+              beat: 1,
+              duration: 2,
+            },
+            {
+              degree: '1 min7/♭3',
+              chordName: 'Gmin7/B♭',
+              beat: 3,
+              duration: 2,
+            },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'G/B', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'G/B', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -414,12 +498,12 @@ export const rainy_days_and_mondays: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'B♭7', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
+            { degree: '♭3 7', chordName: 'B♭7', beat: 3, duration: 2 },
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -431,12 +515,12 @@ export const rainy_days_and_mondays: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'B♭', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 2 },
             { degree: '1 7', chordName: 'G7', beat: 3, duration: 2 },
           ],
         },
@@ -457,8 +541,8 @@ export const rainy_days_and_mondays: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'B♭7', beat: 2, duration: 1 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 1 },
+            { degree: '♭3 7', chordName: 'B♭7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
@@ -467,10 +551,12 @@ export const rainy_days_and_mondays: Song = {
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
@@ -484,10 +570,12 @@ export const rainy_days_and_mondays: Song = {
       label: 'Section F',
       measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '2 min7/♯6', chordName: 'Amin7/E', beat: 1, duration: 4 },
+            { degree: '2 min7/6', chordName: 'Amin7/E', beat: 1, duration: 4 },
           ],
         },
         {
@@ -507,7 +595,7 @@ export const rainy_days_and_mondays: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -527,7 +615,7 @@ export const rainy_days_and_mondays: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -556,7 +644,7 @@ export const rainy_days_and_mondays: Song = {
         },
         {
           chords: [
-            { degree: '2 maj/♭5', chordName: 'A/C♯', beat: 1, duration: 4 },
+            { degree: '2 maj/♯4', chordName: 'A/C♯', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -572,7 +660,7 @@ export const rainy_days_and_mondays: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -585,12 +673,12 @@ export const rainy_days_and_mondays: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 1 },
-            { degree: '7 maj/2', chordName: 'F/A', beat: 2, duration: 1 },
+            { degree: '♭7 maj/2', chordName: 'F/A', beat: 2, duration: 1 },
             { degree: '1 min7/4', chordName: 'Gmin7/C', beat: 3, duration: 2 },
           ],
         },
@@ -619,7 +707,7 @@ export const rainy_days_and_mondays: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
           fermata: true,
         },
       ],

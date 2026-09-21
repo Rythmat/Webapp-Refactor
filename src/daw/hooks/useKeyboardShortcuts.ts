@@ -3,7 +3,6 @@ import { useStore } from '@/daw/store';
 import type { ToolType } from '@/daw/store/uiSlice';
 import { saveCurrentProjectToCloud } from '@/lib/studio-projects/api';
 import { undo, redo } from '@/daw/store/undoMiddleware';
-import { deriveChordRegionsFromSession } from '@/daw/store/prismSlice';
 import { exportMidiFile, downloadMidiBlob } from '@/daw/midi/MidiFileIO';
 import {
   getAudioBuffer,
@@ -126,26 +125,6 @@ export function useKeyboardShortcuts(token: string | null) {
                 startTick: position,
               });
             }
-            // Derive chord regions from all clips on target track (skip drums)
-            const {
-              rootNote,
-              mode,
-              setChordRegions,
-              tracks: allTracks,
-            } = useStore.getState();
-            {
-              const updatedTrack = allTracks.find(
-                (t) => t.id === targetTrackId,
-              );
-              if (updatedTrack && updatedTrack.instrument !== 'drum-machine') {
-                const regions = deriveChordRegionsFromSession(
-                  allTracks,
-                  (rootNote ?? 0) + 48,
-                  mode,
-                );
-                setChordRegions(regions);
-              }
-            }
           }
         }
         return;
@@ -173,26 +152,6 @@ export function useKeyboardShortcuts(token: string | null) {
               startTick: midiClip.startTick + duration,
             });
             state.setSelectedClip(newId, selectedClipTrackId);
-            // Derive chord regions from all clips on track (skip drums)
-            const {
-              rootNote,
-              mode,
-              setChordRegions,
-              tracks: allTracks,
-            } = useStore.getState();
-            {
-              const updatedTrack = allTracks.find(
-                (t) => t.id === selectedClipTrackId,
-              );
-              if (updatedTrack && updatedTrack.instrument !== 'drum-machine') {
-                const regions = deriveChordRegionsFromSession(
-                  allTracks,
-                  (rootNote ?? 0) + 48,
-                  mode,
-                );
-                setChordRegions(regions);
-              }
-            }
           } else {
             const audioClip = track?.audioClips.find(
               (c) => c.id === selectedClipId,

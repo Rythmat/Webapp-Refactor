@@ -29,9 +29,13 @@ export const isnt_she_lovely: Song = {
         },
         { chords: [{ degree: '4 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -45,9 +49,13 @@ export const isnt_she_lovely: Song = {
         },
         { chords: [{ degree: '4 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -61,16 +69,22 @@ export const isnt_she_lovely: Song = {
         },
         { chords: [{ degree: '4 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'chorus',
       label: 'Chorus',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 7', chordName: 'G♯7', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -86,9 +100,13 @@ export const isnt_she_lovely: Song = {
       measuresPerRow: 3,
       bars: [
         {
-          chords: [{ degree: '7 7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
         { chords: [] },
       ],
     },

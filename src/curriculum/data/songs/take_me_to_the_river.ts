@@ -27,7 +27,7 @@ export const take_me_to_the_river: Song = {
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '2 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -42,14 +42,14 @@ export const take_me_to_the_river: Song = {
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '2 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '2 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -64,14 +64,14 @@ export const take_me_to_the_river: Song = {
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '2 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '2 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -82,8 +82,12 @@ export const take_me_to_the_river: Song = {
       label: 'Section D',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -127,7 +131,7 @@ export const take_me_to_the_river: Song = {
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '2 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -140,13 +144,13 @@ export const take_me_to_the_river: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -225,7 +229,7 @@ export const take_me_to_the_river: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '2 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -250,14 +254,14 @@ export const take_me_to_the_river: Song = {
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '2 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '2 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -272,14 +276,14 @@ export const take_me_to_the_river: Song = {
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '2 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '2 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -290,8 +294,12 @@ export const take_me_to_the_river: Song = {
       label: 'Section O',
       measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -315,7 +323,7 @@ export const take_me_to_the_river: Song = {
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '2 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },

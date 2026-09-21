@@ -58,6 +58,16 @@ const resumeContextIfNeeded = async () => {
   return context.state === 'running';
 };
 
+/**
+ * When a note the student just played should sound: right now.
+ *
+ * Tone's default is `now()` — the audio clock plus its 100 ms lookAhead, which
+ * is headroom for *scheduled* material and pure delay for a live keypress. A
+ * player hears their own note 100 ms after the key goes down, on top of
+ * whatever the output device adds. `immediate()` is the raw context time.
+ */
+const liveTime = () => Tone.immediate();
+
 const ensureSamplerLoaded = async () => {
   const sampler = await getPianoSampler();
   if (!sampler.loaded) {
@@ -130,7 +140,7 @@ export const triggerPianoAttack = async (
     return;
   }
   const sampler = await ensureSamplerLoaded();
-  sampler.triggerAttack(note, time, normalizeVelocity(velocity));
+  sampler.triggerAttack(note, time ?? liveTime(), normalizeVelocity(velocity));
   activeNotes.add(note);
   trackAudioTrigger(note, true, performance.now() - start);
 };
@@ -146,7 +156,7 @@ export const triggerPianoRelease = async (
     return;
   }
   const sampler = await ensureSamplerLoaded();
-  sampler.triggerRelease(note, time);
+  sampler.triggerRelease(note, time ?? liveTime());
   activeNotes.delete(note);
   trackAudioRelease(note, true);
 };

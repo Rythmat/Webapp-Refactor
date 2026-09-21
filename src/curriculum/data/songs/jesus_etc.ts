@@ -121,7 +121,7 @@ export const jesus_etc: Song = {
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 1 },
             { degree: '5 maj/7', chordName: 'C/E', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Dmin7', beat: 3, duration: 1 },
-            { degree: '3 maj/♭6', chordName: 'A/C♯', beat: 4, duration: 1 },
+            { degree: '3 maj/♯5', chordName: 'A/C♯', beat: 4, duration: 1 },
           ],
         },
         {
@@ -138,7 +138,7 @@ export const jesus_etc: Song = {
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 1 },
             { degree: '5 maj/7', chordName: 'C/E', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Dmin7', beat: 3, duration: 1 },
-            { degree: '3 maj/♭6', chordName: 'A/C♯', beat: 4, duration: 1 },
+            { degree: '3 maj/♯5', chordName: 'A/C♯', beat: 4, duration: 1 },
           ],
         },
         {
@@ -176,7 +176,7 @@ export const jesus_etc: Song = {
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 1 },
             { degree: '5 maj/7', chordName: 'C/E', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Dmin7', beat: 3, duration: 1 },
-            { degree: '3 maj/♭6', chordName: 'A/C♯', beat: 4, duration: 1 },
+            { degree: '3 maj/♯5', chordName: 'A/C♯', beat: 4, duration: 1 },
           ],
         },
         {
@@ -267,7 +267,7 @@ export const jesus_etc: Song = {
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 1 },
             { degree: '5 maj/7', chordName: 'C/E', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Dmin7', beat: 3, duration: 1 },
-            { degree: '3 maj/♭6', chordName: 'A/C♯', beat: 4, duration: 1 },
+            { degree: '3 maj/♯5', chordName: 'A/C♯', beat: 4, duration: 1 },
           ],
         },
         {
@@ -284,7 +284,7 @@ export const jesus_etc: Song = {
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 1 },
             { degree: '5 maj/7', chordName: 'C/E', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Dmin7', beat: 3, duration: 1 },
-            { degree: '3 maj/♭6', chordName: 'A/C♯', beat: 4, duration: 1 },
+            { degree: '3 maj/♯5', chordName: 'A/C♯', beat: 4, duration: 1 },
           ],
         },
         {
@@ -322,7 +322,7 @@ export const jesus_etc: Song = {
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 1 },
             { degree: '5 maj/7', chordName: 'C/E', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Dmin7', beat: 3, duration: 1 },
-            { degree: '3 maj/♭6', chordName: 'A/C♯', beat: 4, duration: 1 },
+            { degree: '3 maj/♯5', chordName: 'A/C♯', beat: 4, duration: 1 },
           ],
         },
         {

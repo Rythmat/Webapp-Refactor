@@ -69,7 +69,7 @@ export const i_cant_go_for_that_no_can_do: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'A♭', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 2 },
             { degree: '4 maj', chordName: 'B♭', beat: 3, duration: 2 },
           ],
         },
@@ -98,7 +98,7 @@ export const i_cant_go_for_that_no_can_do: Song = {
         },
         {
           chords: [
-            { degree: '3 maj', chordName: 'A♭', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 2 },
             { degree: '4 maj', chordName: 'B♭', beat: 3, duration: 2 },
           ],
         },

@@ -40,7 +40,7 @@ export const i_kissed_a_girl: Song = {
         {
           chords: [
             { degree: '2 dim7', chordName: 'Bdim7', beat: 1, duration: 2 },
-            { degree: '3 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
@@ -50,7 +50,7 @@ export const i_kissed_a_girl: Song = {
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
             { degree: '5 min7', chordName: 'Emin7', beat: 3, duration: 2 },
           ],
         },
@@ -76,18 +76,22 @@ export const i_kissed_a_girl: Song = {
             { degree: '2 dim7', chordName: 'Bdim7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -115,18 +119,22 @@ export const i_kissed_a_girl: Song = {
             { degree: '2 dim7', chordName: 'Bdim7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -154,18 +162,22 @@ export const i_kissed_a_girl: Song = {
             { degree: '2 dim7', chordName: 'Bdim7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -190,17 +202,12 @@ export const i_kissed_a_girl: Song = {
         },
         {
           chords: [
-            { degree: '3 maj/1', chordName: 'C/A', beat: 1, duration: 4 },
+            { degree: '♭3 maj/1', chordName: 'C/A', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj/1', chordName: 'C/A', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7/1', chordName: 'Dmin7/A', beat: 1, duration: 4 },
+            { degree: '♭3 maj/1', chordName: 'C/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -210,7 +217,12 @@ export const i_kissed_a_girl: Song = {
         },
         {
           chords: [
-            { degree: '6 maj/1', chordName: 'F/A', beat: 1, duration: 4 },
+            { degree: '4 min7/1', chordName: 'Dmin7/A', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/1', chordName: 'F/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -237,17 +249,12 @@ export const i_kissed_a_girl: Song = {
         },
         {
           chords: [
-            { degree: '3 maj/1', chordName: 'C/A', beat: 1, duration: 4 },
+            { degree: '♭3 maj/1', chordName: 'C/A', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj/1', chordName: 'C/A', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7/1', chordName: 'Dmin7/A', beat: 1, duration: 4 },
+            { degree: '♭3 maj/1', chordName: 'C/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -257,7 +264,12 @@ export const i_kissed_a_girl: Song = {
         },
         {
           chords: [
-            { degree: '6 maj/1', chordName: 'F/A', beat: 1, duration: 4 },
+            { degree: '4 min7/1', chordName: 'Dmin7/A', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/1', chordName: 'F/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -282,19 +294,25 @@ export const i_kissed_a_girl: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -317,19 +335,25 @@ export const i_kissed_a_girl: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -341,7 +365,9 @@ export const i_kissed_a_girl: Song = {
       id: 'section_e',
       label: 'Section E',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -352,14 +378,18 @@ export const i_kissed_a_girl: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'section_j',
       label: 'Section J',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -370,7 +400,9 @@ export const i_kissed_a_girl: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -416,17 +448,12 @@ export const i_kissed_a_girl: Song = {
         },
         {
           chords: [
-            { degree: '3 maj/1', chordName: 'C/A', beat: 1, duration: 4 },
+            { degree: '♭3 maj/1', chordName: 'C/A', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj/1', chordName: 'C/A', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7/1', chordName: 'Dmin7/A', beat: 1, duration: 4 },
+            { degree: '♭3 maj/1', chordName: 'C/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -436,7 +463,12 @@ export const i_kissed_a_girl: Song = {
         },
         {
           chords: [
-            { degree: '6 maj/1', chordName: 'F/A', beat: 1, duration: 4 },
+            { degree: '4 min7/1', chordName: 'Dmin7/A', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/1', chordName: 'F/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -463,17 +495,12 @@ export const i_kissed_a_girl: Song = {
         },
         {
           chords: [
-            { degree: '3 maj/1', chordName: 'C/A', beat: 1, duration: 4 },
+            { degree: '♭3 maj/1', chordName: 'C/A', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 maj/1', chordName: 'C/A', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7/1', chordName: 'Dmin7/A', beat: 1, duration: 4 },
+            { degree: '♭3 maj/1', chordName: 'C/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -483,7 +510,12 @@ export const i_kissed_a_girl: Song = {
         },
         {
           chords: [
-            { degree: '6 maj/1', chordName: 'F/A', beat: 1, duration: 4 },
+            { degree: '4 min7/1', chordName: 'Dmin7/A', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/1', chordName: 'F/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -508,19 +540,25 @@ export const i_kissed_a_girl: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -543,19 +581,25 @@ export const i_kissed_a_girl: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'Emin7', beat: 1, duration: 4 },

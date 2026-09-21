@@ -9,6 +9,7 @@ import { useExperienceSummary } from '@/hooks/data/experience';
 import { useAwards } from '@/hooks/data/useAwards';
 import { useStreak } from '@/hooks/data/useStreak';
 import { useAvatarConfig } from '@/hooks/useAvatarConfig';
+import { ChordNotationSwitcher } from './ChordNotationSwitcher';
 
 const CREDITS_PLACEHOLDER = 12;
 // Notifications count is not yet backed by a real feed — inline a zero here
@@ -50,6 +51,9 @@ export const TopRail = ({ className }: TopRailProps) => {
       )}
     >
       <div className="flex items-center gap-6 text-white">
+        {/* Chord notation — only once turned on in Settings ▸ Look & Feel. */}
+        <ChordNotationSwitcher />
+
         {/* Learning streak — appears once the user has one (gentle, no zero-state). */}
         {streakDays > 0 && (
           <div

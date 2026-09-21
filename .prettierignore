@@ -8,3 +8,6 @@ src/curriculum/data/harmonyKB.generated.ts
 
 # Generated optimization-baseline artifacts (treemaps, raw reports)
 docs/optimization/**/bundle.html
+
+# Vendored third-party build (SpessaSynth audio worklet, minified upstream)
+public/daw-assets/spessasynth_processor.min.js

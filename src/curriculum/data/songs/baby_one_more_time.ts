@@ -63,11 +63,11 @@ export const baby_one_more_time: Song = {
         },
         {
           chords: [
-            { degree: '5 7/♯7', chordName: 'G7/B', beat: 1, duration: 4 },
+            { degree: '5 7/7', chordName: 'G7/B', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -94,11 +94,11 @@ export const baby_one_more_time: Song = {
         },
         {
           chords: [
-            { degree: '5 7/♯7', chordName: 'G7/B', beat: 1, duration: 4 },
+            { degree: '5 7/7', chordName: 'G7/B', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -150,11 +150,11 @@ export const baby_one_more_time: Song = {
         },
         {
           chords: [
-            { degree: '5 7/♯7', chordName: 'G7/B', beat: 1, duration: 4 },
+            { degree: '5 7/7', chordName: 'G7/B', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -170,10 +170,10 @@ export const baby_one_more_time: Song = {
       measuresPerRow: 5,
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -181,10 +181,10 @@ export const baby_one_more_time: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -199,11 +199,11 @@ export const baby_one_more_time: Song = {
         },
         {
           chords: [
-            { degree: '5 7/♯7', chordName: 'G7/B', beat: 1, duration: 4 },
+            { degree: '5 7/7', chordName: 'G7/B', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -218,17 +218,17 @@ export const baby_one_more_time: Song = {
       label: 'Section H',
       bars: [
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '3 maj/5', chordName: 'E♭/G', beat: 1, duration: 1 },
+            { degree: '♭3 maj/5', chordName: 'E♭/G', beat: 1, duration: 1 },
             { degree: '4 min7', chordName: 'Fmin7', beat: 2, duration: 1 },
             { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
@@ -248,11 +248,11 @@ export const baby_one_more_time: Song = {
         },
         {
           chords: [
-            { degree: '5 7/♯7', chordName: 'G7/B', beat: 1, duration: 4 },
+            { degree: '5 7/7', chordName: 'G7/B', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -278,11 +278,11 @@ export const baby_one_more_time: Song = {
         },
         {
           chords: [
-            { degree: '5 7/♯7', chordName: 'G7/B', beat: 1, duration: 4 },
+            { degree: '5 7/7', chordName: 'G7/B', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
           chords: [

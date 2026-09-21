@@ -1,23 +1,11 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { getAudioStream } from '@/daw/midi/AudioInputEnumerator';
 import { yinDetectSingle } from '@/audio/pitch/YinCore';
+import { midiNameInKey } from '@/daw/prism-engine/data/notes';
+import { useStore } from '@/daw/store';
 
 // ── Constants ────────────────────────────────────────────────────────────
 
-const NOTE_NAMES = [
-  'C',
-  'C#',
-  'D',
-  'D#',
-  'E',
-  'F',
-  'F#',
-  'G',
-  'G#',
-  'A',
-  'A#',
-  'B',
-];
 const A4_FREQ = 440;
 const FFT_SIZE = 4096;
 const RMS_THRESHOLD = 0.003;
@@ -48,10 +36,15 @@ function freqToNote(freq: number): {
   const cents = Math.round((semitones - rounded) * 100);
 
   const midiNote = 69 + rounded;
-  const noteIndex = ((midiNote % 12) + 12) % 12;
-  const octave = Math.floor(midiNote / 12) - 1;
+  // Spelled for the project key when one is set (Db, not C#, in Ab).
+  const { rootNote, mode } = useStore.getState();
+  const [, note, octave] = midiNameInKey(
+    midiNote,
+    rootNote ?? 0,
+    rootNote !== null ? mode : undefined,
+  ).match(/^([A-G][b#]*)(-?\d+)$/)!;
 
-  return { note: NOTE_NAMES[noteIndex], octave, cents };
+  return { note, octave: Number(octave), cents };
 }
 
 // ── Smoothing helpers ────────────────────────────────────────────────────

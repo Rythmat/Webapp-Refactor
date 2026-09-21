@@ -221,7 +221,7 @@ export const GENRE_VOICING_TAXONOMY: VoicingTaxonomyEntry[] = [
     rhOverride: [-2, 4, 7],
     lhAssignment: 'root_bass',
     notes: '7-3-5 area code',
-    teachingContext: 'Dominant 7th for blues and ii-V.',
+    teachingContext: 'Dominant 7th for blues and 2-5.',
     tier: 1,
   },
   {
@@ -233,7 +233,7 @@ export const GENRE_VOICING_TAXONOMY: VoicingTaxonomyEntry[] = [
     rhOverride: [-2, 3, 7],
     lhAssignment: 'root_bass',
     notes: '7-3-5 area code',
-    teachingContext: 'Minor 7th for ii chords.',
+    teachingContext: 'Minor 7th for 2 chords.',
     tier: 1,
   },
   {
@@ -317,7 +317,7 @@ export const GENRE_VOICING_TAXONOMY: VoicingTaxonomyEntry[] = [
     rhOverride: [3, 10, 14],
     lhAssignment: 'root_bass',
     notes: '3-7-9 rootless',
-    teachingContext: 'Rootless ii voicing. Partners with dom7 7-3-5 in ii-V.',
+    teachingContext: 'Rootless 2 voicing. Partners with dom7 7-3-5 in 2-5.',
     tier: 1,
   },
   {
@@ -329,7 +329,7 @@ export const GENRE_VOICING_TAXONOMY: VoicingTaxonomyEntry[] = [
     rhOverride: [4, 10, 14],
     lhAssignment: 'root_bass',
     notes: '3-7-9 rootless',
-    teachingContext: 'Rootless V voicing. Partners with min7 3-7-9.',
+    teachingContext: 'Rootless 5 voicing. Partners with min7 3-7-9.',
     tier: 1,
   },
   {
@@ -341,7 +341,7 @@ export const GENRE_VOICING_TAXONOMY: VoicingTaxonomyEntry[] = [
     rhOverride: [4, 11, 14],
     lhAssignment: 'root_bass',
     notes: '3-7-9 rootless',
-    teachingContext: 'Rootless I resolution voicing.',
+    teachingContext: 'Rootless 1 resolution voicing.',
     tier: 1,
   },
   {
@@ -353,7 +353,7 @@ export const GENRE_VOICING_TAXONOMY: VoicingTaxonomyEntry[] = [
     rhOverride: [-2, 3, 6],
     lhAssignment: 'root_bass',
     notes: '7-3-5 area code',
-    teachingContext: 'Half-diminished for minor ii-V.',
+    teachingContext: 'Half-diminished for minor 2-5.',
     tier: 1,
   },
   {
@@ -650,7 +650,7 @@ export const GENRE_VOICING_TAXONOMY: VoicingTaxonomyEntry[] = [
     rhOverride: [-2, 4, 7],
     lhAssignment: 'root_bass',
     notes: '7-3-5 area code',
-    teachingContext: 'The funk IV chord.',
+    teachingContext: 'The funk 4 chord.',
     tier: 1,
   },
   {
@@ -963,7 +963,7 @@ export const GENRE_VOICING_TAXONOMY: VoicingTaxonomyEntry[] = [
     rhOverride: [-2, 3, 7],
     lhAssignment: 'root_bass',
     notes: '7-3-5 area code',
-    teachingContext: 'For ii-V turnaround.',
+    teachingContext: 'For 2-5 turnaround.',
     tier: 1,
   },
   {
@@ -993,7 +993,7 @@ export const GENRE_VOICING_TAXONOMY: VoicingTaxonomyEntry[] = [
     level: 3,
     qualityId: 'maj6',
     algorithmId: 'va_4n_root_pos',
-    voicingDisplayName: 'Major 6th (IV6)',
+    voicingDisplayName: 'Major 6th (4 maj6)',
     lhAssignment: 'root_bass',
     notes: '',
     teachingContext: 'Classic blues ending chord.',
@@ -1004,7 +1004,7 @@ export const GENRE_VOICING_TAXONOMY: VoicingTaxonomyEntry[] = [
     level: 3,
     qualityId: 'min6',
     algorithmId: 'va_4n_root_pos',
-    voicingDisplayName: 'Minor 6th (iv6)',
+    voicingDisplayName: 'Minor 6th (4 min6)',
     lhAssignment: 'root_bass',
     notes: '',
     teachingContext: 'Blues ending — twinge of sadness.',
@@ -1162,7 +1162,7 @@ export const GENRE_VOICING_TAXONOMY: VoicingTaxonomyEntry[] = [
     rhOverride: [-2, 4, 7],
     lhAssignment: 'root_bass',
     notes: '7-3-5 area code',
-    teachingContext: 'Dorian IV chord.',
+    teachingContext: 'Dorian 4 chord.',
     tier: 1,
   },
   {
@@ -1547,7 +1547,7 @@ export const GENRE_VOICING_TAXONOMY: VoicingTaxonomyEntry[] = [
     rhOverride: [-2, 3, 7],
     lhAssignment: 'root_bass',
     notes: '7-3-5 area code',
-    teachingContext: 'ii chord in Latin ii-V.',
+    teachingContext: '2 chord in Latin 2-5.',
     tier: 1,
   },
   {
@@ -1569,7 +1569,7 @@ export const GENRE_VOICING_TAXONOMY: VoicingTaxonomyEntry[] = [
     voicingDisplayName: 'dom7(b9)',
     lhAssignment: 'root_bass',
     notes: '',
-    teachingContext: 'Minor ii-V resolution.',
+    teachingContext: 'Minor 2-5 resolution.',
     tier: 1,
   },
   {
@@ -1592,7 +1592,7 @@ export const GENRE_VOICING_TAXONOMY: VoicingTaxonomyEntry[] = [
     rhOverride: [-2, 3, 6],
     lhAssignment: 'root_bass',
     notes: '7-3-5 area code',
-    teachingContext: 'Minor ii-V.',
+    teachingContext: 'Minor 2-5.',
     tier: 1,
   },
   {

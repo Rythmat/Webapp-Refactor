@@ -34,19 +34,23 @@ export const vivir_mi_vida: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -64,10 +68,10 @@ export const vivir_mi_vida: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -76,13 +80,17 @@ export const vivir_mi_vida: Song = {
       label: 'Section C',
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -100,10 +108,10 @@ export const vivir_mi_vida: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -113,13 +121,17 @@ export const vivir_mi_vida: Song = {
       repeatCount: 3,
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -137,10 +149,10 @@ export const vivir_mi_vida: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -149,13 +161,17 @@ export const vivir_mi_vida: Song = {
       label: 'Section G',
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -173,10 +189,10 @@ export const vivir_mi_vida: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -186,13 +202,17 @@ export const vivir_mi_vida: Song = {
       repeatCount: 4,
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -210,10 +230,10 @@ export const vivir_mi_vida: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -223,13 +243,17 @@ export const vivir_mi_vida: Song = {
       repeatCount: 3,
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -247,10 +271,10 @@ export const vivir_mi_vida: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -259,13 +283,17 @@ export const vivir_mi_vida: Song = {
       label: 'Section M',
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -283,10 +311,10 @@ export const vivir_mi_vida: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -295,13 +323,17 @@ export const vivir_mi_vida: Song = {
       label: 'Section O',
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -319,10 +351,10 @@ export const vivir_mi_vida: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -331,13 +363,17 @@ export const vivir_mi_vida: Song = {
       label: 'Section Q',
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -355,10 +391,10 @@ export const vivir_mi_vida: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -367,13 +403,17 @@ export const vivir_mi_vida: Song = {
       label: 'Section S',
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -391,10 +431,10 @@ export const vivir_mi_vida: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -404,13 +444,17 @@ export const vivir_mi_vida: Song = {
       repeatCount: 6,
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -428,10 +472,10 @@ export const vivir_mi_vida: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -441,13 +485,17 @@ export const vivir_mi_vida: Song = {
       measuresPerRow: 5,
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },

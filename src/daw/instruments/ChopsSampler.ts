@@ -109,7 +109,12 @@ export class ChopsSampler implements InstrumentAdapter {
   noteOn(note: number, velocity: number, time?: number): void {
     if (!this.sampler || !this.sampler.loaded) return;
     const noteName = Tone.Frequency(note, 'midi').toNote();
-    this.sampler.triggerAttack(noteName, time, velocity / 127);
+    this.sampler.triggerAttack(
+      noteName,
+      // Live playing passes no time; Tone would default to now() + lookAhead.
+      time ?? Tone.immediate(),
+      velocity / 127,
+    );
   }
 
   noteOff(note: number, time?: number): void {
@@ -121,7 +126,7 @@ export class ChopsSampler implements InstrumentAdapter {
       this.sustainedNotes.add(noteName);
       return;
     }
-    this.sampler.triggerRelease(noteName, time);
+    this.sampler.triggerRelease(noteName, time ?? Tone.immediate());
   }
 
   cc(controller: number, value: number): void {

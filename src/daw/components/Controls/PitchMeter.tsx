@@ -1,30 +1,22 @@
 import type { PitchInfo } from '@/daw/audio/pitch-correction/PitchCorrectionNode';
+import { midiNameInKey } from '@/daw/prism-engine/data/notes';
+import { useStore } from '@/daw/store';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
-
-const NOTE_NAMES = [
-  'C',
-  'C#',
-  'D',
-  'D#',
-  'E',
-  'F',
-  'F#',
-  'G',
-  'G#',
-  'A',
-  'A#',
-  'B',
-];
 
 function hzToMidi(freq: number): number {
   return 69 + 12 * Math.log2(freq / 440);
 }
 
-function midiToNoteName(midi: number): string {
-  const noteIndex = ((midi % 12) + 12) % 12;
-  const octave = Math.floor(midi / 12) - 1;
-  return `${NOTE_NAMES[noteIndex]}${octave}`;
+function midiToNoteName(
+  midi: number,
+  rootNote: number | null,
+  mode: string,
+): string {
+  return displayAccidentals(
+    midiNameInKey(midi, rootNote ?? 0, rootNote !== null ? mode : undefined),
+  );
 }
 
 // ── PitchMeter ──────────────────────────────────────────────────────────────
@@ -35,11 +27,15 @@ interface PitchMeterProps {
 }
 
 export function PitchMeter({ pitchInfo, enabled }: PitchMeterProps) {
+  const rootNote = useStore((s) => s.rootNote);
+  const mode = useStore((s) => s.mode);
   const hasSignal = enabled && pitchInfo.detected > 0;
 
   const correctedMidi = hasSignal ? hzToMidi(pitchInfo.corrected) : 0;
   const detectedMidi = hasSignal ? hzToMidi(pitchInfo.detected) : 0;
-  const noteName = hasSignal ? midiToNoteName(Math.round(correctedMidi)) : '--';
+  const noteName = hasSignal
+    ? midiToNoteName(Math.round(correctedMidi), rootNote, mode)
+    : '--';
   // Cents deviation of the detected pitch from the nearest corrected note
   const centsOff = hasSignal
     ? Math.round((detectedMidi - Math.round(detectedMidi)) * 100)

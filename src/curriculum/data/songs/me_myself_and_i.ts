@@ -68,7 +68,7 @@ export const me_myself_and_i: Song = {
         {
           chords: [
             { degree: '6 min7', chordName: 'E♭min7', beat: 1, duration: 2 },
-            { degree: '♭6 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
+            { degree: '♯5 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'D♭7', beat: 1, duration: 4 }] },

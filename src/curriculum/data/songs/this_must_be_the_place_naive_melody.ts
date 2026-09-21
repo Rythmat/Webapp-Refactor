@@ -26,7 +26,7 @@ export const this_must_be_the_place_naive_melody: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 maj/7', chordName: 'G/D', beat: 1, duration: 4 },
+            { degree: '♭3 maj/♭7', chordName: 'G/D', beat: 1, duration: 4 },
           ],
         },
         {
@@ -34,23 +34,27 @@ export const this_must_be_the_place_naive_melody: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 maj/7', chordName: 'G/D', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭3 maj/♭7', chordName: 'G/D', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },

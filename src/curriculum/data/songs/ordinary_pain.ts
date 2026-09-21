@@ -54,7 +54,9 @@ export const ordinary_pain: Song = {
             { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '5 7', chordName: 'C7sus', beat: 1, duration: 4 }],
@@ -85,7 +87,9 @@ export const ordinary_pain: Song = {
             { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -104,7 +108,9 @@ export const ordinary_pain: Song = {
             { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '5 7', chordName: 'C7sus', beat: 1, duration: 4 }],
@@ -135,7 +141,9 @@ export const ordinary_pain: Song = {
             { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 7', chordName: 'E♭7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],

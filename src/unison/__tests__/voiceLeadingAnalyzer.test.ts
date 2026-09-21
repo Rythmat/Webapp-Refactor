@@ -17,7 +17,6 @@ function chord(
     noteName: 'C',
     degree: '1',
     hybridName: '1 major',
-    romanNumeral: 'I',
     color: [0, 100, 50],
     inversion: 0,
     confidence: 1.0,

@@ -53,12 +53,12 @@ export const tiny_dancer: Song = {
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 maj/♯6', chordName: 'F/A', beat: 1, duration: 4 },
+            { degree: '4 maj/6', chordName: 'F/A', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 maj/♯7', chordName: 'G/B', beat: 1, duration: 4 },
+            { degree: '5 maj/7', chordName: 'G/B', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -83,7 +83,7 @@ export const tiny_dancer: Song = {
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 maj/♯6', chordName: 'F/A', beat: 1, duration: 4 },
+            { degree: '4 maj/6', chordName: 'F/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -101,17 +101,17 @@ export const tiny_dancer: Song = {
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '2 7/♭5', chordName: 'D7/F♯', beat: 1, duration: 4 },
+            { degree: '2 7/♯4', chordName: 'D7/F♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -119,10 +119,10 @@ export const tiny_dancer: Song = {
             { degree: '2 min7/4', chordName: 'Dmin7/F', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♯3 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -142,7 +142,7 @@ export const tiny_dancer: Song = {
           chords: [
             { degree: '5 maj', chordName: 'G', beat: 1, duration: 1 },
             { degree: '4 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '♯3 min7', chordName: 'Emin7', beat: 3, duration: 1 },
+            { degree: '3 min7', chordName: 'Emin7', beat: 3, duration: 1 },
             { degree: '2 min7', chordName: 'Dmin7', beat: 4, duration: 1 },
           ],
         },
@@ -167,8 +167,8 @@ export const tiny_dancer: Song = {
       bars: [
         {
           chords: [
-            { degree: '6 maj', chordName: 'A♭', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B♭', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B♭', beat: 3, duration: 2 },
           ],
         },
         {
@@ -178,14 +178,14 @@ export const tiny_dancer: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '5 7/♯7', chordName: 'G7/B', beat: 1, duration: 4 },
+            { degree: '5 7/7', chordName: 'G7/B', beat: 1, duration: 4 },
           ],
         },
         {
@@ -204,7 +204,7 @@ export const tiny_dancer: Song = {
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'C/E', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'C/E', beat: 1, duration: 4 },
           ],
         },
         {
@@ -214,18 +214,18 @@ export const tiny_dancer: Song = {
         },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'C/E', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'C/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'C/E', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'C/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 maj/♯6', chordName: 'G/A', beat: 1, duration: 4 },
+            { degree: '5 maj/6', chordName: 'G/A', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -237,12 +237,12 @@ export const tiny_dancer: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 maj/♯6', chordName: 'G/A', beat: 1, duration: 4 },
+            { degree: '5 maj/6', chordName: 'G/A', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 maj/♯6', chordName: 'G/A', beat: 1, duration: 4 },
+            { degree: '5 maj/6', chordName: 'G/A', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -272,12 +272,12 @@ export const tiny_dancer: Song = {
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 maj/♯6', chordName: 'F/A', beat: 1, duration: 4 },
+            { degree: '4 maj/6', chordName: 'F/A', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 maj/♯7', chordName: 'G/B', beat: 1, duration: 4 },
+            { degree: '5 maj/7', chordName: 'G/B', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -302,7 +302,7 @@ export const tiny_dancer: Song = {
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 maj/♯6', chordName: 'F/A', beat: 1, duration: 4 },
+            { degree: '4 maj/6', chordName: 'F/A', beat: 1, duration: 4 },
           ],
         },
         {
@@ -320,17 +320,17 @@ export const tiny_dancer: Song = {
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯3 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '2 7/♭5', chordName: 'D7/F♯', beat: 1, duration: 4 },
+            { degree: '2 7/♯4', chordName: 'D7/F♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -338,10 +338,10 @@ export const tiny_dancer: Song = {
             { degree: '2 min7/4', chordName: 'Dmin7/F', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♯3 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -361,7 +361,7 @@ export const tiny_dancer: Song = {
           chords: [
             { degree: '5 maj', chordName: 'G', beat: 1, duration: 1 },
             { degree: '4 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '♯3 min7', chordName: 'Emin7', beat: 3, duration: 1 },
+            { degree: '3 min7', chordName: 'Emin7', beat: 3, duration: 1 },
             { degree: '2 min7', chordName: 'Dmin7', beat: 4, duration: 1 },
           ],
         },
@@ -377,8 +377,8 @@ export const tiny_dancer: Song = {
       bars: [
         {
           chords: [
-            { degree: '6 maj', chordName: 'A♭', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'B♭', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B♭', beat: 3, duration: 2 },
           ],
         },
         {
@@ -388,14 +388,14 @@ export const tiny_dancer: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '5 7/♯7', chordName: 'G7/B', beat: 1, duration: 4 },
+            { degree: '5 7/7', chordName: 'G7/B', beat: 1, duration: 4 },
           ],
         },
         {
@@ -414,7 +414,7 @@ export const tiny_dancer: Song = {
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'C/E', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'C/E', beat: 1, duration: 4 },
           ],
         },
         {
@@ -424,23 +424,23 @@ export const tiny_dancer: Song = {
         },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'C/E', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'C/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj/♯3', chordName: 'C/E', beat: 1, duration: 4 },
+            { degree: '1 maj/3', chordName: 'C/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 maj/♯6', chordName: 'G/A', beat: 1, duration: 4 },
+            { degree: '5 maj/6', chordName: 'G/A', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 maj/♯6', chordName: 'G/A', beat: 1, duration: 4 },
+            { degree: '5 maj/6', chordName: 'G/A', beat: 1, duration: 4 },
           ],
         },
       ],

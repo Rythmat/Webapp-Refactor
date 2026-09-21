@@ -51,8 +51,8 @@ export const the_chain: Song = {
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -85,8 +85,8 @@ export const the_chain: Song = {
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -120,8 +120,8 @@ export const the_chain: Song = {
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'C', beat: 1, duration: 1 },
-            { degree: '3 maj', chordName: 'G', beat: 2, duration: 1 },
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'G', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Emin7', beat: 3, duration: 2 },
           ],
         },
@@ -132,8 +132,8 @@ export const the_chain: Song = {
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'C', beat: 1, duration: 1 },
-            { degree: '3 maj', chordName: 'G', beat: 2, duration: 1 },
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'G', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Emin7', beat: 3, duration: 2 },
           ],
         },

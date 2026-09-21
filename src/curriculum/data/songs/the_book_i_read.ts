@@ -100,8 +100,12 @@ export const the_book_i_read: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -121,17 +125,12 @@ export const the_book_i_read: Song = {
         },
         {
           chords: [
-            { degree: '7 maj/3', chordName: 'G/C', beat: 1, duration: 4 },
+            { degree: '♭7 maj/♭3', chordName: 'G/C', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/3', chordName: 'G/C', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '♭7 maj/♭3', chordName: 'G/C', beat: 1, duration: 4 },
           ],
         },
         {
@@ -141,12 +140,17 @@ export const the_book_i_read: Song = {
         },
         {
           chords: [
-            { degree: '7 maj/3', chordName: 'G/C', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/3', chordName: 'G/C', beat: 1, duration: 4 },
+            { degree: '♭7 maj/♭3', chordName: 'G/C', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 maj/♭3', chordName: 'G/C', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -160,7 +164,7 @@ export const the_book_i_read: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 min7/3', chordName: 'Dmin7/C', beat: 1, duration: 2 },
+            { degree: '4 min7/♭3', chordName: 'Dmin7/C', beat: 1, duration: 2 },
             { degree: '4 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },
@@ -168,7 +172,7 @@ export const the_book_i_read: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 min7/3', chordName: 'Dmin7/C', beat: 1, duration: 2 },
+            { degree: '4 min7/♭3', chordName: 'Dmin7/C', beat: 1, duration: 2 },
             { degree: '4 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },
@@ -183,26 +187,26 @@ export const the_book_i_read: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 min7/3', chordName: 'Dmin7/C', beat: 1, duration: 2 },
+            { degree: '4 min7/♭3', chordName: 'Dmin7/C', beat: 1, duration: 2 },
             { degree: '4 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '6 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '6 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '6 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -224,17 +228,12 @@ export const the_book_i_read: Song = {
         },
         {
           chords: [
-            { degree: '7 maj/3', chordName: 'G/C', beat: 1, duration: 4 },
+            { degree: '♭7 maj/♭3', chordName: 'G/C', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/3', chordName: 'G/C', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '♭7 maj/♭3', chordName: 'G/C', beat: 1, duration: 4 },
           ],
         },
         {
@@ -244,12 +243,17 @@ export const the_book_i_read: Song = {
         },
         {
           chords: [
-            { degree: '7 maj/3', chordName: 'G/C', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/3', chordName: 'G/C', beat: 1, duration: 4 },
+            { degree: '♭7 maj/♭3', chordName: 'G/C', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 maj/♭3', chordName: 'G/C', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -263,7 +267,7 @@ export const the_book_i_read: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 min7/3', chordName: 'Dmin7/C', beat: 1, duration: 2 },
+            { degree: '4 min7/♭3', chordName: 'Dmin7/C', beat: 1, duration: 2 },
             { degree: '4 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },
@@ -271,7 +275,7 @@ export const the_book_i_read: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 min7/3', chordName: 'Dmin7/C', beat: 1, duration: 2 },
+            { degree: '4 min7/♭3', chordName: 'Dmin7/C', beat: 1, duration: 2 },
             { degree: '4 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },
@@ -286,26 +290,26 @@ export const the_book_i_read: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 min7/3', chordName: 'Dmin7/C', beat: 1, duration: 2 },
+            { degree: '4 min7/♭3', chordName: 'Dmin7/C', beat: 1, duration: 2 },
             { degree: '4 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '6 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '6 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '6 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -317,8 +321,8 @@ export const the_book_i_read: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '6 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
@@ -340,16 +344,20 @@ export const the_book_i_read: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -359,27 +367,29 @@ export const the_book_i_read: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '7 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '7 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -399,17 +409,12 @@ export const the_book_i_read: Song = {
         },
         {
           chords: [
-            { degree: '7 maj/3', chordName: 'G/C', beat: 1, duration: 4 },
+            { degree: '♭7 maj/♭3', chordName: 'G/C', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/3', chordName: 'G/C', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '♭7 maj/♭3', chordName: 'G/C', beat: 1, duration: 4 },
           ],
         },
         {
@@ -419,12 +424,17 @@ export const the_book_i_read: Song = {
         },
         {
           chords: [
-            { degree: '7 maj/3', chordName: 'G/C', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/3', chordName: 'G/C', beat: 1, duration: 4 },
+            { degree: '♭7 maj/♭3', chordName: 'G/C', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 maj/♭3', chordName: 'G/C', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -438,7 +448,7 @@ export const the_book_i_read: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 min7/3', chordName: 'Dmin7/C', beat: 1, duration: 2 },
+            { degree: '4 min7/♭3', chordName: 'Dmin7/C', beat: 1, duration: 2 },
             { degree: '4 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },
@@ -446,7 +456,7 @@ export const the_book_i_read: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 min7/3', chordName: 'Dmin7/C', beat: 1, duration: 2 },
+            { degree: '4 min7/♭3', chordName: 'Dmin7/C', beat: 1, duration: 2 },
             { degree: '4 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },
@@ -461,26 +471,26 @@ export const the_book_i_read: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 min7/3', chordName: 'Dmin7/C', beat: 1, duration: 2 },
+            { degree: '4 min7/♭3', chordName: 'Dmin7/C', beat: 1, duration: 2 },
             { degree: '4 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '6 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '6 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '6 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -492,8 +502,8 @@ export const the_book_i_read: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '6 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
@@ -515,16 +525,20 @@ export const the_book_i_read: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -534,29 +548,29 @@ export const the_book_i_read: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '7 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '7 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },

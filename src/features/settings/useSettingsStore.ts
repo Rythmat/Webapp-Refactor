@@ -11,7 +11,9 @@ interface SettingsState {
   // Audio
   outputDevice: string;
   outputChannel: string;
-  latency: number;
+  /** Output delay beyond what the browser reports (Bluetooth headphones), in
+   *  ms. Lessons shift the in-time playhead and scoring by it. */
+  outputLatencyMs: number;
   volume: number;
 
   // Look & Feel
@@ -28,7 +30,7 @@ interface SettingsState {
   // Actions
   setOutputDevice: (device: string) => void;
   setOutputChannel: (channel: string) => void;
-  setLatency: (latency: number) => void;
+  setOutputLatencyMs: (ms: number) => void;
   setVolume: (volume: number) => void;
   setAppSounds: (enabled: boolean) => void;
   setAutoPreview: (enabled: boolean) => void;
@@ -45,7 +47,7 @@ export const useSettingsStore = create<SettingsState>()(
       // Audio defaults
       outputDevice: 'OS DEFAULT',
       outputChannel: '1 & 2',
-      latency: 10,
+      outputLatencyMs: 0,
       volume: 80,
 
       // Look & Feel defaults
@@ -62,7 +64,7 @@ export const useSettingsStore = create<SettingsState>()(
       // Actions
       setOutputDevice: (device) => set({ outputDevice: device }),
       setOutputChannel: (channel) => set({ outputChannel: channel }),
-      setLatency: (latency) => set({ latency }),
+      setOutputLatencyMs: (ms) => set({ outputLatencyMs: ms }),
       setVolume: (volume) => set({ volume }),
       setAppSounds: (enabled) => set({ appSounds: enabled }),
       setAutoPreview: (enabled) => set({ autoPreview: enabled }),

@@ -8,6 +8,7 @@
 import type { NoteEvent as PianoRollNoteEvent } from '../../../components/Games/PianoRollPlay';
 import type { ActivitySectionId } from '../../types/activity';
 import type { ActivityStepV2 } from '../../types/activity.v2';
+import { midiToPitchName } from './enharmonicEngine';
 
 // ── Our internal note format ─────────────────────────────────────────────────
 
@@ -221,60 +222,13 @@ export function resolveStepContent(
 }
 
 // ── Enharmonic spelling ──────────────────────────────────────────────────────
-// Definitive key-specific note name table.
-// One source of truth for all enharmonic spelling decisions.
-// Key = root note name, Value = 12 note names indexed by semitone 0-11.
-// DO NOT MODIFY THIS TABLE — it is the canonical enharmonic reference.
+// The rule table and MIDI → name conversion live in enharmonicEngine.ts.
 
-export const KEY_NOTE_NAMES: Record<string, string[]> = {
-  C: ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'],
-  Db: ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'Cb'],
-  D: ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'],
-  Eb: ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'],
-  E: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'],
-  F: ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'],
-  'F#': ['B#', 'C#', 'D', 'D#', 'E', 'E#', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
-  Gb: ['C', 'Db', 'D', 'Eb', 'Fb', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'Cb'],
-  G: ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'],
-  Ab: ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'],
-  A: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'],
-  Bb: ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'],
-  B: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
-};
-
-// Map MIDI root number to key name
-export const MIDI_ROOT_TO_KEY: Record<number, string> = {
-  0: 'C',
-  1: 'Db',
-  2: 'D',
-  3: 'Eb',
-  4: 'E',
-  5: 'F',
-  6: 'F#',
-  7: 'G',
-  8: 'Ab',
-  9: 'A',
-  10: 'Bb',
-  11: 'B',
-};
-
-/**
- * Convert MIDI note to pitch name with key-context-aware enharmonic spelling.
- * Uses KEY_NOTE_NAMES lookup — the single source of truth.
- *
- * @param midi - MIDI note number (0-127)
- * @param keyRoot - optional MIDI root for key context (e.g., 62 for D)
- */
-export function midiToPitchName(midi: number, keyRoot?: number): string {
-  const semitone = midi % 12;
-  const octave = Math.floor(midi / 12) - 1;
-
-  const keyName =
-    keyRoot !== undefined ? (MIDI_ROOT_TO_KEY[keyRoot % 12] ?? 'C') : 'C';
-
-  const noteNames = KEY_NOTE_NAMES[keyName] ?? KEY_NOTE_NAMES['C'];
-  return `${noteNames[semitone]}${octave}`;
-}
+export {
+  KEY_NOTE_NAMES,
+  MIDI_ROOT_TO_KEY,
+  midiToPitchName,
+} from './enharmonicEngine';
 
 // ── PianoRoll conversion ─────────────────────────────────────────────────────
 

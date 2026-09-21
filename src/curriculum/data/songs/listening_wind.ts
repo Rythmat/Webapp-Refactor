@@ -57,12 +57,12 @@ export const listening_wind: Song = {
       bars: [
         {
           chords: [
-            { degree: '7 maj/1', chordName: 'D/E', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/1', chordName: 'D/E', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 4 },
           ],
         },
         {

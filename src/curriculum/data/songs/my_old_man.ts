@@ -327,22 +327,22 @@ export const my_old_man: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭5 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '♯4 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '♯4 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '♯4 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '♯4 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -353,19 +353,19 @@ export const my_old_man: Song = {
         },
         {
           chords: [
-            { degree: '♭5 maj/3', chordName: 'G♯/F♯', beat: 1, duration: 2 },
+            { degree: '♯4 maj/3', chordName: 'G♯/F♯', beat: 1, duration: 2 },
             { degree: '3 maj', chordName: 'F♯', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 maj/3', chordName: 'G♯/F♯', beat: 1, duration: 2 },
+            { degree: '♯4 maj/3', chordName: 'G♯/F♯', beat: 1, duration: 2 },
             { degree: '3 maj', chordName: 'F♯', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭5 maj/3', chordName: 'G♯/F♯', beat: 1, duration: 4 },
+            { degree: '♯4 maj/3', chordName: 'G♯/F♯', beat: 1, duration: 4 },
           ],
         },
       ],

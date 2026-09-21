@@ -56,7 +56,7 @@ export const cold_sweat: Song = {
           chords: [
             { degree: '3 7', chordName: 'E7', beat: 1, duration: 1 },
             { degree: '4 7', chordName: 'F7', beat: 2, duration: 1 },
-            { degree: '♭5 7', chordName: 'F♯7', beat: 3, duration: 1 },
+            { degree: '♯4 7', chordName: 'F♯7', beat: 3, duration: 1 },
             { degree: '5 7', chordName: 'G7', beat: 4, duration: 1 },
           ],
         },
@@ -64,7 +64,7 @@ export const cold_sweat: Song = {
         {
           chords: [
             { degree: '4 7', chordName: 'F7', beat: 1, duration: 1 },
-            { degree: '♭5 7', chordName: 'F♯7', beat: 2, duration: 1 },
+            { degree: '♯4 7', chordName: 'F♯7', beat: 2, duration: 1 },
             { degree: '5 7', chordName: 'G7', beat: 3, duration: 2 },
           ],
         },
@@ -109,7 +109,7 @@ export const cold_sweat: Song = {
           chords: [
             { degree: '3 7', chordName: 'E7', beat: 1, duration: 1 },
             { degree: '4 7', chordName: 'F7', beat: 2, duration: 1 },
-            { degree: '♭5 7', chordName: 'F♯7', beat: 3, duration: 1 },
+            { degree: '♯4 7', chordName: 'F♯7', beat: 3, duration: 1 },
             { degree: '5 7', chordName: 'G7', beat: 4, duration: 1 },
           ],
         },
@@ -117,7 +117,7 @@ export const cold_sweat: Song = {
         {
           chords: [
             { degree: '4 7', chordName: 'F7', beat: 1, duration: 1 },
-            { degree: '♭5 7', chordName: 'F♯7', beat: 2, duration: 1 },
+            { degree: '♯4 7', chordName: 'F♯7', beat: 2, duration: 1 },
             { degree: '5 7', chordName: 'G7', beat: 3, duration: 2 },
           ],
         },

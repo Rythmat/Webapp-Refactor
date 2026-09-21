@@ -84,7 +84,7 @@ export const i_feel_the_earth_move: Song = {
         {
           chords: [
             { degree: '2 min7/1', chordName: 'Dmin7/C', beat: 1, duration: 2 },
-            { degree: '6 maj/7', chordName: 'A♭/B♭', beat: 3, duration: 2 },
+            { degree: '♭6 maj/♭7', chordName: 'A♭/B♭', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -95,10 +95,10 @@ export const i_feel_the_earth_move: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 maj', chordName: 'E♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 1 },
             { degree: '4 min7', chordName: 'Fmin7', beat: 2, duration: 1 },
             { degree: '5 min7', chordName: 'Gmin7', beat: 3, duration: 1 },
-            { degree: '6 maj', chordName: 'A♭', beat: 4, duration: 1 },
+            { degree: '♭6 maj', chordName: 'A♭', beat: 4, duration: 1 },
           ],
         },
         {
@@ -113,7 +113,7 @@ export const i_feel_the_earth_move: Song = {
         },
         {
           chords: [
-            { degree: '6 maj/7', chordName: 'A♭/B♭', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'A♭/B♭', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -124,10 +124,10 @@ export const i_feel_the_earth_move: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 maj', chordName: 'E♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 1 },
             { degree: '4 min7', chordName: 'Fmin7', beat: 2, duration: 1 },
             { degree: '5 min7', chordName: 'Gmin7', beat: 3, duration: 1 },
-            { degree: '6 maj', chordName: 'A♭', beat: 4, duration: 1 },
+            { degree: '♭6 maj', chordName: 'A♭', beat: 4, duration: 1 },
           ],
         },
         {
@@ -137,7 +137,7 @@ export const i_feel_the_earth_move: Song = {
         },
         {
           chords: [
-            { degree: '6 maj/7', chordName: 'A♭/B♭', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'A♭/B♭', beat: 1, duration: 4 },
           ],
         },
         {
@@ -267,7 +267,7 @@ export const i_feel_the_earth_move: Song = {
         {
           chords: [
             { degree: '4 7', chordName: 'F7', beat: 1, duration: 2 },
-            { degree: '6 maj/7', chordName: 'A♭/B♭', beat: 3, duration: 2 },
+            { degree: '♭6 maj/♭7', chordName: 'A♭/B♭', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -277,10 +277,10 @@ export const i_feel_the_earth_move: Song = {
       label: 'Section F',
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -289,7 +289,7 @@ export const i_feel_the_earth_move: Song = {
         },
         {
           chords: [
-            { degree: '6 maj/7', chordName: 'A♭/B♭', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'A♭/B♭', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -300,10 +300,10 @@ export const i_feel_the_earth_move: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 maj', chordName: 'E♭', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 1 },
             { degree: '4 min7', chordName: 'Fmin7', beat: 2, duration: 1 },
             { degree: '5 min7', chordName: 'Gmin7', beat: 3, duration: 1 },
-            { degree: '6 maj', chordName: 'A♭', beat: 4, duration: 1 },
+            { degree: '♭6 maj', chordName: 'A♭', beat: 4, duration: 1 },
           ],
         },
         {
@@ -313,7 +313,7 @@ export const i_feel_the_earth_move: Song = {
         },
         {
           chords: [
-            { degree: '6 maj/7', chordName: 'A♭/B♭', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'A♭/B♭', beat: 1, duration: 4 },
           ],
         },
         {
@@ -410,27 +410,27 @@ export const i_feel_the_earth_move: Song = {
         },
         {
           chords: [
-            { degree: '7 maj/1', chordName: 'B♭/C', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'B♭/C', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/1', chordName: 'B♭/C', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'B♭/C', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj/1', chordName: 'A♭/C', beat: 1, duration: 4 },
+            { degree: '♭6 maj/1', chordName: 'A♭/C', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 maj/1', chordName: 'A♭/C', beat: 1, duration: 4 },
+            { degree: '♭6 maj/1', chordName: 'A♭/C', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 maj/1', chordName: 'B♭/C', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'B♭/C', beat: 1, duration: 4 },
           ],
           fermata: true,
         },

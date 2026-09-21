@@ -79,7 +79,7 @@ export const dont_you_worry_bout_a_thing: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯6 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -110,7 +110,7 @@ export const dont_you_worry_bout_a_thing: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯6 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -207,7 +207,7 @@ export const dont_you_worry_bout_a_thing: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯6 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -238,7 +238,7 @@ export const dont_you_worry_bout_a_thing: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯6 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -319,13 +319,13 @@ export const dont_you_worry_bout_a_thing: Song = {
         },
         { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯6 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯5 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '5 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -345,13 +345,13 @@ export const dont_you_worry_bout_a_thing: Song = {
         },
         { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯6 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯5 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '5 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -379,7 +379,7 @@ export const dont_you_worry_bout_a_thing: Song = {
         },
         { chords: [{ degree: '3 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯6 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -411,7 +411,7 @@ export const dont_you_worry_bout_a_thing: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯6 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -442,7 +442,7 @@ export const dont_you_worry_bout_a_thing: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯6 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -523,13 +523,13 @@ export const dont_you_worry_bout_a_thing: Song = {
         },
         { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯6 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯5 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '5 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -549,13 +549,13 @@ export const dont_you_worry_bout_a_thing: Song = {
         },
         { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯6 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯5 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '5 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -593,7 +593,7 @@ export const dont_you_worry_bout_a_thing: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯6 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -624,7 +624,7 @@ export const dont_you_worry_bout_a_thing: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯6 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -712,7 +712,7 @@ export const dont_you_worry_bout_a_thing: Song = {
         },
         { chords: [{ degree: '3 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯6 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -744,7 +744,7 @@ export const dont_you_worry_bout_a_thing: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯6 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
   ],

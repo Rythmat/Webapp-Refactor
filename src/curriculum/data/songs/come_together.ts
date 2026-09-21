@@ -172,7 +172,7 @@ export const come_together: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -307,7 +307,7 @@ export const come_together: Song = {
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         {

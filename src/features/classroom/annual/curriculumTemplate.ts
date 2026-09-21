@@ -1634,8 +1634,8 @@ const OCT_BLUES: UnitTemplate = {
         ],
         ['Listen for the pentatonic bend.', 'Escucha el bend pentatónico.'],
         [
-          'Write a one-line "moan" over a I chord.',
-          'Escribe una línea de "gemido" sobre un acorde I.',
+          'Write a one-line "moan" over a 1 chord.',
+          'Escribe una línea de "gemido" sobre un acorde 1.',
         ],
         ['Sing it out.', 'Cántalo.'],
         [
@@ -1655,8 +1655,8 @@ const OCT_BLUES: UnitTemplate = {
           'Foco Artístico — Bill Withers "Ain\'t No Sunshine".',
         ],
         [
-          '12-bar blues at the piano — I, IV, V.',
-          'Blues de 12 compases al piano — I, IV, V.',
+          '12-bar blues at the piano — 1, 4, 5.',
+          'Blues de 12 compases al piano — 1, 4, 5.',
         ],
         [
           'Write a two-verse blues about your week.',
@@ -1709,8 +1709,8 @@ const OCT_BLUES: UnitTemplate = {
           'La Gran Migración — del Delta al Chicago eléctrico.',
         ],
         [
-          'Study the amplified I-IV-V shuffle.',
-          'Estudia el shuffle amplificado I-IV-V.',
+          'Study the amplified 1-4-5 shuffle.',
+          'Estudia el shuffle amplificado 1-4-5.',
         ],
         [
           'Group project — build a Chicago shuffle.',
@@ -1926,8 +1926,8 @@ const NOV_JAZZ: UnitTemplate = {
         ],
         ['Listen for the swing eighth-note.', 'Escucha las corcheas de swing.'],
         [
-          'Improvise 4 bars over a I-VI-II-V.',
-          'Improvisa 4 compases sobre un I-VI-II-V.',
+          'Improvise 4 bars over a 1-6-2-5.',
+          'Improvisa 4 compases sobre un 1-6-2-5.',
         ],
         ['Solo in pairs.', 'Solea en parejas.'],
         [
@@ -2169,7 +2169,7 @@ const DEC_GOSPEL: UnitTemplate = {
           'Dorsey brought blues into the church — the birth of gospel.',
           'Dorsey trajo el blues a la iglesia — nace el gospel.',
         ],
-        ['Learn a I-IV-V gospel walk.', 'Aprende un walk gospel I-IV-V.'],
+        ['Learn a 1-4-5 gospel walk.', 'Aprende un walk gospel 1-4-5.'],
         [
           'Write a two-line testimony verse.',
           'Escribe dos líneas de testimonio.',

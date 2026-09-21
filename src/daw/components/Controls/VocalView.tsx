@@ -25,13 +25,11 @@ import {
   getEngineReadyVersion,
 } from '@/daw/hooks/usePlaybackEngine';
 import { VocalFxAdapter } from '@/daw/instruments/VocalFxAdapter';
-import {
-  SCALE_TYPES,
-  NOTE_NAMES,
-} from '@/daw/audio/pitch-correction/PitchCorrectionNode';
+import { SCALE_TYPES } from '@/daw/audio/pitch-correction/PitchCorrectionNode';
 import {
   KEY_COLORS,
   ALL_MODES,
+  noteNameInKey,
   MODE_GROUPS,
   MODE_DISPLAY,
   FAMILY_COLOR_INDEX,
@@ -43,6 +41,7 @@ import {
   probeDeviceChannelCount,
   type AudioInputDevice,
 } from '@/daw/midi/AudioInputEnumerator';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 
 // ── Root note color helpers ──────────────────────────────────────────────
 
@@ -416,7 +415,7 @@ function scaleToNotesBitmask(rootNote: number, scaleType: number): number {
   return mask;
 }
 
-// Piano key layout: index into NOTE_NAMES, isBlack flag, x-position
+// Piano key layout: pitch class, isBlack flag, x-position
 const WHITE_KEYS = [0, 2, 4, 5, 7, 9, 11]; // C D E F G A B
 const BLACK_KEYS = [1, 3, 6, 8, 10]; // C# D# F# G# A#
 const COF_ROOT_OPTIONS: { name: string; value: number }[] = [
@@ -1771,7 +1770,15 @@ export function VocalView({ trackId }: { trackId: string }) {
                                       pointerEvents: 'none',
                                     }}
                                   >
-                                    {NOTE_NAMES[note]}
+                                    {displayAccidentals(
+                                      noteNameInKey(
+                                        note,
+                                        globalRootNote ?? 0,
+                                        globalRootNote != null
+                                          ? globalMode
+                                          : undefined,
+                                      ),
+                                    )}
                                   </span>
                                 </div>
                               );
@@ -1834,7 +1841,15 @@ export function VocalView({ trackId }: { trackId: string }) {
                                       pointerEvents: 'none',
                                     }}
                                   >
-                                    {NOTE_NAMES[note]}
+                                    {displayAccidentals(
+                                      noteNameInKey(
+                                        note,
+                                        globalRootNote ?? 0,
+                                        globalRootNote != null
+                                          ? globalMode
+                                          : undefined,
+                                      ),
+                                    )}
                                   </span>
                                 </div>
                               );

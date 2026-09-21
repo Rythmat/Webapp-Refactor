@@ -35,7 +35,7 @@ export const california_gurls: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -48,7 +48,7 @@ export const california_gurls: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -61,17 +61,19 @@ export const california_gurls: Song = {
       id: 'chorus',
       label: 'Chorus',
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -86,7 +88,7 @@ export const california_gurls: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -99,7 +101,7 @@ export const california_gurls: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -112,17 +114,19 @@ export const california_gurls: Song = {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
-        { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -137,7 +141,7 @@ export const california_gurls: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -150,7 +154,7 @@ export const california_gurls: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [

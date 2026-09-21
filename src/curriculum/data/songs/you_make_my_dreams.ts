@@ -240,7 +240,7 @@ export const you_make_my_dreams: Song = {
         },
         {
           chords: [
-            { degree: '♭2 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
           ],
         },
       ],

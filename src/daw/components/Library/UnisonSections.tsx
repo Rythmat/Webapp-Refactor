@@ -1,13 +1,30 @@
 import { useState } from 'react';
+import { useStore } from '@/daw/store';
+import { formatProgression, useChordNotation } from '@/lib/chordNotation';
 import { midiToNoteName } from './insightConstants';
+import { keyContext } from './insightNotation';
 import type { UnisonDocument } from '@/unison/types/schema';
 
 interface UnisonSectionsProps {
   unisonDoc: UnisonDocument;
+  /** Only the harmony sections (progression matches, vibes & styles) — for
+   *  a chord selection, where session-wide rhythm and melody don't apply. */
+  harmonyOnly?: boolean;
 }
 
-export function UnisonSections({ unisonDoc }: UnisonSectionsProps) {
+export function UnisonSections({
+  unisonDoc,
+  harmonyOnly = false,
+}: UnisonSectionsProps) {
   const [expandedMatches, setExpandedMatches] = useState(false);
+  const rootNote = useStore((s) => s.rootNote);
+  const mode = useStore((s) => s.mode);
+  const notation = useChordNotation();
+  // Progression degrees in the session key; without one, the analysis's key.
+  const progressionContext =
+    rootNote !== null
+      ? keyContext(rootNote, mode)
+      : keyContext(unisonDoc.analysis.key.rootPc, unisonDoc.analysis.key.mode);
 
   return (
     <>
@@ -37,7 +54,11 @@ export function UnisonSections({ unisonDoc }: UnisonSectionsProps) {
                   className="text-[10px] font-medium"
                   style={{ color: 'var(--color-text)' }}
                 >
-                  {match.progression}
+                  {formatProgression(
+                    match.progression,
+                    notation,
+                    progressionContext,
+                  )}
                 </span>
                 <span
                   className="text-[9px] font-mono"
@@ -152,6 +173,28 @@ export function UnisonSections({ unisonDoc }: UnisonSectionsProps) {
         </div>
       )}
 
+      {harmonyOnly ? null : (
+        <SessionSections
+          unisonDoc={unisonDoc}
+          rootNote={rootNote}
+          mode={mode}
+        />
+      )}
+    </>
+  );
+}
+
+function SessionSections({
+  unisonDoc,
+  rootNote,
+  mode,
+}: {
+  unisonDoc: UnisonDocument;
+  rootNote: number | null;
+  mode: string;
+}) {
+  return (
+    <>
       {/* Rhythm */}
       <div
         className="flex flex-col gap-1.5 px-3 py-2.5 border-b"
@@ -262,8 +305,17 @@ export function UnisonSections({ unisonDoc }: UnisonSectionsProps) {
                 className="text-[10px] font-medium"
                 style={{ color: 'var(--color-text)' }}
               >
-                {midiToNoteName(unisonDoc.melody.pitchRange.low)} —{' '}
-                {midiToNoteName(unisonDoc.melody.pitchRange.high)}
+                {midiToNoteName(
+                  unisonDoc.melody.pitchRange.low,
+                  rootNote,
+                  mode,
+                )}{' '}
+                —{' '}
+                {midiToNoteName(
+                  unisonDoc.melody.pitchRange.high,
+                  rootNote,
+                  mode,
+                )}
               </span>
             </div>
             <div className="flex flex-col">

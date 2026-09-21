@@ -164,14 +164,16 @@ export const thriller: Song = {
         { chords: [{ degree: '4 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '6 maj', chordName: 'A', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'A', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj', chordName: 'B', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -189,15 +191,22 @@ export const thriller: Song = {
         },
         {
           chords: [
-            { degree: '1 min7/7', chordName: 'C♯min7/B', beat: 1, duration: 4 },
+            {
+              degree: '1 min7/♭7',
+              chordName: 'C♯min7/B',
+              beat: 1,
+              duration: 4,
+            },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'A♯min7b5', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'A♯min7b5', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 7', chordName: 'G♯7sus', beat: 1, duration: 4 },
@@ -267,7 +276,9 @@ export const thriller: Song = {
         { chords: [{ degree: '2 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '♭2 7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '7 7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },

@@ -114,10 +114,10 @@ export const i_wish: Song = {
       label: 'Bridge',
       bars: [
         { chords: [{ degree: '2 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯3 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -132,10 +132,10 @@ export const i_wish: Song = {
       label: 'Section G',
       bars: [
         { chords: [{ degree: '2 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯3 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '2 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
@@ -253,10 +253,10 @@ export const i_wish: Song = {
       label: 'Section H',
       bars: [
         { chords: [{ degree: '2 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯3 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -271,10 +271,10 @@ export const i_wish: Song = {
       label: 'Section O',
       bars: [
         { chords: [{ degree: '2 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯3 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '2 7', chordName: 'B♭7', beat: 1, duration: 4 }] },

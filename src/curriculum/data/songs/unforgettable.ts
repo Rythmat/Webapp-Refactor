@@ -36,12 +36,12 @@ export const unforgettable: Song = {
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '6 dim7', chordName: 'A♭dim7', beat: 1, duration: 4 },
+            { degree: '♭6 dim7', chordName: 'A♭dim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 dim7', chordName: 'A♭dim7', beat: 1, duration: 4 },
+            { degree: '♭6 dim7', chordName: 'A♭dim7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -51,10 +51,10 @@ export const unforgettable: Song = {
       label: 'Section C',
       bars: [
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -69,13 +69,15 @@ export const unforgettable: Song = {
       label: 'Chorus',
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '6 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 7', chordName: 'A♭7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj', chordName: 'B♭', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 2 },
+            { degree: '♭3 7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -104,12 +106,12 @@ export const unforgettable: Song = {
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '6 dim7', chordName: 'A♭dim7', beat: 1, duration: 4 },
+            { degree: '♭6 dim7', chordName: 'A♭dim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 dim7', chordName: 'A♭dim7', beat: 1, duration: 4 },
+            { degree: '♭6 dim7', chordName: 'A♭dim7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -119,10 +121,10 @@ export const unforgettable: Song = {
       label: 'Section G',
       bars: [
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -137,13 +139,15 @@ export const unforgettable: Song = {
       label: 'Verse 2',
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '6 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 7', chordName: 'A♭7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj', chordName: 'B♭', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 2 },
+            { degree: '♭3 7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -167,14 +171,14 @@ export const unforgettable: Song = {
         },
         {
           chords: [
-            { degree: '7 maj', chordName: 'B♭', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 2 },
             { degree: '5 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 min7', chordName: 'E♭min7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'A♭7', beat: 3, duration: 2 },
+            { degree: '♭3 min7', chordName: 'E♭min7', beat: 1, duration: 2 },
+            { degree: '♭6 7', chordName: 'A♭7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -184,19 +188,19 @@ export const unforgettable: Song = {
       label: 'Section E',
       bars: [
         {
-          chords: [{ degree: '♭2 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♯3 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
+            { degree: '3 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯3 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
+            { degree: '3 dim7', chordName: 'Edim7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -206,17 +210,19 @@ export const unforgettable: Song = {
       label: 'Section K',
       bars: [
         {
-          chords: [{ degree: '♭5 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'A♯min7', beat: 1, duration: 4 },
+            { degree: '♯6 min7', chordName: 'A♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯2 7', chordName: 'D♯7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -224,19 +230,19 @@ export const unforgettable: Song = {
       label: 'Section F',
       bars: [
         {
-          chords: [{ degree: '♯7 maj', chordName: 'B', beat: 1, duration: 4 }],
+          chords: [{ degree: '7 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♯3 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭5 maj', chordName: 'F♯', beat: 1, duration: 2 },
-            { degree: '♯7 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '♯4 maj', chordName: 'F♯', beat: 1, duration: 2 },
+            { degree: '7 7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'A♯min7', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'D♯7', beat: 3, duration: 2 },
+            { degree: '♯6 min7', chordName: 'A♯min7', beat: 1, duration: 2 },
+            { degree: '♯2 7', chordName: 'D♯7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -245,9 +251,15 @@ export const unforgettable: Song = {
       id: 'section_m',
       label: 'Section M',
       bars: [
-        { chords: [{ degree: '6 7', chordName: 'G♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'G♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯5 7', chordName: 'G♯7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯5 7', chordName: 'G♯7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯5 7', chordName: 'G♯7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
@@ -259,12 +271,12 @@ export const unforgettable: Song = {
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '6 dim7', chordName: 'A♭dim7', beat: 1, duration: 4 },
+            { degree: '♭6 dim7', chordName: 'A♭dim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 dim7', chordName: 'A♭dim7', beat: 1, duration: 4 },
+            { degree: '♭6 dim7', chordName: 'A♭dim7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -274,10 +286,10 @@ export const unforgettable: Song = {
       label: 'Section O',
       bars: [
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -293,13 +305,15 @@ export const unforgettable: Song = {
       measuresPerRow: 7,
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '6 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 7', chordName: 'A♭7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj', chordName: 'B♭', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 2 },
+            { degree: '♭3 7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -316,7 +330,7 @@ export const unforgettable: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
           fermata: true,
         },
       ],

@@ -153,18 +153,22 @@ export const good_times: Song = {
       id: 'verse_2_2',
       label: 'Verse 2',
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '6 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '6 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -173,11 +177,13 @@ export const good_times: Song = {
       id: 'section_i',
       label: 'Section I',
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '6 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
         {
@@ -197,18 +203,22 @@ export const good_times: Song = {
       label: 'Section E',
       repeatCount: 4,
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '6 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '6 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -222,31 +232,39 @@ export const good_times: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'section_f_2',
       label: 'Section F',
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '6 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '6 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -255,11 +273,13 @@ export const good_times: Song = {
       id: 'section_m',
       label: 'Section M',
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '6 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
         {
@@ -278,18 +298,22 @@ export const good_times: Song = {
       id: 'section_n',
       label: 'Section N',
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '6 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '6 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 1, duration: 2 },
+            { degree: '♭6 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -298,18 +322,22 @@ export const good_times: Song = {
       id: 'section_g_2',
       label: 'Section G',
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '6 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '6 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'D', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
       ],

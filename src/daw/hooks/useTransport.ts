@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import * as Tone from 'tone';
 import { useStore } from '@/daw/store';
+import { getPlaybackLoop } from '@/daw/store/transportSlice';
 import { audioEngine } from '@/daw/audio/AudioEngine';
 
 // ── seekTo ──────────────────────────────────────────────────────────────
@@ -25,9 +26,11 @@ export function useTransport() {
   const isPlaying = useStore((s) => s.isPlaying);
   const bpm = useStore((s) => s.bpm);
   const setPosition = useStore((s) => s.setPosition);
-  const loopEnabled = useStore((s) => s.loopEnabled);
-  const loopStart = useStore((s) => s.loopStart);
-  const loopEnd = useStore((s) => s.loopEnd);
+  // Loops on the piano roll editor's own loop while that editor is open,
+  // otherwise on the project loop.
+  const loopEnabled = useStore((s) => getPlaybackLoop(s).enabled);
+  const loopStart = useStore((s) => getPlaybackLoop(s).start);
+  const loopEnd = useStore((s) => getPlaybackLoop(s).end);
   const tsNum = useStore((s) => s.timeSignatureNumerator);
   const tsDen = useStore((s) => s.timeSignatureDenominator);
 

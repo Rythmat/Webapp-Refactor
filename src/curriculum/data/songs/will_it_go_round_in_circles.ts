@@ -63,8 +63,8 @@ export const will_it_go_round_in_circles: Song = {
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'G♭', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'G♭', beat: 3, duration: 2 },
           ],
         },
       ],

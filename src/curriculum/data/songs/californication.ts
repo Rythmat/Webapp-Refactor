@@ -27,13 +27,17 @@ export const californication: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -45,13 +49,17 @@ export const californication: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -63,7 +71,9 @@ export const californication: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -80,14 +90,18 @@ export const californication: Song = {
       id: 'section_d',
       label: 'Section D',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '3 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -104,13 +118,17 @@ export const californication: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -118,10 +136,12 @@ export const californication: Song = {
       label: 'Bridge',
       measuresPerRow: 6,
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '4 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },
@@ -130,10 +150,12 @@ export const californication: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '4 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },
@@ -153,13 +175,17 @@ export const californication: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -171,7 +197,9 @@ export const californication: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -188,14 +216,18 @@ export const californication: Song = {
       id: 'section_i',
       label: 'Section I',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '3 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -212,13 +244,17 @@ export const californication: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -226,10 +262,12 @@ export const californication: Song = {
       label: 'Section F',
       measuresPerRow: 6,
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '4 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },
@@ -238,10 +276,12 @@ export const californication: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '4 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },
@@ -258,13 +298,13 @@ export const californication: Song = {
       bars: [
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -298,13 +338,17 @@ export const californication: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -316,7 +360,9 @@ export const californication: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -333,14 +379,18 @@ export const californication: Song = {
       id: 'section_p',
       label: 'Section P',
       bars: [
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '3 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '7 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -357,13 +407,17 @@ export const californication: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -371,10 +425,12 @@ export const californication: Song = {
       label: 'Section J',
       measuresPerRow: 6,
       bars: [
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '4 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },
@@ -383,10 +439,12 @@ export const californication: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
         {
           chords: [
-            { degree: '7 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '4 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },

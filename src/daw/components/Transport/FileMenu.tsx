@@ -220,6 +220,7 @@ export function FileMenu() {
       try {
         const project = await studioProjectsApi.get(token, id);
         deserializeCloudProject(project);
+        useStore.getState().offerChordAnalysis();
         // Audio buffers download + decode in the background; clips appear in
         // the timeline immediately and become playable as their bytes arrive.
         void loadCloudProjectAudio(token).catch((err) => {
@@ -311,6 +312,9 @@ export function FileMenu() {
         });
       }
 
+      // Imported notes come without chord symbols: offer to analyze them.
+      state.offerChordAnalysis();
+
       e.target.value = '';
     },
     [],
@@ -365,6 +369,7 @@ export function FileMenu() {
   const handleAnalyze = useCallback(() => {
     const state = useStore.getState();
     state.analyzeSession();
+    state.analyzeChords(state.chordAnalysis?.trackIds ?? null);
     state.setLibraryOpen(true);
   }, []);
 

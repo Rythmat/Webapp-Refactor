@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import * as Tone from 'tone';
 import { useStore } from '@/daw/store';
 import { MidiRecorder } from '@/daw/audio/MidiRecorder';
-import { deriveChordRegionsFromSession } from '@/daw/store/prismSlice';
 
 // ── useMidiRecording ────────────────────────────────────────────────────
 // Manages the MIDI recording lifecycle:
@@ -56,21 +55,6 @@ export function useMidiRecording() {
             events: rebasedNotes,
             ccEvents: rebasedCC.length > 0 ? rebasedCC : undefined,
           });
-
-          // Derive chord regions from all tracks (role-aware)
-          const {
-            rootNote,
-            mode,
-            setChordRegions,
-            tracks: allTracks,
-          } = useStore.getState();
-          const rootMidi = (rootNote ?? 0) + 48;
-          const regions = deriveChordRegionsFromSession(
-            allTracks,
-            rootMidi,
-            mode,
-          );
-          setChordRegions(regions);
         }
       }
     }

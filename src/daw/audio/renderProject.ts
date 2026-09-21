@@ -43,6 +43,7 @@ import * as Tone from 'tone';
 import { useStore } from '@/daw/store';
 import { EffectChain } from './EffectChain';
 import { TrackEngine } from './TrackEngine';
+import { isTrackAudible } from './trackAudibility';
 import { MidiScheduler } from './MidiScheduler';
 import { AudioClipScheduler } from './AudioClipScheduler';
 import { getAudioBuffer, sliceBuffer } from './AudioBufferStore';
@@ -184,9 +185,9 @@ export async function renderProject(
       const inits: Array<Promise<void>> = [];
 
       for (const track of tracks) {
-        // Match live playback (usePlaybackEngine), which gates on mute ONLY and
-        // ignores solo — so a bounce is WYSIWYG vs. Play even while soloing.
-        if (track.mute) continue;
+        // Same mute/solo rule as live playback (usePlaybackEngine), so a bounce
+        // is WYSIWYG vs. Play — including while soloing.
+        if (!isTrackAudible(track, tracks)) continue;
 
         const te = new TrackEngine(ctx, master);
         disposables.push(te);

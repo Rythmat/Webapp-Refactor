@@ -1223,7 +1223,7 @@ const activities = [
     purpose: 'Composition',
     initiationStyle: 'try-it-first',
     description:
-      'Students explore common chord progressions (I–V–vi–IV, ii–V–I, 12-bar blues, doo-wop changes) and then craft their own. Start with diatonic options in a chosen key, then introduce borrowed chords or modal interchange for color. Pair with a melody or rhythm pattern from earlier activities.',
+      'Students explore common chord progressions (1–5–6–4, 2–5–1, 12-bar blues, doo-wop changes) and then craft their own. Start with diatonic options in a chosen key, then introduce borrowed chords or modal interchange for color. Pair with a melody or rhythm pattern from earlier activities.',
     learningOutcome:
       'Students understand that chord progressions are recipes — there are common ones for good reasons, and they can author their own.',
     assessment:
@@ -1234,7 +1234,7 @@ const activities = [
       awarenessOfTechnique:
         'I can write a 4- or 8-bar chord progression in a chosen key using diatonic chords, and I know how to add color with borrowed or chromatic chords.',
       awarenessOfContext:
-        'A few chord progressions are the foundation of huge amounts of popular music. The I–V–vi–IV is in hundreds of pop songs. Learning to recognize and write progressions is foundational.',
+        'A few chord progressions are the foundation of huge amounts of popular music. The 1–5–6–4 is in hundreds of pop songs. Learning to recognize and write progressions is foundational.',
     },
     standards: ['Creating', 'Performing'],
     impactValues: ['Accessible', 'Modern'],

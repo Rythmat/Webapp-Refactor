@@ -120,7 +120,7 @@ export const my_little_girl: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '♭2 dim7', chordName: 'G♯dim7', beat: 3, duration: 2 },
+            { degree: '♯1 dim7', chordName: 'G♯dim7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -232,7 +232,7 @@ export const my_little_girl: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '♭2 dim7', chordName: 'G♯dim7', beat: 3, duration: 2 },
+            { degree: '♯1 dim7', chordName: 'G♯dim7', beat: 3, duration: 2 },
           ],
         },
       ],

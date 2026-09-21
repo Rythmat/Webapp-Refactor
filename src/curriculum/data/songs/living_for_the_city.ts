@@ -256,15 +256,17 @@ export const living_for_the_city: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/7', chordName: 'F♯/E', beat: 1, duration: 4 },
+            { degree: '1 maj/♭7', chordName: 'F♯/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'D♯min7b5', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'D♯min7b5', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭5 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
@@ -277,10 +279,12 @@ export const living_for_the_city: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭5 maj/♯3', chordName: 'C/A♯', beat: 1, duration: 4 },
+            { degree: '♭5 maj/3', chordName: 'C/A♯', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭2 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
@@ -502,15 +506,17 @@ export const living_for_the_city: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/7', chordName: 'F♯/E', beat: 1, duration: 4 },
+            { degree: '1 maj/♭7', chordName: 'F♯/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'D♯min7b5', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'D♯min7b5', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭5 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
@@ -523,10 +529,12 @@ export const living_for_the_city: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭5 maj/♯3', chordName: 'C/A♯', beat: 1, duration: 4 },
+            { degree: '♭5 maj/3', chordName: 'C/A♯', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭2 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
@@ -607,15 +615,17 @@ export const living_for_the_city: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/7', chordName: 'F♯/E', beat: 1, duration: 4 },
+            { degree: '1 maj/♭7', chordName: 'F♯/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'D♯min7b5', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'D♯min7b5', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭5 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
@@ -627,10 +637,12 @@ export const living_for_the_city: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭5 maj/♯3', chordName: 'C/A♯', beat: 1, duration: 4 },
+            { degree: '♭5 maj/3', chordName: 'C/A♯', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭2 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
@@ -815,15 +827,17 @@ export const living_for_the_city: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/7', chordName: 'F♯/E', beat: 1, duration: 4 },
+            { degree: '1 maj/♭7', chordName: 'F♯/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'D♯min7b5', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'D♯min7b5', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭5 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
@@ -836,10 +850,12 @@ export const living_for_the_city: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭5 maj/♯3', chordName: 'C/A♯', beat: 1, duration: 4 },
+            { degree: '♭5 maj/3', chordName: 'C/A♯', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭2 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
@@ -857,15 +873,17 @@ export const living_for_the_city: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/7', chordName: 'F♯/E', beat: 1, duration: 4 },
+            { degree: '1 maj/♭7', chordName: 'F♯/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 min7', chordName: 'D♯min7b5', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'D♯min7b5', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭5 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
@@ -877,10 +895,12 @@ export const living_for_the_city: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭5 maj/♯3', chordName: 'C/A♯', beat: 1, duration: 4 },
+            { degree: '♭5 maj/3', chordName: 'C/A♯', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭2 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
@@ -901,9 +921,9 @@ export const living_for_the_city: Song = {
         },
         {
           chords: [
-            { degree: '6 maj', chordName: 'D', beat: 1, duration: 1 },
+            { degree: '♭6 maj', chordName: 'D', beat: 1, duration: 1 },
             { degree: '♭2 maj', chordName: 'G', beat: 2, duration: 1 },
-            { degree: '6 maj', chordName: 'D', beat: 3, duration: 2 },
+            { degree: '♭6 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
         {

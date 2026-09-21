@@ -1,9 +1,10 @@
 /**
- * Enriches existing ChordRegions with Hybrid Numbers, roman numerals,
- * and UNISON analysis metadata. Does NOT re-detect chords — reads
+ * Enriches existing ChordRegions with Hybrid Numbers and UNISON analysis
+ * metadata. Does NOT re-detect chords — reads
  * from the existing prismSlice chord derivation pipeline.
  */
 
+import { noteNameToPitchClass } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import { detectChordWithInversion } from '@/daw/prism-engine';
 import type { MidiNoteEvent } from '@/daw/prism-engine/types';
 import type { ChordRegion } from '@/daw/store/prismSlice';
@@ -15,41 +16,6 @@ import type {
 import { isDiatonic } from './diatonicChecker';
 import { getBestBorrowedSource } from './modalInterchange';
 import { detectSecondaryDominants } from './secondaryDominant';
-
-// ── Degree → Roman Numeral ─────────────────────────────────────────────────
-
-const DEGREE_TO_ROMAN: Record<number, string> = {
-  1: 'I',
-  2: 'II',
-  3: 'III',
-  4: 'IV',
-  5: 'V',
-  6: 'VI',
-  7: 'VII',
-};
-
-const QUALITY_SUFFIX: Record<string, string> = {
-  major: '',
-  minor: 'm',
-  diminished: 'dim',
-  augmented: 'aug',
-  dominant7: '7',
-  major7: 'maj7',
-  minor7: 'm7',
-  minor7b5: 'm7b5',
-  diminished7: 'dim7',
-  dominant9: '9',
-  major9: 'maj9',
-  minor9: 'm9',
-  dominant11: '11',
-  minor11: 'm11',
-  dominant13: '13',
-  minor13: 'm13',
-  major13: 'maj13',
-  sus2: 'sus2',
-  sus4: 'sus4',
-  minormajor7: 'mMaj7',
-};
 
 // Abbreviated quality → long form for hybridName normalization
 const ABBREV_TO_LONG: Record<string, string> = {
@@ -84,10 +50,9 @@ export function analyzeHarmony(
   key: KeyDetection,
   allEvents: MidiNoteEvent[] = [],
 ): UnisonChordRegion[] {
-  // Pass 1: Build base chord regions with degree, quality, roman numerals
+  // Pass 1: Build base chord regions with degree, quality and hybrid name
   const chords: UnisonChordRegion[] = regions.map((region) => {
     const parsed = parseRegion(region);
-    const romanNumeral = buildRomanNumeral(parsed.degree, parsed.quality);
 
     // Determine voicing notes for inversion detection
     const voicing = region.midis?.length
@@ -119,7 +84,6 @@ export function analyzeHarmony(
       noteName: region.noteName,
       degree: parsed.degree,
       hybridName: `${parsed.degree} ${parsed.quality}`,
-      romanNumeral,
       color: region.color,
       inversion,
       bassNote,
@@ -187,65 +151,11 @@ function expandAbbreviation(abbrev: string): string {
 
 // ── Note name → pitch class ────────────────────────────────────────────────
 
-const NOTE_PC: Record<string, number> = {
-  C: 0,
-  'C#': 1,
-  Db: 1,
-  D: 2,
-  'D#': 3,
-  Eb: 3,
-  E: 4,
-  F: 5,
-  'F#': 6,
-  Gb: 6,
-  G: 7,
-  'G#': 8,
-  Ab: 8,
-  A: 9,
-  'A#': 10,
-  Bb: 10,
-  B: 11,
-};
-
 function extractRootPc(noteName: string): number {
   if (!noteName) return 0;
-  const trimmed = noteName.trim();
-  // Try two-char note name first (e.g., "Bb", "F#")
-  const twoChar = trimmed.slice(0, 2);
-  if (NOTE_PC[twoChar] !== undefined) return NOTE_PC[twoChar];
-  // Try one-char note name
-  const oneChar = trimmed[0];
-  if (NOTE_PC[oneChar] !== undefined) return NOTE_PC[oneChar];
-  return 0;
-}
-
-// ── Roman Numeral ──────────────────────────────────────────────────────────
-
-function buildRomanNumeral(degree: string, quality: string): string {
-  let prefix = '';
-  let degNum: number;
-
-  if (degree[0] === 'b') {
-    prefix = 'b';
-    degNum = parseInt(degree.slice(1), 10);
-  } else if (degree[0] === '#') {
-    prefix = '#';
-    degNum = parseInt(degree.slice(1), 10);
-  } else {
-    degNum = parseInt(degree, 10);
-  }
-
-  const roman = DEGREE_TO_ROMAN[degNum] ?? degree;
-  const suffix = QUALITY_SUFFIX[quality] ?? '';
-
-  // Minor qualities use lowercase roman numerals
-  const isMinor =
-    quality.startsWith('minor') ||
-    quality === 'diminished' ||
-    quality === 'diminished7';
-  const romanCase = isMinor ? roman.toLowerCase() : roman;
-
-  return `${prefix}${romanCase}${suffix}`;
+  // Leading note name of a chord label: "Bb maj", "F# dom7", "Cb min", "Ebb dim".
+  const root = noteName.trim().match(/^[A-G](?:bb|##|b|#|𝄫|𝄪|♭|♯)?/u)?.[0];
+  return root ? (noteNameToPitchClass(root) ?? 0) : 0;
 }
 
 // ── Modal Interchange Annotation (Pass 2) ────────────────────────────────────

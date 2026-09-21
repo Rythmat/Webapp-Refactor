@@ -1,42 +1,28 @@
+import {
+  parseNoteName,
+  type SpelledNote,
+} from '@/curriculum/engine/genreGeneration/enharmonicEngine';
+import {
+  expectedDegreeNumbers,
+  isNoChord,
+  spelledPitchClass,
+} from '@/curriculum/songLibrary/hybridDegree';
 import type { SongMode } from '@/curriculum/types/songLibrary';
-import { pitchClass } from './songDefaults';
+import { noteName, pitchClass } from './songDefaults';
 
 /**
- * Hybrid Number System degree derivation — a faithful TypeScript port of
- * `computeDegree` from `src/scripts/parseSongPdfs.mjs`, the Node generator that
- * produced every `degree` in the shipped song library. Keeping it byte-identical
- * means the editor's auto-populated degrees match the ~8000 existing chords
- * (notably: a bare dominant is `7`, e.g. `5 7`, NOT `dom7`).
+ * Hybrid Number System degree derivation for the song editor. The quality
+ * token is a port of `computeDegree` from `src/scripts/parseSongPdfs.mjs`, the
+ * generator behind the shipped song library, so auto-populated labels match
+ * the existing chords (notably: a bare dominant is `7`, e.g. `5 7`, NOT
+ * `dom7`). The degree number itself follows `hybridDegree` — counted from the
+ * tonic's major scale — which the generator originally got wrong for minor
+ * keys (it numbered from natural minor).
  */
 
 // Comprehensive chord regex (root · quality · extension · alterations · bass).
 const CHORD_RE =
   /^([A-G][#♯b♭]?)\s*(maj|min|m(?!a)|dim|aug|sus|add|dom|[Mm]aj|half-dim|hdim|ø|°|\+)?\s*(6|7|9|11|13)?\s*(?:([#♯b♭]\d+[#♯b♭]?\d*|\([^)]*\))*)\s*(\/\s*[A-G][#♯b♭]?)?$/;
-
-const LETTER_PC: Record<string, number> = {
-  C: 0,
-  D: 2,
-  E: 4,
-  F: 5,
-  G: 7,
-  A: 9,
-  B: 11,
-};
-
-const isNoChord = (name: string): boolean => /^N\.?C\.?$/i.test(name);
-
-/** Chord root → pitch class 0–11, or null if it can't be parsed. */
-function chordRootPc(chordName: string): number | null {
-  if (isNoChord(chordName)) return null;
-  const m = chordName.match(/^([A-G])([♯♭#b]?)/);
-  if (!m) return null;
-  const base = LETTER_PC[m[1]];
-  if (base == null) return null;
-  let pc = base;
-  if (m[2] === '♯' || m[2] === '#') pc += 1;
-  if (m[2] === '♭' || m[2] === 'b') pc -= 1;
-  return ((pc % 12) + 12) % 12;
-}
 
 /** Degree-string quality token (`maj`, `min7`, `7`, `dim7`, `sus4`, …). */
 function extractChordQuality(chordName: string): string {
@@ -75,54 +61,12 @@ function extractChordQuality(chordName: string): string {
   return 'maj';
 }
 
-interface DegreeSlot {
-  degree: number;
-  accidental: '' | '♭' | '♯';
-}
-
-// Semitone interval (0–11) → scale degree, relative to a major tonic.
-const MAJOR_DEGREE_MAP: DegreeSlot[] = [
-  { degree: 1, accidental: '' },
-  { degree: 2, accidental: '♭' },
-  { degree: 2, accidental: '' },
-  { degree: 3, accidental: '♭' },
-  { degree: 3, accidental: '' },
-  { degree: 4, accidental: '' },
-  { degree: 5, accidental: '♭' },
-  { degree: 5, accidental: '' },
-  { degree: 6, accidental: '♭' },
-  { degree: 6, accidental: '' },
-  { degree: 7, accidental: '♭' },
-  { degree: 7, accidental: '' },
-];
-
-// Semitone interval (0–11) → scale degree, relative to a minor tonic.
-const MINOR_DEGREE_MAP: DegreeSlot[] = [
-  { degree: 1, accidental: '' },
-  { degree: 2, accidental: '♭' },
-  { degree: 2, accidental: '' },
-  { degree: 3, accidental: '' },
-  { degree: 3, accidental: '♯' },
-  { degree: 4, accidental: '' },
-  { degree: 5, accidental: '♭' },
-  { degree: 5, accidental: '' },
-  { degree: 6, accidental: '' },
-  { degree: 6, accidental: '♯' },
-  { degree: 7, accidental: '' },
-  { degree: 7, accidental: '♯' },
-];
-
-// The generator only ever branched major-vs-minor; mirror that for every mode.
-const MINOR_MODES: SongMode[] = [
-  'minor',
-  'aeolian',
-  'dorian',
-  'phrygian',
-  'locrian',
-];
-
 /**
- * Compute the Hybrid Number System degree for a chord in a key.
+ * Compute the Hybrid Number System degree for a chord in a key. Degrees count
+ * from the MAJOR scale of the tonic in every mode (C minor: E♭ → '♭3'), and
+ * the accidental follows the chord root's letter (C major: D♭ → '♭2', C♯ →
+ * '♯1'). `tonic` is the song's spelled tonic (see `songTonic`, which follows
+ * the chart's own spelling); without it the tonic is spelled from `keyRoot`.
  * @example degreeFromChord('B♭', 60, 'major') // → '♭7 maj'
  * @example degreeFromChord('G7', 60, 'major')  // → '5 7'
  * @example degreeFromChord('C/E', 60, 'major') // → '1 maj/3'
@@ -130,27 +74,22 @@ const MINOR_MODES: SongMode[] = [
 export function degreeFromChord(
   chordName: string,
   keyRoot: number,
-  mode: SongMode,
+  // Kept for call-site compatibility: hybrid degrees are the same in every mode.
+  _mode: SongMode,
+  tonic?: SpelledNote | null,
 ): string {
   if (isNoChord(chordName)) return 'n.c.';
-  const rootPc = chordRootPc(chordName);
-  if (rootPc == null) return '1 maj';
 
-  const keyPc = pitchClass(keyRoot);
-  const map = MINOR_MODES.includes(mode) ? MINOR_DEGREE_MAP : MAJOR_DEGREE_MAP;
-  const interval = (((rootPc - keyPc) % 12) + 12) % 12;
-  const { degree, accidental } = map[interval];
+  // A stale tonic (key changed since it was derived) must not win over keyRoot.
+  const key =
+    tonic && spelledPitchClass(tonic) === pitchClass(keyRoot)
+      ? tonic
+      : parseNoteName(noteName(keyRoot));
+  const numbers = key ? expectedDegreeNumbers(chordName, key) : null;
+  if (!numbers) return '1 maj';
   const quality = extractChordQuality(chordName);
 
-  const slash = chordName.match(/\/\s*([A-G][♯♭#b]?)\s*$/);
-  if (slash) {
-    const bassPc = chordRootPc(slash[1]);
-    if (bassPc != null) {
-      const bassInterval = (((bassPc - keyPc) % 12) + 12) % 12;
-      const bass = map[bassInterval];
-      return `${accidental}${degree} ${quality}/${bass.accidental}${bass.degree}`;
-    }
-  }
-
-  return `${accidental}${degree} ${quality}`;
+  return numbers.bass
+    ? `${numbers.root} ${quality}/${numbers.bass}`
+    : `${numbers.root} ${quality}`;
 }

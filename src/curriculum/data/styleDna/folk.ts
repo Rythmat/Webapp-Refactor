@@ -231,7 +231,7 @@ export const folkStyleDna: StyleDnaLevel[] = [
       {
         category: 'Progressions',
         description:
-          'Modal progressions (Dorian i - IV, Lydian I - II), reharmonization of simple progressions with 7ths and extensions, deceptive cadences, pedal point harmony',
+          'Modal progressions (Dorian 1 min - 4 maj, Lydian 1 maj - 2 maj), reharmonization of simple progressions with 7ths and extensions, deceptive cadences, pedal point harmony',
       },
       {
         category: 'Techniques',

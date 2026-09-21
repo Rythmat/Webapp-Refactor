@@ -196,10 +196,10 @@ export const dancing_in_the_street: Song = {
       label: 'Bridge',
       bars: [
         {
-          chords: [{ degree: '♭5 7', chordName: 'G♯7', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 7', chordName: 'G♯7', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭5 7', chordName: 'G♯7', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯4 7', chordName: 'G♯7', beat: 1, duration: 4 }],
         },
         {
           chords: [

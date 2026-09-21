@@ -5,6 +5,7 @@ import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 import { studioRealtime } from '@/daw/collab/studioRealtime';
 import { SoundFontAdapter } from '@/daw/instruments/SoundFontAdapter';
 import { PianoKeyboard } from '@/daw/oracle-synth/components/keyboard/PianoKeyboard';
+import { auditionNote } from '@/daw/audio/auditionNote';
 import { PianoRoll } from '../PianoRoll/PianoRoll';
 import { PresetBrowser } from './PresetBrowser';
 import type { MidiNoteEvent } from '@prism/engine';
@@ -63,6 +64,11 @@ export function KeyboardView({ trackId }: { trackId: string }) {
       if (clip) updateMidiClipEvents(trackId, clip.id, newEvents);
     },
     [trackId, clip?.id, updateMidiClipEvents],
+  );
+
+  const handleAuditionNote = useCallback(
+    (note: number, velocity: number) => auditionNote(trackId, note, velocity),
+    [trackId],
   );
 
   const handleNoteOn = useCallback(
@@ -303,8 +309,10 @@ export function KeyboardView({ trackId }: { trackId: string }) {
             <PianoRoll
               events={clip.events}
               clipStartTick={clip.startTick}
+              timelineStartTick={clip.startTick}
               clipColor={track.color}
               onChange={handlePianoRollChange}
+              onAuditionNote={handleAuditionNote}
             />
           ) : (
             <div

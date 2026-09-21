@@ -52,7 +52,7 @@ export const africa: Song = {
         { chords: [{ degree: '2 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭5 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
+            { degree: '♯4 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -97,7 +97,7 @@ export const africa: Song = {
         { chords: [{ degree: '2 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭5 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
+            { degree: '♯4 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -142,7 +142,7 @@ export const africa: Song = {
         { chords: [{ degree: '2 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭5 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
+            { degree: '♯4 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -244,7 +244,7 @@ export const africa: Song = {
         { chords: [{ degree: '2 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭5 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
+            { degree: '♯4 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -289,7 +289,7 @@ export const africa: Song = {
         { chords: [{ degree: '2 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭5 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
+            { degree: '♯4 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -398,7 +398,7 @@ export const africa: Song = {
         { chords: [{ degree: '2 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭5 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
+            { degree: '♯4 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -443,7 +443,7 @@ export const africa: Song = {
         { chords: [{ degree: '2 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭5 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
+            { degree: '♯4 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
         {

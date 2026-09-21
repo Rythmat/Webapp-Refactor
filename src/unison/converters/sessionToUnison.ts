@@ -9,6 +9,7 @@
  */
 
 import { MODE_DISPLAY } from '@/daw/prism-engine/data/modes';
+import { NOTES } from '@/daw/prism-engine/data/notes';
 import type { MidiNoteEvent } from '@/daw/prism-engine/types';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import { analyzeHarmony } from '../engine/harmonicAnalyzer';
@@ -179,25 +180,11 @@ function resolveKey(
 
   // If user has set a root note, prefer it but keep detection metadata
   if (rootNote !== null) {
-    const NOTE_NAMES = [
-      'C',
-      'C#',
-      'D',
-      'Eb',
-      'E',
-      'F',
-      'F#',
-      'G',
-      'Ab',
-      'A',
-      'Bb',
-      'B',
-    ];
     const effectiveMode = mode || detected.mode;
     return {
       ...detected,
       rootPc: rootNote,
-      rootName: NOTE_NAMES[rootNote],
+      rootName: NOTES[rootNote],
       mode: effectiveMode,
       modeDisplay: mode ? (MODE_DISPLAY[mode] ?? mode) : detected.modeDisplay,
     };

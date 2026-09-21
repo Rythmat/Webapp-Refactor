@@ -24,10 +24,15 @@ export const crazy_in_love: Song = {
       measuresPerRow: 6,
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -35,12 +40,11 @@ export const crazy_in_love: Song = {
           ],
         },
         {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -49,10 +53,15 @@ export const crazy_in_love: Song = {
       measuresPerRow: 6,
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -60,12 +69,11 @@ export const crazy_in_love: Song = {
           ],
         },
         {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -74,10 +82,15 @@ export const crazy_in_love: Song = {
       measuresPerRow: 6,
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -85,12 +98,11 @@ export const crazy_in_love: Song = {
           ],
         },
         {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -99,10 +111,15 @@ export const crazy_in_love: Song = {
       measuresPerRow: 6,
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -110,12 +127,11 @@ export const crazy_in_love: Song = {
           ],
         },
         {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -124,10 +140,15 @@ export const crazy_in_love: Song = {
       measuresPerRow: 6,
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -135,12 +156,11 @@ export const crazy_in_love: Song = {
           ],
         },
         {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -149,10 +169,15 @@ export const crazy_in_love: Song = {
       measuresPerRow: 6,
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -160,12 +185,11 @@ export const crazy_in_love: Song = {
           ],
         },
         {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -173,10 +197,10 @@ export const crazy_in_love: Song = {
       label: 'Section G',
       bars: [
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [

@@ -5,12 +5,16 @@ import {
   useAppDispatch,
 } from '@/components/atlas/context/AppContext';
 import { CITIES, MUSICAL_ERAS } from '@/components/atlas/data';
+import { getArtist, getEventsForArtist } from '@/components/atlas/data/artists';
 import type { MusicalEra } from '@/components/atlas/data/musicalEras';
+import {
+  useAtlasNavigate,
+  useAtlasStop,
+} from '@/components/atlas/navigation/useAtlasNavigate';
 import type {
   HistoricalEvent,
   SelectedLocation,
 } from '@/components/atlas/types';
-import { sameCountry } from '@/components/atlas/utils/country';
 import { getEventsForLocation } from '@/components/atlas/utils/getEventsForLocation';
 
 function filterByEra(
@@ -69,10 +73,18 @@ function getDisplayNames(
 export function RegionTimeline() {
   const { selectedLocation, pinnedEvent, selectedEra } = useAppState();
   const dispatch = useAppDispatch();
+  const navigate = useAtlasNavigate();
+  // On an artist stop the timeline becomes that artist's career, so the bar
+  // along the bottom and the list on the left tell the same story.
+  const stop = useAtlasStop();
+  const artist = stop.kind === 'artist' ? getArtist(stop.artist) : null;
 
   const locationEvents = useMemo(
-    () => getEventsForLocation(selectedLocation),
-    [selectedLocation],
+    () =>
+      artist
+        ? getEventsForArtist(artist.slug)
+        : getEventsForLocation(selectedLocation),
+    [artist, selectedLocation],
   );
 
   const events = useMemo(
@@ -92,9 +104,16 @@ export function RegionTimeline() {
     pinnedEvent && events.some((e) => e.id === pinnedEvent.id)
       ? pinnedEvent
       : null;
-  const { country, subtitle } = selectedLocation
-    ? getDisplayNames(selectedLocation, relevantPinned)
-    : { country: 'Earth', subtitle: undefined };
+  const { country, subtitle } = artist
+    ? {
+        country: artist.name,
+        subtitle: relevantPinned
+          ? `${relevantPinned.location.city} · ${relevantPinned.year}`
+          : undefined,
+      }
+    : selectedLocation
+      ? getDisplayNames(selectedLocation, relevantPinned)
+      : { country: 'Earth', subtitle: undefined };
 
   const activeEra: MusicalEra | undefined = selectedEra
     ? MUSICAL_ERAS.find((e) => e.id === selectedEra)
@@ -176,26 +195,7 @@ export function RegionTimeline() {
     });
   }, [fullStart, fullEnd]);
 
-  const handleSelect = (event: HistoricalEvent) => {
-    const cityLower = event.location.city.toLowerCase();
-    const nameMatches = CITIES.filter(
-      (c) => c.name.toLowerCase() === cityLower,
-    );
-    const city =
-      nameMatches.find((c) => sameCountry(c.country, event.location.country)) ??
-      nameMatches[0];
-    if (city) {
-      dispatch({
-        type: 'SELECT_LOCATION',
-        payload: { type: 'city', id: city.id },
-      });
-    }
-    dispatch({ type: 'PIN_EVENT', payload: event });
-    dispatch({
-      type: 'EXECUTE_SEARCH',
-      payload: { lat: event.location.lat, lng: event.location.lng, zoom: 10 },
-    });
-  };
+  const handleSelect = (event: HistoricalEvent) => navigate.toEvent(event);
 
   return (
     <div className="absolute bottom-6 left-1/2 z-[1000] w-[min(90vw,800px)] -translate-x-1/2">

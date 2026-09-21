@@ -622,6 +622,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'orchestral',
       'blockbuster',
     ],
+    videoId: 'E-sX2Y0W8l0',
   },
   {
     id: 'evt-media-la-1977-starwars',
@@ -969,6 +970,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'lucille ball',
       'theme song era',
     ],
+    videoId: 'LpGXzKs3lrk',
   },
   {
     id: 'evt-media-la-1990-lawandorder',
@@ -1365,6 +1367,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'renaissance',
       'open world',
     ],
+    videoId: 'FSVHx23ByhM',
   },
   {
     id: 'evt-media-la-2012-journey',
@@ -1486,6 +1489,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'dynamic music',
       'minecraft',
     ],
+    videoId: '1rwAvUvvQzQ',
   },
 
   // =============================================
@@ -1564,6 +1568,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'adaptive music',
       'nostalgia',
     ],
+    videoId: 'y9OwMPZppMg',
   },
 
   // =============================================
@@ -1592,6 +1597,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'cabaret',
       'berlin',
     ],
+    videoId: 'JCd6hT0Gn0M',
   },
   {
     id: 'evt-media-la-2016-lalaland',
@@ -1642,6 +1648,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'wakanda',
       'senegalese music',
     ],
+    videoId: 'WMFAsidiQfc',
   },
   {
     id: 'evt-media-la-2017-getout',
@@ -1666,6 +1673,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'social horror',
       'blumhouse',
     ],
+    videoId: '8UKCpDeA82c',
   },
   {
     id: 'evt-media-nyc-2021-tick',
@@ -1814,6 +1822,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'electronic',
       'independent music',
     ],
+    videoId: 'atyvdC15HFA',
   },
   {
     id: 'evt-media-cupertino-2003-ipod',
@@ -1964,6 +1973,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'democratization',
       'viral',
     ],
+    videoId: 'E0Y8OEo_zOc',
   },
   {
     id: 'evt-media-berlin-2008-soundcloud',
@@ -2011,6 +2021,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'bandcamp friday',
       'ethan diamond',
     ],
+    videoId: 'UdEVuHo3Ku0',
   },
   {
     id: 'evt-media-stockholm-2008-spotify',
@@ -2060,6 +2071,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'grammy',
       'dance music',
     ],
+    videoId: 'e0ggnLmBWmY',
   },
   {
     id: 'evt-media-toronto-2024-drakevsken',
@@ -2084,5 +2096,6 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'social media',
       'toronto',
     ],
+    videoId: 'xpVfcZ0ZcFM',
   },
 ];

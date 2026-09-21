@@ -5,6 +5,7 @@ src/scripts/enrichment/_*.json
 src/curriculum/data/songs/_*.json
 src/scripts/artistLocations.json
 src/curriculum/data/harmonyKB.generated.ts
+src/components/atlas/data/stateBoundaries.ts
 
 # Generated optimization-baseline artifacts (treemaps, raw reports)
 docs/optimization/**/bundle.html

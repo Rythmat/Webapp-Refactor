@@ -705,6 +705,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'experimental',
       'los angeles',
     ],
+    videoId: 'MB3O1kV61As',
   },
   {
     id: 'evt-caribou-swim-2010',
@@ -988,6 +989,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'ambient',
       'electronic jazz',
     ],
+    videoId: 'fiONTIh8mzw',
   },
   {
     id: 'evt-charlotte-de-witte-ghent-2019',
@@ -1008,6 +1010,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'industrial',
       'female pioneer',
     ],
+    videoId: 'ls6R2-Nacrk',
   },
   {
     id: 'evt-arca-kick-2020',

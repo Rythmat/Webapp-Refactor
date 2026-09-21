@@ -8,16 +8,23 @@ import {
 } from '@/components/atlas/context/AppContext';
 import {
   CITIES,
-  MUSIC_HISTORY,
   getRecursiveArcsForEvent,
   CITY_COUNTRY_TO_ISO,
   type ArcDatum,
 } from '@/components/atlas/data';
+import { getEventsForArtist } from '@/components/atlas/data/artists';
 import {
   getCountryColor,
   getContrastColor,
 } from '@/components/atlas/data/continentColors';
 import { useGeoData, useGlobeLighting } from '@/components/atlas/hooks';
+import { stopKey } from '@/components/atlas/navigation/atlasStop';
+import { markFlown } from '@/components/atlas/navigation/focusEvent';
+import {
+  useAtlasNavigate,
+  useAtlasStop,
+} from '@/components/atlas/navigation/useAtlasNavigate';
+import type { SelectedLocation } from '@/components/atlas/types';
 import { resolveFocusCities } from '@/components/atlas/utils/resolveFocusCities';
 import { GlobeController } from './GlobeController';
 import {
@@ -39,6 +46,17 @@ interface PinnedPoint {
   name: string;
   color: string;
   size: number;
+  /** The event the point stands for — clicking it opens that event. */
+  eventId: string;
+}
+
+/** Event titles carry quotes and ampersands; globe.gl sets labels as HTML. */
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 // Rough centroid from GeoJSON feature coordinates
@@ -78,6 +96,7 @@ export function BaseGlobe() {
     detailsPanelWidth,
   } = useAppState();
   const dispatch = useAppDispatch();
+  const navigate = useAtlasNavigate();
   const [GlobeModule, setGlobeModule] = useState<
     typeof import('react-globe.gl').default | null
   >(null);
@@ -166,7 +185,21 @@ export function BaseGlobe() {
   }, [focusCities]);
 
   // Pinned marker removed — the pinned city is shown via its highlighted hex.
-  const pinnedPointData: PinnedPoint[] = useMemo(() => [], []);
+  // An artist stop lights up every place that artist's events happened, so the
+  // globe shows the shape of a career (Wes Montgomery: Indianapolis → New York).
+  const stop = useAtlasStop();
+  const artist = stop.kind === 'artist' ? stop.artist : null;
+  const pinnedPointData: PinnedPoint[] = useMemo(() => {
+    if (!artist) return [];
+    return getEventsForArtist(artist).map((e) => ({
+      lat: e.location.lat,
+      lng: e.location.lng,
+      name: `${e.title} · ${e.year}`,
+      color: '#fbbf24',
+      size: 0.45,
+      eventId: e.id,
+    }));
+  }, [artist]);
 
   // Influence arcs for pinned event — filtered by which dropdowns are open
   const allArcs = useMemo(() => {
@@ -189,56 +222,51 @@ export function BaseGlobe() {
     [dispatch],
   );
 
-  // Country/state/province polygon click — select + fly to centroid
+  // Country/state/province polygon click — fly to the polygon's own centroid,
+  // then record the place as a stop (so it is a history entry and a bookmark).
   const handlePolygonClick = useCallback(
     (polygon: object) => {
       const feat = polygon as Feature;
       const name = feat.properties?.NAME ?? feat.properties?.name ?? 'Unknown';
       const centroid = getCentroid(feat);
 
-      if (feat.properties?._layer === 'state') {
-        const isoA2 = feat.properties?.iso_a2 ?? '';
-        const country = isoA2 === 'CA' ? 'Canada' : 'United States';
-        dispatch({
-          type: 'SELECT_LOCATION',
-          payload: { type: 'state', name, country },
-        });
-        if (centroid) {
-          dispatch({
-            type: 'EXECUTE_SEARCH',
-            payload: { lat: centroid.lat, lng: centroid.lng, zoom: 10 },
-          });
-        }
-        return;
-      }
+      const place: SelectedLocation =
+        feat.properties?._layer === 'state'
+          ? {
+              type: 'state',
+              name,
+              country:
+                (feat.properties?.iso_a2 ?? '') === 'CA'
+                  ? 'Canada'
+                  : 'United States',
+            }
+          : {
+              type: 'country',
+              name,
+              iso: feat.properties?.ISO_A3 ?? feat.properties?.iso_a3 ?? '',
+            };
 
-      const iso = feat.properties?.ISO_A3 ?? feat.properties?.iso_a3 ?? '';
-      dispatch({
-        type: 'SELECT_LOCATION',
-        payload: { type: 'country', name, iso },
-      });
       if (centroid) {
         dispatch({
           type: 'EXECUTE_SEARCH',
           payload: { lat: centroid.lat, lng: centroid.lng, zoom: 10 },
         });
+        markFlown(stopKey({ kind: 'place', place }));
       }
+      navigate.toPlace(place);
     },
-    [dispatch],
+    [dispatch, navigate],
   );
 
-  // Hex click — select city
+  // Hex click — open the city
   const handleHexClick = useCallback(
     (hex: object) => {
       const h = hex as { points: HexPoint[] };
       if (h.points.length > 0) {
-        dispatch({
-          type: 'SELECT_LOCATION',
-          payload: { type: 'city', id: h.points[0].id },
-        });
+        navigate.toPlace({ type: 'city', id: h.points[0].id });
       }
     },
-    [dispatch],
+    [navigate],
   );
 
   // Check if a polygon feature matches the current selection
@@ -440,7 +468,7 @@ export function BaseGlobe() {
           arcLabel={(d: object) => {
             const arc = d as ArcDatum;
             const arrow = arc.direction === 'upstream' ? '\u2192' : '\u2190';
-            return `<span style="color:#fff;font-size:12px">${arc.label} ${arrow}</span>`;
+            return `<span style="color:#fff;font-size:12px">${escapeHtml(arc.label)} ${arrow}</span>`;
           }}
           arcsData={influenceArcs}
           arcStartLat="startLat"
@@ -514,10 +542,13 @@ export function BaseGlobe() {
           pointAltitude={0.03}
           pointLabel={(d: object) => {
             const p = d as PinnedPoint;
-            return `<span style="color:#fff;font-size:12px;font-weight:600">${p.name}</span>`;
+            return `<span style="color:#fff;font-size:12px;font-weight:600">${escapeHtml(p.name)}</span>`;
           }}
           // Influence arcs
           pointColor={(d: object) => (d as PinnedPoint).color}
+          onPointClick={(d: object) =>
+            navigate.toEvent((d as PinnedPoint).eventId)
+          }
           pointLat="lat"
           pointLng="lng"
           pointRadius={(d: object) => (d as PinnedPoint).size}
@@ -531,19 +562,7 @@ export function BaseGlobe() {
           onPolygonClick={handlePolygonClick}
           onZoom={handleZoom}
           onArcClick={(d: object) => {
-            const arc = d as ArcDatum;
-            const event = MUSIC_HISTORY.find((e) => e.id === arc.eventId);
-            if (event) {
-              dispatch({ type: 'PIN_EVENT', payload: event });
-              dispatch({
-                type: 'EXECUTE_SEARCH',
-                payload: {
-                  lat: event.location.lat,
-                  lng: event.location.lng,
-                  zoom: 10,
-                },
-              });
-            }
+            navigate.toEvent((d as ArcDatum).eventId);
           }}
           // Controls
           // No mount intro animation — a deep-link fly would otherwise animate

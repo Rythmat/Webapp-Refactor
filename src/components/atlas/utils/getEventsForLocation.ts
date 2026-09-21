@@ -1,9 +1,10 @@
-import { CITIES, MUSIC_HISTORY } from '@/components/atlas/data';
+import { MUSIC_HISTORY } from '@/components/atlas/data';
 import type {
   HistoricalEvent,
   SelectedLocation,
 } from '@/components/atlas/types';
-import { normCountry, sameCountry } from './country';
+import { sameCountry } from './country';
+import { eventSubdivision, matchCity } from './resolveEventRegion';
 
 // Map GeoJSON country names (as they arrive from a country click) to the
 // CITIES/event country codes used in the datasets.
@@ -18,9 +19,16 @@ const COUNTRY_ALIASES: Record<string, string> = {
 };
 
 /**
- * All events for a selected region, sorted by year. Matching is country-aware:
- * a same-named city in another country (e.g. Birmingham UK vs Birmingham,
- * Alabama) never leaks across, because every branch also compares the country.
+ * All events for a selected region, sorted by year.
+ *
+ * City and state membership go through the SAME matchers that navigation uses
+ * (resolveEventRegion.ts). They used to compare city names instead, so an event
+ * placed in "Brooklyn" was sent to New York state by navigation but never
+ * listed there — its influence pill opened a panel without it, and looked dead.
+ * Sharing the matcher makes that impossible by construction.
+ *
+ * Matching stays country-aware: Birmingham UK and Birmingham, Alabama never
+ * share a list.
  */
 export function getEventsForLocation(
   selectedLocation: SelectedLocation | null,
@@ -36,27 +44,16 @@ export function getEventsForLocation(
   }
 
   if (selectedLocation.type === 'state') {
-    // Key the state's cities by name + normalised country so an event only
-    // matches when both the city name AND the country line up.
-    const keys = new Set(
-      CITIES.filter((c) => c.subdivision === selectedLocation.name).map(
-        (c) => `${c.name.toLowerCase()}|${normCountry(c.country)}`,
-      ),
-    );
-    return MUSIC_HISTORY.filter((e) =>
-      keys.has(
-        `${e.location.city.toLowerCase()}|${normCountry(e.location.country)}`,
-      ),
-    ).sort((a, b) => a.year - b.year);
+    const country = selectedLocation.country ?? 'United States';
+    return MUSIC_HISTORY.filter((e) => {
+      if (!sameCountry(e.location.country, country)) return false;
+      return eventSubdivision(e)?.name === selectedLocation.name;
+    }).sort((a, b) => a.year - b.year);
   }
 
   if (selectedLocation.type === 'city') {
-    const city = CITIES.find((c) => c.id === selectedLocation.id);
-    if (!city) return [];
     return MUSIC_HISTORY.filter(
-      (e) =>
-        e.location.city.toLowerCase() === city.name.toLowerCase() &&
-        sameCountry(e.location.country, city.country),
+      (e) => matchCity(e)?.id === selectedLocation.id,
     ).sort((a, b) => a.year - b.year);
   }
 

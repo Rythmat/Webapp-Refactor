@@ -23,6 +23,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'jamaica',
       'country dance',
     ],
+    videoId: 'vFjkth_3XfU',
   },
   {
     id: 'evt-ska-kingston-1962',
@@ -46,6 +47,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'independence',
       'kingston',
     ],
+    videoId: 'EcoNPm3pyqg',
   },
   {
     id: 'evt-reggae-kingston-1977',
@@ -566,6 +568,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'return to africa',
       'sierra leone',
     ],
+    videoId: 'RG4jzr6UzoA',
   },
   {
     id: 'evt-windrush-london-1948',
@@ -781,6 +784,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'maori',
       'samoan',
     ],
+    videoId: 'EclPhyXuO5A',
   },
   {
     id: 'evt-reggae-kingston-1978-marley',
@@ -999,6 +1003,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'kingston',
       'epic records',
     ],
+    videoId: 'wH_0_pijbZY',
   },
   {
     id: 'evt-dancehall-nyc-1995-shaggy',
@@ -1433,6 +1438,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'european reggae',
       'patois',
     ],
+    videoId: 'u0Ef5SKqQ4I',
   },
   {
     id: 'evt-reggae-santa-barbara-2004-rebelution',

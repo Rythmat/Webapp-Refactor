@@ -575,6 +575,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
       'oud',
       'qanun',
     ],
+    videoId: 'RxQdVxTSO3Y',
   },
   {
     id: 'evt-ottoman-istanbul-1700',

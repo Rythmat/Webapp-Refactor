@@ -996,6 +996,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'alternative hip hop',
       'grammy',
     ],
+    videoId: 'd88aXSr6e7U',
   },
   {
     id: 'evt-hiphop-raleigh-2017-rapsody',

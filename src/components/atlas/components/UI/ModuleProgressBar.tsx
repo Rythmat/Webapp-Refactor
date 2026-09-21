@@ -4,11 +4,8 @@ import {
   useAppState,
   useAppDispatch,
 } from '@/components/atlas/context/AppContext';
-import {
-  HISTORICAL_MODULES,
-  CITIES,
-  MUSIC_HISTORY,
-} from '@/components/atlas/data';
+import { HISTORICAL_MODULES, MUSIC_HISTORY } from '@/components/atlas/data';
+import { focusEvent } from '@/components/atlas/navigation/focusEvent';
 import type { HistoricalEvent } from '@/components/atlas/types';
 
 export function ModuleProgressBar() {
@@ -42,21 +39,7 @@ export function ModuleProgressBar() {
     const event = events[step];
     if (!event) return;
     dispatch({ type: 'MODULE_STEP', payload: step });
-    // SELECT_LOCATION resets pinnedEvent, so select the city BEFORE pinning —
-    // otherwise the pin (and the focused card + camera offset) is wiped.
-    const city = CITIES.find(
-      (c) => c.name.toLowerCase() === event.location.city.toLowerCase(),
-    );
-    if (city)
-      dispatch({
-        type: 'SELECT_LOCATION',
-        payload: { type: 'city', id: city.id },
-      });
-    dispatch({ type: 'PIN_EVENT', payload: event });
-    dispatch({
-      type: 'EXECUTE_SEARCH',
-      payload: { lat: event.location.lat, lng: event.location.lng, zoom: 10 },
-    });
+    focusEvent(dispatch, event);
   };
 
   const exit = () => dispatch({ type: 'EXIT_MODULE' });

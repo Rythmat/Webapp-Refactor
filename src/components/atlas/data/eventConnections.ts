@@ -10,6 +10,22 @@ interface EventConnection {
   to: string; // downstream event ID (the influenced)
 }
 
+/**
+ * Every connection whose `from` or `to` names an event that does not exist.
+ *
+ * A dangling edge fails silently — `EVENT_MAP.get()` returns undefined and the
+ * link is skipped — so a chain simply renders shorter than it was authored and
+ * nobody notices. 73 of them had accumulated (a song-library regeneration that
+ * collapsed per-artist variants into one canonical id, plus two renamed globe
+ * events) before eventConnections.test.ts started asserting this is empty.
+ */
+export function findDanglingConnections(): EventConnection[] {
+  ensureMaps();
+  return EVENT_CONNECTIONS.filter(
+    (c) => !EVENT_MAP.has(c.from) || !EVENT_MAP.has(c.to),
+  );
+}
+
 export interface ArcDatum {
   startLat: number;
   startLng: number;
@@ -43,10 +59,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   // ── Caribbean / Cuban ──
   { from: 'evt-contradanza-havana-1800', to: 'evt-son-havana-1930' },
   { from: 'evt-diaspora-haiti-vodou-1804', to: 'evt-son-havana-1930' },
-  { from: 'evt-son-havana-1930', to: 'evt-mambo-havana-1948' },
+  { from: 'evt-son-havana-1930', to: 'evt-mambo-havana-1950' },
   { from: 'evt-son-havana-1930', to: 'evt-rumba-kinshasa-1950' },
   { from: 'evt-son-havana-1930', to: 'evt-revolution-havana-1959' },
-  { from: 'evt-mambo-havana-1948', to: 'evt-boogaloo-nyc-1966' },
+  { from: 'evt-mambo-havana-1950', to: 'evt-boogaloo-nyc-1966' },
   { from: 'evt-revolution-havana-1959', to: 'evt-fania-nyc-1971' },
   { from: 'evt-revolution-havana-1959', to: 'evt-salsa-nyc-1973' },
   { from: 'evt-revolution-havana-1959', to: 'evt-nueva-cancion-santiago-1969' },
@@ -287,8 +303,14 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   },
 
   // ── Desert Blues / Saharan ──
-  { from: 'evt-desert-blues-bamako-1980', to: 'evt-desert-blues-bamako-1994' },
-  { from: 'evt-desert-blues-bamako-1994', to: 'evt-mdou-moctar-niamey-2019' },
+  {
+    from: 'evt-desert-blues-bamako-1980',
+    to: 'evt-desert-blues-niafunke-1994-toure',
+  },
+  {
+    from: 'evt-desert-blues-niafunke-1994-toure',
+    to: 'evt-mdou-moctar-niamey-2019',
+  },
 
   // ── Gnawa ──
   { from: 'evt-gnawa-marrakech-2000', to: 'evt-gnawa-marrakech-2005' },
@@ -349,7 +371,6 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-tango-buenosaires-1913', to: 'evt-tango-buenos-aires-1917' },
   { from: 'evt-tango-buenos-aires-1917', to: 'evt-guarania-asuncion-1944' },
   { from: 'evt-tango-buenos-aires-1917', to: 'evt-pasillo-quito-1930' },
-  { from: 'evt-mambo-havana-1948', to: 'evt-mambo-havana-1950' },
   { from: 'evt-mambo-havana-1950', to: 'evt-merengue-santodomingo-1958' },
   { from: 'evt-diaspora-haiti-vodou-1804', to: 'evt-kompa-portauprince-1957' },
   { from: 'evt-merengue-santodomingo-1958', to: 'evt-kompa-portauprince-1957' },
@@ -1033,7 +1054,6 @@ const EVENT_CONNECTIONS: EventConnection[] = [
     from: 'evt-merseybeat-liverpool-1963',
     to: 'evt-anatolian-rock-istanbul-1972',
   },
-  { from: 'evt-fairuz-beirut-1957', to: 'evt-persian-pop-tehran-1970' },
   { from: 'evt-fairuz-beirut-1957', to: 'evt-mizrahi-telaviv-1980' },
   { from: 'evt-fairuz-beirut-1957', to: 'evt-khaleeji-dubai-2005' },
   { from: 'evt-maqam-baghdad-1932', to: 'evt-fairuz-beirut-1957' },
@@ -1084,10 +1104,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-danzon-havana-1879', to: 'evt-son-havana-1930' },
   { from: 'evt-danzon-havana-1879', to: 'evt-chacha-havana-1953' },
   { from: 'evt-son-havana-1930', to: 'evt-son-montuno-havana-1940' },
-  { from: 'evt-son-montuno-havana-1940', to: 'evt-mambo-havana-1948' },
+  { from: 'evt-son-montuno-havana-1940', to: 'evt-mambo-havana-1950' },
   { from: 'evt-son-montuno-havana-1940', to: 'evt-palladium-nyc-1954' },
   { from: 'evt-son-montuno-havana-1940', to: 'evt-fania-nyc-1971' },
-  { from: 'evt-mambo-havana-1948', to: 'evt-chacha-havana-1953' },
+  { from: 'evt-mambo-havana-1950', to: 'evt-chacha-havana-1953' },
   { from: 'evt-chacha-havana-1953', to: 'evt-palladium-nyc-1954' },
   { from: 'evt-palladium-nyc-1954', to: 'evt-boogaloo-nyc-1966' },
   { from: 'evt-palladium-nyc-1954', to: 'evt-pachanga-nyc-1961' },
@@ -1103,7 +1123,9 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-timba-havana-1990', to: 'evt-buena-vista-havana-1996' },
 
   // ═══════════════════════════════════════════════════════════════
+
   // ██  WESTERN CLASSICAL MUSIC CONNECTIONS  ██
+
   // ═══════════════════════════════════════════════════════════════
 
   // ── Medieval (intra-period) ──
@@ -1267,19 +1289,25 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   },
 
   // ═══════════════════════════════════════════════════════════════
+
   // ██  ASIAN & MIDDLE EASTERN TRADITIONAL MUSIC CONNECTIONS  ██
+
   // ═══════════════════════════════════════════════════════════════
 
   // ── Southeast Asian (intra-region) ──
 
   // Khmer-Javanese musical exchange
   { from: 'evt-pinpeat-phnompenh-802', to: 'evt-gamelan-jakarta-900' },
+
   // Khmer → Thai classical
   { from: 'evt-pinpeat-phnompenh-802', to: 'evt-piphat-bangkok-1350' },
+
   // Javanese → Thai court ensemble
   { from: 'evt-gamelan-jakarta-900', to: 'evt-piphat-bangkok-1350' },
+
   // Javanese gamelan → Malay gamelan
   { from: 'evt-gamelan-jakarta-900', to: 'evt-klasik-kualalumpur-1400' },
+
   // Piphat → Mahori evolution
   { from: 'evt-piphat-bangkok-1350', to: 'evt-mahori-bangkok-1600' },
 
@@ -1287,8 +1315,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
 
   // North-South classical dialogue
   { from: 'evt-hindustani-varanasi-1560', to: 'evt-carnatic-chennai-1800' },
+
   // Hindustani influence on Odissi revival
   { from: 'evt-hindustani-varanasi-1560', to: 'evt-odissi-mumbai-1952' },
+
   // Carnatic influence on Odissi revival
   { from: 'evt-carnatic-chennai-1800', to: 'evt-odissi-mumbai-1952' },
 
@@ -1296,14 +1326,19 @@ const EVENT_CONNECTIONS: EventConnection[] = [
 
   // East Asian court music lineage
   { from: 'evt-gagaku-kyoto-794', to: 'evt-jeongak-seoul-1392' },
+
   // Korean-Chinese court exchange
   { from: 'evt-jeongak-seoul-1392', to: 'evt-yayue-beijing-1420' },
+
   // East Asian classical continuum
   { from: 'evt-gagaku-kyoto-794', to: 'evt-nanguan-taipei-1600' },
+
   // Chinese classical → southern chamber music
   { from: 'evt-yayue-beijing-1420', to: 'evt-nanguan-taipei-1600' },
+
   // Chinese Confucian → Vietnamese court
   { from: 'evt-yayue-beijing-1420', to: 'evt-nhanhac-hue-1802' },
+
   // South Chinese → Vietnamese classical
   { from: 'evt-nanguan-taipei-1600', to: 'evt-nhanhac-hue-1802' },
 
@@ -1311,18 +1346,22 @@ const EVENT_CONNECTIONS: EventConnection[] = [
 
   // Arabic → Andalusian
   { from: 'evt-arabic-classical-baghdad-800', to: 'evt-andalusi-fez-1492' },
+
   // Arabic → Persian classical
   {
     from: 'evt-arabic-classical-baghdad-800',
     to: 'evt-persian-classical-isfahan-1501',
   },
+
   // Arabic → Ottoman
   { from: 'evt-arabic-classical-baghdad-800', to: 'evt-ottoman-istanbul-1700' },
+
   // Persian → Central Asian Shashmaqam
   {
     from: 'evt-persian-classical-isfahan-1501',
     to: 'evt-shashmaqam-bukhara-1600',
   },
+
   // Persian → Ottoman
   {
     from: 'evt-persian-classical-isfahan-1501',
@@ -1336,30 +1375,40 @@ const EVENT_CONNECTIONS: EventConnection[] = [
     from: 'evt-arabic-classical-baghdad-800',
     to: 'evt-troubadour-seville-1200',
   },
+
   // Persian dastgah → Hindustani raga (the Mughal bridge)
   {
     from: 'evt-persian-classical-isfahan-1501',
     to: 'evt-hindustani-varanasi-1560',
   },
+
   // Islamic music → Malay courts via trade routes
   {
     from: 'evt-arabic-classical-baghdad-800',
     to: 'evt-klasik-kualalumpur-1400',
   },
+
   // Abbasid maqam theory → Cairo school
   { from: 'evt-arabic-classical-baghdad-800', to: 'evt-maqam-cairo-1870' },
+
   // Andalusian expulsion → flamenco roots
   { from: 'evt-andalusi-fez-1492', to: 'evt-flamenco-seville-1600' },
+
   // Gamelan at 1889 Paris Exposition → Debussy
   { from: 'evt-gamelan-jakarta-900', to: 'evt-debussy-paris-1894' },
+
   // Gamelan → minimalism (Reich/Glass studied gamelan)
   { from: 'evt-gamelan-jakarta-900', to: 'evt-minimalism-nyc-1964' },
+
   // Historical Shashmaqam → UNESCO inscription
   { from: 'evt-shashmaqam-bukhara-1600', to: 'evt-shashmaqam-tashkent-2003' },
+
   // East/SE Asian exchange (both received Chinese/Indian inputs)
   { from: 'evt-gagaku-kyoto-794', to: 'evt-gamelan-jakarta-900' },
+
   // Khmer → Malay via maritime routes
   { from: 'evt-pinpeat-phnompenh-802', to: 'evt-klasik-kualalumpur-1400' },
+
   // Indian influence on Thai court music
   { from: 'evt-hindustani-varanasi-1560', to: 'evt-mahori-bangkok-1600' },
 
@@ -1367,30 +1416,43 @@ const EVENT_CONNECTIONS: EventConnection[] = [
 
   // Ancient Khmer → Cambodian rock
   { from: 'evt-pinpeat-phnompenh-802', to: 'evt-khmerrock-phnompenh-1967' },
+
   // Thai classical → luk thung
   { from: 'evt-piphat-bangkok-1350', to: 'evt-lukthung-bangkok-1964' },
+
   // Thai chamber → luk thung
   { from: 'evt-mahori-bangkok-1600', to: 'evt-lukthung-bangkok-1964' },
+
   // Gamelan → dangdut
   { from: 'evt-gamelan-jakarta-900', to: 'evt-dangdut-jakarta-1975' },
+
   // SE Asian ensemble tradition
   { from: 'evt-gamelan-jakarta-900', to: 'evt-hsaingwaing-yangon-1950' },
+
   // Malay classical → modern Malay
   { from: 'evt-klasik-kualalumpur-1400', to: 'evt-dikir-kualalumpur-1985' },
+
   // Hindustani → Bollywood
   { from: 'evt-hindustani-varanasi-1560', to: 'evt-bollywood-mumbai-1935' },
+
   // Raga tradition → raga rock
   { from: 'evt-hindustani-varanasi-1560', to: 'evt-raga-rock-mumbai-1965' },
+
   // Hindustani → Ravi Shankar international
   { from: 'evt-hindustani-varanasi-1560', to: 'evt-raga-mumbai-1966' },
+
   // Shared raga/raag tradition → qawwali
   { from: 'evt-hindustani-varanasi-1560', to: 'evt-qawwali-lahore-1985' },
+
   // Carnatic → Bollywood film music
   { from: 'evt-carnatic-chennai-1800', to: 'evt-bollywood-mumbai-1935' },
+
   // Korean court → narrative singing tradition
   { from: 'evt-jeongak-seoul-1392', to: 'evt-pansori-seoul-1800' },
+
   // Vietnamese court → ca tru heritage
   { from: 'evt-nhanhac-hue-1802', to: 'evt-catru-hanoi-2009' },
+
   // Persian classical → Persian pop
   {
     from: 'evt-persian-classical-isfahan-1501',
@@ -1398,7 +1460,9 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   },
 
   // ═══════════════════════════════════════════════════════════════
+
   // ██  NEO SOUL CONNECTIONS  ██
+
   // ═══════════════════════════════════════════════════════════════
 
   // Existing R&B/Soul → Neo Soul founders
@@ -1539,7 +1603,9 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   },
 
   // ═══════════════════════════════════════════════════════════════
+
   // ██  JAM BAND CONNECTIONS  ██
+
   // ═══════════════════════════════════════════════════════════════
 
   // Grateful Dead → downstream
@@ -1661,7 +1727,9 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   },
 
   // ═══════════════════════════════════════════════════════════════
+
   // ██  POP CONNECTIONS  ██
+
   // ═══════════════════════════════════════════════════════════════
 
   // Michael Jackson → downstream
@@ -1778,7 +1846,9 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   },
 
   // ═══════════════════════════════════════════════════════════════
+
   // ██  REGGAE CONNECTIONS  ██
+
   // ═══════════════════════════════════════════════════════════════
 
   // Bob Marley → downstream
@@ -1874,7 +1944,9 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   },
 
   // ═══════════════════════════════════════════════════════════════
+
   // ██  AFRICAN CONNECTIONS  ██
+
   // ═══════════════════════════════════════════════════════════════
 
   // Ewe drumming lineage
@@ -2222,11 +2294,6 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-soda-stereo-buenosaires-1984', to: 'evt-cafe-tacvba-re-1994' },
 
   // Reggaeton pioneers -> modern
-  {
-    from: 'evt-reggaeton-underground-sanjuan-1993',
-    to: 'evt-reggaeton-san-juan-2004',
-  },
-  { from: 'evt-reggaeton-san-juan-2004', to: 'evt-bad-bunny-sanjuan-2020' },
   { from: 'evt-reggaeton-san-juan-2004', to: 'evt-jbalvin-energia-2016' },
   { from: 'evt-reggaeton-san-juan-2004', to: 'evt-ozuna-aura-2018' },
   { from: 'evt-bad-bunny-sanjuan-2020', to: 'evt-bad-bunny-verano-2022' },
@@ -2243,16 +2310,12 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-selena-amor-prohibido-1994', to: 'evt-shakira-laundry-2001' },
 
   // Cuban son/salsa -> new entries
-  { from: 'evt-son-havana-1930', to: 'evt-son-montuno-havana-1940' },
-  { from: 'evt-son-montuno-havana-1940', to: 'evt-mambo-havana-1948' },
-  { from: 'evt-mambo-havana-1948', to: 'evt-palladium-nyc-1954' },
+  { from: 'evt-mambo-havana-1950', to: 'evt-palladium-nyc-1954' },
   { from: 'evt-palladium-nyc-1954', to: 'evt-tito-puente-nyc-1958' },
   { from: 'evt-chacha-havana-1953', to: 'evt-pachanga-nyc-1961' },
   { from: 'evt-fania-nyc-1971', to: 'evt-hector-lavoe-nyc-1975' },
   { from: 'evt-fania-nyc-1971', to: 'evt-salsa-nyc-1973' },
   { from: 'evt-salsa-romantica-nyc-1987', to: 'evt-marc-anthony-nyc-1999' },
-  { from: 'evt-danzon-havana-1879', to: 'evt-son-havana-1930' },
-  { from: 'evt-contradanza-havana-1800', to: 'evt-danzon-havana-1879' },
 
   // Mon Laferte, Bomba Estereo, Juanes, Karol G
   {
@@ -2266,20 +2329,16 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-santana-abraxas-1970', to: 'evt-cafe-tacvba-re-1994' },
 
   // Cumbia lineage
-  { from: 'evt-cumbia-barranquilla-1962', to: 'evt-sonidero-mexicocity-1975' },
-  {
-    from: 'evt-cumbia-barranquilla-1962',
-    to: 'evt-cumbia-villera-buenosaires-1990',
-  },
 
   // Merengue -> NYC
-  { from: 'evt-merengue-santodomingo-1958', to: 'evt-merengue-nyc-1985' },
 
   // Buena Vista revival
   { from: 'evt-son-havana-1930', to: 'evt-buena-vista-havana-1996' },
 
   // ═══════════════════════════════════════════════════════════════════
+
   // ██  PHASE 3 — Jazz Influence Connections                        ██
+
   // ═══════════════════════════════════════════════════════════════════
 
   // ── Early Jazz Lineage (Congo Square -> New Orleans -> Chicago) ──
@@ -2453,7 +2512,9 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   },
 
   // ═══════════════════════════════════════════════════════════════════
+
   // ██  PHASE 3 — Rock Influence Connections                        ██
+
   // ═══════════════════════════════════════════════════════════════════
 
   // ── Sister Rosetta Tharpe -> Rock Origins ──
@@ -2543,7 +2604,9 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-pretenders-london-1980', to: 'evt-sleater-kinney-olympia-1997' },
 
   // ═══════════════════════════════════════════════════════════════════
+
   // ██  PHASE 3 — Folk Influence Connections                        ██
+
   // ═══════════════════════════════════════════════════════════════════
 
   // ── Woody Guthrie -> Pete Seeger -> Bob Dylan -> Joni Mitchell ──
@@ -2670,7 +2733,9 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   },
 
   // ═══════════════════════════════════════════════════════════════════
+
   // ██  PHASE 3 — Hip Hop Influence Connections                     ██
+
   // ═══════════════════════════════════════════════════════════════════
 
   // ── Public Enemy -> Nas, Wu-Tang, A Tribe Called Quest ──
@@ -2834,7 +2899,9 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   },
 
   // ══════════════════════════════════════════════════════════════════
+
   // ── Music for Media ──
+
   // ══════════════════════════════════════════════════════════════════
 
   // ── Opera -> Musical Theater -> Film chain ──
@@ -3028,6 +3095,7 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-hiphop-nyc-1984', to: 'evt-media-toronto-2024-drakevsken' },
 
   // ── BEGIN auto-generated song connections (buildSongConnections.mjs)
+
   // (a) song ← historical event (genre + era + location heuristic)
   {
     from: 'evt-afrobeat-brooklyn-2002-antibalas',
@@ -3066,8 +3134,8 @@ const EVENT_CONNECTIONS: EventConnection[] = [
     from: 'evt-jamband-philadelphia-1995-disco-biscuits',
     to: 'song-against_the_wind',
   },
-  { from: 'evt-boogaloo-nyc-1966', to: 'song-ain_t_no_sunshine' },
-  { from: 'evt-motown-detroit-1966', to: 'song-ain_t_no_sunshine' },
+  { from: 'evt-boogaloo-nyc-1966', to: 'song-aint_no_sunshine' },
+  { from: 'evt-motown-detroit-1966', to: 'song-aint_no_sunshine' },
   { from: 'evt-jamband-jacksonville-2010-ttb', to: 'song-aint_it_fun' },
   { from: 'evt-8035fest-desmoines-2008', to: 'song-aint_it_fun' },
   {
@@ -3138,7 +3206,7 @@ const EVENT_CONNECTIONS: EventConnection[] = [
     from: 'evt-hazeldickens-charleston-1968',
     to: 'song-angel_from_montgomery',
   },
-  { from: 'evt-beatles-liverpool-1963', to: 'song-another_day_mccartney' },
+  { from: 'evt-beatles-liverpool-1963', to: 'song-another_day' },
   { from: 'evt-jamband-charlottesville-1991-dmb', to: 'song-ants_marching' },
   {
     from: 'evt-jamband-philadelphia-1995-disco-biscuits',
@@ -3227,12 +3295,9 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-pop-nyc-1983-cyndilauper', to: 'song-born_under_punches' },
   {
     from: 'evt-pop-losangeles-1977-fleetwoodmac',
-    to: 'song-born_under_punches_the_heat_goes_on',
+    to: 'song-born_under_punches',
   },
-  {
-    from: 'evt-boston-boston-1976',
-    to: 'song-born_under_punches_the_heat_goes_on',
-  },
+  { from: 'evt-boston-boston-1976', to: 'song-born_under_punches' },
   { from: 'evt-funk-tuskegee-1974-commodores', to: 'song-brick_house' },
   {
     from: 'evt-jazz-herbie-hancock-headhunters-la-1973',
@@ -3300,21 +3365,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
     to: 'song-cant_take_my_eyes_off_you',
   },
   {
-    from: 'evt-queenlatifah-newark-1989',
-    to: 'song-cant_take_my_eyes_off_you_hill',
-  },
-  {
     from: 'evt-hiphop-portsmouth-1997-missyelliott',
-    to: 'song-cant_take_my_eyes_off_you_hill',
+    to: 'song-cant_take_my_eyes_off_you',
   },
-  {
-    from: 'evt-pop-newark-1985-whitneyhouston',
-    to: 'song-cant_take_my_eyes_off_you_valli',
-  },
-  {
-    from: 'evt-jamband-nyc-1998-tab',
-    to: 'song-cant_take_my_eyes_off_you_valli',
-  },
+  { from: 'evt-jamband-nyc-1998-tab', to: 'song-cant_take_my_eyes_off_you' },
   { from: 'evt-jazz-herbie-hancock-headhunters-la-1973', to: 'song-car_wash' },
   { from: 'evt-pop-losangeles-1976-steviewonder', to: 'song-car_wash' },
   { from: 'evt-meters-neworleans-1969', to: 'song-cardova' },
@@ -3547,13 +3601,7 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-jamband-nyc-1998-tab', to: 'song-footloose' },
   { from: 'evt-pop-london-1987-georgemichael', to: 'song-forever_young' },
   { from: 'evt-pop-london-1984-tinaturner', to: 'song-forever_young' },
-  { from: 'evt-pop-london-1984-tinaturner', to: 'song-forever_young_dylan' },
-  { from: 'evt-pop-london-1973-eltonjohn', to: 'song-forever_young_dylan' },
-  {
-    from: 'evt-pop-london-1987-georgemichael',
-    to: 'song-forever_young_stewart',
-  },
-  { from: 'evt-pop-london-1984-tinaturner', to: 'song-forever_young_stewart' },
+  { from: 'evt-pop-london-1973-eltonjohn', to: 'song-forever_young' },
   { from: 'evt-jamband-jacksonville-2010-ttb', to: 'song-forget_you' },
   { from: 'evt-hanson-tulsa-2007', to: 'song-forget_you' },
   { from: 'evt-pop-minneapolis-1984-prince', to: 'song-free_fallin' },
@@ -3656,11 +3704,8 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   },
   { from: 'evt-pop-newark-1985-whitneyhouston', to: 'song-hard_to_handle' },
   { from: 'evt-pop-nyc-1990-mariahcarey', to: 'song-hard_to_handle' },
-  { from: 'evt-phish-burlington-1983', to: 'song-hard_to_handle_black_crowes' },
-  {
-    from: 'evt-pop-minneapolis-1984-prince',
-    to: 'song-hard_to_handle_black_crowes',
-  },
+  { from: 'evt-phish-burlington-1983', to: 'song-hard_to_handle' },
+  { from: 'evt-pop-minneapolis-1984-prince', to: 'song-hard_to_handle' },
   { from: 'evt-pop-london-1996-spicegirls', to: 'song-hava_nagila' },
   { from: 'evt-britpop-london-1995', to: 'song-hava_nagila' },
   { from: 'evt-shakira-laundry-2001', to: 'song-havana' },
@@ -3737,13 +3782,10 @@ const EVENT_CONNECTIONS: EventConnection[] = [
     to: 'song-how_come_you_dont_call_me',
   },
   { from: 'evt-pop-orlando-1995-nsync', to: 'song-how_come_you_dont_call_me' },
-  {
-    from: 'evt-jamband-nyc-1998-tab',
-    to: 'song-how_come_you_dont_call_me_timberlake',
-  },
+  { from: 'evt-jamband-nyc-1998-tab', to: 'song-how_come_you_dont_call_me' },
   {
     from: 'evt-jamband-philadelphia-1995-disco-biscuits',
-    to: 'song-how_come_you_dont_call_me_timberlake',
+    to: 'song-how_come_you_dont_call_me',
   },
   {
     from: 'evt-roots-nashville-1972',
@@ -4022,19 +4064,8 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   },
   { from: 'evt-hiphop-brooklyn-1996-lilkim', to: 'song-killing_me_softly' },
   { from: 'evt-hiphop-la-1991-cypresshill', to: 'song-killing_me_softly' },
-  {
-    from: 'evt-jamband-burlington-1995-phish',
-    to: 'song-killing_me_softly_flack',
-  },
-  { from: 'evt-jamband-nyc-1991-mmw', to: 'song-killing_me_softly_flack' },
-  {
-    from: 'evt-hiphop-brooklyn-1996-lilkim',
-    to: 'song-killing_me_softly_fugees',
-  },
-  {
-    from: 'evt-hiphop-la-1991-cypresshill',
-    to: 'song-killing_me_softly_fugees',
-  },
+  { from: 'evt-jamband-burlington-1995-phish', to: 'song-killing_me_softly' },
+  { from: 'evt-jamband-nyc-1991-mmw', to: 'song-killing_me_softly' },
   { from: 'evt-pop-minneapolis-1984-prince', to: 'song-kiss' },
   { from: 'evt-phish-burlington-1983', to: 'song-kiss' },
   { from: 'evt-pop-london-1987-georgemichael', to: 'song-kiss_from_a_rose' },
@@ -4053,22 +4084,6 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-carole-king-la-1971', to: 'song-knocks_me_off_my_feet' },
   { from: 'evt-hiphop-atlanta-1998-outkast', to: 'song-lady_marmalade' },
   { from: 'evt-jamband-burlington-1995-phish', to: 'song-lady_marmalade' },
-  {
-    from: 'evt-hiphop-atlanta-1998-outkast',
-    to: 'song-lady_marmalade_aguilera',
-  },
-  {
-    from: 'evt-jamband-burlington-1995-phish',
-    to: 'song-lady_marmalade_aguilera',
-  },
-  {
-    from: 'evt-hiphop-atlanta-1998-outkast',
-    to: 'song-lady_marmalade_moulin_rouge',
-  },
-  {
-    from: 'evt-jamband-burlington-1995-phish',
-    to: 'song-lady_marmalade_moulin_rouge',
-  },
   { from: 'evt-pop-london-1984-tinaturner', to: 'song-landslide' },
   { from: 'evt-pop-london-1973-eltonjohn', to: 'song-landslide' },
   { from: 'evt-folkfestival-anchorage-1980', to: 'song-late_in_the_evening' },
@@ -4479,19 +4494,8 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   },
   { from: 'evt-hiphop-portsmouth-1997-missyelliott', to: 'song-say_something' },
   { from: 'evt-jamband-sandiego-1998-kdtu', to: 'song-say_something' },
-  {
-    from: 'evt-pop-nyc-1999-britneyspears',
-    to: 'song-say_something_timberlake',
-  },
-  {
-    from: 'evt-pop-orlando-1995-nsync',
-    to: 'song-say_something_timberlake',
-  },
-  {
-    from: 'evt-pop-nyc-1999-britneyspears',
-    to: 'song-say_something_timberlake',
-  },
-  { from: 'evt-pop-orlando-1995-nsync', to: 'song-say_something_timberlake' },
+  { from: 'evt-pop-nyc-1999-britneyspears', to: 'song-say_something' },
+  { from: 'evt-pop-orlando-1995-nsync', to: 'song-say_something' },
   {
     from: 'evt-pop-losangeles-1977-fleetwoodmac',
     to: 'song-seen_and_not_seen',
@@ -5083,22 +5087,18 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   },
   { from: 'evt-hazeldickens-charleston-1968', to: 'song-youve_got_a_friend' },
   { from: 'evt-joni-mitchell-blue-la-1971', to: 'song-youve_got_a_friend' },
-  {
-    from: 'evt-pop-downey-1970-carpenters',
-    to: 'song-youve_got_a_friend_king',
-  },
-  { from: 'evt-summerfest-milwaukee-1968', to: 'song-youve_got_a_friend_king' },
-  {
-    from: 'evt-funk-sf-1969-sly-stone-stand',
-    to: 'song-youve_got_a_friend_taylor',
-  },
+  { from: 'evt-pop-downey-1970-carpenters', to: 'song-youve_got_a_friend' },
+  { from: 'evt-summerfest-milwaukee-1968', to: 'song-youve_got_a_friend' },
+  { from: 'evt-funk-sf-1969-sly-stone-stand', to: 'song-youve_got_a_friend' },
   {
     from: 'evt-funk-chicago-1970-rufus-chaka-khan',
-    to: 'song-youve_got_a_friend_taylor',
+    to: 'song-youve_got_a_friend',
   },
   { from: 'evt-media-london-1971-superstar', to: 'song-ziggy_stardust' },
   { from: 'evt-british-blues-london-1962', to: 'song-ziggy_stardust' },
+
   // (b/d) song ← song (same-artist sequence + cover heuristic; same edges
+
   //       cover both "influenced by an earlier song" and "influenced a later song")
   { from: 'song-1999', to: 'song-kiss' },
   { from: 'song-kiss', to: 'song-lets_go_crazy' },
@@ -5140,7 +5140,6 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'song-lay_down_sally', to: 'song-wonderful_tonight' },
   { from: 'song-wonderful_tonight', to: 'song-after_midnight' },
   { from: 'song-after_midnight', to: 'song-change_the_world' },
-  { from: 'song-ain_t_no_sunshine', to: 'song-aint_no_sunshine' },
   { from: 'song-aint_no_sunshine', to: 'song-use_me' },
   { from: 'song-use_me', to: 'song-lovely_day' },
   { from: 'song-lovely_day', to: 'song-just_the_two_of_us' },
@@ -5155,11 +5154,8 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'song-the_big_country', to: 'song-the_book_i_read' },
   { from: 'song-the_book_i_read', to: 'song-take_me_to_the_river' },
   { from: 'song-take_me_to_the_river', to: 'song-heaven' },
-  { from: 'song-heaven', to: 'song-born_under_punches_the_heat_goes_on' },
-  {
-    from: 'song-born_under_punches_the_heat_goes_on',
-    to: 'song-crosseyed_and_painless',
-  },
+  { from: 'song-heaven', to: 'song-born_under_punches' },
+  { from: 'song-born_under_punches', to: 'song-crosseyed_and_painless' },
   { from: 'song-crosseyed_and_painless', to: 'song-seen_and_not_seen' },
   { from: 'song-seen_and_not_seen', to: 'song-the_great_curve' },
   { from: 'song-the_great_curve', to: 'song-the_overload' },
@@ -5240,8 +5236,6 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'song-yer_so_bad', to: 'song-you_dont_know_how_it_feels' },
   { from: 'song-you_dont_know_how_it_feels', to: 'song-american_girl' },
   { from: 'song-hey_jude', to: 'song-another_day' },
-  { from: 'song-another_day', to: 'song-another_day_lidell' },
-  { from: 'song-another_day_lidell', to: 'song-another_day_mccartney' },
   { from: 'song-any_man_of_mine', to: 'song-man_i_feel_like_a_woman' },
   { from: 'song-at_last', to: 'song-id_rather_go_blind' },
   { from: 'song-auld_lang_syne', to: 'song-hava_nagila' },
@@ -5315,18 +5309,7 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'song-pusher_love_girl', to: 'song-suit_tie' },
   { from: 'song-suit_tie', to: 'song-take_back_the_night' },
   { from: 'song-take_back_the_night', to: 'song-cant_stop_the_feeling' },
-  {
-    from: 'song-cant_take_my_eyes_off_you',
-    to: 'song-cant_take_my_eyes_off_you_hill',
-  },
-  {
-    from: 'song-cant_take_my_eyes_off_you_hill',
-    to: 'song-cant_take_my_eyes_off_you_valli',
-  },
-  {
-    from: 'song-cant_take_my_eyes_off_you_valli',
-    to: 'song-doo_wop_that_thing',
-  },
+  { from: 'song-cant_take_my_eyes_off_you', to: 'song-doo_wop_that_thing' },
   { from: 'song-cardova', to: 'song-cissy_strut' },
   { from: 'song-cissy_strut', to: 'song-hey_pocky_a_way' },
   { from: 'song-hey_pocky_a_way', to: 'song-just_kissed_my_baby' },
@@ -5373,15 +5356,7 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'song-paranoid_android', to: 'song-the_national_anthem' },
   { from: 'song-crocodile_rock', to: 'song-tiny_dancer' },
   { from: 'song-fire_and_rain', to: 'song-youve_got_a_friend' },
-  { from: 'song-youve_got_a_friend', to: 'song-youve_got_a_friend_king' },
-  {
-    from: 'song-youve_got_a_friend_king',
-    to: 'song-youve_got_a_friend_taylor',
-  },
-  {
-    from: 'song-youve_got_a_friend_taylor',
-    to: 'song-dont_let_me_be_lonely_tonight',
-  },
+  { from: 'song-youve_got_a_friend', to: 'song-dont_let_me_be_lonely_tonight' },
   {
     from: 'song-dont_let_me_be_lonely_tonight',
     to: 'song-how_sweet_it_is_to_be_loved_by_you',
@@ -5399,8 +5374,6 @@ const EVENT_CONNECTIONS: EventConnection[] = [
     from: 'song-with_a_little_help_from_my_friends',
     to: 'song-feeling_alright',
   },
-  { from: 'song-forever_young', to: 'song-forever_young_dylan' },
-  { from: 'song-forever_young_dylan', to: 'song-forever_young_stewart' },
   { from: 'song-tighten_up', to: 'song-lonely_boy' },
   { from: 'song-lonely_boy', to: 'song-gold_on_the_ceiling' },
   { from: 'song-le_freak', to: 'song-good_times' },
@@ -5411,13 +5384,8 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'song-night_time_is_the_right_time', to: 'song-hit_the_road_jack' },
   { from: 'song-hit_the_road_jack', to: 'song-shake_a_tail_feather' },
   { from: 'song-shake_a_tail_feather', to: 'song-i_got_a_woman' },
-  { from: 'song-hard_to_handle', to: 'song-hard_to_handle_black_crowes' },
   { from: 'song-hey_soul_sister', to: 'song-marry_me' },
   { from: 'song-soul_man', to: 'song-hold_on_im_comin' },
-  {
-    from: 'song-how_come_you_dont_call_me',
-    to: 'song-how_come_you_dont_call_me_timberlake',
-  },
   { from: 'song-i_cant_go_for_that_no_can_do', to: 'song-kiss_on_my_list' },
   { from: 'song-kiss_on_my_list', to: 'song-maneater' },
   { from: 'song-maneater', to: 'song-rich_girl' },
@@ -5439,13 +5407,6 @@ const EVENT_CONNECTIONS: EventConnection[] = [
     from: 'song-shakey_ground',
     to: 'song-just_my_imagination_running_away_with_me',
   },
-  { from: 'song-killing_me_softly', to: 'song-killing_me_softly_flack' },
-  { from: 'song-killing_me_softly_flack', to: 'song-killing_me_softly_fugees' },
-  { from: 'song-lady_marmalade', to: 'song-lady_marmalade_aguilera' },
-  {
-    from: 'song-lady_marmalade_aguilera',
-    to: 'song-lady_marmalade_moulin_rouge',
-  },
   { from: 'song-lets_stay_together', to: 'song-love_and_happiness' },
   { from: 'song-listen_to_the_music', to: 'song-takin_it_to_the_streets' },
   { from: 'song-luck_be_a_lady', to: 'song-new_york_new_york' },
@@ -5453,8 +5414,6 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'song-sunday_morning', to: 'song-this_love' },
   { from: 'song-this_love', to: 'song-moves_like_jagger' },
   { from: 'song-moves_like_jagger', to: 'song-sugar' },
-  { from: 'song-no_diggity', to: 'song-no_diggity_blackstreet' },
-  { from: 'song-no_diggity_blackstreet', to: 'song-no_diggity_chet_faker' },
   { from: 'song-son_of_a_preacher_man', to: 'song-no_easy_way_down' },
   { from: 'song-waterfalls', to: 'song-no_scrubs' },
   { from: 'song-only_the_good_die_young', to: 'song-uptown_girl' },
@@ -5465,11 +5424,6 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   {
     from: 'song-they_long_to_be_close_to_you',
     to: 'song-rainy_days_and_mondays',
-  },
-  { from: 'song-say_something', to: 'song-say_something_timberlake' },
-  {
-    from: 'song-say_something_timberlake',
-    to: 'song-say_something_timberlake',
   },
   { from: 'song-these_arms_of_mine', to: 'song-sittin_on_the_dock_of_the_bay' },
   {
@@ -5488,6 +5442,7 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   },
   { from: 'song-cruisin', to: 'song-cruisin_dangelo' },
   { from: 'song-jump', to: 'song-jump_for_my_love' },
+
   // (c) song → historical event (hand-curated from songInfluencesEvent.json)
   { from: 'song-1999', to: 'evt-pop-minneapolis-1984-prince' },
   { from: 'song-1999', to: 'evt-funk-minneapolis-1979' },
@@ -5513,7 +5468,6 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'song-rolling_in_the_deep', to: 'evt-pop-london-2011-adele' },
   { from: 'song-uptown_funk', to: 'evt-pop-losangeles-2012-brunomars' },
   { from: 'song-shape_of_you', to: 'evt-pop-london-2011-edsheeran' },
-  // ── END auto-generated song connections
 ];
 
 // ── Derived lookup maps ─────────────────────────────────────────────────────

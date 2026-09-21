@@ -19,6 +19,7 @@ export const WORLD_EVENTS: HistoricalEvent[] = [
       'radio tripoli',
       'arabic classical',
     ],
+    videoId: 'Os5R1dYf9bo',
   },
   {
     id: 'evt-reggae-espanol-panamacity-1985',

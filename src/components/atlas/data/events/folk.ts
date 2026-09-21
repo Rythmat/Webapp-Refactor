@@ -146,6 +146,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'radio',
       'music city',
     ],
+    videoId: '1StPempLVT0',
   },
   {
     id: 'evt-arabesque-istanbul-1985',
@@ -260,6 +261,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
       'ceremony',
       'world music',
     ],
+    videoId: '0h3OP4viDVo',
   },
   {
     id: 'evt-bwiti-libreville-1950',

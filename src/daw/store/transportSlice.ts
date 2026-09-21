@@ -37,6 +37,9 @@ export interface TransportSlice {
   // when it completes. Set when the count-in starts; read by _startAfterCountIn.
   countInIsRecording: boolean;
   countInBars: number; // 0 = off, 1 = 1 bar, 2 = 2 bars
+  // Audio-clock time the count-in clicks were scheduled from, so the on-screen
+  // count-off can follow the same clock the clicks do. Null when not counting.
+  countInStartedAt: number | null;
   bpm: number;
   timeSignatureNumerator: number; // beats per bar (default: 4)
   timeSignatureDenominator: number; // beat unit (default: 4 = quarter note)
@@ -62,6 +65,7 @@ export interface TransportSlice {
   stop: () => void;
   record: () => void;
   setCountInBars: (bars: number) => void;
+  _setCountInStartedAt: (audioTime: number | null) => void;
   _startAfterCountIn: () => void;
   setBpm: (bpm: number) => void;
   setTimeSignature: (numerator: number, denominator: number) => void;
@@ -99,6 +103,7 @@ export const createTransportSlice: StateCreator<
   isCountingIn: false,
   countInIsRecording: false,
   countInBars: 0,
+  countInStartedAt: null,
   bpm: 120,
   timeSignatureNumerator: 4,
   timeSignatureDenominator: 4,
@@ -136,6 +141,7 @@ export const createTransportSlice: StateCreator<
       isRecording: false,
       isCountingIn: false,
       countInIsRecording: false,
+      countInStartedAt: null,
       liveRecordingNotes: [],
       liveRecordingTrackId: null,
       liveRecordingStartTick: 0,
@@ -150,6 +156,7 @@ export const createTransportSlice: StateCreator<
       isRecording: false,
       isCountingIn: false,
       countInIsRecording: false,
+      countInStartedAt: null,
       position: state.lastSeekPosition,
       liveRecordingNotes: [],
       liveRecordingTrackId: null,
@@ -171,12 +178,15 @@ export const createTransportSlice: StateCreator<
   setCountInBars: (bars) =>
     set({ countInBars: Math.max(0, Math.min(2, bars)) }),
 
+  _setCountInStartedAt: (audioTime) => set({ countInStartedAt: audioTime }),
+
   _startAfterCountIn: () =>
     set((state) => ({
       isCountingIn: false,
       isPlaying: true,
       isRecording: state.countInIsRecording,
       countInIsRecording: false,
+      countInStartedAt: null,
     })),
 
   setBpm: (bpm) => set({ bpm: Math.max(40, Math.min(300, bpm)) }),

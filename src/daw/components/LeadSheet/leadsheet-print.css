@@ -1,3 +1,8 @@
+/* Barline click targets: invisible until pointed at, as in the Score. */
+.leadsheet-barline-target:hover:not([data-selected]) {
+  fill: color-mix(in srgb, var(--color-accent, #8b5cf6) 25%, transparent);
+}
+
 @media print {
   /* Page setup */
   @page {
@@ -23,6 +28,12 @@
     display: none !important;
   }
 
+  /* The palette lives inside .leadsheet-container, so the rule above that
+     hides the DAW's chrome does not reach it. */
+  .leadsheet-palette {
+    display: none !important;
+  }
+
   /* Show only the lead sheet content */
   .leadsheet-container {
     position: static !important;
@@ -36,6 +47,23 @@
     overflow: visible !important;
     height: auto !important;
     padding: 0 !important;
+  }
+
+  /* A chart row is drawn at the screen's width; its viewBox lets it scale
+     down to the page instead of running off the right edge. */
+  .leadsheet-system {
+    width: 100% !important;
+  }
+
+  svg.leadsheet-staff {
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  /* The playhead is where playback stopped, not part of the chart. It is a
+     staff line too, so the black-stroke rule below would print it heavily. */
+  .leadsheet-playhead {
+    display: none !important;
   }
 
   /* Ensure staff SVGs render with black strokes */
@@ -84,5 +112,75 @@
   /* Hide transport bar */
   .transport-bar {
     display: none !important;
+  }
+}
+
+/* ── Printing from the Studio: the app shell around it ─────────────────────
+   The sidebar and top bar belong to the app layout, outside .daw-root, so the
+   rules above never reach them. Hide everything that neither holds the sheet
+   nor sits inside it, and let the elements that hold it flow as plain blocks.
+   The page itself goes white too, or the app's dark background shows below a
+   short sheet whenever background graphics are printed. */
+@media print {
+  html,
+  body {
+    background: white !important;
+  }
+
+  body
+    *:not(:has(.leadsheet-container)):not(.leadsheet-container):not(
+      .leadsheet-container *
+    ) {
+    display: none !important;
+  }
+
+  body *:has(.leadsheet-container) {
+    display: block !important;
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: white !important;
+  }
+}
+
+/* ── The Score prints its engraved pages ───────────────────────────────────
+   Each page is drawn at true Letter size with its margins in the drawing, so
+   it prints on a borderless page — one drawn page per sheet — and the title
+   block sits in the room StaffView keeps at the top of page 1. */
+@page score {
+  size: letter;
+  margin: 0;
+}
+
+@media print {
+  .score-print-root {
+    page: score;
+    display: block !important;
+  }
+
+  .score-print-root .leadsheet-scroll {
+    position: relative !important;
+    padding: 0 !important;
+  }
+
+  .score-print-root .score-print-title {
+    position: absolute;
+    top: 0.55in;
+    left: 0;
+    width: 8.5in;
+    z-index: 1;
+  }
+
+  .score-print-root .score-print-title .leadsheet-title {
+    margin-bottom: 2px !important;
+  }
+
+  .score-print-root .score-print-title .leadsheet-subtitle {
+    margin-bottom: 0 !important;
   }
 }

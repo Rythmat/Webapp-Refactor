@@ -1,0 +1,398 @@
+{
+  "studio-bottom-prism": {
+    "violations": [
+      {
+        "id": "aria-input-field-name",
+        "impact": "serious",
+        "tags": ["wcag2a", "wcag412"],
+        "help": "ARIA input fields must have an accessible name",
+        "count": 3,
+        "nodes": [
+          {
+            "target": ".gap-1\\.5.flex-col:nth-child(3) > .h-4.touch-none[dir=\"ltr\"] > span:nth-child(2) > .size-3\\.5.shadow[aria-valuemax=\"60\"]",
+            "html": "<span role=\"slider\" aria-valuemin=\"0\" aria-valuemax=\"60\" aria-orientation=\"horizontal\" data-orientation=\"horizontal\" tabindex=\"0\" class=\"block size-3.5 curso...",
+            "summary": "Fix any of the following:\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title a"
+          },
+          {
+            "target": ".gap-1\\.5.flex-col:nth-child(5) > .h-4.touch-none[dir=\"ltr\"] > span:nth-child(2) > .size-3\\.5.shadow[aria-valuemax=\"60\"]",
+            "html": "<span role=\"slider\" aria-valuemin=\"0\" aria-valuemax=\"60\" aria-orientation=\"horizontal\" data-orientation=\"horizontal\" tabindex=\"0\" class=\"block size-3.5 curso...",
+            "summary": "Fix any of the following:\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title a"
+          },
+          {
+            "target": ".gap-1\\.5.flex-col:nth-child(7) > .h-4.touch-none[dir=\"ltr\"] > span:nth-child(2) > .size-3\\.5.shadow[aria-valuemax=\"60\"]",
+            "html": "<span role=\"slider\" aria-valuemin=\"0\" aria-valuemax=\"60\" aria-orientation=\"horizontal\" data-orientation=\"horizontal\" tabindex=\"0\" class=\"block size-3.5 curso...",
+            "summary": "Fix any of the following:\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title a"
+          }
+        ]
+      },
+      {
+        "id": "button-name",
+        "impact": "critical",
+        "tags": ["wcag2a", "wcag412"],
+        "help": "Buttons must have discernible text",
+        "count": 2,
+        "nodes": [
+          {
+            "target": ".mr-1\\.5",
+            "html": "<button class=\"flex items-center justify-center w-5 h-5 rounded cursor-pointer mr-1.5\" style=\"color: var(--color-text-dim); border: none; background: none;\">",
+            "summary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not"
+          },
+          {
+            "target": ".w-6.h-6.justify-center",
+            "html": "<button class=\"flex items-center justify-center w-6 h-6 rounded cursor-pointer\" style=\"color: var(--color-text-dim); background-color: transparent; border: none",
+            "summary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not"
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": ["wcag2aa", "wcag143"],
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "count": 41,
+        "nodes": [
+          {
+            "target": ".h-full.px-3.gap-1:nth-child(2) > .tracking-wider.font-semibold.uppercase",
+            "html": "<span class=\"text-[10px] font-semibold uppercase tracking-wider\">Library</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #6b6b80, background color: #1a1a1a, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": ".flex-1.justify-center.items-center > .text-\\[10px\\]",
+            "html": "<span class=\"text-[10px]\" style=\"color: var(--color-text-dim);\">Play a chord to see analysis</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #6b6b80, background color: #1a1a1a, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": ".gap-1\\.5.items-center > .ml-auto.text-\\[9px\\]",
+            "html": "<span class=\"ml-auto text-[9px]\" style=\"color: var(--color-text-dim);\">4 in chord lane</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #6b6b80, background color: #1a1a1a, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": "div[data-testid=\"insight-chord-symbols\"] > .leading-relaxed.text-\\[9px\\]",
+            "html": "<span class=\"text-[9px] leading-relaxed\" style=\"color: var(--color-text-dim);\">Analyze the music to suggest chord symbols. Nothing is added to the chord lane un",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #6b6b80, background color: #1a1a1a, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": ".leading-relaxed.py-2.border-b",
+            "html": "<div class=\"border-b px-3 py-2 text-[9px] leading-relaxed\" style=\"border-color: var(--color-border); color: var(--color-text-dim);\">To analyze part of the song,",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #6b6b80, background color: #1a1a1a, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": ".gap-2.items-center > .font-mono.text-\\[9px\\]",
+            "html": "<span class=\"text-[9px] font-mono\" style=\"color: var(--color-text-dim);\">85%</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #6b6b80, background color: #1a1a1a, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": ".py-0\\.5.px-1\\.5[type=\"button\"]:nth-child(1)",
+            "html": "<button type=\"button\" class=\"rounded px-1.5 py-0.5 text-[9px] transition-colors cursor-pointer\" style=\"background-color: var(--color-surface-2); color: var(--co",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.2 (foreground color: #6b6b80, background color: #1e1e1e, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": ".py-0\\.5.px-1\\.5[type=\"button\"]:nth-child(1) > .ml-1.text-\\[8px\\].font-mono",
+            "html": "<span class=\"ml-1 font-mono text-[8px]\" style=\"opacity: 0.6;\">81%</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.97 (foreground color: #4c4c59, background color: #1e1e1e, font size: 6.0pt (8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      },
+      {
+        "id": "label",
+        "impact": "critical",
+        "tags": ["wcag2a", "wcag412"],
+        "help": "Form elements must have labels",
+        "count": 3,
+        "nodes": [
+          {
+            "target": "input[value=\"Rhodes\"]",
+            "html": "<input class=\"min-w-0 flex-1 truncate border-none bg-transparent text-[11px] font-bold uppercase tracking-wide outline-none\" spellcheck=\"false\" value=\"Rhodes\" s",
+            "summary": "Fix any of the following:\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, re"
+          },
+          {
+            "target": "input[value=\"Bass\"]",
+            "html": "<input class=\"min-w-0 flex-1 truncate border-none bg-transparent text-[11px] font-bold uppercase tracking-wide outline-none\" spellcheck=\"false\" value=\"Bass\" sty",
+            "summary": "Fix any of the following:\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, re"
+          },
+          {
+            "target": "input[value=\"Drums\"]",
+            "html": "<input class=\"min-w-0 flex-1 truncate border-none bg-transparent text-[11px] font-bold uppercase tracking-wide outline-none\" spellcheck=\"false\" value=\"Drums\" st",
+            "summary": "Fix any of the following:\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, re"
+          }
+        ]
+      },
+      {
+        "id": "link-name",
+        "impact": "serious",
+        "tags": ["wcag2a", "wcag244", "wcag412"],
+        "help": "Links must have discernible text",
+        "count": 10,
+        "nodes": [
+          {
+            "target": ".text-white\\/85.md\\:gap-4[href$=\"home\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": "a[href$=\"learn\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": ".bg-white\\/5",
+            "html": "<a data-state=\"closed\" aria-current=\"page\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:rin",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": "a[href$=\"atlas\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": "a[href$=\"arcade\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": "a[href$=\"search\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": "a[href$=\"classrooms\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": "a[href$=\"teacher\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          }
+        ]
+      },
+      {
+        "id": "scrollable-region-focusable",
+        "impact": "serious",
+        "tags": ["wcag2a", "wcag211", "wcag213"],
+        "help": "Scrollable region must have keyboard access",
+        "count": 1,
+        "nodes": [
+          {
+            "target": ".overflow-auto",
+            "html": "<div class=\"flex-1 overflow-auto\" style=\"background-color: var(--color-bg);\">",
+            "summary": "Fix any of the following:\n  Element should have focusable content\n  Element should be focusable"
+          }
+        ]
+      },
+      {
+        "id": "select-name",
+        "impact": "critical",
+        "tags": ["wcag2a", "wcag412"],
+        "help": "Select element must have an accessible name",
+        "count": 3,
+        "nodes": [
+          {
+            "target": ".flex-col.gap-1:nth-child(2) > .text-sm.h-8",
+            "html": "<select class=\"h-8 cursor-pointer rounded-md px-2 text-sm font-medium outline-none\" style=\"background-color: var(--color-surface-2); color: var(--color-text); b",
+            "summary": "Fix any of the following:\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, re"
+          },
+          {
+            "target": ".flex-col.gap-1:nth-child(4) > .text-sm.h-8",
+            "html": "<select class=\"h-8 cursor-pointer rounded-md px-2 text-sm font-medium outline-none\" style=\"background-color: var(--color-surface-2); color: var(--color-text); b",
+            "summary": "Fix any of the following:\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, re"
+          },
+          {
+            "target": ".flex-col.gap-1:nth-child(6) > .text-sm.h-8",
+            "html": "<select class=\"h-8 cursor-pointer rounded-md px-2 text-sm font-medium outline-none\" style=\"background-color: var(--color-surface-2); color: var(--color-text); b",
+            "summary": "Fix any of the following:\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, re"
+          }
+        ]
+      }
+    ],
+    "incomplete": [
+      {
+        "id": "aria-valid-attr-value",
+        "count": 3
+      },
+      {
+        "id": "color-contrast",
+        "count": 65
+      }
+    ]
+  },
+  "studio-bottom-piano-roll": {
+    "violations": [
+      {
+        "id": "button-name",
+        "impact": "critical",
+        "tags": ["wcag2a", "wcag412"],
+        "help": "Buttons must have discernible text",
+        "count": 2,
+        "nodes": [
+          {
+            "target": ".mr-1\\.5",
+            "html": "<button class=\"flex items-center justify-center w-5 h-5 rounded cursor-pointer mr-1.5\" style=\"color: var(--color-text-dim); border: none; background: none;\">",
+            "summary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not"
+          },
+          {
+            "target": ".w-6.h-6.cursor-pointer",
+            "html": "<button class=\"flex items-center justify-center w-6 h-6 rounded cursor-pointer\" style=\"color: var(--color-text-dim); background-color: transparent; border: none",
+            "summary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not"
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": ["wcag2aa", "wcag143"],
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "count": 25,
+        "nodes": [
+          {
+            "target": ".h-full.px-3.cursor-pointer:nth-child(2) > .tracking-wider.font-semibold.uppercase",
+            "html": "<span class=\"text-[10px] font-semibold uppercase tracking-wider\">Library</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #6b6b80, background color: #1a1a1a, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": ".flex-1.justify-center.items-center > .text-\\[10px\\]",
+            "html": "<span class=\"text-[10px]\" style=\"color: var(--color-text-dim);\">Play a chord to see analysis</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #6b6b80, background color: #1a1a1a, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": ".gap-1\\.5.items-center > .ml-auto.text-\\[9px\\]",
+            "html": "<span class=\"ml-auto text-[9px]\" style=\"color: var(--color-text-dim);\">4 in chord lane</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #6b6b80, background color: #1a1a1a, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": "div[data-testid=\"insight-chord-symbols\"] > .leading-relaxed.text-\\[9px\\]",
+            "html": "<span class=\"text-[9px] leading-relaxed\" style=\"color: var(--color-text-dim);\">Analyze the music to suggest chord symbols. Nothing is added to the chord lane un",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #6b6b80, background color: #1a1a1a, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": ".leading-relaxed.py-2.border-b",
+            "html": "<div class=\"border-b px-3 py-2 text-[9px] leading-relaxed\" style=\"border-color: var(--color-border); color: var(--color-text-dim);\">To analyze part of the song,",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #6b6b80, background color: #1a1a1a, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": ".gap-2.items-center > .font-mono.text-\\[9px\\]",
+            "html": "<span class=\"text-[9px] font-mono\" style=\"color: var(--color-text-dim);\">85%</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.34 (foreground color: #6b6b80, background color: #1a1a1a, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": ".px-1\\.5.cursor-pointer[type=\"button\"]:nth-child(1)",
+            "html": "<button type=\"button\" class=\"rounded px-1.5 py-0.5 text-[9px] transition-colors cursor-pointer\" style=\"background-color: var(--color-surface-2); color: var(--co",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.2 (foreground color: #6b6b80, background color: #1e1e1e, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": ".px-1\\.5.cursor-pointer[type=\"button\"]:nth-child(1) > .ml-1.text-\\[8px\\].font-mono",
+            "html": "<span class=\"ml-1 font-mono text-[8px]\" style=\"opacity: 0.6;\">81%</span>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 1.97 (foreground color: #4c4c59, background color: #1e1e1e, font size: 6.0pt (8px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      },
+      {
+        "id": "label",
+        "impact": "critical",
+        "tags": ["wcag2a", "wcag412"],
+        "help": "Form elements must have labels",
+        "count": 4,
+        "nodes": [
+          {
+            "target": "input[value=\"Rhodes\"]",
+            "html": "<input class=\"min-w-0 flex-1 truncate border-none bg-transparent text-[11px] font-bold uppercase tracking-wide outline-none\" spellcheck=\"false\" value=\"Rhodes\" s",
+            "summary": "Fix any of the following:\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, re"
+          },
+          {
+            "target": "input[value=\"Bass\"]",
+            "html": "<input class=\"min-w-0 flex-1 truncate border-none bg-transparent text-[11px] font-bold uppercase tracking-wide outline-none\" spellcheck=\"false\" value=\"Bass\" sty",
+            "summary": "Fix any of the following:\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, re"
+          },
+          {
+            "target": "input[value=\"Drums\"]",
+            "html": "<input class=\"min-w-0 flex-1 truncate border-none bg-transparent text-[11px] font-bold uppercase tracking-wide outline-none\" spellcheck=\"false\" value=\"Drums\" st",
+            "summary": "Fix any of the following:\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, re"
+          },
+          {
+            "target": ".h-1",
+            "html": "<input type=\"range\" min=\"1\" max=\"127\" class=\"h-1 w-16 accent-white/50\" value=\"100\" style=\"\">",
+            "summary": "Fix any of the following:\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, re"
+          }
+        ]
+      },
+      {
+        "id": "link-name",
+        "impact": "serious",
+        "tags": ["wcag2a", "wcag244", "wcag412"],
+        "help": "Links must have discernible text",
+        "count": 10,
+        "nodes": [
+          {
+            "target": ".text-white\\/85.gap-3[href$=\"home\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": "a[href$=\"learn\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": ".active",
+            "html": "<a data-state=\"closed\" aria-current=\"page\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:rin",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": "a[href$=\"atlas\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": "a[href$=\"arcade\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": "a[href$=\"search\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": "a[href$=\"classrooms\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": "a[href$=\"teacher\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          }
+        ]
+      },
+      {
+        "id": "scrollable-region-focusable",
+        "impact": "serious",
+        "tags": ["wcag2a", "wcag211", "wcag213"],
+        "help": "Scrollable region must have keyboard access",
+        "count": 2,
+        "nodes": [
+          {
+            "target": ".overflow-hidden.flex-1.flex-col > .overflow-hidden.flex-1 > .overflow-auto.flex-1",
+            "html": "<div class=\"flex-1 overflow-auto\" style=\"background-color: var(--color-bg);\">",
+            "summary": "Fix any of the following:\n  Element should have focusable content\n  Element should be focusable"
+          },
+          {
+            "target": ".overflow-auto.relative.flex-1",
+            "html": "<div class=\"relative flex-1 overflow-auto\" style=\"scrollbar-width: thin;\">",
+            "summary": "Fix any of the following:\n  Element should have focusable content\n  Element should be focusable"
+          }
+        ]
+      }
+    ],
+    "incomplete": [
+      {
+        "id": "aria-valid-attr-value",
+        "count": 3
+      },
+      {
+        "id": "color-contrast",
+        "count": 41
+      }
+    ]
+  }
+}

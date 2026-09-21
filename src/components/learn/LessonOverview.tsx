@@ -30,6 +30,7 @@ import {
   type ChordContext,
   type ChordNotation,
 } from '@/lib/chordNotation';
+import { modeCharacter } from '@/lib/learn/modeCharacter';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { getLocalModeSteps } from '@/lib/modeStepsFallback';
 
@@ -630,10 +631,17 @@ export function LessonOverview({
   activeTab = 'scale',
 }: LessonOverviewProps) {
   const tab = activeTab;
-  const { data: modeDetail } = usePrismMode(mode);
+  const { data: modeDetail, isPending: isModePending } = usePrismMode(mode);
 
-  const scaleSteps =
-    getLocalModeSteps(mode) ?? modeDetail?.steps ?? DEFAULT_INTERVALS;
+  // An unrecognized `mode` slug must never fall through to DEFAULT_INTERVALS:
+  // that renders a major scale under the requested mode's name, teaching the
+  // wrong notes with no visible sign anything went wrong. The 35 modes in
+  // ALL_MODES resolve locally; the API covers the rest (blues, pentatonics,
+  // symmetric scales), so only wait on the query when the local lookup misses.
+  const localSteps = getLocalModeSteps(mode);
+  const resolvedSteps = localSteps ?? modeDetail?.steps;
+  const isUnknownMode = !resolvedSteps && !isModePending;
+  const scaleSteps = resolvedSteps ?? DEFAULT_INTERVALS;
   const resolvedRootMidi = Number.isFinite(rootMidi)
     ? rootMidi
     : DEFAULT_ROOT_MIDI;
@@ -647,6 +655,8 @@ export function LessonOverview({
 
   const chordScaleData = getChordScales(mode);
   const modeName = chordScaleData?.modeName ?? mode;
+  // What the mode sounds like, in one line; the 35 engine modes have one.
+  const character = modeCharacter(mode);
 
   const pcSpellingMap = useMemo(
     () => buildPitchClassSpellingMap(mode, activeKeyLabel, scaleMidis),
@@ -749,6 +759,28 @@ export function LessonOverview({
     };
   }, [scaleMidis]);
 
+  if (isUnknownMode) {
+    return (
+      <div
+        className="glass-panel-sm m-4 flex flex-col gap-2 rounded-xl p-4 text-left"
+        data-mode={mode}
+        data-unknown-mode="true"
+        style={{
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid var(--color-border)',
+        }}
+      >
+        <p className="text-base" style={{ color: 'var(--color-text)' }}>
+          We don&rsquo;t have a scale named &ldquo;{mode}&rdquo;.
+        </p>
+        <p className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
+          This link points at a mode the lesson library doesn&rsquo;t recognize.
+          Pick the scale from the Theory library instead.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6" data-mode={mode}>
       <h2
@@ -781,12 +813,20 @@ export function LessonOverview({
               border: '1px solid var(--color-border)',
             }}
           >
+            {character && (
+              <p
+                className="text-lg font-medium"
+                style={{ color: 'var(--color-accent)' }}
+              >
+                {character}.
+              </p>
+            )}
             <p className="text-base" style={{ color: 'var(--color-text)' }}>
               The key of &ldquo;{scaleNoteLabels[0] ?? activeKeyLabel}{' '}
               {modeName}&rdquo; {keySignatureDescription}.
             </p>
             <p className="text-base" style={{ color: 'var(--color-text)' }}>
-              {modeName} Intervals: {chordScaleData?.intervals ?? ''}
+              {modeName} scale degrees: {chordScaleData?.intervals ?? ''}
             </p>
             <p className="text-base" style={{ color: 'var(--color-text)' }}>
               The notes of the scale are:{' '}

@@ -1,16 +1,21 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { WRONG_NOTE_KEY_COLOR } from '@/components/Games/PianoRollPlay';
 import { PlayNote } from '@/components/Games/PlayNote';
+import { RollViewToggle } from '@/components/notation/RollViewToggle';
 import {
   midiToPitchName,
   pitchNameToMidi,
   spellMidi,
 } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import { formatAccidentalsForDisplay } from '@/curriculum/utils/formatAccidentals';
+import { useRollView } from '@/lib/notation';
 import {
   PIANO_ROLL_LANE_COLORS,
   pianoRollLaneBackground,
 } from '@/lib/pianoRollLanes';
+import type { LessonChordSymbol } from '../notation/lessonChordSymbols';
+import { LearnNotationView } from './LearnNotationView';
+import { advancePlayhead, initialClockState } from './playheadClock';
 
 export type Midi = number; // 0..127
 
@@ -40,6 +45,19 @@ export interface PianoRollProps {
   rowHeight?: number; // base lane height unit; lanes scale to fit a static box
   /** Playback control */
   inTime?: boolean;
+  /**
+   * The audible lead-in before the student's bar 1, in ticks. The roll draws a
+   * single count-in bar whatever this is; the staff's count-off needs the real
+   * length so it counts every beat the student hears. Defaults to one bar.
+   */
+  leadInTicks?: number;
+  /** Staves the notation view writes on; the roll itself is unaffected. */
+  staves?: 'grand' | 'treble' | 'bass';
+  /**
+   * An extra control for the notation header, beside the view switch. Shown
+   * only on the staff, so a roll-only lesson never carries staff controls.
+   */
+  notationToggle?: React.ReactNode;
   playSpeed?: number; // beats per minute traversal speed
   isPlaying?: boolean;
   onPlayingChange?: (playing: boolean) => void;
@@ -55,7 +73,16 @@ export interface PianoRollProps {
   /** Genre v2 extensions — all optional */
   keyRoot?: number; // MIDI root note for key center row highlighting
   keyColor?: string; // hex color from KEY_OF_COLORS for key center tint
-  userNotes?: Array<{ midi: number; onset: number; duration: number }>; // user performance layer
+  /**
+   * User performance layer. `correct` is the host's verdict; when absent a
+   * note counts as correct if its pitch appears anywhere in the targets.
+   */
+  userNotes?: Array<{
+    midi: number;
+    onset: number;
+    duration: number;
+    correct?: boolean;
+  }>;
   targetMidiSet?: Set<number>; // target pitches for correct/wrong detection
   showTimeline?: boolean; // whether to render the beat/bar timeline header (default true)
   /** Fixed MIDI range for lane display (chromatic mode only) — stave always shows at least
@@ -72,6 +99,11 @@ export interface PianoRollProps {
    *  pitch, gray for a wrong one — instead of the default blue, so the roll
    *  reads the same as the keyboard beneath it. */
   colorActiveLanesByTarget?: boolean;
+  /**
+   * Chord symbols for this activity, drawn above the staff in notation view.
+   * The roll itself doesn't show them — there is no staff to sit above.
+   */
+  chordSymbols?: readonly LessonChordSymbol[];
 }
 
 // ===== Helpers =====
@@ -224,6 +256,9 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   subdivision = 1,
   rowHeight = 36 * 24,
   inTime = false,
+  leadInTicks,
+  staves,
+  notationToggle,
   playSpeed = 60,
   isPlaying,
   onPlayingChange,
@@ -242,6 +277,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   noteOnlyLanes,
   noteSpelling,
   colorActiveLanesByTarget = false,
+  chordSymbols,
 }) => {
   const laneList = buildLaneList(
     events,
@@ -255,6 +291,11 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
     laneList.length > 0 ? rowHeight / laneList.length : rowHeight;
   const ticksPerBar = beatsPerBar * beatTicks;
   const countInTicks = inTime ? ticksPerBar : 0;
+  const countOffTicks = inTime ? (leadInTicks ?? ticksPerBar) : 0;
+  // A lead-in longer than the roll's own count-in bar means the caller has
+  // shifted its notes to make room, so bar 1 sits that much later than tick 0
+  // on this playhead — that is where the count has to run to.
+  const musicStartTick = Math.max(0, countOffTicks - countInTicks);
   const totalTicks = bars * ticksPerBar + countInTicks;
   const laneLabelWidth = 72;
   const timelineStartTick = -countInTicks;
@@ -314,13 +355,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
     // count-in until its clock is seen to advance. If it never does — audio
     // failed to start, or the read is stuck — run on this clock rather than
     // freezing the lesson.
-    let firstClockTicks: number | null = null;
-    let clockAlive = false;
-    let waitedSeconds = 0;
-    const CLOCK_GRACE_SEC = 1;
-    // A stuck read still wobbles by float crumbs; real playback moves this far
-    // within a few frames at any lesson tempo.
-    const CLOCK_ALIVE_TICKS = 30;
+    let clockState = initialClockState();
 
     const animate = (timestamp: number) => {
       if (lastTime === null) {
@@ -333,39 +368,27 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
       lastTime = timestamp;
       let clockTicks: number | null | undefined;
       try {
-        clockTicks = playbackTicks?.();
+        clockTicks = playbackTicks === undefined ? undefined : playbackTicks();
       } catch {
         clockTicks = null; // a failed read must never stop the playhead
       }
-      if (clockTicks != null && !clockAlive) {
-        if (firstClockTicks == null) firstClockTicks = clockTicks;
-        else if (clockTicks - firstClockTicks > CLOCK_ALIVE_TICKS)
-          clockAlive = true;
-      }
-      if (!clockAlive) waitedSeconds += deltaSeconds;
 
       let reachedEnd = false;
       setPlayheadTick((prev) => {
-        const freeRunning = prev + deltaSeconds * playheadTicksPerSecond;
-        let next: number;
-        if (playbackTicks === undefined) {
-          next = freeRunning;
-        } else if (clockAlive) {
-          // Follow the transport; once it stops, the run is over — hold.
-          next = clockTicks != null ? clockTicks - countInTicks : prev;
-        } else if (waitedSeconds > CLOCK_GRACE_SEC) {
-          if (
-            import.meta.env.DEV &&
-            waitedSeconds - deltaSeconds <= CLOCK_GRACE_SEC
-          ) {
-            console.warn(
-              `[GenrePianoRoll] transport clock ${clockTicks == null ? 'never started' : `stuck at ${clockTicks.toFixed(0)} ticks`}; playhead is running on its own clock`,
-            );
-          }
-          next = freeRunning;
-        } else {
-          next = prev; // waiting for the transport to start
+        const decision = advancePlayhead(clockState, {
+          prev,
+          deltaSeconds,
+          clockTicks,
+          countInTicks,
+          ticksPerSecond: playheadTicksPerSecond,
+        });
+        clockState = decision.state;
+        if (import.meta.env.DEV && decision.justGaveUp) {
+          console.warn(
+            `[GenrePianoRoll] transport clock ${clockTicks == null ? 'never reached the playhead' : `stuck at ${clockTicks.toFixed(0)} ticks`}; playhead is running on its own clock`,
+          );
         }
+        let next = decision.tick;
         if (next >= maxTick) {
           next = maxTick;
           reachedEnd = true;
@@ -400,6 +423,38 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   ]);
 
   const activeMidiSet = useMemo(() => new Set(activeMidis), [activeMidis]);
+
+  // Notation view: the lesson clock above keeps running; only the drawing changes.
+  const [view, setView] = useRollView('learn');
+  const viewToggle = <RollViewToggle view={view} onChange={setView} />;
+  const notationHeader = (
+    <>
+      {viewToggle}
+      {notationToggle}
+    </>
+  );
+  if (view === 'notation') {
+    return (
+      <LearnNotationView
+        events={events}
+        bars={bars}
+        beatsPerBar={beatsPerBar}
+        keyRoot={keyRoot}
+        keyColor={keyColor}
+        inTime={inTime}
+        playheadTick={playheadTick}
+        countInTicks={countOffTicks}
+        beatTicks={beatTicks}
+        musicStartTick={musicStartTick}
+        staves={staves}
+        noteHoldMeta={noteHoldMeta}
+        performanceMeta={performanceMeta}
+        height={rowHeight + (showTimeline ? 40 : 0)}
+        chordSymbols={chordSymbols}
+        toggle={notationHeader}
+      />
+    );
+  }
 
   // Preindex lanes
   const laneIndex: Record<string, number> = {};
@@ -456,9 +511,11 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
             {/* Top ruler */}
             <div className="relative flex" style={{ height: 40 }}>
               <div
-                className="shrink-0 border-r border-neutral-800/50"
+                className="flex shrink-0 items-center justify-center border-r border-neutral-800/50"
                 style={{ width: laneLabelWidth }}
-              />
+              >
+                {viewToggle}
+              </div>
               <div className="relative flex-1" style={{ minWidth: 0 }}>
                 {/* beat labels */}
                 {visibleLabels.map(({ tick, label }) => {
@@ -796,7 +853,8 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
                   );
                   if (row === -1) return null;
 
-                  const isCorrect = targetMidiSet?.has(note.midi) ?? false;
+                  const isCorrect =
+                    note.correct ?? targetMidiSet?.has(note.midi) ?? false;
                   const startPct = tickPercent(note.onset);
                   const endPct = tickPercent(
                     note.onset + (note.duration > 0 ? note.duration : 120),

@@ -373,7 +373,7 @@ export function ModeOverview({ mode }: ModeOverviewProps) {
           className="text-base md:text-lg font-semibold mb-3 text-left self-start ml-[10%]"
           style={{ color: 'var(--color-text)' }}
         >
-          Interval:{' '}
+          Scale degrees:{' '}
           {scaleSteps
             .map((i) => {
               return mode == 'lydian'

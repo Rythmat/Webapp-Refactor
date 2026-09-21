@@ -405,7 +405,7 @@ const funkL1SectionA: ActivitySectionV2 = {
       styleRef: 'l1a',
       successFeedback:
         'Blues melody in the pocket — that blue note grit is yours now.',
-      chordSymbols: ['Ddom9'],
+      chordSymbols: ['D9'],
       backing_parts: {
         engine_generates: ['drums', 'bass', 'chords'],
         student_plays: ['melody'],
@@ -446,6 +446,7 @@ const funkL1SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B1: Arpeggiate Chords',
       activity: 'B1.1: Dm7 Arpeggio Ascending (Out of Time)',
+      chordSymbols: ['Dm7'],
       scaleIntervals: [0, 3, 7, 10],
       direction:
         'Play the notes of a Dm7 chord one at a time going up: D-F-A-C.',
@@ -468,6 +469,7 @@ const funkL1SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B1: Arpeggiate Chords',
       activity: 'B1.2: Dm7 Arpeggio Descending (Out of Time)',
+      chordSymbols: ['Dm7'],
       scaleIntervals: [0, 3, 7, 10],
       direction: 'Play the Dm7 chord tones going down: C-A-F-D.',
       assessment: 'pitch_only',
@@ -490,6 +492,7 @@ const funkL1SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B1: Arpeggiate Chords',
       activity: 'B1.3: Dm7 Arpeggio Up-Down (In Time)',
+      chordSymbols: ['Dm7'],
       scaleIntervals: [0, 3, 7, 10],
       direction:
         'In a steady tempo, arpeggiate Dm7 up then back down: D-F-A-C-C-A-F-D.',
@@ -518,6 +521,7 @@ const funkL1SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B2: Chord Voicings',
       activity: 'B2.1: Dm7 Shell Voicing (1-b3-b7) (Out of Time)',
+      chordSymbols: ['Dm7'],
       direction:
         'Play the Dm7 shell voicing: D, F, C. Root, minor 3rd, flat 7th — the essential skeleton.',
       assessment: 'pitch_only',
@@ -539,6 +543,7 @@ const funkL1SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B2: Chord Voicings',
       activity: 'B2.2: Dm7 Shell Voicing (In Time)',
+      chordSymbols: ['Dm7'],
       direction: 'Play the Dm7 shell voicing in time — Funk Stab 1 rhythm.',
       assessment: 'pitch_order_timing',
       tag: 'funk:dm7_shell_it | funk',
@@ -569,6 +574,7 @@ const funkL1SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B2: Chord Voicings',
       activity: 'B2.3: G7 Drop the Sizzle Voicing (Out of Time)',
+      chordSymbols: ['G7'],
       direction:
         "Now play G7: D, F, B — same hand position, just the C slides down a half step to B. That's Drop the Sizzle.",
       assessment: 'pitch_only',
@@ -725,7 +731,7 @@ const funkL1SectionB: ActivitySectionV2 = {
       styleRef: 'l1a',
       successFeedback:
         'Drop the Sizzle in the 7-3-5 voicing — one note, two chords.',
-      chordSymbols: ['Dm7', 'Gdom9'],
+      chordSymbols: ['Dm7', 'G9'],
       targetNotes: [
         // Bar 1 — Dm7: half [0,960], 16th [960,120], rest×2, 16th [1320,120], quarter rest
         { midi: 60, onset: 0, duration: 960 },
@@ -767,7 +773,7 @@ const funkL1SectionB: ActivitySectionV2 = {
       tag: 'funk:progression_dm7_gdom9_4bar_it | funk',
       styleRef: 'l1a',
       successFeedback: 'Four-bar vamp — the two-chord engine running.',
-      chordSymbols: ['Dm7', 'Gdom9', 'Dm7', 'Gdom9'],
+      chordSymbols: ['Dm7', 'G9', 'Dm7', 'G9'],
       backing_parts: {
         engine_generates: ['drums', 'bass'],
         student_plays: ['chords'],
@@ -807,7 +813,7 @@ const funkL1SectionB: ActivitySectionV2 = {
       tag: 'funk:progression_dm7_gdom9_735_4bar_it | funk',
       styleRef: 'l1a',
       successFeedback: 'Four bars, two chords, one note moving. That is funk.',
-      chordSymbols: ['Dm7', 'Gdom9', 'Dm7', 'Gdom9'],
+      chordSymbols: ['Dm7', 'G9', 'Dm7', 'G9'],
       backing_parts: {
         engine_generates: ['drums', 'bass'],
         student_plays: ['chords'],
@@ -1133,7 +1139,7 @@ const funkL1SectionC: ActivitySectionV2 = {
         'You just held down the low end over a live funk groove. That is the gig.',
       contentGeneration:
         'GCM v8: FUNK L1 bass play-along. Progression: Dm7→Gdom9 (1 bar each). Bass_Contour_Patterns: bass_c_r8_01 (root-octave) or bass_c_funk_01. Bass_Rhythm_Patterns: bass_r_funk_01. Register: octave 2 (D2=38, G2=43). Backing: drums (groove_funk_01) + chords (Dm7 bar 1, Gdom9 bar 2; comp_funk_s1). Tempo: 88-96 BPM. Style: l1a.',
-      chordSymbols: ['Dm7', 'Gdom9'],
+      chordSymbols: ['Dm7', 'G9'],
       backing_parts: {
         engine_generates: ['drums', 'chords'],
         student_plays: ['bass'],
@@ -1412,7 +1418,7 @@ const funkL1SectionD: ActivitySectionV2 = {
         engine_generates: ['drums'],
         student_plays: ['bass', 'chords'],
       },
-      chordSymbols: ['Dm7', 'Gdom9'],
+      chordSymbols: ['Dm7', 'G9'],
       targetNotes: [
         // Bars 1-2: LH D2, RH Dm7 [C4-F4-A4] Stab 1
         { midi: 38, onset: 0, duration: 460, hand: 'lh' },
@@ -2196,6 +2202,7 @@ const funkL2SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B1: Arpeggiate Chords',
       activity: 'B1.1: Cm9 Arpeggio (1-b3-5-b7-9) (Out of Time)',
+      chordSymbols: ['Cm9'],
       direction:
         'Play the notes of a Cm9 chord one at a time going up: C-Eb-G-Bb-D.',
       assessment: 'pitch_only',
@@ -2219,6 +2226,7 @@ const funkL2SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B1: Arpeggiate Chords',
       activity: 'B1.2: Cm9 Arpeggio (In Time)',
+      chordSymbols: ['Cm9'],
       direction: 'In a steady tempo, arpeggiate Cm9.',
       assessment: 'pitch_order_timing',
       tag: 'funk:arpeggiate_cm9_it | funk',
@@ -2240,6 +2248,7 @@ const funkL2SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B1: Arpeggiate Chords',
       activity: 'B1.3: F Dom13 Arpeggio — Key Notes (Out of Time)',
+      chordSymbols: ['F13'],
       direction:
         'Play the key chord tones of F dom13: F-A-C-Eb-D. Root, 3rd, 5th, b7th, 13th.',
       assessment: 'pitch_only',
@@ -2263,6 +2272,7 @@ const funkL2SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B1: Arpeggiate Chords',
       activity: 'B1.4: F Dom13 Arpeggio (In Time)',
+      chordSymbols: ['F13'],
       direction: 'In a steady tempo, arpeggiate F dom13: F-A-C-Eb-D.',
       assessment: 'pitch_order_timing',
       tag: 'funk:arpeggiate_fdom13_it | funk',
@@ -2284,6 +2294,7 @@ const funkL2SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B1: Arpeggiate Chords',
       activity: 'B1.5: Cm9→F13 Arpeggio Sequence (Out of Time)',
+      chordSymbols: ['Cm9', 'F13'],
       direction:
         'Arpeggiate Cm9 then F13 back to back. Hear how the chords connect.',
       assessment: 'pitch_only',
@@ -2323,6 +2334,7 @@ const funkL2SectionB: ActivitySectionV2 = {
       subsection: 'B1: Arpeggiate Chords',
       activity:
         'B1.7: Drop the Sizzle Exercise — Bb→A Voice Leading (Out of Time)',
+      chordSymbols: ['Cm9', 'F13'],
       direction:
         'Play Cm9 then F13 and listen for ONE note: the Bb (7th of Cm9) drops a half step to A (3rd of F13). That is Drop the Sizzle.',
       assessment: 'pitch_only',
@@ -2351,6 +2363,7 @@ const funkL2SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B2: Chord Voicings',
       activity: 'B2.1: Cm9 b3-b7-9 Voicing (Out of Time)',
+      chordSymbols: ['Cm9'],
       direction:
         'Play Cm9 with b3-b7-9: Eb3-Bb3-D4. No root — three notes of minor color.',
       assessment: 'pitch_only',
@@ -2372,6 +2385,7 @@ const funkL2SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B2: Chord Voicings',
       activity: 'B2.2: Cm9 b3-b7-9 Voicing (In Time)',
+      chordSymbols: ['Cm9'],
       direction: 'Play the Cm9 b3-b7-9 voicing in time — stab it.',
       assessment: 'pitch_order_timing',
       tag: 'funk:cm9_rootless_it | funk',
@@ -2395,6 +2409,7 @@ const funkL2SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B2: Chord Voicings',
       activity: 'B2.3: F Dom13 7-3-13 Voicing (Out of Time)',
+      chordSymbols: ['F13'],
       direction:
         'Play F dom13 with b7-3-13: Eb3-A3-D4. Sizzle landing — the Bb became A (3rd of F dom13).',
       assessment: 'pitch_only',
@@ -2416,6 +2431,7 @@ const funkL2SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B2: Chord Voicings',
       activity: 'B2.4: F Dom13 7-3-13 Voicing (In Time)',
+      chordSymbols: ['F13'],
       direction: 'Play the F dom13 7-3-13 voicing in time — stab it.',
       assessment: 'pitch_order_timing',
       tag: 'funk:fdom13_rootless_it | funk',
@@ -2445,7 +2461,7 @@ const funkL2SectionB: ActivitySectionV2 = {
         'The funk9 voicing — this is the sound of funk keyboards.',
       contentGeneration:
         'GCM v8: funk9 voicing [-2,2,7] (b7-9-5, omit 3). Genre_Voicing_Taxonomy: quality=dom9, voicing=funk9. RH: rh_override=[-2,2,7]. Root=C. LH=root_bass. Register: C3-C5.',
-      chordSymbols: ['Cdom9'],
+      chordSymbols: ['C9'],
       targetNotes: [
         { midi: 58, onset: 0, duration: 1800 }, // Bb3 (b7)
         { midi: 62, onset: 0, duration: 1800 }, // D4  (9)
@@ -2469,7 +2485,7 @@ const funkL2SectionB: ActivitySectionV2 = {
       successFeedback: 'Dom9 funk stab in the pocket with the new rhythm.',
       contentGeneration:
         'GCM v8: funk9 voicing [-2,2,7]. Genre_Voicing_Taxonomy: quality=dom9, voicing=funk9. RH: rh_override=[-2,2,7]. Root=C. LH=root_bass. Register: C3-C5. Tempo: 95-108 BPM.',
-      chordSymbols: ['Cdom9'],
+      chordSymbols: ['C9'],
       targetNotes: [
         // bar 1 — rhythm: [0, 360, 960, 1320]
         { midi: 58, onset: 0, duration: 120 },
@@ -2505,6 +2521,7 @@ const funkL2SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B2: Chord Voicings',
       activity: 'B2.7: Funk9 Chromatic Approach Stab (Out of Time)',
+      chordSymbols: ['Bfunk9', 'Cfunk9'],
       direction:
         'Play the C funk9 voicing one half step below (A3-Db4-F#4), then land on the real C funk9 (Bb3-D4-G4). Every voice slides up one semitone.',
       assessment: 'pitch_only',
@@ -2531,6 +2548,7 @@ const funkL2SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B2: Chord Voicings',
       activity: 'B2.8: Funk9 Chromatic Approach Stab (In Time)',
+      chordSymbols: ['Bfunk9', 'Cfunk9'],
       direction:
         'Play the funk9 approach-resolve in time. Approach on the preceding 16th (A3-Db4-F#4), land on Bb3-D4-G4.',
       assessment: 'pitch_order_timing',
@@ -2675,7 +2693,7 @@ const funkL2SectionB: ActivitySectionV2 = {
         'Ab13 to G7alt to Cm9 to F13 — that is sophisticated Funk harmony.',
       contentGeneration:
         'GCM v8: FUNK L3 full progression. HKB v2: Ab13→G7alt→Cm9→F13. Ab13: rootless voicing. G7alt: rootless voicing. Cm9: rootless_b3_b7_9 [3,10,14] (Eb-Bb-D). F13: rootless_b7_3_13 [-2,4,9] (Eb-A-D). Voice leading: chromatic descent through the top voices. Register: C3-C5. Tempo: 95-108 BPM, one chord per bar.',
-      chordSymbols: ['A♭13', 'G7', 'Cm9', 'F13'],
+      chordSymbols: ['Ab13', 'G7', 'Cm9', 'F13'],
       targetNotes: [
         // Bar 1 — Ab13: Gb3+Bb3+C4+F4  [b7-9-3-13]
         { midi: 54, onset: 0, duration: 120 }, // Gb3
@@ -4468,7 +4486,7 @@ const funkL3SectionA: ActivitySectionV2 = {
         'One blues melody, two different chords — that is dual functionality.',
       contentGeneration:
         'GCM v8: FUNK L2 dual functionality play-along. Backing: new funk drum beat + EP stabs. Bar 1: Amin9 stab (C4-G4-B4 = b3-b7-9). Bar 2: Ddom13 stab (C4-F#4-B4 = b7-3-13). Progression: Am9→Ddom13. Scale: minor_blues [0,3,5,6,7,10]. Key: A minor. Register: C4-C5. Tempo: 85-110 BPM. Style: l2a.',
-      chordSymbols: ['Am9', 'Ddom13'],
+      chordSymbols: ['Am9', 'D13'],
       backing_parts: {
         engine_generates: ['drums', 'bass', 'chords'],
         student_plays: ['melody'],
@@ -4544,6 +4562,7 @@ const funkL3SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B1: Amin9 Arpeggios + Voicings',
       activity: 'B1.1: Am9 Arpeggio (Out of Time)',
+      chordSymbols: ['Am9'],
       direction:
         'Play Am9 chord tones one at a time: A-C-E-G-B. Five notes — root, b3, 5, b7, 9.',
       assessment: 'pitch_only',
@@ -4564,6 +4583,7 @@ const funkL3SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B1: Amin9 Arpeggios + Voicings',
       activity: 'B1.2: Am9 Arpeggio Up and Down (In Time)',
+      chordSymbols: ['Am9'],
       direction:
         'Play the Am9 arpeggio up and back down: A-C-E-G-B-G-E-C-A. Nine notes in time — feel the full chord going up, then coming back home.',
       assessment: 'pitch_order_timing',
@@ -4594,6 +4614,7 @@ const funkL3SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B1: Amin9 Arpeggios + Voicings',
       activity: 'B1.3: Am9 3-7-9 Voicing — C-G-B (Out of Time)',
+      chordSymbols: ['Am9'],
       direction:
         'Play Am9 as a three-note upper voicing: C4-G4-B4. You are playing the b3, b7, and 9 — no root, no 5th. Pure color.',
       assessment: 'pitch_only',
@@ -4612,6 +4633,7 @@ const funkL3SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B1: Amin9 Arpeggios + Voicings',
       activity: 'B1.4: Am9 3-7-9 Voicing (In Time)',
+      chordSymbols: ['Am9'],
       direction:
         'Play Am9 (C4-G4-B4) in time. Dotted quarter on beat 1, then a quick 16th note stab after the rest.',
       assessment: 'pitch_order_timing',
@@ -4646,7 +4668,7 @@ const funkL3SectionB: ActivitySectionV2 = {
       tag: 'funk:am9_ddom13_voicelead_oot | funk',
       styleRef: 'l2a',
       successFeedback: 'Am9 → Ddom13 — one note moves, everything changes.',
-      chordSymbols: ['Am9', 'Ddom13'],
+      chordSymbols: ['Am9', 'D13'],
       targetNotes: [
         // Am9: C4-G4-B4
         { midi: 60, onset: 0, duration: 960 }, // C4
@@ -4676,7 +4698,7 @@ const funkL3SectionB: ActivitySectionV2 = {
         engine_generates: ['drums', 'bass'],
         student_plays: ['chords'],
       },
-      chordSymbols: ['Am9', 'Ddom13'],
+      chordSymbols: ['Am9', 'D13'],
       targetNotes: [
         // Bar 1 — Am9: dotted quarter [0,720], 16th rest, 16th [840,120]
         { midi: 60, onset: 0, duration: 720 }, // C4
@@ -4708,6 +4730,7 @@ const funkL3SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B2: Funk9 Voicings',
       activity: 'B2.1: A Funk9 Voicing — G-B-E (Out of Time)',
+      chordSymbols: ['Afunk9'],
       direction:
         'Play the A funk9 voicing: G3-B3-E4. You are playing the b7, 9, and 5 — no root, no 3rd. Open, floating, funky.',
       assessment: 'pitch_only',
@@ -4727,6 +4750,7 @@ const funkL3SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B2: Funk9 Voicings',
       activity: 'B2.2: A Funk9 Voicing (In Time)',
+      chordSymbols: ['Afunk9'],
       direction:
         'Play A funk9 (G3-B3-E4) in time. Four stabs per bar: 16th on beat 1, 16th on the a-of-1, 16th on beat 3, 16th on the e-of-4.',
       assessment: 'pitch_order_timing',
@@ -4761,6 +4785,7 @@ const funkL3SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B2: Funk9 Voicings',
       activity: 'B2.3: Funk9 Chromatic Approach — Ab→A→Ab→A (Out of Time)',
+      chordSymbols: ['Afunk9', 'Abfunk9', 'Afunk9'],
       direction:
         'Play A funk9 (G-B-E), then slide down to Ab funk9 (F#-Bb-Eb), then back to A funk9. The approach chord is one semitone below — every voice moves together.',
       assessment: 'pitch_only',
@@ -4788,6 +4813,7 @@ const funkL3SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B2: Funk9 Voicings',
       activity: 'B2.4: Funk9 Chromatic Approach (In Time)',
+      chordSymbols: ['Afunk9', 'Abfunk9', 'Afunk9'],
       direction:
         'Bar 1: A funk9 stabs on beat 1 and a-of-1, then Ab funk9 eighth into A funk9 eighth. Bar 2: land on A funk9.',
       assessment: 'pitch_order_timing',
@@ -4826,6 +4852,7 @@ const funkL3SectionB: ActivitySectionV2 = {
       section: 'B',
       subsection: 'B2: Funk9 Voicings',
       activity: 'B2.5: Funk9 Chromatic Approach — New Rhythm (In Time)',
+      chordSymbols: ['Abfunk9', 'Afunk9'],
       direction:
         'Bar 1: Ab funk9 16th, A funk9 16th, rest, A funk9 16th, rest, Ab funk9 eighth, A funk9 eighth, rest. Bar 2: final 2-note squeeze Ab→A.',
       assessment: 'pitch_order_timing',
@@ -5050,7 +5077,7 @@ const funkL3SectionB: ActivitySectionV2 = {
       styleRef: 'l2a',
       successFeedback:
         'The full L2 progression — Am9, Ddom13, Edom7#5 back home.',
-      chordSymbols: ['Am9', 'Ddom13', 'Edom7#5', 'Am9'],
+      chordSymbols: ['Am9', 'D13', 'E7#5', 'Am9'],
       targetNotes: [
         // Am9: C4-G4-B4
         { midi: 60, onset: 0, duration: 960 },
@@ -5088,7 +5115,7 @@ const funkL3SectionB: ActivitySectionV2 = {
         engine_generates: ['drums', 'bass'],
         student_plays: ['chords'],
       },
-      chordSymbols: ['Am9', 'Ddom13', 'Edom7#5', 'Am9'],
+      chordSymbols: ['Am9', 'D13', 'E7#5', 'Am9'],
       targetNotes: [
         // Bar 1 — Am9 whole note
         { midi: 60, onset: 0, duration: 1920 },
@@ -5131,7 +5158,7 @@ const funkL3SectionB: ActivitySectionV2 = {
         engine_generates: ['drums', 'bass'],
         student_plays: ['chords'],
       },
-      chordSymbols: ['Am9', 'Ddom13', 'Am9', 'Edom7#5'],
+      chordSymbols: ['Am9', 'D13', 'Am9', 'E7#5'],
       targetNotes: [
         // Bar 1 — Am9
         { midi: 60, onset: 0, duration: 1920 },
@@ -5173,7 +5200,7 @@ const funkL3SectionB: ActivitySectionV2 = {
         engine_generates: ['drums', 'bass'],
         student_plays: ['chords'],
       },
-      chordSymbols: ['Am9', 'Ddom13', 'Am9', 'Edom7#5'],
+      chordSymbols: ['Am9', 'D13', 'Am9', 'E7#5'],
       targetNotes: [
         // Rhythm per bar: [0,240] [240,120] [600,120] [960,960]
         // Bar 1 — Am9
@@ -5460,7 +5487,7 @@ const funkL3SectionC: ActivitySectionV2 = {
       styleRef: 'l2a',
       successFeedback:
         '4-bar bass line — the full L2 progression under your fingers.',
-      chordSymbols: ['Am9', 'Ddom13', 'Am9', 'E7#5'],
+      chordSymbols: ['Am9', 'D13', 'Am9', 'E7#5'],
       targetNotes: [
         // Bar 1 — Amin9
         { midi: 33, onset: 0, duration: 120 }, // A1 — 16th
@@ -5512,7 +5539,7 @@ const funkL3SectionC: ActivitySectionV2 = {
       tag: 'funk:bass_4bar_progression_l2_it | funk',
       styleRef: 'l2a',
       successFeedback: '4-bar bass line in the pocket — L2 bass mastery.',
-      chordSymbols: ['Am9', 'Ddom13', 'Am9', 'E7#5'],
+      chordSymbols: ['Am9', 'D13', 'Am9', 'E7#5'],
       backing_parts: {
         engine_generates: ['drums', 'chords'],
         student_plays: ['bass'],
@@ -5649,6 +5676,7 @@ const funkL3SectionD: ActivitySectionV2 = {
       section: 'D',
       subsection: 'D2: LH Chords + RH Melody',
       activity: 'D2.1: LH Funk9 Approach + RH Motivic Melody (Out of Time)',
+      chordSymbols: ['Abfunk9', 'Afunk9'],
       direction:
         'Left hand plays the A funk9 chord with a half-step chromatic approach from Ab. Right hand plays a syncopated Dorian phrase (G5→F#5→E5→F#5→E5). Two independent parts, one keyboard.',
       assessment: 'pitch_only',
@@ -5692,6 +5720,7 @@ const funkL3SectionD: ActivitySectionV2 = {
       section: 'D',
       subsection: 'D2: LH Chords + RH Melody',
       activity: 'D2.2: LH Funk9 Approach + RH Motivic Melody (In Time)',
+      chordSymbols: ['Abfunk9', 'Afunk9'],
       direction:
         'Same as D2.1 — LH chromatic approach into A funk9, RH syncopated Dorian phrase — both hands locked to the groove.',
       assessment: 'pitch_order_timing_duration',

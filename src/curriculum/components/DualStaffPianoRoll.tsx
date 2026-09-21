@@ -13,6 +13,7 @@
 
 import React, { useMemo } from 'react';
 import type { HandConfig } from '@/curriculum/types/activity.v2';
+import { useRollView } from '@/lib/notation';
 import GenrePianoRoll, {
   type NoteEvent,
   type PianoRollProps,
@@ -182,6 +183,21 @@ const DualStaffPianoRoll: React.FC<DualStaffPianoRollProps> = ({
 
   const rhRowHeight = rhParams.laneCount * laneHeight;
   const lhRowHeight = lhParams.laneCount * laneHeight;
+
+  // Notation is already a grand staff: one roll, hands tagged onto the staves.
+  const [view] = useRollView('learn');
+  if (view === 'notation') {
+    return (
+      <GenrePianoRoll
+        {...rest}
+        events={events}
+        userNotes={userNotes}
+        rowHeight={containerHeight - TIMELINE_HEIGHT}
+        showTimeline={true}
+        onTickChange={onTickChange}
+      />
+    );
+  }
 
   return (
     <div

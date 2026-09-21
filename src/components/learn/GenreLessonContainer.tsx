@@ -4,6 +4,8 @@ import * as Tone from 'tone';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
 import { NoteHold } from '@/components/Games/NoteHold';
 import { PlayAlong } from '@/components/Games/PlayAlong';
+import { PlayAlongRetryCard } from '@/components/Games/PlayAlongRetryCard';
+import type { PlayAlongResult } from '@/components/Games/playAlongGrade';
 import { LessonOverview } from '@/components/learn/LessonOverview';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { NoteEvent } from '@/components/Games/PianoRollPlay';
@@ -142,6 +144,29 @@ function midiToTimedEvents(midis: number[], prefix: string): NoteEvent[] {
   }));
 }
 
+/**
+ * Chords as simultaneities — one slot per chord, every note of it together.
+ *
+ * midiToEvents/midiToTimedEvents place one MIDI per slot, so handing them a
+ * triad arpeggiates it and handing them `triads.flat()` arpeggiates the whole
+ * progression. Section B wants block chords, so it uses this instead.
+ */
+function chordsToEvents(
+  chords: number[][],
+  prefix: string,
+  timed: boolean,
+): NoteEvent[] {
+  const step = timed ? NOTE_DURATION_TICKS * 2 : NOTE_DURATION_TICKS;
+  return chords.flatMap((chord, idx) =>
+    chord.map((midi, noteIdx) => ({
+      id: `${prefix}-${idx}-${noteIdx}-${midi}`,
+      pitchName: Tone.Frequency(midi, 'midi').toNote(),
+      startTicks: idx * step,
+      durationTicks: step,
+    })),
+  );
+}
+
 /** Build arpeggiated chord events: play notes one at a time, then together */
 function chordArpeggiate(notes: number[], prefix: string): NoteEvent[] {
   const events: NoteEvent[] = [];
@@ -261,12 +286,19 @@ function buildStepEvents(
     if (chordMatch) {
       const chordIdx = parseInt(chordMatch[1]) - 1;
       const chord = triads[chordIdx] ?? triads[0];
-      if (chord) return applyColor(toEvents(chord, prefix), activityColor);
+      if (chord)
+        return applyColor(
+          chordsToEvents([chord], prefix, isTimed),
+          activityColor,
+        );
     }
-    // Default: play first 4 triads sequentially
-    const chordSeq = triads.slice(0, 4).flat();
+    // Default: the first 4 triads, one block chord per slot.
+    const chordSeq = triads.slice(0, 4);
     if (chordSeq.length > 0) {
-      return applyColor(toEvents(chordSeq, prefix), activityColor);
+      return applyColor(
+        chordsToEvents(chordSeq, prefix, isTimed),
+        activityColor,
+      );
     }
     return applyColor(toEvents(scaleMidis, prefix), activityColor);
   }
@@ -574,7 +606,13 @@ const GenreLessonContainerInner = ({
   }, [currentStep, currentSectionIdx, currentStepIdx, usesOverlay]);
 
   // --- Navigation handlers ---
+  // Score of the last finished play-along run; under the pass mark it shows
+  // the retry card instead of the completion card.
+  const [playAlongResult, setPlayAlongResult] =
+    useState<PlayAlongResult | null>(null);
+
   const handleStartActivity = () => {
+    setPlayAlongResult(null);
     setActivityState('active');
     setStartSignal((v) => v + 1);
   };
@@ -587,36 +625,45 @@ const GenreLessonContainerInner = ({
     });
   }, [currentSectionIdx, currentStepIdx, stepKey]);
 
-  const advanceToNext = useCallback(() => {
-    markCurrentComplete();
+  const advanceToNext = useCallback(
+    (recordCompletion = true) => {
+      setPlayAlongResult(null);
+      if (recordCompletion) markCurrentComplete();
 
-    // Next step in section
-    if (currentStepIdx < totalSteps - 1) {
-      setCurrentStepIdx((i) => i + 1);
-      setActivityInstanceId((id) => id + 1);
-      return;
-    }
+      // Next step in section
+      if (currentStepIdx < totalSteps - 1) {
+        setCurrentStepIdx((i) => i + 1);
+        setActivityInstanceId((id) => id + 1);
+        return;
+      }
 
-    // Next section
-    if (currentSectionIdx < sections.length - 1) {
-      setCurrentSectionIdx((i) => i + 1);
-      setCurrentStepIdx(0);
-      setActivityInstanceId((id) => id + 1);
-      return;
-    }
+      // Next section
+      if (currentSectionIdx < sections.length - 1) {
+        setCurrentSectionIdx((i) => i + 1);
+        setCurrentStepIdx(0);
+        setActivityInstanceId((id) => id + 1);
+        return;
+      }
 
-    // All done
-    setLessonComplete(true);
-  }, [
-    currentStepIdx,
-    totalSteps,
-    currentSectionIdx,
-    sections.length,
-    markCurrentComplete,
-  ]);
+      // All done
+      setLessonComplete(true);
+    },
+    [
+      currentStepIdx,
+      totalSteps,
+      currentSectionIdx,
+      sections.length,
+      markCurrentComplete,
+    ],
+  );
 
   const handleContinue = useCallback(() => {
     advanceToNext();
+  }, [advanceToNext]);
+
+  // "Continue anyway" from the retry card: the step stays incomplete.
+  const handleContinueAnyway = useCallback(() => {
+    advanceToNext(false);
   }, [advanceToNext]);
 
   const handleActivityCompleteChange = useCallback(
@@ -629,6 +676,7 @@ const GenreLessonContainerInner = ({
 
   const handleRestartActivity = useCallback(() => {
     setStartSignal(0);
+    setPlayAlongResult(null);
     setActivityInstanceId((id) => id + 1);
     if (usesOverlay) {
       setActivityState('pending');
@@ -705,6 +753,10 @@ const GenreLessonContainerInner = ({
   // --- Render state ---
   const showStartOverlay = usesOverlay && activityState === 'pending';
   const showCompletionOverlay = usesOverlay && activityState === 'completed';
+  const showPlayAlongRetry =
+    activityState === 'active' &&
+    playAlongResult != null &&
+    !playAlongResult.passed;
 
   // --- Error / loading states ---
   if (!genreId || !gcmEntry) {
@@ -954,7 +1006,9 @@ const GenreLessonContainerInner = ({
             <div className="relative">
               <div
                 className={
-                  showCompletionOverlay || showStartOverlay
+                  showCompletionOverlay ||
+                  showStartOverlay ||
+                  showPlayAlongRetry
                     ? 'pointer-events-none opacity-30 blur-sm transition duration-300'
                     : 'transition duration-300'
                 }
@@ -965,6 +1019,7 @@ const GenreLessonContainerInner = ({
                   events={currentEvents}
                   isActive={activityState === 'active'}
                   onActivityCompleteChange={handleActivityCompleteChange}
+                  onRunGraded={setPlayAlongResult}
                   startSignal={startSignal}
                   startMessage={currentStep.direction}
                 />
@@ -1034,6 +1089,22 @@ const GenreLessonContainerInner = ({
                 </div>
               )}
 
+              {showPlayAlongRetry && playAlongResult && (
+                <PlayAlongRetryCard
+                  result={playAlongResult}
+                  onTryAgain={() => {
+                    handleRestartActivity();
+                    handleStartActivity();
+                  }}
+                  onContinueAnyway={
+                    currentStepIdx < totalSteps - 1 ||
+                    currentSectionIdx < sections.length - 1
+                      ? handleContinueAnyway
+                      : undefined
+                  }
+                />
+              )}
+
               {/* Completion overlay */}
               {showCompletionOverlay && (
                 <div className="absolute inset-0 flex items-center justify-center px-4">
@@ -1055,7 +1126,9 @@ const GenreLessonContainerInner = ({
                       style={{ color: 'var(--color-text-dim)' }}
                     >
                       {StepComponent === PlayAlong
-                        ? 'You finished the play-along. Continue when ready, or restart to practice again.'
+                        ? playAlongResult
+                          ? `You played ${playAlongResult.hits} of ${playAlongResult.total} notes. Continue when ready, or restart to practice again.`
+                          : 'You finished the play-along. Continue when ready, or restart to practice again.'
                         : 'You completed the sequence. Continue when ready, or restart to practice again.'}
                     </p>
                     <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">

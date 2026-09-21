@@ -1,0 +1,75 @@
+{
+  "lesson-overview": {
+    "violations": [
+      {
+        "id": "button-name",
+        "impact": "critical",
+        "tags": ["wcag2a", "wcag412"],
+        "help": "Buttons must have discernible text",
+        "count": 1,
+        "nodes": [
+          {
+            "target": ".text-gray-400",
+            "html": "<button type=\"button\" class=\"flex size-8 items-center justify-center rounded-full border border-white/10 text-gray-400 transition-colors hover:border-white/20 h",
+            "summary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not"
+          }
+        ]
+      },
+      {
+        "id": "link-name",
+        "impact": "serious",
+        "tags": ["wcag2a", "wcag244", "wcag412"],
+        "help": "Links must have discernible text",
+        "count": 10,
+        "nodes": [
+          {
+            "target": ".text-white\\/85.hover\\:bg-white\\/5[href$=\"home\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": ".bg-white\\/5",
+            "html": "<a data-state=\"closed\" aria-current=\"page\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:rin",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": "a[href$=\"studio\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": "a[href$=\"atlas\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": "a[href$=\"arcade\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": "a[href$=\"search\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": "a[href$=\"classrooms\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          },
+          {
+            "target": "a[href$=\"teacher\"]",
+            "html": "<a data-state=\"closed\" class=\"group flex items-center gap-3 rounded-md py-2.5 outline-none transition-colors md:gap-4 px-0 focus-visible:ring-2 focus-visible:ri",
+            "summary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is "
+          }
+        ]
+      }
+    ],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "count": 10
+      }
+    ]
+  }
+}

@@ -1,0 +1,85 @@
+/* ── Grand staff (VexFlow SVG) ─────────────────────────────────────────────
+   VexFlow writes black fills and strokes as SVG attributes; CSS outranks
+   attributes, so everything follows `color` — the theme's text color, or a
+   note's highlight color set on its group. */
+
+.ma-grand-staff svg {
+  color: var(--color-text, #e8e8f0);
+  overflow: visible;
+}
+
+/* VexFlow leaves fill/stroke off elements that use its default (black), so
+   everything is repainted here rather than by attribute. The marks layer
+   (`.ma-marks`) paints itself and is left out of this, or its slurs would be
+   filled in and its glyphs outlined. */
+.ma-grand-staff svg:not(.ma-marks) * {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+.ma-grand-staff svg:not(.ma-marks) [fill='none'] {
+  fill: none;
+}
+
+.ma-grand-staff svg:not(.ma-marks) [stroke='none'] {
+  stroke: none;
+}
+
+.ma-grand-staff svg .vf-stave,
+.ma-grand-staff svg .vf-staveconnector {
+  color: var(--ma-staff-line, rgba(232, 232, 240, 0.45));
+}
+
+.ma-grand-staff svg .vf-measure-number {
+  color: var(--color-text-dim, #6b6b80);
+}
+
+.ma-grand-staff svg .vf-stavenote {
+  transition:
+    color 120ms ease,
+    opacity 120ms ease;
+}
+
+.ma-grand-staff svg .ma-note-glow {
+  filter: drop-shadow(0 0 4px currentColor);
+}
+
+.ma-grand-staff svg .ma-note-dim {
+  opacity: 0.4;
+}
+
+/* Paper behind the music when the score is laid out on pages. Printing puts
+   its own page breaks in, so the drawn sheet steps out of the way. */
+.ma-staff-page {
+  background: var(--color-surface-1, #14141a);
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+  border-radius: 2px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+@media print {
+  .ma-staff-page {
+    display: none;
+  }
+
+  /* Ink on paper: the theme's light-on-dark colours print black, and the
+     playhead and on-screen page controls stay off the page. */
+  .ma-grand-staff,
+  .ma-grand-staff svg,
+  .ma-grand-staff svg .vf-stave,
+  .ma-grand-staff svg .vf-staveconnector,
+  .ma-grand-staff svg .vf-measure-number {
+    color: #000 !important;
+  }
+
+  .ma-grand-staff {
+    overflow: visible !important;
+  }
+
+  .ma-playhead,
+  .ma-staff-controls,
+  .score-no-print {
+    display: none !important;
+  }
+}

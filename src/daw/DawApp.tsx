@@ -8,6 +8,8 @@ import { PianoRollModal } from '@/daw/components/PianoRoll/PianoRollModal';
 import { ChordAnalysisPrompt } from '@/daw/components/Library/ChordAnalysisPrompt';
 import { PitchEditorModal } from '@/daw/components/PitchEditor/PitchEditorModal';
 import { LeadSheetView } from '@/daw/components/LeadSheet/LeadSheetView';
+import { ScoreView } from '@/daw/components/Score/ScoreView';
+import { PracticeTrackView } from '@/daw/components/Practice/PracticeTrackView';
 import { StudioView } from '@/daw/components/Studio/StudioView';
 import { TimelineWithHeaders } from '@/daw/components/Timeline/TimelineWithHeaders';
 import { PrismSuggestionModal } from '@/daw/components/Prism/PrismSuggestionModal';
@@ -76,6 +78,7 @@ function DawAppInner() {
   useGuitarMidiDetection();
   useTheme();
   const currentView = useStore((s) => s.currentView);
+  const practiceSession = useStore((s) => s.practiceSession);
   const userListOpen = useStore((s) => s.userListOpen);
   const toggleUserList = useStore((s) => s.toggleUserList);
   const chatPanelOpen = useStore((s) => s.chatPanelOpen);
@@ -232,6 +235,18 @@ function DawAppInner() {
               openTrack,
               level,
             );
+            // Land on the one-purpose practice screen; the full Studio is
+            // one click away and shares the same project.
+            const store = useStore.getState();
+            store.setPracticeSession({
+              mode: practiceModeParam,
+              rootParam: params.get('practiceRoot') ?? 'c',
+              level,
+              openTrack,
+            });
+            // A backing track to play over: loop it from the start.
+            store.setLoopEnabled(true);
+            store.setCurrentView('practice');
           } finally {
             clearQuery();
           }
@@ -385,8 +400,17 @@ function DawAppInner() {
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
       <MeshGradientBg />
-      <TransportBar onInit={initEngine} isReady={isReady} />
-      {currentView === 'arrange' ? (
+      {currentView === 'practice' && practiceSession ? (
+        <PracticeTrackView
+          session={practiceSession}
+          isReady={isReady}
+          onInit={initEngine}
+        />
+      ) : (
+        <TransportBar onInit={initEngine} isReady={isReady} />
+      )}
+      {currentView === 'practice' && practiceSession ? null : currentView ===
+          'arrange' || currentView === 'practice' ? (
         <>
           <div className="flex flex-1 overflow-hidden">
             <div className="flex flex-1 flex-col overflow-hidden">
@@ -406,6 +430,8 @@ function DawAppInner() {
         </>
       ) : currentView === 'leadsheet' ? (
         <LeadSheetView />
+      ) : currentView === 'score' ? (
+        <ScoreView />
       ) : (
         <div className="flex flex-1 overflow-hidden">
           <StudioView isReady={isReady} />

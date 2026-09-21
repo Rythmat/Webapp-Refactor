@@ -1,19 +1,24 @@
-/** Maps chord qualities to their most relevant mode and a short description. */
+/**
+ * Maps chord qualities to their most typical mode and a short description.
+ * Descriptions say what the chord *is*, never its role ("the 5 chord"): the
+ * same quality plays different roles in different keys, so the degree comes
+ * from chordModeContext, which knows the key.
+ */
 export const CHORD_THEORY: Record<
   string,
   { mode: string; description: string }
 > = {
   major: {
     mode: 'ionian',
-    description: 'Built on the 1st degree of the major scale',
+    description: 'A major triad: root, major 3rd and 5th',
   },
   minor: {
     mode: 'aeolian',
-    description: 'Built on the 6th degree of the major scale',
+    description: 'A minor triad: root, minor 3rd and 5th',
   },
   dominant7: {
     mode: 'mixolydian',
-    description: 'The 5 chord — creates tension wanting to resolve',
+    description: 'Dominant 7th — tension that wants to resolve',
   },
   minor7: {
     mode: 'dorian',
@@ -21,7 +26,7 @@ export const CHORD_THEORY: Record<
   },
   major7: {
     mode: 'ionian',
-    description: 'Dreamy and open — the tonic with a major 7th',
+    description: 'Dreamy and open — a major triad with a major 7th',
   },
   diminished: {
     mode: 'locrian',
@@ -104,7 +109,7 @@ export const CHORD_THEORY: Record<
   // 13th chords
   dominant13: {
     mode: 'mixolydian',
-    description: 'Dominant 7th with 9th and 13th — rich, soulful 5 chord',
+    description: 'Dominant 7th with 9th and 13th — rich and soulful',
   },
   major13: {
     mode: 'ionian',

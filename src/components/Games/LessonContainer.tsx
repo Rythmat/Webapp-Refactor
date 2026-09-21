@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router';
+import { useSearchParams } from 'react-router-dom';
 import { useMspModuleCompletion } from '@/features/classroom/msp';
 import { PrismModeSlug } from '@/hooks/data';
 import { usePrismMode } from '@/hooks/data/prism/usePrismMode';
@@ -7,6 +8,7 @@ import {
   LearnInputProvider,
   useLearnInputStable,
 } from '@/learn/context/LearnInputContext';
+import { readLessonOrigin } from '@/lib/learn/lessonOrigin';
 import { getLocalModeSteps } from '@/lib/modeStepsFallback';
 import { keyLabelToSemitone, urlParamToKeyLabel } from '@/lib/musicKeyUrl';
 import { HeaderBar } from '../ClassroomLayout/HeaderBar';
@@ -67,6 +69,8 @@ const LessonContainerInner = ({
   startAtActivityKey,
 }: LessonContainerProps) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const origin = useMemo(() => readLessonOrigin(searchParams), [searchParams]);
   const keyOption = useMemo(() => resolveKeyOption(rootKey), [rootKey]);
 
   const { start: startInput, stop: stopInput } = useLearnInputStable();
@@ -102,6 +106,7 @@ const LessonContainerInner = ({
           scaleMidis={scaleMidis}
           startAtActivityKey={startAtActivityKey}
           onComplete={reportCompletion}
+          origin={origin}
         />
       </div>
     </div>

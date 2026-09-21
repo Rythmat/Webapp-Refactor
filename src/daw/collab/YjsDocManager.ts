@@ -417,5 +417,13 @@ export function hydrateDocFromStore(doc: Y.Doc, state: AllSlices): void {
     leadSheet.set('repeats', JSON.stringify(state.leadSheetRepeats));
     leadSheet.set('chordFormat', state.leadSheetChordFormat);
     leadSheet.set('showRepeats', state.leadSheetShowRepeats);
+    leadSheet.set('scoreChordTracks', JSON.stringify(state.scoreChordTracks));
+    leadSheet.set('scoreChordHidden', JSON.stringify(state.scoreChordHidden));
+    leadSheet.set(
+      'scoreArticulations',
+      JSON.stringify(state.scoreArticulations),
+    );
+    leadSheet.set('scoreSlurs', JSON.stringify(state.scoreSlurs));
+    leadSheet.set('scoreSlashNotes', JSON.stringify(state.scoreSlashNotes));
   });
 }

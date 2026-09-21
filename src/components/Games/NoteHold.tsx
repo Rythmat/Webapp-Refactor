@@ -9,16 +9,18 @@ import {
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
+import type { LessonChordSymbol } from '@/curriculum/notation/lessonChordSymbols';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
 import { useLearnInputStable } from '@/learn/context/LearnInputContext';
 import {
   pitchNameToMidi,
   THEORY_ACTIVITY_BPM,
-  WRONG_NOTE_KEY_COLOR,
   type NoteEvent,
   type NoteHoldMeta,
 } from './PianoRollPlay';
+import { useWrongNoteFlash, WrongNoteFlash } from './WrongNoteFlash';
+import { WRONG_KEY_COLOR } from './liveFeedback';
 
 const DEFAULT_EVENTS: NoteEvent[] = [
   { id: 'e1', pitchName: 'C3', startTicks: 0, durationTicks: 1920 },
@@ -51,6 +53,8 @@ type NoteHoldProps = {
   startSignal?: number;
   /** Tint every target note on the keyboard (Practice mode scaffolding). */
   showTargetKeys?: boolean;
+  /** Chord symbols above the staff in notation view; chord activities only. */
+  chordSymbols?: readonly LessonChordSymbol[];
   /** Lesson spelling map, passed through to the piano roll's lane labels. */
   noteSpelling?: Map<number, string>;
 };
@@ -62,6 +66,7 @@ export const NoteHold = ({
   isActive = true,
   startSignal = 0,
   showTargetKeys = false,
+  chordSymbols,
   noteSpelling,
 }: NoteHoldProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
@@ -164,6 +169,15 @@ export const NoteHold = ({
       .filter((midi): midi is number => typeof midi === 'number');
   }, [currentChord]);
 
+  // Practice lights only the chord (or note) being asked for now.
+  const nextTargetKeys = useMemo(() => {
+    const keys = new Map<number, string>();
+    currentChordMidis.forEach((midi) =>
+      keys.set(midi, noteColorByMidi.get(midi) ?? activityColor),
+    );
+    return keys;
+  }, [activityColor, currentChordMidis, noteColorByMidi]);
+
   const isCurrentChordHeld = useMemo(() => {
     if (!currentChord || currentChordMidis.length === 0) {
       return false;
@@ -177,9 +191,13 @@ export const NoteHold = ({
     return activeMidis.every((midi) => currentChordMidis.includes(midi));
   }, [currentChord, currentChordMidis, activeMidis]);
 
+  const { flash, flashWrong } = useWrongNoteFlash();
+
   const handleKeyboardNoteOn = useCallback(
-    (midi: number) => {
-      const color = noteColorByMidi.get(midi) ?? WRONG_NOTE_KEY_COLOR;
+    (midi: number, wrong: boolean) => {
+      const color = wrong
+        ? WRONG_KEY_COLOR
+        : (noteColorByMidi.get(midi) ?? WRONG_KEY_COLOR);
 
       const id = `keyboard-${midi}`;
       setKeyboardPlayingNotes((prev) => [
@@ -315,9 +333,21 @@ export const NoteHold = ({
         activeMidiSetRef.current.add(midi);
         setActiveMidis([...activeMidiSetRef.current]);
       }
-      handleKeyboardNoteOn(midi);
+      // Wrong means not part of the chord being held right now — a pitch
+      // from a later step of the sequence is still wrong at this moment.
+      const wrong =
+        currentChordMidis.length > 0 && !currentChordMidis.includes(midi);
+      handleKeyboardNoteOn(midi, wrong);
+      if (wrong) flashWrong(midi);
     },
-    [handleMidiNoteOff, isActive, triggerSynthAttack, handleKeyboardNoteOn],
+    [
+      handleMidiNoteOff,
+      isActive,
+      triggerSynthAttack,
+      handleKeyboardNoteOn,
+      currentChordMidis,
+      flashWrong,
+    ],
   );
 
   const onMidiNoteOn = useCallback(
@@ -431,6 +461,7 @@ export const NoteHold = ({
             activeMidis={activeMidis}
             bars={requiredBars}
             beatsPerBar={4}
+            chordSymbols={chordSymbols}
             events={resolvedEvents}
             inTime={false}
             isPlaying={isPlaying}
@@ -445,14 +476,15 @@ export const NoteHold = ({
             onPlayingChange={setIsPlaying}
           />
           <div className="flex items-stretch gap-3">
-            <div className="flex-1 min-w-0">
+            <div className="relative flex-1 min-w-0">
+              <WrongNoteFlash flash={flash} noteSpelling={noteSpelling} />
               <PianoKeyboard
                 showOctaveStart
                 activeBlackKeyColor={activityColor}
                 activeWhiteKeyColor={activityColor}
                 className="mx-auto"
                 endC={6}
-                hintNotes={showTargetKeys ? noteColorByMidi : undefined}
+                hintNotes={showTargetKeys ? nextTargetKeys : undefined}
                 playingNotes={keyboardPlayingNotes}
                 startC={2}
               />

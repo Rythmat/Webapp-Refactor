@@ -10,11 +10,8 @@ import {
 } from '@prism/engine';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import type { UnisonChordRegion, UnisonDocument } from '@/unison/types/schema';
-import { getChordTheory } from './chordTheoryMap';
+import { chordDescription, chordModeContext } from './chordInKey';
 import {
-  PARENT_SCALE_INFO,
-  FAMILY_INTERVALS,
-  FAMILY_MODES,
   formatQuality,
   degreeToHybrid,
   intervalsToString,
@@ -90,29 +87,18 @@ export function buildChordInsights(
 
     const [r, g, b] = getChordColor(degreeName, rootMidi, mode);
 
-    const chordRootPc = bassMidi % 12;
-    const chordRootMode = getChordTheory(quality).mode;
-
-    const chordModeInfo = PARENT_SCALE_INFO[chordRootMode];
-    const chordParentFamily = chordModeInfo?.family ?? 'Ionian';
-    const chordParentRootPc = chordModeInfo
-      ? (chordRootPc + chordModeInfo.offset) % 12
-      : chordRootPc;
-
-    const sessionInterval = (rootNote - chordParentRootPc + 12) % 12;
-    const chordFamilyIntervals = FAMILY_INTERVALS[chordParentFamily];
-    const sessionDegIdx = chordFamilyIntervals?.indexOf(sessionInterval) ?? -1;
-    const sessionMode =
-      sessionDegIdx >= 0
-        ? (FAMILY_MODES[chordParentFamily]?.[sessionDegIdx] ?? null)
-        : null;
-
-    const isChordParent = !chordModeInfo || chordModeInfo.offset === 0;
-    const isSessionParent = isChordParent || chordParentRootPc === rootNote;
+    const context = chordModeContext({
+      chordRootPc: bassMidi % 12,
+      quality,
+      intervals: intervals ?? [],
+      rootNote,
+      mode,
+      tonicName: displayAccidentals(noteNameInKey(rootNote, rootNote, mode)),
+    });
+    const { chordRootMode, sessionMode, parentMode, isSessionParent } = context;
     const parentKeyLetter = displayAccidentals(
-      noteNameInKey(chordParentRootPc, rootNote, mode),
+      noteNameInKey(context.parentRootPc, rootNote, mode),
     );
-    const parentMode = FAMILY_MODES[chordParentFamily]?.[0] ?? chordRootMode;
 
     const allInterps = findAllInterpretations(degreeName);
     const alternatives = allInterps.filter(
@@ -136,7 +122,7 @@ export function buildChordInsights(
       parentKeyLetter,
       parentMode,
       isSessionParent,
-      description: getChordTheory(quality).description,
+      description: chordDescription(quality, context),
       alternatives,
       // UNISON fields
       isDiatonic: unisonRegion?.isDiatonic,

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Tone from 'tone';
-import { ensureToneUsesSharedContext } from '@/audio/core/toneBridge';
 import {
   releaseAllPianoNotes,
   startPianoSampler,
@@ -10,17 +9,28 @@ import {
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
+import type { LessonChordSymbol } from '@/curriculum/notation/lessonChordSymbols';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
-import { useLessonVolume } from '@/learn/audio/useLessonVolume';
+import { playClick, resetClickSpacing } from '@/learn/audio/metronomeClick';
+import { playGuideNote } from '@/learn/audio/practiceGuide';
+import { usePracticeSettings } from '@/learn/audio/usePracticeSettings';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
+import { PracticeControls } from '@/learn/components/PracticeControls';
 import { useLearnInputStable } from '@/learn/context/LearnInputContext';
 import { ArcadeGameHeader } from './ArcadeGameHeader';
 import {
   NoteEvent,
   pitchNameToMidi,
   THEORY_ACTIVITY_BPM,
-  WRONG_NOTE_KEY_COLOR,
 } from './PianoRollPlay';
+import { useWrongNoteFlash, WrongNoteFlash } from './WrongNoteFlash';
+import {
+  activationWindow,
+  dueMidisAt,
+  nextTargets,
+  WRONG_KEY_COLOR,
+} from './liveFeedback';
+import { gradePlayAlong, type PlayAlongResult } from './playAlongGrade';
 
 const DEFAULT_EVENTS: NoteEvent[] = [
   { id: 'e1', pitchName: 'C3', startTicks: 0, durationTicks: 1920 },
@@ -44,13 +54,15 @@ const DEFAULT_EVENTS: NoteEvent[] = [
 const TICKS_PER_QUARTER = 480;
 const COUNT_IN_TICKS = 4 * TICKS_PER_QUARTER;
 const TICKS_PER_BAR = TICKS_PER_QUARTER * 4;
-// How far before a note's start it may be played early, as a fraction of the
-// note's play window (its duration).
-const EARLY_PLAY_WINDOW_RATIO = 1 / 8;
+const midiOfNote = (note: NoteEvent) =>
+  typeof note.midi === 'number' ? note.midi : pitchNameToMidi(note.pitchName);
 
 type PlayAlongProps = {
   events?: NoteEvent[];
+  /** Called with `true` only when a run passes (see playAlongGrade). */
   onActivityCompleteChange?: (isComplete: boolean) => void;
+  /** Called at the end of every run, pass or fail, with its score. */
+  onRunGraded?: (result: PlayAlongResult) => void;
   activityColor?: string;
   isActive?: boolean;
   startSignal?: number;
@@ -58,6 +70,13 @@ type PlayAlongProps = {
   arcade?: boolean;
   /** Tint every target note on the keyboard (Practice mode scaffolding). */
   showTargetKeys?: boolean;
+  /** Chord symbols above the staff in notation view; chord activities only. */
+  chordSymbols?: readonly LessonChordSymbol[];
+  /**
+   * Sound the target notes as the playhead reaches them (Practice mode). Off in
+   * Play Now, where the student proves the notes unaided.
+   */
+  playTargetNotes?: boolean;
   /** Lesson spelling map, passed through to the piano roll's lane labels. */
   noteSpelling?: Map<number, string>;
 };
@@ -77,11 +96,14 @@ type WrongNote = {
 export const PlayAlong = ({
   events,
   onActivityCompleteChange,
+  onRunGraded,
   activityColor = '#60a5fa',
   isActive = true,
   startSignal = 0,
   arcade = false,
   showTargetKeys = false,
+  chordSymbols,
+  playTargetNotes = false,
   noteSpelling,
 }: PlayAlongProps) => {
   const resolvedEvents = useMemo(() => events ?? DEFAULT_EVENTS, [events]);
@@ -110,29 +132,17 @@ export const PlayAlong = ({
   const [wrongNotes, setWrongNotes] = useState<WrongNote[]>([]);
   const lastCompletionShownRef = useRef(false);
   const lastMetronomeBeatRef = useRef<number | null>(null);
-  const lastMetronomeClickAtRef = useRef<number>(-1);
   const hasStartedAudioContextRef = useRef(false);
-  // Programmatic metronome synth — same MembraneSynth recipe used by the
-  // genre/courses lessons (curriculum/hooks/useMetronome.ts). Switched away
-  // from pre-rendered mp3 Tone.Players because the player buffers were
-  // failing to play reliably in theory activities.
-  const metronomeSynth = useMemo(() => {
-    // Built at render, before anything calls startTone() — bridge first so
-    // the synth binds to the shared context.
-    ensureToneUsesSharedContext();
-    return new Tone.MembraneSynth({
-      pitchDecay: 0.008,
-      octaves: 2,
-      envelope: { attack: 0.001, decay: 0.04, sustain: 0, release: 0.05 },
-    }).toDestination();
-  }, []);
+  // Target notes already sounded this run, keyed by event id, so the guide
+  // fires each note once even though the effect runs every animation frame.
+  const guidedEventIdsRef = useRef<Set<string>>(new Set());
 
-  // Mirror the lesson volume dial onto the metronome synth so the dial in
-  // theory lessons actually controls the click level.
-  const { volumeDb: lessonVolumeDb } = useLessonVolume();
-  useEffect(() => {
-    metronomeSynth.volume.value = lessonVolumeDb;
-  }, [metronomeSynth, lessonVolumeDb]);
+  // Metronome on/off and the tempo this run should use. The click itself lives
+  // in learn/audio/metronomeClick.ts — a module-level synth, because a
+  // component-owned one gets disposed by StrictMode's setup/cleanup/setup and
+  // then silently throws on every beat.
+  const { metronomeEnabled, resolveTempo } = usePracticeSettings();
+  const playbackBpm = resolveTempo(THEORY_ACTIVITY_BPM);
 
   //Current tick reference
   const currentTickRef = useRef(currentTick);
@@ -152,16 +162,6 @@ export const PlayAlong = ({
     }
   }, []);
 
-  useEffect(() => {
-    return () => {
-      try {
-        metronomeSynth.dispose();
-      } catch {
-        // Already disposed or in an inconsistent state — safe to ignore.
-      }
-    };
-  }, [metronomeSynth]);
-
   const releaseActiveNotes = useCallback(() => {
     void releaseAllPianoNotes();
     activeMidiSetRef.current = new Set<number>();
@@ -174,6 +174,8 @@ export const PlayAlong = ({
     setWrongNotes([]);
     setCurrentTick(-COUNT_IN_TICKS);
     lastMetronomeBeatRef.current = null;
+    guidedEventIdsRef.current = new Set();
+    resetClickSpacing();
   }, []);
 
   // Triggers the on state of the syntheizer with a specified note and a given velocity
@@ -186,41 +188,15 @@ export const PlayAlong = ({
     void triggerPianoRelease(name, Tone.now());
   }, []);
 
-  const playMetronome = useCallback(
-    (isDownbeat: boolean) => {
-      if (Tone.getContext().state !== 'running') return;
-      const now = Tone.now();
-      // Guard against duplicate same-tick starts (can happen around rerenders/activity transitions).
-      if (
-        lastMetronomeClickAtRef.current >= 0 &&
-        now - lastMetronomeClickAtRef.current < 0.01
-      ) {
-        return;
-      }
-      lastMetronomeClickAtRef.current = now;
-      try {
-        metronomeSynth.triggerAttackRelease(
-          isDownbeat ? 'C5' : 'C6',
-          '32n',
-          now,
-          isDownbeat ? 0.9 : 0.5,
-        );
-      } catch {
-        // Synth may be disposed mid-transition.
-      }
-    },
-    [metronomeSynth],
-  );
-
   useEffect(() => {
-    if (!isPlaying) {
+    if (!isPlaying || !metronomeEnabled) {
       lastMetronomeBeatRef.current = null;
-      lastMetronomeClickAtRef.current = -1;
+      resetClickSpacing();
       return;
     }
     if (currentTick < -COUNT_IN_TICKS || currentTick > maxEventEndTick) {
       lastMetronomeBeatRef.current = null;
-      lastMetronomeClickAtRef.current = -1;
+      resetClickSpacing();
       return;
     }
     const ticksIntoSession = currentTick + COUNT_IN_TICKS;
@@ -228,9 +204,31 @@ export const PlayAlong = ({
     if (lastMetronomeBeatRef.current !== beatIndex) {
       lastMetronomeBeatRef.current = beatIndex;
       const beatInBar = beatIndex % 4;
-      playMetronome(beatInBar === 0);
+      playClick(beatInBar === 0);
     }
-  }, [isPlaying, currentTick, maxEventEndTick, playMetronome]);
+  }, [isPlaying, metronomeEnabled, currentTick, maxEventEndTick]);
+
+  // Practice guide — sound each target note as the playhead reaches it, at the
+  // note's own drawn length so it sustains exactly as the roll shows it.
+  useEffect(() => {
+    if (!isPlaying || !playTargetNotes) return;
+    if (currentTick < 0) return;
+
+    const secondsPerTick = 60 / playbackBpm / TICKS_PER_QUARTER;
+    const sounded = guidedEventIdsRef.current;
+
+    for (const event of resolvedEvents) {
+      if (sounded.has(event.id)) continue;
+      if (currentTick < event.startTicks) continue;
+      sounded.add(event.id);
+      const midi =
+        typeof event.midi === 'number'
+          ? event.midi
+          : pitchNameToMidi(event.pitchName);
+      if (typeof midi !== 'number') continue;
+      playGuideNote(midi, event.durationTicks * secondsPerTick, event.velocity);
+    }
+  }, [isPlaying, playTargetNotes, currentTick, resolvedEvents, playbackBpm]);
 
   const noteColorByMidi = useMemo(() => {
     const map = new Map<number, string>();
@@ -256,9 +254,13 @@ export const PlayAlong = ({
     return Math.max(1, Math.ceil(maxEventEndTick / TICKS_PER_BAR));
   }, [maxEventEndTick]);
 
+  const { flash, flashWrong } = useWrongNoteFlash();
+
   const handleKeyboardNoteOn = useCallback(
-    (midi: number) => {
-      const color = noteColorByMidi.get(midi) ?? WRONG_NOTE_KEY_COLOR;
+    (midi: number, wrong: boolean) => {
+      const color = wrong
+        ? WRONG_KEY_COLOR
+        : (noteColorByMidi.get(midi) ?? WRONG_KEY_COLOR);
       const id = `keyboard-${midi}`;
       setKeyboardPlayingNotes((prev) => [
         ...prev.filter((event) => event.midi !== midi),
@@ -285,16 +287,7 @@ export const PlayAlong = ({
   const showInTimeCompletion =
     !isPlaying && maxEventEndTick > 0 && currentTick >= maxEventEndTick;
 
-  const getActivationWindow = useCallback((note: NoteEvent) => {
-    // Extend the window earlier by 1/8 of the play window so a note can be
-    // played early, while still accepting it through to the note's natural
-    // end (extend, don't shift).
-    const earlyAllowance = note.durationTicks * EARLY_PLAY_WINDOW_RATIO;
-    return {
-      start: note.startTicks - earlyAllowance,
-      end: note.startTicks + note.durationTicks,
-    };
-  }, []);
+  const getActivationWindow = activationWindow;
 
   // Updates the note performance record for the appropriate event, given the incoming midi signal, the current time tick, and a boolean for if the signal is on or off
   const parsePerformance = useCallback(
@@ -417,10 +410,19 @@ export const PlayAlong = ({
         activeMidiSetRef.current.add(midi);
         setActiveMidis([...activeMidiSetRef.current]);
       }
-      handleKeyboardNoteOn(midi);
+      // Judged against what's due at this moment, not just whether the pitch
+      // appears somewhere in the activity: the right note at the wrong time
+      // is a wrong note.
+      const wrong =
+        isPlaying &&
+        !dueMidisAt(resolvedEvents, currentTickRef.current, midiOfNote).has(
+          midi,
+        );
+      handleKeyboardNoteOn(midi, wrong);
       parsePerformance(event.number, currentTickRef.current, true);
-      // Wrong pitches get drawn on the roll in gray, like on the keyboard.
-      if (isPlaying && !targetMidiSet.has(midi)) {
+      if (wrong) {
+        flashWrong(midi);
+        // Drawn on the roll in grey, like on the keyboard.
         setWrongNotes((prev) => [
           ...prev,
           { midi, onset: currentTickRef.current, endTick: null },
@@ -431,7 +433,8 @@ export const PlayAlong = ({
       handleMidiNoteOff,
       isActive,
       isPlaying,
-      targetMidiSet,
+      resolvedEvents,
+      flashWrong,
       triggerSynthAttack,
       handleKeyboardNoteOn,
       parsePerformance,
@@ -490,6 +493,8 @@ export const PlayAlong = ({
         midi: note.midi,
         onset: note.onset,
         duration: (note.endTick ?? currentTick) - note.onset,
+        // Judged at the press: the right pitch at the wrong time is wrong.
+        correct: false,
       })),
     [wrongNotes, currentTick],
   );
@@ -497,10 +502,25 @@ export const PlayAlong = ({
   useEffect(() => {
     const wasShown = lastCompletionShownRef.current;
     if (!wasShown && showInTimeCompletion) {
-      onActivityCompleteChange?.(true);
+      // Reaching the end of the roll only finishes the run; it passes on the
+      // notes actually played.
+      const result = gradePlayAlong(
+        resolvedEvents,
+        notePerformance,
+        wrongNotes.length,
+      );
+      onRunGraded?.(result);
+      if (result.passed) onActivityCompleteChange?.(true);
     }
     lastCompletionShownRef.current = showInTimeCompletion;
-  }, [onActivityCompleteChange, showInTimeCompletion]);
+  }, [
+    notePerformance,
+    onActivityCompleteChange,
+    onRunGraded,
+    resolvedEvents,
+    showInTimeCompletion,
+    wrongNotes.length,
+  ]);
 
   useEffect(() => {
     if (startSignal <= 0) return;
@@ -543,6 +563,21 @@ export const PlayAlong = ({
     };
   }, [releaseActiveNotes]);
 
+  // Practice lights only what's due next — the whole chord at once — rather
+  // than every pitch in the activity.
+  const nextTargetKeys = useMemo(() => {
+    const keys = new Map<number, string>();
+    for (const note of nextTargets(
+      resolvedEvents,
+      (n) => notePerformance[n.id]?.startTick != null,
+      currentTick,
+    )) {
+      const midi = midiOfNote(note);
+      if (midi != null) keys.set(midi, note.color ?? activityColor);
+    }
+    return keys;
+  }, [activityColor, currentTick, notePerformance, resolvedEvents]);
+
   const gameplayContent = (
     <>
       <GenrePianoRoll
@@ -554,7 +589,7 @@ export const PlayAlong = ({
         events={resolvedEvents}
         isPlaying={isPlaying}
         performanceMeta={performanceMeta}
-        playSpeed={THEORY_ACTIVITY_BPM}
+        playSpeed={playbackBpm}
         rowHeight={28 * 18}
         subdivision={1}
         keyColor={activityColor}
@@ -564,20 +599,23 @@ export const PlayAlong = ({
         noteSpelling={noteSpelling}
         onPlayingChange={setIsPlaying}
         onTickChange={setCurrentTick}
+        chordSymbols={chordSymbols}
       />
       <div className="flex items-stretch gap-3">
-        <div className="flex-1 min-w-0">
+        <div className="relative flex-1 min-w-0">
+          <WrongNoteFlash flash={flash} noteSpelling={noteSpelling} />
           <PianoKeyboard
             showOctaveStart
             activeBlackKeyColor={activityColor}
             activeWhiteKeyColor={activityColor}
             className="mx-auto"
             endC={6}
-            hintNotes={showTargetKeys ? noteColorByMidi : undefined}
+            hintNotes={showTargetKeys ? nextTargetKeys : undefined}
             playingNotes={keyboardPlayingNotes}
             startC={2}
           />
         </div>
+        <PracticeControls activityBpm={THEORY_ACTIVITY_BPM} />
         <LessonVolumeDial />
       </div>
     </>

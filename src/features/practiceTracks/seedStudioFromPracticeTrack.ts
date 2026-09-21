@@ -20,13 +20,16 @@ import {
  * Async because `generatePracticeTrack` fetches + parses the fixed Drums
  * groove's `.mid` file (Studio's own Grooves-browser import pipeline) —
  * callers must `await` this before relying on the seeded tracks.
+ *
+ * Resolves to the open track's id. That track is selected, record-armed and
+ * monitored, so a MIDI keyboard plays into it and Record captures the take.
  */
 export const seedStudioFromPracticeTrack = async (
   mode: DiatonicMode,
   root: number,
   openTrack: PracticeOpenTrack,
   level: PracticeLevel = 1,
-): Promise<void> => {
+): Promise<string> => {
   const result = await generatePracticeTrack(mode, root, openTrack, level);
   const store = useStore.getState();
 
@@ -77,4 +80,12 @@ export const seedStudioFromPracticeTrack = async (
 
   store.setLoopRange(0, result.bassClip.durationTicks ?? 7680);
   store.setCurrentView('arrange');
+
+  const openTrackId = openTrack === 'melody' ? melodyTrackId : chordsTrackId;
+  for (const track of useStore.getState().tracks) {
+    const isOpen = track.id === openTrackId;
+    store.updateTrack(track.id, { recordArmed: isOpen, monitoring: isOpen });
+  }
+  store.setSelectedTrackId(openTrackId);
+  return openTrackId;
 };

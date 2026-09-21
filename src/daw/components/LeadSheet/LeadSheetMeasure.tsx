@@ -4,6 +4,7 @@ import type { LeadSheetSection } from '@/daw/store/uiSlice';
 import { useStore } from '@/daw/store';
 import { useChordNotation } from '@/lib/chordNotation';
 import { ChordSymbol } from './ChordSymbol';
+import { itemKey, type LeadSheetItem } from './leadSheetSelection';
 import { SectionMarker } from './SectionMarker';
 
 // ── Layout constants ─────────────────────────────────────────────────────
@@ -13,7 +14,7 @@ export const MEASURE_WIDTH = 200;
 /** Height of the staff (5 lines) */
 export const STAFF_HEIGHT = 40;
 /** Space above staff for chord symbols and section markers */
-export const CHORD_AREA_HEIGHT = 50;
+export const CHORD_AREA_HEIGHT = 58;
 /** Total height per measure including chord area */
 export const MEASURE_HEIGHT = CHORD_AREA_HEIGHT + STAFF_HEIGHT + 20;
 /** Staff line spacing */
@@ -58,7 +59,24 @@ interface LeadSheetMeasureProps {
   restBars?: number;
   /** If true, draw a fermata symbol above this measure. */
   hasFermata?: boolean;
+  /** Keys of everything currently selected, across the whole sheet. */
+  selectedKeys?: ReadonlySet<string>;
+  /** A click on the measure, one of its beats, or a melody note. */
+  onSelectItem?: (item: LeadSheetItem, event: React.MouseEvent) => void;
+  /** Double-click on a beat: add a chord there, ready to be typed over. */
+  onInsertChordAt?: (tick: number) => void;
+  /** Beats in a bar — 4 in common time. */
+  beatsPerMeasure?: number;
+  /** Newly inserted chord that should open straight into its edit box. */
+  autoEditRegionId?: string | null;
+  /** First bar of its system: its barline target leans inward, not off the edge. */
+  isSystemStart?: boolean;
+  /** Last bar of the piece: it also owns the barline that closes the piece. */
+  isLastMeasure?: boolean;
 }
+
+/** Half the width of a slash's click target, either side of the slash. */
+const BEAT_HIT_HALF_WIDTH = 13;
 
 /**
  * Renders a single measure: staff lines, bar lines, chord symbols,
@@ -85,6 +103,13 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
   onDeleteChord,
   restBars,
   hasFermata,
+  selectedKeys,
+  onSelectItem,
+  onInsertChordAt,
+  beatsPerMeasure = 4,
+  autoEditRegionId,
+  isSystemStart,
+  isLastMeasure,
 }: LeadSheetMeasureProps) {
   const width = w ?? MEASURE_WIDTH;
   // Jazz / Roman override the lead sheet's chord format; key comes from the store.
@@ -94,16 +119,86 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
   const isMultiBarRest = restBars != null && restBars > 0;
   const staffTop = CHORD_AREA_HEIGHT;
 
-  const handleStaffClick = useCallback(
-    (e: React.MouseEvent<SVGRectElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const localX = e.clientX - rect.left;
-      const beat = Math.floor((localX / width) * 4);
-      const tick = measure.startTick + beat * PPQ;
-      onClickEmptyBeat(tick);
+  // Clicking the staff selects: the bar itself, or one beat when the click
+  // lands on a slash. Adding a chord moved to a double-click (and ⌘K), so a
+  // single click can mean "select" everywhere, including on an empty bar.
+  const handleMeasureClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onSelectItem?.({ kind: 'measure', measureIndex }, e);
     },
-    [measure.startTick, onClickEmptyBeat, width],
+    [measureIndex, onSelectItem],
   );
+
+  const handleBeatClick = useCallback(
+    (beat: number) => (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onSelectItem?.({ kind: 'beat', measureIndex, beat }, e);
+    },
+    [measureIndex, onSelectItem],
+  );
+
+  const handleBeatDoubleClick = useCallback(
+    (beat: number) => (e: React.MouseEvent) => {
+      e.stopPropagation();
+      const tick = measure.startTick + beat * PPQ;
+      if (onInsertChordAt) onInsertChordAt(tick);
+      else onClickEmptyBeat(tick);
+    },
+    [measure.startTick, onInsertChordAt, onClickEmptyBeat],
+  );
+
+  const isMeasureSelected =
+    selectedKeys?.has(itemKey({ kind: 'measure', measureIndex })) ?? false;
+  const isBeatSelected = (beat: number) =>
+    selectedKeys?.has(itemKey({ kind: 'beat', measureIndex, beat })) ?? false;
+  const beatCellWidth = width / Math.max(1, beatsPerMeasure);
+
+  // A barline is named by the measure it follows into — barline 2 is the one
+  // between bars 1 and 2 — so this measure owns the barline on its left, and
+  // the last one also owns the barline that closes the piece. Same naming and
+  // same 14px target as the Score. The closing barline leans further inward
+  // than the Score's does, because an SVG clips at its edge where the Score's
+  // absolutely-positioned overlay can hang past it.
+  const handleBarlineClick = useCallback(
+    (barlineIndex: number) => (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onSelectItem?.({ kind: 'barline', measureIndex: barlineIndex }, e);
+    },
+    [onSelectItem],
+  );
+  const isBarlineSelected = (barlineIndex: number) =>
+    selectedKeys?.has(
+      itemKey({ kind: 'barline', measureIndex: barlineIndex }),
+    ) ?? false;
+
+  const barlineTarget = (barlineIndex: number, atX: number, lean: number) => {
+    const selected = isBarlineSelected(barlineIndex);
+    return (
+      <rect
+        key={`barline-${barlineIndex}`}
+        className="leadsheet-barline-target"
+        data-barline-target={barlineIndex}
+        data-selected={selected || undefined}
+        x={atX - lean}
+        y={staffTop}
+        width={14}
+        height={STAFF_HEIGHT}
+        rx={2}
+        fill={
+          selected
+            ? 'color-mix(in srgb, var(--color-accent, #8b5cf6) 35%, transparent)'
+            : 'transparent'
+        }
+        stroke={selected ? 'var(--color-accent, #8b5cf6)' : 'transparent'}
+        strokeWidth={1}
+        onClick={handleBarlineClick(barlineIndex)}
+        style={{ cursor: 'pointer' }}
+      >
+        <title>{`Barline before bar ${barlineIndex + 1}`}</title>
+      </rect>
+    );
+  };
 
   return (
     <g transform={`translate(${x}, 0)`}>
@@ -139,13 +234,22 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
         </g>
       ) : (
         <>
-          {measure.chords.map((chord, i) => {
+          {measure.chords.map((chord) => {
             const beatPos = chord.beatOffsetTicks / PPQ;
-            const cx = (beatPos / 4) * width + 4;
+            const cx = (beatPos / beatsPerMeasure) * width + 4;
+            const chordY = CHORD_AREA_HEIGHT - 8;
             const isBeingDragged = chordDrag?.regionId === chord.regionId;
+            // Highlight from the sheet's selection so a whole range of chord
+            // symbols reads as selected, not just the last one clicked.
+            const chordSelected =
+              selectedChordId === chord.regionId ||
+              (selectedKeys?.has(
+                itemKey({ kind: 'chord', regionId: chord.regionId }),
+              ) ??
+                false);
             return (
               <ChordSymbol
-                key={`${chord.regionId}-${i}`}
+                key={chord.regionId}
                 noteName={chord.noteName}
                 degreeName={chord.name}
                 degreeKey={chord.degreeKey}
@@ -154,8 +258,8 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
                 keyRootPc={keyRootPc}
                 keyMode={keyMode}
                 x={cx}
-                y={CHORD_AREA_HEIGHT - 8}
-                isSelected={selectedChordId === chord.regionId}
+                y={chordY}
+                isSelected={chordSelected}
                 isDragging={isBeingDragged}
                 regionId={chord.regionId}
                 onSelect={onSelectChord}
@@ -168,6 +272,8 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
                 }
                 onMarkAsMelody={onMarkAsMelody}
                 onDelete={onDeleteChord}
+                autoEdit={autoEditRegionId === chord.regionId}
+                onSelectItem={onSelectItem}
               />
             );
           })}
@@ -198,16 +304,38 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
         </>
       )}
 
-      {/* Clickable staff area for adding chords */}
-      <rect
-        x={0}
-        y={staffTop}
-        width={width}
-        height={STAFF_HEIGHT}
-        fill="transparent"
-        onClick={handleStaffClick}
-        style={{ cursor: 'pointer' }}
-      />
+      {/* Selection wash, drawn under the staff so the lines stay readable */}
+      {isMeasureSelected && (
+        <rect
+          data-selected-measure={measureIndex}
+          x={0}
+          y={staffTop - 4}
+          width={width}
+          height={STAFF_HEIGHT + 8}
+          fill="var(--color-accent, #8b5cf6)"
+          opacity={0.16}
+          stroke="var(--color-accent, #8b5cf6)"
+          strokeWidth={1}
+          rx={2}
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
+      {Array.from({ length: beatsPerMeasure }, (_, beat) =>
+        isBeatSelected(beat) ? (
+          <rect
+            key={`beat-sel-${beat}`}
+            data-selected-beat={`${measureIndex}:${beat}`}
+            x={beat * beatCellWidth}
+            y={staffTop - 2}
+            width={beatCellWidth}
+            height={STAFF_HEIGHT + 4}
+            fill="var(--color-accent, #8b5cf6)"
+            opacity={0.24}
+            rx={2}
+            style={{ pointerEvents: 'none' }}
+          />
+        ) : null,
+      )}
 
       {/* Staff lines */}
       {Array.from({ length: 5 }, (_, i) => (
@@ -269,9 +397,9 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
           />
         </g>
       ) : (
-        /* Beat slash marks (4 per measure) */
-        Array.from({ length: 4 }, (_, beat) => {
-          const bx = (beat + 0.5) * (width / 4);
+        /* Beat slashes — one to a beat, the chart's own rhythm. */
+        Array.from({ length: beatsPerMeasure }, (_, beat) => {
+          const bx = (beat + 0.5) * beatCellWidth;
           const cy = staffTop + STAFF_HEIGHT / 2;
           const isTarget = chordDrag?.targetBeat === beat;
           return (
@@ -289,6 +417,49 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
             />
           );
         })
+      )}
+
+      {/* Click targets, above the marks so they take the click. The bar takes
+          it everywhere except over a slash, where the beat does. */}
+      {!isMultiBarRest && onSelectItem && (
+        <>
+          <rect
+            x={0}
+            y={staffTop - 4}
+            width={width}
+            height={STAFF_HEIGHT + 8}
+            fill="transparent"
+            onClick={handleMeasureClick}
+            style={{ cursor: 'pointer' }}
+          />
+          {Array.from({ length: beatsPerMeasure }, (_, beat) => {
+            const bx = (beat + 0.5) * beatCellWidth;
+            const half = Math.min(BEAT_HIT_HALF_WIDTH, beatCellWidth / 2);
+            return (
+              <rect
+                key={`beat-hit-${beat}`}
+                data-beat-target={`${measureIndex}:${beat}`}
+                x={bx - half}
+                y={staffTop - 2}
+                width={half * 2}
+                height={STAFF_HEIGHT + 4}
+                fill="transparent"
+                onClick={handleBeatClick(beat)}
+                onDoubleClick={handleBeatDoubleClick(beat)}
+                style={{ cursor: 'pointer' }}
+              />
+            );
+          })}
+        </>
+      )}
+
+      {/* Barline targets, last so they sit above the bar and beat targets.
+          One opening this bar, plus the closing barline on the final bar. */}
+      {onSelectItem && (
+        <>
+          {barlineTarget(measureIndex, 0, isSystemStart ? 2 : 7)}
+          {isLastMeasure && barlineTarget(measureIndex + 1, width, 12)}
+        </>
       )}
 
       {/* Fermata symbol */}

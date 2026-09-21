@@ -13,8 +13,16 @@ const EXTRA_INTERVALS: Record<string, number[]> = {
   minor11: [0, 3, 7, 10, 14, 17],
   add9: [0, 4, 7, 14],
   minoradd9: [0, 3, 7, 14],
+  // The engine has major Add2 but no minor one, and the curriculum writes it
+  // ("Gmadd2" in Pop L3): root, ♭3, 5 and the added 2nd.
+  minoradd2: [0, 3, 7, 14],
   // Altered dominant: ♭9, ♯9, ♭13 over a dominant 7th.
   dominant7alt: [0, 4, 10, 13, 15, 20],
+  // funk9 — Music Atlas's own symbol for the rootless ♭7-9-5 shape that is the
+  // sound of funk keyboards: a dominant 9th with the root and 3rd left out, so
+  // the chord floats. Named as a quality rather than a voicing because the
+  // curriculum writes it in the chord symbol itself ("Afunk9" = G-B-E over A).
+  funk9: [7, 10, 14],
 };
 
 /** Intervals above the root for an engine quality key, if it's known. */
@@ -50,6 +58,7 @@ const JAZZ_SUFFIX: Record<string, string> = {
   Add4: 'add4',
   add9: 'add9',
   minoradd9: `${MINUS}add9`,
+  minoradd2: `${MINUS}add2`,
   // 6ths
   major6: '6',
   minor6: `${MINUS}6`,
@@ -100,6 +109,8 @@ const JAZZ_SUFFIX: Record<string, string> = {
   dominant13: '13',
   major13: `${DELTA}13`,
   minor13: `${MINUS}13`,
+  // Kept verbatim in jazz too — it is the name of the sound, not an abbreviation.
+  funk9: 'funk9',
 };
 
 /** Symbols as lead sheets, curriculum data and games write them (case matters: M7 ≠ m7). */
@@ -123,6 +134,10 @@ const SYMBOLS: Record<string, string> = {
   mi7: 'minor7',
   '-7': 'minor7',
   [`${MINUS}7`]: 'minor7',
+  madd2: 'minoradd2',
+  minadd2: 'minoradd2',
+  '-add2': 'minoradd2',
+  [`${MINUS}add2`]: 'minoradd2',
   m7b5: 'minor7b5',
   '-7b5': 'minor7b5',
   [`${MINUS}7b5`]: 'minor7b5',

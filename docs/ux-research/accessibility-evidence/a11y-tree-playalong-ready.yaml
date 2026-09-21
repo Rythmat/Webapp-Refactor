@@ -1,0 +1,65 @@
+- complementary:
+  - link "Music Atlas home":
+    - img
+  - list:
+    - listitem:
+      - link
+    - listitem:
+      - link
+    - listitem:
+      - link
+    - listitem:
+      - link
+    - listitem:
+      - link
+  - separator
+  - list:
+    - listitem:
+      - link
+    - listitem:
+      - link
+    - listitem:
+      - link
+  - list:
+    - listitem:
+      - link
+    - listitem:
+      - link
+- main:
+  - text: 0 XP Level 1
+  - 'button "Credits: 12"': "12"
+  - link "Awards"
+  - button "Notifications"
+  - link "Open friend's profile":
+    - img
+  - button
+  - heading "Lesson" [level=1]
+  - button "Overview"
+  - button "Melody"
+  - button "Go to C Ionian Ascend • Hold"
+  - button "Go to C Ionian Ascend • Play Along"
+  - button "Go to C Ionian Descend • Hold"
+  - button "Go to C Ionian Descend • Play Along"
+  - button "Go to C Ionian Ascend + Descend • Hold"
+  - button "Go to C Ionian Ascend + Descend • Play Along"
+  - text: 2/6
+  - group "Activity mode":
+    - button "▶ Demo"
+    - button "Practice"
+    - button "Play Now"
+  - radiogroup "Note view":
+    - radio "Piano roll" [checked]
+    - radio "Notation"
+  - text: -1.1 -1.2 -1.3 -1.4 1.1 D♭5 C5 B4 B♭4 A4 A♭4 G4 F♯4 F4 E4 E♭4 D4 D♭4 C4 B3 C1 C2 C3 C4 C5 On
+  - button "Metronome" [pressed]
+  - text: Click 80
+  - slider "Practice tempo in beats per minute": "80"
+  - text: BPM 80
+  - slider "Lesson volume": "80"
+  - text: Vol
+  - heading "Ready to start?" [level=3]
+  - paragraph: In a steady tempo, play the notes of the scale going up
+  - paragraph: Note sequence
+  - button "▶ Demo"
+  - button "Practice"
+  - button "Play Now"

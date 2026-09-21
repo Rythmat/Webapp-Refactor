@@ -710,6 +710,10 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
 
     // Schedule all clicks at audio-clock times (no Transport needed)
     const now = Tone.now();
+    // Publish the clock the clicks hang off so the on-screen count-off in the
+    // notation view can follow the same one, rather than a wall clock that
+    // would drift against them.
+    useStore.getState()._setCountInStartedAt(now);
     for (let i = 0; i < totalBeats; i++) {
       const time = now + i * beatDuration;
       let pitch: string;

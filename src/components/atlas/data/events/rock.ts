@@ -16,6 +16,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'thats all right',
       'rockabilly',
     ],
+    videoId: 'gj0Rz-uP4Mk',
   },
   {
     id: 'evt-doors-la-1965',
@@ -39,6 +40,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'whisky a go go',
       'psychedelic rock',
     ],
+    videoId: '4U3eYkvY9pE',
   },
   {
     id: 'evt-punk-london-1976',
@@ -120,6 +122,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'british invasion',
       'george martin',
     ],
+    videoId: 'IRF6nmqcbxo',
   },
   {
     id: 'evt-newwave-london-1981',
@@ -159,6 +162,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'camden',
       'cool britannia',
     ],
+    videoId: 'cmpRLQZkTb8',
   },
   {
     id: 'evt-indie-brooklyn-2005',
@@ -197,6 +201,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'indie',
       'music industry',
     ],
+    videoId: '2qtaUnRdHTY',
   },
   {
     id: 'evt-pubrock-melbourne-1975',
@@ -246,6 +251,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'turkish psychedelic',
       'istanbul',
     ],
+    videoId: 'JRQGif7Y7Kg',
   },
   {
     id: 'evt-moondog-cleveland-1952',
@@ -303,6 +309,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'alternative rock',
       'mission of burma',
     ],
+    videoId: 'nOl_2h01WrQ',
   },
   {
     id: 'evt-indie-portland-2003',
@@ -439,6 +446,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'dublin rock',
       'irish music',
     ],
+    videoId: 'Olb6Fgup1uI',
   },
   {
     id: 'evt-plastic-people-prague-1976',
@@ -548,6 +556,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'cambodian pop',
       'khmer rouge',
     ],
+    videoId: 'v4dvKFJUQOY',
   },
   {
     id: 'evt-dikir-kualalumpur-1985',
@@ -618,6 +627,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'merge records',
       'montreal indie',
     ],
+    videoId: '4Z9C52dETGk',
   },
   {
     id: 'evt-rush-toronto-1974',
@@ -866,6 +876,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'arena rock',
       'new wave',
     ],
+    videoId: 't4QK8RxCAwo',
   },
   {
     id: 'evt-killrockstars-portland-1991',
@@ -970,6 +981,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'pop punk',
       'alternative',
     ],
+    videoId: 'Ft1lxiWFbDk',
   },
   {
     id: 'evt-rockabilly-littlerock-1955',
@@ -1581,6 +1593,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'utah',
       'debut album',
     ],
+    videoId: 'aJXRFcyWgdk',
   },
   {
     id: 'evt-neontrees-saltlakecity-2010',
@@ -1704,6 +1717,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'songwriting',
       'liverpool',
     ],
+    videoId: 'NCtzkaL2t_Y',
   },
   {
     id: 'evt-raga-rock-mumbai-1965',
@@ -1833,6 +1847,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'arnhem land',
       'indigenous',
     ],
+    videoId: 'Jf-jHCdafZY',
   },
   {
     id: 'evt-sister-rosetta-tharpe-nyc-1945',
@@ -1927,6 +1942,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'female pioneer',
       'grammy',
     ],
+    videoId: 'HOs9iFWgXUg',
   },
   {
     id: 'evt-janis-joplin-sf-1967',
@@ -2033,6 +2049,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'female rock pioneer',
       'beat poetry',
     ],
+    videoId: 'oNMnWTNCFSU',
   },
   {
     id: 'evt-stevie-nicks-la-1975',
@@ -2075,6 +2092,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'female rock pioneer',
       'seattle',
     ],
+    videoId: 'gQDJ45qJHBQ',
   },
   {
     id: 'evt-blondie-nyc-1978',
@@ -2427,6 +2445,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'alternative rock',
       'ottawa',
     ],
+    videoId: 'ziCW-clqrqo',
   },
   {
     id: 'evt-garbage-madison-1995',
@@ -2464,6 +2483,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'seattle',
       'alternative rock',
     ],
+    videoId: 'eBG7P-K-r1Y',
   },
   {
     id: 'evt-sleater-kinney-olympia-1997',
@@ -2507,6 +2527,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'indie rock',
       'new york',
     ],
+    videoId: 'RHrGj1IyE0Y',
   },
   {
     id: 'evt-tool-la-2001',

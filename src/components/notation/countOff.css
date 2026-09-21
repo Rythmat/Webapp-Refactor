@@ -1,0 +1,43 @@
+/* Count-off numbers under the staff — see CountOff.tsx. */
+
+.notation-countoff {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.notation-countoff-number {
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-dim, #6b6b80);
+  opacity: 0.7;
+  animation: notation-countoff-pop 170ms ease-out;
+}
+
+/* The downbeat of each bar: brighter, larger, lit. */
+.notation-countoff-number.is-downbeat {
+  font-size: 72px;
+  color: var(--color-accent, #7ecfcf);
+  opacity: 1;
+  text-shadow: 0 0 22px rgba(126, 207, 207, 0.55);
+}
+
+@keyframes notation-countoff-pop {
+  from {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notation-countoff-number {
+    animation: none;
+  }
+}

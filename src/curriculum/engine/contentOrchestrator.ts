@@ -7,6 +7,11 @@
  * This produces the raw musical content that Activity Flows render.
  */
 
+import {
+  hasMajorThird,
+  repairMajorChordRule,
+  type ChordWindow,
+} from '@/lib/melody/majorChordRule';
 import type { CurriculumGenreId } from '../bridge/genreIdMap';
 import { getGCMEntry, getSwingValue, getTempoRange } from '../data/gcmHelpers';
 import type { CurriculumLevelId } from '../types/curriculum';
@@ -53,6 +58,34 @@ export interface GeneratedActivity {
  * @param tempo - Optional tempo override. If omitted, picks from GCM range.
  * @returns GeneratedActivity with all three musical components
  */
+/**
+ * Hold the melody to the major-chord rule against the progression underneath
+ * it. A voicing that leaves its 3rd out reads as "no major 3rd" and is left
+ * alone, which is the safe way round: the rule only ever fires on a chord
+ * whose major 3rd is actually sounding.
+ */
+function applyMajorChordRule(
+  melody: MidiNoteEvent[],
+  progression: VoicedProgressionChord[],
+): MidiNoteEvent[] {
+  const windows: ChordWindow[] = progression.map((chord) => ({
+    rootPc: ((chord.chordRoot % 12) + 12) % 12,
+    majorThird: hasMajorThird(chord.rh.map((midi) => midi - chord.chordRoot)),
+    startTick: chord.onset,
+    endTick: chord.onset + chord.duration,
+  }));
+
+  const repaired = repairMajorChordRule(
+    melody.map((note) => ({
+      midi: note.note,
+      startTick: note.onset,
+      durationTicks: note.duration,
+    })),
+    windows,
+  );
+  return melody.map((note, i) => ({ ...note, note: repaired[i].midi }));
+}
+
 export function generateFullActivity(
   genre: CurriculumGenreId,
   level: CurriculumLevelId,
@@ -69,10 +102,15 @@ export function generateFullActivity(
   const swing = getSwingValue(genre, level);
 
   // Generate melody
-  const melody = generateCurriculumMelody(gcmEntry, keyRoot, swing);
+  const rawMelody = generateCurriculumMelody(gcmEntry, keyRoot, swing);
 
   // Generate chord progression
   const progression = generateCurriculumProgression(gcmEntry, keyRoot);
+
+  // The melody is drawn from the scale without knowing the harmony, so the 4
+  // over a major chord is settled here, once the progression it plays against
+  // exists — see lib/melody.
+  const melody = applyMajorChordRule(rawMelody, progression);
 
   // Generate bass from progression
   const bass = generateCurriculumBass(progression, gcmEntry, keyRoot);

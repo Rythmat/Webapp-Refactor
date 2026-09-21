@@ -57,6 +57,16 @@ const BASS_ELECTRIC_CONFIG = {
 
 // ── Hook ────────────────────────────────────────────────────────────────────
 
+/**
+ * Lead time before the backing transport starts, giving the samplers a moment.
+ *
+ * Exported because the lesson playhead has to know when the transport actually
+ * begins: it reads positions through the output latency, and before the start
+ * there is no honest tick to report. A lead that drifts from what the playhead
+ * assumes puts the playhead back to sitting on beat 1.
+ */
+export const BACKING_LEAD_SEC = 0.1;
+
 export function useBackingTrack(tempo: number) {
   const partsRef = useRef<Record<string, Tone.Part | undefined>>({});
   const isPlayingRef = useRef(false);
@@ -525,7 +535,7 @@ export function useBackingTrack(tempo: number) {
       }
 
       if (preStartCallback) await preStartCallback();
-      Tone.getTransport().start('+0.1');
+      Tone.getTransport().start(`+${BACKING_LEAD_SEC}`);
       isPlayingRef.current = true;
     },
     [tempo, disposeAll, ensureFallbackSynths],

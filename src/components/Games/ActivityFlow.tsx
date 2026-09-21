@@ -4,6 +4,10 @@ import * as Tone from 'tone';
 import { usePrismStartContours } from '@/hooks/data/prism/usePrismStartContours';
 import { NoteHold } from './NoteHold';
 import { PlayAlong } from './PlayAlong';
+import { PlayAlongRetryCard } from './PlayAlongRetryCard';
+import type { PlayAlongResult } from './playAlongGrade';
+import { activityPayoff } from './activityPayoff';
+import type { LessonOrigin } from '@/lib/learn/lessonOrigin';
 // import { BoardChoiceGame } from "./BoardChoiceGame";
 // import { ChordPressGame } from "./ChordPressGame";
 import { LessonOverview } from '@/components/learn/LessonOverview';
@@ -26,8 +30,30 @@ import {
   THEORY_ACTIVITY_BPM,
   type NoteEvent,
 } from './PianoRollPlay';
+import {
+  chordArpegiateEvents,
+  chordGroupOnsets,
+  chordsInOrder,
+  midiSequenceToEighthNotes,
+  midiSequenceToEvents,
+  midiSequenceToHalfNotes,
+  midiSequenceToMixedArticulation,
+  midiSequenceToQuarterNotes,
+  midiSequenceToStoccatoEvents,
+  midiSequenceToWholeNotes,
+} from './content/noteSequences';
 import { colorForKeyMode } from '@/lib/modeColorShift';
+import {
+  selectMelodyPhrases,
+  type MelodyLevel,
+  type MelodyPhrases,
+} from './content/melodyConstraints';
 import { getChordScales } from '@/components/learn/chordScaleData';
+import {
+  lessonChordSymbols,
+  type LessonChordSymbol,
+} from '@/curriculum/notation/lessonChordSymbols';
+import { useChordNotation, type ChordContext } from '@/lib/chordNotation';
 import {
   buildPitchClassSpellingMap,
   spelledMidiNoteName,
@@ -56,6 +82,8 @@ type FlowActivityProps = {
   events?: NoteEvent[];
   onContinue?: () => void;
   onActivityCompleteChange?: (isComplete: boolean) => void;
+  /** Play-along only: the score of every finished run, pass or fail. */
+  onRunGraded?: (result: PlayAlongResult) => void;
   activityColor?: string;
   isActive?: boolean;
   startSignal?: number;
@@ -64,6 +92,13 @@ type FlowActivityProps = {
   showTargetKeys?: boolean;
   /** Lesson spelling map (noteSpellingLookup) for piano-roll lane labels. */
   noteSpelling?: Map<number, string>;
+  /** Chord symbols above the staff in notation view; chord activities only. */
+  chordSymbols?: readonly LessonChordSymbol[];
+  /**
+   * Sound the target notes as the playhead reaches them (Practice mode). Off in
+   * Play Now, where the student proves the notes unaided.
+   */
+  playTargetNotes?: boolean;
 };
 
 type ActivityFlowProps = {
@@ -74,6 +109,8 @@ type ActivityFlowProps = {
   rootMidi: number;
   mode?: PrismModeSlug;
   startAtActivityKey?: string;
+  /** Set when the lesson was opened from a song in the Studio. */
+  origin?: LessonOrigin | null;
 };
 type ActivityState = 'pending' | 'active' | 'completed';
 
@@ -98,12 +135,21 @@ const START_OVERLAY_NOTE_DURATION_SECONDS = 0.6;
 const PRACTICE_LEVELS: PracticeLevel[] = [1, 2, 3];
 
 /** Level 1/2/3 segmented picker for the Practice Track chord progression difficulty. */
+const MELODY_LEVEL_HINTS: Record<PracticeLevel, string> = {
+  1: 'Level 1 — every leap stays within a 5th',
+  2: 'Level 2 — leaps up to an octave',
+  3: 'Level 3 — only the closing interval is limited',
+};
+
 function PracticeLevelPicker({
   level,
   onChange,
+  titles,
 }: {
   level: PracticeLevel;
   onChange: (level: PracticeLevel) => void;
+  /** Optional per-level tooltip, used by the melody picker. */
+  titles?: Record<PracticeLevel, string>;
 }) {
   return (
     <div className="flex items-center justify-center gap-1.5">
@@ -114,6 +160,7 @@ function PracticeLevelPicker({
             key={l}
             type="button"
             onClick={() => onChange(l)}
+            title={titles?.[l]}
             className="rounded-full px-3 py-1 text-xs font-semibold transition-colors duration-150"
             style={{
               background: active
@@ -135,6 +182,17 @@ function PracticeLevelPicker({
 
 type SectionId = 'O' | 'A' | 'B';
 
+/** One activity as the flow builds it, before it gets its ids and events. */
+type FlowSequenceItem = {
+  key: string;
+  label: string;
+  Component: (props: FlowActivityProps) => JSX.Element;
+  seq: NoteEvent[];
+  direction: string;
+  section: SectionId;
+  chordSymbols?: readonly LessonChordSymbol[];
+};
+
 type ActivityDefinition = {
   activityDefId: string;
   activityInstanceId: string;
@@ -144,6 +202,8 @@ type ActivityDefinition = {
   events: NoteEvent[];
   direction: string;
   section: SectionId;
+  /** Chord symbols for the staff, when the activity is a chord activity. */
+  chordSymbols?: readonly LessonChordSymbol[];
 };
 
 const SECTION_LABELS: Record<string, string> = {
@@ -191,212 +251,6 @@ const ChordLoadingStep: (props: FlowActivityProps) => JSX.Element = ({
     </div>
   </div>
 );
-
-const normalizeMidiSequence = (sequence: number[] | number[][]): number[][] => {
-  const grouped = Array.isArray(sequence[0])
-    ? (sequence as number[][])
-    : (sequence as number[]).map((midi) => [midi]);
-
-  // Group simultaneous notes into one slot and drop duplicate pitches in the same slot.
-  return grouped.map((slot) => Array.from(new Set(slot)));
-};
-
-const midiSequenceToEvents = (
-  sequence: number[] | number[][],
-  prefix: string,
-): NoteEvent[] => {
-  return normalizeMidiSequence(sequence).flatMap((group, idx) =>
-    group.map((midi, groupIndex) => ({
-      id: `${prefix}-${idx}-${groupIndex}-${midi}`,
-      pitchName: Tone.Frequency(midi, 'midi').toNote(),
-      startTicks: idx * NOTE_DURATION_TICKS,
-      durationTicks: NOTE_DURATION_TICKS,
-    })),
-  );
-};
-
-const midiSequenceToWholeNotes = (
-  sequence: number[] | number[][],
-  prefix: string,
-): NoteEvent[] => {
-  return normalizeMidiSequence(sequence).flatMap((group, idx) =>
-    group.map((midi, groupIndex) => ({
-      id: `${prefix}-${idx}-${groupIndex}-${midi}`,
-      pitchName: Tone.Frequency(midi, 'midi').toNote(),
-      startTicks: idx * 4 * NOTE_DURATION_TICKS,
-      durationTicks: 4 * NOTE_DURATION_TICKS,
-    })),
-  );
-};
-
-const midiSequenceToHalfNotes = (
-  sequence: number[] | number[][],
-  prefix: string,
-): NoteEvent[] => {
-  return normalizeMidiSequence(sequence).flatMap((group, idx) => {
-    const startTick = 4 * idx * NOTE_DURATION_TICKS;
-    const nextStartTick = (4 * idx + 2) * NOTE_DURATION_TICKS;
-    return group.flatMap((midi, groupIndex) => [
-      {
-        id: `${prefix}-${4 * idx}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, 'midi').toNote(),
-        startTicks: startTick,
-        durationTicks: NOTE_DURATION_TICKS * 2,
-      },
-      {
-        id: `${prefix}-${4 * idx + 2}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, 'midi').toNote(),
-        startTicks: nextStartTick,
-        durationTicks: NOTE_DURATION_TICKS * 2,
-      },
-    ]);
-  });
-};
-
-const midiSequenceToQuarterNotes = (
-  sequence: number[] | number[][],
-  prefix: string,
-): NoteEvent[] => {
-  return normalizeMidiSequence(sequence).flatMap((group, idx) =>
-    group.flatMap((midi, groupIndex) => [
-      {
-        id: `${prefix}-${4 * idx}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, 'midi').toNote(),
-        startTicks: 4 * idx * NOTE_DURATION_TICKS,
-        durationTicks: NOTE_DURATION_TICKS,
-      },
-      {
-        id: `${prefix}-${4 * idx + 1}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, 'midi').toNote(),
-        startTicks: (4 * idx + 1) * NOTE_DURATION_TICKS,
-        durationTicks: NOTE_DURATION_TICKS,
-      },
-      {
-        id: `${prefix}-${4 * idx + 2}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, 'midi').toNote(),
-        startTicks: (4 * idx + 2) * NOTE_DURATION_TICKS,
-        durationTicks: NOTE_DURATION_TICKS,
-      },
-      {
-        id: `${prefix}-${4 * idx + 3}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, 'midi').toNote(),
-        startTicks: (4 * idx + 3) * NOTE_DURATION_TICKS,
-        durationTicks: NOTE_DURATION_TICKS,
-      },
-    ]),
-  );
-};
-
-const midiSequenceToEighthNotes = (
-  sequence: number[] | number[][],
-  prefix: string,
-): NoteEvent[] => {
-  return normalizeMidiSequence(sequence).flatMap((group, idx) =>
-    group.flatMap((midi, groupIndex) => [
-      {
-        id: `${prefix}-${8 * idx}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, 'midi').toNote(),
-        startTicks: 4 * idx * NOTE_DURATION_TICKS,
-        durationTicks: NOTE_DURATION_TICKS * 0.5,
-      },
-      {
-        id: `${prefix}-${8 * idx + 1}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, 'midi').toNote(),
-        startTicks: (4 * idx + 0.5) * NOTE_DURATION_TICKS,
-        durationTicks: NOTE_DURATION_TICKS * 0.5,
-      },
-      {
-        id: `${prefix}-${8 * idx + 2}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, 'midi').toNote(),
-        startTicks: (4 * idx + 1) * NOTE_DURATION_TICKS,
-        durationTicks: NOTE_DURATION_TICKS * 0.5,
-      },
-      {
-        id: `${prefix}-${8 * idx + 3}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, 'midi').toNote(),
-        startTicks: (4 * idx + 1.5) * NOTE_DURATION_TICKS,
-        durationTicks: NOTE_DURATION_TICKS * 0.5,
-      },
-      {
-        id: `${prefix}-${8 * idx + 4}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, 'midi').toNote(),
-        startTicks: (4 * idx + 2) * NOTE_DURATION_TICKS,
-        durationTicks: NOTE_DURATION_TICKS * 0.5,
-      },
-      {
-        id: `${prefix}-${8 * idx + 5}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, 'midi').toNote(),
-        startTicks: (4 * idx + 2.5) * NOTE_DURATION_TICKS,
-        durationTicks: NOTE_DURATION_TICKS * 0.5,
-      },
-      {
-        id: `${prefix}-${8 * idx + 6}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, 'midi').toNote(),
-        startTicks: (4 * idx + 3) * NOTE_DURATION_TICKS,
-        durationTicks: NOTE_DURATION_TICKS * 0.5,
-      },
-      {
-        id: `${prefix}-${8 * idx + 7}-${groupIndex}-${midi}`,
-        pitchName: Tone.Frequency(midi, 'midi').toNote(),
-        startTicks: (4 * idx + 3.5) * NOTE_DURATION_TICKS,
-        durationTicks: NOTE_DURATION_TICKS * 0.5,
-      },
-    ]),
-  );
-};
-
-const midiSequenceToStoccatoEvents = (
-  sequence: number[] | number[][],
-  prefix: string,
-): NoteEvent[] => {
-  return normalizeMidiSequence(sequence).flatMap((group, idx) =>
-    group.map((midi, groupIndex) => ({
-      id: `${prefix}-${idx}-${groupIndex}-${midi}`,
-      pitchName: Tone.Frequency(midi, 'midi').toNote(),
-      startTicks: idx * NOTE_DURATION_TICKS,
-      durationTicks: NOTE_DURATION_TICKS * 0.5,
-    })),
-  );
-};
-
-const midiSequenceToMixedArticulation = (
-  sequence: number[] | number[][],
-  prefix: string,
-): NoteEvent[] => {
-  return normalizeMidiSequence(sequence).flatMap((group, idx) =>
-    group.map((midi, groupIndex) => ({
-      id: `${prefix}-${idx}-${groupIndex}-${midi}`,
-      pitchName: Tone.Frequency(midi, 'midi').toNote(),
-      startTicks: idx * NOTE_DURATION_TICKS,
-      durationTicks:
-        (NOTE_DURATION_TICKS * Math.floor(Math.random() * 2 + 1)) / 2,
-    })),
-  );
-};
-
-const chordArpegiateEvents = (
-  sequence: number[],
-  prefix: string,
-): NoteEvent[] => {
-  const events: NoteEvent[] = [];
-  sequence.forEach((note, idx) => {
-    events.push(
-      {
-        id: `${prefix}-${idx}-${note}`,
-        pitchName: Tone.Frequency(note, 'midi').toNote(),
-        startTicks: idx * NOTE_DURATION_TICKS,
-        durationTicks: NOTE_DURATION_TICKS,
-      },
-      {
-        id: `${prefix}Joined-${idx}-${note}`,
-        pitchName: Tone.Frequency(note, 'midi').toNote(),
-        startTicks: (sequence.length + 1) * NOTE_DURATION_TICKS,
-        durationTicks: NOTE_DURATION_TICKS * 2,
-      },
-    );
-  });
-  return events;
-};
 
 const isNumberArray = (value: unknown): value is number[] =>
   Array.isArray(value) &&
@@ -448,6 +302,7 @@ export const ActivityFlow = ({
   rootMidi,
   mode,
   startAtActivityKey,
+  origin = null,
 }: ActivityFlowProps) => {
   const navigate = useNavigate();
   const authToken = useAuthToken();
@@ -497,9 +352,39 @@ export const ActivityFlow = ({
     return baseChord ? baseChord : undefined;
   };
 
+  // Chord symbols for the staff. The mode's chord-scale table already names
+  // every degree the way the formatter reads it ("1 maj", "6 min"), so the
+  // symbol is written from the degree rather than guessed from the pitches,
+  // and follows the Jazz/Roman switcher like everywhere else in the app.
+  const chordNotation = useChordNotation();
+  const chordContext: ChordContext = {
+    keyRootPc: typeof rootMidi === 'number' ? rootMidi % 12 : null,
+    mode: (mode as string) ?? null,
+  };
+  const degreeLabels = getChordScales(mode as string)?.triads;
+
+  /** Symbols for a built chord sequence, one per harmonic change. */
+  const symbolsFor = (
+    seq: NoteEvent[],
+    groups: number[][],
+    degreeOfGroup: number[],
+  ): LessonChordSymbol[] | undefined => {
+    if (!degreeLabels?.length) return undefined;
+    const chords = chordGroupOnsets(seq, groups).flatMap(
+      ({ groupIndex, startTick }) => {
+        const entry = degreeLabels[degreeOfGroup[groupIndex]];
+        return entry
+          ? [{ label: `${entry.degree} ${entry.quality}`, startTick }]
+          : [];
+      },
+    );
+    if (chords.length === 0) return undefined;
+    return lessonChordSymbols(chords, chordNotation, chordContext);
+  };
+
   const buildFlowDefinitions = (
     scale: number[],
-    contours?: number[][],
+    phrases?: MelodyPhrases | null,
     chordTriads: number[][] = [],
     includeChordPlaceholder = false,
   ): ActivityDefinition[] => {
@@ -540,34 +425,12 @@ export const ActivityFlow = ({
       direction: `Overview of ${rootKey} ${modeTitle}.`,
       section: 'O' as SectionId,
     };
-    const contourSeqs: number[][] = [];
-    contours?.forEach((contour) => {
-      if (!Array.isArray(contour)) {
-        return;
-      }
+    // Already resolved to MIDI and constrained by the `melodyPhrases` memo
+    // below — see content/melodyConstraints.ts.
 
-      const mapContourValue = (value: number): number | undefined => {
-        if (value > 0) {
-          const noteIdx = value - 1;
-          return scale[noteIdx];
-        }
-        if (value < 0) {
-          const idxFromBack = scale.length + value;
-          if (idxFromBack < 0 || idxFromBack >= scale.length) return undefined;
-          return scale[idxFromBack] - 12;
-        }
-        return undefined;
-      };
-
-      const seq = contour
-        .map((scaleIdx) => mapContourValue(scaleIdx))
-        .filter((midi): midi is number => typeof midi === 'number');
-
-      if (seq.length === 0) return;
-      contourSeqs.push(seq);
-    });
-
-    const sequences = [
+    // Typed up front: the first entries carry no chord symbols, and an
+    // inferred type would then reject the chord activities that do.
+    const sequences: FlowSequenceItem[] = [
       overviewItem,
       {
         key: 'asc-nh',
@@ -625,16 +488,18 @@ export const ActivityFlow = ({
     ];
 
     //////////////////ACTIVITIES 2-3 ?4?
-    if (contourSeqs[0] && contourSeqs[1]) {
-      const combined = [...contourSeqs[0], ...contourSeqs[1]];
+    // A phrase never carries across an In Time activity: the short phrase ends
+    // at its Play Along, the long phrase is separate material, and the three
+    // articulation exercises share a third phrase so that only the touch
+    // changes between them.
+    if (phrases) {
+      const { short, long, articulation } = phrases;
       sequences.push(
         {
           key: `contour-1-nh`,
           label: `${rootKey} ${modeTitle} Musical Contour • Hold`,
           Component: NoteHold,
-          seq: applyActivityColor(
-            midiSequenceToEvents(contourSeqs[0], `contour-1-nh`),
-          ),
+          seq: applyActivityColor(midiSequenceToEvents(short, `contour-1-nh`)),
           direction: `Play this short melodic phrase in ${rootKey} ${modeTitle}`,
           section: 'A' as SectionId,
         },
@@ -642,9 +507,7 @@ export const ActivityFlow = ({
           key: `contour-1-pa`,
           label: `${rootKey} ${modeTitle} Musical Contour • Play Along`,
           Component: PlayAlong,
-          seq: applyActivityColor(
-            midiSequenceToEvents(contourSeqs[0], `contour-1-pa`),
-          ),
+          seq: applyActivityColor(midiSequenceToEvents(short, `contour-1-pa`)),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle}`,
           section: 'A' as SectionId,
         },
@@ -652,9 +515,7 @@ export const ActivityFlow = ({
           key: `contour-2-nh`,
           label: `${rootKey} ${modeTitle} Melodic Phrase • Hold`,
           Component: NoteHold,
-          seq: applyActivityColor(
-            midiSequenceToEvents(combined, `contour-2-nh`),
-          ),
+          seq: applyActivityColor(midiSequenceToEvents(long, `contour-2-nh`)),
           direction: `Play this longer melodic phrase in ${rootKey} ${modeTitle}`,
           section: 'A' as SectionId,
         },
@@ -662,9 +523,7 @@ export const ActivityFlow = ({
           key: `contour-2-pa`,
           label: `${rootKey} ${modeTitle} Melodic Phrase • Play Along`,
           Component: PlayAlong,
-          seq: applyActivityColor(
-            midiSequenceToEvents(combined, `contour-2-pa`),
-          ),
+          seq: applyActivityColor(midiSequenceToEvents(long, `contour-2-pa`)),
           direction: `In a steady tempo, play this longer melodic phrase in ${rootKey} ${modeTitle}`,
           section: 'A' as SectionId,
         },
@@ -673,7 +532,7 @@ export const ActivityFlow = ({
           label: `${rootKey} ${modeTitle} Musical Contour (Staccato) • Play Along`,
           Component: PlayAlong,
           seq: applyActivityColor(
-            midiSequenceToStoccatoEvents(contourSeqs[0], `contour-1-stac-pa`),
+            midiSequenceToStoccatoEvents(articulation, `contour-1-stac-pa`),
           ),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with short articulations (“staccato”).`,
           section: 'A' as SectionId,
@@ -683,7 +542,7 @@ export const ActivityFlow = ({
           label: `${rootKey} ${modeTitle} Musical Contour (Legato) • Play Along`,
           Component: PlayAlong,
           seq: applyActivityColor(
-            midiSequenceToEvents(contourSeqs[0], `contour-1-lega-pa`),
+            midiSequenceToEvents(articulation, `contour-1-lega-pa`),
           ),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with long articulations (“legato”).`,
           section: 'A' as SectionId,
@@ -693,7 +552,7 @@ export const ActivityFlow = ({
           label: `${rootKey} ${modeTitle} Musical Contour (Mixed Articulation) • Play Along`,
           Component: PlayAlong,
           seq: applyActivityColor(
-            midiSequenceToMixedArticulation(contourSeqs[0], `contour-1-mix-pa`),
+            midiSequenceToMixedArticulation(articulation, `contour-1-mix-pa`),
           ),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with mixed articulations (“staccato” and “legato”). `,
           section: 'A' as SectionId,
@@ -704,6 +563,14 @@ export const ActivityFlow = ({
     for (let i = 0; i < 4; i++) {
       const chordNotes = generateStepTriad(i + 1);
       if (isNumberArray(chordNotes)) {
+        const entry = degreeLabels?.[i];
+        const arpSymbols = entry
+          ? lessonChordSymbols(
+              [{ label: `${entry.degree} ${entry.quality}`, startTick: 0 }],
+              chordNotation,
+              chordContext,
+            )
+          : undefined;
         sequences.push(
           {
             key: `arpeggiate-${i + 1}-nh`,
@@ -717,6 +584,7 @@ export const ActivityFlow = ({
             ),
             direction: `Play the notes of the ${i + 1} chord one at a time going up (to the right) and then play the chord.`,
             section: 'B' as SectionId,
+            chordSymbols: arpSymbols,
           },
           {
             key: `arpeggiate-${i + 1}-pa`,
@@ -731,6 +599,7 @@ export const ActivityFlow = ({
             direction:
               'In a steady tempo, play an arpeggio of the chord going up and then play the chord.',
             section: 'B' as SectionId,
+            chordSymbols: arpSymbols,
           },
         );
       }
@@ -747,12 +616,18 @@ export const ActivityFlow = ({
       //   color?: string;
       // }
       const oneToFourChords = [triads[0], triads[1], triads[2], triads[3]];
+      const oneToFourDegrees = [0, 1, 2, 3];
+      const symbolsForOneToFour = (seq: NoteEvent[]) =>
+        symbolsFor(seq, oneToFourChords, oneToFourDegrees);
       sequences.push(
         {
           key: `chords-1-nh`,
           label: `${rootKey} ${modeTitle} Chords • Hold`,
           Component: NoteHold,
           seq: applyActivityColor(
+            midiSequenceToEvents(oneToFourChords, `chords-1-nh`),
+          ),
+          chordSymbols: symbolsForOneToFour(
             midiSequenceToEvents(oneToFourChords, `chords-1-nh`),
           ),
           direction: `Play the notes of the 1 through the four chord for ${rootKey} ${modeTitle}, holding down the notes of each chord as you go.`,
@@ -765,6 +640,9 @@ export const ActivityFlow = ({
           seq: applyActivityColor(
             midiSequenceToWholeNotes(oneToFourChords, `chords-1-pa`),
           ),
+          chordSymbols: symbolsForOneToFour(
+            midiSequenceToWholeNotes(oneToFourChords, `chords-1-pa`),
+          ),
           direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in whole notes.`,
           section: 'B' as SectionId,
         },
@@ -775,6 +653,9 @@ export const ActivityFlow = ({
           seq: applyActivityColor(
             midiSequenceToHalfNotes(oneToFourChords, `chords-2-pa`),
           ),
+          chordSymbols: symbolsForOneToFour(
+            midiSequenceToHalfNotes(oneToFourChords, `chords-2-pa`),
+          ),
           direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in half notes.`,
           section: 'B' as SectionId,
         },
@@ -783,6 +664,9 @@ export const ActivityFlow = ({
           label: `${rootKey} ${modeTitle} Chords (Quarter) • Play Along`,
           Component: PlayAlong,
           seq: applyActivityColor(
+            midiSequenceToQuarterNotes(oneToFourChords, `chords-3-pa`),
+          ),
+          chordSymbols: symbolsForOneToFour(
             midiSequenceToQuarterNotes(oneToFourChords, `chords-3-pa`),
           ),
           direction: `In a steady tempo, play the 1 through the four chord for ${rootKey} ${modeTitle} in quarter notes.`,
@@ -799,9 +683,17 @@ export const ActivityFlow = ({
         Component: PlayAlong,
         seq: applyActivityColor(
           midiSequenceToStoccatoEvents(
-            [...triads[shuffled[0]], ...triads[shuffled[1]]],
+            chordsInOrder(triads, [shuffled[0], shuffled[1]]),
             `chords-4-pa`,
           ),
+        ),
+        chordSymbols: symbolsFor(
+          midiSequenceToStoccatoEvents(
+            chordsInOrder(triads, [shuffled[0], shuffled[1]]),
+            `chords-4-pa`,
+          ),
+          chordsInOrder(triads, [shuffled[0], shuffled[1]]),
+          [shuffled[0], shuffled[1]],
         ),
         direction: `Play chord ${shuffled[0] + 1} and ${shuffled[1] + 1} in a steady tempo, with short articulations (“staccato”).`,
         section: 'B' as SectionId,
@@ -813,9 +705,17 @@ export const ActivityFlow = ({
         Component: PlayAlong,
         seq: applyActivityColor(
           midiSequenceToEvents(
-            [...triads[shuffled[0]], ...triads[shuffled[1]]],
+            chordsInOrder(triads, [shuffled[0], shuffled[1]]),
             `chords-5-pa`,
           ),
+        ),
+        chordSymbols: symbolsFor(
+          midiSequenceToEvents(
+            chordsInOrder(triads, [shuffled[0], shuffled[1]]),
+            `chords-5-pa`,
+          ),
+          chordsInOrder(triads, [shuffled[0], shuffled[1]]),
+          [shuffled[0], shuffled[1]],
         ),
         direction: `Play chord ${shuffled[0] + 1} and ${shuffled[1] + 1} in a steady tempo, with long articulations (“legato”).`,
         section: 'B' as SectionId,
@@ -828,15 +728,12 @@ export const ActivityFlow = ({
         label: `${rootKey} ${modeTitle} First Four Chords • Hold`,
         Component: NoteHold,
         seq: applyActivityColor(
-          midiSequenceToEvents(
-            [
-              ...triads[shuffled[0]],
-              ...triads[shuffled[1]],
-              ...triads[shuffled[2]],
-              ...triads[shuffled[3]],
-            ],
-            `chords-2-nh`,
-          ),
+          midiSequenceToEvents(chordsInOrder(triads, shuffled), `chords-2-nh`),
+        ),
+        chordSymbols: symbolsFor(
+          midiSequenceToEvents(chordsInOrder(triads, shuffled), `chords-2-nh`),
+          chordsInOrder(triads, shuffled),
+          shuffled,
         ),
         direction: `Play the first four chords in a mixed order, holding down each chord one by one.`,
         section: 'B' as SectionId,
@@ -847,14 +744,17 @@ export const ActivityFlow = ({
         Component: PlayAlong,
         seq: applyActivityColor(
           midiSequenceToHalfNotes(
-            [
-              ...triads[shuffled[0]],
-              ...triads[shuffled[1]],
-              ...triads[shuffled[2]],
-              ...triads[shuffled[3]],
-            ],
+            chordsInOrder(triads, shuffled),
             `chords-7-pa`,
           ),
+        ),
+        chordSymbols: symbolsFor(
+          midiSequenceToHalfNotes(
+            chordsInOrder(triads, shuffled),
+            `chords-7-pa`,
+          ),
+          chordsInOrder(triads, shuffled),
+          shuffled,
         ),
         direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a half note.`,
         section: 'B' as SectionId,
@@ -865,14 +765,17 @@ export const ActivityFlow = ({
         Component: PlayAlong,
         seq: applyActivityColor(
           midiSequenceToQuarterNotes(
-            [
-              ...triads[shuffled[0]],
-              ...triads[shuffled[1]],
-              ...triads[shuffled[2]],
-              ...triads[shuffled[3]],
-            ],
+            chordsInOrder(triads, shuffled),
             `chords-8-pa`,
           ),
+        ),
+        chordSymbols: symbolsFor(
+          midiSequenceToQuarterNotes(
+            chordsInOrder(triads, shuffled),
+            `chords-8-pa`,
+          ),
+          chordsInOrder(triads, shuffled),
+          shuffled,
         ),
         direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a quarter note.`,
         section: 'B' as SectionId,
@@ -883,14 +786,17 @@ export const ActivityFlow = ({
         Component: PlayAlong,
         seq: applyActivityColor(
           midiSequenceToEighthNotes(
-            [
-              ...triads[shuffled[0]],
-              ...triads[shuffled[1]],
-              ...triads[shuffled[2]],
-              ...triads[shuffled[3]],
-            ],
+            chordsInOrder(triads, shuffled),
             `chords-9-pa`,
           ),
+        ),
+        chordSymbols: symbolsFor(
+          midiSequenceToEighthNotes(
+            chordsInOrder(triads, shuffled),
+            `chords-9-pa`,
+          ),
+          chordsInOrder(triads, shuffled),
+          shuffled,
         ),
         direction: `In a steady tempo, play the first four chords in a mixed order, each chord held for a eighth note.`,
         section: 'B' as SectionId,
@@ -901,15 +807,12 @@ export const ActivityFlow = ({
         label: `${rootKey} ${modeTitle} Four Chords (Mixed Articulation) • Play Along`,
         Component: PlayAlong,
         seq: applyActivityColor(
-          midiSequenceToEvents(
-            [
-              ...triads[shuffled[0]],
-              ...triads[shuffled[1]],
-              ...triads[shuffled[2]],
-              ...triads[shuffled[3]],
-            ],
-            `chords-6-pa`,
-          ),
+          midiSequenceToEvents(chordsInOrder(triads, shuffled), `chords-6-pa`),
+        ),
+        chordSymbols: symbolsFor(
+          midiSequenceToEvents(chordsInOrder(triads, shuffled), `chords-6-pa`),
+          chordsInOrder(triads, shuffled),
+          shuffled,
         ),
         direction: `Play the four chords in a steady tempo, with mixed articulations.`,
         section: 'B' as SectionId,
@@ -928,7 +831,7 @@ export const ActivityFlow = ({
     }
 
     return sequences.map(
-      ({ key, label, Component, seq, direction, section }) => ({
+      ({ key, label, Component, seq, direction, section, chordSymbols }) => ({
         activityDefId: key,
         activityInstanceId: buildActivityInstanceId({
           lessonId,
@@ -943,31 +846,40 @@ export const ActivityFlow = ({
         events: seq,
         direction,
         section,
+        chordSymbols,
       }),
     );
   };
   ////////////// end buildFlowDefinitions ///////////////////
 
-  const randomContours = useMemo(() => {
+  // How far the generated melodies may leap. Level 1 keeps every interval
+  // inside a 5th, level 2 allows an octave, level 3 caps only the cadence.
+  const [melodyLevel, setMelodyLevel] = useState<MelodyLevel>(1);
+
+  // Melodies for the contour activities: three separate phrases drawn from the
+  // fetched pool and resolved onto the lesson scale, each stating the mode's
+  // quality and cadencing properly. See content/melodyConstraints.ts.
+  const melodyPhrases = useMemo(() => {
     if (availableContours.length === 0) {
-      return [];
+      return null;
     }
-    const shuffled = [...availableContours].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 3);
-  }, [availableContours]);
+    const scale =
+      scaleMidis && scaleMidis.length > 0 ? scaleMidis : DEFAULT_SCALE;
+    return selectMelodyPhrases(availableContours, scale, melodyLevel);
+  }, [availableContours, scaleMidis, melodyLevel]);
 
   const flowDefinitions = useMemo(() => {
     const scale =
       scaleMidis && scaleMidis.length > 0 ? scaleMidis : DEFAULT_SCALE;
     return buildFlowDefinitions(
       scale,
-      randomContours,
+      melodyPhrases,
       triads,
       chordsQuery.isPending && triads.length === 0,
     );
   }, [
     scaleMidis,
-    randomContours,
+    melodyPhrases,
     triads,
     chordsQuery.isPending,
     activityColor,
@@ -1012,6 +924,10 @@ export const ActivityFlow = ({
     null,
   );
   const [practiceComplete, setPracticeComplete] = useState(false);
+  // Score of the last finished play-along run. A graded run under the pass
+  // mark shows the retry card instead of the completion card.
+  const [playAlongResult, setPlayAlongResult] =
+    useState<PlayAlongResult | null>(null);
 
   // Section state
   const [currentSectionId, setCurrentSectionId] = useState<SectionId>('O');
@@ -1414,99 +1330,126 @@ export const ActivityFlow = ({
     sendCheckpoint,
   ]);
 
-  const handleContinue = useCallback(() => {
-    if (currentActivity && isTrackableActivity) {
-      if (
-        !completionReportedRef.current.has(currentActivity.activityInstanceId)
-      ) {
-        completionReportedRef.current.add(currentActivity.activityInstanceId);
-        updateActivityProgress.mutate({
-          activityInstanceId: currentActivity.activityInstanceId,
-          lessonId,
-          lessonVersion,
-          activityDefId: currentActivity.activityDefId,
-          mode: modeLabel,
-          root: rootKey,
-          status: 'COMPLETED',
-          resumePayloadJson: {
-            activityIndex: currentIndex,
+  const advanceActivity = useCallback(
+    ({ recordCompletion }: { recordCompletion: boolean }) => {
+      setPlayAlongResult(null);
+      if (recordCompletion && currentActivity && isTrackableActivity) {
+        if (
+          !completionReportedRef.current.has(currentActivity.activityInstanceId)
+        ) {
+          completionReportedRef.current.add(currentActivity.activityInstanceId);
+          updateActivityProgress.mutate({
+            activityInstanceId: currentActivity.activityInstanceId,
+            lessonId,
+            lessonVersion,
             activityDefId: currentActivity.activityDefId,
-            completedVia: 'continue',
-          },
-        });
-        trackActivityCompleted(lessonId, currentActivity.activityDefId);
-        void awardLessonActivity
-          .mutateAsync(currentActivity.activityInstanceId)
-          .catch(() => {});
-      }
-    }
-    // Track completed activity for section progress
-    if (currentActivity) {
-      setCompletedActivityKeys(
-        (prev) => new Set([...prev, currentActivity.key]),
-      );
-    }
-    if (currentActivity && isTrackableActivity) {
-      updateLessonState.mutate({
-        lessonId,
-        lessonVersion,
-        currentActivityInstanceId: null,
-      });
-    }
-    setCurrentIndex((idx) => {
-      const nextIdx = idx + 1;
-      if (nextIdx < flowDefinitions.length) {
-        const nextActivity = flowDefinitions[nextIdx];
-        // Auto-advance section when moving to next section's activity
-        if (nextActivity && nextActivity.section !== currentSectionId) {
-          // Melody -> Chords is a teachable moment: offer a Practice Track
-          // (generated Chords, open Melody) before silently continuing.
-          // Diatonic-only for now (Practice Track generation is diatonic-only).
-          if (
-            currentSectionId === 'A' &&
-            nextActivity.section === 'B' &&
-            isDiatonicMode
-          ) {
-            pendingSectionAdvanceIndexRef.current = nextIdx;
-            setShowMelodySectionCompleteInterstitial(true);
-            return idx;
-          }
-          setCurrentSectionId(nextActivity.section);
+            mode: modeLabel,
+            root: rootKey,
+            status: 'COMPLETED',
+            resumePayloadJson: {
+              activityIndex: currentIndex,
+              activityDefId: currentActivity.activityDefId,
+              completedVia: 'continue',
+            },
+          });
+          trackActivityCompleted(lessonId, currentActivity.activityDefId);
+          void awardLessonActivity
+            .mutateAsync(currentActivity.activityInstanceId)
+            .catch(() => {});
         }
-        return nextIdx;
       }
-      if (!chordsQuery.isPending) {
-        setLessonComplete(true);
+      // Track completed activity for section progress
+      if (recordCompletion && currentActivity) {
+        setCompletedActivityKeys(
+          (prev) => new Set([...prev, currentActivity.key]),
+        );
+      }
+      if (currentActivity && isTrackableActivity) {
         updateLessonState.mutate({
           lessonId,
           lessonVersion,
           currentActivityInstanceId: null,
         });
-        const lessonKey = `${lessonId}::${lessonVersion}`;
-        if (lessonCompleteReportedRef.current !== lessonKey) {
-          lessonCompleteReportedRef.current = lessonKey;
-          trackLessonCompleted(lessonId);
-          // Award lesson completion experience (best-effort)
-          void awardLessonCompletion.mutateAsync(lessonId).catch(() => {});
-        }
-        onComplete?.();
       }
-      return idx;
-    });
-  }, [
-    chordsQuery.isPending,
-    currentActivity,
-    currentIndex,
-    currentSectionId,
-    flowDefinitions,
-    isDiatonicMode,
-    lessonId,
-    lessonVersion,
-    modeLabel,
-    onComplete,
-    rootKey,
-    isTrackableActivity,
-  ]);
+      setCurrentIndex((idx) => {
+        const nextIdx = idx + 1;
+        if (nextIdx < flowDefinitions.length) {
+          const nextActivity = flowDefinitions[nextIdx];
+          // Auto-advance section when moving to next section's activity
+          if (nextActivity && nextActivity.section !== currentSectionId) {
+            // Melody -> Chords is a teachable moment: offer a Practice Track
+            // (generated Chords, open Melody) before silently continuing.
+            // Diatonic-only for now (Practice Track generation is diatonic-only).
+            if (
+              currentSectionId === 'A' &&
+              nextActivity.section === 'B' &&
+              isDiatonicMode
+            ) {
+              pendingSectionAdvanceIndexRef.current = nextIdx;
+              setShowMelodySectionCompleteInterstitial(true);
+              return idx;
+            }
+            setCurrentSectionId(nextActivity.section);
+          }
+          return nextIdx;
+        }
+        if (!chordsQuery.isPending) {
+          setLessonComplete(true);
+          updateLessonState.mutate({
+            lessonId,
+            lessonVersion,
+            currentActivityInstanceId: null,
+          });
+          const lessonKey = `${lessonId}::${lessonVersion}`;
+          if (lessonCompleteReportedRef.current !== lessonKey) {
+            lessonCompleteReportedRef.current = lessonKey;
+            trackLessonCompleted(lessonId);
+            // Award lesson completion experience (best-effort)
+            void awardLessonCompletion.mutateAsync(lessonId).catch(() => {});
+          }
+          onComplete?.();
+        }
+        return idx;
+      });
+    },
+    [
+      chordsQuery.isPending,
+      currentActivity,
+      currentIndex,
+      currentSectionId,
+      flowDefinitions,
+      isDiatonicMode,
+      lessonId,
+      lessonVersion,
+      modeLabel,
+      onComplete,
+      rootKey,
+      isTrackableActivity,
+    ],
+  );
+
+  const handleContinue = useCallback(
+    () => advanceActivity({ recordCompletion: true }),
+    [advanceActivity],
+  );
+
+  // "Continue anyway" from the retry card: move on, but the step stays
+  // incomplete — no progress write, no XP, no tick.
+  const handleContinueAnyway = useCallback(
+    () => advanceActivity({ recordCompletion: false }),
+    [advanceActivity],
+  );
+
+  const handleRunGraded = useCallback(
+    (result: PlayAlongResult) => {
+      setPlayAlongResult(result);
+      // Practice never gates: its "try Play Now" prompt shows either way.
+      if (!result.passed && attemptMode === 'practice') {
+        setPracticeComplete(true);
+      }
+    },
+    [attemptMode],
+  );
 
   // "Continue to Chords" — proceeds with the previously-silent auto-advance
   // behavior after the Melody-complete interstitial is dismissed.
@@ -1627,6 +1570,7 @@ export const ActivityFlow = ({
 
   const handleRestartActivity = () => {
     setStartSignal(0);
+    setPlayAlongResult(null);
     setAttemptMode(null);
     setPracticeComplete(false);
     if (usesActivityStartOverlay) {
@@ -1728,8 +1672,34 @@ export const ActivityFlow = ({
     Component === PlayAlong || Component === NoteHold;
   const usesActivityStartOverlay =
     Component === PlayAlong || Component === NoteHold;
+  const payoff = useMemo(() => {
+    if (!currentActivity || currentActivity.key === 'lesson-overview') {
+      return null;
+    }
+    return activityPayoff({
+      activityKey: currentActivity.key,
+      modeSlug: modeLabel,
+      modeTitle: getChordScales(mode as string)?.modeName ?? modeLabel,
+      rootKey,
+      steps: (scaleMidis ?? []).map((midi) => midi - rootMidi),
+      chordSymbols: currentActivity.chordSymbols,
+      origin,
+    });
+  }, [currentActivity, mode, modeLabel, origin, rootKey, rootMidi, scaleMidis]);
+
+  // The Studio keeps the open project in memory, so going back is a plain
+  // in-app navigation to the editor.
+  const backToTrack = useCallback(() => {
+    navigate(StudioRoutes.editor.definition);
+  }, [navigate]);
+
   const showActivityCompletionOverlay =
     usesActivityCompletionOverlay && activityState === 'completed';
+  const showPlayAlongRetry =
+    attemptMode === 'graded' &&
+    activityState === 'active' &&
+    playAlongResult != null &&
+    !playAlongResult.passed;
   const showStartOverlay =
     usesActivityStartOverlay && activityState === 'pending';
 
@@ -1945,6 +1915,7 @@ export const ActivityFlow = ({
   // the two progress-reporting effects above.
   const handleStartAttempt = (mode: 'practice' | 'graded') => {
     stopDemo();
+    setPlayAlongResult(null);
     setAttemptMode(mode);
     setPracticeComplete(false);
     setActivityState('active');
@@ -1956,6 +1927,7 @@ export const ActivityFlow = ({
   // clean remount of the Component, same mechanism handleRestartActivity uses.
   const beginFreshAttempt = (mode: 'practice' | 'graded') => {
     stopDemo();
+    setPlayAlongResult(null);
     setAttemptMode(mode);
     setPracticeComplete(false);
     setActivityState('active');
@@ -2052,6 +2024,20 @@ export const ActivityFlow = ({
             </p>
           </div>
           <div className="mt-6 grid gap-4">
+            {origin && (
+              <button
+                type="button"
+                onClick={backToTrack}
+                className="rounded-xl px-4 py-3 text-left text-sm font-semibold transition-colors duration-150 glass-panel-sm"
+                style={{
+                  background: 'rgba(126, 207, 207, 0.1)',
+                  border: '1px solid var(--color-accent)',
+                  color: 'var(--color-text)',
+                }}
+              >
+                Back to {origin.song}
+              </button>
+            )}
             <button
               type="button"
               onClick={() => navigate(StudioRoutes.root.definition)}
@@ -2272,6 +2258,24 @@ export const ActivityFlow = ({
         </div>
       )}
 
+      {/* Melody level — how far the generated phrases may leap. Only the
+          contour activities use it, so it is offered while Melody is open. */}
+      {currentSectionId === 'A' && melodyPhrases && (
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 pt-2">
+          <span
+            className="text-xs font-medium"
+            style={{ color: 'var(--color-text-dim)' }}
+          >
+            Melody level
+          </span>
+          <PracticeLevelPicker
+            level={melodyLevel}
+            onChange={setMelodyLevel}
+            titles={MELODY_LEVEL_HINTS}
+          />
+        </div>
+      )}
+
       {/* Step progress dots */}
       {currentSectionId !== 'O' && (
         <div className="flex items-center gap-1 px-4 py-1">
@@ -2347,7 +2351,8 @@ export const ActivityFlow = ({
           className={
             showActivityCompletionOverlay ||
             showStartOverlay ||
-            practiceComplete
+            practiceComplete ||
+            showPlayAlongRetry
               ? 'pointer-events-none opacity-30 blur-sm transition duration-300'
               : 'transition duration-300'
           }
@@ -2407,7 +2412,10 @@ export const ActivityFlow = ({
             isActive={activityState === 'active'}
             onContinue={handleContinue}
             onActivityCompleteChange={handleActivityCompleteChange}
+            onRunGraded={handleRunGraded}
             showTargetKeys={attemptMode === 'practice'}
+            playTargetNotes={attemptMode === 'practice'}
+            chordSymbols={currentActivity.chordSymbols}
             startSignal={startSignal}
             startMessage={direction}
             noteSpelling={pcSpellingMap}
@@ -2554,6 +2562,17 @@ export const ActivityFlow = ({
             </div>
           </div>
         )}
+        {showPlayAlongRetry && playAlongResult && (
+          <PlayAlongRetryCard
+            result={playAlongResult}
+            onTryAgain={() => beginFreshAttempt('graded')}
+            onContinueAnyway={
+              currentIndex < flowDefinitions.length - 1
+                ? handleContinueAnyway
+                : undefined
+            }
+          />
+        )}
         {showActivityCompletionOverlay && (
           <div className="absolute inset-0 flex items-center justify-center px-4">
             <div
@@ -2567,14 +2586,36 @@ export const ActivityFlow = ({
               <h3 className="text-2xl font-semibold">
                 {Component === PlayAlong ? 'Nice work!' : 'Great job!'}
               </h3>
-              <p
-                className="mt-2 text-sm"
-                style={{ color: 'var(--color-text-dim)' }}
-              >
-                {Component === PlayAlong
-                  ? 'You finished the play-along. Continue when you are ready, or restart to practice again.'
-                  : 'You completed the sequence. Continue when you are ready, or restart to practice again.'}
-              </p>
+              {Component === PlayAlong && playAlongResult && (
+                <p
+                  className="mt-1 text-sm"
+                  style={{ color: 'var(--color-text-dim)' }}
+                >
+                  You played {playAlongResult.hits} of {playAlongResult.total}{' '}
+                  notes.
+                </p>
+              )}
+              {payoff && (
+                <div className="mx-auto mt-4 max-w-md">
+                  <p className="text-base font-medium">{payoff.headline}</p>
+                  {payoff.detail && (
+                    <p
+                      className="mt-1 text-sm"
+                      style={{ color: 'var(--color-text-dim)' }}
+                    >
+                      {payoff.detail}
+                    </p>
+                  )}
+                  {payoff.fromSong && (
+                    <p
+                      className="mt-2 text-sm"
+                      style={{ color: 'var(--color-accent)' }}
+                    >
+                      {payoff.fromSong}
+                    </p>
+                  )}
+                </div>
+              )}
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
                 <button
                   type="button"
@@ -2598,6 +2639,19 @@ export const ActivityFlow = ({
                 >
                   Restart
                 </button>
+                {origin && (
+                  <button
+                    type="button"
+                    onClick={backToTrack}
+                    className="rounded-full px-6 py-2 text-sm font-semibold transition-colors duration-150"
+                    style={{
+                      border: '1px solid var(--color-accent)',
+                      color: 'var(--color-accent)',
+                    }}
+                  >
+                    Back to {origin.song}
+                  </button>
+                )}
               </div>
             </div>
           </div>

@@ -857,5 +857,6 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'acoustic blues',
       'third ward',
     ],
+    videoId: 'L7L2DAumDaE',
   },
 ];

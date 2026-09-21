@@ -251,63 +251,77 @@ export const popProfile: GenreProfile = {
     },
 
     3: {
-      keyCenter: 'C major',
+      keyCenter: 'B♭ major',
       mode: 'Ionian (Major)',
-      keyMidi: 60,
+      keyMidi: 70,
       scaleIntervals: [0, 2, 4, 5, 7, 9, 11],
-      scaleNotes: ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
-      tempoRange: '90–130 BPM',
+      scaleNotes: ['B♭', 'C', 'D', 'E♭', 'F', 'G', 'A'],
+      tempoRange: '70–130 BPM',
       primaryVoicings: [
         {
-          label: 'C major, root position',
-          symbol: 'C',
-          midis: [48, 60, 64, 67], // C3+C4+E4+G4
+          label: '1 maj add 2 (broken chord)',
+          symbol: 'B♭add2',
+          midis: [58, 70, 72, 74, 77], // Bb3 + Bb4+C5+D5+F5
           description:
-            'The tonic — same shape as Level 1, now the anchor for longer 8-bar phrases.',
+            'The L3 tonic. The added 2nd (C) sits between root and 3rd — thumb breaks away from the fingers for that open pop shimmer.',
         },
         {
-          label: 'E major, root position (secondary dominant, 5 maj/6 min)',
-          symbol: 'E',
-          midis: [52, 64, 68, 71], // E3+E4+G#4+B4
+          label: '4 maj7 in 7-3-5',
+          symbol: 'E♭maj7',
+          midis: [51, 62, 67, 70], // Eb2 bass + D4+G4+Bb4
           description:
-            'Borrowed from A minor’s dominant — the G♮→G♯ color note pulls strongly back to Am, a classic pop "surprise chord."',
+            'Drop the root from the RH and stack 7-3-5. The LH bass names the chord; the RH keeps it compact and glowing.',
+        },
+        {
+          label: '6 min7 in 7-3-5',
+          symbol: 'Gm7',
+          midis: [55, 65, 70, 74], // G3 bass + F4+Bb4+D5
+          description:
+            'Same 7-3-5 shape over the 6 min chord — the whole hand moves as one unit through the changes.',
+        },
+        {
+          label: '1 maj over 3 (slash bass)',
+          symbol: 'B♭/D',
+          midis: [50, 70, 74, 77], // D3 bass + Bb4+D5+F5
+          description:
+            'Tonic triad over its 3rd in the bass — the bass line does the storytelling while the chord stays put.',
         },
       ],
       technique: {
         melody: {
           summary:
-            '8-bar phrases across the full diatonic scale, with room for a secondary-dominant color tone.',
+            'One tonic, three modal colors — then full pop melodies over the track.',
           details: [
-            'Builds directly on the 1 maj - 5 maj - 6 min - 4 maj / 6 min - 4 maj - 1 maj - 5 maj vocabulary from Level 2, extended across full 8-bar verse/chorus shapes',
-            'Introduces the raised 7th of 6 min (G♯ over Am, via E major) as a passing color tone — a taste of pop’s "surprise chord" without leaving the major-key sound',
-            'Melodic phrasing mirrors real verse → pre-chorus → chorus shape, not just a repeated riff',
+            'Scales: B♭ Ionian [B♭ C D E♭ F G A], B♭ Dorian [B♭ C D♭ E♭ F G A♭], B♭ Aeolian [B♭ C D♭ E♭ F G♭ A♭] — same root, three moods',
+            '4-, 6-, and 8-note melodies built from contour + phrase rhythm, resolved through B♭ Ionian',
+            'Chromatic passing tones (♭3 leaning into the 3rd) add color without leaving the key',
           ],
         },
         chords: {
           summary:
-            'Root-position and 1st-inversion voicings mixed for the smoothest possible voice leading across longer progressions.',
+            'Seventh-chord vocabulary in 7-3-5 voicings, plus slash bass and borrowed color.',
           details: [
-            'Extends Level 2’s closest-position rule across 8-bar loops, choosing root position vs. 1st inversion chord-by-chord based on which keeps the voicing closest to the one before it',
-            'Introduces a borrowed secondary dominant (E major → Am) — pop stays triadic even here; the color comes from the borrowed chord, not from jazz extensions',
-            'Full comping pattern (quarter-note chunks, dotted-quarter pushes) mixed within a single performance',
+            'Vocabulary: 1 maj add2 (B♭add2), 4 maj7 (E♭maj7), 6 min7 (Gm7), 3 dom7 (D7), ♯5 dim7 (F♯dim7), 6 min add2 (Gmadd2), 1 maj/3 (B♭/D), 4 min6 (E♭m6), 5 maj add4 (Fadd4)',
+            '7-3-5 voicings: RH drops the root and plays 7-3-5 while the LH bass names the chord',
+            'Progressions: E♭maj7 - Dm7 - D7 - E♭maj7, and B♭/D - E♭m6 - B♭ with a 3+3+2 syncopated push',
           ],
         },
         bass: {
           summary:
-            'Full pop bass vocabulary in one performance — roots, 5ths, and rhythmic pushes.',
+            'Root pulse to walking bass, with chromatic approach tones into every change.',
           details: [
-            'Combines root, root-5th, and dotted-quarter/eighth push patterns from Levels 1–2 within the same 8-bar performance',
-            'Locks to the kick on the downbeat through every chord change, including the secondary dominant',
-            'Sets up the tonic’s return the same way a real pop rhythm section would',
+            'B♭ Ionian across the bass register (B♭2 tonic), up and down, in and out of time',
+            'Root pulse over B♭ - E♭ - B♭ - F — kick-locked quarter notes',
+            'Walking bass over B♭ - Gm7 - Cm7 - F7: root-3rd-5th plus a chromatic approach into the next root',
           ],
         },
         performance: {
           summary:
             'Full two-hand play-along performance — the complete pop piano part.',
           details: [
-            'LH: closest-position chord comping across the full progression',
-            'RH: 8-bar melody with verse/chorus shape',
-            'Student plays along with a full drum + bass backing track — the complete pop rhythm section',
+            'LH bass + RH voicings over B♭ - E♭maj7 - Gm7 - F7 (l3a, pop groove)',
+            'Neo-soul crossover progression B♭/D - E♭m6 - F7sus4 - B♭ (l3b)',
+            'Full drum + bass backing track, then a Studio project to build your own pop arrangement',
           ],
         },
       },

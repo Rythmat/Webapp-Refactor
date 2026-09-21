@@ -11,16 +11,21 @@ import {
   GripVertical,
 } from 'lucide-react';
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { AtlasVideo } from '@/components/atlas/components/UI/AtlasVideo';
+import {
+  ArtistChips,
+  TitleWithArtists,
+} from '@/components/atlas/components/UI/ArtistLinks';
 import { EventInfluence } from '@/components/atlas/components/UI/EventInfluence';
+import { EventVideo } from '@/components/atlas/components/UI/EventVideo';
 import { GenreBadge } from '@/components/atlas/components/UI/GenreBadge';
 import {
   useAppState,
   useAppDispatch,
 } from '@/components/atlas/context/AppContext';
 import { CITIES } from '@/components/atlas/data';
+import type { AtlasArtist } from '@/components/atlas/data/artists';
+import { useAtlasNavigate } from '@/components/atlas/navigation/useAtlasNavigate';
 import type { HistoricalEvent } from '@/components/atlas/types';
-import { sameCountry } from '@/components/atlas/utils/country';
 import { getEventsForLocation } from '@/components/atlas/utils/getEventsForLocation';
 
 function EventList({
@@ -35,6 +40,7 @@ function EventList({
   onEnlarge,
   onShrink,
   onNavigateToEvent,
+  onSelectArtist,
   onVideoPlay,
   onToggleRotation,
 }: {
@@ -49,6 +55,7 @@ function EventList({
   onEnlarge: (event: HistoricalEvent) => void;
   onShrink: () => void;
   onNavigateToEvent: (event: HistoricalEvent) => void;
+  onSelectArtist: (artist: AtlasArtist) => void;
   onVideoPlay: () => void;
   onToggleRotation: () => void;
 }) {
@@ -110,7 +117,10 @@ function EventList({
                 <h4
                   className={`font-semibold leading-snug text-white ${focused ? 'text-lg' : 'text-sm'}`}
                 >
-                  {event.title}
+                  <TitleWithArtists
+                    event={event}
+                    onSelectArtist={onSelectArtist}
+                  />
                 </h4>
                 <div className="flex shrink-0 items-center gap-1.5">
                   {rotationEngaged && event.id === pinnedEventId && (
@@ -175,19 +185,17 @@ function EventList({
                       <GenreBadge key={g} genre={g} />
                     ))}
                   </div>
+                  <ArtistChips event={event} onSelectArtist={onSelectArtist} />
                   <p
                     className={`mt-2 leading-relaxed text-white/70 ${focused ? 'text-base' : 'text-sm'}`}
                   >
                     {event.description}
                   </p>
-                  {event.videoId && (
-                    <AtlasVideo
-                      videoId={event.videoId}
-                      title={event.title}
-                      onPlay={onVideoPlay}
-                      className={`rounded-lg border border-white/10 ${focused ? 'mx-auto mt-4 max-w-2xl' : 'mt-3'}`}
-                    />
-                  )}
+                  <EventVideo
+                    event={event}
+                    onPlay={onVideoPlay}
+                    className={`rounded-lg border border-white/10 ${focused ? 'mx-auto mt-4 max-w-2xl' : 'mt-3'}`}
+                  />
                   <EventInfluence
                     event={event}
                     onNavigate={onNavigateToEvent}
@@ -219,6 +227,7 @@ export function DetailsCard() {
     rotationPaused,
   } = useAppState();
   const dispatch = useAppDispatch();
+  const navigate = useAtlasNavigate();
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set());
   const [collapsed, setCollapsed] = useState(false);
   const [enlarged, setEnlarged] = useState(false);
@@ -255,21 +264,33 @@ export function DetailsCard() {
     [width],
   );
 
-  const events = useMemo(
+  // The pinned event is always in the list. resolveEventRegion.test.ts proves
+  // that for the bundled data, but production reads CDN-published content that
+  // no test has seen — and an event missing from its own panel is precisely
+  // the "I clicked the pill and nothing happened" bug.
+  const listed = useMemo(
     () => getEventsForLocation(selectedLocation),
     [selectedLocation],
   );
+  const events = useMemo(() => {
+    if (!pinnedEvent || listed.some((e) => e.id === pinnedEvent.id)) {
+      return listed;
+    }
+    return [...listed, pinnedEvent].sort((a, b) => a.year - b.year);
+  }, [listed, pinnedEvent]);
 
   // Collapse all events + exit enlarge when the location changes; auto-expand a
-  // lone event.
+  // lone event. Keyed on the location's own list, NOT `events`: that one also
+  // changes whenever the pin does, and would collapse the card (and drop out
+  // of enlarge mode) on every click inside it.
   useEffect(() => {
     setEnlarged(false);
-    if (events.length === 1) {
-      setExpandedEvents(new Set([events[0].id]));
+    if (listed.length === 1) {
+      setExpandedEvents(new Set([listed[0].id]));
     } else {
       setExpandedEvents(new Set());
     }
-  }, [selectedLocation, events]);
+  }, [selectedLocation, listed]);
 
   // Expand only the pinned event (timeline click / deep-link / sequence step),
   // un-collapse the card, and scroll that event into view so it reads fully.
@@ -311,48 +332,28 @@ export function DetailsCard() {
 
   if (!selectedLocation) return null;
 
-  const close = () => dispatch({ type: 'SELECT_LOCATION', payload: null });
+  const close = () => navigate.home();
 
-  const navigateToEvent = (event: HistoricalEvent) => {
-    const cityLower = event.location.city.toLowerCase();
-    const nameMatches = CITIES.filter(
-      (c) => c.name.toLowerCase() === cityLower,
-    );
-    const city =
-      nameMatches.find((c) => sameCountry(c.country, event.location.country)) ??
-      nameMatches[0];
-    if (city)
-      dispatch({
-        type: 'SELECT_LOCATION',
-        payload: { type: 'city', id: city.id },
-      });
-    dispatch({ type: 'PIN_EVENT', payload: event });
-    dispatch({
-      type: 'EXECUTE_SEARCH',
-      payload: { lat: event.location.lat, lng: event.location.lng, zoom: 10 },
-    });
-  };
+  // Every change of what the card shows goes through the URL, so each one is a
+  // step in the trail and a spot someone can bookmark.
+  const navigateToEvent = (event: HistoricalEvent) => navigate.toEvent(event);
+  const selectArtist = (artist: AtlasArtist) => navigate.toArtist(artist.name);
 
-  // Toggle the inline expansion of an event card (and pin/unpin it).
+  // Opening a card is visiting that event; closing it returns to the place.
+  // The expanded set follows from the pin (see the pinnedEvent effect above).
   const toggleEvent = (id: string) => {
-    setExpandedEvents((prev) => {
-      if (prev.has(id)) {
-        dispatch({ type: 'PIN_EVENT', payload: null });
-        return new Set();
-      }
-      const event = events.find((e) => e.id === id);
-      if (event) dispatch({ type: 'PIN_EVENT', payload: event });
-      return new Set([id]);
-    });
+    if (expandedEvents.has(id)) {
+      navigate.toPlace(selectedLocation);
+      return;
+    }
+    navigate.toEvent(id);
   };
 
   // Enlarge the panel, focused on an event. If it's the event already playing,
-  // don't re-pin it (that would reset the arcs and stop the globe spinning);
-  // just grow the panel so the video keeps playing uninterrupted.
+  // don't re-navigate (that would re-pin it, resetting the arcs and stopping the
+  // globe spin); just grow the panel so the video keeps playing uninterrupted.
   const enlargeEvent = (event: HistoricalEvent) => {
-    if (pinnedEvent?.id !== event.id) {
-      dispatch({ type: 'PIN_EVENT', payload: event });
-    }
+    if (pinnedEvent?.id !== event.id) navigate.toEvent(event);
     setExpandedEvents(new Set([event.id]));
     setEnlarged(true);
   };
@@ -489,6 +490,7 @@ export function DetailsCard() {
           onEnlarge={enlargeEvent}
           onShrink={() => setEnlarged(false)}
           onNavigateToEvent={navigateToEvent}
+          onSelectArtist={selectArtist}
           onVideoPlay={() => dispatch({ type: 'OPEN_INFLUENCE_ARCS' })}
           onToggleRotation={toggleRotation}
         />

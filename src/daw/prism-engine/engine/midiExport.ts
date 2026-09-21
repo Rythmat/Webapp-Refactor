@@ -10,6 +10,11 @@ import {
 import { normalizeSequence } from './chordUtils';
 import { swingRhythm } from './rhythmUtils';
 import { getChordMelody } from './melodyGenerator';
+import {
+  hasMajorThird,
+  repairMajorChordRule,
+  type ChordWindow,
+} from '@/lib/melody/majorChordRule';
 import { MELODY_RHYTHMS } from '../data/melodyRhythms';
 
 const BAR = 1920; // ticks per bar (480 * 4)
@@ -223,6 +228,35 @@ export function generateMelodyMidi(opts: MelodyMidiOptions): MidiSequence {
       channel: opts.channel,
     });
   }
+
+  // The 4 over a major chord has to reach its 3 — see lib/melody. The melody
+  // was stitched from contours a chord at a time, so each note is judged
+  // against the chord its own stretch of hits belongs to.
+  const windows: ChordWindow[] = [];
+  for (let i = 0; i < chords.length; i++) {
+    const chordMidis = chords[i];
+    if (!chordMidis?.length) continue;
+    const from = i * perChord;
+    if (from >= allHits.length) break;
+    const to = Math.min((i + 1) * perChord, allHits.length);
+    const root = Math.min(...chordMidis);
+    windows.push({
+      rootPc: ((root % 12) + 12) % 12,
+      majorThird: hasMajorThird(chordMidis.map((m) => m - root)),
+      startTick: allHits[from][0],
+      endTick: to < allHits.length ? allHits[to][0] : Number.POSITIVE_INFINITY,
+    });
+  }
+  repairMajorChordRule(
+    events.map((e) => ({
+      midi: e.note,
+      startTick: e.startTick,
+      durationTicks: e.durationTicks,
+    })),
+    windows,
+  ).forEach((note, i) => {
+    events[i].note = note.midi;
+  });
 
   return {
     ticksPerQuarterNote: 480,

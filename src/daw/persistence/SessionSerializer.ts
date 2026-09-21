@@ -504,6 +504,11 @@ function freshProjectHarmony() {
     editingClipTrackId: null,
     leadSheetSelectedChordIdx: null,
     leadSheetSections: [],
+    scoreChordTracks: [],
+    scoreChordHidden: [],
+    scoreArticulations: [],
+    scoreSlurs: [],
+    scoreSlashNotes: [],
     leadSheetRepeats: [],
   } satisfies Partial<ReturnType<typeof useStore.getState>>;
 }
@@ -605,6 +610,8 @@ export function resetSessionToEmpty(): void {
     projectId: null,
     projectName: 'Untitled Project',
     composerName: '',
+    // A Practice Track landing sets its own session after this reset.
+    practiceSession: null,
 
     // Transport
     bpm: 120,

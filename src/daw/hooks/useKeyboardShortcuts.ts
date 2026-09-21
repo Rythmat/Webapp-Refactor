@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useStore } from '@/daw/store';
 import type { ToolType } from '@/daw/store/uiSlice';
 import { saveCurrentProjectToCloud } from '@/lib/studio-projects/api';
-import { undo, redo } from '@/daw/store/undoMiddleware';
+import { smartUndo, smartRedo } from '@/daw/store/undoMiddleware';
 import { exportMidiFile, downloadMidiBlob } from '@/daw/midi/MidiFileIO';
 import {
   getAudioBuffer,
@@ -60,9 +60,9 @@ export function useKeyboardShortcuts(token: string | null) {
       if (e.code === 'KeyZ' && isMod) {
         e.preventDefault();
         if (e.shiftKey) {
-          redo();
+          smartRedo();
         } else {
-          undo();
+          smartUndo();
         }
         return;
       }

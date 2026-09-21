@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import type { Measure, ChordFormat } from '@/daw/midi/leadSheetUtils';
 import type { LeadSheetRepeat, LeadSheetSection } from '@/daw/store/uiSlice';
+import type { LeadSheetItem } from './leadSheetSelection';
 import {
   LeadSheetMeasure,
   MEASURE_WIDTH,
@@ -12,6 +13,12 @@ import {
 
 /** Default number of measures in a full system (used to decide whether to stretch) */
 const DEFAULT_FULL_SYSTEM_COUNT = 4;
+
+/**
+ * How narrow a bar may get before the system stops squeezing and scrolls
+ * instead. Four beats still need room for their slashes and a chord symbol.
+ */
+const MIN_MEASURE_WIDTH = 110;
 
 interface LeadSheetStaffProps {
   measures: Measure[];
@@ -43,6 +50,14 @@ interface LeadSheetStaffProps {
   onDeleteChord?: (regionId: string) => void;
   measureRestMap?: Record<number, number> | null;
   measureFermatas?: number[] | null;
+  /** Keys of everything selected across the sheet. */
+  selectedKeys?: ReadonlySet<string>;
+  onSelectItem?: (item: LeadSheetItem, event: React.MouseEvent) => void;
+  onInsertChordAt?: (tick: number) => void;
+  beatsPerMeasure?: number;
+  autoEditRegionId?: string | null;
+  /** Bars in the whole piece, so the last one can own the closing barline. */
+  measureCount?: number;
 }
 
 /**
@@ -70,15 +85,24 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
   onDeleteChord,
   measureRestMap,
   measureFermatas,
+  selectedKeys,
+  onSelectItem,
+  onInsertChordAt,
+  beatsPerMeasure,
+  autoEditRegionId,
+  measureCount,
 }: LeadSheetStaffProps) {
   const defaultWidth = measures.length * MEASURE_WIDTH;
   const isFull =
     measures.length === (fullSystemCount ?? DEFAULT_FULL_SYSTEM_COUNT);
 
-  // Stretch full systems to fill container; keep partial lines at natural size
+  // A full system fills the container — stretching when there is room, and
+  // squeezing when there is not. It used to hold its natural width and let the
+  // last bar fall off the edge, so opening the palette cost a bar off every
+  // system; the default four bars per line must survive the narrower page.
   const svgWidth =
-    isFull && availableWidth && availableWidth > defaultWidth
-      ? availableWidth
+    isFull && availableWidth
+      ? Math.max(availableWidth, measures.length * MIN_MEASURE_WIDTH)
       : defaultWidth;
 
   const measureWidth = svgWidth / measures.length;
@@ -120,6 +144,15 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
             onDeleteChord={onDeleteChord}
             restBars={measureRestMap?.[globalIdx]}
             hasFermata={measureFermatas?.includes(globalIdx)}
+            selectedKeys={selectedKeys}
+            onSelectItem={onSelectItem}
+            onInsertChordAt={onInsertChordAt}
+            beatsPerMeasure={beatsPerMeasure}
+            autoEditRegionId={autoEditRegionId}
+            isSystemStart={i === 0}
+            isLastMeasure={
+              measureCount != null && globalIdx === measureCount - 1
+            }
           />
         );
       })}
@@ -127,6 +160,7 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
       {/* Playhead line */}
       {playheadX != null && (
         <line
+          className="leadsheet-playhead"
           x1={playheadX}
           y1={CHORD_AREA_HEIGHT}
           x2={playheadX}

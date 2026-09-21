@@ -23,11 +23,9 @@ import { LearnRoutes } from '@/constants/routes';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { useChordNotation } from '@/lib/chordNotation';
-import { getChordTheory } from './chordTheoryMap';
+import { chordModeContext } from './chordInKey';
 import { keyContext, liveChordLabels } from './insightNotation';
 import {
-  PARENT_SCALE_INFO,
-  FAMILY_INTERVALS,
   FAMILY_MODES,
   MODE_DISPLAY,
   MODE_TO_SLUG,
@@ -185,29 +183,23 @@ export function InsightContent() {
         const [r, g, b] = getChordColor(degreeName, rootMidi, mode);
         color = rgbString(r, g, b);
 
-        chordRootMode = getChordTheory(quality).mode;
-
-        const chordModeInfo = PARENT_SCALE_INFO[chordRootMode];
-        const chordParentFamily = chordModeInfo?.family ?? 'Ionian';
-        const chordParentRootPc = chordModeInfo
-          ? (rootPc + chordModeInfo.offset) % 12
-          : rootPc;
-
-        const sessionInterval = (rootNote - chordParentRootPc + 12) % 12;
-        const chordFamilyIntervals = FAMILY_INTERVALS[chordParentFamily];
-        const sessionDegIdx =
-          chordFamilyIntervals?.indexOf(sessionInterval) ?? -1;
-        sessionMode =
-          sessionDegIdx >= 0
-            ? (FAMILY_MODES[chordParentFamily]?.[sessionDegIdx] ?? null)
-            : null;
-
-        const isChordParent = !chordModeInfo || chordModeInfo.offset === 0;
-        isSessionParent = isChordParent || chordParentRootPc === rootNote;
+        const context = chordModeContext({
+          chordRootPc: rootPc,
+          quality,
+          intervals: intervals ?? [],
+          rootNote,
+          mode,
+          tonicName: displayAccidentals(
+            noteNameInKey(rootNote, rootNote, mode),
+          ),
+        });
+        chordRootMode = context.chordRootMode;
+        sessionMode = context.sessionMode;
+        isSessionParent = context.isSessionParent;
         parentKeyLetter = displayAccidentals(
-          noteNameInKey(chordParentRootPc, rootNote, mode),
+          noteNameInKey(context.parentRootPc, rootNote, mode),
         );
-        parentMode = FAMILY_MODES[chordParentFamily]?.[0] ?? chordRootMode;
+        parentMode = context.parentMode;
 
         const allInterps = findAllInterpretations(degreeName);
         alternatives = allInterps.filter(

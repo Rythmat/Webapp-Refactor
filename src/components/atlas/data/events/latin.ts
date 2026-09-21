@@ -24,6 +24,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'aymara',
       'inca',
     ],
+    videoId: 'qsNEu750zok',
   },
   {
     id: 'evt-andean-folk-revival-lapaz-1965',
@@ -47,6 +48,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'bolivia',
       'quena',
     ],
+    videoId: 'TftVfJkG0vk',
   },
   {
     id: 'evt-bossanova-rio-1962',
@@ -682,6 +684,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'mambo',
       'diaspora',
     ],
+    videoId: 'B1VE56pc3Rk',
   },
   {
     id: 'evt-salsa-nyc-1971',
@@ -944,6 +947,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'san juan',
       'spanish language pop',
     ],
+    videoId: '0GDs7j54nHU',
   },
   {
     id: 'evt-danzon-havana-1879',

@@ -38,26 +38,32 @@ import { WaitingForSessionModal } from '@/daw/collab/ui/WaitingForSessionModal';
 const VIEWS: { id: ViewType; label: string }[] = [
   { id: 'arrange', label: 'Create' },
   { id: 'studio', label: 'Master' },
-  { id: 'leadsheet', label: 'Score' },
+  { id: 'score', label: 'Score' },
+  { id: 'leadsheet', label: 'Lead Sheet' },
 ];
+
+// A Practice Track session adds a way back to its one-purpose screen.
+const PRACTICE_VIEW = { id: 'practice' as ViewType, label: 'Practice' };
 
 function ViewSwitcher() {
   const currentView = useStore((s) => s.currentView);
   const setCurrentView = useStore((s) => s.setCurrentView);
+  const hasPracticeSession = useStore((s) => s.practiceSession !== null);
+  const views = hasPracticeSession ? [PRACTICE_VIEW, ...VIEWS] : VIEWS;
 
   return (
     <div
       className="flex items-center overflow-hidden rounded-md"
       style={{ backgroundColor: 'var(--color-surface-2)' }}
     >
-      {VIEWS.map((v) => {
+      {views.map((v) => {
         const active = currentView === v.id;
         return (
           <button
             key={v.id}
             data-tutorial-id={`view-switch-${v.id}`}
             onClick={() => setCurrentView(v.id)}
-            className="h-5 cursor-pointer px-2 text-[10px] font-semibold uppercase tracking-wider transition-colors"
+            className="h-5 shrink-0 cursor-pointer whitespace-nowrap px-2.5 text-[10px] font-semibold uppercase tracking-wide transition-colors"
             style={{
               backgroundColor: active
                 ? 'var(--color-surface-3)'

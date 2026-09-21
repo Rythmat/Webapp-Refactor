@@ -4,12 +4,31 @@ import type { MidiClip, AudioClip } from './tracksSlice';
 import type { AllGridSize } from '@/daw/utils/quantize';
 import type { ThemeId } from '@/daw/constants/themes';
 import type { ClipNoteSelection } from '@/daw/utils/insightSelection';
+import type { ScoreTextMark } from '@/daw/components/Score/scoreText';
 
 // ── UI Slice ──────────────────────────────────────────────────────────────
 // Global UI state: active tool, selected clip, timeline zoom/scroll/grid.
 
 export type ToolType = 'cursor' | 'pencil' | 'scissors' | 'layout';
-export type ViewType = 'arrange' | 'studio' | 'leadsheet';
+export type ViewType =
+  | 'arrange'
+  | 'studio'
+  | 'score'
+  | 'leadsheet'
+  | 'practice';
+
+/**
+ * A Practice Track opened from a Learn lesson: what the one-purpose practice
+ * screen needs to name the task and send the student back. Session-only.
+ */
+export interface PracticeSession {
+  /** Prism mode key, e.g. 'ionian'. */
+  mode: string;
+  /** The lesson's key URL param, e.g. 'bflat'. */
+  rootParam: string;
+  level: 1 | 2 | 3;
+  openTrack: 'melody' | 'chords';
+}
 /** Tabs of the bottom Channel Strip. Kept here (not in ChannelStrip.tsx) so
  *  the tutorial system can read/open a specific tab from the store. */
 export type ChannelStripTabId =
@@ -76,6 +95,8 @@ export interface UiSlice {
   // ── View switcher ──
   currentView: ViewType;
   setCurrentView: (view: ViewType) => void;
+  practiceSession: PracticeSession | null;
+  setPracticeSession: (session: PracticeSession | null) => void;
 
   // ── Library sidebar ──
   libraryOpen: boolean;
@@ -156,6 +177,55 @@ export interface UiSlice {
   removeLeadSheetRepeat: (startMeasure: number) => void;
   leadSheetShowRepeats: boolean;
   setLeadSheetShowRepeats: (show: boolean) => void;
+  /** Draw the melody track's notes on the lead sheet staff, over the slashes. */
+  leadSheetShowMelody: boolean;
+  setLeadSheetShowMelody: (show: boolean) => void;
+  /** Which track the melody is read from; null picks one by its role. */
+  leadSheetMelodyTrackId: string | null;
+  setLeadSheetMelodyTrackId: (trackId: string | null) => void;
+  /**
+   * Score view: track ids whose part shows chord symbols. The symbols are the
+   * lead sheet's own chords; this only says which parts display them.
+   */
+  scoreChordTracks: string[];
+  toggleScoreChordTrack: (trackId: string) => void;
+  /**
+   * Chords taken off one part, keyed `trackId:regionId`. Hiding one here
+   * never touches the lead sheet or any other part.
+   */
+  scoreChordHidden: string[];
+  setScoreChordHidden: (hidden: string[]) => void;
+  /** Articulations written in the Score, as `noteId|kind`. */
+  scoreArticulations: string[];
+  setScoreArticulations: (marks: string[]) => void;
+  /** Slurs written in the Score, as `fromNoteId|toNoteId`. */
+  scoreSlurs: string[];
+  /**
+   * Spellings pinned by writing an accidental, as `noteId|name`. Without this
+   * a note sharpened to 61 would be respelled by the key — D♭ in a flat key —
+   * and the sharp the user asked for would not appear.
+   */
+  scoreSpellings: string[];
+  setScoreSpellings: (spellings: string[]) => void;
+  /**
+   * Layout marks on bars: which start a system, which start a page, and which
+   * open a system of an exact length ("make into system"). Marks rather than
+   * row sizes, so a break early on leaves the rest of the score alone.
+   */
+  scoreSystemBreaks: number[];
+  setScoreSystemBreaks: (bars: number[]) => void;
+  scorePageBreaks: number[];
+  setScorePageBreaks: (bars: number[]) => void;
+  /** `[startBar, barCount]` for each system made by hand. */
+  scoreSystemRuns: Array<[number, number]>;
+  setScoreSystemRuns: (runs: Array<[number, number]>) => void;
+  /** Free text, segno and coda signs, and the jumps that point at them. */
+  scoreTextMarks: ScoreTextMark[];
+  setScoreTextMarks: (marks: ScoreTextMark[]) => void;
+  setScoreSlurs: (slurs: string[]) => void;
+  /** Notes written as rhythmic slashes, by note id. */
+  scoreSlashNotes: string[];
+  setScoreSlashNotes: (ids: string[]) => void;
 }
 
 export const createUiSlice: StateCreator<
@@ -236,6 +306,8 @@ export const createUiSlice: StateCreator<
 
   // ── View switcher ──
   currentView: 'arrange' as ViewType,
+  practiceSession: null,
+  setPracticeSession: (session) => set({ practiceSession: session }),
   setCurrentView: (view) =>
     set({
       currentView: view,
@@ -350,4 +422,34 @@ export const createUiSlice: StateCreator<
     })),
   leadSheetShowRepeats: false,
   setLeadSheetShowRepeats: (show) => set({ leadSheetShowRepeats: show }),
+  leadSheetShowMelody: false,
+  setLeadSheetShowMelody: (show) => set({ leadSheetShowMelody: show }),
+  leadSheetMelodyTrackId: null,
+  setLeadSheetMelodyTrackId: (trackId) =>
+    set({ leadSheetMelodyTrackId: trackId }),
+  scoreChordTracks: [],
+  toggleScoreChordTrack: (trackId) =>
+    set((s) => ({
+      scoreChordTracks: s.scoreChordTracks.includes(trackId)
+        ? s.scoreChordTracks.filter((id) => id !== trackId)
+        : [...s.scoreChordTracks, trackId],
+    })),
+  scoreChordHidden: [],
+  setScoreChordHidden: (hidden) => set({ scoreChordHidden: hidden }),
+  scoreArticulations: [],
+  setScoreArticulations: (marks) => set({ scoreArticulations: marks }),
+  scoreSlurs: [],
+  setScoreSlurs: (slurs) => set({ scoreSlurs: slurs }),
+  scoreSpellings: [],
+  setScoreSpellings: (spellings) => set({ scoreSpellings: spellings }),
+  scoreSystemBreaks: [],
+  setScoreSystemBreaks: (bars) => set({ scoreSystemBreaks: bars }),
+  scorePageBreaks: [],
+  setScorePageBreaks: (bars) => set({ scorePageBreaks: bars }),
+  scoreSystemRuns: [],
+  setScoreSystemRuns: (runs) => set({ scoreSystemRuns: runs }),
+  scoreTextMarks: [],
+  setScoreTextMarks: (marks) => set({ scoreTextMarks: marks }),
+  scoreSlashNotes: [],
+  setScoreSlashNotes: (ids) => set({ scoreSlashNotes: ids }),
 });

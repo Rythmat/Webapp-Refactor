@@ -482,4 +482,14 @@ function diffLeadSheet(doc: Y.Doc, prev: AllSlices, next: AllSlices): void {
     yLS.set('chordFormat', next.leadSheetChordFormat);
   if (prev.leadSheetShowRepeats !== next.leadSheetShowRepeats)
     yLS.set('showRepeats', next.leadSheetShowRepeats);
+  if (prev.scoreChordTracks !== next.scoreChordTracks)
+    yLS.set('scoreChordTracks', JSON.stringify(next.scoreChordTracks));
+  if (prev.scoreChordHidden !== next.scoreChordHidden)
+    yLS.set('scoreChordHidden', JSON.stringify(next.scoreChordHidden));
+  if (prev.scoreArticulations !== next.scoreArticulations)
+    yLS.set('scoreArticulations', JSON.stringify(next.scoreArticulations));
+  if (prev.scoreSlurs !== next.scoreSlurs)
+    yLS.set('scoreSlurs', JSON.stringify(next.scoreSlurs));
+  if (prev.scoreSlashNotes !== next.scoreSlashNotes)
+    yLS.set('scoreSlashNotes', JSON.stringify(next.scoreSlashNotes));
 }

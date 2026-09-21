@@ -2,6 +2,7 @@ import type { ChordRegion } from '@/daw/store/prismSlice';
 import {
   regionToMeasures,
   measureSegments,
+  jazzSuffix,
   parseChordDisplay,
   splitDuration,
   ticksToDuration,
@@ -65,6 +66,7 @@ const QUALITY_TO_KIND: Record<string, string> = {
   maj: 'major',
   min: 'minor',
   aug: 'augmented',
+  augmented: 'augmented',
   dim: 'diminished',
   sus2: 'suspended-second',
   sus4: 'suspended-fourth',
@@ -107,6 +109,12 @@ const QUALITY_TO_KIND: Record<string, string> = {
   maj6add9: 'major-sixth',
   'dom7#11': 'dominant',
   'maj7#11': 'major-seventh',
+  dom11: 'dominant-11th',
+  maj11: 'major-11th',
+  min11: 'minor-11th',
+  dom13: 'dominant-13th',
+  maj13: 'major-13th',
+  min13: 'minor-13th',
   dimmaj7: 'diminished',
   Add2: 'major',
   Add4: 'major',
@@ -132,8 +140,11 @@ function parseChordForXml(noteName: string): HarmonyParts {
   const alter = parsedRoot?.accidental ?? 0;
 
   const kindValue = QUALITY_TO_KIND[quality] ?? 'other';
+  // The text a notation app prints: the chart suffix, not the internal word
+  // ("maj" printed as "Cmaj" where a chart writes "C").
+  const kindText = jazzSuffix(quality) ?? quality;
 
-  return { rootStep: step, rootAlter: alter, kindValue, kindText: quality };
+  return { rootStep: step, rootAlter: alter, kindValue, kindText };
 }
 
 // ── XML Helpers ──────────────────────────────────────────────────────────
@@ -144,6 +155,20 @@ function esc(s: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+/**
+ * A chord symbol as a <harmony> element, from a chord-lane noteName
+ * ("Bb min7"). `offset` places it that many divisions into the measure.
+ */
+export function harmonyXml(noteName: string, offset = 0): string {
+  const xml = xmlHarmony(parseChordForXml(noteName));
+  return offset > 0
+    ? xml.replace(
+        '      </harmony>',
+        `        <offset>${offset}</offset>\n      </harmony>`,
+      )
+    : xml;
 }
 
 function xmlHarmony(parts: HarmonyParts): string {

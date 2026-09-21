@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import {
   Printer,
   Plus,
@@ -21,6 +21,7 @@ import {
   chordNotationLockTitle,
 } from '@/daw/utils/chordRegionNotation';
 import { useChordNotation } from '@/lib/chordNotation';
+import { pickMelodyTrack } from './leadSheetMelody';
 
 interface LeadSheetToolbarProps {
   selectedMeasureIdx: number | null;
@@ -51,6 +52,10 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
   const removeRepeat = useStore((s) => s.removeLeadSheetRepeat);
   const chordRecordMode = useStore((s) => s.chordRecordMode);
   const setChordRecordMode = useStore((s) => s.setChordRecordMode);
+  const showMelody = useStore((s) => s.leadSheetShowMelody);
+  const setShowMelody = useStore((s) => s.setLeadSheetShowMelody);
+  const melodyTrackId = useStore((s) => s.leadSheetMelodyTrackId);
+  const tracks = useStore((s) => s.tracks);
 
   const handleExportMusicXml = useCallback(() => {
     if (chordRegions.length === 0) return;
@@ -69,6 +74,16 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
   const toggleRepeats = useCallback(() => {
     setShowRepeats(!showRepeats);
   }, [showRepeats, setShowRepeats]);
+
+  // Assigns the melody track to the sheet: with it on, the staff carries the
+  // melody instead of slashes.
+  const melodyTrack = useMemo(
+    () => (showMelody ? pickMelodyTrack(tracks, melodyTrackId) : null),
+    [showMelody, tracks, melodyTrackId],
+  );
+  const toggleMelody = useCallback(() => {
+    setShowMelody(!showMelody);
+  }, [showMelody, setShowMelody]);
 
   const toggleFormat = useCallback(() => {
     const cycle: Record<LeadSheetChordFormat, LeadSheetChordFormat> = {
@@ -176,6 +191,27 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
         title={`Repeat shorthand: ${showRepeats ? 'On' : 'Off'}`}
       >
         <Repeat size={13} strokeWidth={2} />
+      </button>
+
+      {/* Add Melody — writes the melody track onto the staff */}
+      <button
+        className={btnClass}
+        style={{
+          ...btnStyle,
+          opacity: showMelody ? 1 : 0.5,
+          color: showMelody
+            ? 'var(--color-accent, #8b5cf6)'
+            : 'var(--color-text)',
+        }}
+        onClick={toggleMelody}
+        title={
+          showMelody
+            ? `Melody from \u201C${melodyTrack?.name ?? 'no track'}\u201D \u2014 click to hide`
+            : 'Add Melody: write the melody track on the staff'
+        }
+      >
+        <Music size={13} strokeWidth={2} />
+        Melody
       </button>
 
       <div

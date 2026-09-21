@@ -465,7 +465,7 @@ function TheoryTab({
             [{levelProfile.scaleNotes.join(', ')}]
           </p>
           <p className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
-            Intervals: [
+            Scale degrees: [
             {formatScaleDegrees(levelProfile.scaleIntervals).join(', ')}]
           </p>
           <p className="text-xs" style={{ color: 'var(--color-text-dim)' }}>

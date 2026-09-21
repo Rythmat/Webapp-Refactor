@@ -6,6 +6,7 @@ import {
   noteNameInKey,
 } from '@prism/engine';
 import type { ModalInterchangeAnnotation } from '@/unison/types/schema';
+import type { PrismModeSlug } from '@/hooks/data/prism';
 import { midiNameInKey } from '@/daw/prism-engine/data/notes';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 
@@ -299,7 +300,24 @@ export const MODE_DISPLAY: Record<string, string> = {
   locrianDoubleFlat3DoubleFlat7: 'Locrian \u266D\u266D3 \u266D\u266D7',
 };
 
-export const MODE_TO_SLUG: Record<string, string> = {
+/**
+ * Insight mode key → the slug the Theory/Learn lesson route expects.
+ *
+ * The values MUST be the Prism API's mode vocabulary (`PrismModeSlug`), because
+ * `/learn/:mode/:key` feeds this straight to `usePrismMode`, `getLocalModeSteps`
+ * and `getChordScales` — all three key off the API spelling. An unrecognized
+ * slug used to fall through to the major scale, so every non-diatonic Insight
+ * link silently taught the wrong notes.
+ *
+ * Two entries differ from their Insight names by more than punctuation, so do
+ * NOT regenerate this table by transforming the keys:
+ *   - `mixolydianFlat6` → `mixolydiannat6` (same scale, 1 2 3 4 5 ♭6 ♭7)
+ *   - `altered`         → `altereddominant`
+ *
+ * `#` and `♭`/`𝄫` in these slugs are safe in URLs: `createRouteDefinition`
+ * `encodeURIComponent`s every param, so `ionian#5` ships as `ionian%235`.
+ */
+export const MODE_TO_SLUG: Record<string, PrismModeSlug> = {
   ionian: 'ionian',
   dorian: 'dorian',
   phrygian: 'phrygian',
@@ -307,34 +325,34 @@ export const MODE_TO_SLUG: Record<string, string> = {
   mixolydian: 'mixolydian',
   aeolian: 'aeolian',
   locrian: 'locrian',
-  harmonicMinor: 'harmonic-minor',
-  locrianNat6: 'locrian-nat6',
-  ionianSharp5: 'ionian-sharp5',
-  dorianSharp4: 'dorian-sharp4',
-  phrygianDominant: 'phrygian-dominant',
-  lydianSharp2: 'lydian-sharp2',
-  alteredDiminished: 'altered-diminished',
-  melodicMinor: 'melodic-minor',
-  dorianFlat2: 'dorian-flat2',
-  lydianAugmented: 'lydian-augmented',
-  lydianDominant: 'lydian-dominant',
-  mixolydianFlat6: 'mixolydian-flat6',
-  locrianNat2: 'locrian-nat2',
-  altered: 'altered',
-  harmonicMajor: 'harmonic-major',
-  dorianFlat5: 'dorian-flat5',
-  alteredDominantNat5: 'altered-dominant-nat5',
-  melodicMinorSharp4: 'melodic-minor-sharp4',
-  mixolydianFlat2: 'mixolydian-flat2',
-  lydianAugmentedSharp2: 'lydian-augmented-sharp2',
-  locrianDoubleFlat7: 'locrian-double-flat7',
-  doubleHarmonicMajor: 'double-harmonic-major',
-  lydianSharp2Sharp6: 'lydian-sharp2-sharp6',
+  harmonicMinor: 'harmonicminor',
+  locrianNat6: 'locriannat6',
+  ionianSharp5: 'ionian#5',
+  dorianSharp4: 'dorian#4',
+  phrygianDominant: 'phrygiandominant',
+  lydianSharp2: 'lydian#2',
+  alteredDiminished: 'altereddiminished',
+  melodicMinor: 'melodicminor',
+  dorianFlat2: 'dorian♭2',
+  lydianAugmented: 'lydianaugmented',
+  lydianDominant: 'lydiandominant',
+  mixolydianFlat6: 'mixolydiannat6',
+  locrianNat2: 'locriannat2',
+  altered: 'altereddominant',
+  harmonicMajor: 'harmonicmajor',
+  dorianFlat5: 'dorian♭5',
+  alteredDominantNat5: 'altereddominantnat5',
+  melodicMinorSharp4: 'melodicminor#4',
+  mixolydianFlat2: 'mixolydian♭2',
+  lydianAugmentedSharp2: 'lydianaugmented#2',
+  locrianDoubleFlat7: 'locrian\u{1D12B}7',
+  doubleHarmonicMajor: 'doubleharmonicmajor',
+  lydianSharp2Sharp6: 'lydian#2#6',
   ultraphrygian: 'ultraphrygian',
-  doubleHarmonicMinor: 'double-harmonic-minor',
+  doubleHarmonicMinor: 'doubleharmonicminor',
   oriental: 'oriental',
-  ionianSharp2Sharp5: 'ionian-sharp2-sharp5',
-  locrianDoubleFlat3DoubleFlat7: 'locrian-double-flat3-double-flat7',
+  ionianSharp2Sharp5: 'ionian#2#5',
+  locrianDoubleFlat3DoubleFlat7: 'locrian\u{1D12B}3\u{1D12B}7',
 };
 
 const FAMILY_PRIORITY: Record<string, number> = {

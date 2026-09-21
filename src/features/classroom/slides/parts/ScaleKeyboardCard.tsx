@@ -293,7 +293,7 @@ export const ScaleKeyboardCard = ({
           className="text-white/85"
           style={{ fontSize: 'var(--slide-body-fz)' }}
         >
-          {modeName} Intervals: {intervals}
+          {modeName} scale degrees: {intervals}
         </p>
         <p
           className="text-white/85"

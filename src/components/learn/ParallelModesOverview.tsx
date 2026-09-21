@@ -144,7 +144,7 @@ export function ParallelModesOverview() {
                   {mode.root} {mode.modeName}
                 </div>
                 <div className="mt-1 text-xs opacity-70">
-                  Intervals: {mode.intervals}
+                  Scale degrees: {mode.intervals}
                 </div>
                 <div className="mt-1 text-xs opacity-70">
                   Notes: {mode.notes.join(', ')}

@@ -1164,6 +1164,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'berklee',
       'east african pop',
     ],
+    videoId: 'MH1Ji9NiBtQ',
   },
   {
     id: 'evt-afropop-nairobi-2012-sautisol',
@@ -1510,6 +1511,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'grammy nomination',
       'pan-african',
     ],
+    videoId: 'yC2qh3MANvs',
   },
   {
     id: 'evt-afrobeats-lagos-2020-wizkid',
@@ -1569,6 +1571,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'grammy',
       'nigerian women',
     ],
+    videoId: 'oGdCFOPI6jU',
   },
   {
     id: 'evt-afrobeats-lagos-2020-tiwa',

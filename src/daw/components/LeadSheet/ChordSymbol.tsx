@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { formatChordSymbol, type ChordFormat } from '@/daw/midi/leadSheetUtils';
 import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
 import type { ChordNotation } from '@/lib/chordNotation';
+import type { LeadSheetItem } from './leadSheetSelection';
 
 interface ChordSymbolProps {
   noteName: string;
@@ -25,6 +26,10 @@ interface ChordSymbolProps {
   onDragStart?: (regionId: string, startClientX: number) => void;
   onMarkAsMelody?: (regionId: string) => void;
   onDelete?: (regionId: string) => void;
+  /** Freshly inserted: open straight into the edit box so it can be typed. */
+  autoEdit?: boolean;
+  /** Selection-aware click, so Shift and ⌘ reach the sheet's selection. */
+  onSelectItem?: (item: LeadSheetItem, event: React.MouseEvent) => void;
 }
 
 /**
@@ -50,6 +55,8 @@ export const ChordSymbol = memo(function ChordSymbol({
   onDragStart,
   onMarkAsMelody,
   onDelete,
+  autoEdit,
+  onSelectItem,
 }: ChordSymbolProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
@@ -118,10 +125,11 @@ export const ChordSymbol = memo(function ChordSymbol({
       if (!origin?.moved) {
         // Was a click, not a drag
         e.stopPropagation();
-        onSelect(regionId);
+        if (onSelectItem) onSelectItem({ kind: 'chord', regionId }, e);
+        else onSelect(regionId);
       }
     },
-    [onSelect, regionId],
+    [onSelect, onSelectItem, regionId],
   );
 
   const handleClick = useCallback((e: React.MouseEvent) => {
@@ -162,6 +170,17 @@ export const ChordSymbol = memo(function ChordSymbol({
       inputRef.current.select();
     }
   }, [isEditing]);
+
+  // A chord just added by double-click or ⌘K opens ready to be typed over.
+  const openedRef = useRef(false);
+  useEffect(() => {
+    if (autoEdit && !openedRef.current) {
+      openedRef.current = true;
+      setEditValue(noteName);
+      setIsEditing(true);
+    }
+    if (!autoEdit) openedRef.current = false;
+  }, [autoEdit, noteName]);
 
   if (isEditing) {
     return (

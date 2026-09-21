@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { BookOpen, ChevronDown } from 'lucide-react';
 import { LearnRoutes } from '@/constants/routes';
+import { withStudioOrigin } from '@/lib/learn/lessonOrigin';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import {
   MODE_DISPLAY,
@@ -10,6 +11,7 @@ import {
   noteNameInKey,
   type ChordInsight,
 } from './insightConstants';
+import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { formatSecondaryLabel, useChordNotation } from '@/lib/chordNotation';
 import { chordCardLabels, keyContext } from './insightNotation';
@@ -36,6 +38,11 @@ export function ChordCard({
   const context = keyContext(rootNote, mode);
   // Hybrid: the hybrid number plus the letter name; jazz / Roman: one symbol.
   const labels = chordCardLabels(chord, notation, context);
+  // Lesson links carry the song and chord, so the lesson can say where this
+  // sound lives and offer a way back.
+  const projectName = useStore((s) => s.projectName);
+  const fromSong = (path: string) =>
+    withStudioOrigin(path, { song: projectName, chord: labels.title });
   const formatTarget = (target: string) =>
     formatSecondaryLabel(target, notation, context);
   const secondaryTarget = chord.modalInterchange?.secondaryTarget;
@@ -143,86 +150,69 @@ export function ChordCard({
         {getEnrichedDescription(chord, formatTarget)}
       </div>
 
-      {/* Mode links */}
-      <div className="flex flex-wrap items-center gap-1 mt-0.5">
-        <Link
-          to={LearnRoutes.lesson({
+      {/* Lesson links: the chord's own sound first, as the one clear next
+          step, then the song's key and the parent scale as plain labels. */}
+      <LessonLink
+        primary
+        to={fromSong(
+          LearnRoutes.lesson({
             mode: MODE_TO_SLUG[chord.chordRootMode] ?? chord.chordRootMode,
             key: keyLabelToUrlParam(chord.rootLetter),
-          })}
-          className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors"
-          style={{
-            backgroundColor: 'var(--color-surface-3)',
-            color: 'var(--color-accent)',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(126,207,207,0.15)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--color-surface-3)';
-          }}
-        >
-          <BookOpen size={8} strokeWidth={2} />
-          {chord.rootLetter}{' '}
-          {MODE_DISPLAY[chord.chordRootMode] ?? chord.chordRootMode}
-        </Link>
-        {chord.sessionMode &&
-          keyLetter &&
-          !(
-            chord.sessionMode === chord.chordRootMode &&
-            chord.rootLetter === keyLetter
-          ) && (
-            <Link
-              to={LearnRoutes.lesson({
-                mode: MODE_TO_SLUG[chord.sessionMode] ?? chord.sessionMode,
-                key: keyLabelToUrlParam(keyLetter),
-              })}
-              className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors"
-              style={{
-                backgroundColor: 'var(--color-surface-3)',
-                color: 'var(--color-accent)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor =
-                  'rgba(126,207,207,0.15)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor =
-                  'var(--color-surface-3)';
-              }}
-            >
-              <BookOpen size={8} strokeWidth={2} />
-              {keyLetter} {MODE_DISPLAY[chord.sessionMode] ?? chord.sessionMode}
-            </Link>
-          )}
-        {!chord.isSessionParent &&
+          }),
+        )}
+        scale={`${chord.rootLetter} ${MODE_DISPLAY[chord.chordRootMode] ?? chord.chordRootMode}`}
+      />
+      {((chord.sessionMode &&
+        keyLetter &&
+        !(
+          chord.sessionMode === chord.chordRootMode &&
+          chord.rootLetter === keyLetter
+        )) ||
+        (!chord.isSessionParent &&
           chord.parentKeyLetter &&
-          chord.parentMode && (
-            <Link
-              to={LearnRoutes.lesson({
-                mode: MODE_TO_SLUG[chord.parentMode] ?? chord.parentMode,
-                key: keyLabelToUrlParam(chord.parentKeyLetter),
-              })}
-              className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium transition-colors"
-              style={{
-                backgroundColor: 'var(--color-surface-3)',
-                color: 'var(--color-accent)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor =
-                  'rgba(126,207,207,0.15)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor =
-                  'var(--color-surface-3)';
-              }}
-            >
-              <BookOpen size={8} strokeWidth={2} />
-              Parent: {chord.parentKeyLetter}{' '}
-              {MODE_DISPLAY[chord.parentMode] ?? chord.parentMode}
-            </Link>
-          )}
-      </div>
+          chord.parentMode)) && (
+        <div className="flex flex-wrap items-center gap-1">
+          {chord.sessionMode &&
+            keyLetter &&
+            !(
+              chord.sessionMode === chord.chordRootMode &&
+              chord.rootLetter === keyLetter
+            ) && (
+              <LessonLink
+                to={fromSong(
+                  LearnRoutes.lesson({
+                    mode: MODE_TO_SLUG[chord.sessionMode] ?? chord.sessionMode,
+                    key: keyLabelToUrlParam(keyLetter),
+                  }),
+                )}
+                // Only the song's key when it really is the detected key; the
+                // card's session mode is read from the chord's own family.
+                label={
+                  mode &&
+                  (MODE_TO_SLUG[chord.sessionMode] ?? chord.sessionMode) ===
+                    (MODE_TO_SLUG[mode] ?? mode)
+                    ? 'Song’s key'
+                    : 'Also'
+                }
+                scale={`${keyLetter} ${MODE_DISPLAY[chord.sessionMode] ?? chord.sessionMode}`}
+              />
+            )}
+          {!chord.isSessionParent &&
+            chord.parentKeyLetter &&
+            chord.parentMode && (
+              <LessonLink
+                to={fromSong(
+                  LearnRoutes.lesson({
+                    mode: MODE_TO_SLUG[chord.parentMode] ?? chord.parentMode,
+                    key: keyLabelToUrlParam(chord.parentKeyLetter),
+                  }),
+                )}
+                label="Parent scale"
+                scale={`${chord.parentKeyLetter} ${MODE_DISPLAY[chord.parentMode] ?? chord.parentMode}`}
+              />
+            )}
+        </div>
+      )}
 
       {/* Alternative interpretations */}
       {chord.alternatives.length > 0 && (
@@ -285,26 +275,17 @@ export function ChordCard({
                     )}
                   </span>
                   <Link
-                    to={LearnRoutes.lesson({
-                      mode:
-                        MODE_TO_SLUG[alt.chordRootMode] ?? alt.chordRootMode,
-                      key: keyLabelToUrlParam(chord.rootLetter),
-                    })}
-                    className="flex items-center gap-0.5 px-1 py-0.5 rounded text-[8px] font-medium transition-colors shrink-0"
-                    style={{
-                      backgroundColor: 'var(--color-surface-2)',
-                      color: 'var(--color-accent)',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor =
-                        'rgba(126,207,207,0.15)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor =
-                        'var(--color-surface-2)';
-                    }}
+                    to={fromSong(
+                      LearnRoutes.lesson({
+                        mode:
+                          MODE_TO_SLUG[alt.chordRootMode] ?? alt.chordRootMode,
+                        key: keyLabelToUrlParam(chord.rootLetter),
+                      }),
+                    )}
+                    title={`Learn ${chord.rootLetter} ${MODE_DISPLAY[alt.chordRootMode] ?? alt.chordRootMode}`}
+                    className="flex shrink-0 items-center gap-1 rounded bg-[var(--color-surface-2)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-accent)] transition-colors hover:bg-[rgba(126,207,207,0.15)]"
                   >
-                    <BookOpen size={8} strokeWidth={2} />
+                    <BookOpen size={10} strokeWidth={2} />
                     Learn
                   </Link>
                 </div>
@@ -313,5 +294,48 @@ export function ChordCard({
         </div>
       )}
     </div>
+  );
+}
+
+interface LessonLinkProps {
+  to: string;
+  /** "D Dorian" */
+  scale: string;
+  /** What this scale is to the chord, e.g. "Song's key". */
+  label?: string;
+  /** The chord's own sound: a full-width button that says what it does. */
+  primary?: boolean;
+}
+
+function LessonLink({ to, scale, label, primary = false }: LessonLinkProps) {
+  if (primary) {
+    return (
+      <Link
+        to={to}
+        title={`Open the ${scale} lesson: the scale behind this chord`}
+        className="mt-1 flex w-full items-center gap-2 rounded-md border border-[rgba(126,207,207,0.35)] bg-[rgba(126,207,207,0.08)] px-2 py-1.5 text-[var(--color-accent)] transition-colors hover:bg-[rgba(126,207,207,0.18)]"
+      >
+        <BookOpen size={14} strokeWidth={2} className="shrink-0" />
+        <span className="flex min-w-0 flex-col leading-tight">
+          <span className="text-xs font-semibold">Learn this sound</span>
+          <span className="text-[11px]" style={{ color: 'var(--color-text)' }}>
+            {scale} &rarr;
+          </span>
+        </span>
+      </Link>
+    );
+  }
+  return (
+    <Link
+      to={to}
+      title={`Open the ${scale} lesson`}
+      className="flex items-center gap-1 rounded bg-[var(--color-surface-3)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--color-accent)] transition-colors hover:bg-[rgba(126,207,207,0.15)]"
+    >
+      <BookOpen size={11} strokeWidth={2} />
+      {label && (
+        <span style={{ color: 'var(--color-text-dim)' }}>{label}:</span>
+      )}
+      {scale}
+    </Link>
   );
 }

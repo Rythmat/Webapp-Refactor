@@ -1,24 +1,19 @@
 import './index.css';
-import { Component, useEffect, type ReactNode } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Component, type ReactNode } from 'react';
 import { BaseGlobe } from '@/components/atlas/components/Globe';
+import { ArtistPanel } from '@/components/atlas/components/UI/ArtistPanel';
+import { AtlasToolbar } from '@/components/atlas/components/UI/AtlasToolbar';
 import { DetailsCard } from '@/components/atlas/components/UI/DetailsCard';
 import { GuidedTourBar } from '@/components/atlas/components/UI/GuidedTourBar';
 import { ModuleProgressBar } from '@/components/atlas/components/UI/ModuleProgressBar';
 import { RegionTimeline } from '@/components/atlas/components/UI/RegionTimeline';
+import { SearchResultsPanel } from '@/components/atlas/components/UI/SearchResultsPanel';
 import {
   AppProvider,
   useAppState,
-  useAppDispatch,
 } from '@/components/atlas/context/AppContext';
-import {
-  HISTORICAL_MODULES,
-  MUSIC_HISTORY,
-  MUSICAL_ERAS,
-  getTour,
-} from '@/components/atlas/data';
-import { useStartPathway, useStartTour } from '@/components/atlas/hooks';
-import { resolveEventRegion } from '@/components/atlas/utils/resolveEventRegion';
+import { useAtlasStop } from '@/components/atlas/navigation/useAtlasNavigate';
+import { useAtlasUrlSync } from '@/components/atlas/navigation/useAtlasUrlSync';
 
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -53,67 +48,31 @@ class ErrorBoundary extends Component<
 function AppLayout() {
   const { selectedLocation, activeModule, activeTour, pinnedEvent } =
     useAppState();
-  const dispatch = useAppDispatch();
-  const startPathway = useStartPathway();
-  const startTour = useStartTour();
-  const [searchParams] = useSearchParams();
+  const stop = useAtlasStop();
+  // The URL is the source of truth for what the globe shows — every param a
+  // deep-link, bookmark, lesson link, or Back press can carry is applied here.
+  useAtlasUrlSync();
 
-  // Handle ?event=song-xxx URL parameter — select the event's region, pin the
-  // event, and fly the camera to it.
-  useEffect(() => {
-    const eventId = searchParams.get('event');
-    if (!eventId) return;
-    const event = MUSIC_HISTORY.find((e) => e.id === eventId);
-    if (!event) return;
-
-    // Resolve the event to a selectable region + a camera target that frames it
-    // (e.g. Honolulu → Hawaii state, flying to the state centroid).
-    const { region, fly } = resolveEventRegion(event);
-    // Clear any search results so the region's DetailsCard / RegionTimeline show.
-    dispatch({ type: 'SET_SEARCH_RESULTS', payload: [] });
-    // SELECT_LOCATION resets pinnedEvent, so it must run BEFORE PIN_EVENT.
-    if (region) dispatch({ type: 'SELECT_LOCATION', payload: region });
-    dispatch({ type: 'PIN_EVENT', payload: event });
-    // Fly the camera to the selected region (or the event if unmatched).
-    dispatch({ type: 'EXECUTE_SEARCH', payload: fly });
-  }, [searchParams, dispatch]);
-
-  // Handle ?pathway=<moduleId> URL parameter — auto-start a guided Pathway
-  // (fly to its first stop + show the progress bar). GlobeController applies
-  // the fly target once the globe reports ready, so this works on cold load.
-  useEffect(() => {
-    const pathwayId = searchParams.get('pathway');
-    if (!pathwayId) return;
-    if (!HISTORICAL_MODULES.some((m) => m.id === pathwayId)) return;
-    startPathway(pathwayId);
-  }, [searchParams, startPathway]);
-
-  // Handle ?tour=<tourId> URL parameter — auto-start a place-based Guided Tour
-  // (region or city): fly to its first stop and show the GuidedTourBar. Like
-  // the pathway deep-link, the fly is applied once the globe reports ready.
-  useEffect(() => {
-    const tourId = searchParams.get('tour');
-    if (!tourId || !getTour(tourId)) return;
-    startTour(tourId);
-  }, [searchParams, startTour]);
-
-  // Handle ?era=<eraId> URL parameter — arm the timeline's era filter (set from
-  // the dashboard's Eras tab). RegionTimeline filters its events to the era's
-  // year range and shows the era label.
-  useEffect(() => {
-    const eraId = searchParams.get('era');
-    if (!eraId || !MUSICAL_ERAS.some((e) => e.id === eraId)) return;
-    dispatch({ type: 'SET_ERA', payload: eraId });
-  }, [searchParams, dispatch]);
+  // The left panel follows the stop: an artist or a search has its own panel;
+  // otherwise the selected region's details card.
+  const sidePanel =
+    stop.kind === 'artist' ? (
+      <ArtistPanel name={stop.artist} />
+    ) : stop.kind === 'search' ? (
+      <SearchResultsPanel query={stop.query} />
+    ) : selectedLocation && (!activeTour || pinnedEvent) ? (
+      <DetailsCard />
+    ) : null;
 
   return (
     <div
       className="atlas-root flex h-full w-full flex-col overflow-hidden bg-[#0d0b08] text-white"
       data-tab="globe"
     >
+      <AtlasToolbar />
       <div className="relative flex-1">
         <BaseGlobe />
-        {selectedLocation && (!activeTour || pinnedEvent) && <DetailsCard />}
+        {sidePanel}
         {!activeModule && !activeTour && <RegionTimeline />}
         {activeModule && <ModuleProgressBar />}
         {activeTour && <GuidedTourBar />}

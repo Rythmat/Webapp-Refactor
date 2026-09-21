@@ -12,19 +12,26 @@ import { startTone } from '@/audio/core/toneBridge';
 import {
   triggerPianoAttack,
   triggerPianoRelease,
-  triggerPianoAttackRelease,
   startPianoSampler,
 } from '@/audio/pianoSampler';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
+import { ClefToggle } from '@/components/notation/ClefToggle';
 import { CurriculumRoutes, SettingsRoutes } from '@/constants/routes';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import DualStaffPianoRoll from '@/curriculum/components/DualStaffPianoRoll';
 import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
+import {
+  lessonChordSymbols,
+  placeLessonChords,
+} from '@/curriculum/notation/lessonChordSymbols';
 import { useMspModuleCompletion } from '@/features/classroom/msp';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
+import { playGuideNote } from '@/learn/audio/practiceGuide';
 import { useLessonVolume } from '@/learn/audio/useLessonVolume';
+import { usePracticeSettings } from '@/learn/audio/usePracticeSettings';
 import { LessonVolumeDial } from '@/learn/components/LessonVolumeDial';
+import { MetronomeToggle } from '@/learn/components/MetronomeToggle';
 import {
   LearnInputProvider,
   useLearnInputStable,
@@ -37,13 +44,14 @@ import {
   type ChordNotation,
 } from '@/lib/chordNotation';
 import { colorForKeyMode } from '@/lib/modeColorShift';
+import { useChordClef, type NotationStaves } from '@/lib/notation';
 import {
   resolveStepContent,
   toPianoRollEvents,
   midiToPitchName,
   type GenreNoteEvent,
 } from '../engine/genreGeneration/resolveStepContent';
-import { useBackingTrack } from '../hooks/useBackingTrack';
+import { BACKING_LEAD_SEC, useBackingTrack } from '../hooks/useBackingTrack';
 import { useDemoPlayback } from '../hooks/useDemoPlayback';
 import {
   useGenreAssessment,
@@ -335,6 +343,10 @@ function GenreLessonContainerV2Inner({
 
   // For IT activities, offset all notes by 1 bar to create a genuine count-in
   const COUNT_IN_OFFSET = 1920; // one bar at 4/4
+  /** Lead time given to every transport start, so the graph is ready. */
+  const TRANSPORT_LEAD_SEC = 0.1;
+  /** A little past the start, so the first read is a real tick, not a null. */
+  const PLAYHEAD_SETTLE_MS = 60;
   // In time, the student's bar 1 arrives two bars after transport start: the
   // piano roll's own count-in bar (its playhead starts a bar early) plus the
   // one-bar note offset above. Audio scheduled on the transport — the practice
@@ -360,6 +372,48 @@ function GenreLessonContainerV2Inner({
     // IT gets +1 bar for the count-in offset
     return Math.max(2, contentBars + (isIT ? 1 : 0));
   }, [targetNotes, isIT]);
+
+  // Which clef the notation view writes on. A melody reads in the treble clef
+  // whatever register it dips into — letting the grand-staff split decide from
+  // pitch drops a low phrase into the bass clef mid-line. Chords follow the
+  // clef the student picks, which changes the drawing and nothing else: the
+  // same keys read in either clef, and reading both is worth practising.
+  // Play-Along tags its notes by hand, so it keeps the grand staff and the
+  // split those tags drive.
+  const [chordClef, setChordClef] = useChordClef();
+  const isChordSection = activeSection === 'B';
+
+  // A step that gives both hands a role is a two-hand part: the roll splits
+  // into LH and RH lanes, so the staff is a grand staff. Not just the D
+  // section — a Section B voicing with LH bass under RH chords is two hands
+  // too, and used to draw on whichever single clef the toggle happened to say.
+  const isDualStaff = useMemo(
+    () =>
+      !!resolvedStep.instrument_config &&
+      resolvedStep.instrument_config.hand_config !== 'open' &&
+      resolvedStep.instrument_config.lh_role !== 'open' &&
+      resolvedStep.instrument_config.rh_role !== 'open',
+    [resolvedStep.instrument_config],
+  );
+
+  const notationStaves = useMemo((): NotationStaves | undefined => {
+    // The split wins over every section default and over the clef preference.
+    if (isDualStaff) return 'grand';
+    if (activeSection === 'A') return 'treble';
+    if (activeSection === 'C') return 'bass';
+    if (isChordSection) return chordClef;
+    return undefined;
+  }, [isDualStaff, activeSection, isChordSection, chordClef]);
+
+  // Shown on every chord step so the control doesn't flicker in and out, but
+  // inert on two-hand steps where there is no single-clef reading to choose.
+  const clefToggle = isChordSection ? (
+    <ClefToggle
+      clef={chordClef}
+      onChange={setChordClef}
+      disabled={isDualStaff}
+    />
+  ) : undefined;
 
   // Auto-fit note range from target notes
   const noteRange = useMemo(() => {
@@ -392,16 +446,6 @@ function GenreLessonContainerV2Inner({
   // Convert MIDI range to octave numbers for PianoKeyboard
   const startOctave = Math.floor(noteRange.min / 12) - 1;
   const endOctave = Math.floor(noteRange.max / 12) - 1;
-
-  // Detect two-hand D section steps — use dual grand staff layout
-  const isDualStaff = useMemo(
-    () =>
-      !!resolvedStep.instrument_config &&
-      resolvedStep.instrument_config.hand_config !== 'open' &&
-      resolvedStep.instrument_config.lh_role !== 'open' &&
-      resolvedStep.instrument_config.rh_role !== 'open',
-    [resolvedStep.instrument_config],
-  );
 
   // Piano roll container height
   const PIANO_ROLL_HEIGHT = 400;
@@ -700,11 +744,19 @@ function GenreLessonContainerV2Inner({
   // metronome synth on top of that.
   const { volumeDb: lessonVolumeDb } = useLessonVolume();
 
+  // Shared Learn metronome switch — the same control the theory activities use,
+  // so turning the click off stays off as you move between surfaces.
+  const { metronomeEnabled } = usePracticeSettings();
+
   const { setBpm, prepare: prepareMetronome } = useMetronome({
     bpm: tempo,
     // Disable metronome in Play Now (performance) mode when a backing track is running —
     // the drum track provides the pulse. Practice mode always gets the metronome.
-    enabled: isActive && isIT && !(isPerforming && hasBackingParts),
+    enabled:
+      metronomeEnabled &&
+      isActive &&
+      isIT &&
+      !(isPerforming && hasBackingParts),
     // Track the dial directly. The synth's intrinsic level + the velocity
     // attack values inside useMetronome already balance it relative to the
     // piano sampler — adding extra attenuation here made the click inaudible.
@@ -726,17 +778,70 @@ function GenreLessonContainerV2Inner({
     return () => stopTickCounter();
   }, [stopTickCounter]);
 
+  /**
+   * Audio-clock second the transport is scheduled to begin, or null when it is
+   * not running. Every start goes through startTransport so this is always set
+   * before the playhead can ask a question about a time near the beginning.
+   */
+  const transportStartRef = useRef<number | null>(null);
+
+  /**
+   * Start the transport and remember when it will actually begin.
+   *
+   * `leadSeconds` buys the audio graph a moment to be ready. It is the same for
+   * every path on purpose: practice, Play Now with a backing track and Play Now
+   * with only a metronome used to start with three different lead times and
+   * three different sleeps before the playhead was switched on, so the amount
+   * of margin the playhead got depended on which button was pressed. The
+   * metronome-only path had none at all, which is what made its playhead sit on
+   * beat 1 while the count had already begun.
+   */
+  const noteTransportStart = useCallback((leadSeconds: number) => {
+    const startAt = Tone.now() + leadSeconds;
+    transportStartRef.current = startAt;
+    return startAt;
+  }, []);
+
+  const startTransport = useCallback(
+    (leadSeconds = TRANSPORT_LEAD_SEC) => {
+      const startAt = noteTransportStart(leadSeconds);
+      Tone.getTransport().start(startAt);
+      return startAt;
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- TRANSPORT_LEAD_SEC is a render-stable constant
+    [noteTransportStart],
+  );
+
+  /** Stop the transport and forget when it started, so no stale read survives. */
+  const stopTransport = useCallback(() => {
+    Tone.getTransport().stop();
+    transportStartRef.current = null;
+  }, []);
+
+  /** Wait until the transport has begun, plus a frame, before the playhead reads it. */
+  const waitForTransport = useCallback(async () => {
+    const startAt = transportStartRef.current;
+    const remaining = startAt === null ? 0 : startAt - Tone.now();
+    const ms = Math.max(0, remaining * 1000) + PLAYHEAD_SETTLE_MS;
+    await new Promise((resolve) => setTimeout(resolve, ms));
+  }, []);
+
   const ticksAt = useCallback((time: number): number | null => {
     const transport = Tone.getTransport();
     if (transport.state !== 'started') return null;
+
+    // Before the transport begins there is no honest position for this moment.
+    // Answering 0 would be a lie the playhead cannot tell from a real tick 0 a
+    // count-in bar later, and it would sit at the start for however long the
+    // output latency happens to be.
+    const startedAt = transportStartRef.current;
+    if (startedAt === null || time < startedAt) return null;
+
     let ticks: number;
     try {
-      // Tone throws for a time before the transport's recorded history, and a
-      // latency-compensated read reaches back there in a run's first moments
-      // (Play Now restarts the transport just before). Treat it as not started.
-      ticks =
-        (transport.getTicksAtTime(Math.max(0, time)) / transport.PPQ) * 480;
+      ticks = (transport.getTicksAtTime(time) / transport.PPQ) * 480;
     } catch {
+      // Tone throws for a time outside its recorded history.
       return null;
     }
     return Number.isFinite(ticks) ? ticks : null;
@@ -857,7 +962,7 @@ function GenreLessonContainerV2Inner({
     const doComplete = () => {
       stopTickCounter();
       stopBacking();
-      Tone.getTransport().stop();
+      stopTransport();
       Tone.getTransport().cancel();
       // For IT, shift user note onsets back by COUNT_IN_OFFSET to align with target onsets
       const adjustedUserNotes = isIT
@@ -907,6 +1012,44 @@ function GenreLessonContainerV2Inner({
     const maxRaw = Math.max(...targetNotes.map((n) => n.onset + n.duration));
     return isIT ? maxRaw + COUNT_IN_OFFSET : maxRaw;
   }, [targetNotes, isIT]);
+
+  // Chord symbols above the staff, from the step's own symbols. They sit on
+  // the same timeline as the notes, so in time they carry the count-in offset
+  // too. The notes come along because a step with more chords than bars — two
+  // inside one bar of voice leading — has to place them against the music
+  // rather than against the barlines. Written through the shared formatter, so
+  // they read the same here as on a song chart and follow the Jazz/Roman
+  // switcher.
+  const chordSymbolsForStaff = useMemo(() => {
+    const labels = currentStep.chordSymbols;
+    if (!labels?.length) return undefined;
+    const contentBars = Math.max(1, requiredBars - (isIT ? 1 : 0));
+    const onsets = [...new Set(targetNotes.map((n) => n.onset))].sort(
+      (a, b) => a - b,
+    );
+    const contentEndTick = targetNotes.length
+      ? Math.max(...targetNotes.map((n) => n.onset + n.duration))
+      : undefined;
+    return lessonChordSymbols(
+      placeLessonChords(labels, {
+        bars: contentBars,
+        ticksPerBar: 1920,
+        onsets,
+        ...(contentEndTick !== undefined ? { contentEndTick } : {}),
+        startTick: isIT ? COUNT_IN_OFFSET : 0,
+      }),
+      chordNotation,
+      chordContext,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- COUNT_IN_OFFSET is a module-level constant
+  }, [
+    currentStep,
+    requiredBars,
+    isIT,
+    targetNotes,
+    chordNotation,
+    chordContext,
+  ]);
 
   // Simple tick sync — no completion logic here
   const handleTickChange = useCallback((tick: number) => {
@@ -995,7 +1138,7 @@ function GenreLessonContainerV2Inner({
     (sectionId: ActivitySectionId) => {
       stopDemo();
       stopBacking();
-      Tone.getTransport().stop();
+      stopTransport();
       Tone.getTransport().cancel();
       if (itTimerRef.current) {
         clearTimeout(itTimerRef.current);
@@ -1032,7 +1175,7 @@ function GenreLessonContainerV2Inner({
     } else if (activityState === 'practice') {
       // Practice complete — stop everything, return to preview
       stopDemo();
-      Tone.getTransport().stop();
+      stopTransport();
       Tone.getTransport().cancel();
       setActivityState('preview');
       setUserNotes([]);
@@ -1145,7 +1288,7 @@ function GenreLessonContainerV2Inner({
     // Stop any audio that may be running from a prior state
     stopDemo();
     stopBacking();
-    Tone.getTransport().stop();
+    stopTransport();
     Tone.getTransport().cancel();
 
     await startTone();
@@ -1166,7 +1309,7 @@ function GenreLessonContainerV2Inner({
     }
 
     // IT: start Transport BEFORE activating piano roll playhead
-    Tone.getTransport().stop();
+    stopTransport();
     Tone.getTransport().position = 0;
     Tone.getTransport().bpm.value = tempo;
 
@@ -1195,8 +1338,7 @@ function GenreLessonContainerV2Inner({
       }));
       const part = new Tone.Part(
         (time, value: { midi: number; durationSec: number }) => {
-          const noteName = Tone.Frequency(value.midi, 'midi').toNote();
-          void triggerPianoAttackRelease(noteName, value.durationSec, 80, time);
+          playGuideNote(value.midi, value.durationSec, 80, time);
           // Drive keyboard highlight in sync with audio guide
           Tone.getDraw().schedule(() => {
             setPracticeHighlightMidis((prev) => new Set([...prev, value.midi]));
@@ -1215,10 +1357,11 @@ function GenreLessonContainerV2Inner({
       practiceNotePartRef.current = part;
     }
 
-    Tone.getTransport().start();
+    startTransport();
 
-    // Match audio latency before starting piano roll playhead
-    await new Promise((r) => setTimeout(r, 150));
+    // Let the transport actually begin before the playhead starts asking it
+    // where it is; ticksAt answers null until then, so the playhead would hold.
+    await waitForTransport();
     setActivityState('practice');
   }, [
     tempo,
@@ -1231,7 +1374,7 @@ function GenreLessonContainerV2Inner({
   ]);
 
   const handleStopPractice = useCallback(() => {
-    Tone.getTransport().stop();
+    stopTransport();
     Tone.getTransport().position = 0;
     // Dispose practice melody guide part
     if (practiceNotePartRef.current) {
@@ -1249,7 +1392,7 @@ function GenreLessonContainerV2Inner({
     handleStopPractice();
     stopDemo();
     stopBacking();
-    Tone.getTransport().stop();
+    stopTransport();
     Tone.getTransport().cancel();
     Tone.getTransport().position = 0;
 
@@ -1286,8 +1429,10 @@ function GenreLessonContainerV2Inner({
         isIT ? LEAD_IN_TICKS : 0, // backing bar 1 = the student's bar 1
       );
 
-      // Wait for Transport start offset + Web Audio latency
-      await new Promise((r) => setTimeout(r, 150));
+      // startBacking starts the transport itself; record the same lead so
+      // ticksAt knows when it begins, then wait for it like every other path.
+      noteTransportStart(BACKING_LEAD_SEC);
+      await waitForTransport();
       playStartedAtRef.current = Date.now();
       setActivityState('performance');
     } else if (isIT) {
@@ -1297,9 +1442,8 @@ function GenreLessonContainerV2Inner({
       // Starting Transport AFTER prepare() means beat 1 fires cleanly at position 0
       // with no double-scheduling (the stop/restart that caused the double-click).
       await prepareMetronome();
-      Tone.getTransport().start('+0.05');
-      // Wait for Transport to start before activating the piano roll playhead.
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      startTransport();
+      await waitForTransport();
       playStartedAtRef.current = Date.now();
       setActivityState('performance');
     } else {
@@ -1495,7 +1639,7 @@ function GenreLessonContainerV2Inner({
             if (stepIndex > 0) {
               stopDemo();
               stopBacking();
-              Tone.getTransport().stop();
+              stopTransport();
               Tone.getTransport().cancel();
               if (itTimerRef.current) {
                 clearTimeout(itTimerRef.current);
@@ -1533,7 +1677,7 @@ function GenreLessonContainerV2Inner({
           const handleDotClick = () => {
             stopDemo();
             stopBacking();
-            Tone.getTransport().stop();
+            stopTransport();
             Tone.getTransport().cancel();
             if (itTimerRef.current) {
               clearTimeout(itTimerRef.current);
@@ -1610,7 +1754,7 @@ function GenreLessonContainerV2Inner({
             if (stepIndex < currentSection.steps.length - 1) {
               stopDemo();
               stopBacking();
-              Tone.getTransport().stop();
+              stopTransport();
               Tone.getTransport().cancel();
               if (itTimerRef.current) {
                 clearTimeout(itTimerRef.current);
@@ -1731,6 +1875,9 @@ function GenreLessonContainerV2Inner({
               events={pianoRollEvents}
               bars={requiredBars}
               beatsPerBar={4}
+              leadInTicks={LEAD_IN_TICKS}
+              staves={notationStaves}
+              notationToggle={clefToggle}
               subdivision={isIT ? 4 : 1}
               rowHeight={rowHeight}
               inTime={isIT}
@@ -1746,6 +1893,7 @@ function GenreLessonContainerV2Inner({
               keyColor={keyColor}
               userNotes={isActive ? userNotes : []}
               targetMidiSet={targetMidiSet}
+              chordSymbols={chordSymbolsForStaff}
             />
           ) : (
             <GenrePianoRoll
@@ -1753,6 +1901,9 @@ function GenreLessonContainerV2Inner({
               events={pianoRollEvents}
               bars={requiredBars}
               beatsPerBar={4}
+              leadInTicks={LEAD_IN_TICKS}
+              staves={notationStaves}
+              notationToggle={clefToggle}
               subdivision={isIT ? 4 : 1}
               rowHeight={rowHeight}
               midiRangeMin={noteRange.min}
@@ -1770,6 +1921,7 @@ function GenreLessonContainerV2Inner({
               keyColor={keyColor}
               userNotes={isActive ? userNotes : []}
               targetMidiSet={targetMidiSet}
+              chordSymbols={chordSymbolsForStaff}
             />
           )}
         </div>
@@ -1832,7 +1984,8 @@ function GenreLessonContainerV2Inner({
             />
           </div>
 
-          {/* Volume dial — controls metronome and piano sampler output */}
+          {/* Metronome switch + volume — tempo has its own slider above */}
+          <MetronomeToggle />
           <LessonVolumeDial />
         </div>
 
@@ -1907,7 +2060,11 @@ function GenreLessonContainerV2Inner({
               alignItems: 'center',
               justifyContent: 'center',
               background: 'rgba(17,17,17,0.88)',
-              zIndex: 40,
+              // Above the roll's note layers (z-0..20) but below its header
+              // strip (z-30), so the piano-roll/notation toggle stays
+              // clickable while "Ready to start?" is up. The assessment modal
+              // below stays at 40 and covers the header too.
+              zIndex: 25,
             }}
           >
             <div

@@ -171,6 +171,7 @@ const JAZZ_MAP: Record<string, string> = {
   maj: '', // C (no suffix for major triad in jazz)
   min: 'm',
   aug: '+',
+  augmented: '+', // abbreviateSequence leaves "augmented" whole
   dim: '\u00B0', // °
   sus2: 'sus2',
   sus4: 'sus4',
@@ -223,6 +224,14 @@ const JAZZ_MAP: Record<string, string> = {
   min6add9: 'm6/9',
   maj6add9: '6/9',
 
+  // 11ths and 13ths
+  dom11: '11',
+  maj11: '\u0394' + '11',
+  min11: 'm11',
+  dom13: '13',
+  maj13: '\u0394' + '13',
+  min13: 'm13',
+
   // Extensions
   'dom7#11': '7\u266F11',
   'maj7#11': '\u0394' + '7\u266F11',
@@ -239,6 +248,14 @@ const JAZZ_MAP: Record<string, string> = {
   majb5: '\u266D5',
   sus2b5add6: 'sus2\u266D5add6',
 };
+
+/**
+ * The jazz suffix for an abbreviated quality ("" for a major triad, "m7",
+ * "13"), or undefined when there is none. Chart text for MusicXML's <kind>.
+ */
+export function jazzSuffix(quality: string): string | undefined {
+  return JAZZ_MAP[quality];
+}
 
 /**
  * Format a chord noteName for display according to the given format.

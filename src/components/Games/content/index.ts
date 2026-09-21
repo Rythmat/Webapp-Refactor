@@ -6,6 +6,15 @@ export {
   extractContours,
 } from './contourSelector';
 export {
+  buildChordToneContext,
+  resolveContour,
+  hasRequiredChordTones,
+  endsOnChordTone,
+  nearestChordTone,
+  selectConstrainedContours,
+} from './melodyConstraints';
+export type { ChordToneContext } from './melodyConstraints';
+export {
   pickRandomRhythm,
   filterRhythmsByHitCount,
   rhythmToGrid,

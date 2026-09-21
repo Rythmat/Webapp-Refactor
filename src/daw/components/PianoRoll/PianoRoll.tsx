@@ -12,6 +12,7 @@ import {
   midiNameInKey,
   type MidiNoteEvent,
 } from '@prism/engine';
+import { RollViewToggle } from '@/components/notation/RollViewToggle';
 import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import type { ChordRegion } from '@/daw/store/prismSlice';
@@ -37,6 +38,8 @@ import {
   rulerPressTarget,
 } from '@/daw/utils/rulerLoop';
 import type { LoopState } from '@/daw/store/transportSlice';
+import { useRollView } from '@/lib/notation';
+import { StudioNotationView } from './StudioNotationView';
 
 type Tool = 'select' | 'draw' | 'erase';
 
@@ -251,6 +254,12 @@ export function PianoRoll({
   const loopEnd = useStore((s) => readLoop(s, loopScope).end);
 
   const beatsPerBar = tsNum;
+  // Notation overlays the roll (read-only). A drum clip — the one case that
+  // arrives with row labels — is written on a drumset staff instead of a
+  // grand staff, placed by instrument rather than by pitch.
+  const [rollView, setRollView] = useRollView('studio');
+  const showNotation = rollView === 'notation';
+  const percussionNotation = Boolean(noteLabels);
 
   // Refs — container + 3 canvases + 3 scroll containers
   const containerRef = useRef<HTMLDivElement>(null);
@@ -1526,6 +1535,9 @@ export function PianoRoll({
           borderBottom: '1px solid var(--color-border)',
         }}
       >
+        <RollViewToggle view={rollView} onChange={setRollView} />
+        <div className="h-4 w-px bg-white/10" />
+
         {/* Tool mode buttons */}
         <div className="flex gap-0.5">
           {(
@@ -1652,12 +1664,34 @@ export function PianoRoll({
 
       {/* Piano roll body — synced layout + velocity lane */}
       <div
-        className="flex flex-1 flex-col overflow-hidden"
+        className="relative flex flex-1 flex-col overflow-hidden"
         tabIndex={0}
         onKeyDown={handleKeyDown}
       >
+        {/* Notation replaces the roll: the roll below is hidden, not unmounted,
+            so its canvases keep their size and redraw on the way back. */}
+        {showNotation && (
+          <div
+            className="absolute inset-0 z-30"
+            style={{ background: 'var(--color-bg)', visibility: 'visible' }}
+          >
+            <StudioNotationView
+              events={events}
+              timelineStartTick={timelineStartTick}
+              clipStartTick={clipStartTick}
+              selectedIndices={selectedIndices}
+              percussion={percussionNotation}
+            />
+          </div>
+        )}
         {/* Main grid area */}
-        <div className="flex flex-1 overflow-hidden" style={{ minHeight: 0 }}>
+        <div
+          className="flex flex-1 overflow-hidden"
+          style={{
+            minHeight: 0,
+            visibility: showNotation ? 'hidden' : undefined,
+          }}
+        >
           {/* Left column: corner spacer + piano keys */}
           <div className="flex shrink-0 flex-col" style={{ width: KEYS_WIDTH }}>
             {/* Corner spacer */}
@@ -1733,7 +1767,10 @@ export function PianoRoll({
         </div>
 
         {/* Velocity lane */}
-        <div className="shrink-0">
+        <div
+          className="shrink-0"
+          style={{ visibility: showNotation ? 'hidden' : undefined }}
+        >
           <div className="flex">
             {/* Toggle button aligned with piano keys */}
             <button

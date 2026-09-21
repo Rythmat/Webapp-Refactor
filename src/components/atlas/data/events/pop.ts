@@ -94,6 +94,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'yg entertainment',
       'dynamite',
     ],
+    videoId: 'gdZLi9oWNZg',
   },
   {
     id: 'evt-swedish-pop-stockholm-2012',
@@ -430,6 +431,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'quincy jones',
       'king of pop',
     ],
+    videoId: '4V90AmXnguw',
   },
   {
     id: 'evt-pop-nyc-1984-madonna',
@@ -498,6 +500,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'funk rock',
       'jimmy jam',
     ],
+    videoId: 'TvnYmWpD_T8',
   },
   {
     id: 'evt-pop-stockholm-1976-abba',
@@ -522,6 +525,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'benny andersson',
       'bjorn ulvaeus',
     ],
+    videoId: 'z0QGBBYEYqE',
   },
   {
     id: 'evt-pop-london-1973-eltonjohn',
@@ -565,6 +569,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'soft rock',
       'heartbreak',
     ],
+    videoId: '-uFU79MGj00',
   },
   {
     id: 'evt-pop-nyc-1990-mariahcarey',
@@ -676,6 +681,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'nasty',
       'a&m records',
     ],
+    videoId: 'LH8xbDGv7oY',
   },
   {
     id: 'evt-pop-london-1987-georgemichael',
@@ -695,6 +701,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'grammy',
       'british pop',
     ],
+    videoId: 'N61LHFFfiik',
   },
   {
     id: 'evt-pop-london-1981-philcollins',
@@ -777,6 +784,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'max martin',
       'streaming wars',
     ],
+    videoId: 'KUInKQJ5xwM',
   },
   {
     id: 'evt-pop-houston-2016-beyonce',
@@ -796,6 +804,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'hbo',
       'destinys child',
     ],
+    videoId: 'PeonBmeFR8o',
   },
   {
     id: 'evt-pop-london-2011-adele',
@@ -815,6 +824,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'tottenham',
       'xl recordings',
     ],
+    videoId: 'at-_5h2r3Vc',
   },
   {
     id: 'evt-pop-nyc-2008-ladygaga',
@@ -882,6 +892,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'gen z',
       'highland park',
     ],
+    videoId: 'V9PVRfjEBTI',
   },
   {
     id: 'evt-pop-losangeles-2019-arianagrande',
@@ -905,6 +916,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'pop vocal',
       'republic records',
     ],
+    videoId: 'gl1aHhXnN1k',
   },
   {
     id: 'evt-pop-losangeles-2015-justinbieber',
@@ -929,6 +941,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'tropical house',
       'skrillex',
     ],
+    videoId: 'Ca1i6DZC3iY',
   },
   {
     id: 'evt-pop-toronto-2020-theweeknd',
@@ -972,6 +985,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'pandemic pop',
       'grammy',
     ],
+    videoId: '8EJ-vZyBzOQ',
   },
   {
     id: 'evt-pop-losangeles-2021-oliviarodrigo',
@@ -996,6 +1010,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'pop punk revival',
       'geffen records',
     ],
+    videoId: 'Id5t-y_HvIA',
   },
   {
     id: 'evt-pop-losangeles-2022-harrystyles',
@@ -1019,6 +1034,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'soft rock',
       'love on tour',
     ],
+    videoId: 'WQrh16Q3FUM',
   },
   {
     id: 'evt-pop-minneapolis-2019-lizzo',
@@ -1162,6 +1178,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'jay-z',
       'caribbean pop',
     ],
+    videoId: 'GIrrLGJKXtA',
   },
   {
     id: 'evt-pop-losangeles-2012-brunomars',
@@ -1280,6 +1297,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'queens',
       'mtv era',
     ],
+    videoId: 'KFq4E9XTueY',
   },
   {
     id: 'evt-pop-nashville-1977-dollyparton',

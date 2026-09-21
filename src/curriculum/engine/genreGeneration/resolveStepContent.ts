@@ -9,6 +9,7 @@ import type { NoteEvent as PianoRollNoteEvent } from '../../../components/Games/
 import type { ActivitySectionId } from '../../types/activity';
 import type { ActivityStepV2 } from '../../types/activity.v2';
 import { midiToPitchName } from './enharmonicEngine';
+import { applyRegisterRules } from './registerRules';
 
 // ── Our internal note format ─────────────────────────────────────────────────
 
@@ -145,6 +146,21 @@ function generateArpeggio(
 // ── Main resolver ────────────────────────────────────────────────────────────
 
 export function resolveStepContent(
+  step: ActivityStepV2,
+  ctx: StepContext,
+): GenreNoteEvent[] | null {
+  const notes = resolveRawStepContent(step, ctx);
+  if (notes === null || notes.length === 0) return notes;
+  // Register of Chord and Bass Notes — see registerRules.ts. Applied at the one
+  // choke point every student-facing note passes through, so authored data and
+  // generated content obey the same rule.
+  return applyRegisterRules(notes, {
+    section: step.section,
+    instrument_config: step.instrument_config,
+  }) as GenreNoteEvent[];
+}
+
+function resolveRawStepContent(
   step: ActivityStepV2,
   ctx: StepContext,
 ): GenreNoteEvent[] | null {

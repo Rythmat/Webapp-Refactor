@@ -20,6 +20,11 @@ import type {
 import { loadGrooveEvents } from '@/daw/midi/loadGrooveEvents';
 import { nextChordId, type ChordRegion } from '@/daw/store/prismSlice';
 import type { MidiClip } from '@/daw/store/tracksSlice';
+import {
+  hasMajorThird,
+  repairMajorChordRule,
+  type ChordWindow,
+} from '@/lib/melody/majorChordRule';
 
 /**
  * The 7 diatonic modes this generator supports. Non-diatonic mode families
@@ -578,6 +583,7 @@ function buildMelodyClip(
       : tilePhrase(phrase, durationTicks);
 
   resolveFinalNote(events, barChords, rootMidi);
+  applyMajorChordRule(events, barChords, rootMidi);
 
   return {
     id: crypto.randomUUID(),
@@ -586,6 +592,44 @@ function buildMelodyClip(
     durationTicks,
     events,
   };
+}
+
+/**
+ * The chords the melody plays over, as the shared melody rules describe them.
+ * `intervals` are offsets from the tonic and open on the chord's own root, so
+ * the chord-relative intervals are what remains once that root is taken off.
+ */
+function chordWindows(barChords: BarChord[], rootMidi: number): ChordWindow[] {
+  return barChords.map((bar) => {
+    const rootOffset = bar.intervals[0] ?? 0;
+    return {
+      rootPc: (((rootMidi + rootOffset) % 12) + 12) % 12,
+      majorThird: hasMajorThird(bar.intervals.map((iv) => iv - rootOffset)),
+      startTick: bar.startTick,
+      endTick: bar.endTick,
+    };
+  });
+}
+
+/**
+ * The 4 over a major chord resolves to the 3 or it does not belong — see
+ * lib/melody. Run after the final note is settled: that note is snapped to a
+ * chord tone, which is never a 4, so the two passes do not fight.
+ */
+function applyMajorChordRule(
+  events: MidiClip['events'],
+  barChords: BarChord[],
+  rootMidi: number,
+): void {
+  const windows = chordWindows(barChords, rootMidi);
+  const notes = events.map((event) => ({
+    midi: event.note,
+    startTick: event.startTick,
+    durationTicks: event.durationTicks,
+  }));
+  repairMajorChordRule(notes, windows).forEach((note, i) => {
+    events[i].note = note.midi;
+  });
 }
 
 /** Repeat the 2-bar phrase across the progression, trimming at the end. */

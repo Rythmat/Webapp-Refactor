@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { hasMajorThird, noteViolation } from '@/lib/melody/majorChordRule';
 import { generatePracticeTrack } from '../generatePracticeTrack';
 
 // rootMidi is always 60 + root, so root=0 keeps expected note math simple (C).
@@ -112,13 +113,23 @@ describe('generatePracticeTrack melody', () => {
       const phrase = events.filter((e) => e.startTick < PHRASE);
       const repeat = events.filter((e) => e.startTick >= PHRASE);
       expect(phrase.length).toBeGreaterThan(0);
-      // Bars 3-4 repeat bars 1-2 note-for-note, apart from the resolved final note.
+      // Bars 3-4 repeat bars 1-2 rhythmically, note for note.
       expect(repeat.map((e) => e.startTick - PHRASE)).toEqual(
         phrase.map((e) => e.startTick),
       );
-      expect(repeat.slice(0, -1).map((e) => e.note)).toEqual(
-        phrase.slice(0, -1).map((e) => e.note),
-      );
+      // Pitches repeat too, except where the chords underneath differ and the
+      // major-chord rule had to move a note — the 4 over a major chord must
+      // reach its 3, and the repeat sits over a different bar. Every such
+      // difference lands on that bar's major 3.
+      repeat.slice(0, -1).forEach((event, i) => {
+        if (event.note === phrase[i].note) return;
+        const region = result.chordRegions.find(
+          (r) => event.startTick >= r.startTick && event.startTick < r.endTick,
+        );
+        expect(region?.midis).toBeDefined();
+        const root = Math.min(...(region!.midis as number[]));
+        expect((((event.note - root) % 12) as number) + 12).toBe((4 % 12) + 12);
+      });
       // The phrase spans both bars, not just bar 1.
       expect(phrase.some((e) => e.startTick >= BAR)).toBe(true);
       expect(
@@ -177,6 +188,52 @@ describe('generatePracticeTrack melody', () => {
           pitchClass: ((finalNote.note % 12) + 12) % 12,
           isChordTone: chordTones.has(((finalNote.note % 12) + 12) % 12),
         }).toMatchObject({ isChordTone: true });
+      }
+    }
+  });
+
+  it('never leaves a 4 hanging over a major chord', async () => {
+    for (const mode of ALL_MODES) {
+      for (const level of LEVELS) {
+        const result = await generatePracticeTrack(
+          mode,
+          ROOT_C,
+          'chords',
+          level,
+        );
+        const events = [...result.melodyClip!.events].sort(
+          (a, b) => a.startTick - b.startTick,
+        );
+        const windows = result.chordRegions
+          .filter((r) => r.midis?.length)
+          .map((r) => {
+            const midis = r.midis as number[];
+            const root = Math.min(...midis);
+            return {
+              rootPc: ((root % 12) + 12) % 12,
+              majorThird: hasMajorThird(midis.map((m) => m - root)),
+              startTick: r.startTick,
+              endTick: r.endTick,
+            };
+          });
+        const offending = events
+          .map((e, i) => ({
+            note: {
+              midi: e.note,
+              startTick: e.startTick,
+              durationTicks: e.durationTicks,
+            },
+            next: events[i + 1]
+              ? {
+                  midi: events[i + 1].note,
+                  startTick: events[i + 1].startTick,
+                  durationTicks: events[i + 1].durationTicks,
+                }
+              : undefined,
+          }))
+          .filter(({ note, next }) => noteViolation(note, next, windows));
+
+        expect({ mode, level, offending }).toMatchObject({ offending: [] });
       }
     }
   });

@@ -18,6 +18,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'marvin gaye',
       'diana ross',
     ],
+    videoId: 'F1tbPVokltc',
   },
   {
     id: 'evt-disco-nyc-1977',
@@ -109,6 +110,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'tsop',
       'disco',
     ],
+    videoId: 'w1-o766_5M0',
   },
   {
     id: 'evt-gogo-dc-1979',
@@ -176,6 +178,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'ouagadougou',
       'pan-african',
     ],
+    videoId: 'txIU7h5XJOI',
   },
   {
     id: 'evt-juba-music-peace-2012',
@@ -295,6 +298,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'godmother of rock',
       'pioneer',
     ],
+    videoId: 'OKkZ47UHIwg',
   },
   {
     id: 'evt-bobmarley-wilmington-1965',
@@ -463,6 +467,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'electric lady',
       'hip-hop soul',
     ],
+    videoId: 'H_WzjiTzZBA',
   },
   {
     id: 'evt-neosoul-dallas-1997-badu',
@@ -482,6 +487,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'on and on',
       'conscious soul',
     ],
+    videoId: 'TW28iWV7nxE',
   },
   {
     id: 'evt-neosoul-southorange-1998-laurynhill',
@@ -555,6 +561,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'neo soul',
       'funk',
     ],
+    videoId: 'smM2g2g3uL8',
   },
   {
     id: 'evt-neosoul-philadelphia-2000-jillscott',
@@ -603,6 +610,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'neo soul',
       'just friends',
     ],
+    videoId: 'IP4V3TTC3fw',
   },
   {
     id: 'evt-neosoul-atlanta-2001-indiaarie',
@@ -762,6 +770,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'los angeles',
       'neo soul',
     ],
+    videoId: 'F6j49uzPugA',
   },
   {
     id: 'evt-neosoul-melbourne-2015-hiatuskaiyote',
@@ -806,6 +815,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'funk',
       'hip-hop soul',
     ],
+    videoId: 'ferZnZ0_rSM',
   },
   {
     id: 'evt-neosoul-houston-2016-solange',
@@ -1305,6 +1315,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'dreamy',
       'future soul',
     ],
+    videoId: 'Mr6o8y6gzi0',
   },
   {
     id: 'evt-neosoul-compton-2022-stevelacy',
@@ -1344,6 +1355,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'guitar',
       'uk soul',
     ],
+    videoId: 'Nmg5jhc9T_I',
   },
   // ── Funk Events ──────────────────────────────────────────────────────
   {
@@ -1461,6 +1473,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'space bass',
       'warner bros',
     ],
+    videoId: '8abYLA5zEkM',
   },
   {
     id: 'evt-funk-la-1975-earth-wind-fire',
@@ -1865,6 +1878,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'ernie isley',
       'funk pioneers',
     ],
+    videoId: '7nvudxqX_LA',
   },
   {
     id: 'evt-funk-detroit-1972-stevie-wonder-superstition',
@@ -1909,6 +1923,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'ahead of her time',
       'proto-punk',
     ],
+    videoId: 'EKWPynScqgw',
   },
   {
     id: 'evt-funk-kansascity-2010-janelle-monae',
@@ -1958,6 +1973,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'rhythm guitar',
       'studio 54',
     ],
+    videoId: 'HvDiD_vbwpg',
   },
   {
     id: 'evt-funk-detroit-1982-george-clinton-solo',
@@ -2127,5 +2143,6 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'social commentary',
       'wah-wah',
     ],
+    videoId: 'muLcm3_JSR4',
   },
 ];

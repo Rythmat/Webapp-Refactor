@@ -427,6 +427,11 @@ export function pullDocIntoStore(
     repeats: ['leadSheetRepeats', true],
     chordFormat: ['leadSheetChordFormat', false],
     showRepeats: ['leadSheetShowRepeats', false],
+    scoreChordTracks: ['scoreChordTracks', true],
+    scoreChordHidden: ['scoreChordHidden', true],
+    scoreArticulations: ['scoreArticulations', true],
+    scoreSlurs: ['scoreSlurs', true],
+    scoreSlashNotes: ['scoreSlashNotes', true],
   };
   for (const [docKey, [storeKey, isJson]] of Object.entries(leadSheetMap)) {
     if (!yLeadSheet.has(docKey)) continue;

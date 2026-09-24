@@ -21,7 +21,6 @@ export const broken_halos: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -61,7 +60,6 @@ export const broken_halos: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -101,7 +99,6 @@ export const broken_halos: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -125,7 +122,6 @@ export const broken_halos: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -165,7 +161,6 @@ export const broken_halos: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],

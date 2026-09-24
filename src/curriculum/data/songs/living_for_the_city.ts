@@ -7,9 +7,9 @@ export const living_for_the_city: Song = {
   year: 1973,
   historicalDescription:
     "Stevie Wonder releases 'Living For The City' as part of his landmark album Innervisions, painting a vivid portrait of a young Black man's journey from rural poverty to the brutal indifference of New York City. The track's blistering funk grooves frame one of the most politically charged narratives of the 1970s soul era — a cinematic indictment of systemic racism that cements Wonder's transformation from Motown prodigy to visionary auteur.",
-  key: 'F♯ minor',
+  key: 'F♯ mixolydian',
   keyRoot: 66,
-  mode: 'minor',
+  mode: 'mixolydian',
   tempo: 100,
   timeSignature: [4, 4],
 
@@ -21,7 +21,6 @@ export const living_for_the_city: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -84,7 +83,6 @@ export const living_for_the_city: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -147,7 +145,6 @@ export const living_for_the_city: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -210,7 +207,6 @@ export const living_for_the_city: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -275,7 +271,6 @@ export const living_for_the_city: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -299,7 +294,6 @@ export const living_for_the_city: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -362,7 +356,6 @@ export const living_for_the_city: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -425,7 +418,6 @@ export const living_for_the_city: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -453,7 +445,6 @@ export const living_for_the_city: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -525,7 +516,6 @@ export const living_for_the_city: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -549,7 +539,6 @@ export const living_for_the_city: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -655,7 +644,6 @@ export const living_for_the_city: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -718,7 +706,6 @@ export const living_for_the_city: Song = {
     {
       id: 'section_q',
       label: 'Section Q',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -781,7 +768,6 @@ export const living_for_the_city: Song = {
     {
       id: 'section_r',
       label: 'Section R',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -846,7 +832,6 @@ export const living_for_the_city: Song = {
     {
       id: 'section_t',
       label: 'Section T',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

@@ -7,7 +7,7 @@ export const i_wanna_dance_with_somebody_who_loves_me: Song = {
   year: 1987,
   historicalDescription:
     "Whitney Houston releases 'I Wanna Dance With Somebody (Who Loves Me)' in 1987, and its euphoric energy becomes an instant anthem of the decade. The song showcases Houston's extraordinary vocal range and marks her commercial peak, cementing her status as the defining pop voice of the era — joyful, powerful, and impossible to ignore.",
-  key: 'F♯ major',
+  key: 'G♭ major',
   keyRoot: 66,
   mode: 'major',
   tempo: 120,
@@ -260,7 +260,6 @@ export const i_wanna_dance_with_somebody_who_loves_me: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [

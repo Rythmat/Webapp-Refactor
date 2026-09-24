@@ -19,8 +19,8 @@ export const _1999: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         {
           chords: [
@@ -49,9 +49,105 @@ export const _1999: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
         {
           chords: [
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
@@ -79,128 +175,8 @@ export const _1999: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -222,49 +198,12 @@ export const _1999: Song = {
             { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 5,
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
           ],
         },
         {
@@ -284,7 +223,36 @@ export const _1999: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      repeatCount: 4,
+      bars: [
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -309,8 +277,8 @@ export const _1999: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -339,8 +307,8 @@ export const _1999: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -365,8 +333,9 @@ export const _1999: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -395,99 +364,45 @@ export const _1999: Song = {
       ],
     },
     {
-      id: 'section_n',
-      label: 'Section N',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_o',
-      label: 'Section O',
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_p',
-      label: 'Section P',
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_q',
-      label: 'Section Q',
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_r',
-      label: 'Section R',
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_s',
-      label: 'Section S',
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_t',
-      label: 'Section T',
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_u',
-      label: 'Section U',
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_v',
-      label: 'Section V',
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_w',
-      label: 'Section W',
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -495,7 +410,6 @@ export const _1999: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=rblt2EtFfC4' },
   ],

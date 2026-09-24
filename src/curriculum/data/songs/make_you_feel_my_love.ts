@@ -205,7 +205,6 @@ export const make_you_feel_my_love: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [

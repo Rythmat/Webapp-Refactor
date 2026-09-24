@@ -316,7 +316,6 @@ export const late_in_the_evening: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
@@ -370,7 +369,6 @@ export const late_in_the_evening: Song = {
     {
       id: 'section_g_2',
       label: 'Section G',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },

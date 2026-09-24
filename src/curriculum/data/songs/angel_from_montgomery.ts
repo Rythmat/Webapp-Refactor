@@ -19,9 +19,9 @@ export const angel_from_montgomery: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 12,
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -38,11 +38,13 @@ export const angel_from_montgomery: Song = {
       ],
     },
     {
-      id: 'verse',
+      id: 'verse_1',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -54,33 +56,13 @@ export const angel_from_montgomery: Song = {
             { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
             { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
+          repeatEnd: true,
         },
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 8,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 8,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -102,9 +84,8 @@ export const angel_from_montgomery: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
-      measuresPerRow: 8,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -119,28 +100,23 @@ export const angel_from_montgomery: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      repeatCount: 3,
+      id: 'outro_1',
+      label: 'Outro',
+      instrumental: true,
       bars: [
+        {
+          chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }],
+          repeatEnd: true,
+        },
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=U6cagWYTGCY' },
   ],

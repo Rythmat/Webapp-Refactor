@@ -21,7 +21,6 @@ export const your_love_keeps_lifting_me_higher_and_higher: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [] }],
     },
     {
@@ -37,7 +36,6 @@ export const your_love_keeps_lifting_me_higher_and_higher: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

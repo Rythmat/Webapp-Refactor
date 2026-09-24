@@ -7,9 +7,9 @@ export const cake_by_the_ocean: Song = {
   year: 2015,
   historicalDescription:
     "DNCE, the band fronted by Joe Jonas, releases 'Cake By The Ocean' as their debut single in 2015. The euphoric pop-rock track becomes a sleeper hit, building momentum over months until it dominates radio and playlists worldwide — signaling a broader shift toward funk-inflected, carefree pop that defines mid-2010s mainstream radio.",
-  key: 'C major',
-  keyRoot: 60,
-  mode: 'major',
+  key: 'E minor',
+  keyRoot: 64,
+  mode: 'minor',
   tempo: 120,
   timeSignature: [4, 4],
 
@@ -21,40 +21,43 @@ export const cake_by_the_ocean: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
-            { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '5 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
           chords: [
-            { degree: '7 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '5 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
       ],
     },
   ],

@@ -53,7 +53,6 @@ export const you_make_me_feel_like_a_natural_woman: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -84,7 +83,6 @@ export const you_make_me_feel_like_a_natural_woman: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
@@ -135,7 +133,6 @@ export const you_make_me_feel_like_a_natural_woman: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -174,7 +171,6 @@ export const you_make_me_feel_like_a_natural_woman: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
@@ -207,7 +203,6 @@ export const you_make_me_feel_like_a_natural_woman: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
         {
@@ -230,7 +225,6 @@ export const you_make_me_feel_like_a_natural_woman: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 8,
       repeatCount: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },

@@ -21,7 +21,6 @@ export const hey_jude: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -34,7 +33,6 @@ export const hey_jude: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -53,7 +51,6 @@ export const hey_jude: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -66,7 +63,6 @@ export const hey_jude: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -85,7 +81,6 @@ export const hey_jude: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -112,7 +107,6 @@ export const hey_jude: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -148,7 +142,6 @@ export const hey_jude: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -161,7 +154,6 @@ export const hey_jude: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -180,7 +172,6 @@ export const hey_jude: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },

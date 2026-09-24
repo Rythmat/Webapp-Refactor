@@ -7,9 +7,9 @@ export const life_on_mars: Song = {
   year: 1972,
   historicalDescription:
     "David Bowie releases 'Life On Mars?' in 1972, a sweeping, cinematic ballad that captures the restless alienation of a generation raised on Hollywood dreams and television disappointment. Arranged with lush orchestration, it cements Bowie's gift for grand theatrical rock — part glam, part art song — and stands as one of the defining statements of his Ziggy Stardust era.",
-  key: 'B♭ minor',
-  keyRoot: 70,
-  mode: 'minor',
+  key: 'E major & A major',
+  keyRoot: 64,
+  mode: 'major',
   tempo: 118,
   timeSignature: [4, 4],
 
@@ -21,14 +21,13 @@ export const life_on_mars: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 7,
       bars: [
-        { chords: [{ degree: '5 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
             {
-              degree: '7 min7/♯4',
-              chordName: 'Amin7/E',
+              degree: '3 min7/7',
+              chordName: 'G♯min7/D♯',
               beat: 1,
               duration: 4,
             },
@@ -37,66 +36,67 @@ export const life_on_mars: Song = {
         {
           chords: [
             {
-              degree: '7 dim7/4',
-              chordName: 'Adim7/E♭',
+              degree: '3 dim7/♭7',
+              chordName: 'G♯dim7/D',
               beat: 1,
               duration: 4,
             },
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }],
+          chords: [{ degree: '6 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/5', chordName: 'B♭/F', beat: 1, duration: 4 },
+            { degree: '4 maj/1', chordName: 'A/E', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
-            { degree: '♭7 maj/4', chordName: 'A♭/E♭', beat: 1, duration: 4 },
+            { degree: '♭3 maj/♭7', chordName: 'G/D', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯4 7', chordName: 'E7aug', beat: 1, duration: 4 },
+            { degree: '7 7', chordName: 'D♯7aug', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭2 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '7 7', chordName: 'A7aug', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+            { degree: '3 7', chordName: 'G♯7aug', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭3 maj/♯1', chordName: 'D♭/B', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/♯4', chordName: 'C/A♯', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -104,38 +104,37 @@ export const life_on_mars: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭6 7', chordName: 'G♭7aug', beat: 1, duration: 4 },
+            { degree: '♭2 7', chordName: 'F7aug', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '5 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -143,32 +142,31 @@ export const life_on_mars: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭6 7', chordName: 'G♭7aug', beat: 1, duration: 4 },
+            { degree: '♭2 7', chordName: 'F7aug', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/5', chordName: 'B♭/F', beat: 1, duration: 4 },
+            { degree: '4 maj/1', chordName: 'A/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯4 min7', chordName: 'Emin7b5', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'D♯min7b5', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯5 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'E♯dim7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -176,29 +174,28 @@ export const life_on_mars: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 dim7', chordName: 'Ddim7', beat: 1, duration: 4 },
+            { degree: '6 dim7', chordName: 'C♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -206,14 +203,13 @@ export const life_on_mars: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 7,
       bars: [
-        { chords: [{ degree: '5 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
             {
-              degree: '7 min7/♯4',
-              chordName: 'Amin7/E',
+              degree: '3 min7/7',
+              chordName: 'G♯min7/D♯',
               beat: 1,
               duration: 4,
             },
@@ -222,66 +218,67 @@ export const life_on_mars: Song = {
         {
           chords: [
             {
-              degree: '7 dim7/4',
-              chordName: 'Adim7/E♭',
+              degree: '3 dim7/♭7',
+              chordName: 'G♯dim7/D',
               beat: 1,
               duration: 4,
             },
           ],
         },
         {
-          chords: [{ degree: '3 maj', chordName: 'D', beat: 1, duration: 4 }],
+          chords: [{ degree: '6 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/5', chordName: 'B♭/F', beat: 1, duration: 4 },
+            { degree: '4 maj/1', chordName: 'A/E', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
-            { degree: '♭7 maj/4', chordName: 'A♭/E♭', beat: 1, duration: 4 },
+            { degree: '♭3 maj/♭7', chordName: 'G/D', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯4 7', chordName: 'E7aug', beat: 1, duration: 4 },
+            { degree: '7 7', chordName: 'D♯7aug', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭2 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '7 7', chordName: 'A7aug', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+            { degree: '3 7', chordName: 'G♯7aug', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭3 maj/♯1', chordName: 'D♭/B', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/♯4', chordName: 'C/A♯', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -289,38 +286,37 @@ export const life_on_mars: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 8,
       bars: [
         {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭6 7', chordName: 'G♭7aug', beat: 1, duration: 4 },
+            { degree: '♭2 7', chordName: 'F7aug', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '5 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -328,37 +324,36 @@ export const life_on_mars: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭6 7', chordName: 'G♭7aug', beat: 1, duration: 4 },
+            { degree: '♭2 7', chordName: 'F7aug', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/5', chordName: 'B♭/F', beat: 1, duration: 4 },
+            { degree: '4 maj/1', chordName: 'A/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯4 min7', chordName: 'Emin7b5', beat: 1, duration: 4 },
+            { degree: '7 min7', chordName: 'D♯min7b5', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯5 dim7', chordName: 'F♯dim7', beat: 1, duration: 4 },
+            { degree: '♯1 dim7', chordName: 'E♯dim7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -366,28 +361,27 @@ export const life_on_mars: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
-            { degree: '1 maj/5', chordName: 'B♭/F', beat: 1, duration: 4 },
+            { degree: '4 maj/1', chordName: 'A/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/5', chordName: 'B♭/F', beat: 1, duration: 4 },
+            { degree: '4 maj/1', chordName: 'A/E', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '4 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '♭7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
           fermata: true,
         },
       ],

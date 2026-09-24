@@ -21,7 +21,6 @@ export const play_that_funky_music: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
@@ -189,7 +188,6 @@ export const play_that_funky_music: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -237,7 +235,6 @@ export const play_that_funky_music: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],

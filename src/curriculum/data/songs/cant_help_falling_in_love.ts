@@ -31,7 +31,6 @@ export const cant_help_falling_in_love: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -52,7 +51,6 @@ export const cant_help_falling_in_love: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -70,7 +68,6 @@ export const cant_help_falling_in_love: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -91,7 +88,6 @@ export const cant_help_falling_in_love: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -108,7 +104,6 @@ export const cant_help_falling_in_love: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 10,
       bars: [
         {
           chords: [
@@ -145,7 +140,6 @@ export const cant_help_falling_in_love: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 10,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -174,7 +168,6 @@ export const cant_help_falling_in_love: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },

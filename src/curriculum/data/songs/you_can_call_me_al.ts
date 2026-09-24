@@ -39,7 +39,6 @@ export const you_can_call_me_al: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 2 }],
     },
     {
@@ -63,7 +62,6 @@ export const you_can_call_me_al: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],

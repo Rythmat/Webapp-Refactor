@@ -7,9 +7,9 @@ export const i_will_survive: Song = {
   year: 1978,
   historicalDescription:
     "Gloria Gaynor releases 'I Will Survive', a disco anthem that transforms personal heartbreak into a universal declaration of resilience. Originally released as a B-side, the song is flipped by popular demand and becomes one of the defining records of the disco era — and far beyond it. Its message of empowerment resonates across generations, making it a staple at everything from dancefloors to protest marches.",
-  key: 'E major',
-  keyRoot: 64,
-  mode: 'major',
+  key: 'A minor',
+  keyRoot: 69,
+  mode: 'minor',
   tempo: 120,
   timeSignature: [4, 4],
 
@@ -21,10 +21,9 @@ export const i_will_survive: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [
         {
-          chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }],
           fermata: true,
         },
       ],
@@ -35,17 +34,17 @@ export const i_will_survive: Song = {
       bars: [
         {
           chords: [
-            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭3 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -54,17 +53,17 @@ export const i_will_survive: Song = {
       label: 'Section C',
       bars: [
         {
-          chords: [{ degree: '♭2 maj', chordName: 'F', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Bmin7♭5', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'Bmin7♭5', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -73,40 +72,39 @@ export const i_will_survive: Song = {
       bars: [
         {
           chords: [
-            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭3 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
       ],
     },
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         {
-          chords: [{ degree: '♭2 maj', chordName: 'F', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Bmin7♭5', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'Bmin7♭5', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
           fermata: true,
         },
@@ -118,17 +116,17 @@ export const i_will_survive: Song = {
       bars: [
         {
           chords: [
-            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭3 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -137,17 +135,17 @@ export const i_will_survive: Song = {
       label: 'Section G',
       bars: [
         {
-          chords: [{ degree: '♭2 maj', chordName: 'F', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Bmin7♭5', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'Bmin7♭5', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
       ],
     },
   ],

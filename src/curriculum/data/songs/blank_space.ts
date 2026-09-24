@@ -21,7 +21,6 @@ export const blank_space: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 2 }],
     },
     {
@@ -43,7 +42,6 @@ export const blank_space: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {

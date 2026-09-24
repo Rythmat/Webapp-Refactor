@@ -30,6 +30,11 @@ import type { PrismModeSlug } from '@/hooks/data';
 import { useProgressSummary } from '@/hooks/data/progress/useProgressSummary';
 import { useIsPremium } from '@/hooks/useIsPremium';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
+import {
+  SCALE_LESSON_SLUGS,
+  SCALE_LESSONS,
+  isScaleLesson,
+} from '@/lib/learn/scaleLessons';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import type { ProgressSummaryResponse } from '@/lib/progress/types';
@@ -502,6 +507,14 @@ const THEORY_DATA: ContentItem[] = [
     interactive: true,
   },
 ];
+
+const PENTATONIC_BLUES_DATA: ContentItem[] = SCALE_LESSON_SLUGS.map((slug) => ({
+  title: SCALE_LESSONS[slug].title,
+  mode: slug,
+  route: LearnRoutes.overview({ mode: slug }),
+  image: SCALE_LESSONS[slug].image,
+  interactive: true,
+}));
 
 const TECHNIQUE_DATA: ContentItem[] = [
   {
@@ -1352,6 +1365,12 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         defaultOpen: true,
       },
       {
+        family: 'pentatonic-blues' as ModeFamily,
+        title: 'Pentatonic/Blues',
+        items: PENTATONIC_BLUES_DATA,
+        defaultOpen: true,
+      },
+      {
         family: 'relative' as ModeFamily,
         title: 'Relative Modes',
         items: RELATIVE_MODES_DATA,
@@ -1483,12 +1502,16 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       mode,
       keyLabelToUrlParam(keyLabel),
     );
-    // Practice Track is only offered for the 7 diatonic modes (DIATONIC_MODES
-    // above already enumerates exactly those slugs).
+    // Practice Track is offered for the 7 diatonic modes (DIATONIC_MODES
+    // above enumerates exactly those slugs) and the pentatonic and blues
+    // scales, whose lessons are melody only — no Chords chapter.
     const isDiatonicMode = DIATONIC_MODES.some((m) => m.slug === mode);
+    const isScale = isScaleLesson(mode);
     const keyParam = keyLabelToUrlParam(keyLabel);
     const sections = THEORY_SECTIONS.filter(
-      (section) => isDiatonicMode || section.id !== 'D',
+      (section) =>
+        (isDiatonicMode || isScale || section.id !== 'D') &&
+        !(isScale && section.id === 'B'),
     ).map(({ activity, ...section }) => ({
       ...section,
       route: activity
@@ -1510,7 +1533,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       subTab === 'Genre'
         ? COURSES_DATA
         : subTab === 'Theory'
-          ? THEORY_DATA
+          ? [...THEORY_DATA, ...PENTATONIC_BLUES_DATA]
           : TECHNIQUE_DATA;
     const item = data.find((d) => (d.expandId ?? d.mode) === expandedMode);
     if (item?.mode) {

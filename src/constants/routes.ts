@@ -598,6 +598,16 @@ const songsPrefix = '/songs';
 
 export const SongRoutes = {
   root: createRouteDefinition(songsPrefix),
+  // The static segments must be declared — and registered — before the
+  // `:songId` route, or it swallows them.
+  setLists: createRouteDefinition('/setlists', { prefix: songsPrefix }),
+  setList: createRouteDefinition<{ setListId: string }>('/setlists/:setListId', {
+    prefix: songsPrefix,
+  }),
+  setListPrint: createRouteDefinition<{ setListId: string }>(
+    '/setlists/:setListId/print',
+    { prefix: songsPrefix },
+  ),
   song: createRouteDefinition<{ songId: string }>('/:songId', {
     prefix: songsPrefix,
   }),

@@ -31,7 +31,6 @@ export const kiss: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -46,7 +45,6 @@ export const kiss: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
@@ -61,7 +59,6 @@ export const kiss: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -74,7 +71,6 @@ export const kiss: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -87,7 +83,6 @@ export const kiss: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -102,7 +97,6 @@ export const kiss: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
@@ -117,7 +111,6 @@ export const kiss: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -132,7 +125,6 @@ export const kiss: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
@@ -147,7 +139,6 @@ export const kiss: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },

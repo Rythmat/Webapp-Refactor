@@ -53,7 +53,6 @@ export const lets_go_crazy: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -197,7 +196,6 @@ export const lets_go_crazy: Song = {
     {
       id: 'section_10',
       label: 'Section J',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],

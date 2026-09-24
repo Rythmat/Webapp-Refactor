@@ -83,7 +83,6 @@ export const soul_man: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       repeatCount: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -103,7 +102,6 @@ export const soul_man: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -136,7 +134,6 @@ export const soul_man: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 4 }],

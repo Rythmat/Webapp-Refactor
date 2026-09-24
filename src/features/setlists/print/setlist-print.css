@@ -1,0 +1,91 @@
+/**
+ * Printing a set: every chart on its own page, in the order the player
+ * dragged them, with their text pages between. Modelled on the Studio lead
+ * sheet's print sheet (daw/components/LeadSheet/leadsheet-print.css).
+ */
+
+.setlist-print {
+  background: #101012;
+  color: #e8e8f0;
+  min-height: 100%;
+}
+
+.setlist-print-page + .setlist-print-page {
+  margin-top: 2rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.12);
+  padding-top: 2rem;
+}
+
+.setlist-print-text {
+  white-space: pre-wrap;
+  font-size: 16pt;
+  line-height: 1.45;
+}
+
+@media print {
+  @page {
+    size: letter;
+    margin: 0.6in;
+  }
+
+  /* The set is the only thing on the paper: everything else in the app is
+     hidden by visibility (not display) so the page keeps its layout. */
+  body * {
+    visibility: hidden;
+  }
+  .setlist-print,
+  .setlist-print * {
+    visibility: visible;
+  }
+  .setlist-print {
+    position: absolute;
+    inset: 0;
+    padding: 0 !important;
+  }
+
+  .setlist-print-toolbar {
+    display: none !important;
+  }
+
+  .setlist-print,
+  .setlist-print * {
+    background: #fff !important;
+    color: #000 !important;
+    box-shadow: none !important;
+  }
+
+  /* Each chart and each text page starts a new sheet; the first does not. */
+  .setlist-print-page + .setlist-print-page {
+    break-before: page;
+    margin-top: 0;
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  /* The chart is SVG with no print styling of its own, so it is coloured
+     here through our own wrapper rather than by touching ChordChart. */
+  .setlist-print-chart svg {
+    width: 100% !important;
+    height: auto !important;
+  }
+  .setlist-print-chart text {
+    fill: #000 !important;
+  }
+  .setlist-print-chart line,
+  .setlist-print-chart path,
+  .setlist-print-chart rect,
+  .setlist-print-chart circle,
+  .setlist-print-chart ellipse {
+    stroke: #000 !important;
+  }
+  .setlist-print-chart rect,
+  .setlist-print-chart circle,
+  .setlist-print-chart ellipse {
+    fill: none !important;
+  }
+
+  /* Nothing interactive belongs on paper. */
+  .setlist-print-chart button {
+    display: none !important;
+  }
+}

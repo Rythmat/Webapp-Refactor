@@ -1,3 +1,4 @@
+import { SCALE_LESSONS } from '@/lib/learn/scaleLessons';
 export interface ChordScaleEntry {
   degree: string; // "1", "♭2", "♯4", etc.
   quality: string; // "maj", "min7", "dom7(♯5)", etc.
@@ -1370,6 +1371,17 @@ export const CHORD_SCALE_DATA: ModeChordScales[] = [
 
 const chordScaleMap = new Map<string, ModeChordScales>();
 CHORD_SCALE_DATA.forEach((m) => chordScaleMap.set(m.modeSlug, m));
+// The pentatonic and blues scales: a name and degrees for the overview, and
+// no chords — their lessons are melody only.
+for (const scale of Object.values(SCALE_LESSONS))
+  chordScaleMap.set(scale.slug, {
+    modeSlug: scale.slug,
+    modeName: scale.title,
+    intervals: scale.formula.replace(/ – /g, ', '),
+    triads: [],
+    sevenths: [],
+    ninths: [],
+  });
 
 export function getChordScales(modeSlug: string): ModeChordScales | undefined {
   return chordScaleMap.get(modeSlug);

@@ -21,7 +21,6 @@ export const forever_young_dylan: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -48,7 +47,6 @@ export const forever_young_dylan: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 9,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },

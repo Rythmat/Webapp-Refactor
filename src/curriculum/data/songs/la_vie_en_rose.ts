@@ -21,7 +21,6 @@ export const la_vie_en_rose: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -48,7 +47,6 @@ export const la_vie_en_rose: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -73,7 +71,6 @@ export const la_vie_en_rose: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -98,7 +95,6 @@ export const la_vie_en_rose: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -121,7 +117,6 @@ export const la_vie_en_rose: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -152,7 +147,6 @@ export const la_vie_en_rose: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],

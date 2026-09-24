@@ -21,7 +21,6 @@ export const beauty_and_the_beast: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 5,
       bars: [
         { chords: [], restBars: 4 },
         {
@@ -95,7 +94,6 @@ export const beauty_and_the_beast: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -138,7 +136,6 @@ export const beauty_and_the_beast: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -171,7 +168,6 @@ export const beauty_and_the_beast: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '6 7', chordName: 'F♯7', beat: 1, duration: 4 }],
@@ -201,7 +197,6 @@ export const beauty_and_the_beast: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -248,7 +243,6 @@ export const beauty_and_the_beast: Song = {
     {
       id: 'section_g_2',
       label: 'Section G',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -287,7 +281,6 @@ export const beauty_and_the_beast: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },

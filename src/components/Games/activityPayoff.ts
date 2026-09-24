@@ -1,5 +1,6 @@
 import type { LessonOrigin } from '@/lib/learn/lessonOrigin';
 import { modeCharacter, modeDegreeFormula } from '@/lib/learn/modeCharacter';
+import { getScaleLesson } from '@/lib/learn/scaleLessons';
 
 /**
  * The sentence an activity ends on: what the student just played, named —
@@ -55,7 +56,9 @@ export function activityPayoff({
     headline = character
       ? `That's ${scale}. ${character}.`
       : `That's ${scale}.`;
-    const formula = modeDegreeFormula(steps);
+    // Five- and six-note scales carry their own formula (1 – ♭3 – 4 – 5 – ♭7).
+    const formula =
+      getScaleLesson(modeSlug)?.formula ?? modeDegreeFormula(steps);
     detail = formula ? `Scale degrees: ${formula}` : null;
   }
 

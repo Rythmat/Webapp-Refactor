@@ -31,7 +31,6 @@ export const lay_down_sally: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -44,7 +43,6 @@ export const lay_down_sally: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -59,7 +57,6 @@ export const lay_down_sally: Song = {
     {
       id: 'chorus_1',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -74,7 +71,6 @@ export const lay_down_sally: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -89,7 +85,6 @@ export const lay_down_sally: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -102,7 +97,6 @@ export const lay_down_sally: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -117,7 +111,6 @@ export const lay_down_sally: Song = {
     {
       id: 'outro',
       label: 'Outro',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -132,7 +125,6 @@ export const lay_down_sally: Song = {
     {
       id: 'section_9',
       label: 'Section I',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -147,7 +139,6 @@ export const lay_down_sally: Song = {
     {
       id: 'section_10',
       label: 'Section J',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -164,7 +155,6 @@ export const lay_down_sally: Song = {
     {
       id: 'section_11',
       label: 'Section K',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -179,7 +169,6 @@ export const lay_down_sally: Song = {
     {
       id: 'section_12',
       label: 'Section L',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -195,7 +184,6 @@ export const lay_down_sally: Song = {
     {
       id: 'section_13',
       label: 'Section M',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },

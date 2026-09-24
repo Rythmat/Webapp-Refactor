@@ -21,7 +21,6 @@ export const knocks_me_off_my_feet: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 6,
       bars: [
         { chords: [], restBars: 1 },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -56,7 +55,6 @@ export const knocks_me_off_my_feet: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -82,7 +80,6 @@ export const knocks_me_off_my_feet: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -105,7 +102,6 @@ export const knocks_me_off_my_feet: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '5 7', chordName: 'G7sus', beat: 1, duration: 4 }],
@@ -130,7 +126,6 @@ export const knocks_me_off_my_feet: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 9,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -165,7 +160,6 @@ export const knocks_me_off_my_feet: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 9,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -200,7 +194,6 @@ export const knocks_me_off_my_feet: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 9,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -226,7 +219,6 @@ export const knocks_me_off_my_feet: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -250,7 +242,6 @@ export const knocks_me_off_my_feet: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -285,7 +276,6 @@ export const knocks_me_off_my_feet: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -311,7 +301,6 @@ export const knocks_me_off_my_feet: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -334,7 +323,6 @@ export const knocks_me_off_my_feet: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '5 7', chordName: 'G7sus', beat: 1, duration: 4 }],
@@ -359,7 +347,6 @@ export const knocks_me_off_my_feet: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 9,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -394,7 +381,6 @@ export const knocks_me_off_my_feet: Song = {
     {
       id: 'section_o',
       label: 'Section O',
-      measuresPerRow: 9,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -429,7 +415,6 @@ export const knocks_me_off_my_feet: Song = {
     {
       id: 'section_p',
       label: 'Section P',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -455,7 +440,6 @@ export const knocks_me_off_my_feet: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '♭2 maj', chordName: 'D♭', beat: 1, duration: 4 }],

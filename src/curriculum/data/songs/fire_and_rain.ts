@@ -19,9 +19,9 @@ export const fire_and_rain: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 1,
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
@@ -47,12 +47,6 @@ export const fire_and_rain: Song = {
           ],
         },
         { chords: [] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
         {
           chords: [
             { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
@@ -96,12 +90,6 @@ export const fire_and_rain: Song = {
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
         {
           chords: [
             { degree: '4 maj', chordName: 'F', beat: 1, duration: 1 },
@@ -123,8 +111,9 @@ export const fire_and_rain: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [
         {
           chords: [{ degree: '1 7', chordName: 'C7sus', beat: 1, duration: 4 }],
@@ -141,7 +130,6 @@ export const fire_and_rain: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_1nKGVDhQ60' },
   ],

@@ -58,7 +58,6 @@ export const love_goes_building_on_fire: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },

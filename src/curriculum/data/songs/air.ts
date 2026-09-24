@@ -20,9 +20,9 @@ export const air: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 2,
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
@@ -31,7 +31,6 @@ export const air: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      repeatCount: 4,
       bars: [
         {
           chords: [
@@ -53,12 +52,6 @@ export const air: Song = {
             { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
         {
           chords: [
             { degree: '♭6 min7', chordName: 'A♭min7', beat: 1, duration: 4 },
@@ -71,12 +64,6 @@ export const air: Song = {
         },
         { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 maj', chordName: 'E', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
         {
           chords: [
             { degree: '♭6 min7', chordName: 'A♭min7', beat: 1, duration: 4 },
@@ -107,12 +94,6 @@ export const air: Song = {
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -124,8 +105,8 @@ export const air: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -146,13 +127,6 @@ export const air: Song = {
             { degree: '2 maj', chordName: 'D', beat: 4, duration: 1 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 5,
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -173,8 +147,9 @@ export const air: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -183,19 +158,14 @@ export const air: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'outro',
+      label: 'Outro',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
         { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -203,7 +173,6 @@ export const air: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=i6WaEcv9sdw' },
   ],

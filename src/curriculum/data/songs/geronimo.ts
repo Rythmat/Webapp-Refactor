@@ -180,7 +180,6 @@ export const geronimo: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -215,7 +214,6 @@ export const geronimo: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 5,
       repeatCount: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },

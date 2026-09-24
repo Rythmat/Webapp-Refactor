@@ -21,13 +21,11 @@ export const it_wasnt_me: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {

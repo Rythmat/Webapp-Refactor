@@ -21,7 +21,6 @@ export const i_cant_help_myself_sugar_pie_honey_bunch: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -31,7 +30,6 @@ export const i_cant_help_myself_sugar_pie_honey_bunch: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -70,7 +68,6 @@ export const i_cant_help_myself_sugar_pie_honey_bunch: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -80,7 +77,6 @@ export const i_cant_help_myself_sugar_pie_honey_bunch: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },

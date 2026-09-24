@@ -21,13 +21,11 @@ export const ramble_on: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -40,7 +38,6 @@ export const ramble_on: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 9,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -88,7 +85,6 @@ export const ramble_on: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 5,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -131,7 +127,6 @@ export const ramble_on: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 5,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -144,7 +139,6 @@ export const ramble_on: Song = {
     {
       id: 'section_h_2',
       label: 'Section H',
-      measuresPerRow: 9,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {

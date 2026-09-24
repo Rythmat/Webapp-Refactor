@@ -21,7 +21,6 @@ export const boogie_shoes: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
@@ -53,7 +52,6 @@ export const boogie_shoes: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -85,7 +83,6 @@ export const boogie_shoes: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -97,7 +94,6 @@ export const boogie_shoes: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -129,7 +125,6 @@ export const boogie_shoes: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -141,7 +136,6 @@ export const boogie_shoes: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -153,7 +147,6 @@ export const boogie_shoes: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -165,7 +158,6 @@ export const boogie_shoes: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -197,7 +189,6 @@ export const boogie_shoes: Song = {
     {
       id: 'section_q',
       label: 'Section Q',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -209,7 +200,6 @@ export const boogie_shoes: Song = {
     {
       id: 'section_r',
       label: 'Section R',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -221,7 +211,6 @@ export const boogie_shoes: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },

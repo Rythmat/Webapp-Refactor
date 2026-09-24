@@ -100,7 +100,6 @@ export const livin_on_a_prayer: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -150,7 +149,6 @@ export const livin_on_a_prayer: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
@@ -249,7 +247,6 @@ export const livin_on_a_prayer: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -299,7 +296,6 @@ export const livin_on_a_prayer: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
@@ -315,7 +311,6 @@ export const livin_on_a_prayer: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -342,7 +337,6 @@ export const livin_on_a_prayer: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -395,7 +389,6 @@ export const livin_on_a_prayer: Song = {
     {
       id: 'section_i_2',
       label: 'Section I',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [

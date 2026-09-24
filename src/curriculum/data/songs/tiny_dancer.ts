@@ -7,9 +7,9 @@ export const tiny_dancer: Song = {
   year: 2009,
   historicalDescription:
     "Elton John and Bernie Taupin's 'Tiny Dancer' captures the sun-drenched romanticism of early 1970s California, painting a portrait of a free-spirited dancer against the backdrop of the LA music scene. Though not an immediate chart sensation on release, the song becomes one of rock's most beloved anthems — immortalized for a new generation by its unforgettable appearance in Cameron Crowe's Almost Famous.",
-  key: 'C minor',
+  key: 'C major',
   keyRoot: 60,
-  mode: 'minor',
+  mode: 'major',
   tempo: 74,
   timeSignature: [4, 4],
 
@@ -21,7 +21,6 @@ export const tiny_dancer: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -36,7 +35,6 @@ export const tiny_dancer: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -66,7 +64,6 @@ export const tiny_dancer: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -96,7 +93,6 @@ export const tiny_dancer: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -131,7 +127,6 @@ export const tiny_dancer: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -151,7 +146,6 @@ export const tiny_dancer: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -163,7 +157,6 @@ export const tiny_dancer: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -198,7 +191,6 @@ export const tiny_dancer: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 7,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -233,7 +225,6 @@ export const tiny_dancer: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -255,7 +246,6 @@ export const tiny_dancer: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -285,7 +275,6 @@ export const tiny_dancer: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -315,7 +304,6 @@ export const tiny_dancer: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -350,7 +338,6 @@ export const tiny_dancer: Song = {
     {
       id: 'section_m',
       label: 'Section M',
-      measuresPerRow: 9,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -373,7 +360,6 @@ export const tiny_dancer: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -408,7 +394,6 @@ export const tiny_dancer: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -448,7 +433,6 @@ export const tiny_dancer: Song = {
     {
       id: 'section_i_2',
       label: 'Section I',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },

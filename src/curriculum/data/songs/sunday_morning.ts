@@ -21,7 +21,6 @@ export const sunday_morning: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 2,
       bars: [{ chords: [], restBars: 3 }, { chords: [] }],
     },
     {
@@ -209,7 +208,6 @@ export const sunday_morning: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 5,
       bars: [
         { chords: [], restBars: 4 },
         {
@@ -267,7 +265,6 @@ export const sunday_morning: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -287,13 +284,11 @@ export const sunday_morning: Song = {
     {
       id: 'section_j_2',
       label: 'Section J',
-      measuresPerRow: 3,
       bars: [{ chords: [] }, { chords: [] }, { chords: [] }],
     },
     {
       id: 'section_u',
       label: 'Section U',
-      measuresPerRow: 3,
       bars: [{ chords: [] }, { chords: [] }, { chords: [] }],
     },
     {

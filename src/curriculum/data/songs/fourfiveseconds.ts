@@ -22,7 +22,6 @@ export const fourfiveseconds: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -53,7 +52,6 @@ export const fourfiveseconds: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -84,7 +82,6 @@ export const fourfiveseconds: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -133,7 +130,6 @@ export const fourfiveseconds: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 12,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -176,7 +172,6 @@ export const fourfiveseconds: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 16,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -231,7 +226,6 @@ export const fourfiveseconds: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 16,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -286,7 +280,6 @@ export const fourfiveseconds: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 10,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -327,7 +320,6 @@ export const fourfiveseconds: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 12,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -370,7 +362,6 @@ export const fourfiveseconds: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 12,
       bars: [
         {
           chords: [
@@ -409,7 +400,6 @@ export const fourfiveseconds: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 16,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },

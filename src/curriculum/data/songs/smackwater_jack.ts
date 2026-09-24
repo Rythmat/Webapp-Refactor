@@ -21,7 +21,7 @@ export const smackwater_jack: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 6,
+      instrumental: true,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -42,10 +42,25 @@ export const smackwater_jack: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 6,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 maj/1', chordName: 'G/D', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'D', beat: 3, duration: 2 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 maj/1', chordName: 'G/D', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'D', beat: 3, duration: 2 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -65,32 +80,8 @@ export const smackwater_jack: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
-      measuresPerRow: 6,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '4 maj/1', chordName: 'G/D', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '4 maj/1', chordName: 'G/D', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 6,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -98,13 +89,6 @@ export const smackwater_jack: Song = {
         { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 6,
-      bars: [
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
@@ -116,13 +100,6 @@ export const smackwater_jack: Song = {
             { degree: '1 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 6,
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -133,36 +110,28 @@ export const smackwater_jack: Song = {
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 6,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 7,
       bars: [
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'D', beat: 3, duration: 2 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'D', beat: 3, duration: 2 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -183,9 +152,8 @@ export const smackwater_jack: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
-      measuresPerRow: 6,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -203,13 +171,6 @@ export const smackwater_jack: Song = {
             { degree: '1 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_e_2',
-      label: 'Section E',
-      measuresPerRow: 6,
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -226,13 +187,6 @@ export const smackwater_jack: Song = {
             { degree: '1 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_k',
-      label: 'Section K',
-      measuresPerRow: 6,
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
@@ -247,9 +201,8 @@ export const smackwater_jack: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 6,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -257,13 +210,6 @@ export const smackwater_jack: Song = {
         { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_m',
-      label: 'Section M',
-      measuresPerRow: 6,
-      bars: [
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
@@ -275,13 +221,6 @@ export const smackwater_jack: Song = {
             { degree: '1 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_g_2',
-      label: 'Section G',
-      measuresPerRow: 6,
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -295,10 +234,8 @@ export const smackwater_jack: Song = {
       ],
     },
     {
-      id: 'section_o',
-      label: 'Section O',
-      measuresPerRow: 6,
-      repeatCount: 4,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -316,13 +253,6 @@ export const smackwater_jack: Song = {
             { degree: '1 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_p',
-      label: 'Section P',
-      measuresPerRow: 6,
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -343,7 +273,6 @@ export const smackwater_jack: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=4ttfcrg-Yow' },
   ],

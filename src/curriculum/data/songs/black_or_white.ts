@@ -7,9 +7,9 @@ export const black_or_white: Song = {
   year: 1991,
   historicalDescription:
     "Michael Jackson releases 'Black Or White' in 1991, a hard-hitting anthem for racial harmony that opens with Slash's blistering guitar riff and explodes into a global smash. Its music video premieres simultaneously across Fox, BET, and MTV to an audience of hundreds of millions — one of the most-watched video debuts in history. The song signals Jackson at the height of his cultural reach, speaking directly to a world grappling with race.",
-  key: 'E minor',
+  key: 'E major',
   keyRoot: 64,
-  mode: 'minor',
+  mode: 'major',
   tempo: 115,
   timeSignature: [4, 4],
 
@@ -230,7 +230,6 @@ export const black_or_white: Song = {
     {
       id: 'section_r',
       label: 'Section R',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },

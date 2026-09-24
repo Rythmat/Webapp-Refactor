@@ -21,7 +21,6 @@ export const say_it_aint_so: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -52,7 +51,6 @@ export const say_it_aint_so: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         {
@@ -84,7 +82,6 @@ export const say_it_aint_so: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -115,7 +112,6 @@ export const say_it_aint_so: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       repeatCount: 3,
       bars: [
         {
@@ -147,7 +143,6 @@ export const say_it_aint_so: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -178,7 +173,6 @@ export const say_it_aint_so: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -213,7 +207,6 @@ export const say_it_aint_so: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -244,7 +237,6 @@ export const say_it_aint_so: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 9,
       bars: [
         {
           chords: [

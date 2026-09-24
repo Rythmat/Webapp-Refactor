@@ -21,7 +21,6 @@ export const days_like_this: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -52,7 +51,6 @@ export const days_like_this: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -87,7 +85,6 @@ export const days_like_this: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 9,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -120,7 +117,6 @@ export const days_like_this: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 12,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -167,7 +163,6 @@ export const days_like_this: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [

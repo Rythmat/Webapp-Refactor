@@ -21,13 +21,11 @@ export const pass_the_peas: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [
@@ -49,7 +47,6 @@ export const pass_the_peas: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [

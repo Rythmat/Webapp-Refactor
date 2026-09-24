@@ -8,9 +8,9 @@ export const i_cant_go_for_that_no_can_do: Song = {
 
   historicalDescription:
     "Hall & Oates release 'I Can't Go For That (No Can Do)', a sleek fusion of blue-eyed soul, R&B, and early synthesizer-driven pop that becomes one of their signature songs. Its cool, minimal groove crosses over to top the Billboard Hot 100 and the R&B charts simultaneously — a rare feat that cements Daryl Hall and John Oates as the best-selling duo in pop history.",
-  key: 'F minor',
+  key: 'F dorian',
   keyRoot: 65,
-  mode: 'minor',
+  mode: 'dorian',
   tempo: 110,
   timeSignature: [4, 4],
 
@@ -49,7 +49,6 @@ export const i_cant_go_for_that_no_can_do: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -78,7 +77,6 @@ export const i_cant_go_for_that_no_can_do: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -107,7 +105,6 @@ export const i_cant_go_for_that_no_can_do: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -119,7 +116,6 @@ export const i_cant_go_for_that_no_can_do: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },

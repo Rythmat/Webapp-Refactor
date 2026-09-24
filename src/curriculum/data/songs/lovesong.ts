@@ -59,7 +59,6 @@ export const lovesong: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 6,
       repeatCount: 3,
       bars: [
         {
@@ -106,7 +105,6 @@ export const lovesong: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 7,
       repeatCount: 3,
       bars: [
         {

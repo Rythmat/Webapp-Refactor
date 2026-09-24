@@ -7,9 +7,9 @@ export const life_is_a_highway: Song = {
   year: 2006,
   historicalDescription:
     "Rascal Flatts releases their country-pop cover of Tom Cochrane's 1991 rock anthem 'Life Is A Highway' for the Pixar film 'Cars'. The recording introduces the song to a new generation, becoming one of the most recognizable tracks in the film's soundtrack and cementing Rascal Flatts' crossover appeal between country and mainstream pop audiences.",
-  key: 'C minor',
-  keyRoot: 60,
-  mode: 'minor',
+  key: 'F major',
+  keyRoot: 65,
+  mode: 'major',
   tempo: 104,
   timeSignature: [4, 4],
 
@@ -24,29 +24,29 @@ export const life_is_a_highway: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 2, duration: 1 },
-            { degree: '♭7 maj', chordName: 'B♭', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 1 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '1 maj', chordName: 'F', beat: 2, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '1 maj', chordName: 'F', beat: 2, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -57,29 +57,29 @@ export const life_is_a_highway: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 1 },
-            { degree: '7 maj', chordName: 'C♭', beat: 2, duration: 1 },
-            { degree: '♭7 maj', chordName: 'B♭', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 1 },
+            { degree: '♭5 maj', chordName: 'C♭', beat: 2, duration: 1 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '1 maj', chordName: 'F', beat: 2, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '1 maj', chordName: 'F', beat: 2, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -89,11 +89,11 @@ export const life_is_a_highway: Song = {
       label: 'Chorus',
       bars: [
         {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -101,11 +101,11 @@ export const life_is_a_highway: Song = {
       label: 'Verse',
       bars: [
         {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -114,14 +114,14 @@ export const life_is_a_highway: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -130,29 +130,29 @@ export const life_is_a_highway: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 2, duration: 1 },
-            { degree: '♭7 maj', chordName: 'B♭', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 1 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '1 maj', chordName: 'F', beat: 2, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '1 maj', chordName: 'F', beat: 2, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -163,27 +163,27 @@ export const life_is_a_highway: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '1 maj', chordName: 'F', beat: 2, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '1 maj', chordName: 'F', beat: 2, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -194,40 +194,39 @@ export const life_is_a_highway: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_9',
       label: 'Section I',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -236,29 +235,29 @@ export const life_is_a_highway: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 2, duration: 1 },
-            { degree: '♭7 maj', chordName: 'B♭', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 1 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '1 maj', chordName: 'F', beat: 2, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '1 maj', chordName: 'F', beat: 2, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -269,29 +268,29 @@ export const life_is_a_highway: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 1 },
-            { degree: '7 maj', chordName: 'C♭', beat: 2, duration: 1 },
-            { degree: '♭7 maj', chordName: 'B♭', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 1 },
+            { degree: '♭5 maj', chordName: 'C♭', beat: 2, duration: 1 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '1 maj', chordName: 'F', beat: 2, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '1 maj', chordName: 'F', beat: 2, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -299,19 +298,18 @@ export const life_is_a_highway: Song = {
     {
       id: 'section_12',
       label: 'Section L',
-      measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -320,29 +318,29 @@ export const life_is_a_highway: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 2, duration: 1 },
-            { degree: '♭7 maj', chordName: 'B♭', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 2, duration: 1 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '1 maj', chordName: 'F', beat: 2, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '1 maj', chordName: 'F', beat: 2, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -353,27 +351,27 @@ export const life_is_a_highway: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '1 maj', chordName: 'F', beat: 2, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'F', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 1 },
+            { degree: '1 maj', chordName: 'F', beat: 2, duration: 1 },
+            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
       ],

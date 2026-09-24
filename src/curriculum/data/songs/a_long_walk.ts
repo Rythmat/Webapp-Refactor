@@ -21,6 +21,7 @@ export const a_long_walk: Song = {
     {
       id: 'intro',
       label: 'Intro',
+      instrumental: true,
       bars: [
         {
           chords: [{ degree: '1 7', chordName: 'B7sus', beat: 1, duration: 4 }],
@@ -41,12 +42,6 @@ export const a_long_walk: Song = {
             { degree: '5 7', chordName: 'F♯7sus', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
         {
           chords: [{ degree: '1 7', chordName: 'B7sus', beat: 1, duration: 4 }],
         },
@@ -91,12 +86,6 @@ export const a_long_walk: Song = {
             { degree: '5 7', chordName: 'F♯7sus', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
         {
           chords: [{ degree: '1 7', chordName: 'B7sus', beat: 1, duration: 4 }],
         },
@@ -119,8 +108,8 @@ export const a_long_walk: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '1 7', chordName: 'B7sus', beat: 1, duration: 4 }],
@@ -143,12 +132,6 @@ export const a_long_walk: Song = {
             { degree: '5 7', chordName: 'F♯7sus', beat: 4, duration: 1 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [{ degree: '1 7', chordName: 'B7sus', beat: 1, duration: 4 }],
         },
@@ -191,12 +174,6 @@ export const a_long_walk: Song = {
         {
           chords: [{ degree: '♭2 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
         {
           chords: [{ degree: '1 7', chordName: 'B7sus', beat: 1, duration: 4 }],
         },
@@ -218,9 +195,30 @@ export const a_long_walk: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
+        {
+          chords: [{ degree: '1 7', chordName: 'B7sus', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 7', chordName: 'B7sus', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 7', chordName: 'E7sus', beat: 1, duration: 1 },
+            { degree: '♭7 7', chordName: 'A7sus', beat: 2, duration: 1 },
+            { degree: '5 7', chordName: 'F♯7sus', beat: 3, duration: 1 },
+            { degree: '1 7', chordName: 'B7sus', beat: 4, duration: 1 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 7', chordName: 'E7sus', beat: 1, duration: 2 },
+            { degree: '♭7 7', chordName: 'A7sus', beat: 3, duration: 1 },
+            { degree: '5 7', chordName: 'F♯7sus', beat: 4, duration: 1 },
+          ],
+        },
         {
           chords: [{ degree: '1 7', chordName: 'B7sus', beat: 1, duration: 4 }],
         },
@@ -245,35 +243,8 @@ export const a_long_walk: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
-      bars: [
-        {
-          chords: [{ degree: '1 7', chordName: 'B7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 7', chordName: 'B7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '4 7', chordName: 'E7sus', beat: 1, duration: 1 },
-            { degree: '♭7 7', chordName: 'A7sus', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'F♯7sus', beat: 3, duration: 1 },
-            { degree: '1 7', chordName: 'B7sus', beat: 4, duration: 1 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 7', chordName: 'E7sus', beat: 1, duration: 2 },
-            { degree: '♭7 7', chordName: 'A7sus', beat: 3, duration: 1 },
-            { degree: '5 7', chordName: 'F♯7sus', beat: 4, duration: 1 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '1 7', chordName: 'B7sus', beat: 1, duration: 4 }],
@@ -297,7 +268,6 @@ export const a_long_walk: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=5SK48Bk_RnI' },
   ],

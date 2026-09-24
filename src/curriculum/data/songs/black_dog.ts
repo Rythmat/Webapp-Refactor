@@ -21,7 +21,6 @@ export const black_dog: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
@@ -91,7 +90,6 @@ export const black_dog: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
@@ -271,7 +269,6 @@ export const black_dog: Song = {
     {
       id: 'section_r',
       label: 'Section R',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],

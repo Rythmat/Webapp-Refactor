@@ -21,7 +21,6 @@ export const shut_up_and_dance: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 3,
       bars: [
         { chords: [], restBars: 2 },
         {
@@ -124,7 +123,6 @@ export const shut_up_and_dance: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -234,7 +232,6 @@ export const shut_up_and_dance: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -405,7 +402,6 @@ export const shut_up_and_dance: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 6,
       bars: [
         { chords: [], restBars: 4 },
         {

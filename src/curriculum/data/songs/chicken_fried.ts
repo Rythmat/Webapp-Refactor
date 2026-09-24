@@ -21,19 +21,16 @@ export const chicken_fried: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 5 }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         { chords: [] },
         {
@@ -60,7 +57,6 @@ export const chicken_fried: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -83,7 +79,6 @@ export const chicken_fried: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 10,
       bars: [
         { chords: [] },
         {
@@ -112,7 +107,6 @@ export const chicken_fried: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         { chords: [] },
@@ -140,7 +134,6 @@ export const chicken_fried: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -167,13 +160,11 @@ export const chicken_fried: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         { chords: [] },
@@ -201,13 +192,11 @@ export const chicken_fried: Song = {
     {
       id: 'section_h_2',
       label: 'Section H',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 16 }],
     },
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         { chords: [] },
@@ -235,7 +224,6 @@ export const chicken_fried: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 13,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],

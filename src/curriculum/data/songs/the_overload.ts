@@ -21,7 +21,6 @@ export const the_overload: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [
         {
           chords: [

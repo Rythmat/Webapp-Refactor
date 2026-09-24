@@ -18,6 +18,8 @@ import type { PracticeSession } from '@/daw/store/uiSlice';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
 import { useChordNotation } from '@/lib/chordNotation';
+import { getScaleLesson, spellScaleLesson } from '@/lib/learn/scaleLessons';
+import { practiceMelodyTonic } from '@/features/practiceTracks/generatePracticeTrack';
 
 /**
  * The screen a Practice Track opens on: one job — play over this — with the
@@ -74,32 +76,41 @@ export function PracticeTrackView({
   );
 
   const tonic = displayAccidentals(noteNameInKey(rootNote, rootNote, mode));
+  // A pentatonic or blues track keeps its parent mode in the store (for
+  // chord colours and spelling); the notes to play are the scale's own.
+  const scaleLesson = getScaleLesson(session.mode);
+  const scaleSteps = useMemo(
+    () => scaleLesson?.steps ?? ALL_MODES[mode] ?? ALL_MODES.ionian,
+    [scaleLesson, mode],
+  );
   const scalePcs = useMemo(
-    () => (ALL_MODES[mode] ?? ALL_MODES.ionian).map((i) => (rootNote + i) % 12),
-    [mode, rootNote],
+    () => scaleSteps.map((i) => (rootNote + i) % 12),
+    [scaleSteps, rootNote],
   );
   const scaleNames = useMemo(
     () =>
-      scalePcs.map((pc) =>
-        displayAccidentals(noteNameInKey(pc, rootNote, mode)),
-      ),
-    [mode, rootNote, scalePcs],
+      scaleLesson
+        ? spellScaleLesson(scaleLesson, tonic)
+        : scalePcs.map((pc) =>
+            displayAccidentals(noteNameInKey(pc, rootNote, mode)),
+          ),
+    [scaleLesson, tonic, mode, rootNote, scalePcs],
   );
 
   const task =
     session.openTrack === 'melody'
-      ? `Improvise melodies using the ${keyName(tonic, mode)} scale`
+      ? `Improvise melodies using the ${scaleLesson ? `${tonic} ${scaleLesson.title}` : keyName(tonic, mode)} scale`
       : 'Play these chords over the track';
 
   // The scale is labelled once, on the octave nearest the middle of the
   // keyboard, each name sitting over its own key.
   const scaleLabels = useMemo(() => {
-    const tonicMidi = middleTonic(rootNote);
-    return (ALL_MODES[mode] ?? ALL_MODES.ionian).map((step, i) => ({
+    const tonicMidi = practiceMelodyTonic(rootNote);
+    return scaleSteps.map((step, i) => ({
       midi: tonicMidi + step,
       name: scaleNames[i],
     }));
-  }, [mode, rootNote, scaleNames]);
+  }, [scaleSteps, rootNote, scaleNames]);
   const keyboardRef = useRef<HTMLDivElement>(null);
   const octaveCs = useMemo(
     () =>
@@ -406,11 +417,6 @@ export function PracticeTrackView({
  * The tonic whose scale sits most central on the keyboard: its octave is
  * centred on middle C's, so E minor runs E4–D5 and G major G3–F♯4.
  */
-function middleTonic(rootPc: number): number {
-  const lowest = 54; // F♯3: tonics from here to F4 keep the scale mid-keyboard
-  return lowest + ((((rootPc - 6) % 12) + 12) % 12);
-}
-
 // PianoKeyboard draws each octave as 12 children in pitch order; a black key
 // sits inside a zero-width container, so its own element is the child's child.
 const BLACK_KEYS = new Set([1, 3, 6, 8, 10]);

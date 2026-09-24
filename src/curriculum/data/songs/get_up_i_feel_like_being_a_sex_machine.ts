@@ -19,88 +19,55 @@ export const get_up_i_feel_like_being_a_sex_machine: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 2,
+      id: 'intro',
+      label: 'Intro',
       bars: [
         { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 3,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      measuresPerRow: 3,
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 3,
-      bars: [
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 3,
-      bars: [
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 3,
-      bars: [
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 3,
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 3,
       bars: [
+        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
-      measuresPerRow: 3,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
@@ -108,7 +75,6 @@ export const get_up_i_feel_like_being_a_sex_machine: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ZNaXb3uuekk' },
   ],

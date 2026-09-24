@@ -21,7 +21,6 @@ export const pleasant_valley_sunday: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 5,
       bars: [
         { chords: [], restBars: 2 },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },

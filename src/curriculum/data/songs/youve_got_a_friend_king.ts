@@ -21,7 +21,6 @@ export const youve_got_a_friend_king: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -62,7 +61,6 @@ export const youve_got_a_friend_king: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 10,
       bars: [
         {
           chords: [
@@ -108,7 +106,6 @@ export const youve_got_a_friend_king: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 10,
       bars: [
         {
           chords: [
@@ -156,7 +153,6 @@ export const youve_got_a_friend_king: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 14,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -195,7 +191,6 @@ export const youve_got_a_friend_king: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 9,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -240,7 +235,6 @@ export const youve_got_a_friend_king: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 12,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -285,7 +279,6 @@ export const youve_got_a_friend_king: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 14,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -324,7 +317,6 @@ export const youve_got_a_friend_king: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -360,7 +352,6 @@ export const youve_got_a_friend_king: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 8,
       repeatCount: 3,
       bars: [
         {

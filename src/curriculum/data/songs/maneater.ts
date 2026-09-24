@@ -122,7 +122,6 @@ export const maneater: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

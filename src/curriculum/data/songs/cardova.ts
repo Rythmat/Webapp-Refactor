@@ -101,7 +101,6 @@ export const cardova: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 14 }],
     },
     {

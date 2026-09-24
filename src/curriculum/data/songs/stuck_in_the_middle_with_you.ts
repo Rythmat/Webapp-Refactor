@@ -21,7 +21,6 @@ export const stuck_in_the_middle_with_you: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 2,
       bars: [
         { chords: [], restBars: 3 },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -120,7 +119,6 @@ export const stuck_in_the_middle_with_you: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -188,7 +186,6 @@ export const stuck_in_the_middle_with_you: Song = {
     {
       id: 'section_p',
       label: 'Section P',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },

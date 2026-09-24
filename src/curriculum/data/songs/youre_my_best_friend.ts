@@ -21,7 +21,6 @@ export const youre_my_best_friend: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
@@ -45,7 +44,6 @@ export const youre_my_best_friend: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -74,7 +72,6 @@ export const youre_my_best_friend: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -102,7 +99,6 @@ export const youre_my_best_friend: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -126,7 +122,6 @@ export const youre_my_best_friend: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -155,7 +150,6 @@ export const youre_my_best_friend: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -187,7 +181,6 @@ export const youre_my_best_friend: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -221,7 +214,6 @@ export const youre_my_best_friend: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -242,7 +234,6 @@ export const youre_my_best_friend: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -252,7 +243,6 @@ export const youre_my_best_friend: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [
@@ -270,7 +260,6 @@ export const youre_my_best_friend: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [
@@ -287,7 +276,6 @@ export const youre_my_best_friend: Song = {
     {
       id: 'section_m',
       label: 'Section M',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -307,7 +295,6 @@ export const youre_my_best_friend: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -335,7 +322,6 @@ export const youre_my_best_friend: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -359,7 +345,6 @@ export const youre_my_best_friend: Song = {
     {
       id: 'section_p',
       label: 'Section P',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -433,7 +418,6 @@ export const youre_my_best_friend: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -467,7 +451,6 @@ export const youre_my_best_friend: Song = {
     {
       id: 'section_t',
       label: 'Section T',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -516,7 +499,6 @@ export const youre_my_best_friend: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [

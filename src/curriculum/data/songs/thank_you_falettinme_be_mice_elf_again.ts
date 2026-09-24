@@ -20,40 +20,22 @@ export const thank_you_falettinme_be_mice_elf_again: Song = {
 
   sections: [
     {
-      id: 'verse',
+      id: 'verse_1',
       label: 'Verse',
       bars: [
+        {
+          chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [], restBars: 4, repeatEnd: true },
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
-      measuresPerRow: 1,
-      bars: [{ chords: [], restBars: 4 }],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      measuresPerRow: 1,
-      bars: [{ chords: [], restBars: 4 }],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -62,7 +44,6 @@ export const thank_you_falettinme_be_mice_elf_again: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=wj5VODa-eTY' },
   ],

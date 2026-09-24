@@ -21,7 +21,6 @@ export const rock_steady: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
@@ -158,7 +157,6 @@ export const rock_steady: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 2,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
@@ -203,7 +201,6 @@ export const rock_steady: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [

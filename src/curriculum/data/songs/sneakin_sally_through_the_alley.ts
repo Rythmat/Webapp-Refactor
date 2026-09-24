@@ -19,18 +19,11 @@ export const sneakin_sally_through_the_alley: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 2,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
         { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '♭3 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -38,9 +31,8 @@ export const sneakin_sally_through_the_alley: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 6,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '♭7 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -48,31 +40,23 @@ export const sneakin_sally_through_the_alley: Song = {
         { chords: [{ degree: '♭3 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '♭7 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 2,
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
+      bars: [
+        { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭3 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '♭7 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -83,18 +67,11 @@ export const sneakin_sally_through_the_alley: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
-      measuresPerRow: 2,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
         { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '♭3 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -102,7 +79,6 @@ export const sneakin_sally_through_the_alley: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=W4q9_XlsU3Y' },
   ],

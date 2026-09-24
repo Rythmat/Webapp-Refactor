@@ -21,7 +21,6 @@ export const these_arms_of_mine: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -41,7 +40,6 @@ export const these_arms_of_mine: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -61,7 +59,6 @@ export const these_arms_of_mine: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -85,7 +82,6 @@ export const these_arms_of_mine: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],

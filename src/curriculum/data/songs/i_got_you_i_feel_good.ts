@@ -181,7 +181,6 @@ export const i_got_you_i_feel_good: Song = {
     {
       id: 'section_q',
       label: 'Section Q',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },

@@ -21,7 +21,6 @@ export const raise_your_glass: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
@@ -38,7 +37,6 @@ export const raise_your_glass: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -69,7 +67,6 @@ export const raise_your_glass: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -89,13 +86,11 @@ export const raise_your_glass: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 13 }],
     },
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 9,
       repeatCount: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },

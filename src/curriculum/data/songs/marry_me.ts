@@ -21,7 +21,6 @@ export const marry_me: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -52,7 +51,6 @@ export const marry_me: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -79,7 +77,6 @@ export const marry_me: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -106,7 +103,6 @@ export const marry_me: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         {
@@ -138,7 +134,6 @@ export const marry_me: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -195,7 +190,6 @@ export const marry_me: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },

@@ -21,7 +21,6 @@ export const hit_me_with_your_best_shot: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -49,7 +48,6 @@ export const hit_me_with_your_best_shot: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -72,7 +70,6 @@ export const hit_me_with_your_best_shot: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -95,7 +92,6 @@ export const hit_me_with_your_best_shot: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -123,7 +119,6 @@ export const hit_me_with_your_best_shot: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       repeatCount: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -152,7 +147,6 @@ export const hit_me_with_your_best_shot: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -175,7 +169,6 @@ export const hit_me_with_your_best_shot: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -218,7 +211,6 @@ export const hit_me_with_your_best_shot: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -246,7 +238,6 @@ export const hit_me_with_your_best_shot: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -275,7 +266,6 @@ export const hit_me_with_your_best_shot: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 9,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -319,7 +309,6 @@ export const hit_me_with_your_best_shot: Song = {
     {
       id: 'section_m',
       label: 'Section M',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },

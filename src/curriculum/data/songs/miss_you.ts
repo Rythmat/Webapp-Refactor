@@ -7,8 +7,8 @@ export const miss_you: Song = {
   year: 1978,
   historicalDescription:
     "The Rolling Stones release 'Miss You', their unlikely plunge into disco-inflected funk that becomes a massive hit in 1978. Mick Jagger, a regular at Studio 54, channels the energy of New York's nightclub scene into a Rolling Stones record — and it works. The track proves the world's greatest rock and roll band can own a dance floor without abandoning their swagger.",
-  key: 'D minor',
-  keyRoot: 62,
+  key: 'A minor',
+  keyRoot: 69,
   mode: 'minor',
   tempo: 110,
   timeSignature: [4, 4],
@@ -24,22 +24,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -50,22 +50,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -76,22 +76,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -102,22 +102,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -128,22 +128,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -154,22 +154,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -180,22 +180,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -206,22 +206,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -232,22 +232,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -258,22 +258,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -284,22 +284,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -310,22 +310,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -335,21 +335,21 @@ export const miss_you: Song = {
       label: 'Section F',
       bars: [
         {
-          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '5 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -359,19 +359,19 @@ export const miss_you: Song = {
       label: 'Section N',
       bars: [
         {
-          chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '5 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -380,22 +380,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -406,22 +406,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -432,22 +432,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -458,22 +458,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -484,22 +484,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -510,22 +510,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -536,22 +536,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -562,22 +562,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -588,22 +588,22 @@ export const miss_you: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],

@@ -21,7 +21,6 @@ export const kiss_me: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
@@ -59,7 +58,6 @@ export const kiss_me: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -90,7 +88,6 @@ export const kiss_me: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 10,
       bars: [
         {
           chords: [
@@ -149,7 +146,6 @@ export const kiss_me: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -180,7 +176,6 @@ export const kiss_me: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -211,7 +206,6 @@ export const kiss_me: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 10,
       bars: [
         {
           chords: [
@@ -254,7 +248,6 @@ export const kiss_me: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 5,
       repeatCount: 4,
       bars: [
         {

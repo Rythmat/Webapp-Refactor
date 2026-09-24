@@ -21,7 +21,6 @@ export const johnny_b_goode: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
@@ -33,7 +32,6 @@ export const johnny_b_goode: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
@@ -46,7 +44,6 @@ export const johnny_b_goode: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
@@ -58,7 +55,6 @@ export const johnny_b_goode: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 6,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
@@ -72,7 +68,6 @@ export const johnny_b_goode: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
@@ -86,7 +81,6 @@ export const johnny_b_goode: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
@@ -99,7 +93,6 @@ export const johnny_b_goode: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
@@ -111,7 +104,6 @@ export const johnny_b_goode: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },

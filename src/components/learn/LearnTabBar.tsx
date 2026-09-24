@@ -1,7 +1,7 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import { InstrumentSelector } from '@/components/ClassroomLayout/dashboard/InstrumentSelector';
 import { cn } from '@/components/utilities';
-import { LearnRoutes } from '@/constants/routes';
+import { LearnRoutes, SongRoutes } from '@/constants/routes';
 
 interface Tab {
   slug: string; // ?tab= value this tab activates
@@ -46,6 +46,13 @@ export const LearnTabBar = () => {
       </Link>
 
       {/* Sub-tabs — plain text links at the same size as the "Learn" heading. */}
+      <Link
+        to={SongRoutes.setLists()}
+        className="text-white/55 transition-colors hover:text-white/85"
+        style={{ fontSize: 'inherit' }}
+      >
+        Set Lists
+      </Link>
       {TABS.map(({ slug, label }) => (
         <Link
           key={slug}

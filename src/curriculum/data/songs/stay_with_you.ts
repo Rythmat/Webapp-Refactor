@@ -21,7 +21,6 @@ export const stay_with_you: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 2,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -100,7 +99,6 @@ export const stay_with_you: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -173,7 +171,6 @@ export const stay_with_you: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -196,7 +193,6 @@ export const stay_with_you: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -291,7 +287,6 @@ export const stay_with_you: Song = {
     {
       id: 'section_m',
       label: 'Section M',
-      measuresPerRow: 2,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {

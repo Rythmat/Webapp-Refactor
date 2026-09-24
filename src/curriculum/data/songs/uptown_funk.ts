@@ -39,7 +39,6 @@ export const uptown_funk: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
@@ -81,7 +80,6 @@ export const uptown_funk: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [
@@ -137,7 +135,6 @@ export const uptown_funk: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -186,7 +183,6 @@ export const uptown_funk: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

@@ -21,7 +21,6 @@ export const take_me_home_country_roads: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 2,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -30,7 +29,6 @@ export const take_me_home_country_roads: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -46,7 +44,6 @@ export const take_me_home_country_roads: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {

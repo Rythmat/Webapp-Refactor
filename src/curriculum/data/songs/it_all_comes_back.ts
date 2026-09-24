@@ -70,7 +70,6 @@ export const it_all_comes_back: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '♭6 7', chordName: 'B♭7', beat: 1, duration: 4 }],

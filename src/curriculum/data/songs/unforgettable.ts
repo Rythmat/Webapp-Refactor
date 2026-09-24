@@ -302,7 +302,6 @@ export const unforgettable: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],

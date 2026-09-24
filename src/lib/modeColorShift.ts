@@ -27,6 +27,13 @@ const MODE_COLOR_SHIFT: ModeColorShiftMap = {
   phrygian: 8,
   locrian: 7,
   lorcian: 7,
+  // Pentatonic/Blues: each scale takes its parent mode's colour for the key
+  // (minor pentatonic is Aeolian with two notes out; the minor blues reads
+  // as minor, the major blues as Mixolydian).
+  majorpentatonic: 0,
+  minorpentatonic: 9,
+  majorblues: 11,
+  minorblues: 9,
 };
 
 /**

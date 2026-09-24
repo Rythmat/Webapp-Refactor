@@ -19,9 +19,8 @@ export const this_is_how_we_do_it: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 6,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -52,15 +51,13 @@ export const this_is_how_we_do_it: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 1,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [{ chords: [], restBars: 4 }],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 6,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -93,13 +90,11 @@ export const this_is_how_we_do_it: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 6,
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         {
           chords: [
@@ -130,7 +125,6 @@ export const this_is_how_we_do_it: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=0hiUuL5uTKc' },
   ],

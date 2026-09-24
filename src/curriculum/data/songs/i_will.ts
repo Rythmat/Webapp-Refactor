@@ -21,7 +21,6 @@ export const i_will: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -52,7 +51,6 @@ export const i_will: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 10,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -97,7 +95,6 @@ export const i_will: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -128,7 +125,6 @@ export const i_will: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -163,7 +159,6 @@ export const i_will: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -196,7 +191,6 @@ export const i_will: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -225,7 +219,6 @@ export const i_will: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -256,7 +249,6 @@ export const i_will: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -293,7 +285,6 @@ export const i_will: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -319,7 +310,6 @@ export const i_will: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -338,7 +328,6 @@ export const i_will: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],

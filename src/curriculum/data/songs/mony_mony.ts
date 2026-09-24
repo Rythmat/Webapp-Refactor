@@ -102,7 +102,6 @@ export const mony_mony: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -116,7 +115,6 @@ export const mony_mony: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
@@ -195,7 +193,6 @@ export const mony_mony: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
@@ -278,7 +275,6 @@ export const mony_mony: Song = {
     {
       id: 'section_p',
       label: 'Section P',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],

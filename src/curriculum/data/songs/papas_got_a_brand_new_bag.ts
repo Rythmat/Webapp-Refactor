@@ -21,7 +21,6 @@ export const papas_got_a_brand_new_bag: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [
         {
           chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }],

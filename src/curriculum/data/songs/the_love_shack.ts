@@ -22,7 +22,6 @@ export const the_love_shack: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 6 }],
     },
     {
@@ -145,7 +144,6 @@ export const the_love_shack: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 5,
       repeatCount: 7,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
@@ -166,7 +164,6 @@ export const the_love_shack: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {

@@ -21,7 +21,6 @@ export const twisted: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 2,
       bars: [
         { chords: [{ degree: '2 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -30,7 +29,6 @@ export const twisted: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 6,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '2 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -44,7 +42,6 @@ export const twisted: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -75,7 +72,6 @@ export const twisted: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '2 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -89,7 +85,6 @@ export const twisted: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -120,7 +115,6 @@ export const twisted: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 6,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '2 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -134,7 +128,6 @@ export const twisted: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 9,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -166,7 +159,6 @@ export const twisted: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '2 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -179,7 +171,6 @@ export const twisted: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -210,7 +201,6 @@ export const twisted: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 6,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '2 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -224,7 +214,6 @@ export const twisted: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {

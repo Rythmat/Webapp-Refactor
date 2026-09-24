@@ -20,7 +20,7 @@ export const _24k_magic: Song = {
 
   sections: [
     {
-      id: 'intro_1',
+      id: 'intro',
       label: 'Intro',
       bars: [
         {
@@ -42,13 +42,6 @@ export const _24k_magic: Song = {
             { degree: '5 alt7', chordName: 'C alt7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'intro_2',
-      label: '',
-      measuresPerRow: 5,
-      bars: [
         {
           chords: [
             { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
@@ -77,8 +70,8 @@ export const _24k_magic: Song = {
       ],
     },
     {
-      id: 'A',
-      label: 'A',
+      id: 'verse',
+      label: 'Verse',
       bars: [
         {
           chords: [
@@ -122,12 +115,6 @@ export const _24k_magic: Song = {
             { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'B',
-      label: 'B',
-      bars: [
         {
           chords: [
             { degree: '1 sus7', chordName: 'F7sus', beat: 1, duration: 4 },
@@ -173,8 +160,8 @@ export const _24k_magic: Song = {
       ],
     },
     {
-      id: 'C',
-      label: 'C',
+      id: 'pre_chorus_1',
+      label: 'Pre-Chorus 1',
       bars: [
         {
           chords: [
@@ -226,8 +213,8 @@ export const _24k_magic: Song = {
       ],
     },
     {
-      id: 'D',
-      label: 'D',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -274,8 +261,8 @@ export const _24k_magic: Song = {
       ],
     },
     {
-      id: 'E',
-      label: 'E',
+      id: 'pre_chorus_2',
+      label: 'Pre-Chorus 2',
       bars: [
         {
           chords: [
@@ -324,8 +311,8 @@ export const _24k_magic: Song = {
       ],
     },
     {
-      id: 'F',
-      label: 'F',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -370,8 +357,8 @@ export const _24k_magic: Song = {
       ],
     },
     {
-      id: 'G',
-      label: 'G',
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         {
           chords: [
@@ -418,7 +405,6 @@ export const _24k_magic: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=UqyT8IEBkvY' },
   ],

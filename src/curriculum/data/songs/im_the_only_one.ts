@@ -31,7 +31,6 @@ export const im_the_only_one: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -46,7 +45,6 @@ export const im_the_only_one: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -74,7 +72,6 @@ export const im_the_only_one: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -101,7 +98,6 @@ export const im_the_only_one: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
@@ -124,7 +120,6 @@ export const im_the_only_one: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -152,7 +147,6 @@ export const im_the_only_one: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -178,7 +172,6 @@ export const im_the_only_one: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },

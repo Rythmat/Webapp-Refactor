@@ -7,9 +7,9 @@ export const dancing_in_the_street: Song = {
   year: 1964,
   historicalDescription:
     "Martha and the Vandellas release 'Dancing In The Street', a euphoric call to celebration that transcends its Motown origins to become an anthem of collective joy. Recorded during the height of the Civil Rights Movement, the song's open invitation to the streets carries an undercurrent of social urgency that radio programmers and listeners alike feel immediately. It becomes one of the defining records of 1964, cementing Martha Reeves as one of Motown's most electrifying voices.",
-  key: 'D major',
-  keyRoot: 62,
-  mode: 'major',
+  key: 'E mixolydian',
+  keyRoot: 64,
+  mode: 'mixolydian',
   tempo: 126,
   timeSignature: [4, 4],
 
@@ -24,26 +24,26 @@ export const dancing_in_the_street: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -54,26 +54,26 @@ export const dancing_in_the_street: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -84,26 +84,26 @@ export const dancing_in_the_street: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -111,42 +111,41 @@ export const dancing_in_the_street: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -155,10 +154,10 @@ export const dancing_in_the_street: Song = {
       id: 'chorus',
       label: 'Chorus',
       bars: [
-        { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -167,26 +166,26 @@ export const dancing_in_the_street: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -196,19 +195,19 @@ export const dancing_in_the_street: Song = {
       label: 'Bridge',
       bars: [
         {
-          chords: [{ degree: '♯4 7', chordName: 'G♯7', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 7', chordName: 'G♯7', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♯4 7', chordName: 'G♯7', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 7', chordName: 'G♯7', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -219,18 +218,18 @@ export const dancing_in_the_street: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'F♯7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'F♯7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '6 7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 7', chordName: 'B7sus', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '6 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -239,26 +238,26 @@ export const dancing_in_the_street: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -269,26 +268,26 @@ export const dancing_in_the_street: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'D/E', beat: 1, duration: 2 },
-            { degree: '2 maj', chordName: 'E', beat: 3, duration: 2 },
+            { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
       ],

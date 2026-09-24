@@ -8,8 +8,8 @@ export const wagon_wheel: Song = {
 
   historicalDescription:
     "Old Crow Medicine Show builds a full song around an unfinished Bob Dylan sketch, turning a fragment from the 'Knockin' on Heaven's Door' sessions into a rousing bluegrass anthem about drifting south. Darius Rucker's 2013 country cover brings the song to massive mainstream audiences, making it one of the rare tracks to top both the country and bluegrass charts — a testament to its timeless, rambling spirit.",
-  key: 'D major',
-  keyRoot: 62,
+  key: 'A major',
+  keyRoot: 69,
   mode: 'major',
   tempo: 148,
   timeSignature: [4, 4],
@@ -23,24 +23,24 @@ export const wagon_wheel: Song = {
       id: 'verse',
       label: 'Verse',
       bars: [
-        { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_b',
       label: 'Section B',
       bars: [
-        { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],
     },
   ],

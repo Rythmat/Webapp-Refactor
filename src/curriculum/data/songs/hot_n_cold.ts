@@ -21,7 +21,6 @@ export const hot_n_cold: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 2 }],
     },
     {
@@ -155,7 +154,6 @@ export const hot_n_cold: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 5,
       repeatCount: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },

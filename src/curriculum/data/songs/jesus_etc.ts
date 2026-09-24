@@ -47,7 +47,6 @@ export const jesus_etc: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -79,7 +78,6 @@ export const jesus_etc: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -114,7 +112,6 @@ export const jesus_etc: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -155,7 +152,6 @@ export const jesus_etc: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -193,7 +189,6 @@ export const jesus_etc: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -225,7 +220,6 @@ export const jesus_etc: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -260,7 +254,6 @@ export const jesus_etc: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -301,7 +294,6 @@ export const jesus_etc: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -339,7 +331,6 @@ export const jesus_etc: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],

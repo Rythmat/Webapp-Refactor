@@ -21,13 +21,11 @@ export const virtual_insanity: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 2,
       bars: [{ chords: [], restBars: 3 }, { chords: [] }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -64,7 +62,6 @@ export const virtual_insanity: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -101,7 +98,6 @@ export const virtual_insanity: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
@@ -138,7 +134,6 @@ export const virtual_insanity: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -317,7 +312,6 @@ export const virtual_insanity: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 35 }],
     },
     {
@@ -374,7 +368,6 @@ export const virtual_insanity: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],

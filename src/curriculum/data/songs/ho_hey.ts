@@ -46,7 +46,6 @@ export const ho_hey: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -67,7 +66,6 @@ export const ho_hey: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -94,7 +92,6 @@ export const ho_hey: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -121,7 +118,6 @@ export const ho_hey: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -148,7 +144,6 @@ export const ho_hey: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -169,7 +164,6 @@ export const ho_hey: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -190,7 +184,6 @@ export const ho_hey: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -202,7 +195,6 @@ export const ho_hey: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },

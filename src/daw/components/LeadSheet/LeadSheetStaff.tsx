@@ -93,8 +93,10 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
   measureCount,
 }: LeadSheetStaffProps) {
   const defaultWidth = measures.length * MEASURE_WIDTH;
+  // A five- or six-bar system (a second ending folded in) is full too, and
+  // narrows its bars to the same page width; the staff height never changes.
   const isFull =
-    measures.length === (fullSystemCount ?? DEFAULT_FULL_SYSTEM_COUNT);
+    measures.length >= (fullSystemCount ?? DEFAULT_FULL_SYSTEM_COUNT);
 
   // A full system fills the container — stretching when there is room, and
   // squeezing when there is not. It used to hold its natural width and let the

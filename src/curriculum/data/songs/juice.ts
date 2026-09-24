@@ -21,19 +21,16 @@ export const juice: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -60,7 +57,6 @@ export const juice: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -91,7 +87,6 @@ export const juice: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -118,7 +113,6 @@ export const juice: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -145,7 +139,6 @@ export const juice: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -172,7 +165,6 @@ export const juice: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -199,13 +191,11 @@ export const juice: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -232,7 +222,6 @@ export const juice: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -259,7 +248,6 @@ export const juice: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [

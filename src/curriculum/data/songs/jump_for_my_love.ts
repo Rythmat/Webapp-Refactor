@@ -21,7 +21,6 @@ export const jump_for_my_love: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 2,
       bars: [
         { chords: [], restBars: 3 },
         {
@@ -32,7 +31,6 @@ export const jump_for_my_love: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 5,
       bars: [
         { chords: [] },
         { chords: [] },

@@ -8,9 +8,9 @@ export const cashs_dreams: Song = {
 
   historicalDescription:
     "Soulive, the Hammond-organ-driven trio from New York, blend jazz improvisation and deep funk into an instrumental groove that carries the spirit of the organ combos of the 1960s into the jam band era. 'Cash's Dreams' captures their signature approach — tight rhythmic interplay anchored by the Hammond, with space left open for improvisation and feel. Their sound helps revive and reframe funk and soul jazz for a new generation of listeners.",
-  key: 'C minor',
+  key: 'C blues & A♭ major',
   keyRoot: 60,
-  mode: 'minor',
+  mode: 'mixolydian',
   tempo: 90,
   timeSignature: [4, 4],
 
@@ -42,7 +42,6 @@ export const cashs_dreams: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -134,7 +133,6 @@ export const cashs_dreams: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -196,7 +194,6 @@ export const cashs_dreams: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },

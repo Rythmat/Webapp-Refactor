@@ -134,7 +134,6 @@ export const californication: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
@@ -260,7 +259,6 @@ export const californication: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
@@ -313,7 +311,6 @@ export const californication: Song = {
     {
       id: 'section_m',
       label: 'Section M',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '2 7', chordName: 'B7sus', beat: 1, duration: 4 }],
@@ -423,7 +420,6 @@ export const californication: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],

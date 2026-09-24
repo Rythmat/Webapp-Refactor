@@ -21,13 +21,11 @@ export const lonely_boy: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -54,7 +52,6 @@ export const lonely_boy: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 9,
       bars: [
         {
           chords: [
@@ -90,7 +87,6 @@ export const lonely_boy: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 9,
       bars: [
         {
           chords: [
@@ -126,7 +122,6 @@ export const lonely_boy: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -152,7 +147,6 @@ export const lonely_boy: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 9,
       bars: [
         {
           chords: [

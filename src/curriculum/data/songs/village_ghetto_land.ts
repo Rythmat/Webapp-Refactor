@@ -21,7 +21,6 @@ export const village_ghetto_land: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -46,7 +45,6 @@ export const village_ghetto_land: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -87,7 +85,6 @@ export const village_ghetto_land: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -128,7 +125,6 @@ export const village_ghetto_land: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [

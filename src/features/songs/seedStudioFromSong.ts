@@ -12,10 +12,8 @@ import { useStore } from '@/daw/store';
  * and the `/studio/editor?song=<id>` boot param (`DawApp`).
  */
 export const seedStudioFromSong = (song: Song): void => {
-  const { regions, restMap, fermatas, rowSizes } = exportSongToChordRegions(
-    song,
-    { voicingMode: 'auto', bassLine: false },
-  );
+  const { regions, restMap, fermatas, rowSizes, sectionMarks } =
+    exportSongToChordRegions(song, { voicingMode: 'auto', bassLine: false });
   const store = useStore.getState();
   store.setProjectName(song.title);
   store.setComposerName(song.artist);
@@ -24,6 +22,10 @@ export const seedStudioFromSong = (song: Song): void => {
   store.setBpm(song.tempo);
   store.setChordRegions(regions);
   if (rowSizes) store.setMeasureRowSizes(rowSizes);
+  // The Studio plays the roadmap out bar by bar, so it gets the performed
+  // sections and no repeats of its own.
+  store.setLeadSheetSections(sectionMarks);
+  store.setLeadSheetRepeats([]);
   if (restMap && Object.keys(restMap).length > 0)
     store.setMeasureRestMap(restMap);
   if (fermatas && fermatas.length > 0) store.setMeasureFermatas(fermatas);

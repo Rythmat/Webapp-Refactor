@@ -98,7 +98,6 @@ export const lady_marmalade_aguilera: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [
@@ -152,7 +151,6 @@ export const lady_marmalade_aguilera: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {

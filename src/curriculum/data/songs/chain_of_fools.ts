@@ -21,7 +21,6 @@ export const chain_of_fools: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [
         {
           chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }],

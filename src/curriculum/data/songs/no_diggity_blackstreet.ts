@@ -21,7 +21,6 @@ export const no_diggity_blackstreet: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 2,
       bars: [
         { chords: [], restBars: 7 },
         {

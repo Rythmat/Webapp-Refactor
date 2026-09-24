@@ -21,7 +21,6 @@ export const road_to_nowhere: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 1 }],
     },
     {
@@ -45,7 +44,6 @@ export const road_to_nowhere: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -73,7 +71,6 @@ export const road_to_nowhere: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],

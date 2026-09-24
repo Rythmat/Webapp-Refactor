@@ -22,7 +22,7 @@ export const get_down_on_it: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 5,
+      instrumental: true,
       bars: [
         { chords: [], restBars: 8 },
         {
@@ -48,10 +48,8 @@ export const get_down_on_it: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 6,
-      repeatCount: 12,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -87,8 +85,8 @@ export const get_down_on_it: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -103,45 +101,6 @@ export const get_down_on_it: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭7 7', chordName: 'D7sus', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 6,
-      repeatCount: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 min7', chordName: 'Bmin7', beat: 1, duration: 2 },
-            { degree: '1 min7', chordName: 'Emin7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -162,6 +121,43 @@ export const get_down_on_it: Song = {
         },
         {
           chords: [
+            { degree: '5 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Bmin7', beat: 1, duration: 2 },
+            { degree: '1 min7', chordName: 'Emin7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
             { degree: '♭7 7', chordName: 'D7sus', beat: 1, duration: 4 },
           ],
         },
@@ -178,9 +174,8 @@ export const get_down_on_it: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 6,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -216,7 +211,6 @@ export const get_down_on_it: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=qchPLaiKocI' },
   ],

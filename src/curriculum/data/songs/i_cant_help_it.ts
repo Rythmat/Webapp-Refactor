@@ -7,9 +7,9 @@ export const i_cant_help_it: Song = {
   year: 2018,
   historicalDescription:
     "Originally recorded for Michael Jackson's 1979 landmark album 'Off the Wall', 'I Can't Help It' is a silky, Stevie Wonder-penned ballad that showcases Jackson's extraordinary vocal tenderness. The 2018 release surfaces the track for a new generation, a reminder that beneath the spectacle of Jackson's later career lay an artist of rare emotional intimacy — one shaped as much by soul and wonder as by pop ambition.",
-  key: 'A♭ minor',
+  key: 'A♭ major',
   keyRoot: 68,
-  mode: 'minor',
+  mode: 'major',
   tempo: 100,
   timeSignature: [4, 4],
 

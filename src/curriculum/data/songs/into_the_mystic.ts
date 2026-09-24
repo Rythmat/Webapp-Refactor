@@ -21,7 +21,6 @@ export const into_the_mystic: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 5,
       bars: [
         { chords: [], restBars: 2 },
         {

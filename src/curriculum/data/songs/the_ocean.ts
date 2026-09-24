@@ -173,7 +173,6 @@ export const the_ocean: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -198,7 +197,6 @@ export const the_ocean: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 6 }],
     },
     {
@@ -282,7 +280,6 @@ export const the_ocean: Song = {
     {
       id: 'section_p',
       label: 'Section P',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -315,7 +312,6 @@ export const the_ocean: Song = {
     {
       id: 'section_s',
       label: 'Section S',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -348,7 +344,6 @@ export const the_ocean: Song = {
     {
       id: 'section_v',
       label: 'Section V',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },

@@ -101,7 +101,6 @@ export const funk_49: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         { chords: [], restBars: 19 },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },

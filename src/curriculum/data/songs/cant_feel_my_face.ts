@@ -66,7 +66,6 @@ export const cant_feel_my_face: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],

@@ -147,7 +147,6 @@ export const build_me_up_buttercup: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

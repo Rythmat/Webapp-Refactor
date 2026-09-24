@@ -21,7 +21,6 @@ export const you_dont_know_how_it_feels: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }],
@@ -52,7 +51,6 @@ export const you_dont_know_how_it_feels: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -79,7 +77,6 @@ export const you_dont_know_how_it_feels: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -106,7 +103,6 @@ export const you_dont_know_how_it_feels: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -133,7 +129,6 @@ export const you_dont_know_how_it_feels: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -174,7 +169,6 @@ export const you_dont_know_how_it_feels: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -228,7 +222,6 @@ export const you_dont_know_how_it_feels: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -255,7 +248,6 @@ export const you_dont_know_how_it_feels: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -282,7 +274,6 @@ export const you_dont_know_how_it_feels: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -342,7 +333,6 @@ export const you_dont_know_how_it_feels: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -383,7 +373,6 @@ export const you_dont_know_how_it_feels: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {

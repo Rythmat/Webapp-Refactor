@@ -21,13 +21,11 @@ export const you_gotta_be: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {

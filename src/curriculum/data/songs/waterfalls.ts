@@ -33,7 +33,6 @@ export const waterfalls: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [

@@ -22,7 +22,6 @@ export const pride_and_joy: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
@@ -48,7 +47,6 @@ export const pride_and_joy: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },

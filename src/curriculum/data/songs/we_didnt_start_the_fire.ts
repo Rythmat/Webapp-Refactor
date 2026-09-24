@@ -240,7 +240,6 @@ export const we_didnt_start_the_fire: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 2,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },

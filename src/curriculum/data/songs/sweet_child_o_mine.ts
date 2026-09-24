@@ -21,7 +21,6 @@ export const sweet_child_o_mine: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
@@ -63,7 +62,6 @@ export const sweet_child_o_mine: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       bars: [
         { chords: [] },
         {
@@ -209,7 +207,6 @@ export const sweet_child_o_mine: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         { chords: [] },
         {
@@ -247,7 +244,6 @@ export const sweet_child_o_mine: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         { chords: [] },
         {
@@ -285,7 +281,6 @@ export const sweet_child_o_mine: Song = {
     {
       id: 'section_g_2',
       label: 'Section G',
-      measuresPerRow: 6,
       repeatCount: 4,
       bars: [
         { chords: [] },
@@ -309,7 +304,6 @@ export const sweet_child_o_mine: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 6,
       repeatCount: 10,
       bars: [
         { chords: [] },

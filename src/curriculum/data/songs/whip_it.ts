@@ -21,7 +21,6 @@ export const whip_it: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 5,
       bars: [
         { chords: [], restBars: 4 },
         {
@@ -72,7 +71,6 @@ export const whip_it: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
@@ -121,7 +119,6 @@ export const whip_it: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -192,7 +189,6 @@ export const whip_it: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 6,
       repeatCount: 3,
       bars: [
         {
@@ -218,7 +214,6 @@ export const whip_it: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],

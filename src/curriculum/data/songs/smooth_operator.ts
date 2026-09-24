@@ -21,7 +21,7 @@ export const smooth_operator: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 5,
+      instrumental: true,
       bars: [
         { chords: [] },
         {
@@ -31,12 +31,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            {
-              degree: '4 min7/3',
-              chordName: 'Dmin7/C♯',
-              beat: 1,
-              duration: 4,
-            },
+            { degree: '4 min7/3', chordName: 'Dmin7/C♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -52,9 +47,8 @@ export const smooth_operator: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 8,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -99,9 +93,8 @@ export const smooth_operator: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 5,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -120,12 +113,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            {
-              degree: '4 min7/3',
-              chordName: 'Dmin7/C♯',
-              beat: 1,
-              duration: 4,
-            },
+            { degree: '4 min7/3', chordName: 'Dmin7/C♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -133,12 +121,6 @@ export const smooth_operator: Song = {
             { degree: '4 min7/♭3', chordName: 'Dmin7/C', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
         {
           chords: [
             { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
@@ -159,12 +141,6 @@ export const smooth_operator: Song = {
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
         {
           chords: [
             { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
@@ -183,53 +159,6 @@ export const smooth_operator: Song = {
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -237,7 +166,6 @@ export const smooth_operator: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -279,13 +207,46 @@ export const smooth_operator: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 8,
-      bars: [
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '4 min', chordName: 'Dmin', beat: 1, duration: 4 },
@@ -329,9 +290,29 @@ export const smooth_operator: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -355,35 +336,8 @@ export const smooth_operator: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
-      bars: [
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 8,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -425,13 +379,6 @@ export const smooth_operator: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 8,
-      bars: [
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -475,9 +422,8 @@ export const smooth_operator: Song = {
       ],
     },
     {
-      id: 'section_h_2',
-      label: 'Section H',
-      measuresPerRow: 5,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -496,12 +442,7 @@ export const smooth_operator: Song = {
         },
         {
           chords: [
-            {
-              degree: '4 min7/3',
-              chordName: 'Dmin7/C♯',
-              beat: 1,
-              duration: 4,
-            },
+            { degree: '4 min7/3', chordName: 'Dmin7/C♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -509,12 +450,26 @@ export const smooth_operator: Song = {
             { degree: '4 min7/♭3', chordName: 'Dmin7/C', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_n',
-      label: 'Section N',
-      bars: [
+        {
+          chords: [
+            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
@@ -538,35 +493,8 @@ export const smooth_operator: Song = {
       ],
     },
     {
-      id: 'section_o',
-      label: 'Section O',
-      bars: [
-        {
-          chords: [
-            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      measuresPerRow: 8,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -608,13 +536,6 @@ export const smooth_operator: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_j_2',
-      label: 'Section J',
-      measuresPerRow: 8,
-      bars: [
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -655,13 +576,6 @@ export const smooth_operator: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_k',
-      label: 'Section K',
-      measuresPerRow: 8,
-      bars: [
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -705,7 +619,6 @@ export const smooth_operator: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=4TYv2PhG89A' },
   ],

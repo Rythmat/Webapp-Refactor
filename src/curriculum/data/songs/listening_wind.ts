@@ -22,7 +22,6 @@ export const listening_wind: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 10 }],
     },
     {

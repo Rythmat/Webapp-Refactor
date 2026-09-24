@@ -101,7 +101,6 @@ export const in_love_with_a_girl: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       repeatCount: 3,
       bars: [
         {
@@ -187,7 +186,6 @@ export const in_love_with_a_girl: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       repeatCount: 3,
       bars: [
         {
@@ -219,7 +217,6 @@ export const in_love_with_a_girl: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -254,7 +251,6 @@ export const in_love_with_a_girl: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -279,7 +275,6 @@ export const in_love_with_a_girl: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         {

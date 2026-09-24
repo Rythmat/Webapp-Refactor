@@ -121,7 +121,6 @@ export const ngiculela_es_una_historia_i_am_singing: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [

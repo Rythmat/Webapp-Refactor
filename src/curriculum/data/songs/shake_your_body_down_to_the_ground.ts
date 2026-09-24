@@ -21,7 +21,6 @@ export const shake_your_body_down_to_the_ground: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 3,
       bars: [
         { chords: [], restBars: 3 },
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },
@@ -31,7 +30,6 @@ export const shake_your_body_down_to_the_ground: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },

@@ -21,7 +21,6 @@ export const solsbury_hill: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },
@@ -49,7 +48,6 @@ export const solsbury_hill: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 7 }] },
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 7 }] },
@@ -102,7 +100,6 @@ export const solsbury_hill: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 7 }] },
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 7 }] },
@@ -155,7 +152,6 @@ export const solsbury_hill: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 7 }] },
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 7 }] },

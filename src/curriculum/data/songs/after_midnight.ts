@@ -19,9 +19,9 @@ export const after_midnight: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 6,
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [
         { chords: [], fermata: true },
         { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -40,14 +40,14 @@ export const after_midnight: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 8,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
+          repeatStart: true,
         },
         {
           chords: [
@@ -77,54 +77,14 @@ export const after_midnight: Song = {
           chords: [
             { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
+          repeatEnd: true,
         },
       ],
     },
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 10,
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -147,10 +107,8 @@ export const after_midnight: Song = {
       ],
     },
     {
-      id: 'verse_2',
+      id: 'verse_3',
       label: 'Verse 2',
-      measuresPerRow: 8,
-      repeatCount: 4,
       bars: [
         {
           chords: [
@@ -189,9 +147,8 @@ export const after_midnight: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 8,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -230,7 +187,6 @@ export const after_midnight: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=RdjBrnV-U9M' },
   ],

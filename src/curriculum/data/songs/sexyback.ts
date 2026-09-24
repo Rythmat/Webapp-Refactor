@@ -21,7 +21,6 @@ export const sexyback: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       repeatCount: 6,
       bars: [
         {
@@ -61,7 +60,6 @@ export const sexyback: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         {
@@ -101,7 +99,6 @@ export const sexyback: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         {
@@ -141,7 +138,6 @@ export const sexyback: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         {
@@ -181,13 +177,11 @@ export const sexyback: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -226,7 +220,6 @@ export const sexyback: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         {
@@ -266,7 +259,6 @@ export const sexyback: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [

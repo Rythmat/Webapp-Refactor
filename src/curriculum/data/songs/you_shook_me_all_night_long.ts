@@ -21,7 +21,6 @@ export const you_shook_me_all_night_long: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 16 }],
     },
     {
@@ -37,7 +36,6 @@ export const you_shook_me_all_night_long: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -63,7 +61,6 @@ export const you_shook_me_all_night_long: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -105,7 +102,6 @@ export const you_shook_me_all_night_long: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -157,7 +153,6 @@ export const you_shook_me_all_night_long: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -183,7 +178,6 @@ export const you_shook_me_all_night_long: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
@@ -207,7 +201,6 @@ export const you_shook_me_all_night_long: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -233,7 +226,6 @@ export const you_shook_me_all_night_long: Song = {
     {
       id: 'section_g_2',
       label: 'Section G',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -259,7 +251,6 @@ export const you_shook_me_all_night_long: Song = {
     {
       id: 'section_m',
       label: 'Section M',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {

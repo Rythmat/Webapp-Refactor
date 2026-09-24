@@ -21,7 +21,6 @@ export const long_train_running: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 2,
       bars: [
         { chords: [], restBars: 3 },
         {
@@ -328,7 +327,6 @@ export const long_train_running: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [{ degree: '♭6 7', chordName: 'E♭7', beat: 1, duration: 4 }],
@@ -345,7 +343,6 @@ export const long_train_running: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 2,
       bars: [
         { chords: [], restBars: 3 },
         {

@@ -21,13 +21,11 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 14 }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -42,7 +40,6 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 10,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -59,7 +56,6 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 10,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -76,7 +72,6 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -90,7 +85,6 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -107,7 +101,6 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 18,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -138,7 +131,6 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 12,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -161,7 +153,6 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 18,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -190,7 +181,6 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 10,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -207,7 +197,6 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 9,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -227,7 +216,6 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -244,7 +232,6 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
     {
       id: 'section_h_2',
       label: 'Section H',
-      measuresPerRow: 16,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -271,7 +258,6 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 12,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {

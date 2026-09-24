@@ -137,7 +137,6 @@ export const the_big_country: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],

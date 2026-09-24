@@ -21,7 +21,6 @@ export const just_kissed_my_baby: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {

@@ -21,7 +21,6 @@ export const modern_love: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
@@ -83,7 +82,6 @@ export const modern_love: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
@@ -118,7 +116,6 @@ export const modern_love: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
@@ -151,7 +148,6 @@ export const modern_love: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [
@@ -168,7 +164,6 @@ export const modern_love: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       repeatCount: 3,
       bars: [
         {
@@ -256,7 +251,6 @@ export const modern_love: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
@@ -291,7 +285,6 @@ export const modern_love: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
@@ -324,7 +317,6 @@ export const modern_love: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],

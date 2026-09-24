@@ -21,7 +21,6 @@ export const high_and_dry: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 2 }],
     },
     {

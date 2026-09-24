@@ -21,7 +21,6 @@ export const pusher_love_girl: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 6,
       bars: [
         { chords: [], restBars: 1 },
         {
@@ -64,7 +63,6 @@ export const pusher_love_girl: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '4 7', chordName: 'E7sus', beat: 1, duration: 4 }],
@@ -91,7 +89,6 @@ export const pusher_love_girl: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '4 7', chordName: 'E7sus', beat: 1, duration: 4 }],
@@ -128,7 +125,6 @@ export const pusher_love_girl: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -167,7 +163,6 @@ export const pusher_love_girl: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -192,7 +187,6 @@ export const pusher_love_girl: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -205,7 +199,6 @@ export const pusher_love_girl: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '4 7', chordName: 'E7sus', beat: 1, duration: 4 }],
@@ -232,7 +225,6 @@ export const pusher_love_girl: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '4 7', chordName: 'E7sus', beat: 1, duration: 4 }],

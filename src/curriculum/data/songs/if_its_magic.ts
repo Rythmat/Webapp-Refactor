@@ -21,7 +21,6 @@ export const if_its_magic: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 5,
       bars: [
         { chords: [] },
         {
@@ -53,7 +52,6 @@ export const if_its_magic: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -85,7 +83,6 @@ export const if_its_magic: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -172,7 +169,6 @@ export const if_its_magic: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -205,7 +201,6 @@ export const if_its_magic: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },

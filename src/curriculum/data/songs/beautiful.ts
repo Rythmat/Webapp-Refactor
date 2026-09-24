@@ -7,9 +7,9 @@ export const beautiful: Song = {
   year: 1971,
   historicalDescription:
     "Carole King opens her landmark album 'Tapestry' with 'Beautiful', a quiet affirmation of self-worth that sets the emotional tone for one of the best-selling albums in history. In 1971, King steps out from behind the songwriting desk — where she had crafted hits for others for over a decade — and plants her own voice at the center of popular music. The song's gentle confidence resonates with a generation searching for exactly that.",
-  key: 'E♭ minor',
+  key: 'E♭ major',
   keyRoot: 63,
-  mode: 'minor',
+  mode: 'major',
   tempo: 152,
   timeSignature: [4, 4],
 
@@ -21,7 +21,6 @@ export const beautiful: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -62,7 +61,6 @@ export const beautiful: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 10,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -112,7 +110,6 @@ export const beautiful: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -175,7 +172,6 @@ export const beautiful: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -210,7 +206,6 @@ export const beautiful: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -249,7 +244,6 @@ export const beautiful: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -290,7 +284,6 @@ export const beautiful: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 10,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -340,7 +333,6 @@ export const beautiful: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 12,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -390,7 +382,6 @@ export const beautiful: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -453,7 +444,6 @@ export const beautiful: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'G♯', beat: 1, duration: 4 }],
@@ -488,7 +478,6 @@ export const beautiful: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -527,7 +516,6 @@ export const beautiful: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 12,
       bars: [
         {
           chords: [
@@ -590,7 +578,6 @@ export const beautiful: Song = {
     {
       id: 'section_m',
       label: 'Section M',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♯2 7', chordName: 'F♯7', beat: 1, duration: 4 }],
@@ -622,7 +609,6 @@ export const beautiful: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -669,7 +655,6 @@ export const beautiful: Song = {
     {
       id: 'section_g_2',
       label: 'Section G',
-      measuresPerRow: 12,
       bars: [
         {
           chords: [{ degree: '♯1 maj', chordName: 'E', beat: 1, duration: 4 }],
@@ -728,7 +713,6 @@ export const beautiful: Song = {
     {
       id: 'section_p',
       label: 'Section P',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '♯4 maj', chordName: 'A', beat: 1, duration: 4 }],

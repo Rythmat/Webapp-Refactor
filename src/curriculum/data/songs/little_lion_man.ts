@@ -21,13 +21,11 @@ export const little_lion_man: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -58,7 +56,6 @@ export const little_lion_man: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -89,7 +86,6 @@ export const little_lion_man: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -118,7 +114,6 @@ export const little_lion_man: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -147,7 +142,6 @@ export const little_lion_man: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -176,7 +170,6 @@ export const little_lion_man: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -207,7 +200,6 @@ export const little_lion_man: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -231,7 +223,6 @@ export const little_lion_man: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -260,7 +251,6 @@ export const little_lion_man: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 2,
       bars: [
         { chords: [], restBars: 8 },
         {

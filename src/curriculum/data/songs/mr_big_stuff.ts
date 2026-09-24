@@ -19,9 +19,9 @@ export const mr_big_stuff: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 5,
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -47,9 +47,8 @@ export const mr_big_stuff: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 5,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -75,10 +74,30 @@ export const mr_big_stuff: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
-      measuresPerRow: 5,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'A♭', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'B♭7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'A♭', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B♭', beat: 3, duration: 2 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
@@ -105,34 +124,6 @@ export const mr_big_stuff: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 5,
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'A♭', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'B♭7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'A♭', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'B♭', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -152,9 +143,8 @@ export const mr_big_stuff: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 5,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -180,9 +170,8 @@ export const mr_big_stuff: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 5,
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -208,9 +197,8 @@ export const mr_big_stuff: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 5,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -236,7 +224,6 @@ export const mr_big_stuff: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=EJ-4cKFVC34' },
   ],

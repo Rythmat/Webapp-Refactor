@@ -56,9 +56,10 @@ import { seedStudioFromSong } from '@/features/songs/seedStudioFromSong';
 import { seedStudioFromPracticeTrack } from '@/features/practiceTracks/seedStudioFromPracticeTrack';
 import { urlParamToSemitone } from '@/lib/musicKeyUrl';
 import type {
-  DiatonicMode,
   PracticeLevel,
+  PracticeMode,
 } from '@/features/practiceTracks/generatePracticeTrack';
+import { isScaleLesson } from '@/lib/learn/scaleLessons';
 import { isDiatonicMode } from '@prism/engine';
 import { showError } from '@/util/toast';
 
@@ -211,7 +212,10 @@ function DawAppInner() {
       bootedRef.current = true;
       clearLocalSession();
       resetSessionToEmpty();
-      if (isDiatonicMode(practiceModeParam)) {
+      if (
+        isDiatonicMode(practiceModeParam) ||
+        isScaleLesson(practiceModeParam)
+      ) {
         // `practiceRoot` is a letter-based key param (e.g. "d", "dsharp"),
         // written by `keyLabelToUrlParam` — decode it back to a 0-11
         // semitone-from-C the same way `LessonContainer` resolves `key`.
@@ -230,7 +234,7 @@ function DawAppInner() {
         void (async () => {
           try {
             await seedStudioFromPracticeTrack(
-              practiceModeParam as DiatonicMode,
+              practiceModeParam as PracticeMode,
               root,
               openTrack,
               level,

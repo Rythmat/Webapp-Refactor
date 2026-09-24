@@ -21,7 +21,6 @@ export const signed_sealed_delivered_im_yours: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 3,
       bars: [
         { chords: [], restBars: 2 },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },

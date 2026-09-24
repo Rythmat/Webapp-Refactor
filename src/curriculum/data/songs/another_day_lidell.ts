@@ -19,9 +19,8 @@ export const another_day_lidell: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 8,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -50,9 +49,8 @@ export const another_day_lidell: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 8,
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -76,6 +74,40 @@ export const another_day_lidell: Song = {
           chords: [
             { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
+        },
+        { chords: [{ degree: '6 7', chordName: 'C7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'chorus',
+      label: 'Chorus',
+      bars: [
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '6 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '6 7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
@@ -83,42 +115,6 @@ export const another_day_lidell: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '6 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '6 7', chordName: 'C7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
@@ -137,9 +133,8 @@ export const another_day_lidell: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 8,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -168,7 +163,6 @@ export const another_day_lidell: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hhoiwDLVTnE' },
   ],

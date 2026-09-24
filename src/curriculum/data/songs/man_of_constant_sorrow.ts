@@ -21,7 +21,6 @@ export const man_of_constant_sorrow: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -36,7 +35,6 @@ export const man_of_constant_sorrow: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 10,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -57,7 +55,6 @@ export const man_of_constant_sorrow: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -76,7 +73,6 @@ export const man_of_constant_sorrow: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -89,7 +85,6 @@ export const man_of_constant_sorrow: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 9,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -110,7 +105,6 @@ export const man_of_constant_sorrow: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 10,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -131,7 +125,6 @@ export const man_of_constant_sorrow: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -150,7 +143,6 @@ export const man_of_constant_sorrow: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },

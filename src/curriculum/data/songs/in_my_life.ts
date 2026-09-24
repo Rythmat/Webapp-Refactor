@@ -31,7 +31,6 @@ export const in_my_life: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -73,7 +72,6 @@ export const in_my_life: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -94,7 +92,6 @@ export const in_my_life: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -120,7 +117,6 @@ export const in_my_life: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -162,7 +158,6 @@ export const in_my_life: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [

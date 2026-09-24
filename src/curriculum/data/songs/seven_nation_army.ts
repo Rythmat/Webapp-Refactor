@@ -205,7 +205,6 @@ export const seven_nation_army: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

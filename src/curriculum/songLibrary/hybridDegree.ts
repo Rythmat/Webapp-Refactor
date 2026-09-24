@@ -41,8 +41,10 @@ export const spelledPitchClass = (note: SpelledNote): number =>
   mod12(LETTER_PC[note.letterIndex] + note.accidental);
 const pcOf = spelledPitchClass;
 
-const ROOT_TOKEN = /^([A-G](?:♯♯|♭♭|♯|♭|#|b)?)/;
-const BASS_TOKEN = /\/\s*([A-G](?:♯|♭|#|b)?)\s*$/;
+/** The root a chord symbol opens with, and the slash bass it may close with.
+ *  Exported so the transposer rewrites exactly the spans this reads. */
+export const ROOT_TOKEN = /^([A-G](?:♯♯|♭♭|♯|♭|#|b)?)/;
+export const BASS_TOKEN = /\/\s*([A-G](?:♯|♭|#|b)?)\s*$/;
 
 export const isNoChord = (chordName: string): boolean =>
   /^N\.?C\.?$/i.test(chordName.trim());

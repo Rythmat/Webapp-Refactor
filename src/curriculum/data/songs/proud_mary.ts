@@ -22,7 +22,6 @@ export const proud_mary: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -78,7 +77,6 @@ export const proud_mary: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -175,7 +173,6 @@ export const proud_mary: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },

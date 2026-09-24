@@ -21,7 +21,6 @@ export const houses_in_motion: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [

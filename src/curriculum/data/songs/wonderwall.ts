@@ -21,7 +21,6 @@ export const wonderwall: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -64,7 +63,6 @@ export const wonderwall: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -107,7 +105,6 @@ export const wonderwall: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -146,7 +143,6 @@ export const wonderwall: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -189,7 +185,6 @@ export const wonderwall: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
@@ -248,7 +243,6 @@ export const wonderwall: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 9,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
@@ -288,7 +282,6 @@ export const wonderwall: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -331,7 +324,6 @@ export const wonderwall: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
@@ -390,7 +382,6 @@ export const wonderwall: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 8,
       repeatCount: 8,
       bars: [
         {

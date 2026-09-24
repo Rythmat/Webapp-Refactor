@@ -26,13 +26,6 @@ export const creep: Song = {
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 7', chordName: 'B7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      measuresPerRow: 5,
-      bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -52,7 +45,6 @@ export const creep: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=XFkzRNyygfk' },
   ],

@@ -21,7 +21,7 @@ export const boogie_oogie_oogie: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      repeatCount: 4,
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -41,33 +41,6 @@ export const boogie_oogie_oogie: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      repeatCount: 4,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -75,8 +48,27 @@ export const boogie_oogie_oogie: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      repeatCount: 4,
       bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -102,7 +94,6 @@ export const boogie_oogie_oogie: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -136,78 +127,11 @@ export const boogie_oogie_oogie: Song = {
           ],
         },
         { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
-          ],
-        },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      repeatCount: 6,
       bars: [
         {
           chords: [
@@ -232,15 +156,76 @@ export const boogie_oogie_oogie: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 3,
-      bars: [{ chords: [] }, { chords: [] }, { chords: [], restBars: 7 }],
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      bars: [
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+      ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      repeatCount: 4,
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [] },
+        { chords: [] },
+        { chords: [], restBars: 7 },
+      ],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -265,10 +250,41 @@ export const boogie_oogie_oogie: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 8,
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -304,47 +320,9 @@ export const boogie_oogie_oogie: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'outro',
+      label: 'Outro',
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -369,7 +347,6 @@ export const boogie_oogie_oogie: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=y9IYWwWnpuA' },
   ],

@@ -21,7 +21,6 @@ export const shes_no_lady: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -56,7 +55,6 @@ export const shes_no_lady: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -89,7 +87,6 @@ export const shes_no_lady: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -124,7 +121,6 @@ export const shes_no_lady: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -157,7 +153,6 @@ export const shes_no_lady: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
@@ -170,7 +165,6 @@ export const shes_no_lady: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
@@ -195,7 +189,6 @@ export const shes_no_lady: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -230,7 +223,6 @@ export const shes_no_lady: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 9,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],

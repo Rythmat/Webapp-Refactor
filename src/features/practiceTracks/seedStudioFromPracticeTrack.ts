@@ -2,7 +2,7 @@ import { noteNameLetter, MODE_DISPLAY } from '@prism/engine';
 import { useStore } from '@/daw/store';
 import {
   generatePracticeTrack,
-  type DiatonicMode,
+  type PracticeMode,
   type PracticeLevel,
   type PracticeOpenTrack,
 } from './generatePracticeTrack';
@@ -25,7 +25,7 @@ import {
  * monitored, so a MIDI keyboard plays into it and Record captures the take.
  */
 export const seedStudioFromPracticeTrack = async (
-  mode: DiatonicMode,
+  mode: PracticeMode,
   root: number,
   openTrack: PracticeOpenTrack,
   level: PracticeLevel = 1,
@@ -34,7 +34,8 @@ export const seedStudioFromPracticeTrack = async (
   const store = useStore.getState();
 
   const rootLabel = noteNameLetter(60 + result.rootNote);
-  const modeLabel = MODE_DISPLAY[result.mode] ?? result.mode;
+  const modeLabel =
+    result.scaleTitle ?? MODE_DISPLAY[result.mode] ?? result.mode;
 
   store.setProjectName(
     `${rootLabel} ${modeLabel} Practice Track — Level ${level}`,

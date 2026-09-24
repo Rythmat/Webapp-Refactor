@@ -61,7 +61,6 @@ export const whole_lotta_love: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -113,7 +112,6 @@ export const whole_lotta_love: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -126,7 +124,6 @@ export const whole_lotta_love: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 7,
       bars: [
         { chords: [], restBars: 4 },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },

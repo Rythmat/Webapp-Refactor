@@ -134,7 +134,6 @@ export const ill_be_there: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],

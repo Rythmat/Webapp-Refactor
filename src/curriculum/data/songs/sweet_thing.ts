@@ -72,7 +72,6 @@ export const sweet_thing: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -143,7 +142,6 @@ export const sweet_thing: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

@@ -58,7 +58,6 @@ export const use_me: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
@@ -101,7 +100,6 @@ export const use_me: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
@@ -144,7 +142,6 @@ export const use_me: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 4 }],
     },
     {

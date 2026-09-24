@@ -41,7 +41,6 @@ export const i_feel_for_you: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
@@ -67,7 +66,6 @@ export const i_feel_for_you: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -94,7 +92,6 @@ export const i_feel_for_you: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -141,7 +138,6 @@ export const i_feel_for_you: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
@@ -207,7 +203,6 @@ export const i_feel_for_you: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },

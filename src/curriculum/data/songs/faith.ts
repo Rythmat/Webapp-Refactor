@@ -21,7 +21,6 @@ export const faith: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }],

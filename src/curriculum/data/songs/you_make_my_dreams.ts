@@ -164,7 +164,6 @@ export const you_make_my_dreams: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -178,7 +177,6 @@ export const you_make_my_dreams: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -199,7 +197,6 @@ export const you_make_my_dreams: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },

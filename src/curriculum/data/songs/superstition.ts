@@ -21,7 +21,6 @@ export const superstition: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
@@ -80,7 +79,6 @@ export const superstition: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '♯5 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -148,7 +146,6 @@ export const superstition: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '♯5 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -189,7 +186,6 @@ export const superstition: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '♯5 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -257,7 +253,6 @@ export const superstition: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '♯5 7', chordName: 'B7', beat: 1, duration: 4 }] },

@@ -21,13 +21,11 @@ export const somethin_for_ya: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 6,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -53,7 +51,6 @@ export const somethin_for_ya: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 6,
       repeatCount: 4,
       bars: [
         {
@@ -91,7 +88,6 @@ export const somethin_for_ya: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -117,7 +113,6 @@ export const somethin_for_ya: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       repeatCount: 4,
       bars: [
         {
@@ -155,7 +150,6 @@ export const somethin_for_ya: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 6,
       repeatCount: 4,
       bars: [
         {
@@ -193,7 +187,6 @@ export const somethin_for_ya: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 6,
       repeatCount: 4,
       bars: [
         {
@@ -227,7 +220,6 @@ export const somethin_for_ya: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 6,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -249,13 +241,11 @@ export const somethin_for_ya: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 12 }],
     },
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [

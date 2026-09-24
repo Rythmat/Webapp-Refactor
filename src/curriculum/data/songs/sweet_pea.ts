@@ -134,7 +134,6 @@ export const sweet_pea: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

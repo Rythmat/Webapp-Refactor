@@ -301,7 +301,6 @@ export const come_together: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },

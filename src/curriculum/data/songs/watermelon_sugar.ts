@@ -21,7 +21,6 @@ export const watermelon_sugar: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 12 }],
     },
     {

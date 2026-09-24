@@ -7,9 +7,9 @@ export const cold_sweat: Song = {
   year: 1967,
   historicalDescription:
     "James Brown releases 'Cold Sweat', stripping soul music down to its rhythmic bones and birthing a new grammar for funk. The groove locks into a relentless, hypnotic pulse where the one-beat reigns supreme — a blueprint that will define Black popular music for decades. Hip hop producers, from the 1970s to the present day, return to this record again and again.",
-  key: 'C major',
-  keyRoot: 60,
-  mode: 'major',
+  key: 'D mixolydian',
+  keyRoot: 62,
+  mode: 'mixolydian',
   tempo: 110,
   timeSignature: [4, 4],
 
@@ -22,17 +22,20 @@ export const cold_sweat: Song = {
       id: 'verse',
       label: 'Verse',
       bars: [
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'chorus',
       label: 'Chorus',
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }],
+          keyChange: 'C mixolydian',
+        },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
@@ -75,17 +78,23 @@ export const cold_sweat: Song = {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }],
+          keyChange: 'D mixolydian',
+        },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_e',
       label: 'Section E',
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }],
+          keyChange: 'C mixolydian',
+        },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
@@ -128,33 +137,38 @@ export const cold_sweat: Song = {
       id: 'section_g_2',
       label: 'Section G',
       bars: [
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }],
+          keyChange: 'D mixolydian',
+        },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
       id: 'section_i',
       label: 'Section I',
       bars: [
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_j',
       label: 'Section J',
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }],
+          keyChange: 'C mixolydian',
+        },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },

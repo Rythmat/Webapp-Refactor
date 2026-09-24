@@ -32,7 +32,6 @@ export const come_and_get_your_love: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       repeatCount: 3,
       bars: [
         {
@@ -56,7 +55,6 @@ export const come_and_get_your_love: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 10,
       bars: [
         {
           chords: [
@@ -85,7 +83,6 @@ export const come_and_get_your_love: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         {
@@ -109,7 +106,6 @@ export const come_and_get_your_love: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 10,
       bars: [
         {
           chords: [
@@ -138,7 +134,6 @@ export const come_and_get_your_love: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -161,7 +156,6 @@ export const come_and_get_your_love: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 10,
       bars: [
         {
           chords: [
@@ -190,7 +184,6 @@ export const come_and_get_your_love: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -213,7 +206,6 @@ export const come_and_get_your_love: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -244,7 +236,6 @@ export const come_and_get_your_love: Song = {
     {
       id: 'section_i_2',
       label: 'Section I',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [

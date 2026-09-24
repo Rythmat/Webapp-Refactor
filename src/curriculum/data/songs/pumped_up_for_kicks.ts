@@ -22,13 +22,11 @@ export const pumped_up_for_kicks: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 2 }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 9,
       bars: [
         {
           chords: [

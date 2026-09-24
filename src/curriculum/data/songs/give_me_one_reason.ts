@@ -19,8 +19,8 @@ export const give_me_one_reason: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
@@ -31,25 +31,11 @@ export const give_me_one_reason: Song = {
           ],
         },
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      measuresPerRow: 5,
-      bars: [
         { chords: [{ degree: '4 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      measuresPerRow: 5,
-      bars: [
         { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -58,9 +44,8 @@ export const give_me_one_reason: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 5,
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
@@ -72,24 +57,11 @@ export const give_me_one_reason: Song = {
         },
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 5,
-      bars: [
         { chords: [{ degree: '4 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }],
@@ -103,7 +75,6 @@ export const give_me_one_reason: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=V6hQ9HSKlIE' },
   ],

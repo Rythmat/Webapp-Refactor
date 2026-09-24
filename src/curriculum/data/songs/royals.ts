@@ -21,7 +21,6 @@ export const royals: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
@@ -40,7 +39,6 @@ export const royals: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 10 }],
     },
     {

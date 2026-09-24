@@ -8,11 +8,13 @@ import {
   abbreviateSequence,
 } from '@prism/engine';
 import { getGCMEntry } from '@/curriculum/data/gcmHelpers';
+import { applyRegisterRules } from '@/curriculum/engine/genreGeneration/registerRules';
 import {
   generateCurriculumMelody,
   type MidiNoteEvent,
 } from '@/curriculum/engine/melodyPipeline';
 import { chordRegionsToMidiClip } from '@/curriculum/songLibrary/exportToStudio';
+import type { InstrumentConfig } from '@/curriculum/types/activity.v2';
 import type {
   CurriculumLevelId,
   GenreCurriculumEntry,
@@ -20,6 +22,7 @@ import type {
 import { loadGrooveEvents } from '@/daw/midi/loadGrooveEvents';
 import { nextChordId, type ChordRegion } from '@/daw/store/prismSlice';
 import type { MidiClip } from '@/daw/store/tracksSlice';
+import { getScaleLesson, type ScaleLessonSlug } from '@/lib/learn/scaleLessons';
 import {
   hasMajorThird,
   repairMajorChordRule,
@@ -40,6 +43,13 @@ export type DiatonicMode =
   | 'phrygian'
   | 'locrian';
 
+/**
+ * What a Practice Track can be built for: a diatonic mode, or one of the
+ * pentatonic/blues scales, which bring their own progression and are coloured
+ * and spelled in their parent mode.
+ */
+export type PracticeMode = DiatonicMode | ScaleLessonSlug;
+
 export type PracticeOpenTrack = 'melody' | 'chords';
 
 /** Difficulty tier — the student picks one on the Practice Track hand-off screen. */
@@ -47,7 +57,10 @@ export type PracticeLevel = 1 | 2 | 3;
 
 export interface PracticeTrackResult {
   rootNote: number;
+  /** The mode the Studio colours and spells in — a scale's parent mode. */
   mode: DiatonicMode;
+  /** The scale's own name for a pentatonic/blues track, else null. */
+  scaleTitle: string | null;
   bpm: number;
   openTrack: PracticeOpenTrack;
   chordRegions: ChordRegion[];
@@ -291,8 +304,11 @@ function degreeOffset(degree: number, accidental: -1 | 0 | 1): number {
 }
 
 /** Build one chord (absolute-from-tonic semitone offsets) per spec in the progression. */
-function buildBarChords(mode: DiatonicMode, level: PracticeLevel): BarChord[] {
-  const progression = PROGRESSIONS[mode][level];
+function buildBarChords(mode: PracticeMode, level: PracticeLevel): BarChord[] {
+  // A scale lesson has one progression at every level.
+  const progression: ChordSpec[] =
+    getScaleLesson(mode)?.progression ??
+    PROGRESSIONS[mode as DiatonicMode][level];
 
   return progression.map((spec, barIndex) => {
     const offset = degreeOffset(spec.degree, spec.accidental);
@@ -484,16 +500,17 @@ const LEVEL_TO_GCM_LEVEL: Record<PracticeLevel, CurriculumLevelId> = {
  *    1-bar cells and chaining two of them always spans a full 2 bars.
  */
 function practiceMelodyRules(
-  mode: DiatonicMode,
+  mode: PracticeMode,
   level: PracticeLevel,
 ): GenreCurriculumEntry {
   const base = getGCMEntry('POP', LEVEL_TO_GCM_LEVEL[level]);
+  const intervals = getScaleLesson(mode)?.steps ?? MODES[mode as DiatonicMode];
 
   return {
     ...base,
     melody: {
       ...base.melody,
-      scale: { name: mode, intervals: MODES[mode] },
+      scale: { name: mode, intervals },
       scaleAlts: undefined,
       phraseRhythmBars: 1,
       contourConcat: PHRASE_BARS,
@@ -564,7 +581,7 @@ function buildFallbackMelodyEvents(
 function buildMelodyClip(
   barChords: BarChord[],
   rootMidi: number,
-  mode: DiatonicMode,
+  mode: PracticeMode,
   level: PracticeLevel,
 ): MidiClip {
   const melodyRegister = rootMidi + 12; // one octave above the chord register
@@ -677,6 +694,47 @@ function resolveFinalNote(
   finalNote.note = nearestChordTone(finalNote.note, chordMidis);
 }
 
+// ── Register ───────────────────────────────────────────────────────────
+
+/**
+ * The tonic the practice screen lights the scale from: the one between F♯3
+ * and F4, so the scale the student improvises on sits mid-keyboard. Shared
+ * with PracticeTrackView so the register rules see the melody where the
+ * student actually plays it.
+ */
+export function practiceMelodyTonic(rootPc: number): number {
+  const lowest = 54; // F♯3
+  return lowest + ((((rootPc - 6) % 12) + 12) % 12);
+}
+
+/** Chords under a melody: the roles the register rules read. */
+const CHORDS_UNDER_MELODY = {
+  lh_role: 'chords',
+  rh_role: 'melody',
+} as InstrumentConfig;
+
+/**
+ * Semitones to move the chord voicings so they obey the Register of Chord
+ * and Bass Notes rules (registerRules.ts): no chord starting above C5, and —
+ * since the chords sit under a melody — no chord reaching up into it. The
+ * whole progression moves as one unit, as the rules require.
+ */
+function chordRegisterShift(regions: ChordRegion[], melodyLow: number): number {
+  const chordNotes = regions.flatMap((region, bar) =>
+    (region.midis ?? []).map((midi) => ({
+      midi,
+      hand: 'lh' as const,
+      onset: bar,
+    })),
+  );
+  if (chordNotes.length === 0) return 0;
+  const placed = applyRegisterRules(
+    [...chordNotes, { midi: melodyLow, hand: 'rh' as const }],
+    { instrument_config: CHORDS_UNDER_MELODY },
+  );
+  return placed[0].midi - chordNotes[0].midi;
+}
+
 // ── Main entry point ────────────────────────────────────────────────────
 
 /**
@@ -685,29 +743,48 @@ function resolveFinalNote(
  * ISN'T `openTrack`, which is left empty for the student to fill in).
  */
 export async function generatePracticeTrack(
-  mode: DiatonicMode,
+  mode: PracticeMode,
   root: number,
   openTrack: PracticeOpenTrack,
   level: PracticeLevel = 1,
 ): Promise<PracticeTrackResult> {
   const clampedRoot = Math.max(0, Math.min(11, Math.round(root)));
   const rootMidi = 60 + clampedRoot;
+  const scale = getScaleLesson(mode);
+  const colorMode: DiatonicMode = scale
+    ? scale.parentMode
+    : (mode as DiatonicMode);
   const barChords = buildBarChords(mode, level);
   const barCount = barChords.length;
 
-  const chordRegions = buildChordRegions(barChords, rootMidi, mode);
-  const chordsClip =
-    openTrack === 'melody' ? chordRegionsToMidiClip(chordRegions) : null;
-  const bassClip = buildBassClip(barChords, rootMidi);
-  const beatClip = await buildBeatClip(barCount);
   const melodyClip =
     openTrack === 'chords'
       ? buildMelodyClip(barChords, rootMidi, mode, level)
       : null;
+  // The melody the chords must stay under: the generated one, or the scale
+  // the student plays from on the practice screen.
+  const melodyLow = melodyClip?.events.length
+    ? Math.min(...melodyClip.events.map((e) => e.note))
+    : practiceMelodyTonic(clampedRoot);
+
+  const voiced = buildChordRegions(barChords, rootMidi, colorMode);
+  const shift = chordRegisterShift(voiced, melodyLow);
+  const chordRegions =
+    shift === 0
+      ? voiced
+      : voiced.map((region) => ({
+          ...region,
+          midis: region.midis?.map((midi) => midi + shift),
+        }));
+  const chordsClip =
+    openTrack === 'melody' ? chordRegionsToMidiClip(chordRegions) : null;
+  const bassClip = buildBassClip(barChords, rootMidi);
+  const beatClip = await buildBeatClip(barCount);
 
   return {
     rootNote: clampedRoot,
-    mode,
+    mode: colorMode,
+    scaleTitle: scale?.title ?? null,
     bpm: BPM,
     openTrack,
     chordRegions,

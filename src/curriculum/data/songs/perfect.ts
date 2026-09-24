@@ -21,7 +21,6 @@ export const perfect: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -175,7 +174,6 @@ export const perfect: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [
@@ -419,7 +417,6 @@ export const perfect: Song = {
     {
       id: 'section_r',
       label: 'Section R',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],

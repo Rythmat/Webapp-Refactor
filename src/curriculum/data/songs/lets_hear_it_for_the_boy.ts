@@ -52,7 +52,6 @@ export const lets_hear_it_for_the_boy: Song = {
     {
       id: 'verse_1',
       label: 'Verse',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -83,7 +82,6 @@ export const lets_hear_it_for_the_boy: Song = {
     {
       id: 'chorus_1',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -138,7 +136,6 @@ export const lets_hear_it_for_the_boy: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 2,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -171,7 +168,6 @@ export const lets_hear_it_for_the_boy: Song = {
     {
       id: 'outro',
       label: 'Outro',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -225,7 +221,6 @@ export const lets_hear_it_for_the_boy: Song = {
     {
       id: 'section_10',
       label: 'Section J',
-      measuresPerRow: 2,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {

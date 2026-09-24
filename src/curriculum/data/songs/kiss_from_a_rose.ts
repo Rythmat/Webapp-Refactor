@@ -21,7 +21,6 @@ export const kiss_from_a_rose: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -46,7 +45,6 @@ export const kiss_from_a_rose: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
@@ -68,7 +66,6 @@ export const kiss_from_a_rose: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 9,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
@@ -98,7 +95,6 @@ export const kiss_from_a_rose: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
@@ -118,7 +114,6 @@ export const kiss_from_a_rose: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
@@ -147,7 +142,6 @@ export const kiss_from_a_rose: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 9,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
@@ -175,7 +169,6 @@ export const kiss_from_a_rose: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 10,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
@@ -208,7 +201,6 @@ export const kiss_from_a_rose: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 9,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
@@ -234,7 +226,6 @@ export const kiss_from_a_rose: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 10,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],
@@ -269,7 +260,6 @@ export const kiss_from_a_rose: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
@@ -300,7 +290,6 @@ export const kiss_from_a_rose: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 6 }],
@@ -331,7 +320,6 @@ export const kiss_from_a_rose: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 9,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
@@ -359,7 +347,6 @@ export const kiss_from_a_rose: Song = {
     {
       id: 'section_m',
       label: 'Section M',
-      measuresPerRow: 10,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
@@ -392,7 +379,6 @@ export const kiss_from_a_rose: Song = {
     {
       id: 'section_g_2',
       label: 'Section G',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
@@ -412,7 +398,6 @@ export const kiss_from_a_rose: Song = {
     {
       id: 'section_o',
       label: 'Section O',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 6 }],

@@ -45,7 +45,6 @@ export const subterranean_homesick_alien: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 6', chordName: 'G6', beat: 1, duration: 6 }] },
@@ -68,7 +67,6 @@ export const subterranean_homesick_alien: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 6', chordName: 'G6', beat: 1, duration: 6 }] },
@@ -85,7 +83,6 @@ export const subterranean_homesick_alien: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -126,7 +123,6 @@ export const subterranean_homesick_alien: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       repeatCount: 3,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 6 }] },
@@ -150,7 +146,6 @@ export const subterranean_homesick_alien: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 6', chordName: 'G6', beat: 1, duration: 6 }] },
@@ -166,7 +161,6 @@ export const subterranean_homesick_alien: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 6', chordName: 'G6', beat: 1, duration: 6 }] },
@@ -219,7 +213,6 @@ export const subterranean_homesick_alien: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 6', chordName: 'G6', beat: 1, duration: 6 }] },
@@ -242,7 +235,6 @@ export const subterranean_homesick_alien: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [

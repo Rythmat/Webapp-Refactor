@@ -7,8 +7,8 @@ export const even_if_it_breaks_your_heart: Song = {
   year: 2012,
   historicalDescription:
     "Eli Young Band's 'Even If It Breaks Your Heart' becomes a breakthrough hit for the Texas country group in 2012, capturing the bittersweet determination of chasing a dream at any cost. The song earns the band a CMA Award for Single of the Year, bringing their road-worn, heartland sound to a mainstream country audience and cementing their place among country music's rising acts.",
-  key: 'G major',
-  keyRoot: 67,
+  key: 'C major',
+  keyRoot: 60,
   mode: 'major',
   tempo: 104,
   timeSignature: [4, 4],
@@ -21,7 +21,6 @@ export const even_if_it_breaks_your_heart: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 13 }],
     },
     {
@@ -30,26 +29,26 @@ export const even_if_it_breaks_your_heart: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -60,26 +59,26 @@ export const even_if_it_breaks_your_heart: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -90,23 +89,23 @@ export const even_if_it_breaks_your_heart: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '♭7 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -115,18 +114,18 @@ export const even_if_it_breaks_your_heart: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj/3', chordName: 'G/B', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj/7', chordName: 'G/B', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -135,18 +134,18 @@ export const even_if_it_breaks_your_heart: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj/3', chordName: 'G/B', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj/7', chordName: 'G/B', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -155,26 +154,26 @@ export const even_if_it_breaks_your_heart: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -185,26 +184,26 @@ export const even_if_it_breaks_your_heart: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -215,23 +214,23 @@ export const even_if_it_breaks_your_heart: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '♭7 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -240,24 +239,24 @@ export const even_if_it_breaks_your_heart: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '♭7 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -267,18 +266,18 @@ export const even_if_it_breaks_your_heart: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj/3', chordName: 'G/B', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj/7', chordName: 'G/B', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -287,18 +286,18 @@ export const even_if_it_breaks_your_heart: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj/3', chordName: 'G/B', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj/7', chordName: 'G/B', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -307,26 +306,26 @@ export const even_if_it_breaks_your_heart: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -337,26 +336,26 @@ export const even_if_it_breaks_your_heart: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -364,40 +363,38 @@ export const even_if_it_breaks_your_heart: Song = {
     {
       id: 'section_o',
       label: 'Section O',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_h_2',
       label: 'Section H',
-      measuresPerRow: 3,
       repeatCount: 3,
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '♭7 maj', chordName: 'F', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
       ],

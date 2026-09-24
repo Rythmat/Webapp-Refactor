@@ -396,7 +396,6 @@ export const i_feel_the_earth_move: Song = {
     {
       id: 'section_q',
       label: 'Section Q',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [

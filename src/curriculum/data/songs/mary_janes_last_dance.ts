@@ -21,7 +21,6 @@ export const mary_janes_last_dance: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 7,
       repeatCount: 6,
       bars: [
         {
@@ -52,7 +51,6 @@ export const mary_janes_last_dance: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -74,7 +72,6 @@ export const mary_janes_last_dance: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 7,
       repeatCount: 3,
       bars: [
         {
@@ -105,7 +102,6 @@ export const mary_janes_last_dance: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -127,7 +123,6 @@ export const mary_janes_last_dance: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 7,
       repeatCount: 4,
       bars: [
         {
@@ -158,7 +153,6 @@ export const mary_janes_last_dance: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -180,7 +174,6 @@ export const mary_janes_last_dance: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [

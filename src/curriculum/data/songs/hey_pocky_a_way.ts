@@ -95,7 +95,6 @@ export const hey_pocky_a_way: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
@@ -112,7 +111,6 @@ export const hey_pocky_a_way: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
@@ -129,7 +127,6 @@ export const hey_pocky_a_way: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 3,
       bars: [
         { chords: [], restBars: 16 },
         {
@@ -167,7 +164,6 @@ export const hey_pocky_a_way: Song = {
     {
       id: 'section_g_2',
       label: 'Section G',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
         {

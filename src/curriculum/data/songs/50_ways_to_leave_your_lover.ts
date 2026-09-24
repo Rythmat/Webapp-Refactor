@@ -19,9 +19,8 @@ export const _50_ways_to_leave_your_lover: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
-      measuresPerRow: 9,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [], restBars: 6 },
         {
@@ -52,13 +51,6 @@ export const _50_ways_to_leave_your_lover: Song = {
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      measuresPerRow: 7,
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -89,9 +81,8 @@ export const _50_ways_to_leave_your_lover: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 8,
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -121,13 +112,6 @@ export const _50_ways_to_leave_your_lover: Song = {
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      measuresPerRow: 7,
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -158,9 +142,8 @@ export const _50_ways_to_leave_your_lover: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 8,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -190,13 +173,6 @@ export const _50_ways_to_leave_your_lover: Song = {
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 8,
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -233,9 +209,8 @@ export const _50_ways_to_leave_your_lover: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 8,
+      id: 'chorus',
+      label: 'Chorus',
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -257,13 +232,6 @@ export const _50_ways_to_leave_your_lover: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 8,
-      bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
@@ -284,13 +252,6 @@ export const _50_ways_to_leave_your_lover: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      measuresPerRow: 8,
-      bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
@@ -311,13 +272,6 @@ export const _50_ways_to_leave_your_lover: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
-      measuresPerRow: 8,
-      bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
@@ -341,7 +295,6 @@ export const _50_ways_to_leave_your_lover: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ABXtWqmArUU' },
   ],

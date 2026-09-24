@@ -1,4 +1,5 @@
 import type { Song, ChordBar } from '@/curriculum/types/songLibrary';
+import { performedBars } from './performance';
 
 export interface BeatGrid {
   /** Sorted absolute beat times in seconds (relative to YouTube t=0). */
@@ -22,56 +23,47 @@ export function getActiveBarIndex(
   timeSec: number,
 ): { sectionIdx: number; barIdx: number } | null {
   let elapsed = 0;
-  for (let si = 0; si < song.sections.length; si++) {
-    const section = song.sections[si];
-    for (let rep = 0; rep < (section.repeatCount ?? 1); rep++) {
-      for (let bi = 0; bi < section.bars.length; bi++) {
-        const dur = barDurationSec(section.bars[bi], song);
-        if (timeSec >= elapsed && timeSec < elapsed + dur)
-          return { sectionIdx: si, barIdx: bi };
-        elapsed += dur;
-      }
-    }
+  for (const { sectionIdx, barIdx, bar } of performedBars(song)) {
+    const dur = barDurationSec(bar, song);
+    if (timeSec >= elapsed && timeSec < elapsed + dur)
+      return { sectionIdx, barIdx };
+    elapsed += dur;
   }
   return null;
 }
 
+/** When the first performance of a written bar starts. */
 export function getBarStartTime(
   song: Song,
   sectionIdx: number,
   barIdx: number,
 ): number {
   let elapsed = 0;
-  for (let si = 0; si < song.sections.length; si++) {
-    const section = song.sections[si];
-    for (let rep = 0; rep < (section.repeatCount ?? 1); rep++) {
-      for (let bi = 0; bi < section.bars.length; bi++) {
-        if (si === sectionIdx && bi === barIdx) return elapsed;
-        elapsed += barDurationSec(section.bars[bi], song);
-      }
-    }
+  for (const played of performedBars(song)) {
+    if (played.sectionIdx === sectionIdx && played.barIdx === barIdx)
+      return elapsed;
+    elapsed += barDurationSec(played.bar, song);
   }
   return elapsed;
 }
 
+/**
+ * The first unbroken run of a written section in performance — repeats of it
+ * included — for looping it.
+ */
 export function getSectionTimeRange(
   song: Song,
   sectionIdx: number,
 ): { start: number; end: number } {
   let elapsed = 0;
-  for (let si = 0; si < song.sections.length; si++) {
-    const section = song.sections[si];
-    const perRepeatSec = section.bars.reduce(
-      (sum, bar) => sum + barDurationSec(bar, song),
-      0,
-    );
-    const sectionSec = perRepeatSec * (section.repeatCount ?? 1);
-    if (si === sectionIdx) {
-      return { start: elapsed, end: elapsed + sectionSec };
-    }
-    elapsed += sectionSec;
+  let start: number | null = null;
+  for (const played of performedBars(song)) {
+    const inSection = played.sectionIdx === sectionIdx;
+    if (inSection && start === null) start = elapsed;
+    if (!inSection && start !== null) return { start, end: elapsed };
+    elapsed += barDurationSec(played.bar, song);
   }
-  return { start: 0, end: 0 };
+  return start === null ? { start: 0, end: 0 } : { start, end: elapsed };
 }
 
 /* ── Beat-grid helpers ───────────────────────────────────────────────── */
@@ -111,20 +103,10 @@ function buildChartBeatMap(
     barBeats: number;
   }> = [];
   let chartBeat = 0;
-  for (let si = 0; si < song.sections.length; si++) {
-    const section = song.sections[si];
-    for (let rep = 0; rep < (section.repeatCount ?? 1); rep++) {
-      for (let bi = 0; bi < section.bars.length; bi++) {
-        const barBeats = barAudioBeats(section.bars[bi], beatsPerBar);
-        map.push({
-          sectionIdx: si,
-          barIdx: bi,
-          barStartChartBeat: chartBeat,
-          barBeats,
-        });
-        chartBeat += barBeats;
-      }
-    }
+  for (const { sectionIdx, barIdx, bar } of performedBars(song)) {
+    const barBeats = barAudioBeats(bar, beatsPerBar);
+    map.push({ sectionIdx, barIdx, barStartChartBeat: chartBeat, barBeats });
+    chartBeat += barBeats;
   }
   return map;
 }
@@ -179,8 +161,13 @@ export function getSectionTimeRangeFromBeats(
   sectionIdx: number,
 ): { start: number; end: number } {
   const beatMap = buildChartBeatMap(song, grid.beatsPerBar);
-  const sectionBars = beatMap.filter((e) => e.sectionIdx === sectionIdx);
-  if (sectionBars.length === 0) return { start: 0, end: 0 };
+  // The section's first unbroken run, as getSectionTimeRange takes it.
+  const from = beatMap.findIndex((e) => e.sectionIdx === sectionIdx);
+  if (from < 0) return { start: 0, end: 0 };
+  let to = from;
+  while (to + 1 < beatMap.length && beatMap[to + 1].sectionIdx === sectionIdx)
+    to++;
+  const sectionBars = beatMap.slice(from, to + 1);
   const first = sectionBars[0];
   const last = sectionBars[sectionBars.length - 1];
   const startAudioIdx = grid.anchorBeatIdx + first.barStartChartBeat;

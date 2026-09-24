@@ -21,13 +21,11 @@ export const shake_it_off: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 2 }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       repeatCount: 3,
       bars: [
         {
@@ -48,7 +46,6 @@ export const shake_it_off: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -68,7 +65,6 @@ export const shake_it_off: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 5,
       repeatCount: 3,
       bars: [
         {
@@ -89,7 +85,6 @@ export const shake_it_off: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 5,
       repeatCount: 3,
       bars: [
         {
@@ -110,13 +105,11 @@ export const shake_it_off: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 9 }],
     },
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       repeatCount: 4,
       bars: [
         {

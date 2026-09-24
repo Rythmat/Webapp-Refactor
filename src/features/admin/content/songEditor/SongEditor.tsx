@@ -23,7 +23,6 @@ import {
   addChordAt,
   addSection,
   insertBar,
-  MAX_BARS_PER_ROW,
   moveSection,
   removeBar,
   removeChord,
@@ -101,16 +100,6 @@ export const SongEditor = ({ body, onChange }: StructuredEditorProps) => {
     patch({ genreTags: value.trim() ? [value.trim(), ...rest] : rest });
   };
 
-  // Grow a row to fit its bars (capped), so the editor and the published chart
-  // render identically. Authored per-section, so existing songs are untouched.
-  const fitRow = (secs: typeof sections, si: number) =>
-    updateSection(secs, si, {
-      measuresPerRow: Math.max(
-        1,
-        Math.min(MAX_BARS_PER_ROW, secs[si].bars.length),
-      ),
-    });
-
   // Direct-manipulation callbacks for the editable chart.
   const editable: ChordChartEditable = {
     onAddChordAtBeat: (si, bi, beat) => {
@@ -127,11 +116,10 @@ export const SongEditor = ({ body, onChange }: StructuredEditorProps) => {
           beat: toBeat,
         }),
       ),
-    onInsertBar: (si, atIdx) =>
-      setSections(fitRow(insertBar(sections, si, atIdx), si)),
+    onInsertBar: (si, atIdx) => setSections(insertBar(sections, si, atIdx)),
     onRemoveBar: (si, bi) => {
       const next = removeBar(sections, si, bi);
-      setSections(next[si] ? fitRow(next, si) : next);
+      setSections(next);
       if (selection?.sectionIdx === si && selection.barIdx === bi)
         setSelection(null);
     },

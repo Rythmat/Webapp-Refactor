@@ -7,9 +7,9 @@ export const something_to_talk_about: Song = {
   year: 1991,
   historicalDescription:
     "Bonnie Raitt releases 'Something To Talk About' in 1991, riding the momentum of her commercial renaissance after winning four Grammy Awards for 'Nick of Time'. The country-pop groove becomes one of her signature songs, cementing her status as a mainstream force after decades on the margins of the industry — proof that great artistry eventually finds its audience.",
-  key: 'A♭ minor',
+  key: 'A♭ major',
   keyRoot: 68,
-  mode: 'minor',
+  mode: 'major',
   tempo: 103,
   timeSignature: [4, 4],
 
@@ -39,7 +39,6 @@ export const something_to_talk_about: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -163,7 +162,6 @@ export const something_to_talk_about: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -211,7 +209,6 @@ export const something_to_talk_about: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -256,7 +253,6 @@ export const something_to_talk_about: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
@@ -304,7 +300,6 @@ export const something_to_talk_about: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
@@ -352,7 +347,6 @@ export const something_to_talk_about: Song = {
     {
       id: 'section_p',
       label: 'Section P',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],

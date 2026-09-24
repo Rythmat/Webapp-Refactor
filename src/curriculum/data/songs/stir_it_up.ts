@@ -21,7 +21,6 @@ export const stir_it_up: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 3,
       bars: [
         { chords: [], restBars: 6 },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -36,7 +35,6 @@ export const stir_it_up: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -49,7 +47,6 @@ export const stir_it_up: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -82,7 +79,6 @@ export const stir_it_up: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },

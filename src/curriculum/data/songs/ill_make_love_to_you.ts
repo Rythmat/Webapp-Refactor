@@ -22,7 +22,6 @@ export const ill_make_love_to_you: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -59,7 +58,6 @@ export const ill_make_love_to_you: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -89,7 +87,6 @@ export const ill_make_love_to_you: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -126,7 +123,6 @@ export const ill_make_love_to_you: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -156,7 +152,6 @@ export const ill_make_love_to_you: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -190,7 +185,6 @@ export const ill_make_love_to_you: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -235,7 +229,6 @@ export const ill_make_love_to_you: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -272,7 +265,6 @@ export const ill_make_love_to_you: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {

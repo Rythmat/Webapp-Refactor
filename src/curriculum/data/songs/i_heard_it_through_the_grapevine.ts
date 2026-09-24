@@ -21,7 +21,6 @@ export const i_heard_it_through_the_grapevine: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 3,
       bars: [
         { chords: [], restBars: 9 },
         {

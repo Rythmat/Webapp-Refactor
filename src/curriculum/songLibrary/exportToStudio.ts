@@ -3,6 +3,9 @@ import { CHORD_QUALITY_LIBRARY } from '@/curriculum/data/chordQualityLibrary';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { type ChordRegion, nextChordId } from '@/daw/store/prismSlice';
 import type { MidiClip } from '@/daw/store/tracksSlice';
+import { performedBars, writtenBarKeys } from './performance';
+import { parseSectionLabel } from './sectionNames';
+import { systemRowSizes } from './systems';
 
 /* ── Types ───────────────────────────────────────────────────────────── */
 
@@ -17,7 +20,11 @@ const PPQ = 480; // pulses per quarter note — matches the DAW
 
 /* ── Chord name → MIDI resolution ────────────────────────────────────── */
 
+// Every spelling a chart can carry, including the four that only appear in
+// remote keys (B♯, C♭, E♯, F♭) — an unlisted root silently became a C major
+// triad, which is exactly the kind of chord a transposed chart can produce.
 const NOTE_TO_MIDI: Record<string, number> = {
+  'B♯': 60,
   C: 60,
   'C♯': 61,
   'D♭': 61,
@@ -25,6 +32,8 @@ const NOTE_TO_MIDI: Record<string, number> = {
   'D♯': 63,
   'E♭': 63,
   E: 64,
+  'F♭': 64,
+  'E♯': 65,
   F: 65,
   'F♯': 66,
   'G♭': 66,
@@ -35,6 +44,7 @@ const NOTE_TO_MIDI: Record<string, number> = {
   'A♯': 70,
   'B♭': 70,
   B: 71,
+  'C♭': 71,
 };
 
 // Canonical chord-quality id → intervals, built once from the library.
@@ -152,15 +162,19 @@ export function exportSongToChordRegions(
   fermatas: number[];
   /** Visual bar count per section row (1 rest bar = 1 visual slot regardless of restBars count) */
   rowSizes: number[];
+  /** Boxed section labels at the bar each performed section starts. */
+  sectionMarks: Array<{ measureIdx: number; label: string }>;
 } {
-  const rootMidi = song.keyRoot;
   const beatsPerBar = song.timeSignature[0];
   const ticksPerBar = beatsPerBar * PPQ;
-  const defaultMeasuresPerRow = 4;
 
-  const sections = opts.loopSection
-    ? song.sections.filter((s) => s.id === opts.loopSection)
-    : song.sections;
+  const played: Song = opts.loopSection
+    ? {
+        ...song,
+        sections: song.sections.filter((s) => s.id === opts.loopSection),
+      }
+    : song;
+  const keys = writtenBarKeys(played);
 
   const regions: ChordRegion[] = [];
   const chordSeq: number[][] = [];
@@ -168,72 +182,120 @@ export function exportSongToChordRegions(
   const restMap: Record<number, number> = {};
   const fermatas: number[] = [];
   const rowSizes: number[] = [];
+  const runs: Array<{ sectionIdx: number; measureIdx: number; bars: number }> =
+    [];
   let barIndex = 0;
+  let prevWritten = -1;
 
-  for (const section of sections) {
-    const perRow = section.measuresPerRow ?? defaultMeasuresPerRow;
-    let visualBarsInSection = 0;
-    const repeats = section.repeatCount ?? 1;
-    for (let rep = 0; rep < repeats; rep++) {
-      for (const bar of section.bars) {
-        if (bar.fermata) {
-          fermatas.push(barIndex);
-        }
+  for (const { sectionIdx, bar, writtenIdx } of performedBars(played)) {
+    // A new run starts at a new section or wherever the roadmap jumps back.
+    const run = runs[runs.length - 1];
+    if (!run || run.sectionIdx !== sectionIdx || writtenIdx <= prevWritten)
+      runs.push({ sectionIdx, measureIdx: barIndex, bars: 1 });
+    else run.bars++;
+    prevWritten = writtenIdx;
 
-        if (bar.restBars != null) {
-          // Record the rest at the current barIndex, then advance by restBars
-          restMap[barIndex] = bar.restBars;
-          barIndex += bar.restBars;
-          visualBarsInSection++; // 1 visual slot for the rest notation
-          continue;
-        }
+    if (bar.fermata) fermatas.push(barIndex);
 
-        const barStartTick = barIndex * ticksPerBar;
+    if (bar.restBars != null) {
+      // Record the rest at the current barIndex, then advance by restBars;
+      // it takes one visual slot.
+      restMap[barIndex] = bar.restBars;
+      barIndex += bar.restBars;
+      continue;
+    }
 
-        for (const hit of bar.chords) {
-          if (!hit.chordName) continue;
+    const barStartTick = barIndex * ticksPerBar;
+    const key = keys[writtenIdx];
 
-          const beatOffset = (hit.beat - 1) * PPQ; // beat 1→0, beat 3→960
-          const startTick = barStartTick + beatOffset;
-          const durationTicks = hit.duration * PPQ;
-          const endTick = startTick + durationTicks;
+    for (const hit of bar.chords) {
+      if (!hit.chordName) continue;
 
-          const midi = chordNameToMidi(hit.chordName);
+      const beatOffset = (hit.beat - 1) * PPQ; // beat 1→0, beat 3→960
+      const startTick = barStartTick + beatOffset;
+      const durationTicks = hit.duration * PPQ;
+      const endTick = startTick + durationTicks;
 
-          let color: [number, number, number];
-          try {
-            const c = getChordColor(hit.degree, rootMidi, song.mode) as RGB;
-            color = [c[0], c[1], c[2]];
-          } catch {
-            color = [200, 200, 200];
-          }
+      const midi = chordNameToMidi(hit.chordName);
 
-          regions.push({
-            id: nextChordId(),
-            startTick,
-            endTick,
-            name: hit.degree || hit.chordName,
-            noteName: hit.chordName,
-            color,
-            midis: midi,
-          });
-
-          chordSeq.push(midi);
-          stringSeq.push(hit.degree || hit.chordName);
-        }
-
-        barIndex++;
-        visualBarsInSection++;
+      let color: [number, number, number];
+      try {
+        // Degrees count from the local key after a key change.
+        const c = getChordColor(hit.degree, 60 + key.tonicPc, key.mode) as RGB;
+        color = [c[0], c[1], c[2]];
+      } catch {
+        color = [200, 200, 200];
       }
+
+      regions.push({
+        id: nextChordId(),
+        startTick,
+        endTick,
+        name: hit.degree || hit.chordName,
+        noteName: hit.chordName,
+        color,
+        midis: midi,
+      });
+
+      chordSeq.push(midi);
+      stringSeq.push(hit.degree || hit.chordName);
     }
 
-    // Compute row sizes for this section (visual bars, not functional)
-    for (let i = 0; i < visualBarsInSection; i += perRow) {
-      rowSizes.push(Math.min(perRow, visualBarsInSection - i));
-    }
+    barIndex++;
   }
 
-  return { regions, chordSeq, stringSeq, restMap, fermatas, rowSizes };
+  // Systems of four (or the section's own row length) within each run, a
+  // leftover bar or two folded into the system before.
+  for (const run of runs)
+    rowSizes.push(
+      ...systemRowSizes(
+        run.bars,
+        played.sections[run.sectionIdx].measuresPerRow,
+      ),
+    );
+
+  return {
+    regions,
+    chordSeq,
+    stringSeq,
+    restMap,
+    fermatas,
+    rowSizes,
+    sectionMarks: numberedRunLabels(played, runs),
+  };
+}
+
+/**
+ * The label for each performed run. A name played more than once is numbered
+ * in order — the chart's one "Verse" with a repeat plays as Verse 1 and 2 —
+ * unless the chart already numbers it.
+ */
+function numberedRunLabels(
+  song: Song,
+  runs: Array<{ sectionIdx: number; measureIdx: number }>,
+): Array<{ measureIdx: number; label: string }> {
+  const nameOf = (label: string) => parseSectionLabel(label)?.name ?? label;
+  const total = new Map<string, number>();
+  for (const run of runs) {
+    const name = nameOf(song.sections[run.sectionIdx].label);
+    total.set(name, (total.get(name) ?? 0) + 1);
+  }
+  const seen = new Map<string, number>();
+  const marks: Array<{ measureIdx: number; label: string }> = [];
+  let prev: number | null = null;
+  for (const run of runs) {
+    const label = song.sections[run.sectionIdx].label;
+    const name = nameOf(label);
+    const nth = (seen.get(name) ?? 0) + 1;
+    seen.set(name, nth);
+    // One label per run; the same written section run twice back to back
+    // still gets its own number.
+    const numbered = (total.get(name) ?? 0) > 1 ? `${name} ${nth}` : label;
+    if (label && prev !== run.measureIdx)
+      marks.push({ measureIdx: run.measureIdx, label: numbered });
+    prev = run.measureIdx;
+  }
+  return marks;
 }
 
 /* ── ChordRegions → MidiClip (block chords, full song) ───────────────── */
@@ -273,36 +335,33 @@ export function exportSongToStudio(
   song: Song,
   opts: StudioExportOptions,
 ): SuggestionChord[] {
-  const rootMidi = song.keyRoot;
   const sections = opts.loopSection
     ? song.sections.filter((s) => s.id === opts.loopSection)
     : song.sections;
 
   const chords: SuggestionChord[] = [];
+  const played: Song = { ...song, sections };
+  const keys = writtenBarKeys(played);
 
-  for (const section of sections) {
-    const repeats = section.repeatCount ?? 1;
-    for (let rep = 0; rep < repeats; rep++) {
-      for (const bar of section.bars) {
-        if (bar.restBars != null) continue;
-        for (const hit of bar.chords) {
-          if (!hit.chordName) continue;
-          const midi = chordNameToMidi(hit.chordName);
-          let color: RGB;
-          try {
-            color = getChordColor(hit.degree, rootMidi, song.mode) as RGB;
-          } catch {
-            color = [200, 200, 200] as unknown as RGB;
-          }
-          chords.push({
-            degree: hit.degree || '1 maj',
-            quality: hit.chordName,
-            noteName: hit.chordName,
-            midi,
-            color,
-          });
-        }
+  for (const { bar, writtenIdx } of performedBars(played)) {
+    if (bar.restBars != null) continue;
+    const key = keys[writtenIdx];
+    for (const hit of bar.chords) {
+      if (!hit.chordName) continue;
+      const midi = chordNameToMidi(hit.chordName);
+      let color: RGB;
+      try {
+        color = getChordColor(hit.degree, 60 + key.tonicPc, key.mode) as RGB;
+      } catch {
+        color = [200, 200, 200] as unknown as RGB;
       }
+      chords.push({
+        degree: hit.degree || '1 maj',
+        quality: hit.chordName,
+        noteName: hit.chordName,
+        midi,
+        color,
+      });
     }
   }
 

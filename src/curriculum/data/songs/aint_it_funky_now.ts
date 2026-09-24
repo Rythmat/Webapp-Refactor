@@ -21,7 +21,12 @@ export const aint_it_funky_now: Song = {
     {
       id: 'intro',
       label: 'Intro',
+      instrumental: true,
       bars: [
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -29,18 +34,9 @@ export const aint_it_funky_now: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_1',
+      label: 'Verse 1',
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -74,13 +70,6 @@ export const aint_it_funky_now: Song = {
             { degree: '1 maj', chordName: 'F', beat: 4, duration: 1 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      measuresPerRow: 5,
-      bars: [
         {
           chords: [
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 1 },
@@ -103,8 +92,9 @@ export const aint_it_funky_now: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -115,6 +105,7 @@ export const aint_it_funky_now: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -148,13 +139,6 @@ export const aint_it_funky_now: Song = {
             { degree: '1 maj', chordName: 'F', beat: 4, duration: 1 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 5,
-      bars: [
         {
           chords: [
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 1 },
@@ -177,8 +161,9 @@ export const aint_it_funky_now: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'outro',
+      label: 'Outro',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -187,7 +172,6 @@ export const aint_it_funky_now: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=GLBTSrD42QY' },
   ],

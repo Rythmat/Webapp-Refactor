@@ -21,7 +21,6 @@ export const how_sweet_it_is_to_be_loved_by_you: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -42,7 +41,6 @@ export const how_sweet_it_is_to_be_loved_by_you: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -116,7 +114,6 @@ export const how_sweet_it_is_to_be_loved_by_you: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {

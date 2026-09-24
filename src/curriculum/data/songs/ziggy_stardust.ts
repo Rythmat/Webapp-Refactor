@@ -21,7 +21,6 @@ export const ziggy_stardust: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 10,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -118,7 +117,6 @@ export const ziggy_stardust: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -143,7 +141,6 @@ export const ziggy_stardust: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -161,7 +158,6 @@ export const ziggy_stardust: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 10,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -194,7 +190,6 @@ export const ziggy_stardust: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 10,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -227,7 +222,6 @@ export const ziggy_stardust: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 10,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },

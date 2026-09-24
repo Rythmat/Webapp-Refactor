@@ -21,7 +21,6 @@ export const out_of_sight: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },

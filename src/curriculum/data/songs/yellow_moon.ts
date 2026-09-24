@@ -47,7 +47,6 @@ export const yellow_moon: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         {
@@ -83,7 +82,6 @@ export const yellow_moon: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -118,7 +116,6 @@ export const yellow_moon: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -153,7 +150,6 @@ export const yellow_moon: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -188,7 +184,6 @@ export const yellow_moon: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [

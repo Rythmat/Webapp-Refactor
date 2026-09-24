@@ -7,7 +7,7 @@ export const love_and_happiness: Song = {
   year: 2001,
   historicalDescription:
     "Al Green's 'Love And Happiness' stands as one of the defining monuments of Southern soul, recorded at the height of his creative partnership with producer Willie Mitchell in Memphis. The track captures the raw, spiritual tension at the heart of Green's genius — the push and pull between earthly desire and divine devotion. Decades after its release, it remains a cornerstone of soul music, endlessly sampled and covered.",
-  key: 'A♭ minor',
+  key: 'G♯ minor',
   keyRoot: 68,
   mode: 'minor',
   tempo: 98,
@@ -21,7 +21,6 @@ export const love_and_happiness: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -48,7 +47,6 @@ export const love_and_happiness: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'B', beat: 1, duration: 4 }],
@@ -79,7 +77,6 @@ export const love_and_happiness: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -115,7 +112,6 @@ export const love_and_happiness: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '♭6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
@@ -162,7 +158,6 @@ export const love_and_happiness: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '♭6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
@@ -183,7 +178,6 @@ export const love_and_happiness: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'B', beat: 1, duration: 4 }],
@@ -214,7 +208,6 @@ export const love_and_happiness: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -250,7 +243,6 @@ export const love_and_happiness: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '♭6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
@@ -297,7 +289,6 @@ export const love_and_happiness: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '♭6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },

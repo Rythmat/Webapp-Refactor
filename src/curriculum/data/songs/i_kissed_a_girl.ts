@@ -21,7 +21,6 @@ export const i_kissed_a_girl: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
@@ -59,7 +58,6 @@ export const i_kissed_a_girl: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -102,7 +100,6 @@ export const i_kissed_a_girl: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -145,7 +142,6 @@ export const i_kissed_a_girl: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -188,7 +184,6 @@ export const i_kissed_a_girl: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -235,7 +230,6 @@ export const i_kissed_a_girl: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -282,7 +276,6 @@ export const i_kissed_a_girl: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -323,7 +316,6 @@ export const i_kissed_a_girl: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -434,7 +426,6 @@ export const i_kissed_a_girl: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -481,7 +472,6 @@ export const i_kissed_a_girl: Song = {
     {
       id: 'section_m',
       label: 'Section M',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -528,7 +518,6 @@ export const i_kissed_a_girl: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -569,7 +558,6 @@ export const i_kissed_a_girl: Song = {
     {
       id: 'section_o',
       label: 'Section O',
-      measuresPerRow: 9,
       bars: [
         {
           chords: [

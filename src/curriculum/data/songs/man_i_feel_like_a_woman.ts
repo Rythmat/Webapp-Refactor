@@ -21,7 +21,6 @@ export const man_i_feel_like_a_woman: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 2,
       bars: [{ chords: [], restBars: 15 }, { chords: [] }],
     },
     {
@@ -117,7 +116,6 @@ export const man_i_feel_like_a_woman: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -143,7 +141,6 @@ export const man_i_feel_like_a_woman: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 5,
       bars: [
         { chords: [] },
         {
@@ -253,7 +250,6 @@ export const man_i_feel_like_a_woman: Song = {
     {
       id: 'section_p',
       label: 'Section P',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -279,7 +275,6 @@ export const man_i_feel_like_a_woman: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -319,7 +314,6 @@ export const man_i_feel_like_a_woman: Song = {
     {
       id: 'section_s',
       label: 'Section S',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -373,7 +367,6 @@ export const man_i_feel_like_a_woman: Song = {
     {
       id: 'section_w',
       label: 'Section W',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -401,7 +394,6 @@ export const man_i_feel_like_a_woman: Song = {
     {
       id: 'section_g_2',
       label: 'Section G',
-      measuresPerRow: 5,
       repeatCount: 3,
       bars: [
         {

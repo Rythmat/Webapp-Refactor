@@ -7,7 +7,7 @@ export const no_scrubs: Song = {
   year: 1999,
   historicalDescription:
     "TLC releases 'No Scrubs', a sharp, self-assured anthem rejecting broke, aimless men that becomes one of the defining pop-R&B moments of the late 1990s. Its blunt, conversational lyrics give voice to a generation of women refusing to settle, and the song's cultural impact is so immediate that Destiny's Child answers it with 'Bills, Bills, Bills' the same year.",
-  key: 'A♭ minor',
+  key: 'G♯ minor',
   keyRoot: 68,
   mode: 'minor',
   tempo: 188,

@@ -19,14 +19,14 @@ export const _100_days_100_nights: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 1,
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -48,12 +48,6 @@ export const _100_days_100_nights: Song = {
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -74,12 +68,6 @@ export const _100_days_100_nights: Song = {
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
         { chords: [{ degree: '♭6 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
@@ -91,8 +79,8 @@ export const _100_days_100_nights: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -114,12 +102,6 @@ export const _100_days_100_nights: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -132,12 +114,6 @@ export const _100_days_100_nights: Song = {
         },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -158,12 +134,6 @@ export const _100_days_100_nights: Song = {
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -206,12 +176,6 @@ export const _100_days_100_nights: Song = {
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -232,12 +196,6 @@ export const _100_days_100_nights: Song = {
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_k',
-      label: 'Section K',
-      bars: [
         { chords: [{ degree: '♭6 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
@@ -254,9 +212,9 @@ export const _100_days_100_nights: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 2,
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -268,12 +226,6 @@ export const _100_days_100_nights: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_m',
-      label: 'Section M',
-      bars: [
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -294,12 +246,6 @@ export const _100_days_100_nights: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_n',
-      label: 'Section N',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -320,22 +266,10 @@ export const _100_days_100_nights: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_o',
-      label: 'Section O',
-      bars: [
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '♭6 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_p',
-      label: 'Section P',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -359,8 +293,8 @@ export const _100_days_100_nights: Song = {
       ],
     },
     {
-      id: 'section_q',
-      label: 'Section Q',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -378,12 +312,6 @@ export const _100_days_100_nights: Song = {
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_r',
-      label: 'Section R',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -396,12 +324,6 @@ export const _100_days_100_nights: Song = {
         },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_s',
-      label: 'Section S',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -421,9 +343,8 @@ export const _100_days_100_nights: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
-      measuresPerRow: 2,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -435,13 +356,6 @@ export const _100_days_100_nights: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_u',
-      label: 'Section U',
-      measuresPerRow: 2,
-      bars: [
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -452,13 +366,6 @@ export const _100_days_100_nights: Song = {
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_v',
-      label: 'Section V',
-      measuresPerRow: 6,
-      bars: [
         {
           chords: [{ degree: '♭6 7', chordName: 'F7', beat: 1, duration: 4 }],
           fermata: true,
@@ -479,12 +386,6 @@ export const _100_days_100_nights: Song = {
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_w',
-      label: 'Section W',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -505,7 +406,6 @@ export const _100_days_100_nights: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8ouI5KcyHfE' },
   ],

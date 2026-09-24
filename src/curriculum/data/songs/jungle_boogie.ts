@@ -22,7 +22,6 @@ export const jungle_boogie: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
@@ -210,7 +209,6 @@ export const jungle_boogie: Song = {
     {
       id: 'section_g_2',
       label: 'Section G',
-      measuresPerRow: 5,
       bars: [
         { chords: [], restBars: 2 },
         {

@@ -43,7 +43,6 @@ export const shining_star: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '♭7 7', chordName: 'D7', beat: 1, duration: 4 }] },
@@ -110,7 +109,6 @@ export const shining_star: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },

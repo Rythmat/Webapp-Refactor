@@ -7,9 +7,9 @@ export const making_flippy_floppy: Song = {
   year: 1983,
   historicalDescription:
     "Talking Heads release 'Making Flippy Floppy' on their landmark album 'Speaking in Tongues' — their first record written and recorded entirely as a full band. The track pulses with polyrhythmic funk grooves and David Byrne's jittery, stream-of-consciousness lyricism, capturing the New York art-rock scene at its most restless and danceable. It signals Talking Heads pushing deeper into the Afrobeat and funk territory that defines their early 1980s peak.",
-  key: 'F major',
-  keyRoot: 65,
-  mode: 'major',
+  key: 'G mixolydian',
+  keyRoot: 67,
+  mode: 'mixolydian',
   tempo: 123,
   timeSignature: [4, 4],
 
@@ -25,22 +25,22 @@ export const making_flippy_floppy: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -52,16 +52,18 @@ export const making_flippy_floppy: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -71,22 +73,22 @@ export const making_flippy_floppy: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -98,16 +100,18 @@ export const making_flippy_floppy: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -117,22 +121,22 @@ export const making_flippy_floppy: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -144,16 +148,18 @@ export const making_flippy_floppy: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -162,22 +168,22 @@ export const making_flippy_floppy: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'F/G', beat: 1, duration: 4 },
+            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
       ],

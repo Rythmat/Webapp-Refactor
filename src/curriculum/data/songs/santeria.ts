@@ -7,8 +7,8 @@ export const santeria: Song = {
   year: 1996,
   historicalDescription:
     "Sublime releases 'Santeria' from their self-titled third album, a laid-back ska-punk meditation on heartbreak and obsession recorded in Long Beach, California. The song becomes one of the band's signature tracks — yet frontman Bradley Nowell never sees its success, dying of a heroin overdose two months before the album drops. His absence makes Sublime's sun-soaked blend of punk, reggae, and hip hop feel all the more bittersweet.",
-  key: 'B major',
-  keyRoot: 71,
+  key: 'E major',
+  keyRoot: 64,
   mode: 'major',
   tempo: 90,
   timeSignature: [4, 4],
@@ -22,29 +22,29 @@ export const santeria: Song = {
       id: 'section_a',
       label: 'Section A',
       bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G♯', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'verse',
       label: 'Verse',
       bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G♯', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G♯', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -54,29 +54,29 @@ export const santeria: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_d',
       label: 'Section D',
       bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G♯', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G♯', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -86,16 +86,16 @@ export const santeria: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -103,18 +103,18 @@ export const santeria: Song = {
       label: 'Chorus',
       bars: [
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -124,18 +124,18 @@ export const santeria: Song = {
       label: 'Section G',
       bars: [
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -143,40 +143,39 @@ export const santeria: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 6,
       bars: [
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'bridge',
       label: 'Bridge',
       bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G♯', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G♯', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -186,29 +185,29 @@ export const santeria: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_k',
       label: 'Section K',
       bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G♯', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G♯', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -218,16 +217,16 @@ export const santeria: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -235,18 +234,18 @@ export const santeria: Song = {
       label: 'Verse 2',
       bars: [
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -256,18 +255,18 @@ export const santeria: Song = {
       label: 'Section N',
       bars: [
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -275,40 +274,39 @@ export const santeria: Song = {
     {
       id: 'section_o',
       label: 'Section O',
-      measuresPerRow: 6,
       bars: [
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_e_2',
       label: 'Section E',
       bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G♯', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G♯', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -318,29 +316,29 @@ export const santeria: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_r',
       label: 'Section R',
       bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G♯', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 maj', chordName: 'G♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '3 maj', chordName: 'G♯', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -350,16 +348,16 @@ export const santeria: Song = {
       bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -367,18 +365,18 @@ export const santeria: Song = {
       label: 'Section F',
       bars: [
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -388,18 +386,18 @@ export const santeria: Song = {
       label: 'Section U',
       bars: [
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -409,18 +407,18 @@ export const santeria: Song = {
       label: 'Section V',
       bars: [
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -428,30 +426,29 @@ export const santeria: Song = {
     {
       id: 'section_w',
       label: 'Section W',
-      measuresPerRow: 7,
       bars: [
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 maj/3', chordName: 'B/D♯', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 maj/7', chordName: 'B/D♯', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }],
           fermata: true,
         },
       ],

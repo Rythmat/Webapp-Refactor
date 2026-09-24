@@ -7,7 +7,7 @@ export const shape_of_you: Song = {
   year: 2017,
   historicalDescription:
     "Ed Sheeran releases 'Shape Of You' in 2017, a sleek pop track built on tropical house rhythms and a looping melodic hook that makes it almost impossible to ignore. The song becomes one of the best-selling singles of all time, dominating charts worldwide and cementing Sheeran's place not just as a singer-songwriter but as a hitmaking force reshaping mainstream pop.",
-  key: 'D♭ minor',
+  key: 'C♯ minor',
   keyRoot: 61,
   mode: 'minor',
   tempo: 192,

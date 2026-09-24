@@ -93,7 +93,6 @@ export const if_i_aint_got_you: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
@@ -132,7 +131,6 @@ export const if_i_aint_got_you: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {

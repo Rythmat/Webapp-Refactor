@@ -7,9 +7,9 @@ export const thriller: Song = {
   year: 1982,
   historicalDescription:
     "Michael Jackson releases 'Thriller' in 1982, anchoring the best-selling album of all time. The song's horror-movie theatrics — complete with Vincent Price's menacing spoken-word breakdown — push the boundaries of pop music into cinematic territory. The accompanying 14-minute music video, directed by John Landis, transforms MTV and redefines what a music video can be.",
-  key: 'D♭ minor',
+  key: 'C♯ dorian',
   keyRoot: 61,
-  mode: 'minor',
+  mode: 'dorian',
   tempo: 117,
   timeSignature: [4, 4],
 
@@ -21,7 +21,7 @@ export const thriller: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 3,
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -43,9 +43,8 @@ export const thriller: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 7,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -67,12 +66,6 @@ export const thriller: Song = {
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -96,9 +89,8 @@ export const thriller: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      repeatCount: 6,
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -120,13 +112,6 @@ export const thriller: Song = {
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 6,
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -156,9 +141,8 @@ export const thriller: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 5,
+      id: 'pre_chorus',
+      label: 'Pre-Chorus',
       bars: [
         { chords: [{ degree: '4 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
@@ -180,9 +164,8 @@ export const thriller: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 6,
+      id: 'chorus',
+      label: 'Chorus',
       bars: [
         {
           chords: [
@@ -216,10 +199,24 @@ export const thriller: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
-      repeatCount: 5,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -243,30 +240,8 @@ export const thriller: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
-      measuresPerRow: 3,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -283,8 +258,8 @@ export const thriller: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -306,12 +281,6 @@ export const thriller: Song = {
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_l',
-      label: 'Section L',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -335,8 +304,9 @@ export const thriller: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'outro',
+      label: 'Outro',
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -361,7 +331,6 @@ export const thriller: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=sOnqjkJTMaA' },
   ],

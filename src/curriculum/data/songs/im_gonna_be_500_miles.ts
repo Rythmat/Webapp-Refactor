@@ -21,19 +21,16 @@ export const im_gonna_be_500_miles: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -55,7 +52,6 @@ export const im_gonna_be_500_miles: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 5,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -78,7 +74,6 @@ export const im_gonna_be_500_miles: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -92,7 +87,6 @@ export const im_gonna_be_500_miles: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -104,7 +98,6 @@ export const im_gonna_be_500_miles: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -116,7 +109,6 @@ export const im_gonna_be_500_miles: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -132,7 +124,6 @@ export const im_gonna_be_500_miles: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [
@@ -145,7 +136,6 @@ export const im_gonna_be_500_miles: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 2 }],
     },
     {
@@ -161,7 +151,6 @@ export const im_gonna_be_500_miles: Song = {
     {
       id: 'section_j_2',
       label: 'Section J',
-      measuresPerRow: 5,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -174,7 +163,6 @@ export const im_gonna_be_500_miles: Song = {
     {
       id: 'section_k_2',
       label: 'Section K',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },

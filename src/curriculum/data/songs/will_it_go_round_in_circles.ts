@@ -7,9 +7,9 @@ export const will_it_go_round_in_circles: Song = {
   year: 1972,
   historicalDescription:
     "Billy Preston releases 'Will It Go Round In Circles', a buoyant soul groove built on a rolling piano figure and a melody, as Preston cheerfully admits, with no story. The song hits #1 in the US, cementing Preston's status as a rare instrumentalist-turned-solo-star — the only artist to receive a co-billing credit on a Beatles record. It captures the looser, funkier side of early 1970s soul.",
-  key: 'A♭ minor',
+  key: 'A♭ mixolydian',
   keyRoot: 68,
-  mode: 'minor',
+  mode: 'mixolydian',
   tempo: 97,
   timeSignature: [4, 4],
 
@@ -21,7 +21,6 @@ export const will_it_go_round_in_circles: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 2,
       bars: [
         { chords: [] },
         { chords: [{ degree: '1 7', chordName: 'A♭7', beat: 1, duration: 4 }] },

@@ -7,7 +7,7 @@ export const eventually: Song = {
   year: 1970,
   historicalDescription:
     "Carole King records 'Eventually' in 1970, a quiet but searching pop ballad that previews the introspective songwriter's turn toward performing her own material. Coming just before the landmark release of Tapestry, it captures King in transition — stepping out from behind the Brill Building hit machine and into her own voice as an artist.",
-  key: 'D♭ major',
+  key: 'C♯ major',
   keyRoot: 61,
   mode: 'major',
   tempo: 60,
@@ -21,13 +21,11 @@ export const eventually: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 1 }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -58,7 +56,6 @@ export const eventually: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -87,7 +84,6 @@ export const eventually: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
@@ -126,7 +122,6 @@ export const eventually: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -155,7 +150,6 @@ export const eventually: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -186,7 +180,6 @@ export const eventually: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -215,7 +208,6 @@ export const eventually: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
@@ -254,7 +246,6 @@ export const eventually: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -283,7 +274,6 @@ export const eventually: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -309,7 +299,6 @@ export const eventually: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -340,7 +329,6 @@ export const eventually: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -369,7 +357,6 @@ export const eventually: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
@@ -408,7 +395,6 @@ export const eventually: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],

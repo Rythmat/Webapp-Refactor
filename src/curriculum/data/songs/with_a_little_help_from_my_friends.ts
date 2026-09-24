@@ -91,7 +91,6 @@ export const with_a_little_help_from_my_friends: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -149,7 +148,6 @@ export const with_a_little_help_from_my_friends: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -199,7 +197,6 @@ export const with_a_little_help_from_my_friends: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -257,7 +254,6 @@ export const with_a_little_help_from_my_friends: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },

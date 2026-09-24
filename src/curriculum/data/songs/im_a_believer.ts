@@ -21,7 +21,6 @@ export const im_a_believer: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 3 }],
     },
     {
@@ -127,7 +126,6 @@ export const im_a_believer: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       repeatCount: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },

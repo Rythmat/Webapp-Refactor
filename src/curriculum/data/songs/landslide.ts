@@ -21,7 +21,6 @@ export const landslide: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -64,7 +63,6 @@ export const landslide: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       repeatCount: 3,
       bars: [
         {
@@ -108,7 +106,6 @@ export const landslide: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       repeatCount: 5,
       bars: [
         {
@@ -152,7 +149,6 @@ export const landslide: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -190,7 +186,6 @@ export const landslide: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -228,7 +223,6 @@ export const landslide: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       repeatCount: 3,
       bars: [
         {
@@ -272,7 +266,6 @@ export const landslide: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -310,7 +303,6 @@ export const landslide: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 7,
       repeatCount: 6,
       bars: [
         {
@@ -374,7 +366,6 @@ export const landslide: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],

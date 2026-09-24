@@ -20,9 +20,8 @@ export const single_ladies: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 5,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -31,9 +30,8 @@ export const single_ladies: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 6,
+      id: 'pre_chorus_1',
+      label: 'Pre-Chorus 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -52,8 +50,8 @@ export const single_ladies: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -67,12 +65,6 @@ export const single_ladies: Song = {
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -98,10 +90,8 @@ export const single_ladies: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 6,
-      repeatCount: 4,
+      id: 'pre_chorus_2',
+      label: 'Pre-Chorus 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -120,9 +110,21 @@ export const single_ladies: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -138,27 +140,8 @@ export const single_ladies: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 8,
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -176,13 +159,6 @@ export const single_ladies: Song = {
         },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_h_2',
-      label: 'Section H',
-      measuresPerRow: 8,
-      bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
@@ -202,19 +178,14 @@ export const single_ladies: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_l',
-      label: 'Section L',
-      bars: [
         { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
@@ -225,8 +196,8 @@ export const single_ladies: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -235,9 +206,8 @@ export const single_ladies: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
-      repeatCount: 3,
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         {
           chords: [
@@ -251,12 +221,6 @@ export const single_ladies: Song = {
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_o',
-      label: 'Section O',
-      bars: [
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -272,9 +236,8 @@ export const single_ladies: Song = {
       ],
     },
     {
-      id: 'section_l_2',
-      label: 'Section L',
-      measuresPerRow: 5,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -284,7 +247,6 @@ export const single_ladies: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=b1qD4LtaRIU' },
   ],

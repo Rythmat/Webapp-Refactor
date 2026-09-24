@@ -174,7 +174,6 @@ export const whats_going_on: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [
@@ -345,7 +344,6 @@ export const whats_going_on: Song = {
     {
       id: 'section_q',
       label: 'Section Q',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [
@@ -380,7 +378,6 @@ export const whats_going_on: Song = {
     {
       id: 'section_i_2',
       label: 'Section I',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [
@@ -397,7 +394,6 @@ export const whats_going_on: Song = {
     {
       id: 'section_t',
       label: 'Section T',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [
@@ -414,7 +410,6 @@ export const whats_going_on: Song = {
     {
       id: 'section_u',
       label: 'Section U',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [
@@ -431,7 +426,6 @@ export const whats_going_on: Song = {
     {
       id: 'section_v',
       label: 'Section V',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [
@@ -448,7 +442,6 @@ export const whats_going_on: Song = {
     {
       id: 'section_w',
       label: 'Section W',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [
@@ -465,7 +458,6 @@ export const whats_going_on: Song = {
     {
       id: 'section_x',
       label: 'Section X',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [

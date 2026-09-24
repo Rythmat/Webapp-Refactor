@@ -21,7 +21,6 @@ export const ob_la_di_ob_la_da: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 5,
       bars: [
         { chords: [], restBars: 2 },
         {
@@ -41,7 +40,6 @@ export const ob_la_di_ob_la_da: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -64,7 +62,6 @@ export const ob_la_di_ob_la_da: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -93,7 +90,6 @@ export const ob_la_di_ob_la_da: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -122,7 +118,6 @@ export const ob_la_di_ob_la_da: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -151,7 +146,6 @@ export const ob_la_di_ob_la_da: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -174,7 +168,6 @@ export const ob_la_di_ob_la_da: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -203,7 +196,6 @@ export const ob_la_di_ob_la_da: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -232,7 +224,6 @@ export const ob_la_di_ob_la_da: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -261,7 +252,6 @@ export const ob_la_di_ob_la_da: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -292,7 +282,6 @@ export const ob_la_di_ob_la_da: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -315,7 +304,6 @@ export const ob_la_di_ob_la_da: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -338,7 +326,6 @@ export const ob_la_di_ob_la_da: Song = {
     {
       id: 'section_m',
       label: 'Section M',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -367,7 +354,6 @@ export const ob_la_di_ob_la_da: Song = {
     {
       id: 'section_g_2',
       label: 'Section G',
-      measuresPerRow: 10,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -402,7 +388,6 @@ export const ob_la_di_ob_la_da: Song = {
     {
       id: 'section_o',
       label: 'Section O',
-      measuresPerRow: 9,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {

@@ -40,7 +40,6 @@ export const oye_como_va: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -83,7 +82,6 @@ export const oye_como_va: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [
@@ -280,7 +278,6 @@ export const oye_como_va: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

@@ -7,7 +7,7 @@ export const livin_la_vida_loca: Song = {
   year: 1999,
   historicalDescription:
     "Ricky Martin releases 'Livin' La Vida Loca' in 1999, igniting a Latin pop explosion that sends shockwaves through mainstream American music. The song's feverish energy and bilingual swagger make it an unstoppable crossover hit, arriving at a moment when Latin artists are pushing to the center of pop culture — opening doors for Jennifer Lopez, Marc Anthony, and Enrique Iglesias.",
-  key: 'D♭ minor',
+  key: 'C♯ minor',
   keyRoot: 61,
   mode: 'minor',
   tempo: 180,
@@ -118,7 +118,6 @@ export const livin_la_vida_loca: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [
@@ -253,7 +252,6 @@ export const livin_la_vida_loca: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [
@@ -385,7 +383,6 @@ export const livin_la_vida_loca: Song = {
     {
       id: 'section_q',
       label: 'Section Q',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [

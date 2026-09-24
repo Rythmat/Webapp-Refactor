@@ -87,7 +87,6 @@ export const redneck_woman: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -146,7 +145,6 @@ export const redneck_woman: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [

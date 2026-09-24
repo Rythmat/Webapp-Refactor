@@ -7,9 +7,9 @@ export const tequila: Song = {
   year: 1958,
   historicalDescription:
     "The Champs record 'Tequila,' an infectious instrumental built around a rolling sax riff and a single shouted word. The track becomes a massive hit in 1958, crossing genre lines and introducing a Latin swagger into the mainstream American sound. Its irresistible groove makes it one of the most recognizable instrumentals in rock history.",
-  key: 'F minor',
+  key: 'F major',
   keyRoot: 65,
-  mode: 'minor',
+  mode: 'major',
   tempo: 163,
   timeSignature: [4, 4],
 
@@ -21,8 +21,7 @@ export const tequila: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 5,
-      repeatCount: 3,
+      instrumental: true,
       bars: [
         { chords: [], restBars: 4 },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -32,9 +31,9 @@ export const tequila: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 4,
+      id: 'verse_1',
+      label: 'Verse 1',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -43,8 +42,9 @@ export const tequila: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -58,12 +58,6 @@ export const tequila: Song = {
           ],
         },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
         {
           chords: [
             { degree: '1 dim7', chordName: 'F dim7', beat: 1, duration: 4 },
@@ -72,41 +66,36 @@ export const tequila: Song = {
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 6,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
+      instrumental: true,
       bars: [
-        {
-          chords: [
-            { degree: '1 dim7', chordName: 'F dim7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 dim7', chordName: 'F dim7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      instrumental: true,
       bars: [
+        {
+          chords: [
+            { degree: '1 dim7', chordName: 'F dim7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 dim7', chordName: 'F dim7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 dim7', chordName: 'F dim7', beat: 1, duration: 4 },
@@ -118,9 +107,9 @@ export const tequila: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      repeatCount: 5,
+      id: 'outro',
+      label: 'Outro',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -129,7 +118,6 @@ export const tequila: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=U_JFLb1IItM' },
   ],

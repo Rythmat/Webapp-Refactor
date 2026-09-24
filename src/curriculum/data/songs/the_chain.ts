@@ -21,13 +21,11 @@ export const the_chain: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
@@ -60,7 +58,6 @@ export const the_chain: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 16 }],
     },
     {
@@ -94,7 +91,6 @@ export const the_chain: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [

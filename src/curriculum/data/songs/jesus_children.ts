@@ -73,7 +73,6 @@ export const jesus_children: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -122,7 +121,6 @@ export const jesus_children: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -171,7 +169,6 @@ export const jesus_children: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -331,7 +328,6 @@ export const jesus_children: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -380,7 +376,6 @@ export const jesus_children: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 6,
       repeatCount: 6,
       bars: [
         {

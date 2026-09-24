@@ -7,7 +7,7 @@ export const raging: Song = {
   year: 2016,
   historicalDescription:
     "Kygo releases 'Raging' in 2016, a track that showcases the Norwegian producer's signature tropical house sound blending organic piano melodies with soaring electronic production. At a time when streaming platforms are reshaping how pop music reaches global audiences, Kygo's emotionally charged style earns him a massive international following and cements his place as a pioneer of the chillwave-meets-pop movement.",
-  key: 'E♭ minor',
+  key: 'D♯ minor',
   keyRoot: 63,
   mode: 'minor',
   tempo: 102,
@@ -44,7 +44,6 @@ export const raging: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -95,7 +94,6 @@ export const raging: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -126,7 +124,6 @@ export const raging: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -154,7 +151,6 @@ export const raging: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'B', beat: 1, duration: 4 }],

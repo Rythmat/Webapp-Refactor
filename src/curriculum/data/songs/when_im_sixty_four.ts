@@ -21,7 +21,6 @@ export const when_im_sixty_four: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -197,7 +196,6 @@ export const when_im_sixty_four: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],

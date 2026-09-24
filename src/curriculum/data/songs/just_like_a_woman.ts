@@ -21,7 +21,6 @@ export const just_like_a_woman: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -43,7 +42,6 @@ export const just_like_a_woman: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -192,7 +190,6 @@ export const just_like_a_woman: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -304,7 +301,6 @@ export const just_like_a_woman: Song = {
     {
       id: 'section_m',
       label: 'Section M',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },

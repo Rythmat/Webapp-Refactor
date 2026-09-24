@@ -7,9 +7,9 @@ export const cigarettes_and_chocolate_milk: Song = {
   year: 2001,
   historicalDescription:
     "Rufus Wainwright releases 'Cigarettes and Chocolate Milk' from his album Poses, a lush, self-deprecating ode to indulgence and ambivalence. The song captures Wainwright's signature blend of baroque pop sophistication and confessional wit, cementing his reputation as one of the most distinctive singer-songwriters of his generation — a rare voice bridging cabaret, classical influence, and modern pop.",
-  key: 'E minor',
+  key: 'E major',
   keyRoot: 64,
-  mode: 'minor',
+  mode: 'major',
   tempo: 96,
   timeSignature: [4, 4],
 
@@ -350,7 +350,6 @@ export const cigarettes_and_chocolate_milk: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -383,7 +382,6 @@ export const cigarettes_and_chocolate_milk: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -426,7 +424,6 @@ export const cigarettes_and_chocolate_milk: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -494,7 +491,6 @@ export const cigarettes_and_chocolate_milk: Song = {
     {
       id: 'section_p',
       label: 'Section P',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [

@@ -7,7 +7,7 @@ export const look_what_i_found: Song = {
   year: 2019,
   historicalDescription:
     "Lady Gaga contributes 'Look What I Found' to the soundtrack of 'A Star Is Born', the 2018 film in which she also stars alongside Bradley Cooper. The pop-rock track showcases Gaga's range beyond her electronic dance roots, reinforcing the film's narrative of an artist discovering her voice. The soundtrack becomes one of the most celebrated musical achievements of her career.",
-  key: 'D♭ minor',
+  key: 'C♯ minor',
   keyRoot: 61,
   mode: 'minor',
   tempo: 96,
@@ -49,7 +49,6 @@ export const look_what_i_found: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -84,7 +83,6 @@ export const look_what_i_found: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -119,7 +117,6 @@ export const look_what_i_found: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -151,7 +148,6 @@ export const look_what_i_found: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -216,7 +212,6 @@ export const look_what_i_found: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -251,7 +246,6 @@ export const look_what_i_found: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -285,7 +279,6 @@ export const look_what_i_found: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -317,7 +310,6 @@ export const look_what_i_found: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -380,7 +372,6 @@ export const look_what_i_found: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -419,7 +410,6 @@ export const look_what_i_found: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -483,7 +473,6 @@ export const look_what_i_found: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

@@ -51,7 +51,6 @@ export const pulled_up: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -64,7 +63,6 @@ export const pulled_up: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -117,7 +115,6 @@ export const pulled_up: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -130,7 +127,6 @@ export const pulled_up: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -155,7 +151,6 @@ export const pulled_up: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -178,7 +173,6 @@ export const pulled_up: Song = {
     {
       id: 'section_h_2',
       label: 'Section H',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -191,7 +185,6 @@ export const pulled_up: Song = {
     {
       id: 'section_p',
       label: 'Section P',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -225,7 +218,6 @@ export const pulled_up: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 6,
       repeatCount: 3,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -239,7 +231,6 @@ export const pulled_up: Song = {
     {
       id: 'section_t',
       label: 'Section T',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },

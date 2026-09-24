@@ -19,9 +19,8 @@ export const all_my_loving: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 8,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -45,13 +44,6 @@ export const all_my_loving: Song = {
           chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 8,
-      bars: [
         {
           chords: [
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -66,6 +58,36 @@ export const all_my_loving: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [] },
+      ],
+    },
+    {
+      id: 'chorus_1',
+      label: 'Chorus 1',
+      bars: [
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min/♭6', chordName: 'C♯min/C', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min/♭6', chordName: 'C♯min/C', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [] },
       ],
@@ -73,38 +95,6 @@ export const all_my_loving: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min/♭6', chordName: 'C♯min/C', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min/♭6', chordName: 'C♯min/C', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -121,9 +111,8 @@ export const all_my_loving: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 8,
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -147,13 +136,6 @@ export const all_my_loving: Song = {
           chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 8,
-      bars: [
         {
           chords: [
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -173,9 +155,8 @@ export const all_my_loving: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 8,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -204,7 +185,6 @@ export const all_my_loving: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=TSpiwK5fig0' },
   ],

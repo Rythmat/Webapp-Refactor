@@ -21,7 +21,6 @@ export const forget_you: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 2,
       bars: [{ chords: [], restBars: 4 }, { chords: [] }],
     },
     {
@@ -176,7 +175,6 @@ export const forget_you: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },

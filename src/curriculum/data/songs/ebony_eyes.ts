@@ -21,7 +21,6 @@ export const ebony_eyes: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [
@@ -67,7 +66,6 @@ export const ebony_eyes: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -106,7 +104,6 @@ export const ebony_eyes: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -161,7 +158,6 @@ export const ebony_eyes: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -200,7 +196,6 @@ export const ebony_eyes: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [

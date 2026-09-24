@@ -21,7 +21,6 @@ export const little_talks: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -74,7 +73,6 @@ export const little_talks: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -103,7 +101,6 @@ export const little_talks: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -135,7 +132,6 @@ export const little_talks: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -170,7 +166,6 @@ export const little_talks: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       repeatCount: 3,
       bars: [
         {
@@ -200,7 +195,6 @@ export const little_talks: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -232,7 +226,6 @@ export const little_talks: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         {
@@ -268,7 +261,6 @@ export const little_talks: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [
@@ -281,7 +273,6 @@ export const little_talks: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -310,7 +301,6 @@ export const little_talks: Song = {
     {
       id: 'section_g_2',
       label: 'Section G',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         {
@@ -346,7 +336,6 @@ export const little_talks: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

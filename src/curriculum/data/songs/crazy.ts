@@ -21,7 +21,7 @@ export const crazy: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 5,
+      instrumental: true,
       bars: [
         { chords: [] },
         {
@@ -40,13 +40,6 @@ export const crazy: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      measuresPerRow: 5,
-      bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -80,13 +73,6 @@ export const crazy: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      measuresPerRow: 5,
-      bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -120,13 +106,6 @@ export const crazy: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 5,
-      bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -152,13 +131,6 @@ export const crazy: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 5,
-      bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
@@ -178,7 +150,6 @@ export const crazy: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=-N4jf6rtyuw' },
   ],

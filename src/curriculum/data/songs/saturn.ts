@@ -281,7 +281,6 @@ export const saturn: Song = {
     {
       id: 'section_o',
       label: 'Section O',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

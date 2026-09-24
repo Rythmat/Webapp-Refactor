@@ -31,7 +31,6 @@ export const chains: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
@@ -44,7 +43,6 @@ export const chains: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
@@ -57,7 +55,6 @@ export const chains: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
@@ -72,7 +69,6 @@ export const chains: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
@@ -85,7 +81,6 @@ export const chains: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },

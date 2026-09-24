@@ -21,7 +21,6 @@ export const suit_tie: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],

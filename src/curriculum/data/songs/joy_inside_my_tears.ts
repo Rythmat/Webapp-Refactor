@@ -21,7 +21,6 @@ export const joy_inside_my_tears: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 7', chordName: 'G♯7', beat: 1, duration: 4 }] },
@@ -44,7 +43,6 @@ export const joy_inside_my_tears: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 7', chordName: 'G♯7', beat: 1, duration: 4 }] },
@@ -66,7 +64,6 @@ export const joy_inside_my_tears: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 7', chordName: 'G♯7', beat: 1, duration: 4 }] },
@@ -88,7 +85,6 @@ export const joy_inside_my_tears: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -118,7 +114,6 @@ export const joy_inside_my_tears: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -148,7 +143,6 @@ export const joy_inside_my_tears: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 7', chordName: 'G♯7', beat: 1, duration: 4 }] },
@@ -175,7 +169,6 @@ export const joy_inside_my_tears: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 7', chordName: 'G♯7', beat: 1, duration: 4 }] },
@@ -197,7 +190,6 @@ export const joy_inside_my_tears: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -227,7 +219,6 @@ export const joy_inside_my_tears: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -257,7 +248,6 @@ export const joy_inside_my_tears: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '♭7 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -278,7 +268,6 @@ export const joy_inside_my_tears: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -308,7 +297,6 @@ export const joy_inside_my_tears: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -338,7 +326,6 @@ export const joy_inside_my_tears: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -368,7 +355,6 @@ export const joy_inside_my_tears: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '♭7 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },

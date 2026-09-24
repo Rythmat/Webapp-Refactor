@@ -15,7 +15,6 @@ import { PrismModeSlug, usePrismModeChordsData } from '@/hooks/data';
 import { useNavigate } from 'react-router';
 import { LearnRoutes, StudioRoutes } from '@/constants/routes';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
-import type { PracticeLevel } from '@/features/practiceTracks/generatePracticeTrack';
 import { useMidiInput } from '@/hooks/music/useMidiInput';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
@@ -42,10 +41,10 @@ import {
   midiSequenceToStoccatoEvents,
   midiSequenceToWholeNotes,
 } from './content/noteSequences';
+import { getScaleLesson } from '@/lib/learn/scaleLessons';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import {
   selectMelodyPhrases,
-  type MelodyLevel,
   type MelodyPhrases,
 } from './content/melodyConstraints';
 import { getChordScales } from '@/components/learn/chordScaleData';
@@ -131,54 +130,6 @@ const CHROMATIC_KEYS = [
   'B',
 ] as const;
 const START_OVERLAY_NOTE_DURATION_SECONDS = 0.6;
-
-const PRACTICE_LEVELS: PracticeLevel[] = [1, 2, 3];
-
-/** Level 1/2/3 segmented picker for the Practice Track chord progression difficulty. */
-const MELODY_LEVEL_HINTS: Record<PracticeLevel, string> = {
-  1: 'Level 1 — every leap stays within a 5th',
-  2: 'Level 2 — leaps up to an octave',
-  3: 'Level 3 — only the closing interval is limited',
-};
-
-function PracticeLevelPicker({
-  level,
-  onChange,
-  titles,
-}: {
-  level: PracticeLevel;
-  onChange: (level: PracticeLevel) => void;
-  /** Optional per-level tooltip, used by the melody picker. */
-  titles?: Record<PracticeLevel, string>;
-}) {
-  return (
-    <div className="flex items-center justify-center gap-1.5">
-      {PRACTICE_LEVELS.map((l) => {
-        const active = l === level;
-        return (
-          <button
-            key={l}
-            type="button"
-            onClick={() => onChange(l)}
-            title={titles?.[l]}
-            className="rounded-full px-3 py-1 text-xs font-semibold transition-colors duration-150"
-            style={{
-              background: active
-                ? 'var(--color-accent)'
-                : 'rgba(255,255,255,0.04)',
-              color: active ? '#191919' : 'var(--color-text-dim)',
-              border: active
-                ? '1px solid var(--color-accent)'
-                : '1px solid var(--color-border)',
-            }}
-          >
-            Level {l}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 type SectionId = 'O' | 'A' | 'B';
 
@@ -312,6 +263,10 @@ export const ActivityFlow = ({
   const isDiatonicMode = DIATONIC_MODE_SLUGS.has(
     (modeLabel ?? '').toLowerCase(),
   );
+  // The pentatonic and blues scales: melody chapters only, no chords, and a
+  // Practice Track over their own progression.
+  const scaleLesson = getScaleLesson(modeLabel.toLowerCase());
+  const hasPracticeTrack = isDiatonicMode || scaleLesson !== null;
   const activityColor = useMemo(
     () => colorForKeyMode(rootKey, mode),
     [rootKey, mode],
@@ -338,7 +293,10 @@ export const ActivityFlow = ({
     return extractContours(raw);
   }, [contourData]);
 
-  const chordsQuery = usePrismModeChordsData(mode);
+  const chordsQuery = usePrismModeChordsData(scaleLesson ? undefined : mode);
+  // A disabled query stays pending, so a scale lesson (which never asks for
+  // chords) must not wait on it.
+  const chordsPending = !scaleLesson && chordsQuery.isPending;
   const chordResponse = chordsQuery.data;
   // const modeChords: PrismModeChordDataMap | undefined = chordResponse?.chords;
   const triads = useMemo(() => {
@@ -852,21 +810,23 @@ export const ActivityFlow = ({
   };
   ////////////// end buildFlowDefinitions ///////////////////
 
-  // How far the generated melodies may leap. Level 1 keeps every interval
-  // inside a 5th, level 2 allows an octave, level 3 caps only the cadence.
-  const [melodyLevel, setMelodyLevel] = useState<MelodyLevel>(1);
-
   // Melodies for the contour activities: three separate phrases drawn from the
   // fetched pool and resolved onto the lesson scale, each stating the mode's
-  // quality and cadencing properly. See content/melodyConstraints.ts.
+  // quality and cadencing properly, with every leap inside a 5th (level 1).
+  // See content/melodyConstraints.ts.
   const melodyPhrases = useMemo(() => {
     if (availableContours.length === 0) {
       return null;
     }
     const scale =
       scaleMidis && scaleMidis.length > 0 ? scaleMidis : DEFAULT_SCALE;
-    return selectMelodyPhrases(availableContours, scale, melodyLevel);
-  }, [availableContours, scaleMidis, melodyLevel]);
+    return selectMelodyPhrases(
+      availableContours,
+      scale,
+      1,
+      scaleLesson?.chordTones,
+    );
+  }, [availableContours, scaleMidis, scaleLesson]);
 
   const flowDefinitions = useMemo(() => {
     const scale =
@@ -875,13 +835,13 @@ export const ActivityFlow = ({
       scale,
       melodyPhrases,
       triads,
-      chordsQuery.isPending && triads.length === 0,
+      chordsPending && triads.length === 0,
     );
   }, [
     scaleMidis,
     melodyPhrases,
     triads,
-    chordsQuery.isPending,
+    chordsPending,
     activityColor,
     lessonKeyScope,
     lessonId,
@@ -980,9 +940,6 @@ export const ActivityFlow = ({
     return CHROMATIC_KEYS[nextIndex];
   }, [currentChromaticIndex]);
   const [nextKeyChoice, setNextKeyChoice] = useState<string>(nextCurriculumKey);
-  // Difficulty tier for the generated Practice Track chord progression —
-  // picked by the student on the hand-off screens below.
-  const [practiceLevel, setPracticeLevel] = useState<PracticeLevel>(1);
   const midiTriggeredRef = useRef(false);
   const isTrackableActivity =
     currentActivity?.activityDefId !== 'lesson-overview';
@@ -1073,7 +1030,7 @@ export const ActivityFlow = ({
 
     // Chord activities only exist once the mode's chord data loads, so a deep
     // link into Chords waits for it instead of falling through to resume.
-    if (startAtActivityKey && explicitStartIndex < 0 && chordsQuery.isPending) {
+    if (startAtActivityKey && explicitStartIndex < 0 && chordsPending) {
       return;
     }
 
@@ -1118,7 +1075,7 @@ export const ActivityFlow = ({
     setLessonComplete(false);
     setCurrentIndex(resumeIndex);
   }, [
-    chordsQuery.isPending,
+    chordsPending,
     flowDefinitions,
     lessonProgressQuery.data,
     lessonProgressScope,
@@ -1158,12 +1115,12 @@ export const ActivityFlow = ({
   useEffect(() => {
     if (flowDefinitions.length === 0) return;
     if (currentIndex < flowDefinitions.length) return;
-    if (!chordsQuery.isPending) {
+    if (!chordsPending) {
       setLessonComplete(true);
       onComplete?.();
     }
     setCurrentIndex(Math.max(flowDefinitions.length - 1, 0));
-  }, [currentIndex, flowDefinitions.length, chordsQuery.isPending, onComplete]);
+  }, [currentIndex, flowDefinitions.length, chordsPending, onComplete]);
   useEffect(() => {
     if (labelChange) {
       if (!currentActivity) return;
@@ -1383,7 +1340,7 @@ export const ActivityFlow = ({
             if (
               currentSectionId === 'A' &&
               nextActivity.section === 'B' &&
-              isDiatonicMode
+              hasPracticeTrack
             ) {
               pendingSectionAdvanceIndexRef.current = nextIdx;
               setShowMelodySectionCompleteInterstitial(true);
@@ -1393,7 +1350,7 @@ export const ActivityFlow = ({
           }
           return nextIdx;
         }
-        if (!chordsQuery.isPending) {
+        if (!chordsPending) {
           setLessonComplete(true);
           updateLessonState.mutate({
             lessonId,
@@ -1413,12 +1370,12 @@ export const ActivityFlow = ({
       });
     },
     [
-      chordsQuery.isPending,
+      chordsPending,
       currentActivity,
       currentIndex,
       currentSectionId,
       flowDefinitions,
-      isDiatonicMode,
+      hasPracticeTrack,
       lessonId,
       lessonVersion,
       modeLabel,
@@ -1464,18 +1421,18 @@ export const ActivityFlow = ({
     setStartSignal(0);
   }, []);
 
-  // Practice Track CTAs (Studio hand-off) — diatonic-only, see isDiatonicMode.
+  // Practice Track CTAs (Studio hand-off) — see hasPracticeTrack.
   const openMelodyPracticeTrack = useCallback(() => {
     navigate(
-      `${StudioRoutes.editor.definition}?practiceMode=${modeLabel}&practiceRoot=${keyLabelToUrlParam(rootKey)}&practiceOpen=melody&practiceLevel=${practiceLevel}`,
+      `${StudioRoutes.editor.definition}?practiceMode=${modeLabel}&practiceRoot=${keyLabelToUrlParam(rootKey)}&practiceOpen=melody`,
     );
-  }, [modeLabel, navigate, practiceLevel, rootKey]);
+  }, [modeLabel, navigate, rootKey]);
 
   const openChordsPracticeTrack = useCallback(() => {
     navigate(
-      `${StudioRoutes.editor.definition}?practiceMode=${modeLabel}&practiceRoot=${keyLabelToUrlParam(rootKey)}&practiceOpen=chords&practiceLevel=${practiceLevel}`,
+      `${StudioRoutes.editor.definition}?practiceMode=${modeLabel}&practiceRoot=${keyLabelToUrlParam(rootKey)}&practiceOpen=chords`,
     );
-  }, [modeLabel, navigate, practiceLevel, rootKey]);
+  }, [modeLabel, navigate, rootKey]);
 
   const handleMidiActivity = useCallback(() => {
     if (lessonComplete) {
@@ -1965,12 +1922,6 @@ export const ActivityFlow = ({
           >
             Try composing your own melody over generated chords in Studio.
           </p>
-          <div className="mt-4">
-            <PracticeLevelPicker
-              level={practiceLevel}
-              onChange={setPracticeLevel}
-            />
-          </div>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <button
               type="button"
@@ -2051,7 +2002,7 @@ export const ActivityFlow = ({
               Go to Studio
             </button>
 
-            {isDiatonicMode && (
+            {hasPracticeTrack && (
               <div
                 className="rounded-xl px-4 py-3 glass-panel-sm"
                 style={{
@@ -2069,17 +2020,18 @@ export const ActivityFlow = ({
                   className="mt-1 text-xs"
                   style={{ color: 'var(--color-text-dim)' }}
                 >
-                  Apply the chords you just learned over a generated melody,
-                  bass, and beat.
+                  {scaleLesson
+                    ? `Play the ${scaleLesson.title} scale over generated chords, bass, and beat.`
+                    : 'Apply the chords you just learned over a generated melody, bass, and beat.'}
                 </p>
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                  <PracticeLevelPicker
-                    level={practiceLevel}
-                    onChange={setPracticeLevel}
-                  />
+                <div className="mt-3 flex flex-wrap items-center justify-end gap-3">
                   <button
                     type="button"
-                    onClick={openChordsPracticeTrack}
+                    onClick={
+                      scaleLesson
+                        ? openMelodyPracticeTrack
+                        : openChordsPracticeTrack
+                    }
                     className="rounded-full px-4 py-1.5 text-sm font-semibold transition-colors duration-150"
                     style={{
                       background: 'var(--color-accent)',
@@ -2222,7 +2174,10 @@ export const ActivityFlow = ({
           className="flex gap-2 px-4 py-2"
           style={{ borderBottom: '1px solid var(--color-border)' }}
         >
-          {(['scale', 'triads', 'sevenths', 'inversions'] as const).map((t) => {
+          {(scaleLesson
+            ? (['scale'] as const)
+            : (['scale', 'triads', 'sevenths', 'inversions'] as const)
+          ).map((t) => {
             const label =
               t === 'scale'
                 ? 'Scale'
@@ -2255,24 +2210,6 @@ export const ActivityFlow = ({
               </button>
             );
           })}
-        </div>
-      )}
-
-      {/* Melody level — how far the generated phrases may leap. Only the
-          contour activities use it, so it is offered while Melody is open. */}
-      {currentSectionId === 'A' && melodyPhrases && (
-        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 pt-2">
-          <span
-            className="text-xs font-medium"
-            style={{ color: 'var(--color-text-dim)' }}
-          >
-            Melody level
-          </span>
-          <PracticeLevelPicker
-            level={melodyLevel}
-            onChange={setMelodyLevel}
-            titles={MELODY_LEVEL_HINTS}
-          />
         </div>
       )}
 

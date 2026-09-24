@@ -221,7 +221,6 @@ export const change_the_world: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

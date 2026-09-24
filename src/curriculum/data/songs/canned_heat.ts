@@ -21,7 +21,6 @@ export const canned_heat: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
@@ -58,7 +57,6 @@ export const canned_heat: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -91,7 +89,6 @@ export const canned_heat: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -128,7 +125,6 @@ export const canned_heat: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -163,7 +159,6 @@ export const canned_heat: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -196,7 +191,6 @@ export const canned_heat: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -233,7 +227,6 @@ export const canned_heat: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -268,7 +261,6 @@ export const canned_heat: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [
@@ -285,7 +277,6 @@ export const canned_heat: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -318,7 +309,6 @@ export const canned_heat: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -355,7 +345,6 @@ export const canned_heat: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -390,13 +379,11 @@ export const canned_heat: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 3,
       bars: [{ chords: [] }, { chords: [] }, { chords: [], restBars: 1 }],
     },
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -431,7 +418,6 @@ export const canned_heat: Song = {
     {
       id: 'section_j_2',
       label: 'Section J',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {

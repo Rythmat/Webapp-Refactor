@@ -38,7 +38,6 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -50,7 +49,6 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -62,7 +60,6 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -86,7 +83,6 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -115,7 +111,6 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -135,7 +130,6 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -155,7 +149,6 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -167,7 +160,6 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -191,7 +183,6 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -211,7 +202,6 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -231,7 +221,6 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
     {
       id: 'section_g_2',
       label: 'Section G',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },

@@ -21,13 +21,11 @@ export const waiting_on_the_world_to_change: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 6,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -59,7 +57,6 @@ export const waiting_on_the_world_to_change: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -90,7 +87,6 @@ export const waiting_on_the_world_to_change: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       repeatCount: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -122,7 +118,6 @@ export const waiting_on_the_world_to_change: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -179,7 +174,6 @@ export const waiting_on_the_world_to_change: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 6,
       repeatCount: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -211,7 +205,6 @@ export const waiting_on_the_world_to_change: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -242,7 +235,6 @@ export const waiting_on_the_world_to_change: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -273,7 +265,6 @@ export const waiting_on_the_world_to_change: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [

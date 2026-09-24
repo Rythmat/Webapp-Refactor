@@ -79,7 +79,6 @@ export const free_ride: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -97,7 +96,6 @@ export const free_ride: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -165,7 +163,6 @@ export const free_ride: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

@@ -108,7 +108,6 @@ export const off_the_wall: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -186,7 +185,6 @@ export const off_the_wall: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -225,7 +223,6 @@ export const off_the_wall: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -305,7 +302,6 @@ export const off_the_wall: Song = {
     {
       id: 'section_m',
       label: 'Section M',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -382,7 +378,6 @@ export const off_the_wall: Song = {
     {
       id: 'section_p',
       label: 'Section P',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [

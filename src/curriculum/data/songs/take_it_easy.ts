@@ -21,7 +21,6 @@ export const take_it_easy: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -44,7 +43,6 @@ export const take_it_easy: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 10,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -61,7 +59,6 @@ export const take_it_easy: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 12,
       bars: [
         {
           chords: [
@@ -112,7 +109,6 @@ export const take_it_easy: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 10,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -137,7 +133,6 @@ export const take_it_easy: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 9,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -153,7 +148,6 @@ export const take_it_easy: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 12,
       bars: [
         {
           chords: [
@@ -204,7 +198,6 @@ export const take_it_easy: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 10,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -229,7 +222,6 @@ export const take_it_easy: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },

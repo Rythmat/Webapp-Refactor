@@ -73,7 +73,6 @@ export const psycho_killer: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
@@ -99,7 +98,6 @@ export const psycho_killer: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
@@ -121,7 +119,6 @@ export const psycho_killer: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
@@ -147,7 +144,6 @@ export const psycho_killer: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
@@ -245,7 +241,6 @@ export const psycho_killer: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
@@ -271,7 +266,6 @@ export const psycho_killer: Song = {
     {
       id: 'section_m',
       label: 'Section M',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
@@ -293,7 +287,6 @@ export const psycho_killer: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
@@ -313,7 +306,6 @@ export const psycho_killer: Song = {
     {
       id: 'section_g_2',
       label: 'Section G',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },

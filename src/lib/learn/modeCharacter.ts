@@ -1,3 +1,4 @@
+import { getScaleLesson } from '@/lib/learn/scaleLessons';
 import { canonicalModeKey } from '@/lib/modeStepsFallback';
 
 /**
@@ -60,6 +61,8 @@ export const MODE_CHARACTER: Readonly<Record<string, string>> = {
 
 /** A mode's character line, from a lesson slug or ALL_MODES key. */
 export function modeCharacter(slug: string): string | undefined {
+  const scale = getScaleLesson(slug.toLowerCase());
+  if (scale) return scale.character;
   const key = canonicalModeKey(slug);
   return key ? MODE_CHARACTER[key] : undefined;
 }

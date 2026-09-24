@@ -21,6 +21,7 @@ export const get_down_tonight: Song = {
     {
       id: 'intro',
       label: 'Intro',
+      instrumental: true,
       bars: [
         {
           chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
@@ -33,8 +34,8 @@ export const get_down_tonight: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
@@ -47,8 +48,8 @@ export const get_down_tonight: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -59,20 +60,6 @@ export const get_down_tonight: Song = {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        {
-          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
-        },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
@@ -81,22 +68,6 @@ export const get_down_tonight: Song = {
       label: 'Verse 2',
       bars: [
         {
-          chords: [
-            { degree: '5 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
           chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -107,8 +78,8 @@ export const get_down_tonight: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -123,10 +94,13 @@ export const get_down_tonight: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 2,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
+        {
+          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
@@ -134,11 +108,29 @@ export const get_down_tonight: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 2,
-      repeatCount: 12,
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'outro',
+      label: 'Outro',
+      bars: [
+        {
+          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
@@ -146,7 +138,6 @@ export const get_down_tonight: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=BXIBEW5MLuU' },
   ],

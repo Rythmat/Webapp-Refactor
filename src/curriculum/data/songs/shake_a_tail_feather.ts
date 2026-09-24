@@ -21,7 +21,6 @@ export const shake_a_tail_feather: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 7,
       bars: [
         { chords: [], restBars: 1 },
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
@@ -41,7 +40,6 @@ export const shake_a_tail_feather: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         {
@@ -60,7 +58,6 @@ export const shake_a_tail_feather: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 7,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         {
@@ -82,7 +79,6 @@ export const shake_a_tail_feather: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 10,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
@@ -99,7 +95,6 @@ export const shake_a_tail_feather: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         {
@@ -134,7 +129,6 @@ export const shake_a_tail_feather: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
@@ -147,7 +141,6 @@ export const shake_a_tail_feather: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },

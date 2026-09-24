@@ -21,13 +21,11 @@ export const dance_with_me_tonight: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 3,
       repeatCount: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -122,7 +120,6 @@ export const dance_with_me_tonight: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -181,7 +178,6 @@ export const dance_with_me_tonight: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 16 }],
     },
     {
@@ -205,7 +201,6 @@ export const dance_with_me_tonight: Song = {
     {
       id: 'section_o',
       label: 'Section O',
-      measuresPerRow: 5,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },

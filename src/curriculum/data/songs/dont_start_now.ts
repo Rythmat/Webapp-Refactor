@@ -21,7 +21,6 @@ export const dont_start_now: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 2,
       bars: [
         { chords: [], restBars: 3 },
         {
@@ -237,7 +236,6 @@ export const dont_start_now: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 3,
       bars: [
         { chords: [], restBars: 3 },
         {
@@ -256,7 +254,6 @@ export const dont_start_now: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 5,
       repeatCount: 4,
       bars: [
         {

@@ -131,7 +131,6 @@ export const reach_out_ill_be_there: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [
@@ -303,7 +302,6 @@ export const reach_out_ill_be_there: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [

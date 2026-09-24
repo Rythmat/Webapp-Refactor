@@ -48,7 +48,6 @@ export const cant_hide_love: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 6,
       repeatCount: 3,
       bars: [
         {
@@ -75,7 +74,6 @@ export const cant_hide_love: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -108,7 +106,6 @@ export const cant_hide_love: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -150,7 +147,6 @@ export const cant_hide_love: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
@@ -176,7 +172,6 @@ export const cant_hide_love: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -209,7 +204,6 @@ export const cant_hide_love: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -251,7 +245,6 @@ export const cant_hide_love: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
@@ -285,7 +278,6 @@ export const cant_hide_love: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],

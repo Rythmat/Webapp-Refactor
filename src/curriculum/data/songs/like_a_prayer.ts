@@ -21,13 +21,11 @@ export const like_a_prayer: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 13 }],
     },
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -45,13 +43,11 @@ export const like_a_prayer: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 16 }],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -69,13 +65,11 @@ export const like_a_prayer: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 16 }],
     },
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -94,7 +88,6 @@ export const like_a_prayer: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -122,7 +115,6 @@ export const like_a_prayer: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -150,7 +142,6 @@ export const like_a_prayer: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -184,7 +175,6 @@ export const like_a_prayer: Song = {
     {
       id: 'section_i_2',
       label: 'Section I',
-      measuresPerRow: 5,
       repeatCount: 4,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -203,7 +193,6 @@ export const like_a_prayer: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -231,7 +220,6 @@ export const like_a_prayer: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [

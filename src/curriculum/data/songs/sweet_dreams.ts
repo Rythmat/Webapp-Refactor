@@ -22,7 +22,6 @@ export const sweet_dreams: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -47,7 +46,6 @@ export const sweet_dreams: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -72,7 +70,6 @@ export const sweet_dreams: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 6,
       repeatCount: 4,
       bars: [
         {
@@ -98,7 +95,6 @@ export const sweet_dreams: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -123,7 +119,6 @@ export const sweet_dreams: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 6,
       repeatCount: 3,
       bars: [
         {
@@ -149,7 +144,6 @@ export const sweet_dreams: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -200,7 +194,6 @@ export const sweet_dreams: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       repeatCount: 4,
       bars: [
         {
@@ -226,7 +219,6 @@ export const sweet_dreams: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -277,7 +269,6 @@ export const sweet_dreams: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 6,
       repeatCount: 4,
       bars: [
         {
@@ -303,7 +294,6 @@ export const sweet_dreams: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -328,7 +318,6 @@ export const sweet_dreams: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -367,7 +356,6 @@ export const sweet_dreams: Song = {
     {
       id: 'section_i_2',
       label: 'Section I',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [

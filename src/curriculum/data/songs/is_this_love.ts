@@ -43,7 +43,6 @@ export const is_this_love: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -73,7 +72,6 @@ export const is_this_love: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -103,7 +101,6 @@ export const is_this_love: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -133,7 +130,6 @@ export const is_this_love: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -163,7 +159,6 @@ export const is_this_love: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -267,7 +262,6 @@ export const is_this_love: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [
@@ -288,7 +282,6 @@ export const is_this_love: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [
@@ -339,7 +332,6 @@ export const is_this_love: Song = {
     {
       id: 'section_m',
       label: 'Section M',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -372,7 +364,6 @@ export const is_this_love: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -402,7 +393,6 @@ export const is_this_love: Song = {
     {
       id: 'section_o',
       label: 'Section O',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

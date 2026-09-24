@@ -15,6 +15,12 @@ import type {
   ChordHit,
 } from '@/curriculum/types/songLibrary';
 import { chordNameToMidi } from '@/curriculum/songLibrary/chordParser';
+import { systemRowSizes } from '@/curriculum/songLibrary/systems';
+import {
+  sectionBars,
+  writtenBarKeys,
+  type LocalKey,
+} from '@/curriculum/songLibrary/performance';
 import { useUISound } from '@/hooks/useUISound';
 import {
   formatChord as formatChordSymbol,
@@ -281,6 +287,11 @@ export const StaffMeasure: FC<{
           );
         })}
 
+      {/* Roadmap marks, in one lane right above this bar's own staff: the
+          signs and cue at its start, the jumps at its end. They must read as
+          attached to this staff, not to the system above. */}
+      <BarMarks bar={bar} width={width} y={staffTop - 22} />
+
       {/* Fermata symbol above the bar */}
       {bar.fermata && (
         <g transform={`translate(${width / 2}, ${staffTop - 8})`}>
@@ -514,13 +525,215 @@ export const StaffMeasure: FC<{
   );
 };
 
+/* ── Roadmap band ────────────────────────────────────────────────────── */
+/** Height of the band above a row that carries roadmap marks. */
+const ROADMAP_BAND = 16;
+
+/** Only the volta brackets need room above the row; the rest sit by the staff. */
+const hasRoadmapMarks = (bar: ChordBar): boolean => !!bar.ending;
+
+const sameEnding = (a?: number[], b?: number[]): boolean =>
+  !!a && !!b && a.join() === b.join();
+
+/** The coda sign: a circle crossed through, drawn so it needs no music font. */
+const CodaSign: FC<{ x: number; y: number }> = ({ x, y }) => (
+  <g transform={`translate(${x}, ${y})`} aria-label="Coda">
+    <ellipse
+      rx={4.5}
+      ry={6}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.4}
+    />
+    <line
+      x1={-8}
+      y1={0}
+      x2={8}
+      y2={0}
+      stroke="currentColor"
+      strokeWidth={1.2}
+    />
+    <line
+      x1={0}
+      y1={-9}
+      x2={0}
+      y2={9}
+      stroke="currentColor"
+      strokeWidth={1.2}
+    />
+  </g>
+);
+
+/** The segno: an S struck through with a slash and two dots. */
+const SegnoSign: FC<{ x: number; y: number }> = ({ x, y }) => (
+  <g transform={`translate(${x}, ${y})`} aria-label="Segno">
+    <text
+      x={0}
+      y={5}
+      textAnchor="middle"
+      fontFamily="serif"
+      fontStyle="italic"
+      fontSize={17}
+      fill="currentColor"
+    >
+      S
+    </text>
+    <line
+      x1={-6}
+      y1={7}
+      x2={6}
+      y2={-8}
+      stroke="currentColor"
+      strokeWidth={1.2}
+    />
+    <circle cx={-6} cy={-2} r={1.4} fill="currentColor" />
+    <circle cx={6} cy={1} r={1.4} fill="currentColor" />
+  </g>
+);
+
+/**
+ * A bar's roadmap marks, drawn in the lane immediately above its own staff:
+ * segno, coda sign, key change and cue at the bar's start; "To Coda", Fine,
+ * a repeat count and a jump at its end. Keeping them inside the measure is
+ * what makes them read as belonging to THIS staff — sitting them in a band at
+ * the top of the row put a D.S. closer to the system above it than to its own.
+ */
+const BarMarks: FC<{ bar: ChordBar; width: number; y: number }> = ({
+  bar,
+  width,
+  y,
+}) => {
+  let leftX = 6;
+  const signs: React.ReactNode[] = [];
+  if (bar.segno) {
+    signs.push(<SegnoSign key="segno" x={leftX + 6} y={y - 5} />);
+    leftX += 20;
+  }
+  if (bar.coda) {
+    signs.push(<CodaSign key="coda" x={leftX + 6} y={y - 5} />);
+    leftX += 20;
+  }
+  const words = [
+    bar.keyChange ? `Key: ${bar.keyChange.replace(/ major$/, '')}` : null,
+    bar.cue ?? null,
+  ].filter(Boolean);
+  const jumps = [
+    bar.repeatEnd && (bar.repeatTimes ?? 2) > 2 ? `${bar.repeatTimes}×` : null,
+    bar.fine ? 'Fine' : null,
+    bar.jump ?? null,
+  ].filter(Boolean);
+
+  return (
+    <g style={{ fontFamily: 'serif' }} fill="currentColor">
+      {signs}
+      {words.length > 0 && (
+        <text
+          x={leftX}
+          y={y}
+          fontSize={12}
+          fontStyle="italic"
+          fontWeight="bold"
+        >
+          {words.join('  ·  ')}
+        </text>
+      )}
+      {bar.toCoda && (
+        <g>
+          <text
+            x={width - 24}
+            y={y}
+            fontSize={12}
+            fontStyle="italic"
+            fontWeight="bold"
+            textAnchor="end"
+          >
+            To Coda
+          </text>
+          <CodaSign x={width - 12} y={y - 5} />
+        </g>
+      )}
+      {jumps.length > 0 && (
+        <text
+          x={width - 6}
+          y={bar.toCoda ? y + 14 : y}
+          fontSize={12}
+          fontStyle="italic"
+          fontWeight="bold"
+          textAnchor="end"
+        >
+          {jumps.join('  ')}
+        </text>
+      )}
+    </g>
+  );
+};
+
+/** The volta brackets over a row's endings. */
+const RoadmapBand: FC<{
+  row: ChordBar[];
+  /** The bar before the row, so an ending bracket carried over a line break
+   *  isn't numbered twice. */
+  prevBar?: ChordBar;
+  band: number;
+  barWidth: number;
+}> = ({ row, prevBar, band, barWidth }) => (
+  <g style={{ fontFamily: 'serif' }} fill="currentColor">
+    {row.map((bar, bi) => {
+      if (!bar.ending) return null;
+      const x = bi * barWidth;
+      const w = barWidth;
+      const before = bi === 0 ? prevBar : row[bi - 1];
+      const after = row[bi + 1];
+      const opensEnding = !sameEnding(bar.ending, before?.ending);
+      const closesEnding = !sameEnding(bar.ending, after?.ending);
+      return (
+        <g key={bi}>
+          <g stroke="currentColor" strokeWidth={1.2} fill="none">
+            <line
+              x1={x + (opensEnding ? 1 : 0)}
+              y1={band - 2}
+              x2={x + w - (closesEnding ? 6 : 0)}
+              y2={band - 2}
+            />
+            {opensEnding && (
+              <line x1={x + 1} y1={band - 2} x2={x + 1} y2={band + 12} />
+            )}
+            {/* An ending that repeats is closed at the right; the last is open. */}
+            {closesEnding && bar.repeatEnd && (
+              <line
+                x1={x + w - 6}
+                y1={band - 2}
+                x2={x + w - 6}
+                y2={band + 12}
+              />
+            )}
+          </g>
+          {opensEnding && (
+            // Clear of the bar number in the bar's top corner.
+            <text
+              x={x + 18}
+              y={band + 10}
+              fontSize={11}
+              fontWeight="bold"
+              stroke="none"
+            >
+              {bar.ending.join(', ')}.
+            </text>
+          )}
+        </g>
+      );
+    })}
+  </g>
+);
+
 /* ── Section Staff System ────────────────────────────────────────────── */
 const SectionStaff: FC<{
   section: SongSection;
   sectionIdx: number;
   displayMode: DisplayMode;
   notation: ChordNotation;
-  chordContext: ChordContext;
+  /** The key each bar of this section is written in. */
+  barKeys: LocalKey[];
   isLooping?: boolean;
   onChordClick?: (hit: ChordHit) => void;
   onToggleLoop?: (sectionIdx: number) => void;
@@ -532,7 +745,7 @@ const SectionStaff: FC<{
   sectionIdx,
   displayMode,
   notation,
-  chordContext,
+  barKeys,
   isLooping,
   onChordClick,
   onToggleLoop,
@@ -540,14 +753,17 @@ const SectionStaff: FC<{
   selection,
   editable,
 }) => {
-  const bars = section.bars;
+  // The legacy repeatCount drawn as the repeat barlines it stands for.
+  const bars = sectionBars(section);
   const perRow = section.measuresPerRow ?? MEASURES_PER_ROW;
   const rows: ChordBar[][] = [];
-  for (let i = 0; i < bars.length; i += perRow) {
-    rows.push(bars.slice(i, i + perRow));
+  const rowStarts: number[] = [];
+  let at = 0;
+  for (const size of systemRowSizes(bars.length, perRow)) {
+    rowStarts.push(at);
+    rows.push(bars.slice(at, at + size));
+    at += size;
   }
-
-  const hasRepeat = (section.repeatCount ?? 1) > 1;
 
   return (
     <div style={{ marginBottom: 'clamp(1rem, 2vw, 1.5rem)' }}>
@@ -648,6 +864,19 @@ const SectionStaff: FC<{
           >
             {section.label}
           </button>
+          {section.instrumental && (
+            <span
+              className="italic text-white/45"
+              style={{
+                fontFamily: 'serif',
+                fontSize: 'clamp(0.55rem, 0.8vw, 0.7rem)',
+              }}
+            >
+              {section.instrumental === 'first-time'
+                ? 'Instrumental 1st time'
+                : 'Instrumental'}
+            </span>
+          )}
           {isLooping && (
             <span
               className="flex items-center gap-1 text-[#7ecfcf]"
@@ -656,68 +885,71 @@ const SectionStaff: FC<{
               <Repeat size={10} /> Loop
             </span>
           )}
-          {hasRepeat && (
-            <span
-              className="flex items-center gap-1 text-white/30"
-              style={{ fontSize: 'clamp(0.5rem, 0.7vw, 0.6rem)' }}
-            >
-              <Repeat size={10} /> ×{section.repeatCount}
-            </span>
-          )}
         </div>
       ) : null}
 
       {/* Staff rows — each row stretches full width */}
       {rows.map((row, ri) => {
-        const measuresInRow = row.length;
-        const viewW = measuresInRow * MEASURE_WIDTH;
-        const globalBarOffset = ri * perRow;
+        // Every system is the same page width, so every staff draws at the
+        // same height: a five- or six-bar system narrows its bars to fit, and
+        // a short row keeps full-size bars from the left.
+        const viewW = perRow * MEASURE_WIDTH;
+        const barW = row.length > perRow ? viewW / row.length : MEASURE_WIDTH;
+        const globalBarOffset = rowStarts[ri];
+        // Rows with roadmap marks get a band above the chords to hold them.
+        const band = row.some(hasRoadmapMarks) ? ROADMAP_BAND : 0;
         return (
           <div key={ri} style={{ marginBottom: 4 }}>
             <svg
               width="100%"
-              viewBox={`0 0 ${viewW} ${TOTAL_HEIGHT}`}
+              viewBox={`0 0 ${viewW} ${TOTAL_HEIGHT + band}`}
               preserveAspectRatio="xMinYMid meet"
               style={{ color: 'var(--color-text, #e8e8f0)', display: 'block' }}
             >
+              {band > 0 && (
+                <RoadmapBand
+                  row={row}
+                  prevBar={bars[globalBarOffset - 1]}
+                  band={band}
+                  barWidth={barW}
+                />
+              )}
               {row.map((bar, bi) => {
                 const globalBi = globalBarOffset + bi;
-                const isLast = bi === row.length - 1 && ri === rows.length - 1;
+                const key = barKeys[globalBi];
                 return (
-                  <StaffMeasure
-                    key={bi}
-                    bar={bar}
-                    barIndex={globalBi}
-                    x={bi * MEASURE_WIDTH}
-                    width={MEASURE_WIDTH}
-                    displayMode={displayMode}
-                    notation={notation}
-                    chordContext={chordContext}
-                    isFirst={bi === 0 && ri === 0}
-                    hasRepeatStart={bi === 0 && ri === 0 && hasRepeat}
-                    hasRepeatEnd={isLast && hasRepeat}
-                    onChordClick={onChordClick}
-                    sectionIdx={sectionIdx}
-                    onSelectChord={onSelectChord}
-                    selection={selection}
-                    editable={editable}
-                  />
+                  <g key={bi} transform={`translate(0, ${band})`}>
+                    <StaffMeasure
+                      bar={bar}
+                      barIndex={globalBi}
+                      x={bi * barW}
+                      width={barW}
+                      displayMode={displayMode}
+                      notation={notation}
+                      chordContext={
+                        key
+                          ? {
+                              keyRootPc: key.tonicPc,
+                              mode: normalizeMode(key.mode),
+                            }
+                          : {}
+                      }
+                      isFirst={bi === 0 && ri === 0}
+                      hasRepeatStart={!!bar.repeatStart}
+                      hasRepeatEnd={!!bar.repeatEnd}
+                      onChordClick={onChordClick}
+                      sectionIdx={sectionIdx}
+                      onSelectChord={onSelectChord}
+                      selection={selection}
+                      editable={editable}
+                    />
+                  </g>
                 );
               })}
             </svg>
           </div>
         );
       })}
-
-      {/* Pedagogical note */}
-      {section.notes && (
-        <p
-          className="text-white/25 italic"
-          style={{ fontSize: 'clamp(0.5rem, 0.75vw, 0.65rem)' }}
-        >
-          {section.notes}
-        </p>
-      )}
     </div>
   );
 };
@@ -737,10 +969,29 @@ export const ChordChart: FC<ChordChartProps> = ({
   const pickedNotation = useChordNotation();
   const notation: ChordNotation =
     editable || onSelectChord ? 'hybrid' : pickedNotation;
-  const chordContext = useMemo<ChordContext>(
-    () => ({ keyRootPc: song.keyRoot, mode: normalizeMode(song.mode) }),
-    [song.keyRoot, song.mode],
-  );
+  // The key of every written bar, grouped by section: a key change moves the
+  // chord symbols, degrees and colours to the new tonic from that bar on.
+  const { sectionKeys, keyOfHit } = useMemo(() => {
+    const flat = writtenBarKeys(song);
+    const bySection: LocalKey[][] = [];
+    const ofHit = new Map<ChordHit, LocalKey>();
+    let at = 0;
+    for (const section of song.sections) {
+      const keys = flat.slice(at, at + section.bars.length);
+      bySection.push(keys);
+      section.bars.forEach((bar, bi) => {
+        for (const hit of bar.chords) ofHit.set(hit, keys[bi]);
+      });
+      at += section.bars.length;
+    }
+    return { sectionKeys: bySection, keyOfHit: ofHit };
+  }, [song]);
+  const contextFor = (hit: ChordHit): ChordContext => {
+    const key = keyOfHit.get(hit);
+    return key
+      ? { keyRootPc: key.tonicPc, mode: normalizeMode(key.mode) }
+      : { keyRootPc: song.keyRoot, mode: normalizeMode(song.mode) };
+  };
   const [selectedChord, setSelectedChord] = useState<{
     hit: ChordHit;
     midi: number[];
@@ -751,32 +1002,21 @@ export const ChordChart: FC<ChordChartProps> = ({
   // Map each unique chord name → its Studio key-color RGB tuple. Routed
   // through MIDI (via chordNameToMidi) so we don't have to translate the
   // song's degree strings (`'1 maj'`, `'♭7 maj'`) into Studio's format.
-  const chordColorCache = useMemo(() => {
-    const cache = new Map<string, ChordRgb>();
-    for (const section of song.sections) {
-      for (const bar of section.bars) {
-        for (const hit of bar.chords) {
-          if (cache.has(hit.chordName)) continue;
-          const rgb = chordRgbFor(hit.chordName, song.keyRoot, song.mode);
-          if (rgb) cache.set(hit.chordName, rgb);
-        }
-      }
-    }
-    return cache;
-  }, [song]);
-
   const handleChordClick = (hit: ChordHit) => {
     play('click');
     const midi = chordNameToMidi(hit.chordName);
     if (midi.length === 0) return;
-    const rgb = chordColorCache.get(hit.chordName) ?? null;
+    const key = keyOfHit.get(hit);
+    const rgb = key
+      ? chordRgbFor(hit.chordName, 60 + key.tonicPc, key.mode)
+      : chordRgbFor(hit.chordName, song.keyRoot, song.mode);
     setSelectedChord({ hit, midi, rgb });
   };
 
   // In jazz or Roman the popup titles the chord with that one symbol; hybrid
   // keeps the letter name over the degree.
   const selectedSymbol = selectedChord
-    ? chordSymbol(selectedChord.hit, notation, chordContext)
+    ? chordSymbol(selectedChord.hit, notation, contextFor(selectedChord.hit))
     : null;
 
   return (
@@ -793,7 +1033,7 @@ export const ChordChart: FC<ChordChartProps> = ({
             sectionIdx={si}
             displayMode={displayMode}
             notation={notation}
-            chordContext={chordContext}
+            barKeys={sectionKeys[si] ?? []}
             isLooping={loopSection === si}
             onChordClick={handleChordClick}
             onToggleLoop={onToggleLoop}

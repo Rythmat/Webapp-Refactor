@@ -21,7 +21,6 @@ export const rock_with_you: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 5,
       bars: [
         { chords: [], restBars: 1 },
         {
@@ -65,7 +64,6 @@ export const rock_with_you: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -97,7 +95,6 @@ export const rock_with_you: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -129,7 +126,6 @@ export const rock_with_you: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -179,7 +175,6 @@ export const rock_with_you: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -207,7 +202,6 @@ export const rock_with_you: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -271,7 +265,6 @@ export const rock_with_you: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -326,7 +319,6 @@ export const rock_with_you: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -354,7 +346,6 @@ export const rock_with_you: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

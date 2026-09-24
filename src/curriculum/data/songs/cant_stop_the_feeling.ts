@@ -21,7 +21,6 @@ export const cant_stop_the_feeling: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 12 }],
     },
     {
@@ -104,7 +103,6 @@ export const cant_stop_the_feeling: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
@@ -168,7 +166,6 @@ export const cant_stop_the_feeling: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 5,
       repeatCount: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },

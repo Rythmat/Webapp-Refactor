@@ -81,7 +81,6 @@ export const the_gambler: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -183,7 +182,6 @@ export const the_gambler: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -265,7 +263,6 @@ export const the_gambler: Song = {
     {
       id: 'section_n',
       label: 'Section N',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -299,7 +296,6 @@ export const the_gambler: Song = {
     {
       id: 'section_g_2',
       label: 'Section G',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
@@ -329,7 +325,6 @@ export const the_gambler: Song = {
     {
       id: 'section_q',
       label: 'Section Q',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

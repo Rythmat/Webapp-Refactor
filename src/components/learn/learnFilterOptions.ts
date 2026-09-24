@@ -5,6 +5,7 @@ import type { FilterOption } from '@/components/songLibrary/FilterDropdown';
 export type ModeFamily =
   | 'all'
   | 'diatonic'
+  | 'pentatonic-blues'
   | 'relative'
   | 'parallel'
   | 'harmonic-minor'
@@ -17,6 +18,7 @@ export type TheorySort = 'brightness' | 'alphabetical';
 export const MODE_FAMILY_OPTIONS: FilterOption<ModeFamily>[] = [
   { value: 'all', label: 'All Families' },
   { value: 'diatonic', label: 'Diatonic' },
+  { value: 'pentatonic-blues', label: 'Pentatonic/Blues' },
   { value: 'relative', label: 'Relative' },
   { value: 'parallel', label: 'Parallel' },
   { value: 'harmonic-minor', label: 'Harmonic Minor' },

@@ -21,7 +21,6 @@ export const wannabe: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
@@ -50,7 +49,6 @@ export const wannabe: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -77,7 +75,6 @@ export const wannabe: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
@@ -106,7 +103,6 @@ export const wannabe: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -133,7 +129,6 @@ export const wannabe: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -158,7 +153,6 @@ export const wannabe: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -185,7 +179,6 @@ export const wannabe: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
@@ -214,7 +207,6 @@ export const wannabe: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 7,
       bars: [
         { chords: [] },
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -234,7 +226,6 @@ export const wannabe: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -261,7 +252,6 @@ export const wannabe: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
@@ -290,7 +280,6 @@ export const wannabe: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
@@ -312,7 +301,6 @@ export const wannabe: Song = {
     {
       id: 'section_i_2',
       label: 'Section I',
-      measuresPerRow: 8,
       repeatCount: 4,
       bars: [
         {
@@ -340,7 +328,6 @@ export const wannabe: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {

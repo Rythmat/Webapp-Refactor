@@ -21,7 +21,6 @@ export const baby_one_more_time: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -53,7 +52,6 @@ export const baby_one_more_time: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       repeatCount: 9,
       bars: [
         {
@@ -85,7 +83,6 @@ export const baby_one_more_time: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -167,7 +164,6 @@ export const baby_one_more_time: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -238,7 +234,6 @@ export const baby_one_more_time: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 5,
       repeatCount: 3,
       bars: [
         {

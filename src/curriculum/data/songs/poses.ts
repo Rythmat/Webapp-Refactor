@@ -21,7 +21,6 @@ export const poses: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 6', chordName: 'D♭6', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 6', chordName: 'D♭6', beat: 1, duration: 4 }] },
@@ -36,7 +35,6 @@ export const poses: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 6', chordName: 'D♭6', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 6', chordName: 'D♭6', beat: 1, duration: 4 }] },
@@ -75,7 +73,6 @@ export const poses: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 6', chordName: 'D♭6', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 6', chordName: 'D♭6', beat: 1, duration: 4 }] },
@@ -114,7 +111,6 @@ export const poses: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
@@ -145,7 +141,6 @@ export const poses: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -180,7 +175,6 @@ export const poses: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -211,7 +205,6 @@ export const poses: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 6', chordName: 'D♭6', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 6', chordName: 'D♭6', beat: 1, duration: 4 }] },
@@ -250,7 +243,6 @@ export const poses: Song = {
     {
       id: 'section_f_2',
       label: 'Section F',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 6', chordName: 'D♭6', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 6', chordName: 'D♭6', beat: 1, duration: 4 }] },
@@ -289,7 +281,6 @@ export const poses: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
@@ -320,7 +311,6 @@ export const poses: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -355,7 +345,6 @@ export const poses: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -376,7 +365,6 @@ export const poses: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -407,7 +395,6 @@ export const poses: Song = {
     {
       id: 'section_m',
       label: 'Section M',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],

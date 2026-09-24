@@ -51,7 +51,6 @@ export const on_on: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 9,
       bars: [
         {
           chords: [

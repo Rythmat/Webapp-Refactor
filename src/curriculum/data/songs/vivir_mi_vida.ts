@@ -21,7 +21,6 @@ export const vivir_mi_vida: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -482,7 +481,6 @@ export const vivir_mi_vida: Song = {
     {
       id: 'section_w',
       label: 'Section W',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],

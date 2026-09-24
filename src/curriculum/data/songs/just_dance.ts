@@ -7,7 +7,7 @@ export const just_dance: Song = {
   year: 2008,
   historicalDescription:
     "Lady Gaga releases 'Just Dance', her debut single, unleashing a glittery, club-ready anthem that announces a bold new presence in pop music. The song becomes a slow-burning global hit, climbing charts across the world and signaling the arrival of an artist who will reshape pop spectacle, fashion, and performance for the next decade.",
-  key: 'D♭ minor',
+  key: 'C♯ minor',
   keyRoot: 61,
   mode: 'minor',
   tempo: 120,
@@ -44,7 +44,6 @@ export const just_dance: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 6,
       repeatCount: 3,
       bars: [
         {
@@ -126,7 +125,6 @@ export const just_dance: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -170,7 +168,6 @@ export const just_dance: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -251,7 +248,6 @@ export const just_dance: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 6,
       repeatCount: 4,
       bars: [
         {
@@ -333,7 +329,6 @@ export const just_dance: Song = {
     {
       id: 'section_h_2',
       label: 'Section H',
-      measuresPerRow: 6,
       repeatCount: 3,
       bars: [
         {
@@ -422,7 +417,6 @@ export const just_dance: Song = {
     {
       id: 'section_o',
       label: 'Section O',
-      measuresPerRow: 7,
       bars: [
         {
           chords: [
@@ -461,7 +455,6 @@ export const just_dance: Song = {
     {
       id: 'section_k_2',
       label: 'Section K',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [

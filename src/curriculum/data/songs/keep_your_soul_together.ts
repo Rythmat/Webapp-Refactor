@@ -21,7 +21,6 @@ export const keep_your_soul_together: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 1,
       bars: [
         {
           chords: [
@@ -137,7 +136,6 @@ export const keep_your_soul_together: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -166,7 +164,6 @@ export const keep_your_soul_together: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

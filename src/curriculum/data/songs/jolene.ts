@@ -7,7 +7,7 @@ export const jolene: Song = {
   year: 1973,
   historicalDescription:
     "Dolly Parton releases 'Jolene', a pleading country ballad built around one of the most memorable opening riffs in the genre's history. The song — in which Parton begs a flame-haired beauty not to steal her man — becomes a crossover phenomenon, transcending country audiences and entering the broader pop consciousness. Decades later, it remains one of the most covered songs ever written.",
-  key: 'D♭ minor',
+  key: 'C♯ minor',
   keyRoot: 61,
   mode: 'minor',
   tempo: 110,
@@ -47,7 +47,6 @@ export const jolene: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -78,7 +77,6 @@ export const jolene: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -109,7 +107,6 @@ export const jolene: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -138,7 +135,6 @@ export const jolene: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -167,7 +163,6 @@ export const jolene: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -198,7 +193,6 @@ export const jolene: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -229,7 +223,6 @@ export const jolene: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -258,7 +251,6 @@ export const jolene: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -287,7 +279,6 @@ export const jolene: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -323,7 +314,6 @@ export const jolene: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

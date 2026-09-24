@@ -7,8 +7,8 @@ export const move_on_up: Song = {
   year: 1971,
   historicalDescription:
     "Curtis Mayfield releases 'Move On Up' as a rallying cry for Black America, blending funk grooves, Latin percussion, and his signature falsetto into something urgent and euphoric. The extended track becomes an anthem of the civil rights era's optimistic afterglow, its irresistible momentum inspiring generations of artists from disco producers to hip hop beatmakers who sample it endlessly.",
-  key: 'F♯ minor',
-  keyRoot: 66,
+  key: 'B minor',
+  keyRoot: 71,
   mode: 'minor',
   tempo: 144,
   timeSignature: [4, 4],
@@ -24,22 +24,22 @@ export const move_on_up: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -47,23 +47,22 @@ export const move_on_up: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 7,
       bars: [
         {
-          chords: [{ degree: '♭2 maj', chordName: 'G', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
           fermata: true,
         },
         {
-          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
           fermata: true,
         },
         { chords: [] },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'G', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
           fermata: true,
         },
         {
-          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
           fermata: true,
         },
         { chords: [] },
@@ -73,7 +72,6 @@ export const move_on_up: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 1,
       bars: [{ chords: [] }],
     },
     {
@@ -82,22 +80,22 @@ export const move_on_up: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+            { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
       ],

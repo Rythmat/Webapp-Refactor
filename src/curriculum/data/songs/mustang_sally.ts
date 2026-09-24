@@ -19,8 +19,9 @@ export const mustang_sally: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
@@ -31,41 +32,11 @@ export const mustang_sally: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      measuresPerRow: 7,
-      bars: [
-        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      measuresPerRow: 8,
-      bars: [
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
@@ -76,6 +47,27 @@ export const mustang_sally: Song = {
       id: 'chorus',
       label: 'Chorus',
       bars: [
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'outro',
+      label: 'Outro',
+      bars: [
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
@@ -83,7 +75,6 @@ export const mustang_sally: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=16u6w0cjjrU' },
   ],

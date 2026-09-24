@@ -99,7 +99,6 @@ export const pick_up_the_pieces: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [
@@ -162,7 +161,6 @@ export const pick_up_the_pieces: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [
@@ -394,7 +392,6 @@ export const pick_up_the_pieces: Song = {
     {
       id: 'section_o',
       label: 'Section O',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [

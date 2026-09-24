@@ -19,9 +19,9 @@ export const golden_lady: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 5,
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -48,10 +48,31 @@ export const golden_lady: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 5,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯4 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '7 7', chordName: 'D7', beat: 3, duration: 2 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
@@ -77,38 +98,8 @@ export const golden_lady: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
-      measuresPerRow: 5,
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♯4 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '7 7', chordName: 'D7', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 5,
+      id: 'pre_chorus_1',
+      label: 'Pre-Chorus 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -128,13 +119,6 @@ export const golden_lady: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 5,
-      bars: [
         {
           chords: [
             { degree: '♯2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -155,10 +139,32 @@ export const golden_lady: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 5,
+      id: 'chorus',
+      label: 'Chorus',
       bars: [
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min/♯2', chordName: 'Gmin/F♯', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min/2', chordName: 'Gmin/F', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min/♯1', chordName: 'Gmin/E', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '3 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
@@ -185,38 +191,9 @@ export const golden_lady: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 5,
-      bars: [
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 min/♯2', chordName: 'Gmin/F♯', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 min/2', chordName: 'Gmin/F', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 min/♯1', chordName: 'Gmin/E', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -231,8 +208,29 @@ export const golden_lady: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 5,
       bars: [
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯4 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '7 7', chordName: 'D7', beat: 3, duration: 2 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
@@ -258,38 +256,8 @@ export const golden_lady: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
-      measuresPerRow: 5,
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♯4 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '7 7', chordName: 'D7', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_e_2',
-      label: 'Section E',
-      measuresPerRow: 5,
+      id: 'pre_chorus_2',
+      label: 'Pre-Chorus 2',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -309,13 +277,6 @@ export const golden_lady: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_l',
-      label: 'Section L',
-      measuresPerRow: 5,
-      bars: [
         {
           chords: [
             { degree: '♯2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -336,9 +297,8 @@ export const golden_lady: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 5,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -363,13 +323,6 @@ export const golden_lady: Song = {
         {
           chords: [{ degree: '♯4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_g_2',
-      label: 'Section G',
-      measuresPerRow: 5,
-      bars: [
         {
           chords: [
             { degree: '♯4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -393,13 +346,6 @@ export const golden_lady: Song = {
         {
           chords: [{ degree: '5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_h_2',
-      label: 'Section H',
-      measuresPerRow: 5,
-      bars: [
         {
           chords: [
             { degree: '5 min7', chordName: 'A♯min7', beat: 1, duration: 4 },
@@ -423,13 +369,6 @@ export const golden_lady: Song = {
         {
           chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      measuresPerRow: 5,
-      bars: [
         {
           chords: [
             { degree: '♯5 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
@@ -454,7 +393,6 @@ export const golden_lady: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=CXCTjAMR3eA' },
   ],

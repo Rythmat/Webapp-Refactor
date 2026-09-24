@@ -141,7 +141,6 @@ export const mercy: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 10 }],
     },
     {

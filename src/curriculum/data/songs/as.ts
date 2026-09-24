@@ -21,7 +21,6 @@ export const as: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -34,7 +33,6 @@ export const as: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -48,7 +46,6 @@ export const as: Song = {
     {
       id: 'section_c',
       label: 'Section C',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -72,7 +69,6 @@ export const as: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -193,7 +189,6 @@ export const as: Song = {
     {
       id: 'section_e_2',
       label: 'Section E',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -207,7 +202,6 @@ export const as: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -231,7 +225,6 @@ export const as: Song = {
     {
       id: 'section_f',
       label: 'Section F',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },

@@ -7,9 +7,9 @@ export const car_wash: Song = {
   year: 1976,
   historicalDescription:
     "Rose Royce releases 'Car Wash' as the title track to the Norman Whitfield-produced soundtrack, capturing the swaggering funk energy of mid-70s soul. The song becomes a massive crossover hit, its irresistible groove and Gwen Dickey's soaring vocals turning a simple setting — a Los Angeles car wash — into a celebration of working-class joy. It defines the moment when funk and soul cinema collide.",
-  key: 'D major',
+  key: 'D mixolydian',
   keyRoot: 62,
-  mode: 'major',
+  mode: 'mixolydian',
   tempo: 116,
   timeSignature: [4, 4],
 
@@ -114,7 +114,6 @@ export const car_wash: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 3,
       bars: [
         {
           chords: [

@@ -31,6 +31,7 @@ import {
   type ChordNotation,
 } from '@/lib/chordNotation';
 import { modeCharacter } from '@/lib/learn/modeCharacter';
+import { isScaleLesson } from '@/lib/learn/scaleLessons';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { getLocalModeSteps } from '@/lib/modeStepsFallback';
 
@@ -821,10 +822,14 @@ export function LessonOverview({
                 {character}.
               </p>
             )}
-            <p className="text-base" style={{ color: 'var(--color-text)' }}>
-              The key of &ldquo;{scaleNoteLabels[0] ?? activeKeyLabel}{' '}
-              {modeName}&rdquo; {keySignatureDescription}.
-            </p>
+            {/* A pentatonic or blues scale is not a key, so it has no key
+                signature to describe. */}
+            {!isScaleLesson(mode) && (
+              <p className="text-base" style={{ color: 'var(--color-text)' }}>
+                The key of &ldquo;{scaleNoteLabels[0] ?? activeKeyLabel}{' '}
+                {modeName}&rdquo; {keySignatureDescription}.
+              </p>
+            )}
             <p className="text-base" style={{ color: 'var(--color-text)' }}>
               {modeName} scale degrees: {chordScaleData?.intervals ?? ''}
             </p>

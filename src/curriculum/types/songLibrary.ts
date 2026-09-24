@@ -71,22 +71,68 @@ export interface ChordBar {
   /** If set, this bar represents a multi-bar rest. Renders as a thick
    *  horizontal block with the number above. `chords` should be empty. */
   restBars?: number;
+
+  // ── Roadmap ──
+  // How the written chart is read. `performedBars` in songLibrary/performance
+  // turns these into the order the song is played, which playback, timing and
+  // the Studio export all follow.
+
+  /** A start-repeat barline opens this bar. */
+  repeatStart?: boolean;
+  /** An end-repeat barline closes this bar. */
+  repeatEnd?: boolean;
+  /** Times the repeated passage is played in all. Defaults to the highest
+   *  ending number in the passage, or 2. */
+  repeatTimes?: number;
+  /** Volta bracket over this bar: the passes that play it (`[1]`, `[2]`,
+   *  `[1, 2]`). Neighbouring bars with the same passes share one bracket. */
+  ending?: number[];
+  /** The segno a D.S. jumps back to. */
+  segno?: boolean;
+  /** The coda sign: where "To Coda" lands on the pass after an al Coda jump. */
+  coda?: boolean;
+  /** "To Coda" at the end of this bar, taken on the pass after the jump. */
+  toCoda?: boolean;
+  /** Jump written at the end of this bar. */
+  jump?: RoadmapJump;
+  /** Fine: the song ends here on the pass after an al Fine jump. */
+  fine?: boolean;
+  /** Performance cue above the bar: 'Riff', 'Drum Fill', 'Piano Solo',
+   *  'Break', 'Repeat and Fade'. Never lyrics. */
+  cue?: string;
+  /** The key changes at this bar, e.g. 'A♭ major'. Degrees from here on
+   *  count from the new tonic. The song's own `key` stays the home key. */
+  keyChange?: string;
 }
+
+export type RoadmapJump =
+  | 'D.C.'
+  | 'D.S.'
+  | 'D.C. al Coda'
+  | 'D.S. al Coda'
+  | 'D.C. al Fine'
+  | 'D.S. al Fine';
 
 /* ── Section-level types ────────────────────────────────────────────── */
 
 export interface SongSection {
   /** Unique section identifier: 'verse_1', 'chorus_1', 'bridge' */
   id: string;
-  /** Display label: 'Verse 1', 'Chorus', 'Bridge' */
+  /** Display label, one of SECTION_NAMES with an optional number: 'Verse',
+   *  'Verse 2', 'Pre-Chorus', 'Chorus'. Never a rehearsal letter. */
   label: string;
+  /** Played without vocals: a small "Instrumental" beside the label.
+   *  'first-time' when only the first pass is instrumental (a D.S. back to a
+   *  verse that is sung the second time). */
+  instrumental?: boolean | 'first-time';
   /** Ordered bars in this section. */
   bars: ChordBar[];
   /** How many times to repeat. Defaults to 1 if omitted. */
   repeatCount?: number;
   /** Pedagogical note shown to student. NEVER lyrics. */
   notes?: string;
-  /** Override measures per row for this section. Defaults to 4. */
+  /** Override measures per row for this section. Defaults to 4; leave unset
+   *  unless a phrase genuinely reads better another way. */
   measuresPerRow?: number;
 }
 
@@ -152,6 +198,9 @@ export interface Song {
   id: string;
   title: string;
   artist: string;
+  /** Songwriter credit when it isn't the performing artist ('Prince' for
+   *  Sinéad O'Connor's Nothing Compares 2 U). */
+  composer?: string;
   year?: number;
 
   // ── Musical metadata ──

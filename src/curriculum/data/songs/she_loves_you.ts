@@ -282,7 +282,6 @@ export const she_loves_you: Song = {
     {
       id: 'section_p',
       label: 'Section P',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },

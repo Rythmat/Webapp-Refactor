@@ -7,7 +7,7 @@ export const oh_you_pretty_things: Song = {
   year: 1971,
   historicalDescription:
     "David Bowie releases 'Oh! You Pretty Things' in 1971, a piano-driven anthem heralding the arrival of a new generation — 'Homo Superior' — rising to replace the old world. The song captures Bowie at a visionary turning point, bridging his acoustic folk roots toward the glam rock personas he is about to unleash. It signals that pop music can carry grand, unsettling ideas about evolution, identity, and the future.",
-  key: 'F♯ major',
+  key: 'G♭ major',
   keyRoot: 66,
   mode: 'major',
   tempo: 78,
@@ -21,7 +21,6 @@ export const oh_you_pretty_things: Song = {
     {
       id: 'section_a',
       label: 'Section A',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -47,7 +46,6 @@ export const oh_you_pretty_things: Song = {
     {
       id: 'section_b',
       label: 'Section B',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -86,7 +84,6 @@ export const oh_you_pretty_things: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -121,7 +118,6 @@ export const oh_you_pretty_things: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -159,7 +155,6 @@ export const oh_you_pretty_things: Song = {
     {
       id: 'section_e',
       label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -194,7 +189,6 @@ export const oh_you_pretty_things: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -229,7 +223,6 @@ export const oh_you_pretty_things: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 9,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -270,7 +263,6 @@ export const oh_you_pretty_things: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 6,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -299,7 +291,6 @@ export const oh_you_pretty_things: Song = {
     {
       id: 'section_i',
       label: 'Section I',
-      measuresPerRow: 11,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -339,7 +330,6 @@ export const oh_you_pretty_things: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -365,7 +355,6 @@ export const oh_you_pretty_things: Song = {
     {
       id: 'section_k',
       label: 'Section K',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -404,7 +393,6 @@ export const oh_you_pretty_things: Song = {
     {
       id: 'section_l',
       label: 'Section L',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♯4 maj', chordName: 'C', beat: 1, duration: 4 }],

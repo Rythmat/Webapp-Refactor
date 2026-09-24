@@ -7,8 +7,8 @@ export const hey_soul_sister: Song = {
   year: 2009,
   historicalDescription:
     "Train releases 'Hey, Soul Sister', a breezy pop-rock anthem built around an ukulele riff that cuts against the grain of polished radio production. The song becomes a massive global hit, reviving the band's commercial fortunes and sparking a wave of ukulele-driven pop that echoes across the early 2010s. Its irresistible lightness makes it one of the best-selling singles of its era.",
-  key: 'B major',
-  keyRoot: 71,
+  key: 'E major',
+  keyRoot: 64,
   mode: 'major',
   tempo: 96,
   timeSignature: [4, 4],
@@ -22,19 +22,19 @@ export const hey_soul_sister: Song = {
       id: 'section_a',
       label: 'Section A',
       bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj/3', chordName: 'B/D♯', beat: 1, duration: 4 },
+            { degree: '5 maj/7', chordName: 'B/D♯', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -42,19 +42,19 @@ export const hey_soul_sister: Song = {
       id: 'verse',
       label: 'Verse',
       bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj/3', chordName: 'B/D♯', beat: 1, duration: 4 },
+            { degree: '5 maj/7', chordName: 'B/D♯', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -62,21 +62,21 @@ export const hey_soul_sister: Song = {
       id: 'section_c',
       label: 'Section C',
       bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 maj/3', chordName: 'B/D♯', beat: 1, duration: 4 },
+            { degree: '5 maj/7', chordName: 'B/D♯', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -85,15 +85,15 @@ export const hey_soul_sister: Song = {
       id: 'chorus',
       label: 'Chorus',
       bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -101,17 +101,17 @@ export const hey_soul_sister: Song = {
       id: 'section_e',
       label: 'Section E',
       bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -122,26 +122,26 @@ export const hey_soul_sister: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -152,35 +152,35 @@ export const hey_soul_sister: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -188,15 +188,15 @@ export const hey_soul_sister: Song = {
       id: 'section_i',
       label: 'Section I',
       bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -204,17 +204,17 @@ export const hey_soul_sister: Song = {
       id: 'section_j',
       label: 'Section J',
       bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -225,26 +225,26 @@ export const hey_soul_sister: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -255,36 +255,36 @@ export const hey_soul_sister: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'section_f',
       label: 'Section F',
       bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj/2', chordName: 'A/C♯', beat: 1, duration: 4 },
+            { degree: '4 maj/6', chordName: 'A/C♯', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -295,20 +295,20 @@ export const hey_soul_sister: Song = {
       bars: [
         {
           chords: [
-            { degree: '4 maj/1', chordName: 'E/B', beat: 1, duration: 4 },
+            { degree: '1 maj/5', chordName: 'E/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'C♯min7/B', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
+            { degree: '6 min7/5', chordName: 'C♯min7/B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -320,26 +320,26 @@ export const hey_soul_sister: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -347,23 +347,22 @@ export const hey_soul_sister: Song = {
     {
       id: 'section_h',
       label: 'Section H',
-      measuresPerRow: 5,
       bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
         {
-          chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }],
           fermata: true,
         },
       ],

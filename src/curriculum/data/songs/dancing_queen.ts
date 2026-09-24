@@ -64,7 +64,6 @@ export const dancing_queen: Song = {
     {
       id: 'section_d',
       label: 'Section D',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -114,7 +113,6 @@ export const dancing_queen: Song = {
     {
       id: 'section_g',
       label: 'Section G',
-      measuresPerRow: 2,
       bars: [
         {
           chords: [
@@ -137,7 +135,6 @@ export const dancing_queen: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
@@ -163,7 +160,6 @@ export const dancing_queen: Song = {
     {
       id: 'section_j',
       label: 'Section J',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -218,7 +214,6 @@ export const dancing_queen: Song = {
     {
       id: 'section_g_2',
       label: 'Section G',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 7', chordName: 'C♯7', beat: 1, duration: 4 }] },

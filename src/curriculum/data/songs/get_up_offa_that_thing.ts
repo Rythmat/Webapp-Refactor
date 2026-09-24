@@ -31,7 +31,6 @@ export const get_up_offa_that_thing: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },
@@ -43,7 +42,6 @@ export const get_up_offa_that_thing: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },
@@ -55,7 +53,6 @@ export const get_up_offa_that_thing: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },

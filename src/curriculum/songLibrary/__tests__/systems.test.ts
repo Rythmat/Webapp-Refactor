@@ -1,5 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import { systemRowSizes } from '../systems';
+import type {
+  ChordBar,
+  Song,
+  SongSection,
+} from '@/curriculum/types/songLibrary';
+import {
+  opensPage,
+  songSystemCount,
+  songSystemOffsets,
+  systemRowSizes,
+} from '../systems';
+
+const bars = (n: number): ChordBar[] =>
+  Array.from({ length: n }, () => ({ chords: [] }));
+
+const section = (
+  id: string,
+  barCount: number,
+  over: Partial<SongSection> = {},
+): SongSection => ({ id, label: id, bars: bars(barCount), ...over });
+
+const song = (sections: SongSection[]) => ({ sections }) as unknown as Song;
 
 describe('systemRowSizes', () => {
   it('breaks into systems of four', () => {
@@ -13,6 +34,79 @@ describe('systemRowSizes', () => {
   });
   it('leaves a leftover three, or a short section, as its own row', () => {
     expect(systemRowSizes(7)).toEqual([4, 3]);
+    expect(systemRowSizes(11)).toEqual([4, 4, 3]);
     expect(systemRowSizes(2)).toEqual([2]);
+  });
+});
+
+describe('songSystemOffsets', () => {
+  it('counts systems straight through the sections', () => {
+    const s = song([
+      section('intro', 4),
+      section('verse', 8),
+      section('tag', 2),
+    ]);
+    expect(songSystemOffsets(s)).toEqual([0, 1, 3]);
+    expect(songSystemCount(s)).toBe(4);
+  });
+
+  it('respects a section that sets its own row width', () => {
+    const s = song([
+      section('intro', 6, { measuresPerRow: 2 }), // 2 + 2 + 2 → 3 systems
+      section('verse', 8),
+    ]);
+    expect(songSystemOffsets(s)).toEqual([0, 3]);
+    expect(songSystemCount(s)).toBe(5);
+  });
+
+  it('counts a legacy repeatCount as the bars it stands for', () => {
+    // 4 bars played twice is still one written system, not two.
+    const s = song([section('verse', 4, { repeatCount: 2 })]);
+    expect(songSystemCount(s)).toBe(1);
+  });
+
+  it('handles an empty chart', () => {
+    expect(songSystemOffsets(song([]))).toEqual([]);
+    expect(songSystemCount(song([]))).toBe(0);
+  });
+});
+
+describe('opensPage', () => {
+  it('never breaks before the first system', () => {
+    expect(opensPage(0, 8)).toBe(false);
+  });
+
+  it('breaks every N systems, counted across sections', () => {
+    expect(opensPage(8, 8)).toBe(true);
+    expect(opensPage(16, 8)).toBe(true);
+    expect(opensPage(7, 8)).toBe(false);
+    expect(opensPage(9, 8)).toBe(false);
+    expect(opensPage(10, 10)).toBe(true);
+  });
+
+  it('is off when no page size is set, so the chart stays continuous', () => {
+    expect(opensPage(8, undefined)).toBe(false);
+    expect(opensPage(8, 0)).toBe(false);
+  });
+
+  it('puts every page boundary of a real-shaped chart in the right place', () => {
+    // Intro 4, Verse 16, Chorus 8, Verse 16, Outro 8 → 1+4+2+4+2 = 13 systems.
+    const s = song([
+      section('intro', 4),
+      section('verse_1', 16),
+      section('chorus', 8),
+      section('verse_2', 16),
+      section('outro', 8),
+    ]);
+    expect(songSystemCount(s)).toBe(13);
+    const starts = Array.from(
+      { length: songSystemCount(s) },
+      (_, i) => i,
+    ).filter((i) => opensPage(i, 8));
+    // One break, at system 8 — which falls inside Verse 2, not on a section.
+    expect(starts).toEqual([8]);
+    const offsets = songSystemOffsets(s);
+    expect(offsets).toEqual([0, 1, 5, 7, 11]);
+    expect(offsets.includes(8)).toBe(false);
   });
 });

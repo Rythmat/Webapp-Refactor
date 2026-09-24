@@ -16,7 +16,11 @@ import type {
 } from '@/curriculum/types/songLibrary';
 import { chordNameToMidi } from '@/curriculum/songLibrary/chordParser';
 import { useChartNotation } from './chartNotationPreference';
-import { systemRowSizes } from '@/curriculum/songLibrary/systems';
+import {
+  opensPage,
+  songSystemOffsets,
+  systemRowSizes,
+} from '@/curriculum/songLibrary/systems';
 import {
   sectionBars,
   writtenBarKeys,
@@ -79,6 +83,14 @@ interface ChordChartProps {
   onSelectChord?: (loc: ChordChartLoc) => void;
   selection?: ChordChartLoc | null;
   editable?: ChordChartEditable;
+  /**
+   * Break the chart into pages of this many systems, for a music stand and
+   * for print. The chart marks where each page begins — `data-page-start` for
+   * a reader that scrolls to it, `break-before: page` for the printer — and
+   * counts systems across section boundaries, so a page is always the same
+   * number of staves whatever the sections do. Unset: one continuous chart.
+   */
+  systemsPerPage?: number;
 }
 
 /* ── Staff layout constants (matching LeadSheetMeasure) ──────────────── */
@@ -768,6 +780,9 @@ const SectionStaff: FC<{
   onSelectChord?: (loc: ChordChartLoc) => void;
   selection?: ChordChartLoc | null;
   editable?: ChordChartEditable;
+  /** How many systems the sections above this one used. */
+  systemOffset: number;
+  systemsPerPage?: number;
 }> = ({
   section,
   sectionIdx,
@@ -780,6 +795,8 @@ const SectionStaff: FC<{
   onSelectChord,
   selection,
   editable,
+  systemOffset,
+  systemsPerPage,
 }) => {
   // The legacy repeatCount drawn as the repeat barlines it stands for.
   const bars = sectionBars(section);
@@ -801,8 +818,29 @@ const SectionStaff: FC<{
   const opensOnCoda = hasMarker && !!bars[0]?.coda;
   const signsInHeader = opensOnSegno || opensOnCoda;
 
+  // A page that opens on this section opens on its heading, not between the
+  // heading and its first staff.
+  const sectionOpensPage = opensPage(systemOffset, systemsPerPage);
+
+  // On a page, the space between sections is space a staff could have used.
+  // A chart of short sections spends nearly a third of its height on headings
+  // and the air around them, and every pixel of it comes off the staves once
+  // the page is scaled to fit. Reading down the page is tighter than reading
+  // down a scroll, so the gaps close.
+  const paged = !!systemsPerPage;
+  const sectionGap = paged ? '0.4rem' : 'clamp(1rem, 2vw, 1.5rem)';
+  const headerGap = paged ? '0.1rem' : 'clamp(0.3rem, 0.5vw, 0.4rem)';
+  const rowGap = paged ? 2 : 4;
+
   return (
-    <div style={{ marginBottom: 'clamp(1rem, 2vw, 1.5rem)' }}>
+    <div
+      data-chart-section={sectionIdx}
+      {...(sectionOpensPage ? { 'data-page-start': systemOffset } : {})}
+      style={{
+        marginBottom: sectionGap,
+        ...(sectionOpensPage ? { breakBefore: 'page' as const } : {}),
+      }}
+    >
       {signsInHeader && (
         <div
           className="flex items-center gap-2"
@@ -819,7 +857,7 @@ const SectionStaff: FC<{
       {editable ? (
         <div
           className="flex flex-wrap items-center gap-1.5"
-          style={{ marginBottom: 'clamp(0.3rem, 0.5vw, 0.4rem)' }}
+          style={{ marginBottom: headerGap }}
         >
           <input
             value={section.label}
@@ -891,7 +929,7 @@ const SectionStaff: FC<{
       ) : section.label ? (
         <div
           className="flex items-center gap-2"
-          style={{ marginBottom: 'clamp(0.3rem, 0.5vw, 0.4rem)' }}
+          style={{ marginBottom: headerGap }}
         >
           <button
             onClick={() => onToggleLoop?.(sectionIdx)}
@@ -946,8 +984,19 @@ const SectionStaff: FC<{
         const globalBarOffset = rowStarts[ri];
         // Rows with roadmap marks get a band above the chords to hold them.
         const band = row.some(hasRoadmapMarks) ? ROADMAP_BAND : 0;
+        const system = systemOffset + ri;
+        // The section wrapper already carries the break for its own first row.
+        const rowOpensPage = ri > 0 && opensPage(system, systemsPerPage);
         return (
-          <div key={ri} style={{ marginBottom: 4 }}>
+          <div
+            key={ri}
+            data-chart-system={system}
+            {...(rowOpensPage ? { 'data-page-start': system } : {})}
+            style={{
+              marginBottom: rowGap,
+              ...(rowOpensPage ? { breakBefore: 'page' as const } : {}),
+            }}
+          >
             <svg
               width="100%"
               viewBox={`0 0 ${viewW} ${TOTAL_HEIGHT + band}`}
@@ -1011,6 +1060,7 @@ export const ChordChart: FC<ChordChartProps> = ({
   onSelectChord,
   selection,
   editable,
+  systemsPerPage,
 }) => {
   // Letters or numbers, as the reader chose. The editor is pinned to the
   // chart's own labels so it always edits what is stored.
@@ -1028,6 +1078,10 @@ export const ChordChart: FC<ChordChartProps> = ({
     editable || onSelectChord || displayMode === 'hybrid'
       ? 'hybrid'
       : pickedNotation;
+  // Systems used by the sections above each one, so a page is the same number
+  // of staves whether or not a section boundary falls inside it.
+  const systemOffsets = useMemo(() => songSystemOffsets(song), [song]);
+
   // The key of every written bar, grouped by section: a key change moves the
   // chord symbols, degrees and colours to the new tonic from that bar on.
   const { sectionKeys, keyOfHit } = useMemo(() => {
@@ -1090,6 +1144,8 @@ export const ChordChart: FC<ChordChartProps> = ({
             key={section.id + '_' + si}
             section={section}
             sectionIdx={si}
+            systemOffset={systemOffsets[si]}
+            systemsPerPage={systemsPerPage}
             displayMode={displayMode}
             notation={notation}
             barKeys={sectionKeys[si] ?? []}

@@ -32,6 +32,7 @@ import { SongRoutes } from '@/constants/routes';
 import { semitonesToTonic } from '@/curriculum/songLibrary/transpose';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { SongPickerDialog } from '@/features/classroom/slides/wizard/SongPickerDialog';
+import { StandVideo } from '../StandVideo';
 import { entryChart } from '../entryChart';
 import {
   dropIndex,
@@ -39,7 +40,11 @@ import {
   readDragItem,
   setDragItem,
 } from '../setListDnd';
-import { useSetViewMode } from '../setViewPreference';
+import {
+  STAVES_PER_PAGE,
+  useSetViewMode,
+  useStavesPerPage,
+} from '../setViewPreference';
 import type {
   SetListEntry,
   SetListProjectEntry,
@@ -469,6 +474,12 @@ const EntryKey: FC<{
 
 /* ── The stand ────────────────────────────────────────────────────────── */
 
+/** A page of the chart: where it starts and how tall it is, unzoomed. */
+interface ChartPage {
+  top: number;
+  height: number;
+}
+
 const Viewer: FC<{
   entry: SetListEntry | undefined;
   setListId: string;
@@ -481,8 +492,15 @@ const Viewer: FC<{
   const boxRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(0);
-  const [pageCount, setPageCount] = useState(1);
+  const [staves, setStaves] = useStavesPerPage();
+  /** Where each page starts and how tall it is, in the chart's own pixels.
+   *  Empty until measured, so the first paint is not clipped to nothing. */
+  const [pages, setPages] = useState<ChartPage[]>([]);
+  /** One zoom for the whole chart, so the staves are the same size on
+   *  every page — the fullest page is the one that has to fit. */
+  const [zoom, setZoom] = useState(1);
   const [notesOpen, setNotesOpen] = useState(false);
+  const pageCount = Math.max(1, pages.length);
 
   const chart = useMemo(() => (entry ? entryChart(entry) : null), [entry]);
   const inKey = chart?.song ?? null;
@@ -492,23 +510,40 @@ const Viewer: FC<{
   const updatedFingerprint =
     entry?.kind === 'song' ? chartChangedSince(entry) : null;
 
-  // How many screens tall the chart is.
+  // Where the pages fall, and how far the chart has to shrink to fit one.
+  //
+  // ChordChart marks the system that opens each page (it counts staves across
+  // section boundaries, so a page is always the same number of staves). Those
+  // marks give the page tops; a page's height is the distance to the next one.
+  // `offsetTop` is layout, not paint, so the zoom below does not disturb it.
   useEffect(() => {
     setPage(0);
     const measure = () => {
       const box = boxRef.current;
       const content = contentRef.current;
       if (!box || !content) return;
-      setPageCount(
-        Math.max(1, Math.ceil(content.scrollHeight / box.clientHeight)),
-      );
+      const base = content.offsetTop;
+      const tops = [
+        0,
+        ...Array.from(
+          content.querySelectorAll<HTMLElement>('[data-page-start]'),
+        ).map((el) => el.offsetTop - base),
+      ];
+      const total = content.offsetHeight;
+      const next = tops.map((top, i) => ({
+        top,
+        height: Math.max(1, (tops[i + 1] ?? total) - top),
+      }));
+      const tallest = Math.max(...next.map((p) => p.height));
+      setPages(next);
+      setZoom(Math.min(1, box.clientHeight / tallest));
     };
     measure();
     const observer = new ResizeObserver(measure);
     if (boxRef.current) observer.observe(boxRef.current);
     if (contentRef.current) observer.observe(contentRef.current);
     return () => observer.disconnect();
-  }, [entry, view]);
+  }, [entry, view, staves]);
 
   const turn = useCallback(
     (delta: number) => {
@@ -601,6 +636,30 @@ const Viewer: FC<{
           </button>
         )}
 
+        <StandVideo song={inKey} recordedKey={chart?.recordedKey} />
+
+        {view === 'page' && inKey && (
+          <label className="flex flex-shrink-0 items-center gap-1 text-xs text-white/40">
+            <span className="hidden sm:inline">Staves</span>
+            <select
+              value={staves}
+              onChange={(e) =>
+                setStaves(
+                  Number(e.target.value) as (typeof STAVES_PER_PAGE)[number],
+                )
+              }
+              className="rounded-full border border-white/15 bg-transparent px-1.5 py-0.5 text-xs text-white/70 outline-none focus:border-white/35"
+              title="Staves on a page"
+            >
+              {STAVES_PER_PAGE.map((n) => (
+                <option key={n} value={n} className="bg-[#161618]">
+                  {n}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+
         <div className="flex items-center gap-1 rounded-full border border-white/10 p-0.5">
           {(['page', 'scroll'] as const).map((mode) => (
             <button
@@ -663,33 +722,57 @@ const Viewer: FC<{
             : 'custom-scrollbar relative min-h-0 flex-1 overflow-y-auto'
         }
       >
+        {/* Page view is three nested jobs: zoom the whole chart down until a
+            page fits, clip to exactly this page's height so the next page's
+            staves cannot show through under a short one, and slide the chart
+            up to the page being read. */}
         <div
-          ref={contentRef}
-          className="px-5 py-4"
           style={
             view === 'page'
-              ? {
-                  transform: `translateY(-${page * (boxRef.current?.clientHeight ?? 0)}px)`,
-                  transition: 'transform 180ms ease-out',
-                }
+              ? { transform: `scale(${zoom})`, transformOrigin: 'top center' }
               : undefined
           }
         >
-          {inKey ? (
-            <ChordChart key={`${entry.id}:${inKey.key}`} song={inKey} />
-          ) : chart ? (
-            <p className="text-white/40">{chart.missing}</p>
-          ) : entry.kind === 'text' ? (
-            <textarea
-              value={entry.text}
-              onChange={(e) =>
-                actions.setEntryText(setListId, entry.id, e.target.value)
+          <div
+            style={
+              view === 'page'
+                ? { height: pages[page]?.height, overflow: 'hidden' }
+                : undefined
+            }
+          >
+            <div
+              ref={contentRef}
+              className={view === 'page' ? 'px-5' : 'px-5 py-4'}
+              style={
+                view === 'page'
+                  ? {
+                      transform: `translateY(-${pages[page]?.top ?? 0}px)`,
+                      transition: 'transform 180ms ease-out',
+                    }
+                  : undefined
               }
-              placeholder="A page for the band — transitions, staging, anything. Prints as its own page."
-              className="min-h-[60vh] w-full resize-none bg-transparent leading-relaxed text-white/90 outline-none placeholder:text-white/25"
-              style={{ fontSize: '16pt' }}
-            />
-          ) : null}
+            >
+              {inKey ? (
+                <ChordChart
+                  key={`${entry.id}:${inKey.key}:${staves}`}
+                  song={inKey}
+                  systemsPerPage={view === 'page' ? staves : undefined}
+                />
+              ) : chart ? (
+                <p className="text-white/40">{chart.missing}</p>
+              ) : entry.kind === 'text' ? (
+                <textarea
+                  value={entry.text}
+                  onChange={(e) =>
+                    actions.setEntryText(setListId, entry.id, e.target.value)
+                  }
+                  placeholder="A page for the band — transitions, staging, anything. Prints as its own page."
+                  className="min-h-[60vh] w-full resize-none bg-transparent leading-relaxed text-white/90 outline-none placeholder:text-white/25"
+                  style={{ fontSize: '16pt' }}
+                />
+              ) : null}
+            </div>
+          </div>
         </div>
       </div>
 

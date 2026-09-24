@@ -4,6 +4,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { ChordChart } from '@/components/songLibrary/ChordChart';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { entryChart } from '../entryChart';
+import { getStavesPerPage } from '../setViewPreference';
 import type { SetListEntry } from '../types';
 import { useSetLists } from '../useSetLists';
 import './setlist-print.css';
@@ -18,6 +19,9 @@ export const SetListPrintPage: FC = () => {
   const [params] = useSearchParams();
   const { blob, status } = useSetLists();
   const list = blob.setLists[setListId];
+  // Paper pages hold the same number of staves as the stand's pages, so what
+  // the player rehearsed from and what comes out of the printer turn together.
+  const staves = getStavesPerPage();
 
   type Page = { entry: SetListEntry; song: Song | null };
   const pages = useMemo<Page[]>(
@@ -84,7 +88,7 @@ export const SetListPrintPage: FC = () => {
                 </p>
               )}
             </header>
-            <ChordChart song={song} />
+            <ChordChart song={song} systemsPerPage={staves} />
           </section>
         ) : (
           <section

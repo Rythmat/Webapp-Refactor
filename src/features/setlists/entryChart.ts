@@ -17,6 +17,9 @@ export interface EntryChart {
   song: Song | null;
   title: string;
   artist?: string;
+  /** The chart's own key, when this set plays it in another one. The
+   *  recording is in this key, not the one on the stand. */
+  recordedKey?: string;
   /** Set when there is no chart to draw, and why. */
   missing?: string;
 }
@@ -50,6 +53,7 @@ export function entryChart(entry: SetListEntry): EntryChart | null {
       song: transposeSong(song, entry.semitones),
       title: entry.title,
       ...(entry.chart.artist ? { artist: entry.chart.artist } : {}),
+      ...(entry.semitones ? { recordedKey: song.key } : {}),
     };
   }
 
@@ -64,5 +68,6 @@ export function entryChart(entry: SetListEntry): EntryChart | null {
     song: transposeSong(song, entry.semitones),
     title: entry.title ?? song.title,
     artist: song.artist,
+    ...(entry.semitones ? { recordedKey: song.key } : {}),
   };
 }

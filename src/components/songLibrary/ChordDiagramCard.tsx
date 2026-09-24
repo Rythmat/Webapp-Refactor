@@ -1,10 +1,15 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
-import { type FC, type ReactNode } from 'react';
-import { getChordColorFromNotes } from '@prism/engine';
+import { useMemo, type FC, type ReactNode } from 'react';
+import { getChordColorFromNotes, midiNameInKey } from '@prism/engine';
 import type { SongMode } from '@/curriculum/types/songLibrary';
 import { chordNameToMidi } from '@/curriculum/songLibrary/chordParser';
 import { PianoKeyboard } from '@/components/PianoKeyboard/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext';
+import { Piano } from 'lucide-react';
+import { GrandStaff } from '@/components/notation/GrandStaff';
+import { RollViewToggle } from '@/components/notation/RollViewToggle';
+import { buildScore } from '@/lib/notation';
+import { useRollView } from '@/lib/notation/viewPreference';
 
 /**
  * The chord diagram a student sees when they click a chord in a chart:
@@ -79,15 +84,49 @@ export const ChordDiagramCard: FC<{
   midi: number[];
   /** Key colour for the lit keys and pills. Falls back to teal. */
   rgb?: ChordRgb | null;
+  /** The key this chord is heard in, for the staff's signature and spelling. */
+  keyTonicPc?: number | null;
+  mode?: SongMode;
   /** The title block. The chart passes text; the editor passes inputs. */
   header: ReactNode;
   /** Extra controls under the note pills. Editor-only in practice. */
   footer?: ReactNode;
   className?: string;
-}> = ({ midi, rgb, header, footer, className }) => {
+}> = ({ midi, rgb, keyTonicPc, mode, header, footer, className }) => {
   const [r, g, b] = rgb ?? FALLBACK_CHORD_RGB;
   const keyColor = `rgb(${r}, ${g}, ${b})`;
   const pillBg = `rgba(${r}, ${g}, ${b}, 0.18)`;
+  const [view, setView] = useRollView('songs');
+
+  // The chord on a staff: one clef, since a song chord is four notes or
+  // fewer, and spelled in the key it sounds in so the staff and the pills
+  // below it cannot disagree (B♭, never A♯, in a flat key).
+  const score = useMemo(() => {
+    const spell =
+      keyTonicPc == null
+        ? undefined
+        : (m: number) =>
+            midiNameInKey(
+              m,
+              keyTonicPc,
+              mode ? normalizeMode(mode) : undefined,
+            );
+    return buildScore(
+      midi.map((m, i) => ({
+        id: `n${i}`,
+        midi: m,
+        startTick: 0,
+        durationTicks: 1920,
+        ...(spell ? { name: spell(m) } : {}),
+      })),
+      {
+        staves: 'treble',
+        minMeasures: 1,
+        timeSignature: [4, 4] as [number, number],
+        ...(keyTonicPc == null ? {} : { keyTonicPc }),
+      },
+    );
+  }, [midi, keyTonicPc, mode]);
 
   return (
     <div
@@ -97,17 +136,31 @@ export const ChordDiagramCard: FC<{
         border: '1px solid var(--color-border, rgba(255,255,255,0.08))',
       }}
     >
-      <div className="px-5 pt-5 pb-3">{header}</div>
+      <div className="flex items-start justify-between gap-3 px-5 pb-3 pt-5">
+        <div className="min-w-0">{header}</div>
+        {midi.length > 0 && (
+          <RollViewToggle
+            view={view}
+            onChange={setView}
+            iconicIcon={Piano}
+            iconicLabel="Keyboard"
+          />
+        )}
+      </div>
 
       <div className="px-3 pb-5" style={{ height: 120 }}>
-        <PianoKeyboard
-          startC={4}
-          endC={6}
-          playingNotes={midiToPlaybackEvents(midi)}
-          activeWhiteKeyColor={keyColor}
-          activeBlackKeyColor={keyColor}
-          enableClick={false}
-        />
+        {view === 'notation' && midi.length > 0 ? (
+          <GrandStaff score={score} fitHeight className="h-full" />
+        ) : (
+          <PianoKeyboard
+            startC={4}
+            endC={6}
+            playingNotes={midiToPlaybackEvents(midi)}
+            activeWhiteKeyColor={keyColor}
+            activeBlackKeyColor={keyColor}
+            enableClick={false}
+          />
+        )}
       </div>
 
       <div className="px-5 pb-4 flex gap-2 flex-wrap">

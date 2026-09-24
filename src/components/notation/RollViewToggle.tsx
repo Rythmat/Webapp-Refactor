@@ -1,16 +1,25 @@
-import { ChartNoAxesGantt, Music } from 'lucide-react';
+import { ChartNoAxesGantt, Music, type LucideIcon } from 'lucide-react';
 import type { RollView } from '@/lib/notation';
 
-/** Two-icon switch between the piano roll and the grand staff. */
+/**
+ * Two-icon switch between the app's own note picture and the staff. The
+ * left-hand icon names whichever picture that surface draws — a piano roll in
+ * Learn and Studio, a keyboard in the song library's chord popup. When other
+ * instruments get their own iconic notation, this is where their icon goes.
+ */
 export function RollViewToggle({
   view,
   onChange,
+  iconicIcon = ChartNoAxesGantt,
+  iconicLabel = 'Piano roll',
 }: {
   view: RollView;
   onChange: (view: RollView) => void;
+  iconicIcon?: LucideIcon;
+  iconicLabel?: string;
 }) {
   const options = [
-    { id: 'roll' as const, label: 'Piano roll', Icon: ChartNoAxesGantt },
+    { id: 'roll' as const, label: iconicLabel, Icon: iconicIcon },
     { id: 'notation' as const, label: 'Notation', Icon: Music },
   ];
   return (

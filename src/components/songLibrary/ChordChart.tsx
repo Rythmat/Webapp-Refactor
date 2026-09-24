@@ -15,6 +15,7 @@ import type {
   ChordHit,
 } from '@/curriculum/types/songLibrary';
 import { chordNameToMidi } from '@/curriculum/songLibrary/chordParser';
+import { useChartNotation } from './chartNotationPreference';
 import { systemRowSizes } from '@/curriculum/songLibrary/systems';
 import {
   sectionBars,
@@ -963,12 +964,22 @@ export const ChordChart: FC<ChordChartProps> = ({
   selection,
   editable,
 }) => {
-  const displayMode: DisplayMode = 'chordName';
+  // Letters or numbers, as the reader chose. The editor is pinned to the
+  // chart's own labels so it always edits what is stored.
+  const [chartNotation] = useChartNotation();
+  const displayMode: DisplayMode =
+    editable || onSelectChord
+      ? 'chordName'
+      : chartNotation === 'numbers'
+        ? 'hybrid'
+        : 'chordName';
   // The back-office editor works on the raw chord data, so it keeps the chart's
   // own labels whatever notation the user picked.
   const pickedNotation = useChordNotation();
   const notation: ChordNotation =
-    editable || onSelectChord ? 'hybrid' : pickedNotation;
+    editable || onSelectChord || displayMode === 'hybrid'
+      ? 'hybrid'
+      : pickedNotation;
   // The key of every written bar, grouped by section: a key change moves the
   // chord symbols, degrees and colours to the new tonic from that bar on.
   const { sectionKeys, keyOfHit } = useMemo(() => {
@@ -1064,6 +1075,12 @@ export const ChordChart: FC<ChordChartProps> = ({
             <ChordDiagramCard
               midi={selectedChord.midi}
               rgb={selectedChord.rgb}
+              // The bar's own key, so a chord after a key change is spelled
+              // and signed in the key it actually sounds in.
+              keyTonicPc={
+                keyOfHit.get(selectedChord.hit)?.tonicPc ?? song.keyRoot % 12
+              }
+              mode={keyOfHit.get(selectedChord.hit)?.mode ?? song.mode}
               header={
                 <>
                   <h3

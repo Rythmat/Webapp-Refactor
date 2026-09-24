@@ -13,6 +13,8 @@ import { getSong } from '@/curriculum/data/songs';
 import { LearnRoutes } from '@/constants/routes';
 import { ChordChart } from './ChordChart';
 import { TransposeKeyButton } from './TransposeKeyButton';
+import { useChartNotation } from './chartNotationPreference';
+import { SegmentedControl } from '@/features/classroom/presentation/SegmentedControl';
 import { SaveVersionDialog } from '@/features/setlists/SaveVersionDialog';
 import { useSetListFavorite } from '@/features/setlists/useSetLists';
 import { transposeSong } from '@/curriculum/songLibrary/transpose';
@@ -280,6 +282,7 @@ export const SongDetailPage: FC = () => {
               <div className="flex flex-wrap items-center gap-2">
                 <SongActionPills song={displaySong ?? song} />
                 <FavoriteStar songId={song.id} />
+                <ChartNotationSwitch />
                 <button
                   type="button"
                   onClick={() => setSavingVersion(true)}
@@ -334,6 +337,22 @@ export const SongDetailPage: FC = () => {
         />
       </div>
     </div>
+  );
+};
+
+/** Letter chord symbols, or the hybrid numbers, for the chart below. */
+const ChartNotationSwitch: FC = () => {
+  const [notation, setNotation] = useChartNotation();
+  return (
+    <SegmentedControl
+      label="Chord symbols"
+      value={notation}
+      onChange={setNotation}
+      options={[
+        { value: 'letters', label: 'B♭maj7' },
+        { value: 'numbers', label: '4 maj7' },
+      ]}
+    />
   );
 };
 

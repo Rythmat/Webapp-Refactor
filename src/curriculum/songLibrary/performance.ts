@@ -173,17 +173,37 @@ export interface LocalKey {
 
 /** 'A♭ major' → { tonicPc: 8, mode: 'major' }. */
 export function parseKeyName(key: string): LocalKey | null {
-  const match = key.trim().match(/^([A-G](?:♯|♭)?)\s*(.*)$/);
+  // A label naming two keys ('G minor & A minor') names the home key first;
+  // where the second one takes over belongs on a bar, not in the name.
+  const first = key.split('&')[0].trim();
+  const match = first.match(/^([A-G](?:♯|♭)?)\s*(.*)$/);
   if (!match) return null;
   const note = parseNoteName(match[1]);
   if (!note) return null;
-  const word = match[2].trim().toLowerCase();
+  // The mode is the first word that names one, so 'harmonic minor' counts
+  // from the minor tonic rather than reading as a mode of its own.
+  const word = match[2]
+    .toLowerCase()
+    .split(/[^a-z]+/)
+    .find((w) => w === 'blues' || MODE_WORDS.has(w));
   // A blues key ('B♭ blues') plays its dominant chords as Mixolydian.
   const mode = (
-    word === '' ? 'major' : word === 'blues' ? 'mixolydian' : word
+    word === undefined ? 'major' : word === 'blues' ? 'mixolydian' : word
   ) as SongMode;
-  return { key, tonicPc: spelledPitchClass(note), mode };
+  return { key: first, tonicPc: spelledPitchClass(note), mode };
 }
+
+const MODE_WORDS = new Set<string>([
+  'major',
+  'minor',
+  'dorian',
+  'phrygian',
+  'lydian',
+  'mixolydian',
+  'locrian',
+  'aeolian',
+  'ionian',
+]);
 
 /**
  * The key each written bar is in, walking the chart from the home key and

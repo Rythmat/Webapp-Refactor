@@ -25,6 +25,25 @@ const songs: Song[] = Object.entries(modules)
   );
 
 describe('song chart form', () => {
+  it('writes every accidental as ♭ or ♯, never b or #', () => {
+    // The schema's first rule. Three charts ("Let's Dance", "Let's Get It On",
+    // "Let's Stay Together") had ASCII flats — the apostrophe in the title
+    // looks to have carried them past whatever converted the rest.
+    const bad = songs.flatMap((song) =>
+      song.sections.flatMap((section) =>
+        section.bars.flatMap((bar) =>
+          bar.chords
+            .filter(
+              (hit) =>
+                /[A-G][b#]/.test(hit.chordName) || /[b#]/.test(hit.degree),
+            )
+            .map((hit) => `${song.id}: ${hit.chordName} (${hit.degree})`),
+        ),
+      ),
+    );
+    expect(bad).toEqual([]);
+  });
+
   it('names every section Intro, Verse, Pre-Chorus, Chorus, Bridge, Interlude, Tag or Outro', () => {
     const bad = songs.flatMap((song) =>
       song.sections

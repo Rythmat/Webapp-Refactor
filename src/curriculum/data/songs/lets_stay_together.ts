@@ -66,12 +66,12 @@ export const lets_stay_together: Song = {
         },
         {
           chords: [
-            { degree: '4 min7', chordName: 'Bbmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 min7', chordName: 'Bbmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -194,12 +194,12 @@ export const lets_stay_together: Song = {
         },
         {
           chords: [
-            { degree: '4 min7', chordName: 'Bbmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 min7', chordName: 'Bbmin7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -262,7 +262,9 @@ export const lets_stay_together: Song = {
       id: 'outro',
       label: 'Outro',
       bars: [
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
       ],
     },
   ],

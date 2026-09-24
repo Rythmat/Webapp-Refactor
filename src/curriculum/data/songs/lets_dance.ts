@@ -29,8 +29,16 @@ export const lets_dance: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -43,46 +51,34 @@ export const lets_dance: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 }],
-        },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Bbmin7', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Bbmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Bbmin7', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Bbmin7', beat: 1, duration: 4 },
+            { degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -91,22 +87,70 @@ export const lets_dance: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 }],
-        },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Bbmin7', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Bbmin7', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -116,46 +160,59 @@ export const lets_dance: Song = {
       label: 'Bridge',
       bars: [
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          keyChange: 'A♭ major',
         },
         {
-          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -164,50 +221,75 @@ export const lets_dance: Song = {
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Bbmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Bbmin7', beat: 1, duration: 4 },
-          ],
+          keyChange: 'B♭ minor',
         },
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 }],
-        },
-        {
           chords: [
-            { degree: '1 min7', chordName: 'Bbmin7', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Bbmin7', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj6', chordName: 'G♭6', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
       ],

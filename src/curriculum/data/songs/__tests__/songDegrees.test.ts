@@ -15,7 +15,8 @@ import type { ChordHit, Song } from '@/curriculum/types/songLibrary';
 /**
  * Every song chord's hybrid degree label must match its letter symbol and the
  * song's key: degrees count from the MAJOR scale of the tonic in every mode
- * (A minor: G → '♭7 maj', E7 → '5 7'), accidentals follow the root's letter.
+ * (A minor: G → '♭7 maj', E7 → '5 dom7'), accidentals follow the root's letter.
+ * Quality tokens are three-letter abbreviations: maj, min, dom, dim, aug.
  *
  * Globs the song files directly (not bundled.ts) so charts that are not in the
  * bundle yet are checked too.

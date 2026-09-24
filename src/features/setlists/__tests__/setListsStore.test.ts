@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  acceptChartUpdate,
   addSongEntry,
   addTextEntry,
   createSetList,
@@ -22,6 +23,7 @@ import {
   setEntryTranspose,
   toggleFavorite,
 } from '../setListsStore';
+import { chartFingerprint } from '../setListsStore';
 import { FAVORITES_TITLE, INBOX_TITLE } from '../types';
 
 const start = () => ensureDefaults(emptyBlob(1), 1);
@@ -276,5 +278,44 @@ describe('auto-filing', () => {
     const tree = listTree(created.blob);
     expect(tree[0].artist.title).toBe('My Music');
     expect(tree[0].shows[0].setLists.map((l) => l.title)).toContain('Saturday');
+  });
+});
+
+describe('chart corrections', () => {
+  const chart = (chordName: string) => ({
+    key: 'G major',
+    sections: [{ label: 'Verse', bars: [{ chords: [{ chordName }] }] }],
+  });
+
+  it('fingerprints the music, not the object', () => {
+    expect(chartFingerprint(chart('Cadd2'))).toBe(
+      chartFingerprint(chart('Cadd2')),
+    );
+    expect(chartFingerprint(chart('Cadd2'))).not.toBe(
+      chartFingerprint(chart('C')),
+    );
+  });
+
+  it('remembers which chart the player added, without copying it', () => {
+    let blob = start();
+    const list = inbox(blob).id;
+    const added = addSongEntry(
+      blob,
+      list,
+      { songId: 'africa', chartFingerprint: 'abc' },
+      undefined,
+      2,
+    );
+    blob = added.blob;
+    const entry = blob.setLists[list].entries[0];
+    expect(entry).toMatchObject({ songId: 'africa', chartFingerprint: 'abc' });
+    // The chords themselves are NOT in the set list: a correction to the
+    // published chart reaches every set that plays it.
+    expect(JSON.stringify(entry)).not.toContain('bars');
+
+    blob = acceptChartUpdate(blob, list, added.entryId, 'def', 3);
+    expect(blob.setLists[list].entries[0]).toMatchObject({
+      chartFingerprint: 'def',
+    });
   });
 });

@@ -10,8 +10,8 @@ describe('degreeFromChord', () => {
   });
 
   it('uses a bare 7 for dominant (not dom7)', () => {
-    expect(degreeFromChord('G7', 60, 'major')).toBe('5 7');
-    expect(degreeFromChord('C7', 60, 'major')).toBe('1 7');
+    expect(degreeFromChord('G7', 60, 'major')).toBe('5 dom7');
+    expect(degreeFromChord('C7', 60, 'major')).toBe('1 dom7');
   });
 
   it('flats chromatic degrees in a major key', () => {
@@ -36,7 +36,7 @@ describe('degreeFromChord', () => {
     // A minor: G → ♭7, F → ♭6, E7 → 5 7.
     expect(degreeFromChord('G', 69, 'minor')).toBe('♭7 maj');
     expect(degreeFromChord('F', 69, 'minor')).toBe('♭6 maj');
-    expect(degreeFromChord('E7', 69, 'minor')).toBe('5 7');
+    expect(degreeFromChord('E7', 69, 'minor')).toBe('5 dom7');
     // D dorian: F → ♭3, G → 4.
     expect(degreeFromChord('F', 62, 'dorian')).toBe('♭3 maj');
     expect(degreeFromChord('G', 62, 'dorian')).toBe('4 maj');

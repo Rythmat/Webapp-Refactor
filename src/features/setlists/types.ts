@@ -24,6 +24,15 @@ interface EntryBase {
 export interface SetListSongEntry extends EntryBase {
   kind: 'song';
   songId: string;
+  /**
+   * A fingerprint of the published chart when this was added to the set.
+   *
+   * The entry does NOT hold a copy of the chords: a correction to a chart
+   * reaches every set that plays it, which is the point. This is only so the
+   * set can SAY that a chart has changed since the player last looked — the
+   * thing that matters when you rehearsed from it last week.
+   */
+  chartFingerprint?: string;
   /** What the player called this version; falls back to the song's title. */
   title?: string;
   /** Semitones from the published key, -11..11. 0 is as written. */

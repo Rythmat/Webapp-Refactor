@@ -28,6 +28,35 @@ export const uid = (prefix: string): string =>
   `${prefix}_${(counter++).toString(36)}${Math.random().toString(36).slice(2, 8)}`;
 
 const clamp = (text: string, max: number) => text.slice(0, max).trim();
+
+/**
+ * A short, stable fingerprint of a chart's music — its sections, bars and
+ * chords. Two charts with the same chords fingerprint the same; a corrected
+ * chord changes it. Cheap and good enough to answer "did this change?".
+ */
+export function chartFingerprint(song: {
+  key: string;
+  sections: { label: string; bars: { chords: { chordName: string }[] }[] }[];
+}): string {
+  const text =
+    song.key +
+    '|' +
+    song.sections
+      .map(
+        (s) =>
+          s.label +
+          ':' +
+          s.bars
+            .map((b) => b.chords.map((c) => c.chordName).join(' '))
+            .join('|'),
+      )
+      .join('//');
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    hash = (hash * 31 + text.charCodeAt(i)) | 0;
+  }
+  return (hash >>> 0).toString(36);
+}
 const mod12 = (n: number) => ((n % 12) + 12) % 12;
 
 export const emptyBlob = (now = 0): SetListsBlob => ({
@@ -395,7 +424,13 @@ const withEntries = (
 export function addSongEntry(
   blob: SetListsBlob,
   setListId: string,
-  input: { songId: string; title?: string; semitones?: number; notes?: string },
+  input: {
+    songId: string;
+    title?: string;
+    semitones?: number;
+    notes?: string;
+    chartFingerprint?: string;
+  },
   atIndex?: number,
   now = 0,
 ): { blob: SetListsBlob; entryId: string } {
@@ -406,6 +441,9 @@ export function addSongEntry(
     kind: 'song',
     id: uid('e'),
     songId: input.songId,
+    ...(input.chartFingerprint
+      ? { chartFingerprint: input.chartFingerprint }
+      : {}),
     ...(input.title ? { title: clamp(input.title, LIMITS.title) } : {}),
     semitones: mod12(input.semitones ?? 0),
     ...(input.notes ? { notes: clamp(input.notes, LIMITS.notes) } : {}),
@@ -559,6 +597,22 @@ export const setEntryTitle = (
     now,
   );
 
+/** The player has looked at the corrected chart: stop flagging it. */
+export const acceptChartUpdate = (
+  blob: SetListsBlob,
+  setListId: string,
+  entryId: string,
+  fingerprint: string,
+  now = 0,
+) =>
+  patchEntry(
+    blob,
+    setListId,
+    entryId,
+    (e) => (e.kind === 'song' ? { ...e, chartFingerprint: fingerprint } : e),
+    now,
+  );
+
 export const setEntryText = (
   blob: SetListsBlob,
   setListId: string,
@@ -624,6 +678,7 @@ export function saveVersionAs(
     name?: string;
     semitones?: number;
     notes?: string;
+    chartFingerprint?: string;
     destination: SaveDestination;
   },
   now = 0,
@@ -650,6 +705,7 @@ export function saveVersionAs(
       title: input.name,
       semitones: input.semitones,
       notes: input.notes,
+      chartFingerprint: input.chartFingerprint,
     },
     undefined,
     now,

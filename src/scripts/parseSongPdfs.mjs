@@ -356,14 +356,17 @@ function extractChordQuality(chordName) {
 
   // Combine with extension
   if (extension) {
-    // Key distinction: bare "7" (no prefix) = dominant, "maj7" = major seventh
+    // Key distinction: bare "7" (no prefix) = dominant, "maj7" = major seventh.
+    // Hybrid quality tokens are three-letter abbreviations, so a dominant is
+    // `dom7`, never `7`; a bare 6 is a major 6th.
     if (q === 'maj' && quality === 'maj') return `maj${extension}`; // Explicit "maj" prefix
-    if (q === 'maj' && quality === '') return extension; // No prefix + 7/9/11/13 = dominant
+    if (q === 'maj' && quality === '')
+      return extension === '6' ? 'maj6' : `dom${extension}`;
     if (q === 'min') return `min${extension || ''}`;
     if (q === 'dim') return `dim${extension || ''}`;
     if (q === 'aug') return `aug${extension || ''}`;
     if (q === 'sus') return `sus${extension || '4'}`;
-    if (q === 'dom') return extension || '7';
+    if (q === 'dom') return `dom${extension || '7'}`;
     if (q === 'add') return `add${extension}`;
     return `${q}${extension}`;
   }

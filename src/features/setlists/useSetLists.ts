@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react';
+import { getSong } from '@/curriculum/data/songs';
 import * as store from './setListsStore';
 import {
   useSetListsStorage,
@@ -33,6 +34,11 @@ export interface UseSetLists {
     createArtist: (title?: string) => string;
     renameArtist: (id: string, title: string) => void;
     addSong: (setListId: string, songId: string, atIndex?: number) => void;
+    acceptChartUpdate: (
+      setListId: string,
+      entryId: string,
+      fingerprint: string,
+    ) => void;
     addText: (setListId: string, text?: string) => void;
     removeEntry: (setListId: string, entryId: string) => void;
     duplicateEntry: (setListId: string, entryId: string) => void;
@@ -54,6 +60,26 @@ export interface UseSetLists {
       destination: SaveDestination;
     }) => { setListId: string; entryId: string };
   };
+}
+
+/** The published chart's fingerprint right now, if the song is loaded. */
+const fingerprintOf = (songId: string): string | undefined => {
+  const song = getSong(songId);
+  return song ? store.chartFingerprint(song) : undefined;
+};
+
+/**
+ * Whether the published chart has been corrected since this entry was added.
+ * The set always plays the current chart — this only tells the player that it
+ * is not the one they last looked at.
+ */
+export function chartChangedSince(entry: {
+  songId: string;
+  chartFingerprint?: string;
+}): string | null {
+  if (!entry.chartFingerprint) return null;
+  const now = fingerprintOf(entry.songId);
+  return now && now !== entry.chartFingerprint ? now : null;
 }
 
 export function useSetLists(): UseSetLists {
@@ -111,7 +137,17 @@ export function useSetLists(): UseSetLists {
       addSong: (setListId, songId, atIndex) =>
         apply(
           (b, now) =>
-            store.addSongEntry(b, setListId, { songId }, atIndex, now).blob,
+            store.addSongEntry(
+              b,
+              setListId,
+              { songId, chartFingerprint: fingerprintOf(songId) },
+              atIndex,
+              now,
+            ).blob,
+        ),
+      acceptChartUpdate: (setListId, entryId, fingerprint) =>
+        apply((b, now) =>
+          store.acceptChartUpdate(b, setListId, entryId, fingerprint, now),
         ),
       addText: (setListId, text) =>
         apply(
@@ -142,7 +178,11 @@ export function useSetLists(): UseSetLists {
         apply((b, now) => store.toggleFavorite(b, songId, now)),
       saveVersionAs: (input) =>
         edit((b, now) => {
-          const r = store.saveVersionAs(b, input, now);
+          const r = store.saveVersionAs(
+            b,
+            { ...input, chartFingerprint: fingerprintOf(input.songId) },
+            now,
+          );
           return {
             blob: r.blob,
             value: { setListId: r.setListId, entryId: r.entryId },

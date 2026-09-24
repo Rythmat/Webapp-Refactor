@@ -42,7 +42,7 @@ import {
 } from '../setListDnd';
 import { useSetViewMode } from '../setViewPreference';
 import type { SetListEntry, SetListSongEntry } from '../types';
-import { useSetLists } from '../useSetLists';
+import { chartChangedSince, useSetLists } from '../useSetLists';
 import { InlineTitle } from './SetListsIndexPage';
 
 /**
@@ -469,6 +469,10 @@ const Viewer: FC<{
   const [notesOpen, setNotesOpen] = useState(false);
 
   const song = entry?.kind === 'song' ? getSong(entry.songId) : null;
+  // A set always plays the current chart; this only says it is not the chart
+  // the player last looked at.
+  const updatedFingerprint =
+    entry?.kind === 'song' ? chartChangedSince(entry) : null;
   const inKey = useMemo(
     () =>
       song && entry?.kind === 'song'
@@ -609,6 +613,24 @@ const Viewer: FC<{
           {view === 'page' && pageCount > 1 && ` · p${page + 1}/${pageCount}`}
         </span>
       </header>
+
+      {entry.kind === 'song' && updatedFingerprint && (
+        <div className="flex flex-shrink-0 items-center gap-3 border-b border-amber-300/20 bg-amber-300/[0.06] px-5 py-1.5">
+          <span className="text-xs text-amber-200/90">
+            This chart has been corrected since you added it — you are looking
+            at the new one.
+          </span>
+          <button
+            type="button"
+            onClick={() =>
+              actions.acceptChartUpdate(setListId, entry.id, updatedFingerprint)
+            }
+            className="text-xs text-amber-200/70 underline-offset-2 hover:underline"
+          >
+            Got it
+          </button>
+        </div>
+      )}
 
       {entry.kind === 'song' && (notesOpen || entry.notes) && (
         <input

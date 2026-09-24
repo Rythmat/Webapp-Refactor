@@ -35,35 +35,36 @@ export function systemRowSizes(
  * something different in a song with six sections than in one with two. The
  * returned array is indexed like `song.sections`.
  */
-export function songSystemOffsets(song: {
-  sections: readonly SongSection[];
-}): number[] {
+export function songSystemOffsets(
+  song: { sections: readonly SongSection[] },
+  /** Bars across, when the reader is not using the chart's own width — a
+   *  phone reads two to a row where the page reads four. */
+  perRow?: number,
+): number[] {
   const offsets: number[] = [];
   let used = 0;
   for (const section of song.sections) {
     offsets.push(used);
-    used += systemRowSizes(
-      sectionBars(section).length,
-      section.measuresPerRow ?? MEASURES_PER_SYSTEM,
-    ).length;
+    used += sectionSystems(section, perRow);
   }
   return offsets;
 }
 
+const sectionSystems = (section: SongSection, perRow?: number): number =>
+  systemRowSizes(
+    sectionBars(section).length,
+    perRow ?? section.measuresPerRow ?? MEASURES_PER_SYSTEM,
+  ).length;
+
 /** Every system in the chart, in reading order. */
-export function songSystemCount(song: {
-  sections: readonly SongSection[];
-}): number {
-  const offsets = songSystemOffsets(song);
+export function songSystemCount(
+  song: { sections: readonly SongSection[] },
+  perRow?: number,
+): number {
+  const offsets = songSystemOffsets(song, perRow);
   const last = song.sections[song.sections.length - 1];
   if (!last) return 0;
-  return (
-    offsets[offsets.length - 1] +
-    systemRowSizes(
-      sectionBars(last).length,
-      last.measuresPerRow ?? MEASURES_PER_SYSTEM,
-    ).length
-  );
+  return offsets[offsets.length - 1] + sectionSystems(last, perRow);
 }
 
 /**

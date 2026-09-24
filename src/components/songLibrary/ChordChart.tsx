@@ -23,13 +23,10 @@ import {
 } from '@/curriculum/songLibrary/systems';
 import {
   sectionBars,
-  writtenBarKeys,
   type LocalKey,
 } from '@/curriculum/songLibrary/performance';
 import { useUISound } from '@/hooks/useUISound';
 import {
-  formatChord as formatChordSymbol,
-  parseChord,
   useChordNotation,
   type ChordContext,
   type ChordNotation,
@@ -40,9 +37,15 @@ import {
   normalizeMode,
   type ChordRgb,
 } from './ChordDiagramCard';
+import {
+  chordAriaLabel,
+  chordSymbol,
+  formatChord,
+  songKeyMap,
+  type DisplayMode,
+} from './chordLabel';
 
 /* ── Types ───────────────────────────────────────────────────────────── */
-type DisplayMode = 'hybrid' | 'chordName';
 
 /** Address of one chord within a song, used by the back-office editor. */
 export interface ChordChartLoc {
@@ -103,37 +106,6 @@ export const TOTAL_HEIGHT = CHORD_AREA_HEIGHT + STAFF_HEIGHT + 16;
 export const MEASURES_PER_ROW = 4;
 
 /* ── Helpers ─────────────────────────────────────────────────────────── */
-function formatChord(hit: ChordHit, mode: DisplayMode): string {
-  return mode === 'hybrid' ? hit.degree : hit.chordName;
-}
-
-/** `symbol`: the jazz or Roman symbol when one is shown; else the degree is read. */
-function chordAriaLabel(hit: ChordHit, symbol?: string | null): string {
-  return `${symbol ?? hit.degree} chord, beat ${hit.beat}, ${hit.duration} beat${hit.duration !== 1 ? 's' : ''}`;
-}
-
-/**
- * The chord written in jazz or Roman notation, or null in hybrid, where the
- * chart keeps its own labels. Written from the letter name and the song's key:
- * jazz keeps the letters ("B/D♯"), Roman numbers them ("V/7"). A name the
- * formatter can't write in that notation shows the hit's own label of the same
- * kind instead — the letter name for jazz, the degree for Roman.
- */
-function chordSymbol(
-  hit: ChordHit,
-  notation: ChordNotation,
-  context: ChordContext,
-): string | null {
-  if (notation === 'hybrid') return null;
-  const fallback = notation === 'jazz' ? hit.chordName : hit.degree;
-  const spec = parseChord(hit.chordName);
-  if (!spec) return fallback;
-  const symbol = formatChordSymbol(spec, notation, context);
-  // formatChord answers in hybrid ("G♯ 7(♯9)") when it can't write the chord.
-  return symbol === formatChordSymbol(spec, 'hybrid', context)
-    ? fallback
-    : symbol;
-}
 
 /* ── SVG Staff Measure ───────────────────────────────────────────────── */
 /**
@@ -1084,21 +1056,7 @@ export const ChordChart: FC<ChordChartProps> = ({
 
   // The key of every written bar, grouped by section: a key change moves the
   // chord symbols, degrees and colours to the new tonic from that bar on.
-  const { sectionKeys, keyOfHit } = useMemo(() => {
-    const flat = writtenBarKeys(song);
-    const bySection: LocalKey[][] = [];
-    const ofHit = new Map<ChordHit, LocalKey>();
-    let at = 0;
-    for (const section of song.sections) {
-      const keys = flat.slice(at, at + section.bars.length);
-      bySection.push(keys);
-      section.bars.forEach((bar, bi) => {
-        for (const hit of bar.chords) ofHit.set(hit, keys[bi]);
-      });
-      at += section.bars.length;
-    }
-    return { sectionKeys: bySection, keyOfHit: ofHit };
-  }, [song]);
+  const { sectionKeys, keyOfHit } = useMemo(() => songKeyMap(song), [song]);
   const contextFor = (hit: ChordHit): ChordContext => {
     const key = keyOfHit.get(hit);
     return key

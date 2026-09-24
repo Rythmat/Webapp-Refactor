@@ -1,6 +1,9 @@
 import {
   AudioLines,
   ChevronLeft,
+  ListMusic,
+  Maximize,
+  Minimize,
   ChevronRight,
   Copy,
   GripVertical,
@@ -23,15 +26,20 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { normalizeSongMode } from '@/components/common/CircleOfFifthsSvg';
 import { KeyWheel } from '@/components/common/KeyWheel';
 import { ChordChart } from '@/components/songLibrary/ChordChart';
+import { ChordGrid } from '@/components/songLibrary/ChordGrid';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { SongRoutes } from '@/constants/routes';
+import { SCREEN_SIZES } from '@/constants/theme';
 import { semitonesToTonic } from '@/curriculum/songLibrary/transpose';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { SongPickerDialog } from '@/features/classroom/slides/wizard/SongPickerDialog';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useWakeLock } from '@/hooks/useWakeLock';
 import { StandVideo } from '../StandVideo';
 import { entryChart } from '../entryChart';
 import {
@@ -41,9 +49,14 @@ import {
   setDragItem,
 } from '../setListDnd';
 import {
+  CHART_FORMATS,
+  gridBarsPerRow,
+  resolveChartFormat,
   STAVES_PER_PAGE,
+  useChartFormat,
   useSetViewMode,
   useStavesPerPage,
+  type ChartFormat,
 } from '../setViewPreference';
 import type {
   SetListEntry,
@@ -72,9 +85,18 @@ export const SetListWorkspace: FC = () => {
   const { setListId = '' } = useParams<{ setListId: string }>();
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
-  const { blob, status, saveState, actions, flush } = useSetLists();
+  // Saving state and the print action live with the set panel now.
+  const { blob, status, actions } = useSetLists();
   const [picking, setPicking] = useState(false);
   const [view, setView] = useSetViewMode();
+  // The set is a column only where there is room for the set AND a chart:
+  // the rail is 320 and a lead sheet wants ~700. Below that it is a drawer,
+  // which is what gives an iPad in portrait its full width for the music
+  // instead of 412px of it.
+  const isWide = useMediaQuery(`(min-width: ${SCREEN_SIZES.lg}px)`);
+  const [perform, setPerform] = useState(false);
+  const [railOpen, setRailOpen] = useState(false);
+  const showRail = isWide && !perform;
 
   const list = blob.setLists[setListId];
   const entries = useMemo(() => list?.entries ?? [], [list]);
@@ -126,96 +148,48 @@ export const SetListWorkspace: FC = () => {
       </div>
     );
 
-  const show = blob.shows[list.showId];
-  const artist = show ? blob.artists[show.artistId] : undefined;
+  const panel = (
+    <SetPanel
+      setListId={setListId}
+      entries={entries}
+      selectedId={selected?.id ?? ''}
+      onSelect={select}
+      onAddSong={() => setPicking(true)}
+    />
+  );
 
   return (
     <div
-      className="flex h-full overflow-hidden"
-      style={{ background: '#101012' }}
+      className={
+        perform
+          ? 'fixed inset-0 z-[60] flex overflow-hidden'
+          : 'flex h-full overflow-hidden'
+      }
+      style={{
+        background: '#101012',
+        // Over the whole screen the chart must keep clear of a notch and the
+        // home indicator. These are zero today — index.html does not set
+        // `viewport-fit=cover`, so the browser insets the viewport itself —
+        // and become live the day it does, rather than silently overlapping.
+        ...(perform
+          ? {
+              paddingTop: 'env(safe-area-inset-top)',
+              paddingBottom: 'env(safe-area-inset-bottom)',
+              paddingLeft: 'env(safe-area-inset-left)',
+              paddingRight: 'env(safe-area-inset-right)',
+            }
+          : {}),
+      }}
     >
-      {/* ── The set, always in view ── */}
-      <aside
-        className="flex h-full flex-shrink-0 flex-col border-r border-white/10"
-        style={{ width: RAIL_WIDTH, background: '#0c0c0e' }}
-      >
-        <header className="flex-shrink-0 border-b border-white/10 px-3 py-3">
-          <button
-            type="button"
-            onClick={() => navigate(SongRoutes.setLists())}
-            className="mb-1 inline-flex items-center gap-1 text-xs font-medium text-white/50 hover:text-white"
-          >
-            <ChevronLeft size={14} /> Set Lists
-          </button>
-          <div className="flex items-center gap-1 text-[11px] text-white/35">
-            {artist && (
-              <InlineTitle
-                value={artist.title}
-                onCommit={(t) => actions.renameArtist(artist.id, t)}
-              />
-            )}
-            <span>▸</span>
-            {show && (
-              <InlineTitle
-                value={show.title}
-                onCommit={(t) => actions.renameShow(show.id, t)}
-              />
-            )}
-          </div>
-          <InlineTitle
-            value={list.title}
-            onCommit={(t) => actions.renameSetList(list.id, t)}
-            className="text-base font-semibold text-white"
-          />
-          <div className="mt-1 flex items-center justify-between">
-            <span className="text-[11px] text-white/35">
-              {status === 'signedOut'
-                ? 'Sign in to save'
-                : saveState === 'unsaved'
-                  ? 'Not saved'
-                  : saveState === 'saving'
-                    ? 'Saving…'
-                    : 'Saved ✓'}
-            </span>
-            <button
-              type="button"
-              onClick={async () => {
-                await flush();
-                navigate(SongRoutes.setListPrint({ setListId }));
-              }}
-              className="inline-flex items-center gap-1 text-[11px] text-white/55 hover:text-white"
-            >
-              <Printer size={13} /> Print
-            </button>
-          </div>
-        </header>
-
-        <EntryRail
-          entries={entries}
-          setListId={setListId}
-          selectedId={selected?.id ?? ''}
-          onSelect={select}
-        />
-
-        <div className="flex-shrink-0 border-t border-white/10 p-2">
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setPicking(true)}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#7ecfcf] py-1.5 text-xs font-semibold text-[#191919]"
-            >
-              <Plus size={14} /> Add song
-            </button>
-            <button
-              type="button"
-              onClick={() => actions.addText(setListId, '')}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-white/15 py-1.5 text-xs text-white/80 hover:border-white/30"
-            >
-              <Type size={14} /> Add text
-            </button>
-          </div>
-        </div>
-      </aside>
+      {/* ── The set: a column with room for it, a drawer without ── */}
+      {showRail && (
+        <aside
+          className="flex h-full flex-shrink-0 flex-col border-r border-white/10"
+          style={{ width: RAIL_WIDTH, background: '#0c0c0e' }}
+        >
+          {panel}
+        </aside>
+      )}
 
       {/* ── The stand ── */}
       <Viewer
@@ -225,7 +199,22 @@ export const SetListWorkspace: FC = () => {
         onViewChange={setView}
         position={{ index: selectedIndex, total: entries.length }}
         onStep={step}
+        perform={perform}
+        onTogglePerform={() => setPerform((v) => !v)}
+        onOpenSet={showRail ? undefined : () => setRailOpen(true)}
       />
+
+      {!showRail && (
+        <Sheet open={railOpen} onOpenChange={setRailOpen}>
+          <SheetContent
+            side="left"
+            className="flex w-[86vw] max-w-[360px] flex-col gap-0 border-white/10 p-0 text-white"
+            style={{ background: '#0c0c0e' }}
+          >
+            {panel}
+          </SheetContent>
+        </Sheet>
+      )}
 
       <SongPickerDialog
         open={picking}
@@ -487,7 +476,22 @@ const Viewer: FC<{
   onViewChange: (v: 'page' | 'scroll') => void;
   position: { index: number; total: number };
   onStep: (delta: number) => boolean;
-}> = ({ entry, setListId, view, onViewChange, position, onStep }) => {
+  /** The stand has the whole screen, and the screen is held awake. */
+  perform: boolean;
+  onTogglePerform: () => void;
+  /** Set when the set itself is a drawer rather than a column. */
+  onOpenSet?: () => void;
+}> = ({
+  entry,
+  setListId,
+  view,
+  onViewChange,
+  position,
+  onStep,
+  perform,
+  onTogglePerform,
+  onOpenSet,
+}) => {
   const { actions } = useSetLists();
   const boxRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -501,6 +505,31 @@ const Viewer: FC<{
   const [zoom, setZoom] = useState(1);
   const [notesOpen, setNotesOpen] = useState(false);
   const pageCount = Math.max(1, pages.length);
+
+  // The format is chosen by the room the stand actually has, not the size of
+  // the window: the set rail and the Atlas sidebar take their share first.
+  const [stand, setStand] = useState({ width: 0, height: 0 });
+  const [format, setFormat] = useChartFormat();
+  const drawnAs = resolveChartFormat(format, stand.width, stand.height);
+  const barsPerRow = gridBarsPerRow(stand.width);
+  const systemsPerPage = view === 'page' ? staves : undefined;
+
+  // A chart is read for three minutes without a finger touching the glass.
+  useWakeLock(perform);
+
+  // Real fullscreen where the browser offers it. iOS Safari has none for an
+  // element, but the stand already covers the app with `fixed inset-0`, so
+  // perform mode works there regardless.
+  useEffect(() => {
+    const root = document.documentElement;
+    if (perform) {
+      void root.requestFullscreen?.().catch(() => {
+        /* denied or unsupported — the overlay still covers the app */
+      });
+    } else if (document.fullscreenElement) {
+      void document.exitFullscreen?.().catch(() => {});
+    }
+  }, [perform]);
 
   const chart = useMemo(() => (entry ? entryChart(entry) : null), [entry]);
   const inKey = chart?.song ?? null;
@@ -522,6 +551,7 @@ const Viewer: FC<{
       const box = boxRef.current;
       const content = contentRef.current;
       if (!box || !content) return;
+      setStand({ width: box.clientWidth, height: box.clientHeight });
       const base = content.offsetTop;
       const tops = [
         0,
@@ -543,7 +573,7 @@ const Viewer: FC<{
     if (boxRef.current) observer.observe(boxRef.current);
     if (contentRef.current) observer.observe(contentRef.current);
     return () => observer.disconnect();
-  }, [entry, view, staves]);
+  }, [entry, view, staves, drawnAs, barsPerRow]);
 
   const turn = useCallback(
     (delta: number) => {
@@ -569,6 +599,11 @@ const Viewer: FC<{
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
       if (target?.isContentEditable) return;
+      if (e.key === 'Escape' && perform) {
+        e.preventDefault();
+        onTogglePerform();
+        return;
+      }
       const box = boxRef.current;
       if (e.key === 'ArrowRight' || e.key === 'PageDown') {
         e.preventDefault();
@@ -596,18 +631,76 @@ const Viewer: FC<{
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [turn, onStep, view]);
+  }, [turn, onStep, view, perform, onTogglePerform]);
+
+  // A thumb across the chart turns the page — the gesture a player already
+  // makes on a tablet, and the only one available with no keyboard.
+  const swipe = useRef<{ x: number; y: number; t: number } | null>(null);
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    swipe.current = touch
+      ? { x: touch.clientX, y: touch.clientY, t: Date.now() }
+      : null;
+  }, []);
+  const onTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      const from = swipe.current;
+      swipe.current = null;
+      const touch = e.changedTouches[0];
+      if (!from || !touch) return;
+      const dx = touch.clientX - from.x;
+      const dy = touch.clientY - from.y;
+      // Far enough to mean it, flat enough not to be a scroll, and quick
+      // enough not to be a press. A tap on a chord never reaches here.
+      if (
+        Math.abs(dx) < 60 ||
+        Math.abs(dx) < Math.abs(dy) * 1.5 ||
+        Date.now() - from.t > 700
+      )
+        return;
+      if (view === 'page') turn(dx < 0 ? 1 : -1);
+      else onStep(dx < 0 ? 1 : -1);
+    },
+    [turn, onStep, view],
+  );
 
   if (!entry)
     return (
-      <div className="flex flex-1 items-center justify-center text-white/40">
-        Add a song to this set to put it on the stand.
-      </div>
+      <section className="flex min-w-0 flex-1 flex-col">
+        {/* The empty stand still needs its way back to the set: where the set
+            is a drawer, this button is the only route to "Add song". */}
+        {onOpenSet && (
+          <header className="flex flex-shrink-0 items-center gap-2 border-b border-white/10 px-3 py-2">
+            <button
+              type="button"
+              onClick={onOpenSet}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 px-2 py-1.5 text-xs text-white/70 hover:border-white/30"
+            >
+              <ListMusic size={16} /> The set
+            </button>
+          </header>
+        )}
+        <div className="flex flex-1 items-center justify-center px-6 text-center text-white/40">
+          {onOpenSet
+            ? 'Open the set to add a song, and it lands on the stand.'
+            : 'Add a song to this set to put it on the stand.'}
+        </div>
+      </section>
     );
 
   return (
     <section className="flex min-w-0 flex-1 flex-col">
-      <header className="flex flex-shrink-0 flex-wrap items-center gap-3 border-b border-white/10 px-5 py-2.5">
+      <header className="flex flex-shrink-0 flex-wrap items-center gap-2 border-b border-white/10 px-3 py-2 md:gap-3 md:px-5 md:py-2.5">
+        {onOpenSet && (
+          <button
+            type="button"
+            onClick={onOpenSet}
+            aria-label="Open the set"
+            className="flex-shrink-0 rounded-lg border border-white/15 p-1.5 text-white/70 hover:border-white/30"
+          >
+            <ListMusic size={16} />
+          </button>
+        )}
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-lg font-semibold text-white">
             {chart?.title ?? 'Text page'}
@@ -660,7 +753,43 @@ const Viewer: FC<{
           </label>
         )}
 
-        <div className="flex items-center gap-1 rounded-full border border-white/10 p-0.5">
+        {inKey && (
+          <label className="flex flex-shrink-0 items-center gap-1 text-xs text-white/40">
+            <span className="hidden md:inline">Chart</span>
+            <select
+              value={format}
+              onChange={(e) => setFormat(e.target.value as ChartFormat)}
+              className="rounded-full border border-white/15 bg-transparent px-1.5 py-0.5 text-xs capitalize text-white/70 outline-none focus:border-white/35"
+              title={`How the chart is drawn — auto picks ${drawnAs} at this width`}
+            >
+              {CHART_FORMATS.map((f) => (
+                <option key={f} value={f} className="bg-[#161618]">
+                  {f === 'auto' ? `Auto (${drawnAs})` : f}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+
+        <button
+          type="button"
+          onClick={onTogglePerform}
+          aria-pressed={perform}
+          title={
+            perform
+              ? 'Leave Perform (Esc)'
+              : 'Perform — full screen, screen stays awake'
+          }
+          className={`flex-shrink-0 rounded-full border px-2 py-1 text-xs ${
+            perform
+              ? 'border-[#7ecfcf]/50 text-[#7ecfcf]'
+              : 'border-white/15 text-white/60 hover:border-white/30'
+          }`}
+        >
+          {perform ? <Minimize size={13} /> : <Maximize size={13} />}
+        </button>
+
+        <div className="hidden items-center gap-1 rounded-full border border-white/10 p-0.5 sm:flex">
           {(['page', 'scroll'] as const).map((mode) => (
             <button
               key={mode}
@@ -716,6 +845,8 @@ const Viewer: FC<{
 
       <div
         ref={boxRef}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
         className={
           view === 'page'
             ? 'relative min-h-0 flex-1 overflow-hidden'
@@ -753,11 +884,20 @@ const Viewer: FC<{
               }
             >
               {inKey ? (
-                <ChordChart
-                  key={`${entry.id}:${inKey.key}:${staves}`}
-                  song={inKey}
-                  systemsPerPage={view === 'page' ? staves : undefined}
-                />
+                drawnAs === 'chords' ? (
+                  <ChordGrid
+                    key={`${entry.id}:${inKey.key}:${staves}:${barsPerRow}`}
+                    song={inKey}
+                    barsPerRow={barsPerRow}
+                    systemsPerPage={systemsPerPage}
+                  />
+                ) : (
+                  <ChordChart
+                    key={`${entry.id}:${inKey.key}:${staves}`}
+                    song={inKey}
+                    systemsPerPage={systemsPerPage}
+                  />
+                )
               ) : chart ? (
                 <p className="text-white/40">{chart.missing}</p>
               ) : entry.kind === 'text' ? (
@@ -798,5 +938,102 @@ const Viewer: FC<{
         </footer>
       )}
     </section>
+  );
+};
+
+/* ── The set itself, as a column or as a drawer ────────────────────────── */
+
+const SetPanel: FC<{
+  setListId: string;
+  entries: SetListEntry[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+  onAddSong: () => void;
+}> = ({ setListId, entries, selectedId, onSelect, onAddSong }) => {
+  const navigate = useNavigate();
+  const { blob, status, saveState, actions, flush } = useSetLists();
+  const list = blob.setLists[setListId];
+  const show = list ? blob.shows[list.showId] : undefined;
+  const artist = show ? blob.artists[show.artistId] : undefined;
+  if (!list) return null;
+  return (
+    <>
+      <header className="flex-shrink-0 border-b border-white/10 px-3 py-3">
+        <button
+          type="button"
+          onClick={() => navigate(SongRoutes.setLists())}
+          className="mb-1 inline-flex items-center gap-1 text-xs font-medium text-white/50 hover:text-white"
+        >
+          <ChevronLeft size={14} /> Set Lists
+        </button>
+        <div className="flex items-center gap-1 text-[11px] text-white/35">
+          {artist && (
+            <InlineTitle
+              value={artist.title}
+              onCommit={(t) => actions.renameArtist(artist.id, t)}
+            />
+          )}
+          <span>▸</span>
+          {show && (
+            <InlineTitle
+              value={show.title}
+              onCommit={(t) => actions.renameShow(show.id, t)}
+            />
+          )}
+        </div>
+        <InlineTitle
+          value={list.title}
+          onCommit={(t) => actions.renameSetList(list.id, t)}
+          className="text-base font-semibold text-white"
+        />
+        <div className="mt-1 flex items-center justify-between">
+          <span className="text-[11px] text-white/35">
+            {status === 'signedOut'
+              ? 'Sign in to save'
+              : saveState === 'unsaved'
+                ? 'Not saved'
+                : saveState === 'saving'
+                  ? 'Saving…'
+                  : 'Saved ✓'}
+          </span>
+          <button
+            type="button"
+            onClick={async () => {
+              await flush();
+              navigate(SongRoutes.setListPrint({ setListId }));
+            }}
+            className="inline-flex items-center gap-1 text-[11px] text-white/55 hover:text-white"
+          >
+            <Printer size={13} /> Print
+          </button>
+        </div>
+      </header>
+
+      <EntryRail
+        entries={entries}
+        setListId={setListId}
+        selectedId={selectedId}
+        onSelect={onSelect}
+      />
+
+      <div className="flex-shrink-0 border-t border-white/10 p-2">
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={onAddSong}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#7ecfcf] py-1.5 text-xs font-semibold text-[#191919]"
+          >
+            <Plus size={14} /> Add song
+          </button>
+          <button
+            type="button"
+            onClick={() => actions.addText(setListId, '')}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-white/15 py-1.5 text-xs text-white/80 hover:border-white/30"
+          >
+            <Type size={14} /> Add text
+          </button>
+        </div>
+      </div>
+    </>
   );
 };

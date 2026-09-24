@@ -29,12 +29,6 @@ export const cant_hide_love: Song = {
           chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
         {
           chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
@@ -46,9 +40,8 @@ export const cant_hide_love: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 3,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
@@ -72,8 +65,8 @@ export const cant_hide_love: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -97,72 +90,6 @@ export const cant_hide_love: Song = {
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 dim7', chordName: 'Ddim7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 dim7', chordName: 'Ddim7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '5 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
-            { degree: '4 min7', chordName: 'B♭min7', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        {
-          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
-          ],
-        },
         {
           chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
@@ -191,6 +118,72 @@ export const cant_hide_love: Song = {
         },
         {
           chords: [
+            { degree: '6 dim7', chordName: 'Ddim7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 dim7', chordName: 'Ddim7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
+            { degree: '4 min7', chordName: 'B♭min7', beat: 3, duration: 2 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
+      bars: [
+        {
+          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      bars: [
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
@@ -202,8 +195,8 @@ export const cant_hide_love: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -243,8 +236,8 @@ export const cant_hide_love: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
@@ -273,12 +266,6 @@ export const cant_hide_love: Song = {
             { degree: '♭7 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
@@ -300,12 +287,6 @@ export const cant_hide_love: Song = {
             { degree: '♭6 7', chordName: 'D♭7sus', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_k',
-      label: 'Section K',
-      bars: [
         {
           chords: [
             { degree: '♯4 7', chordName: 'B7sus', beat: 1, duration: 4 },
@@ -325,7 +306,6 @@ export const cant_hide_love: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1TxgfbPl9Qg' },
   ],

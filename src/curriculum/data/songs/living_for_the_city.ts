@@ -19,9 +19,121 @@ export const living_for_the_city: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
@@ -81,132 +193,8 @@ export const living_for_the_city: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -214,251 +202,6 @@ export const living_for_the_city: Song = {
           chords: [
             { degree: '5 maj', chordName: 'C♯', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'C♯7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj/♭7', chordName: 'F♯/E', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'D♯min7b5', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭5 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        {
-          chords: [
-            { degree: '♭5 maj/3', chordName: 'C/A♯', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭2 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      bars: [
-        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '5 maj', chordName: 'C♯', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C♯7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
           ],
         },
         {
@@ -514,8 +257,8 @@ export const living_for_the_city: Song = {
       ],
     },
     {
-      id: 'section_l',
-      label: 'Section L',
+      id: 'pre_chorus_1',
+      label: 'Pre-Chorus 1',
       bars: [
         {
           chords: [
@@ -537,9 +280,65 @@ export const living_for_the_city: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
@@ -599,8 +398,78 @@ export const living_for_the_city: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
+      id: 'bridge',
+      label: 'Bridge',
+      bars: [
+        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 maj', chordName: 'C♯', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'C♯7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -621,8 +490,115 @@ export const living_for_the_city: Song = {
       ],
     },
     {
-      id: 'section_o',
-      label: 'Section O',
+      id: 'pre_chorus_2',
+      label: 'Pre-Chorus 2',
+      bars: [
+        {
+          chords: [
+            { degree: '♭5 maj/3', chordName: 'C/A♯', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭2 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'chorus_3',
+      label: 'Chorus 3',
+      bars: [
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'verse_4',
+      label: 'Verse 4',
+      bars: [
+        {
+          chords: [
+            { degree: '1 maj/♭7', chordName: 'F♯/E', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'D♯min7b5', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭5 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'pre_chorus_3',
+      label: 'Pre-Chorus 3',
       bars: [
         {
           chords: [
@@ -642,9 +618,65 @@ export const living_for_the_city: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'chorus_4',
+      label: 'Chorus 4',
       bars: [
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/1',
+              chordName: 'G♯min7/F♯',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
@@ -704,70 +736,8 @@ export const living_for_the_city: Song = {
       ],
     },
     {
-      id: 'section_q',
-      label: 'Section Q',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/1',
-              chordName: 'G♯min7/F♯',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_r',
-      label: 'Section R',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -808,8 +778,8 @@ export const living_for_the_city: Song = {
       ],
     },
     {
-      id: 'section_h_2',
-      label: 'Section H',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [
@@ -830,8 +800,8 @@ export const living_for_the_city: Song = {
       ],
     },
     {
-      id: 'section_t',
-      label: 'Section T',
+      id: 'verse_7',
+      label: 'Verse 7',
       bars: [
         {
           chords: [
@@ -853,8 +823,8 @@ export const living_for_the_city: Song = {
       ],
     },
     {
-      id: 'section_i_2',
-      label: 'Section I',
+      id: 'verse_8',
+      label: 'Verse 8',
       bars: [
         {
           chords: [
@@ -875,8 +845,8 @@ export const living_for_the_city: Song = {
       ],
     },
     {
-      id: 'section_v',
-      label: 'Section V',
+      id: 'verse_9',
+      label: 'Verse 9',
       bars: [
         {
           chords: [
@@ -895,8 +865,8 @@ export const living_for_the_city: Song = {
       ],
     },
     {
-      id: 'section_w',
-      label: 'Section W',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
@@ -918,7 +888,6 @@ export const living_for_the_city: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ghLWjyOOLno' },
   ],

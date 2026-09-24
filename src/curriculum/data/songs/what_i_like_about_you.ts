@@ -19,8 +19,8 @@ export const what_i_like_about_you: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -34,49 +34,43 @@ export const what_i_like_about_you: Song = {
           chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'bridge',
       label: 'Bridge',
+      bars: [
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -93,7 +87,6 @@ export const what_i_like_about_you: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Rqnw5IfbZOU' },
   ],

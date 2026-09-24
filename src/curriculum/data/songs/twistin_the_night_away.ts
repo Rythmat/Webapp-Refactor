@@ -29,8 +29,8 @@ export const twistin_the_night_away: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -51,8 +51,8 @@ export const twistin_the_night_away: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -66,20 +66,6 @@ export const twistin_the_night_away: Song = {
             { degree: '6 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -92,6 +78,20 @@ export const twistin_the_night_away: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '6 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -109,8 +109,8 @@ export const twistin_the_night_away: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -131,8 +131,8 @@ export const twistin_the_night_away: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -145,8 +145,8 @@ export const twistin_the_night_away: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -167,7 +167,6 @@ export const twistin_the_night_away: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yddHfpbK438' },
   ],

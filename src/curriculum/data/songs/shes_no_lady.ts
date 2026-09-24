@@ -19,8 +19,8 @@ export const shes_no_lady: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -53,8 +53,8 @@ export const shes_no_lady: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -85,8 +85,8 @@ export const shes_no_lady: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -119,8 +119,8 @@ export const shes_no_lady: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -160,12 +160,6 @@ export const shes_no_lady: Song = {
         { chords: [{ degree: '♯1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '♯4 7', chordName: 'D7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         { chords: [{ degree: '4 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
         {
@@ -187,8 +181,8 @@ export const shes_no_lady: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -221,8 +215,8 @@ export const shes_no_lady: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -265,7 +259,6 @@ export const shes_no_lady: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=4o3m1FwhusY' },
   ],

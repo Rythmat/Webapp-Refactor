@@ -22,7 +22,6 @@ export const jack_diane: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      repeatCount: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -38,74 +37,16 @@ export const jack_diane: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '5 maj/1', chordName: 'E/A', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj/1', chordName: 'D/A', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 maj/1', chordName: 'E/A', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '5 maj/1', chordName: 'E/A', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj/1', chordName: 'D/A', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      repeatCount: 4,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
@@ -113,6 +54,55 @@ export const jack_diane: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 maj/1', chordName: 'E/A', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 maj/1', chordName: 'D/A', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 maj/1', chordName: 'E/A', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 maj/1', chordName: 'E/A', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 maj/1', chordName: 'D/A', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse_2',
+      label: 'Verse 2',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -132,54 +122,44 @@ export const jack_diane: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
-      repeatCount: 4,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [{ chords: [], restBars: 19 }],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      repeatCount: 3,
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      repeatCount: 4,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -199,7 +179,6 @@ export const jack_diane: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=h04CH9YZcpI' },
   ],

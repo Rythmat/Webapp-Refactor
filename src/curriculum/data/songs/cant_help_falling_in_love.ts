@@ -19,8 +19,8 @@ export const cant_help_falling_in_love: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -29,8 +29,8 @@ export const cant_help_falling_in_love: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -49,8 +49,8 @@ export const cant_help_falling_in_love: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -66,8 +66,8 @@ export const cant_help_falling_in_love: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -83,28 +83,22 @@ export const cant_help_falling_in_love: Song = {
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'bridge',
       label: 'Bridge',
       bars: [
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -138,8 +132,8 @@ export const cant_help_falling_in_love: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -166,8 +160,8 @@ export const cant_help_falling_in_love: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -190,7 +184,6 @@ export const cant_help_falling_in_love: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=vGJTaP6anOU' },
   ],

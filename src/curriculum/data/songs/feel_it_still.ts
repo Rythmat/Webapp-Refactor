@@ -19,8 +19,8 @@ export const feel_it_still: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -41,9 +41,8 @@ export const feel_it_still: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
-      repeatCount: 5,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -68,8 +67,8 @@ export const feel_it_still: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -90,8 +89,56 @@ export const feel_it_still: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      bars: [
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         {
           chords: [
@@ -120,55 +167,6 @@ export const feel_it_still: Song = {
       label: 'Bridge',
       bars: [
         {
-          chords: [
-            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'E', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'E', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      repeatCount: 6,
-      bars: [
-        {
           chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
         {
@@ -189,8 +187,8 @@ export const feel_it_still: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -211,9 +209,8 @@ export const feel_it_still: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
-      repeatCount: 3,
+      id: 'chorus_4',
+      label: 'Chorus 4',
       bars: [
         {
           chords: [
@@ -238,7 +235,6 @@ export const feel_it_still: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=pBkHHoOIIn8' },
   ],

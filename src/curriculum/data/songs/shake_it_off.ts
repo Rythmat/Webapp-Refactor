@@ -21,13 +21,52 @@ export const shake_it_off: Song = {
     {
       id: 'intro',
       label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 2 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 3,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'A min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'A min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'A min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'A min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'A min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'A min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'A min7', beat: 1, duration: 4 },
@@ -44,73 +83,14 @@ export const shake_it_off: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'A min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'A min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 3,
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'A min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'A min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
+      bars: [{ chords: [], restBars: 9 }],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
-      repeatCount: 3,
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'A min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'A min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [{ chords: [], restBars: 9 }],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      repeatCount: 4,
       bars: [
         {
           chords: [
@@ -128,7 +108,6 @@ export const shake_it_off: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=nfWlot6h_JM' },
   ],

@@ -21,12 +21,93 @@ export const play_that_funky_music: Song = {
     {
       id: 'intro',
       label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -50,112 +131,8 @@ export const play_that_funky_music: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -165,12 +142,6 @@ export const play_that_funky_music: Song = {
         { chords: [], restBars: 2 },
         { chords: [] },
         { chords: [] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
@@ -183,12 +154,6 @@ export const play_that_funky_music: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
@@ -207,8 +172,8 @@ export const play_that_funky_music: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -233,20 +198,14 @@ export const play_that_funky_music: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         { chords: [], restBars: 6 },
         { chords: [] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
         {
           chords: [
             { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -270,7 +229,6 @@ export const play_that_funky_music: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=JTvlujbJ5vg' },
   ],

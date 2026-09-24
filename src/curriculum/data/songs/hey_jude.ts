@@ -19,8 +19,8 @@ export const hey_jude: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -31,8 +31,8 @@ export const hey_jude: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -49,8 +49,8 @@ export const hey_jude: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -61,8 +61,8 @@ export const hey_jude: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -102,12 +102,6 @@ export const hey_jude: Song = {
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -130,8 +124,8 @@ export const hey_jude: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -140,8 +134,8 @@ export const hey_jude: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -152,8 +146,8 @@ export const hey_jude: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -170,8 +164,8 @@ export const hey_jude: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -191,7 +185,6 @@ export const hey_jude: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=tRnFHfI7WAQ' },
   ],

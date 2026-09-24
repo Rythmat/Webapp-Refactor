@@ -19,18 +19,17 @@ export const im_gonna_be_500_miles: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      bars: [{ chords: [], restBars: 4 }],
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
+      bars: [
+        { chords: [], restBars: 4 },
+        { chords: [], restBars: 8 },
+      ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      bars: [{ chords: [], restBars: 8 }],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -40,8 +39,8 @@ export const im_gonna_be_500_miles: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -52,7 +51,6 @@ export const im_gonna_be_500_miles: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      repeatCount: 4,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -62,8 +60,8 @@ export const im_gonna_be_500_miles: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -72,8 +70,8 @@ export const im_gonna_be_500_miles: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -85,9 +83,14 @@ export const im_gonna_be_500_miles: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -96,19 +99,8 @@ export const im_gonna_be_500_miles: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'pre_chorus',
+      label: 'Pre-Chorus',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -119,28 +111,18 @@ export const im_gonna_be_500_miles: Song = {
             { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_k',
-      label: 'Section K',
-      bars: [
         {
           chords: [
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [], restBars: 2 },
       ],
     },
     {
-      id: 'section_l',
-      label: 'Section L',
-      bars: [{ chords: [], restBars: 2 }],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -149,21 +131,14 @@ export const im_gonna_be_500_miles: Song = {
       ],
     },
     {
-      id: 'section_j_2',
-      label: 'Section J',
-      repeatCount: 4,
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_k_2',
-      label: 'Section K',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -175,7 +150,6 @@ export const im_gonna_be_500_miles: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=tbNlMtqrYS0' },
   ],

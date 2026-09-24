@@ -19,8 +19,8 @@ export const still_the_one: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [], restBars: 1 },
         { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
@@ -50,12 +50,6 @@ export const still_the_one: Song = {
             { degree: '5 7', chordName: 'B♭7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
@@ -81,8 +75,8 @@ export const still_the_one: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -110,9 +104,33 @@ export const still_the_one: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
@@ -140,38 +158,8 @@ export const still_the_one: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -200,7 +188,6 @@ export const still_the_one: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ADS81q5E0ps' },
   ],

@@ -19,14 +19,11 @@ export const low_rider: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      bars: [{ chords: [], restBars: 4 }],
-    },
-    {
       id: 'verse',
       label: 'Verse',
+      instrumental: true,
       bars: [
+        { chords: [], restBars: 4 },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
@@ -50,7 +47,6 @@ export const low_rider: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=BsrqKE1iqqo' },
   ],

@@ -19,8 +19,8 @@ export const will_you_be_there: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -35,12 +35,6 @@ export const will_you_be_there: Song = {
           ],
         },
         { chords: [], restBars: 8 },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -54,12 +48,6 @@ export const will_you_be_there: Song = {
           ],
         },
         { chords: [], restBars: 8 },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -105,12 +93,6 @@ export const will_you_be_there: Song = {
             { degree: '5 maj', chordName: 'A', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
         { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -123,12 +105,6 @@ export const will_you_be_there: Song = {
             { degree: '3 min7/2', chordName: 'F♯min7/E', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [{ degree: '3 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
@@ -155,12 +131,6 @@ export const will_you_be_there: Song = {
             },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
         {
           chords: [{ degree: '♭5 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -190,7 +160,6 @@ export const will_you_be_there: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=jQY_QL_wvQU' },
   ],

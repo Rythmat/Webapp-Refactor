@@ -19,8 +19,8 @@ export const let_me_clear_my_throat: Song = {
 
   sections: [
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -37,9 +37,8 @@ export const let_me_clear_my_throat: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
-      repeatCount: 7,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -47,7 +46,7 @@ export const let_me_clear_my_throat: Song = {
     },
     {
       id: 'chorus_1',
-      label: 'Chorus',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -56,9 +55,8 @@ export const let_me_clear_my_throat: Song = {
       ],
     },
     {
-      id: 'verse_1',
-      label: 'Verse',
-      repeatCount: 3,
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -70,23 +68,9 @@ export const let_me_clear_my_throat: Song = {
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'intro',
-      label: 'Intro',
-      repeatCount: 3,
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      repeatCount: 4,
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -94,17 +78,16 @@ export const let_me_clear_my_throat: Song = {
       ],
     },
     {
-      id: 'outro',
-      label: 'Outro',
-      repeatCount: 3,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_9',
-      label: 'Section I',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -113,9 +96,8 @@ export const let_me_clear_my_throat: Song = {
       ],
     },
     {
-      id: 'section_10',
-      label: 'Section J',
-      repeatCount: 5,
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -125,17 +107,16 @@ export const let_me_clear_my_throat: Song = {
       ],
     },
     {
-      id: 'section_11',
-      label: 'Section K',
-      repeatCount: 4,
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_12',
-      label: 'Section L',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -144,7 +125,6 @@ export const let_me_clear_my_throat: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=gnsqvz9iIlA' },
   ],

@@ -19,9 +19,22 @@ export const blackbird: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 3 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 3 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj/3', chordName: 'G/B', beat: 1, duration: 3 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 3 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 3 }] },
         {
           chords: [
@@ -37,26 +50,8 @@ export const blackbird: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 3 }] },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 3 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/3', chordName: 'G/B', beat: 1, duration: 3 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 3 }] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 3 }] },
         {
@@ -93,12 +88,6 @@ export const blackbird: Song = {
             { degree: '4 min7', chordName: 'Cmin7', beat: 5, duration: 1 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
         {
           chords: [
             { degree: '1 maj/3', chordName: 'G/B', beat: 1, duration: 3 },
@@ -119,8 +108,8 @@ export const blackbird: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 3 }] },
         {
@@ -161,12 +150,6 @@ export const blackbird: Song = {
             },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [
             { degree: '1 maj/5', chordName: 'G/D', beat: 1, duration: 1 },
@@ -218,8 +201,9 @@ export const blackbird: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 3 }] },
         {
@@ -234,12 +218,6 @@ export const blackbird: Song = {
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 3 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 3 }] },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 3 }],
           fermata: true,
@@ -270,8 +248,8 @@ export const blackbird: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 3 }] },
         {
@@ -298,12 +276,6 @@ export const blackbird: Song = {
             { degree: '3 7/♯5', chordName: 'B7/D♯', beat: 1, duration: 3 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_k',
-      label: 'Section K',
-      bars: [
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 3 },
@@ -338,8 +310,8 @@ export const blackbird: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 3 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 3 }] },
@@ -374,7 +346,6 @@ export const blackbird: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Man4Xw8Xypo' },
   ],

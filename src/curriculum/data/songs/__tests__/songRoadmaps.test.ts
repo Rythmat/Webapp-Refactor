@@ -25,19 +25,14 @@ const songs: Song[] = Object.entries(modules)
   );
 
 describe('song chart form', () => {
-  // Pending the relabel of the machine-parsed charts: `it.fails` flips to a
-  // plain `it` once every chart is named.
-  it.fails(
-    'names every section Intro, Verse, Pre-Chorus, Chorus, Bridge, Interlude, Tag or Outro',
-    () => {
-      const bad = songs.flatMap((song) =>
-        song.sections
-          .filter((section) => !isSectionLabel(section.label))
-          .map((section) => `${song.id}: ${section.label}`),
-      );
-      expect(bad).toEqual([]);
-    },
-  );
+  it('names every section Intro, Verse, Pre-Chorus, Chorus, Bridge, Interlude, Tag or Outro', () => {
+    const bad = songs.flatMap((song) =>
+      song.sections
+        .filter((section) => !isSectionLabel(section.label))
+        .map((section) => `${song.id}: ${section.label}`),
+    );
+    expect(bad).toEqual([]);
+  });
 
   it('plays every roadmap through, touching each written bar', () => {
     const bad: string[] = [];

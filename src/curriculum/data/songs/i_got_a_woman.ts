@@ -19,8 +19,8 @@ export const i_got_a_woman: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -33,8 +33,8 @@ export const i_got_a_woman: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
@@ -47,8 +47,8 @@ export const i_got_a_woman: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -61,8 +61,8 @@ export const i_got_a_woman: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -86,12 +86,6 @@ export const i_got_a_woman: Song = {
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '♭7 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
@@ -109,8 +103,8 @@ export const i_got_a_woman: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -135,8 +129,8 @@ export const i_got_a_woman: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -149,8 +143,8 @@ export const i_got_a_woman: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
@@ -163,8 +157,8 @@ export const i_got_a_woman: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -177,8 +171,8 @@ export const i_got_a_woman: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'verse_7',
+      label: 'Verse 7',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -191,8 +185,8 @@ export const i_got_a_woman: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -205,7 +199,6 @@ export const i_got_a_woman: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=CnI_LuCJ4Ek' },
   ],

@@ -19,8 +19,8 @@ export const little_talks: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -53,8 +53,8 @@ export const little_talks: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'pre_chorus_1',
+      label: 'Pre-Chorus 1',
       bars: [
         {
           chords: [
@@ -71,8 +71,8 @@ export const little_talks: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -95,106 +95,12 @@ export const little_talks: Song = {
         },
         {
           chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
-      repeatCount: 3,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
       bars: [
         {
           chords: [
@@ -224,9 +130,8 @@ export const little_talks: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      repeatCount: 4,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -259,8 +164,101 @@ export const little_talks: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'verse_4',
+      label: 'Verse 4',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'verse_5',
+      label: 'Verse 5',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'pre_chorus_2',
+      label: 'Pre-Chorus 2',
       bars: [
         {
           chords: [
@@ -271,8 +269,8 @@ export const little_talks: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         {
           chords: [
@@ -299,9 +297,8 @@ export const little_talks: Song = {
       ],
     },
     {
-      id: 'section_g_2',
-      label: 'Section G',
-      repeatCount: 4,
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [
@@ -334,8 +331,8 @@ export const little_talks: Song = {
       ],
     },
     {
-      id: 'section_l',
-      label: 'Section L',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -355,7 +352,6 @@ export const little_talks: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ghb6eDopW8I' },
   ],

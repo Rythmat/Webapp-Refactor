@@ -19,14 +19,11 @@ export const it_wasnt_me: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      bars: [{ chords: [], restBars: 8 }],
-    },
-    {
       id: 'verse',
       label: 'Verse',
+      instrumental: true,
       bars: [
+        { chords: [], restBars: 8 },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -46,7 +43,6 @@ export const it_wasnt_me: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2g5Hz17C4is' },
   ],

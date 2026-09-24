@@ -19,13 +19,14 @@ export const s_o_b: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 56 }],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -50,8 +51,8 @@ export const s_o_b: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -98,8 +99,8 @@ export const s_o_b: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -120,8 +121,8 @@ export const s_o_b: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -146,9 +147,8 @@ export const s_o_b: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      repeatCount: 4,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -168,7 +168,6 @@ export const s_o_b: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1iAYhQsQhSY' },
   ],

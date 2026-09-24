@@ -19,8 +19,8 @@ export const try_a_little_tenderness: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         { chords: [], restBars: 3 },
         {
@@ -32,8 +32,8 @@ export const try_a_little_tenderness: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -57,8 +57,8 @@ export const try_a_little_tenderness: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -81,8 +81,8 @@ export const try_a_little_tenderness: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -106,8 +106,8 @@ export const try_a_little_tenderness: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -121,18 +121,8 @@ export const try_a_little_tenderness: Song = {
             { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
-        {
-          chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -140,15 +130,7 @@ export const try_a_little_tenderness: Song = {
           ],
         },
         { chords: [{ degree: '2 7', chordName: 'A7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 2 },
@@ -165,8 +147,8 @@ export const try_a_little_tenderness: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -190,8 +172,8 @@ export const try_a_little_tenderness: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -205,12 +187,6 @@ export const try_a_little_tenderness: Song = {
           ],
         },
         { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e_2',
-      label: 'Section E',
-      bars: [
         {
           chords: [
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 1 },
@@ -238,7 +214,6 @@ export const try_a_little_tenderness: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=CjO7qdADCyQ' },
   ],

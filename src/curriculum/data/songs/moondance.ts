@@ -19,117 +19,9 @@ export const moondance: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
@@ -159,6 +51,108 @@ export const moondance: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -196,6 +190,30 @@ export const moondance: Song = {
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -222,47 +240,10 @@ export const moondance: Song = {
         { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      repeatCount: 4,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        {
-          chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
             { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
@@ -302,8 +283,8 @@ export const moondance: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -335,7 +316,6 @@ export const moondance: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6lFxGBB4UGU' },
   ],

@@ -19,29 +19,17 @@ export const what_is_and_what_should_never_be: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
@@ -54,8 +42,8 @@ export const what_is_and_what_should_never_be: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -80,25 +68,12 @@ export const what_is_and_what_should_never_be: Song = {
             { degree: '2 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      repeatCount: 4,
-      bars: [
         {
           chords: [{ degree: '6 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
         { chords: [], restBars: 4 },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -106,7 +81,6 @@ export const what_is_and_what_should_never_be: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=uwOOFYDhAQA' },
   ],

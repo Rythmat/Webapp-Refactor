@@ -19,8 +19,8 @@ export const i_think_were_alone_now: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -33,8 +33,8 @@ export const i_think_were_alone_now: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -63,8 +63,8 @@ export const i_think_were_alone_now: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -134,8 +134,8 @@ export const i_think_were_alone_now: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -160,8 +160,8 @@ export const i_think_were_alone_now: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -174,8 +174,8 @@ export const i_think_were_alone_now: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -204,8 +204,8 @@ export const i_think_were_alone_now: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         {
           chords: [
@@ -230,8 +230,8 @@ export const i_think_were_alone_now: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -245,8 +245,8 @@ export const i_think_were_alone_now: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -259,7 +259,6 @@ export const i_think_were_alone_now: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=w6Q3mHyzn78' },
   ],

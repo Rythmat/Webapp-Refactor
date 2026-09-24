@@ -19,8 +19,8 @@ export const where_you_lead: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -46,12 +46,6 @@ export const where_you_lead: Song = {
             { degree: '2 min7/1', chordName: 'Dmin7/C', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -64,12 +58,6 @@ export const where_you_lead: Song = {
             { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -90,8 +78,8 @@ export const where_you_lead: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -110,8 +98,8 @@ export const where_you_lead: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -139,18 +127,11 @@ export const where_you_lead: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      repeatCount: 3,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -168,8 +149,8 @@ export const where_you_lead: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -188,8 +169,8 @@ export const where_you_lead: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -215,8 +196,8 @@ export const where_you_lead: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -235,8 +216,8 @@ export const where_you_lead: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -264,12 +245,6 @@ export const where_you_lead: Song = {
             { degree: '4 maj/1', chordName: 'F/C', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [
             { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
@@ -297,7 +272,6 @@ export const where_you_lead: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=pFfOsY40SSo' },
   ],

@@ -21,18 +21,11 @@ export const nothing_compares_2_u: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 3,
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -53,8 +46,8 @@ export const nothing_compares_2_u: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -83,8 +76,8 @@ export const nothing_compares_2_u: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'pre_chorus_1',
+      label: 'Pre-Chorus 1',
       bars: [
         {
           chords: [
@@ -109,8 +102,8 @@ export const nothing_compares_2_u: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -149,8 +142,8 @@ export const nothing_compares_2_u: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'pre_chorus_2',
+      label: 'Pre-Chorus 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -183,8 +176,8 @@ export const nothing_compares_2_u: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -253,8 +246,8 @@ export const nothing_compares_2_u: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'pre_chorus_3',
+      label: 'Pre-Chorus 3',
       bars: [
         {
           chords: [
@@ -295,9 +288,8 @@ export const nothing_compares_2_u: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      repeatCount: 3,
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -336,8 +328,8 @@ export const nothing_compares_2_u: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -366,8 +358,8 @@ export const nothing_compares_2_u: Song = {
       ],
     },
     {
-      id: 'section_l',
-      label: 'Section L',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -402,8 +394,8 @@ export const nothing_compares_2_u: Song = {
       ],
     },
     {
-      id: 'section_g_2',
-      label: 'Section G',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -444,7 +436,6 @@ export const nothing_compares_2_u: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=0-EF60neguk' },
   ],

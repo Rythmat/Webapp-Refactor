@@ -19,9 +19,49 @@ export const do_your_thing: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -45,61 +85,8 @@ export const do_your_thing: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 6,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -109,39 +96,32 @@ export const do_your_thing: Song = {
         },
         { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
-      repeatCount: 6,
       bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -165,8 +145,8 @@ export const do_your_thing: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -179,8 +159,8 @@ export const do_your_thing: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -202,12 +182,6 @@ export const do_your_thing: Song = {
             { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -231,7 +205,6 @@ export const do_your_thing: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=gcq9ZtJ9tfU' },
   ],

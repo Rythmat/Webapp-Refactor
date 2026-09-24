@@ -19,8 +19,8 @@ export const keep_your_soul_together: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -28,12 +28,6 @@ export const keep_your_soul_together: Song = {
           ],
           fermata: true,
         },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
@@ -60,12 +54,6 @@ export const keep_your_soul_together: Song = {
             { degree: '5 7', chordName: 'G7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
         {
           chords: [
             { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -78,12 +66,6 @@ export const keep_your_soul_together: Song = {
         {
           chords: [{ degree: '♭6 7', chordName: 'A♭7', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7b5', beat: 1, duration: 4 },
@@ -109,8 +91,8 @@ export const keep_your_soul_together: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -131,12 +113,6 @@ export const keep_your_soul_together: Song = {
         {
           chords: [{ degree: '♭3 7', chordName: 'E♭7', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [
             { degree: '♭2 min7', chordName: 'D♭min7', beat: 1, duration: 4 },
@@ -159,12 +135,6 @@ export const keep_your_soul_together: Song = {
             { degree: '♭2 dim7', chordName: 'D♭dim7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
@@ -200,7 +170,6 @@ export const keep_your_soul_together: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8mgtk460AhI' },
   ],

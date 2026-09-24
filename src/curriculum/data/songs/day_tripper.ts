@@ -19,8 +19,8 @@ export const day_tripper: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [], restBars: 2 },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -29,9 +29,13 @@ export const day_tripper: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -39,18 +43,8 @@ export const day_tripper: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -59,8 +53,8 @@ export const day_tripper: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '2 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
@@ -69,8 +63,8 @@ export const day_tripper: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 7', chordName: 'G♯7', beat: 1, duration: 4 }] },
@@ -86,12 +80,10 @@ export const day_tripper: Song = {
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
+        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -99,18 +91,8 @@ export const day_tripper: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
-      bars: [
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -119,8 +101,8 @@ export const day_tripper: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -129,8 +111,8 @@ export const day_tripper: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         { chords: [{ degree: '2 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
@@ -139,8 +121,8 @@ export const day_tripper: Song = {
       ],
     },
     {
-      id: 'section_m',
-      label: 'Section M',
+      id: 'verse_7',
+      label: 'Verse 7',
       bars: [
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 7', chordName: 'G♯7', beat: 1, duration: 4 }] },
@@ -149,8 +131,8 @@ export const day_tripper: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
+      id: 'verse_8',
+      label: 'Verse 8',
       bars: [
         { chords: [], restBars: 2 },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -159,7 +141,6 @@ export const day_tripper: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2IbPn5j2YKk' },
   ],

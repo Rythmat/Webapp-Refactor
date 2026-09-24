@@ -30,9 +30,8 @@ export const come_and_get_your_love: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 3,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -53,8 +52,8 @@ export const come_and_get_your_love: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -78,29 +77,6 @@ export const come_and_get_your_love: Song = {
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 4,
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'B7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -123,39 +99,11 @@ export const come_and_get_your_love: Song = {
         { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 7', chordName: 'B7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'B7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'B7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -182,8 +130,8 @@ export const come_and_get_your_love: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -204,8 +152,58 @@ export const come_and_get_your_love: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'chorus_3',
+      label: 'Chorus 3',
+      bars: [
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse_4',
+      label: 'Verse 4',
+      bars: [
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'B7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -224,8 +222,8 @@ export const come_and_get_your_love: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -234,8 +232,8 @@ export const come_and_get_your_love: Song = {
       ],
     },
     {
-      id: 'section_i_2',
-      label: 'Section I',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [
@@ -256,7 +254,6 @@ export const come_and_get_your_love: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=OnJqFrVD3uE' },
   ],

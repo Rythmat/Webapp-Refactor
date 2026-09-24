@@ -19,57 +19,14 @@ export const umbrella: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 2 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '♭3 maj/♭7', chordName: 'D♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -109,6 +66,12 @@ export const umbrella: Song = {
             { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
+      ],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
+      bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -130,9 +93,41 @@ export const umbrella: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭3 maj/♭7', chordName: 'D♭/A♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '♯1 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
@@ -147,12 +142,6 @@ export const umbrella: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
         {
           chords: [{ degree: '♯1 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
@@ -164,8 +153,8 @@ export const umbrella: Song = {
       ],
     },
     {
-      id: 'section_g_2',
-      label: 'Section G',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -202,7 +191,6 @@ export const umbrella: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=CvBfHwUxHIk' },
   ],

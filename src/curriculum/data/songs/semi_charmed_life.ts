@@ -19,8 +19,8 @@ export const semi_charmed_life: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -28,51 +28,6 @@ export const semi_charmed_life: Song = {
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 8,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -85,6 +40,38 @@ export const semi_charmed_life: Song = {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
+        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse_4',
+      label: 'Verse 4',
+      bars: [
         { chords: [], restBars: 4 },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -95,9 +82,23 @@ export const semi_charmed_life: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
+        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -108,34 +109,8 @@ export const semi_charmed_life: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      bars: [
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -146,8 +121,8 @@ export const semi_charmed_life: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [
@@ -163,12 +138,6 @@ export const semi_charmed_life: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_l',
-      label: 'Section L',
-      bars: [
         {
           chords: [
             { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
@@ -183,12 +152,6 @@ export const semi_charmed_life: Song = {
           ],
         },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_m',
-      label: 'Section M',
-      bars: [
         {
           chords: [
             { degree: '4 maj', chordName: 'C', beat: 1, duration: 1 },
@@ -213,9 +176,8 @@ export const semi_charmed_life: Song = {
       ],
     },
     {
-      id: 'section_h_2',
-      label: 'Section H',
-      repeatCount: 4,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -234,7 +196,6 @@ export const semi_charmed_life: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=beINamVRGy4' },
   ],

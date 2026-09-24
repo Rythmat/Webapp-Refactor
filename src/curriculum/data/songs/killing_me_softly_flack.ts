@@ -19,8 +19,8 @@ export const killing_me_softly_flack: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -54,12 +54,6 @@ export const killing_me_softly_flack: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -77,8 +71,8 @@ export const killing_me_softly_flack: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -98,6 +92,38 @@ export const killing_me_softly_flack: Song = {
         {
           chords: [
             { degree: '♭7 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -105,44 +131,6 @@ export const killing_me_softly_flack: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      bars: [
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
       bars: [
         {
           chords: [
@@ -172,12 +160,6 @@ export const killing_me_softly_flack: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -207,8 +189,8 @@ export const killing_me_softly_flack: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -239,12 +221,6 @@ export const killing_me_softly_flack: Song = {
         {
           chords: [{ degree: '♭7 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -265,7 +241,6 @@ export const killing_me_softly_flack: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=oKOtzIo-uYw' },
   ],

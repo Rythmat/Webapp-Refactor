@@ -29,8 +29,8 @@ export const the_loco_motion: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -67,8 +67,8 @@ export const the_loco_motion: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -153,8 +153,8 @@ export const the_loco_motion: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -175,8 +175,8 @@ export const the_loco_motion: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -205,7 +205,6 @@ export const the_loco_motion: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=eKpVQm41f8Y' },
   ],

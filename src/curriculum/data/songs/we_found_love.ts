@@ -19,19 +19,17 @@ export const we_found_love: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      bars: [{ chords: [], restBars: 4 }],
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
+      bars: [
+        { chords: [], restBars: 4 },
+        { chords: [], restBars: 8 },
+      ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      bars: [{ chords: [], restBars: 8 }],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      repeatCount: 4,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -69,8 +67,8 @@ export const we_found_love: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -92,12 +90,6 @@ export const we_found_love: Song = {
             { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
@@ -123,7 +115,6 @@ export const we_found_love: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      repeatCount: 8,
       bars: [
         {
           chords: [
@@ -161,9 +152,8 @@ export const we_found_love: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
-      repeatCount: 3,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -188,8 +178,8 @@ export const we_found_love: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -227,9 +217,29 @@ export const we_found_love: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
@@ -253,35 +263,8 @@ export const we_found_love: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      repeatCount: 4,
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -319,7 +302,6 @@ export const we_found_love: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=tg00YEETFzg' },
   ],

@@ -19,9 +19,8 @@ export const raging: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 3,
+      id: 'intro',
+      label: 'Intro',
       bars: [
         {
           chords: [
@@ -42,8 +41,8 @@ export const raging: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -69,9 +68,8 @@ export const raging: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 6,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'B', beat: 1, duration: 4 }],
@@ -92,8 +90,8 @@ export const raging: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -122,8 +120,8 @@ export const raging: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -149,8 +147,8 @@ export const raging: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'pre_chorus',
+      label: 'Pre-Chorus',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'B', beat: 1, duration: 4 }],
@@ -172,9 +170,8 @@ export const raging: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      repeatCount: 6,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'B', beat: 1, duration: 4 }],
@@ -195,7 +192,6 @@ export const raging: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ZWyktWYW3ZM' },
   ],

@@ -19,8 +19,8 @@ export const when_im_sixty_four: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -43,8 +43,8 @@ export const when_im_sixty_four: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -59,8 +59,8 @@ export const when_im_sixty_four: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
@@ -71,8 +71,8 @@ export const when_im_sixty_four: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -87,8 +87,8 @@ export const when_im_sixty_four: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -135,12 +135,6 @@ export const when_im_sixty_four: Song = {
             { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
         {
           chords: [
             { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
@@ -165,12 +159,6 @@ export const when_im_sixty_four: Song = {
             { degree: '3 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
         {
           chords: [
             { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
@@ -194,8 +182,8 @@ export const when_im_sixty_four: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -216,8 +204,8 @@ export const when_im_sixty_four: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -232,8 +220,8 @@ export const when_im_sixty_four: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
@@ -244,8 +232,8 @@ export const when_im_sixty_four: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -260,8 +248,8 @@ export const when_im_sixty_four: Song = {
       ],
     },
     {
-      id: 'section_m',
-      label: 'Section M',
+      id: 'verse_7',
+      label: 'Verse 7',
       bars: [
         {
           chords: [
@@ -287,8 +275,8 @@ export const when_im_sixty_four: Song = {
       ],
     },
     {
-      id: 'section_n',
-      label: 'Section N',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -308,7 +296,6 @@ export const when_im_sixty_four: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=wUDRIC5RSX4' },
   ],

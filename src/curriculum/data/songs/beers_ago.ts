@@ -19,8 +19,9 @@ export const beers_ago: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [
         { chords: [], restBars: 4 },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -29,8 +30,8 @@ export const beers_ago: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -43,8 +44,8 @@ export const beers_ago: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -61,34 +62,35 @@ export const beers_ago: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'interlude_1',
+      label: 'Interlude 1',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -104,8 +106,8 @@ export const beers_ago: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -127,8 +129,8 @@ export const beers_ago: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -145,8 +147,9 @@ export const beers_ago: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'interlude_2',
+      label: 'Interlude 2',
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -161,8 +164,8 @@ export const beers_ago: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -177,7 +180,6 @@ export const beers_ago: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Hosifr6ycwU' },
   ],

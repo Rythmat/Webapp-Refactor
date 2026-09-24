@@ -19,8 +19,8 @@ export const chain_of_fools: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         {
           chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }],
@@ -29,8 +29,8 @@ export const chain_of_fools: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
@@ -39,8 +39,8 @@ export const chain_of_fools: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [], restBars: 8 },
@@ -49,8 +49,8 @@ export const chain_of_fools: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
@@ -59,7 +59,6 @@ export const chain_of_fools: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=5C4FnlftQt4' },
   ],

@@ -21,12 +21,37 @@ export const little_lion_man: Song = {
     {
       id: 'intro',
       label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -54,38 +79,8 @@ export const little_lion_man: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'pre_chorus_1',
+      label: 'Pre-Chorus 1',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -112,9 +107,31 @@ export const little_lion_man: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3, duration: 2 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3, duration: 2 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'B♭', beat: 3, duration: 2 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 2 },
@@ -145,34 +162,6 @@ export const little_lion_man: Song = {
       bars: [
         {
           chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'B♭', beat: 3, duration: 2 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'B♭', beat: 3, duration: 2 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'B♭', beat: 3, duration: 2 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
-          chords: [
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
@@ -198,9 +187,8 @@ export const little_lion_man: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      repeatCount: 4,
+      id: 'pre_chorus_2',
+      label: 'Pre-Chorus 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -221,8 +209,8 @@ export const little_lion_man: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -249,8 +237,8 @@ export const little_lion_man: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [], restBars: 8 },
         {
@@ -260,7 +248,6 @@ export const little_lion_man: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=lLJf9qJHR3E' },
   ],

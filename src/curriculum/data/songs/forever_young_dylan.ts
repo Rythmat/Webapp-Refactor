@@ -19,20 +19,14 @@ export const forever_young_dylan: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
       id: 'verse',
       label: 'Verse',
       bars: [
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -45,8 +39,8 @@ export const forever_young_dylan: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -70,7 +64,6 @@ export const forever_young_dylan: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=mwG6g5boyF4' },
   ],

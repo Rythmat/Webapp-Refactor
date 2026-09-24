@@ -19,8 +19,8 @@ export const marry_me: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -49,8 +49,8 @@ export const marry_me: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -72,12 +72,6 @@ export const marry_me: Song = {
         { chords: [{ degree: '2 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -96,37 +90,6 @@ export const marry_me: Song = {
           ],
         },
         { chords: [{ degree: '2 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 4,
-      bars: [
-        {
-          chords: [
-            { degree: '5 maj/7', chordName: 'C/E', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 maj/7', chordName: 'C/E', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '5 maj/7', chordName: 'C/E', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 maj/7', chordName: 'C/E', beat: 1, duration: 4 },
-          ],
-        },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
       ],
@@ -136,38 +99,34 @@ export const marry_me: Song = {
       label: 'Verse 2',
       bars: [
         {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
           chords: [
-            { degree: '1 maj/3', chordName: 'F/A', beat: 1, duration: 4 },
+            { degree: '5 maj/7', chordName: 'C/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/3', chordName: 'F/A', beat: 1, duration: 4 },
+            { degree: '5 maj/7', chordName: 'C/E', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '2 maj/♯4', chordName: 'G/B', beat: 1, duration: 4 },
+            { degree: '5 maj/7', chordName: 'C/E', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '2 maj/♯4', chordName: 'G/B', beat: 1, duration: 4 },
+            { degree: '5 maj/7', chordName: 'C/E', beat: 1, duration: 4 },
           ],
         },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -185,11 +144,39 @@ export const marry_me: Song = {
             { degree: '1 maj/3', chordName: 'F/A', beat: 1, duration: 4 },
           ],
         },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 maj/♯4', chordName: 'G/B', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 maj/♯4', chordName: 'G/B', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 maj/3', chordName: 'F/A', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj/3', chordName: 'F/A', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -214,9 +201,8 @@ export const marry_me: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
-      repeatCount: 3,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -233,7 +219,6 @@ export const marry_me: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ghZt2cILcCU' },
   ],

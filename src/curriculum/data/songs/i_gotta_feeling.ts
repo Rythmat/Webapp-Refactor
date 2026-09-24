@@ -19,8 +19,8 @@ export const i_gotta_feeling: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -42,35 +42,17 @@ export const i_gotta_feeling: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [{ chords: [], restBars: 16 }],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      repeatCount: 6,
-      bars: [
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
       ],
@@ -78,21 +60,15 @@ export const i_gotta_feeling: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      repeatCount: 5,
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '5 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '6 min7', chordName: 'Emin7', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -106,13 +82,35 @@ export const i_gotta_feeling: Song = {
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 maj', chordName: 'D', beat: 1, duration: 2 },
+            { degree: '6 min7', chordName: 'Emin7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 maj', chordName: 'D', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      repeatCount: 4,
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -133,7 +131,6 @@ export const i_gotta_feeling: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=uSD4vsh1zDA' },
   ],

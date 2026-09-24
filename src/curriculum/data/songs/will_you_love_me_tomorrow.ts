@@ -19,8 +19,8 @@ export const will_you_love_me_tomorrow: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         {
           chords: [
@@ -48,8 +48,8 @@ export const will_you_love_me_tomorrow: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -70,8 +70,8 @@ export const will_you_love_me_tomorrow: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [{ degree: '3 7', chordName: 'E7sus', beat: 1, duration: 4 }],
@@ -91,12 +91,6 @@ export const will_you_love_me_tomorrow: Song = {
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -150,8 +144,8 @@ export const will_you_love_me_tomorrow: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -172,8 +166,8 @@ export const will_you_love_me_tomorrow: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [{ degree: '3 7', chordName: 'E7sus', beat: 1, duration: 4 }],
@@ -196,8 +190,8 @@ export const will_you_love_me_tomorrow: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -219,7 +213,6 @@ export const will_you_love_me_tomorrow: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Dfmn9M6hXVI' },
   ],

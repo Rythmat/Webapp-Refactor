@@ -19,8 +19,9 @@ export const best_of_my_love: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [
         {
           chords: [{ degree: '2 7', chordName: 'D7sus', beat: 1, duration: 4 }],
@@ -39,8 +40,8 @@ export const best_of_my_love: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse',
+      label: 'Verse',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -69,7 +70,6 @@ export const best_of_my_love: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Pbg66_KdJ5Q' },
   ],

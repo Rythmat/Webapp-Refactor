@@ -20,14 +20,11 @@ export const listening_wind: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
-      bars: [{ chords: [], restBars: 10 }],
-    },
-    {
       id: 'verse',
       label: 'Verse',
+      instrumental: true,
       bars: [
+        { chords: [], restBars: 10 },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -48,12 +45,6 @@ export const listening_wind: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
         {
           chords: [
             { degree: '♭7 maj/1', chordName: 'D/E', beat: 1, duration: 4 },
@@ -77,7 +68,6 @@ export const listening_wind: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=RjWej8fOdR8' },
   ],

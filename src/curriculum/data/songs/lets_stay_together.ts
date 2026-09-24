@@ -20,7 +20,7 @@ export const lets_stay_together: Song = {
   sections: [
     {
       id: 'verse_1',
-      label: 'Verse',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -46,18 +46,8 @@ export const lets_stay_together: Song = {
             { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -68,12 +58,6 @@ export const lets_stay_together: Song = {
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
@@ -90,12 +74,6 @@ export const lets_stay_together: Song = {
             { degree: '4 min7', chordName: 'Bbmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
         {
           chords: [
             { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 2 },
@@ -125,8 +103,8 @@ export const lets_stay_together: Song = {
       ],
     },
     {
-      id: 'chorus_1',
-      label: 'Chorus',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -148,12 +126,6 @@ export const lets_stay_together: Song = {
             { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
         {
           chords: [
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
@@ -172,12 +144,6 @@ export const lets_stay_together: Song = {
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'intro',
-      label: 'Intro',
-      bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -194,12 +160,6 @@ export const lets_stay_together: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'outro',
-      label: 'Outro',
-      bars: [
         {
           chords: [
             { degree: '4 maj', chordName: 'B♭', beat: 1, duration: 1 },
@@ -208,17 +168,13 @@ export const lets_stay_together: Song = {
           ],
         },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_9',
-      label: 'Section I',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -236,12 +192,6 @@ export const lets_stay_together: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_10',
-      label: 'Section J',
-      bars: [
         {
           chords: [
             { degree: '4 min7', chordName: 'Bbmin7', beat: 1, duration: 4 },
@@ -265,12 +215,6 @@ export const lets_stay_together: Song = {
             { degree: '6 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_11',
-      label: 'Section K',
-      bars: [
         {
           chords: [
             { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 1 },
@@ -290,12 +234,6 @@ export const lets_stay_together: Song = {
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_12',
-      label: 'Section L',
-      bars: [
         {
           chords: [
             { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -321,14 +259,13 @@ export const lets_stay_together: Song = {
       ],
     },
     {
-      id: 'section_13',
-      label: 'Section M',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=XXx6RDzR6eM' },
   ],

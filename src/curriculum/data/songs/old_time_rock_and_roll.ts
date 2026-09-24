@@ -21,11 +21,12 @@ export const old_time_rock_and_roll: Song = {
     {
       id: 'intro',
       label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
@@ -34,8 +35,8 @@ export const old_time_rock_and_roll: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
@@ -44,13 +45,14 @@ export const old_time_rock_and_roll: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
@@ -59,8 +61,8 @@ export const old_time_rock_and_roll: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
@@ -69,7 +71,6 @@ export const old_time_rock_and_roll: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=W1LsRShUPtY' },
   ],

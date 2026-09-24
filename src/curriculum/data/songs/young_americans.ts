@@ -19,8 +19,8 @@ export const young_americans: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -28,51 +28,31 @@ export const young_americans: Song = {
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
         },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -80,25 +60,7 @@ export const young_americans: Song = {
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
@@ -106,9 +68,21 @@ export const young_americans: Song = {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
         },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      bars: [
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -116,15 +90,13 @@ export const young_americans: Song = {
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -132,9 +104,7 @@ export const young_americans: Song = {
           ],
         },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -142,16 +112,8 @@ export const young_americans: Song = {
           ],
         },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -174,16 +136,13 @@ export const young_americans: Song = {
             { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      repeatCount: 4,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '2 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -193,13 +152,6 @@ export const young_americans: Song = {
         },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      repeatCount: 4,
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -213,12 +165,6 @@ export const young_americans: Song = {
           chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }],
           fermata: true,
         },
-      ],
-    },
-    {
-      id: 'section_h_2',
-      label: 'Section H',
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -230,7 +176,6 @@ export const young_americans: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=iO6OvHxD_m8' },
   ],

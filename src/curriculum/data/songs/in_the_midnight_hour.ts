@@ -19,8 +19,8 @@ export const in_the_midnight_hour: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [] },
         {
@@ -38,64 +38,6 @@ export const in_the_midnight_hour: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
@@ -104,6 +46,37 @@ export const in_the_midnight_hour: Song = {
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'bridge',
+      label: 'Bridge',
+      bars: [
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
@@ -111,9 +84,18 @@ export const in_the_midnight_hour: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -124,8 +106,8 @@ export const in_the_midnight_hour: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -138,7 +120,6 @@ export const in_the_midnight_hour: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=FGVGFfj7POA' },
   ],

@@ -19,13 +19,14 @@ export const like_a_prayer: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 13 }],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -41,8 +42,9 @@ export const like_a_prayer: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'chorus_1',
+      label: 'Chorus 1',
+      instrumental: true,
       bars: [{ chords: [], restBars: 16 }],
     },
     {
@@ -63,14 +65,14 @@ export const like_a_prayer: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      instrumental: true,
       bars: [{ chords: [], restBars: 16 }],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      repeatCount: 4,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -86,9 +88,30 @@ export const like_a_prayer: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '6 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '6 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -113,35 +136,8 @@ export const like_a_prayer: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '6 7', chordName: 'D7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '6 7', chordName: 'D7sus', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -173,9 +169,8 @@ export const like_a_prayer: Song = {
       ],
     },
     {
-      id: 'section_i_2',
-      label: 'Section I',
-      repeatCount: 4,
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -191,8 +186,8 @@ export const like_a_prayer: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'verse_7',
+      label: 'Verse 7',
       bars: [
         {
           chords: [
@@ -218,8 +213,8 @@ export const like_a_prayer: Song = {
       ],
     },
     {
-      id: 'section_l',
-      label: 'Section L',
+      id: 'verse_8',
+      label: 'Verse 8',
       bars: [
         {
           chords: [
@@ -251,7 +246,6 @@ export const like_a_prayer: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=79fzeNUqQbQ' },
   ],

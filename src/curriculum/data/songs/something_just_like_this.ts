@@ -20,12 +20,10 @@ export const something_just_like_this: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
@@ -37,9 +35,7 @@ export const something_just_like_this: Song = {
         {
           chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
@@ -51,16 +47,7 @@ export const something_just_like_this: Song = {
         {
           chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 6,
-      bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
@@ -72,9 +59,7 @@ export const something_just_like_this: Song = {
         {
           chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
@@ -86,15 +71,7 @@ export const something_just_like_this: Song = {
         {
           chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
@@ -106,9 +83,79 @@ export const something_just_like_this: Song = {
         {
           chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
@@ -125,114 +172,8 @@ export const something_just_like_this: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      repeatCount: 4,
       bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      repeatCount: 4,
-      bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
@@ -246,9 +187,7 @@ export const something_just_like_this: Song = {
             { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -257,12 +196,6 @@ export const something_just_like_this: Song = {
             { degree: '5 maj', chordName: 'A', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
         {
           chords: [
             { degree: '1 maj/3', chordName: 'D/F♯', beat: 1, duration: 4 },
@@ -281,9 +214,7 @@ export const something_just_like_this: Song = {
             { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -295,13 +226,10 @@ export const something_just_like_this: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      repeatCount: 4,
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
@@ -311,9 +239,7 @@ export const something_just_like_this: Song = {
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
@@ -326,12 +252,10 @@ export const something_just_like_this: Song = {
       ],
     },
     {
-      id: 'section_h_2',
-      label: 'Section H',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
@@ -343,9 +267,7 @@ export const something_just_like_this: Song = {
         {
           chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '5 7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
@@ -361,7 +283,6 @@ export const something_just_like_this: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=FM7MFYoylVs' },
   ],

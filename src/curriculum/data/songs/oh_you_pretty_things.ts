@@ -19,8 +19,8 @@ export const oh_you_pretty_things: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -44,8 +44,8 @@ export const oh_you_pretty_things: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -82,8 +82,8 @@ export const oh_you_pretty_things: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -116,8 +116,8 @@ export const oh_you_pretty_things: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -150,12 +150,6 @@ export const oh_you_pretty_things: Song = {
           chords: [{ degree: '5 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -187,8 +181,8 @@ export const oh_you_pretty_things: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -221,8 +215,8 @@ export const oh_you_pretty_things: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -258,12 +252,6 @@ export const oh_you_pretty_things: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -289,8 +277,8 @@ export const oh_you_pretty_things: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -328,8 +316,8 @@ export const oh_you_pretty_things: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -353,8 +341,8 @@ export const oh_you_pretty_things: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -391,8 +379,8 @@ export const oh_you_pretty_things: Song = {
       ],
     },
     {
-      id: 'section_l',
-      label: 'Section L',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '♯4 maj', chordName: 'C', beat: 1, duration: 4 }],
@@ -418,7 +406,6 @@ export const oh_you_pretty_things: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IBgU0tiLy2s' },
   ],

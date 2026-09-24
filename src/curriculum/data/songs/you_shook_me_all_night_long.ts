@@ -19,14 +19,11 @@ export const you_shook_me_all_night_long: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      bars: [{ chords: [], restBars: 16 }],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [
+        { chords: [], restBars: 16 },
         { chords: [], restBars: 13 },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -34,8 +31,8 @@ export const you_shook_me_all_night_long: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -59,8 +56,8 @@ export const you_shook_me_all_night_long: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'pre_chorus',
+      label: 'Pre-Chorus',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -84,8 +81,8 @@ export const you_shook_me_all_night_long: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -125,8 +122,8 @@ export const you_shook_me_all_night_long: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -141,19 +138,13 @@ export const you_shook_me_all_night_long: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e_2',
-      label: 'Section E',
-      bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
@@ -173,12 +164,6 @@ export const you_shook_me_all_night_long: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
-      bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
@@ -199,8 +184,8 @@ export const you_shook_me_all_night_long: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -221,12 +206,6 @@ export const you_shook_me_all_night_long: Song = {
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g_2',
-      label: 'Section G',
-      bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
@@ -249,8 +228,8 @@ export const you_shook_me_all_night_long: Song = {
       ],
     },
     {
-      id: 'section_m',
-      label: 'Section M',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -268,7 +247,6 @@ export const you_shook_me_all_night_long: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Lo2qQmj0_h4' },
   ],

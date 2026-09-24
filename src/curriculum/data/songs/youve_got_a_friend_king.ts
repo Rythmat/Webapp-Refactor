@@ -19,8 +19,8 @@ export const youve_got_a_friend_king: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -59,8 +59,8 @@ export const youve_got_a_friend_king: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -104,8 +104,8 @@ export const youve_got_a_friend_king: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -151,8 +151,8 @@ export const youve_got_a_friend_king: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -189,8 +189,8 @@ export const youve_got_a_friend_king: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -233,8 +233,8 @@ export const youve_got_a_friend_king: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -277,8 +277,8 @@ export const youve_got_a_friend_king: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -315,8 +315,8 @@ export const youve_got_a_friend_king: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -347,13 +347,6 @@ export const youve_got_a_friend_king: Song = {
             { degree: '5 7', chordName: 'E♭7', beat: 4, duration: 1 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      repeatCount: 3,
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -388,7 +381,6 @@ export const youve_got_a_friend_king: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2ZI3kLrHK80' },
   ],

@@ -20,9 +20,21 @@ export const lady_marmalade_aguilera: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
@@ -38,26 +50,8 @@ export const lady_marmalade_aguilera: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -78,8 +72,8 @@ export const lady_marmalade_aguilera: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -96,8 +90,8 @@ export const lady_marmalade_aguilera: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -113,8 +107,8 @@ export const lady_marmalade_aguilera: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -131,8 +125,8 @@ export const lady_marmalade_aguilera: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
@@ -146,12 +140,6 @@ export const lady_marmalade_aguilera: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -164,8 +152,8 @@ export const lady_marmalade_aguilera: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [
@@ -182,8 +170,8 @@ export const lady_marmalade_aguilera: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'verse_7',
+      label: 'Verse 7',
       bars: [
         {
           chords: [
@@ -200,8 +188,8 @@ export const lady_marmalade_aguilera: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'verse_8',
+      label: 'Verse 8',
       bars: [
         {
           chords: [
@@ -218,8 +206,8 @@ export const lady_marmalade_aguilera: Song = {
       ],
     },
     {
-      id: 'section_l',
-      label: 'Section L',
+      id: 'verse_9',
+      label: 'Verse 9',
       bars: [
         {
           chords: [
@@ -244,9 +232,8 @@ export const lady_marmalade_aguilera: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
-      repeatCount: 4,
+      id: 'verse_10',
+      label: 'Verse 10',
       bars: [
         {
           chords: [
@@ -260,12 +247,6 @@ export const lady_marmalade_aguilera: Song = {
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f_2',
-      label: 'Section F',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
@@ -281,7 +262,6 @@ export const lady_marmalade_aguilera: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=RQa7SvVCdZk' },
   ],

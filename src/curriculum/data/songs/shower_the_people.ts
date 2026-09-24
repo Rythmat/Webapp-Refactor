@@ -19,18 +19,13 @@ export const shower_the_people: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -42,12 +37,6 @@ export const shower_the_people: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -68,12 +57,6 @@ export const shower_the_people: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -92,8 +75,8 @@ export const shower_the_people: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -118,78 +101,6 @@ export const shower_the_people: Song = {
         {
           chords: [
             { degree: '4 maj/3', chordName: 'B♭/A', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '♯5 dim7', chordName: 'C♯dim7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 dim7', chordName: 'Adim7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 dim7', chordName: 'Adim7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -225,8 +136,80 @@ export const shower_the_people: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'verse_3',
+      label: 'Verse 3',
+      bars: [
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♯5 dim7', chordName: 'C♯dim7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 dim7', chordName: 'Adim7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 dim7', chordName: 'Adim7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'verse_4',
+      label: 'Verse 4',
+      bars: [
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -260,12 +243,6 @@ export const shower_the_people: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
-      bars: [
         {
           chords: [
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -275,8 +252,8 @@ export const shower_the_people: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -309,7 +286,6 @@ export const shower_the_people: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=GfJWqjoekow' },
   ],

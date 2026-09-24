@@ -19,13 +19,14 @@ export const dear_prudence: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 5 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -48,74 +49,6 @@ export const dear_prudence: Song = {
             },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/♭7', chordName: 'D/C', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj/6', chordName: 'G/B', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '4 min7/♭6',
-              chordName: 'G min7/B♭',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/♭7', chordName: 'D/C', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj/6', chordName: 'G/B', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '4 min7/♭6',
-              chordName: 'G min7/B♭',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/♭7', chordName: 'D/C', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '4 maj/1', chordName: 'G/D', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -164,11 +97,67 @@ export const dear_prudence: Song = {
             },
           ],
         },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj/♭7', chordName: 'D/C', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 maj/1', chordName: 'G/D', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj/♭7', chordName: 'D/C', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 maj/6', chordName: 'G/B', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '4 min7/♭6',
+              chordName: 'G min7/B♭',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj/♭7', chordName: 'D/C', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 maj/6', chordName: 'G/B', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '4 min7/♭6',
+              chordName: 'G min7/B♭',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -215,8 +204,8 @@ export const dear_prudence: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -240,12 +229,6 @@ export const dear_prudence: Song = {
             { degree: '4 maj/1', chordName: 'G/D', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -281,8 +264,8 @@ export const dear_prudence: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
@@ -315,8 +298,8 @@ export const dear_prudence: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -363,8 +346,8 @@ export const dear_prudence: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -396,8 +379,8 @@ export const dear_prudence: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
+      id: 'verse_7',
+      label: 'Verse 7',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -444,8 +427,8 @@ export const dear_prudence: Song = {
       ],
     },
     {
-      id: 'section_m',
-      label: 'Section M',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -474,12 +457,6 @@ export const dear_prudence: Song = {
             { degree: '1 maj/♭7', chordName: 'D/C', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_n',
-      label: 'Section N',
-      bars: [
         {
           chords: [
             { degree: '4 maj/6', chordName: 'G/B', beat: 1, duration: 4 },
@@ -507,7 +484,6 @@ export const dear_prudence: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=wQA59IkCF5I' },
   ],

@@ -61,6 +61,96 @@ export const pastime_paradise: Song = {
       ],
     },
     {
+      id: 'bridge',
+      label: 'Bridge',
+      bars: [
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
       id: 'verse',
       label: 'Verse',
       bars: [
@@ -69,108 +159,6 @@ export const pastime_paradise: Song = {
         },
         {
           chords: [
-            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
             { degree: '5 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
@@ -182,12 +170,6 @@ export const pastime_paradise: Song = {
             { degree: '5 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -219,8 +201,8 @@ export const pastime_paradise: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -251,7 +233,6 @@ export const pastime_paradise: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_H3Sv2zad6s' },
   ],

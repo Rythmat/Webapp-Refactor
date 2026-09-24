@@ -19,8 +19,8 @@ export const lean_on_me: Song = {
 
   sections: [
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'verse',
+      label: 'Verse',
       bars: [
         {
           chords: [
@@ -49,13 +49,6 @@ export const lean_on_me: Song = {
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      repeatCount: 4,
-      bars: [
         {
           chords: [
             { degree: '1 maj', chordName: 'C', beat: 1, duration: 1 },
@@ -83,22 +76,10 @@ export const lean_on_me: Song = {
             { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -106,8 +87,8 @@ export const lean_on_me: Song = {
       ],
     },
     {
-      id: 'verse_1',
-      label: 'Verse',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -135,12 +116,6 @@ export const lean_on_me: Song = {
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'chorus_1',
-      label: 'Chorus',
-      bars: [
         {
           chords: [
             { degree: '1 maj', chordName: 'C', beat: 1, duration: 1 },
@@ -168,12 +143,6 @@ export const lean_on_me: Song = {
             { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'outro',
-      label: 'Outro',
-      bars: [
         {
           chords: [
             { degree: '4 maj/1', chordName: 'F/C', beat: 1, duration: 2 },
@@ -201,7 +170,6 @@ export const lean_on_me: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=fOZ-MySzAac' },
   ],

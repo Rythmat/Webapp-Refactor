@@ -19,30 +19,20 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 2 },
@@ -64,8 +54,8 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
@@ -73,9 +63,7 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
             { degree: '5 7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
@@ -83,22 +71,10 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
             { degree: '♭7 7', chordName: 'E♭7', beat: 4, duration: 1 },
           ],
         },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
         { chords: [{ degree: '6 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
         { chords: [{ degree: '2 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
@@ -110,12 +86,10 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 2 },
@@ -137,8 +111,8 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
@@ -148,12 +122,6 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
         },
         { chords: [{ degree: '3 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 7', chordName: 'A7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
         { chords: [{ degree: '6 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 7', chordName: 'G7', beat: 1, duration: 4 }] },
@@ -163,15 +131,7 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
             { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '5 maj/7', chordName: 'C/E', beat: 1, duration: 1 },
@@ -180,17 +140,15 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 4 }],
         },
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -207,52 +165,24 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
             { degree: '2 min7', chordName: 'A♭min7', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [{ degree: '5 7', chordName: 'D♭7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '5 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'A♭min7', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [{ degree: '5 7', chordName: 'D♭7', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_k',
-      label: 'Section K',
-      bars: [
-        {
-          chords: [{ degree: '5 7', chordName: 'D♭7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '5 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '5 7/7', chordName: 'D♭7/F', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [{ degree: '3 7', chordName: 'B♭7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '3 7', chordName: 'B♭7', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        {
-          chords: [{ degree: '6 7', chordName: 'E♭7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '6 7', chordName: 'E♭7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '2 7', chordName: 'A♭7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '3 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'A♭min7', beat: 1, duration: 2 },
@@ -262,8 +192,8 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
       ],
     },
     {
-      id: 'section_m',
-      label: 'Section M',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -275,9 +205,7 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
             { degree: '2 min7', chordName: 'A♭min7', beat: 3, duration: 2 },
           ],
         },
-        {
-          chords: [{ degree: '5 7', chordName: 'D♭7', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '5 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -295,7 +223,6 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=nfwTIheDo6A' },
   ],

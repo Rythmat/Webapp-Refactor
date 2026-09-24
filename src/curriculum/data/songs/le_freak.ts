@@ -19,9 +19,8 @@ export const le_freak: Song = {
 
   sections: [
     {
-      id: 'verse_1',
-      label: 'Verse',
-      repeatCount: 6,
+      id: 'intro',
+      label: 'Intro',
       bars: [
         {
           chords: [
@@ -38,6 +37,122 @@ export const le_freak: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'D', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'verse_1',
+      label: 'Verse 1',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'D', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭3 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'bridge',
+      label: 'Bridge',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'D', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'C', beat: 2, duration: 1 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'D', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'D', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'C', beat: 2, duration: 1 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'D', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'D', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭3 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'D', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'C', beat: 2, duration: 1 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'D', beat: 1, duration: 2 },
+            { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'D', beat: 1, duration: 1 },
+            { degree: '♭3 maj', chordName: 'C', beat: 2, duration: 1 },
+            { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -71,146 +186,8 @@ export const le_freak: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 4,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '♭3 maj', chordName: 'C', beat: 2, duration: 1 },
-            { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus_1',
-      label: 'Chorus',
-      repeatCount: 7,
-      bars: [
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '♭3 maj', chordName: 'C', beat: 2, duration: 1 },
-            { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭3 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '♭3 maj', chordName: 'C', beat: 2, duration: 1 },
-            { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      repeatCount: 4,
-      bars: [
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '♭3 maj', chordName: 'C', beat: 2, duration: 1 },
-            { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
       id: 'outro',
       label: 'Outro',
-      repeatCount: 7,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭3 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '1 min7', chordName: 'Amin7', beat: 3, duration: 2 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_8',
-      label: 'Section H',
       bars: [
         {
           chords: [
@@ -224,13 +201,6 @@ export const le_freak: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_9',
-      label: 'Section I',
-      repeatCount: 8,
-      bars: [
         {
           chords: [
             { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
@@ -254,13 +224,6 @@ export const le_freak: Song = {
             { degree: '♭3 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_10',
-      label: 'Section J',
-      repeatCount: 4,
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -282,7 +245,6 @@ export const le_freak: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aXgSHL7efKg' },
   ],

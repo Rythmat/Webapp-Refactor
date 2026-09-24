@@ -19,8 +19,9 @@ export const beast_of_burden: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [
         { chords: [], restBars: 2 },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -38,8 +39,8 @@ export const beast_of_burden: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -68,8 +69,8 @@ export const beast_of_burden: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -88,8 +89,8 @@ export const beast_of_burden: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'bridge_1',
+      label: 'Bridge 1',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -111,6 +112,92 @@ export const beast_of_burden: Song = {
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'bridge_2',
+      label: 'Bridge 2',
+      bars: [
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'chorus_3',
+      label: 'Chorus 3',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -120,104 +207,6 @@ export const beast_of_burden: Song = {
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g_2',
-      label: 'Section G',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [
             { degree: '5 maj/7', chordName: 'B/D♯', beat: 1, duration: 4 },
           ],
         },
@@ -239,12 +228,6 @@ export const beast_of_burden: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_k',
-      label: 'Section K',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -272,7 +255,6 @@ export const beast_of_burden: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=tuk1NnnMQBA' },
   ],

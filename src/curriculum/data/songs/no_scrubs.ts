@@ -19,9 +19,25 @@ export const no_scrubs: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '4 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -41,30 +57,8 @@ export const no_scrubs: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'E', beat: 1, duration: 4 }],
@@ -78,12 +72,6 @@ export const no_scrubs: Song = {
         {
           chords: [{ degree: '5 7', chordName: 'D♯7b9', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
         {
           chords: [
             { degree: '1 7', chordName: 'G♯7sus', beat: 1, duration: 4 },
@@ -101,12 +89,6 @@ export const no_scrubs: Song = {
           ],
         },
         { chords: [{ degree: '6 7', chordName: 'F7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
@@ -123,12 +105,6 @@ export const no_scrubs: Song = {
             { degree: '5 7/7', chordName: 'D♯7/G', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
@@ -170,7 +146,6 @@ export const no_scrubs: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=FrLequ6dUdM' },
   ],

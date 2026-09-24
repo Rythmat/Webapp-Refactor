@@ -19,8 +19,8 @@ export const eight_days_a_week: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -29,8 +29,8 @@ export const eight_days_a_week: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -43,8 +43,8 @@ export const eight_days_a_week: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -101,8 +101,8 @@ export const eight_days_a_week: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -123,8 +123,8 @@ export const eight_days_a_week: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -148,7 +148,6 @@ export const eight_days_a_week: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kle2xHhRHg4' },
   ],

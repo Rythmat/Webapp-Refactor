@@ -19,34 +19,30 @@ export const dance_with_my_daughter: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 5,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 6 },
           ],
         },
-        {
-          chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },
         {
           chords: [
@@ -58,26 +54,7 @@ export const dance_with_my_daughter: Song = {
             { degree: '5 maj/7', chordName: 'D/F♯', beat: 1, duration: 6 },
           ],
         },
-        {
-          chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 5,
-      bars: [
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 6 },
-          ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },
       ],
     },
@@ -86,49 +63,54 @@ export const dance_with_my_daughter: Song = {
       label: 'Verse 2',
       bars: [
         {
-          chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },
-        {
           chords: [
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 6 },
           ],
         },
-        {
-          chords: [
-            { degree: '5 maj/7', chordName: 'D/F♯', beat: 1, duration: 6 },
-          ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      repeatCount: 3,
-      bars: [
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 6 },
-          ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      bars: [
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 6 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 maj/7', chordName: 'D/F♯', beat: 1, duration: 6 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },
+      ],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
-          chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }],
+          chords: [
+            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 6 },
+          ],
         },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },
+      ],
+    },
+    {
+      id: 'pre_chorus',
+      label: 'Pre-Chorus',
+      bars: [
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },
         {
           chords: [
@@ -143,12 +125,10 @@ export const dance_with_my_daughter: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },
         {
           chords: [
@@ -160,24 +140,20 @@ export const dance_with_my_daughter: Song = {
             { degree: '5 maj/7', chordName: 'D/F♯', beat: 1, duration: 6 },
           ],
         },
-        {
-          chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 6 },
           ],
         },
-        {
-          chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }],
-        },
+        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },
         {
@@ -187,7 +163,6 @@ export const dance_with_my_daughter: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=7q-stqFU5RA' },
   ],

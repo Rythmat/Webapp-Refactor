@@ -19,8 +19,8 @@ export const free_ride: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         { chords: [], restBars: 4 },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -29,9 +29,13 @@ export const free_ride: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -39,18 +43,8 @@ export const free_ride: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -77,8 +71,8 @@ export const free_ride: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -103,8 +97,8 @@ export const free_ride: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -113,9 +107,13 @@ export const free_ride: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -123,18 +121,8 @@ export const free_ride: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
-      bars: [
-        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -161,8 +149,8 @@ export const free_ride: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -178,8 +166,8 @@ export const free_ride: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -188,9 +176,13 @@ export const free_ride: Song = {
       ],
     },
     {
-      id: 'section_g_2',
-      label: 'Section G',
+      id: 'verse_7',
+      label: 'Verse 7',
       bars: [
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -198,18 +190,8 @@ export const free_ride: Song = {
       ],
     },
     {
-      id: 'section_n',
-      label: 'Section N',
-      bars: [
-        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -230,12 +212,6 @@ export const free_ride: Song = {
         {
           chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_p',
-      label: 'Section P',
-      bars: [
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -249,12 +225,6 @@ export const free_ride: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_i_2',
-      label: 'Section I',
-      bars: [
         {
           chords: [
             { degree: '1 maj', chordName: 'A', beat: 1, duration: 2 },
@@ -272,7 +242,6 @@ export const free_ride: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=JAFyvePcR_o' },
   ],

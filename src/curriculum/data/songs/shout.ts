@@ -19,13 +19,14 @@ export const shout: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], fermata: true }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -51,100 +52,6 @@ export const shout: Song = {
             { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [] },
-        { chords: [] },
-        { chords: [] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [] },
-        { chords: [] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -170,6 +77,94 @@ export const shout: Song = {
             { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
           ],
         },
+        { chords: [] },
+        { chords: [] },
+        { chords: [] },
+      ],
+    },
+    {
+      id: 'bridge',
+      label: 'Bridge',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [] },
+        { chords: [] },
+      ],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
+      bars: [
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse_4',
+      label: 'Verse 4',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'D min7', beat: 1, duration: 4 },
@@ -178,8 +173,8 @@ export const shout: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -199,8 +194,8 @@ export const shout: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -229,7 +224,6 @@ export const shout: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=DPVf01jXL7M' },
   ],

@@ -20,14 +20,14 @@ export const celebration: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 4,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -72,9 +72,8 @@ export const celebration: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      repeatCount: 4,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -153,7 +152,6 @@ export const celebration: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      repeatCount: 4,
       bars: [
         {
           chords: [
@@ -198,9 +196,8 @@ export const celebration: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      repeatCount: 4,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -239,8 +236,8 @@ export const celebration: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -285,7 +282,6 @@ export const celebration: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3GwjfUFyY6M' },
   ],

@@ -33,8 +33,8 @@ export const december_1963_oh_what_a_night: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -50,104 +50,6 @@ export const december_1963_oh_what_a_night: Song = {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '5 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '5 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '5 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -170,8 +72,16 @@ export const december_1963_oh_what_a_night: Song = {
       bars: [
         {
           chords: [
-            { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -179,33 +89,99 @@ export const december_1963_oh_what_a_night: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '2 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '2 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'bridge',
+      label: 'Bridge',
+      bars: [
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '2 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '2 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
@@ -237,8 +213,8 @@ export const december_1963_oh_what_a_night: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -254,12 +230,6 @@ export const december_1963_oh_what_a_night: Song = {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_k',
-      label: 'Section K',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -274,12 +244,6 @@ export const december_1963_oh_what_a_night: Song = {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -297,7 +261,6 @@ export const december_1963_oh_what_a_night: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=mTUhnIY3oRM' },
   ],

@@ -19,8 +19,8 @@ export const p_y_t_pretty_young_thing: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         {
           chords: [
@@ -45,8 +45,8 @@ export const p_y_t_pretty_young_thing: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -67,8 +67,8 @@ export const p_y_t_pretty_young_thing: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -92,8 +92,8 @@ export const p_y_t_pretty_young_thing: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -121,8 +121,8 @@ export const p_y_t_pretty_young_thing: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -154,8 +154,8 @@ export const p_y_t_pretty_young_thing: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -178,8 +178,8 @@ export const p_y_t_pretty_young_thing: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -206,8 +206,8 @@ export const p_y_t_pretty_young_thing: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         { chords: [{ degree: '♭7 6', chordName: 'A6', beat: 1, duration: 4 }] },
         {
@@ -227,12 +227,6 @@ export const p_y_t_pretty_young_thing: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      bars: [
         {
           chords: [
             { degree: '5 min7/1', chordName: 'F♯min7/B', beat: 1, duration: 4 },
@@ -248,8 +242,8 @@ export const p_y_t_pretty_young_thing: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -270,8 +264,8 @@ export const p_y_t_pretty_young_thing: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'verse_7',
+      label: 'Verse 7',
       bars: [
         {
           chords: [
@@ -295,8 +289,8 @@ export const p_y_t_pretty_young_thing: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'verse_8',
+      label: 'Verse 8',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -324,8 +318,8 @@ export const p_y_t_pretty_young_thing: Song = {
       ],
     },
     {
-      id: 'section_m',
-      label: 'Section M',
+      id: 'verse_9',
+      label: 'Verse 9',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -357,8 +351,8 @@ export const p_y_t_pretty_young_thing: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_10',
+      label: 'Verse 10',
       bars: [
         {
           chords: [
@@ -381,8 +375,8 @@ export const p_y_t_pretty_young_thing: Song = {
       ],
     },
     {
-      id: 'section_o',
-      label: 'Section O',
+      id: 'verse_11',
+      label: 'Verse 11',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -409,8 +403,8 @@ export const p_y_t_pretty_young_thing: Song = {
       ],
     },
     {
-      id: 'section_p',
-      label: 'Section P',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         { chords: [{ degree: '♭7 6', chordName: 'A6', beat: 1, duration: 4 }] },
         {
@@ -435,12 +429,6 @@ export const p_y_t_pretty_young_thing: Song = {
             { degree: '5 min7/1', chordName: 'F♯min7/B', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_g_2',
-      label: 'Section G',
-      bars: [
         {
           chords: [
             { degree: '5 min7/1', chordName: 'F♯min7/B', beat: 1, duration: 4 },
@@ -455,12 +443,6 @@ export const p_y_t_pretty_young_thing: Song = {
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_r',
-      label: 'Section R',
-      bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
         },
@@ -476,8 +458,8 @@ export const p_y_t_pretty_young_thing: Song = {
       ],
     },
     {
-      id: 'section_h_2',
-      label: 'Section H',
+      id: 'verse_12',
+      label: 'Verse 12',
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'A', beat: 1, duration: 4 }],
@@ -498,12 +480,6 @@ export const p_y_t_pretty_young_thing: Song = {
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_t',
-      label: 'Section T',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
@@ -524,12 +500,6 @@ export const p_y_t_pretty_young_thing: Song = {
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_u',
-      label: 'Section U',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
@@ -552,8 +522,8 @@ export const p_y_t_pretty_young_thing: Song = {
       ],
     },
     {
-      id: 'section_i_2',
-      label: 'Section I',
+      id: 'verse_13',
+      label: 'Verse 13',
       bars: [
         {
           chords: [
@@ -576,8 +546,8 @@ export const p_y_t_pretty_young_thing: Song = {
       ],
     },
     {
-      id: 'section_w',
-      label: 'Section W',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -597,7 +567,6 @@ export const p_y_t_pretty_young_thing: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1ZZQuj6htF4' },
   ],

@@ -19,18 +19,17 @@ export const you_gotta_be: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      bars: [{ chords: [], restBars: 8 }],
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
+      bars: [
+        { chords: [], restBars: 8 },
+        { chords: [], restBars: 8 },
+      ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      bars: [{ chords: [], restBars: 8 }],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -49,8 +48,8 @@ export const you_gotta_be: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -99,12 +98,6 @@ export const you_gotta_be: Song = {
             { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -140,8 +133,8 @@ export const you_gotta_be: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -170,7 +163,6 @@ export const you_gotta_be: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=WRUwSk9UTrA' },
   ],

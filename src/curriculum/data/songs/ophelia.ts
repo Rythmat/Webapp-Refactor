@@ -19,8 +19,8 @@ export const ophelia: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         {
           chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }],
@@ -33,8 +33,8 @@ export const ophelia: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -49,8 +49,8 @@ export const ophelia: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -66,12 +66,6 @@ export const ophelia: Song = {
             { degree: '3 7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
         { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
@@ -106,8 +100,8 @@ export const ophelia: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -115,12 +109,6 @@ export const ophelia: Song = {
         { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -131,7 +119,6 @@ export const ophelia: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=xe7y7ByOrwQ' },
   ],

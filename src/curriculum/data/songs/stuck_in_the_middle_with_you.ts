@@ -27,9 +27,13 @@ export const stuck_in_the_middle_with_you: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -37,18 +41,8 @@ export const stuck_in_the_middle_with_you: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -57,8 +51,8 @@ export const stuck_in_the_middle_with_you: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -72,8 +66,8 @@ export const stuck_in_the_middle_with_you: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -82,8 +76,8 @@ export const stuck_in_the_middle_with_you: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -92,8 +86,8 @@ export const stuck_in_the_middle_with_you: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'pre_chorus',
+      label: 'Pre-Chorus',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -102,6 +96,16 @@ export const stuck_in_the_middle_with_you: Song = {
             { degree: '4 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'chorus_3',
+      label: 'Chorus 3',
+      bars: [
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],
@@ -114,24 +118,18 @@ export const stuck_in_the_middle_with_you: Song = {
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
-      bars: [
-        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -139,18 +137,8 @@ export const stuck_in_the_middle_with_you: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_m',
-      label: 'Section M',
+      id: 'chorus_4',
+      label: 'Chorus 4',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -159,8 +147,8 @@ export const stuck_in_the_middle_with_you: Song = {
       ],
     },
     {
-      id: 'section_n',
-      label: 'Section N',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -174,8 +162,8 @@ export const stuck_in_the_middle_with_you: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -184,8 +172,8 @@ export const stuck_in_the_middle_with_you: Song = {
       ],
     },
     {
-      id: 'section_p',
-      label: 'Section P',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -196,7 +184,6 @@ export const stuck_in_the_middle_with_you: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8StG4fFWHqg' },
   ],

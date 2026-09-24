@@ -19,8 +19,8 @@ export const cisco_kid: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         { chords: [] },
         {
@@ -32,12 +32,6 @@ export const cisco_kid: Song = {
           chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -61,9 +55,8 @@ export const cisco_kid: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 6,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -88,8 +81,8 @@ export const cisco_kid: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
@@ -107,33 +100,6 @@ export const cisco_kid: Song = {
         },
         {
           chords: [{ degree: '7 maj', chordName: 'C♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 4,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
         },
         {
           chords: [
@@ -147,6 +113,32 @@ export const cisco_kid: Song = {
       label: 'Verse 2',
       bars: [
         {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      bars: [
+        {
           chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         {
@@ -171,8 +163,8 @@ export const cisco_kid: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -197,7 +189,6 @@ export const cisco_kid: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_86iwnPKzBY' },
   ],

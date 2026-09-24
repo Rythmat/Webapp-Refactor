@@ -21,11 +21,12 @@ export const steal_my_kisses: Song = {
     {
       id: 'intro',
       label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -40,6 +41,7 @@ export const steal_my_kisses: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
+      instrumental: true,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
@@ -79,13 +81,14 @@ export const steal_my_kisses: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -98,7 +101,6 @@ export const steal_my_kisses: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=NL6dIt0CHe0' },
   ],

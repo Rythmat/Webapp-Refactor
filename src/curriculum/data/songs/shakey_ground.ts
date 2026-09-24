@@ -19,8 +19,9 @@ export const shakey_ground: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
@@ -51,12 +52,6 @@ export const shakey_ground: Song = {
             { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
         {
           chords: [
             { degree: '1 7', chordName: 'E7', beat: 1, duration: 2 },
@@ -81,12 +76,6 @@ export const shakey_ground: Song = {
             { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
         {
           chords: [
             { degree: '1 7', chordName: 'E7', beat: 1, duration: 2 },
@@ -111,13 +100,6 @@ export const shakey_ground: Song = {
             { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      repeatCount: 3,
-      bars: [
         {
           chords: [
             { degree: '1 7', chordName: 'E7', beat: 1, duration: 2 },
@@ -142,12 +124,6 @@ export const shakey_ground: Song = {
             { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
         {
           chords: [
             { degree: '1 7', chordName: 'E7', beat: 1, duration: 2 },
@@ -172,12 +148,6 @@ export const shakey_ground: Song = {
             { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
         {
           chords: [
             { degree: '1 7', chordName: 'E7', beat: 1, duration: 2 },
@@ -205,7 +175,6 @@ export const shakey_ground: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=W_UxlayuJpk' },
   ],

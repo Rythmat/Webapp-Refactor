@@ -20,14 +20,14 @@ export const the_love_shack: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 6 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 5,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
@@ -44,8 +44,8 @@ export const the_love_shack: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
@@ -54,25 +54,6 @@ export const the_love_shack: Song = {
         { chords: [{ degree: '4 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 4,
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '5 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '5 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
         },
       ],
     },
@@ -92,11 +73,23 @@ export const the_love_shack: Song = {
             { degree: '5 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
@@ -109,9 +102,8 @@ export const the_love_shack: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      repeatCount: 9,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
@@ -128,8 +120,8 @@ export const the_love_shack: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
@@ -142,9 +134,8 @@ export const the_love_shack: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
-      repeatCount: 7,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
@@ -159,12 +150,6 @@ export const the_love_shack: Song = {
           ],
         },
         { chords: [], fermata: true },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      bars: [
         { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -184,7 +169,6 @@ export const the_love_shack: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=9SOryJvTAGs' },
   ],

@@ -19,14 +19,14 @@ export const raise_your_glass: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 4,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -35,9 +35,8 @@ export const raise_your_glass: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      repeatCount: 4,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -51,23 +50,21 @@ export const raise_your_glass: Song = {
         },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 4,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
-      repeatCount: 4,
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -84,15 +81,11 @@ export const raise_your_glass: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [{ chords: [], restBars: 13 }],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      repeatCount: 6,
+      id: 'outro',
+      label: 'Outro',
+      instrumental: true,
       bars: [
+        { chords: [], restBars: 13 },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -109,7 +102,6 @@ export const raise_your_glass: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=XjVNlG5cZyQ' },
   ],

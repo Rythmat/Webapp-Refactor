@@ -19,17 +19,11 @@ export const will_it_go_round_in_circles: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [] },
         { chords: [{ degree: '1 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
         { chords: [{ degree: '1 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
@@ -45,12 +39,6 @@ export const will_it_go_round_in_circles: Song = {
             { degree: '5 7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
         { chords: [{ degree: '1 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
@@ -69,8 +57,8 @@ export const will_it_go_round_in_circles: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -99,8 +87,8 @@ export const will_it_go_round_in_circles: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -128,8 +116,8 @@ export const will_it_go_round_in_circles: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -158,8 +146,8 @@ export const will_it_go_round_in_circles: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -187,7 +175,6 @@ export const will_it_go_round_in_circles: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=QDtYo2IPTsw' },
   ],

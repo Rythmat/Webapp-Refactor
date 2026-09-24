@@ -19,8 +19,8 @@ export const mony_mony: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -37,8 +37,8 @@ export const mony_mony: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -55,12 +55,6 @@ export const mony_mony: Song = {
             { degree: '1 maj', chordName: 'F♯', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
@@ -76,12 +70,6 @@ export const mony_mony: Song = {
             { degree: '1 maj', chordName: 'F♯', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
@@ -96,34 +84,6 @@ export const mony_mony: Song = {
             { degree: '4 maj/1', chordName: 'B/F♯', beat: 1, duration: 2 },
             { degree: '1 maj', chordName: 'F♯', beat: 3, duration: 2 },
           ],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        {
-          chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -137,27 +97,12 @@ export const mony_mony: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
-        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'pre_chorus',
+      label: 'Pre-Chorus',
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
@@ -168,14 +113,57 @@ export const mony_mony: Song = {
         {
           chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
+      ],
+    },
+    {
+      id: 'chorus_1',
+      label: 'Chorus 1',
+      bars: [
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
+      bars: [
+        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse_4',
+      label: 'Verse 4',
+      bars: [
+        {
+          chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         { chords: [], restBars: 4 },
         {
@@ -188,12 +176,6 @@ export const mony_mony: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_k',
-      label: 'Section K',
-      bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
@@ -207,12 +189,6 @@ export const mony_mony: Song = {
           chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
         { chords: [], restBars: 1 },
-      ],
-    },
-    {
-      id: 'section_f_2',
-      label: 'Section F',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
@@ -224,8 +200,8 @@ export const mony_mony: Song = {
       ],
     },
     {
-      id: 'section_m',
-      label: 'Section M',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -234,8 +210,8 @@ export const mony_mony: Song = {
       ],
     },
     {
-      id: 'section_n',
-      label: 'Section N',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
@@ -252,8 +228,8 @@ export const mony_mony: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_7',
+      label: 'Verse 7',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -273,8 +249,8 @@ export const mony_mony: Song = {
       ],
     },
     {
-      id: 'section_p',
-      label: 'Section P',
+      id: 'verse_8',
+      label: 'Verse 8',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -286,8 +262,8 @@ export const mony_mony: Song = {
       ],
     },
     {
-      id: 'section_q',
-      label: 'Section Q',
+      id: 'verse_9',
+      label: 'Verse 9',
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
@@ -304,8 +280,8 @@ export const mony_mony: Song = {
       ],
     },
     {
-      id: 'section_h_2',
-      label: 'Section H',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -322,8 +298,8 @@ export const mony_mony: Song = {
       ],
     },
     {
-      id: 'section_s',
-      label: 'Section S',
+      id: 'verse_10',
+      label: 'Verse 10',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -332,8 +308,8 @@ export const mony_mony: Song = {
       ],
     },
     {
-      id: 'section_t',
-      label: 'Section T',
+      id: 'verse_11',
+      label: 'Verse 11',
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
@@ -350,7 +326,6 @@ export const mony_mony: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=sYYAv-QW38Q' },
   ],

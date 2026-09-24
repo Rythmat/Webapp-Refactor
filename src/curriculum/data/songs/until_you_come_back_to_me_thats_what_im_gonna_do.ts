@@ -36,9 +36,14 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
@@ -47,19 +52,8 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -81,8 +75,8 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -106,12 +100,6 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
             { degree: '1 maj/2', chordName: 'G/A', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
         {
           chords: [
             { degree: '5 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -125,12 +113,6 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
         { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -158,8 +140,8 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -181,8 +163,8 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -197,12 +179,6 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -219,8 +195,8 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
       ],
     },
     {
-      id: 'section_g_2',
-      label: 'Section G',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -230,7 +206,6 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Nbokg0KM-n8' },
   ],

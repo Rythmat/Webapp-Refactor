@@ -21,13 +21,49 @@ export const the_seed_2_0: Song = {
     {
       id: 'intro',
       label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 9 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 4,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -67,50 +103,8 @@ export const the_seed_2_0: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        {
-          chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -138,72 +132,6 @@ export const the_seed_2_0: Song = {
         {
           chords: [
             { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -213,6 +141,72 @@ export const the_seed_2_0: Song = {
       label: 'Verse 2',
       bars: [
         {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
+      bars: [
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'verse_4',
+      label: 'Verse 4',
+      bars: [
+        {
           chords: [
             { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
@@ -263,10 +257,45 @@ export const the_seed_2_0: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      repeatCount: 5,
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -306,50 +335,8 @@ export const the_seed_2_0: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
-      bars: [
-        {
-          chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -382,8 +369,8 @@ export const the_seed_2_0: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
@@ -416,8 +403,8 @@ export const the_seed_2_0: Song = {
       ],
     },
     {
-      id: 'section_l',
-      label: 'Section L',
+      id: 'verse_7',
+      label: 'Verse 7',
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
@@ -448,8 +435,8 @@ export const the_seed_2_0: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'verse_8',
+      label: 'Verse 8',
       bars: [
         {
           chords: [
@@ -502,8 +489,8 @@ export const the_seed_2_0: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'verse_9',
+      label: 'Verse 9',
       bars: [
         { chords: [{ degree: '2 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -515,12 +502,6 @@ export const the_seed_2_0: Song = {
           ],
           restBars: 3,
         },
-      ],
-    },
-    {
-      id: 'section_o',
-      label: 'Section O',
-      bars: [
         {
           chords: [
             { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -544,8 +525,8 @@ export const the_seed_2_0: Song = {
       ],
     },
     {
-      id: 'section_j_2',
-      label: 'Section J',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -579,12 +560,6 @@ export const the_seed_2_0: Song = {
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_q',
-      label: 'Section Q',
-      bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
@@ -614,8 +589,8 @@ export const the_seed_2_0: Song = {
       ],
     },
     {
-      id: 'section_r',
-      label: 'Section R',
+      id: 'verse_10',
+      label: 'Verse 10',
       bars: [
         {
           chords: [
@@ -662,8 +637,8 @@ export const the_seed_2_0: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'verse_11',
+      label: 'Verse 11',
       bars: [
         {
           chords: [
@@ -704,8 +679,8 @@ export const the_seed_2_0: Song = {
       ],
     },
     {
-      id: 'section_t',
-      label: 'Section T',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -752,7 +727,6 @@ export const the_seed_2_0: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ojC0mg2hJCc' },
   ],

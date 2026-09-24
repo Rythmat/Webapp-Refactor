@@ -19,8 +19,8 @@ export const uptown_girl: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -39,12 +39,6 @@ export const uptown_girl: Song = {
             { degree: '5 7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -62,12 +56,6 @@ export const uptown_girl: Song = {
             { degree: '5 7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -105,12 +93,6 @@ export const uptown_girl: Song = {
           ],
         },
         { chords: [{ degree: '♭3 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
@@ -125,12 +107,6 @@ export const uptown_girl: Song = {
           ],
         },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -166,12 +142,6 @@ export const uptown_girl: Song = {
             { degree: '5 7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -192,8 +162,8 @@ export const uptown_girl: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -210,12 +180,6 @@ export const uptown_girl: Song = {
             { degree: '4 7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
-      bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
@@ -229,8 +193,8 @@ export const uptown_girl: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -252,7 +216,6 @@ export const uptown_girl: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hCuMWrfXG4E' },
   ],

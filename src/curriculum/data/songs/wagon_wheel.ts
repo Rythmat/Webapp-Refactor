@@ -31,12 +31,6 @@ export const wagon_wheel: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -44,7 +38,6 @@ export const wagon_wheel: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1gX1EP6mG-E' },
   ],

@@ -19,8 +19,8 @@ export const you_can_call_me_al: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -37,13 +37,14 @@ export const you_can_call_me_al: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'interlude_1',
+      label: 'Interlude 1',
+      instrumental: true,
       bars: [{ chords: [], restBars: 2 }],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -60,8 +61,9 @@ export const you_can_call_me_al: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'interlude_2',
+      label: 'Interlude 2',
+      instrumental: true,
       bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
@@ -70,8 +72,8 @@ export const you_can_call_me_al: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -88,7 +90,6 @@ export const you_can_call_me_al: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=uq-gYOrU8bA' },
   ],

@@ -19,8 +19,9 @@ export const any_man_of_mine: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [
         { chords: [] },
         {
@@ -40,16 +41,12 @@ export const any_man_of_mine: Song = {
           chords: [{ degree: '5 maj', chordName: 'E♭', beat: 1, duration: 4 }],
           restBars: 8,
         },
+        { chords: [], restBars: 8 },
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      bars: [{ chords: [], restBars: 8 }],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -78,8 +75,8 @@ export const any_man_of_mine: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'pre_chorus_1',
+      label: 'Pre-Chorus 1',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -99,12 +96,6 @@ export const any_man_of_mine: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
@@ -123,8 +114,8 @@ export const any_man_of_mine: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -144,12 +135,6 @@ export const any_man_of_mine: Song = {
         {
           chords: [{ degree: '5 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -171,8 +156,9 @@ export const any_man_of_mine: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -186,12 +172,6 @@ export const any_man_of_mine: Song = {
         {
           chords: [{ degree: '5 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -231,8 +211,8 @@ export const any_man_of_mine: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -252,12 +232,6 @@ export const any_man_of_mine: Song = {
         {
           chords: [{ degree: '2 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_e_2',
-      label: 'Section E',
-      bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
@@ -272,12 +246,6 @@ export const any_man_of_mine: Song = {
         },
         { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_m',
-      label: 'Section M',
-      bars: [
         {
           chords: [{ degree: '2 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
@@ -299,8 +267,8 @@ export const any_man_of_mine: Song = {
       ],
     },
     {
-      id: 'section_n',
-      label: 'Section N',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -311,12 +279,6 @@ export const any_man_of_mine: Song = {
         { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [{ degree: '2 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
@@ -330,7 +292,6 @@ export const any_man_of_mine: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8N2k-gv6xNE' },
   ],

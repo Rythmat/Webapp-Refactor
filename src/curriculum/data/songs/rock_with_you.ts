@@ -19,8 +19,8 @@ export const rock_with_you: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [], restBars: 1 },
         {
@@ -39,12 +39,6 @@ export const rock_with_you: Song = {
         {
           chords: [{ degree: '5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
@@ -62,8 +56,8 @@ export const rock_with_you: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -90,12 +84,6 @@ export const rock_with_you: Song = {
             { degree: '4 maj/5', chordName: 'A♭/B♭', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
@@ -121,12 +109,6 @@ export const rock_with_you: Song = {
             { degree: '4 maj/5', chordName: 'A♭/B♭', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -149,8 +131,8 @@ export const rock_with_you: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -173,8 +155,8 @@ export const rock_with_you: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -200,8 +182,8 @@ export const rock_with_you: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -222,12 +204,6 @@ export const rock_with_you: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
         {
           chords: [
             { degree: '5 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
@@ -240,12 +216,6 @@ export const rock_with_you: Song = {
         },
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
-      bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -263,8 +233,8 @@ export const rock_with_you: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -290,8 +260,8 @@ export const rock_with_you: Song = {
       ],
     },
     {
-      id: 'section_l',
-      label: 'Section L',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [
@@ -314,12 +284,6 @@ export const rock_with_you: Song = {
             { degree: '6 maj/7', chordName: 'C/D', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_f_2',
-      label: 'Section F',
-      bars: [
         {
           chords: [
             { degree: '♯1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -341,12 +305,6 @@ export const rock_with_you: Song = {
         {
           chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_n',
-      label: 'Section N',
-      bars: [
         {
           chords: [
             { degree: '♯1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -369,7 +327,6 @@ export const rock_with_you: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=5X-Mrc2l1d0' },
   ],

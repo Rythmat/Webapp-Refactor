@@ -19,8 +19,8 @@ export const uptown_funk: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -37,13 +37,14 @@ export const uptown_funk: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -57,12 +58,6 @@ export const uptown_funk: Song = {
           ],
         },
         { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -92,12 +87,6 @@ export const uptown_funk: Song = {
           ],
         },
         { chords: [], restBars: 3 },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
         },
@@ -115,8 +104,8 @@ export const uptown_funk: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -133,56 +122,8 @@ export const uptown_funk: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      repeatCount: 5,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f_2',
-      label: 'Section F',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -200,8 +141,8 @@ export const uptown_funk: Song = {
       ],
     },
     {
-      id: 'section_l',
-      label: 'Section L',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
@@ -210,26 +151,8 @@ export const uptown_funk: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_n',
-      label: 'Section N',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -246,9 +169,62 @@ export const uptown_funk: Song = {
       ],
     },
     {
-      id: 'section_h_2',
-      label: 'Section H',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse_6',
+      label: 'Verse 6',
+      bars: [
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'D7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse_7',
+      label: 'Verse 7',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -264,8 +240,8 @@ export const uptown_funk: Song = {
       ],
     },
     {
-      id: 'section_p',
-      label: 'Section P',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -282,7 +258,6 @@ export const uptown_funk: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=OPf0YbXqDm0' },
   ],

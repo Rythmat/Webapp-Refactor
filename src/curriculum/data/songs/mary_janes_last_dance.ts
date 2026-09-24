@@ -19,9 +19,8 @@ export const mary_janes_last_dance: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 6,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -49,8 +48,8 @@ export const mary_janes_last_dance: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -66,36 +65,6 @@ export const mary_janes_last_dance: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 3,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
         },
       ],
     },
@@ -105,6 +74,35 @@ export const mary_janes_last_dance: Song = {
       bars: [
         {
           chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      bars: [
+        {
+          chords: [
             { degree: '5 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
@@ -121,9 +119,8 @@ export const mary_janes_last_dance: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      repeatCount: 4,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -151,8 +148,8 @@ export const mary_janes_last_dance: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         {
           chords: [
@@ -172,8 +169,8 @@ export const mary_janes_last_dance: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -201,7 +198,6 @@ export const mary_janes_last_dance: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aowSGxim_O8' },
   ],

@@ -19,8 +19,8 @@ export const where_is_the_love: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -35,8 +35,8 @@ export const where_is_the_love: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -55,8 +55,8 @@ export const where_is_the_love: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'pre_chorus',
+      label: 'Pre-Chorus',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -66,6 +66,26 @@ export const where_is_the_love: Song = {
         },
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 maj/7', chordName: 'C/E', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -75,18 +95,24 @@ export const where_is_the_love: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      repeatCount: 4,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '5 maj/7', chordName: 'C/E', beat: 1, duration: 4 },
-          ],
-        },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+          restBars: 7,
         },
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -113,7 +139,6 @@ export const where_is_the_love: Song = {
           chords: [
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
-          restBars: 7,
         },
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -121,40 +146,8 @@ export const where_is_the_love: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -173,7 +166,6 @@ export const where_is_the_love: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=WpYeekQkAdc' },
   ],

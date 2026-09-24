@@ -19,8 +19,8 @@ export const make_you_feel_my_love: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -39,8 +39,8 @@ export const make_you_feel_my_love: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -62,8 +62,8 @@ export const make_you_feel_my_love: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -82,8 +82,8 @@ export const make_you_feel_my_love: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -105,8 +105,8 @@ export const make_you_feel_my_love: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -125,8 +125,8 @@ export const make_you_feel_my_love: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         {
           chords: [
@@ -166,12 +166,6 @@ export const make_you_feel_my_love: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
@@ -183,8 +177,8 @@ export const make_you_feel_my_love: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -203,8 +197,8 @@ export const make_you_feel_my_love: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -236,7 +230,6 @@ export const make_you_feel_my_love: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=0put0_a--Ng' },
   ],

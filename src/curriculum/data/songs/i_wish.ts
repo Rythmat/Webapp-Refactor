@@ -19,10 +19,57 @@ export const i_wish: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
-      repeatCount: 4,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
@@ -38,62 +85,40 @@ export const i_wish: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
+        { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '4 min7', chordName: 'A♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
+        { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -113,57 +138,6 @@ export const i_wish: Song = {
       id: 'bridge',
       label: 'Bridge',
       bars: [
-        { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'A♭min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
-        { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      repeatCount: 4,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e_2',
-      label: 'Section E',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
@@ -176,9 +150,45 @@ export const i_wish: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
@@ -194,62 +204,8 @@ export const i_wish: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g_2',
-      label: 'Section G',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_m',
-      label: 'Section M',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 7', chordName: 'C7', beat: 1, duration: 4 }] },
@@ -266,8 +222,8 @@ export const i_wish: Song = {
       ],
     },
     {
-      id: 'section_o',
-      label: 'Section O',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '5 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 7', chordName: 'C7', beat: 1, duration: 4 }] },
@@ -280,8 +236,8 @@ export const i_wish: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [
@@ -298,7 +254,6 @@ export const i_wish: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=B6cqrjlqjuM' },
   ],

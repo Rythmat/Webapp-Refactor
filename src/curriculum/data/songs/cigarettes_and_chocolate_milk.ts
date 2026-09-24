@@ -19,9 +19,33 @@ export const cigarettes_and_chocolate_milk: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
+          ],
+        },
         {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
@@ -49,38 +73,8 @@ export const cigarettes_and_chocolate_milk: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'B', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -114,8 +108,8 @@ export const cigarettes_and_chocolate_milk: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'pre_chorus',
+      label: 'Pre-Chorus',
       bars: [
         {
           chords: [
@@ -144,8 +138,8 @@ export const cigarettes_and_chocolate_milk: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -206,12 +200,6 @@ export const cigarettes_and_chocolate_milk: Song = {
             { degree: '5 7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
@@ -241,12 +229,6 @@ export const cigarettes_and_chocolate_milk: Song = {
             { degree: '5 7', chordName: 'B7b9', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
@@ -265,12 +247,6 @@ export const cigarettes_and_chocolate_milk: Song = {
           ],
         },
         { chords: [] },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      bars: [
         {
           chords: [
             { degree: '♭7 7', chordName: 'D7', beat: 1, duration: 2 },
@@ -292,8 +268,8 @@ export const cigarettes_and_chocolate_milk: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -322,8 +298,8 @@ export const cigarettes_and_chocolate_milk: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -345,12 +321,6 @@ export const cigarettes_and_chocolate_milk: Song = {
             { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_l',
-      label: 'Section L',
-      bars: [
         {
           chords: [
             { degree: '♭7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -380,8 +350,8 @@ export const cigarettes_and_chocolate_milk: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -419,12 +389,6 @@ export const cigarettes_and_chocolate_milk: Song = {
             { degree: '2 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_n',
-      label: 'Section N',
-      bars: [
         {
           chords: [
             { degree: '5 maj/2', chordName: 'B/F♯', beat: 1, duration: 2 },
@@ -459,8 +423,8 @@ export const cigarettes_and_chocolate_milk: Song = {
       ],
     },
     {
-      id: 'section_g_2',
-      label: 'Section G',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -489,8 +453,8 @@ export const cigarettes_and_chocolate_milk: Song = {
       ],
     },
     {
-      id: 'section_p',
-      label: 'Section P',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -530,7 +494,6 @@ export const cigarettes_and_chocolate_milk: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hll_pO59ksc' },
   ],

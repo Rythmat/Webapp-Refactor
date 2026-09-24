@@ -30,9 +30,8 @@ export const shining_star: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 4,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -41,8 +40,8 @@ export const shining_star: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '♭7 7', chordName: 'D7', beat: 1, duration: 4 }] },
@@ -67,12 +66,6 @@ export const shining_star: Song = {
             { degree: '4 7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
         {
           chords: [
             { degree: '4 7', chordName: 'A7', beat: 1, duration: 1 },
@@ -98,7 +91,6 @@ export const shining_star: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      repeatCount: 6,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -107,9 +99,8 @@ export const shining_star: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
-      repeatCount: 4,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '♭7 7', chordName: 'D7', beat: 1, duration: 4 }] },
@@ -122,7 +113,6 @@ export const shining_star: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Zu9a29UR2dU' },
   ],

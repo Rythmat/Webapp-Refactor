@@ -21,42 +21,15 @@ export const juice: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      bars: [{ chords: [], restBars: 8 }],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      bars: [{ chords: [], restBars: 8 }],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
+      instrumental: true,
       bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '♭3 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [], restBars: 8 },
+        { chords: [], restBars: 8 },
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -76,12 +49,8 @@ export const juice: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -106,34 +75,12 @@ export const juice: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '♭3 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -160,12 +107,46 @@ export const juice: Song = {
         },
         { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '♭3 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭3 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '♭3 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭3 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -189,14 +170,35 @@ export const juice: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus',
+      label: 'Chorus',
+      instrumental: true,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '♭3 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭3 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -220,34 +222,8 @@ export const juice: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '♭3 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -276,7 +252,6 @@ export const juice: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=XaCrQL_8eMY' },
   ],

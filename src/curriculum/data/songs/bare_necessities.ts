@@ -20,8 +20,8 @@ export const bare_necessities: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -38,8 +38,8 @@ export const bare_necessities: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -63,8 +63,9 @@ export const bare_necessities: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -97,8 +98,8 @@ export const bare_necessities: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -126,8 +127,8 @@ export const bare_necessities: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -156,7 +157,6 @@ export const bare_necessities: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6BH-Rxd-NBo' },
   ],

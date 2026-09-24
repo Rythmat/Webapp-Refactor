@@ -19,8 +19,8 @@ export const get_back: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -39,9 +39,8 @@ export const get_back: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 4,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -50,9 +49,8 @@ export const get_back: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      repeatCount: 3,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -67,8 +65,8 @@ export const get_back: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -82,9 +80,8 @@ export const get_back: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 4,
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -93,9 +90,8 @@ export const get_back: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
-      repeatCount: 5,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -110,8 +106,8 @@ export const get_back: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -126,7 +122,6 @@ export const get_back: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IKJqecxswCA' },
   ],

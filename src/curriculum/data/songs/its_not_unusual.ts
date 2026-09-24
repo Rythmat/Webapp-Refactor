@@ -19,15 +19,11 @@ export const its_not_unusual: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -38,12 +34,8 @@ export const its_not_unusual: Song = {
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -57,27 +49,19 @@ export const its_not_unusual: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -91,8 +75,8 @@ export const its_not_unusual: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -116,9 +100,7 @@ export const its_not_unusual: Song = {
         },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -128,27 +110,19 @@ export const its_not_unusual: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -159,34 +133,6 @@ export const its_not_unusual: Song = {
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -194,10 +140,14 @@ export const its_not_unusual: Song = {
       label: 'Bridge',
       bars: [
         {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -211,22 +161,30 @@ export const its_not_unusual: Song = {
         },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
         },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -257,27 +215,19 @@ export const its_not_unusual: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -287,27 +237,19 @@ export const its_not_unusual: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -321,8 +263,8 @@ export const its_not_unusual: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'verse_7',
+      label: 'Verse 7',
       bars: [
         {
           chords: [
@@ -346,9 +288,7 @@ export const its_not_unusual: Song = {
         },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -362,8 +302,8 @@ export const its_not_unusual: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -408,7 +348,6 @@ export const its_not_unusual: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=k-HdGnzYdFQ' },
   ],

@@ -19,18 +19,20 @@ export const chicken_fried: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 5 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'chorus_1',
+      label: 'Chorus 1',
+      instrumental: true,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [] },
         {
@@ -55,8 +57,8 @@ export const chicken_fried: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -77,8 +79,8 @@ export const chicken_fried: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         { chords: [] },
         {
@@ -105,9 +107,8 @@ export const chicken_fried: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      repeatCount: 4,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [] },
         {
@@ -132,8 +133,8 @@ export const chicken_fried: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'pre_chorus',
+      label: 'Pre-Chorus',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -158,14 +159,14 @@ export const chicken_fried: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      instrumental: true,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      repeatCount: 4,
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         { chords: [] },
         {
@@ -190,14 +191,14 @@ export const chicken_fried: Song = {
       ],
     },
     {
-      id: 'section_h_2',
-      label: 'Section H',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [{ chords: [], restBars: 16 }],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
-      repeatCount: 4,
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         { chords: [] },
         {
@@ -222,8 +223,8 @@ export const chicken_fried: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -275,7 +276,6 @@ export const chicken_fried: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=e4ujS1er1r0' },
   ],

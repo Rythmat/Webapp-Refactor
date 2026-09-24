@@ -21,6 +21,7 @@ export const seen_and_not_seen: Song = {
     {
       id: 'intro',
       label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
@@ -51,12 +52,6 @@ export const seen_and_not_seen: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -84,7 +79,6 @@ export const seen_and_not_seen: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=PH5JvU19_YQ' },
   ],

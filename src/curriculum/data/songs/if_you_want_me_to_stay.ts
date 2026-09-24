@@ -20,8 +20,8 @@ export const if_you_want_me_to_stay: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse',
+      label: 'Verse',
       bars: [
         { chords: [], restBars: 1 },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -40,12 +40,6 @@ export const if_you_want_me_to_stay: Song = {
           chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
@@ -69,8 +63,8 @@ export const if_you_want_me_to_stay: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -96,7 +90,6 @@ export const if_you_want_me_to_stay: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=gZFabOuF4Ps' },
   ],

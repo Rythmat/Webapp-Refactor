@@ -21,12 +21,37 @@ export const mad_world: Song = {
     {
       id: 'intro',
       label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -54,19 +79,13 @@ export const mad_world: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
@@ -74,11 +93,17 @@ export const mad_world: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
+        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
         },
+        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'E', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
@@ -111,6 +136,8 @@ export const mad_world: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [], restBars: 2 },
       ],
     },
     {
@@ -122,38 +149,6 @@ export const mad_world: Song = {
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [], restBars: 2 },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
         {
           chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
@@ -176,8 +171,8 @@ export const mad_world: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -203,12 +198,6 @@ export const mad_world: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -239,7 +228,6 @@ export const mad_world: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=u1ZvPSpLxCg' },
   ],

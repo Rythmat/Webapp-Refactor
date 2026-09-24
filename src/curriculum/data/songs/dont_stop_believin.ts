@@ -43,35 +43,29 @@ export const dontStopBelievin: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '5 maj/7', chordName: 'B/D♯', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '5 maj/7', chordName: 'B/D♯', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
       id: 'verse_1',
       label: 'Verse 1',
       bars: [
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 maj/7', chordName: 'B/D♯', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 maj/7', chordName: 'B/D♯', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '6 min', chordName: 'C♯m', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }],
           repeatStart: true,
@@ -101,8 +95,8 @@ export const dontStopBelievin: Song = {
       ],
     },
     {
-      id: 'pre_chorus',
-      label: 'Pre-Chorus 1',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -111,8 +105,8 @@ export const dontStopBelievin: Song = {
       ],
     },
     {
-      id: 'chorus_1',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -132,8 +126,8 @@ export const dontStopBelievin: Song = {
       ],
     },
     {
-      id: 'interlude',
-      label: 'Interlude',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -149,7 +143,7 @@ export const dontStopBelievin: Song = {
     },
     {
       id: 'verse_3',
-      label: 'Verse 2',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -174,8 +168,8 @@ export const dontStopBelievin: Song = {
       ],
     },
     {
-      id: 'pre_chorus_2',
-      label: 'Pre-Chorus 2',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -184,9 +178,8 @@ export const dontStopBelievin: Song = {
       ],
     },
     {
-      id: 'chorus_final',
-      label: 'Final Chorus',
-      repeatCount: 2,
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -208,7 +201,6 @@ export const dontStopBelievin: Song = {
     {
       id: 'outro',
       label: 'Outro',
-      repeatCount: 4,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },

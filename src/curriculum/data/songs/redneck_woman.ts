@@ -19,8 +19,8 @@ export const redneck_woman: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -37,8 +37,8 @@ export const redneck_woman: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -59,8 +59,8 @@ export const redneck_woman: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -70,99 +70,23 @@ export const redneck_woman: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '2 5', chordName: 'G♯5', beat: 1, duration: 1 },
-            { degree: '♭3 5', chordName: 'A5', beat: 2, duration: 1 },
-            { degree: '3 5', chordName: 'A♯5', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
-        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
-        { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'bridge',
       label: 'Bridge',
       bars: [
+        { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 maj', chordName: 'F♯', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'B', beat: 3, duration: 2 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
         {
-          chords: [
-            { degree: '1 maj', chordName: 'F♯', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'B', beat: 3, duration: 2 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
         {
-          chords: [
-            { degree: '2 min7', chordName: 'G♯min7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C♯7', beat: 3, duration: 2 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -189,8 +113,8 @@ export const redneck_woman: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -203,8 +127,8 @@ export const redneck_woman: Song = {
       ],
     },
     {
-      id: 'section_l',
-      label: 'Section L',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
@@ -213,8 +137,78 @@ export const redneck_woman: Song = {
       ],
     },
     {
-      id: 'section_m',
-      label: 'Section M',
+      id: 'verse_4',
+      label: 'Verse 4',
+      bars: [
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F♯', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'B', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F♯', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'B', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'G♯min7', beat: 1, duration: 2 },
+            { degree: '5 7', chordName: 'C♯7', beat: 3, duration: 2 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'verse_5',
+      label: 'Verse 5',
+      bars: [
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '2 5', chordName: 'G♯5', beat: 1, duration: 1 },
+            { degree: '♭3 5', chordName: 'A5', beat: 2, duration: 1 },
+            { degree: '3 5', chordName: 'A♯5', beat: 3, duration: 2 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'chorus_3',
+      label: 'Chorus 3',
+      bars: [
+        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'verse_6',
+      label: 'Verse 6',
+      bars: [
+        { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -229,7 +223,6 @@ export const redneck_woman: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=82dDnv9zeLs' },
   ],

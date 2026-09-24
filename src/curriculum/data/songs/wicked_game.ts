@@ -40,12 +40,6 @@ export const wicked_game: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
@@ -61,7 +55,6 @@ export const wicked_game: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=jd-qI62gNJM' },
   ],

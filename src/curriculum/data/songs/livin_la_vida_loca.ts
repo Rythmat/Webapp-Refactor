@@ -42,13 +42,6 @@ export const livin_la_vida_loca: Song = {
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 5,
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -72,8 +65,8 @@ export const livin_la_vida_loca: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -93,87 +86,6 @@ export const livin_la_vida_loca: Song = {
         {
           chords: [
             { degree: '5 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
-          chords: [
-            { degree: '5 7', chordName: 'G♯7sus', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 7', chordName: 'G♯7sus', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 4,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -181,7 +93,86 @@ export const livin_la_vida_loca: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      repeatCount: 4,
+      bars: [
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
+      bars: [
+        {
+          chords: [
+            { degree: '5 7', chordName: 'G♯7sus', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 7', chordName: 'G♯7sus', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'verse_4',
+      label: 'Verse 4',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'chorus_1',
+      label: 'Chorus 1',
+      bars: [
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -206,8 +197,8 @@ export const livin_la_vida_loca: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [
@@ -232,8 +223,8 @@ export const livin_la_vida_loca: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'verse_7',
+      label: 'Verse 7',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
@@ -250,8 +241,8 @@ export const livin_la_vida_loca: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'verse_8',
+      label: 'Verse 8',
       bars: [
         {
           chords: [
@@ -266,9 +257,8 @@ export const livin_la_vida_loca: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      repeatCount: 4,
+      id: 'verse_9',
+      label: 'Verse 9',
       bars: [
         {
           chords: [
@@ -291,8 +281,8 @@ export const livin_la_vida_loca: Song = {
       ],
     },
     {
-      id: 'section_m',
-      label: 'Section M',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
@@ -313,8 +303,8 @@ export const livin_la_vida_loca: Song = {
       ],
     },
     {
-      id: 'section_g_2',
-      label: 'Section G',
+      id: 'verse_10',
+      label: 'Verse 10',
       bars: [
         {
           chords: [
@@ -337,8 +327,8 @@ export const livin_la_vida_loca: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'verse_11',
+      label: 'Verse 11',
       bars: [
         {
           chords: [
@@ -363,8 +353,8 @@ export const livin_la_vida_loca: Song = {
       ],
     },
     {
-      id: 'section_p',
-      label: 'Section P',
+      id: 'verse_12',
+      label: 'Verse 12',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
@@ -381,8 +371,8 @@ export const livin_la_vida_loca: Song = {
       ],
     },
     {
-      id: 'section_q',
-      label: 'Section Q',
+      id: 'verse_13',
+      label: 'Verse 13',
       bars: [
         {
           chords: [
@@ -397,9 +387,8 @@ export const livin_la_vida_loca: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
-      repeatCount: 8,
+      id: 'verse_14',
+      label: 'Verse 14',
       bars: [
         {
           chords: [
@@ -422,8 +411,8 @@ export const livin_la_vida_loca: Song = {
       ],
     },
     {
-      id: 'section_s',
-      label: 'Section S',
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
@@ -444,9 +433,8 @@ export const livin_la_vida_loca: Song = {
       ],
     },
     {
-      id: 'section_j_2',
-      label: 'Section J',
-      repeatCount: 4,
+      id: 'verse_15',
+      label: 'Verse 15',
       bars: [
         {
           chords: [
@@ -469,8 +457,8 @@ export const livin_la_vida_loca: Song = {
       ],
     },
     {
-      id: 'section_u',
-      label: 'Section U',
+      id: 'chorus_4',
+      label: 'Chorus 4',
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
@@ -491,7 +479,6 @@ export const livin_la_vida_loca: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=p47fEXGabaY' },
   ],

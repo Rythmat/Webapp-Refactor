@@ -19,9 +19,27 @@ export const village_ghetto_land: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
@@ -43,32 +61,8 @@ export const village_ghetto_land: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -83,8 +77,8 @@ export const village_ghetto_land: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -107,8 +101,8 @@ export const village_ghetto_land: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -123,8 +117,8 @@ export const village_ghetto_land: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -147,9 +141,8 @@ export const village_ghetto_land: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      repeatCount: 3,
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -164,7 +157,6 @@ export const village_ghetto_land: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Tk2R7pVWFVo' },
   ],

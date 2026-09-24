@@ -19,8 +19,8 @@ export const knocks_me_off_my_feet: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [], restBars: 1 },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -38,12 +38,6 @@ export const knocks_me_off_my_feet: Song = {
         {
           chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -53,8 +47,8 @@ export const knocks_me_off_my_feet: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -78,8 +72,8 @@ export const knocks_me_off_my_feet: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -100,8 +94,8 @@ export const knocks_me_off_my_feet: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [{ degree: '5 7', chordName: 'G7sus', beat: 1, duration: 4 }],
@@ -124,9 +118,37 @@ export const knocks_me_off_my_feet: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj/3', chordName: 'C/E', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 2 },
+            { degree: '2 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [{ degree: '5 7', chordName: 'G7sus', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
@@ -158,42 +180,8 @@ export const knocks_me_off_my_feet: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/3', chordName: 'C/E', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 2 },
-            { degree: '2 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'G7sus', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -214,12 +202,6 @@ export const knocks_me_off_my_feet: Song = {
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      bars: [
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -240,8 +222,8 @@ export const knocks_me_off_my_feet: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -274,8 +256,8 @@ export const knocks_me_off_my_feet: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -299,8 +281,8 @@ export const knocks_me_off_my_feet: Song = {
       ],
     },
     {
-      id: 'section_l',
-      label: 'Section L',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -321,8 +303,8 @@ export const knocks_me_off_my_feet: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_7',
+      label: 'Verse 7',
       bars: [
         {
           chords: [{ degree: '5 7', chordName: 'G7sus', beat: 1, duration: 4 }],
@@ -345,9 +327,37 @@ export const knocks_me_off_my_feet: Song = {
       ],
     },
     {
-      id: 'section_n',
-      label: 'Section N',
+      id: 'verse_8',
+      label: 'Verse 8',
       bars: [
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj/3', chordName: 'C/E', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 2 },
+            { degree: '2 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [{ degree: '5 7', chordName: 'G7sus', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
@@ -379,42 +389,8 @@ export const knocks_me_off_my_feet: Song = {
       ],
     },
     {
-      id: 'section_o',
-      label: 'Section O',
-      bars: [
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/3', chordName: 'C/E', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 2 },
-            { degree: '2 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'G7sus', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_p',
-      label: 'Section P',
+      id: 'verse_9',
+      label: 'Verse 9',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -435,12 +411,6 @@ export const knocks_me_off_my_feet: Song = {
         {
           chords: [{ degree: '♭6 7', chordName: 'A♭7', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_f_2',
-      label: 'Section F',
-      bars: [
         {
           chords: [{ degree: '♭2 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -472,7 +442,6 @@ export const knocks_me_off_my_feet: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=BI4sC5hidUg' },
   ],

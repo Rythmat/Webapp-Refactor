@@ -19,24 +19,15 @@ export const your_love_keeps_lifting_me_higher_and_higher: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      bars: [{ chords: [] }],
-    },
-    {
       id: 'verse',
       label: 'Verse',
+      instrumental: true,
       bars: [
+        { chords: [] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
         {
           chords: [
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -53,7 +44,6 @@ export const your_love_keeps_lifting_me_higher_and_higher: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=mzDVaKRApcg' },
   ],

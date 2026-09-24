@@ -20,7 +20,7 @@ export const life_during_wartime: Song = {
   sections: [
     {
       id: 'verse_1',
-      label: 'Verse',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -42,12 +42,6 @@ export const life_during_wartime: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'chorus_1',
-      label: 'Chorus',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -68,12 +62,46 @@ export const life_during_wartime: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -100,26 +128,14 @@ export const life_during_wartime: Song = {
       id: 'bridge',
       label: 'Bridge',
       bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -148,55 +164,7 @@ export const life_during_wartime: Song = {
         },
       ],
     },
-    {
-      id: 'outro',
-      label: 'Outro',
-      bars: [
-        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'intro',
-      label: 'Intro',
-      repeatCount: 3,
-      bars: [
-        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_8',
-      label: 'Section H',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8al5cSQNmME' },
   ],

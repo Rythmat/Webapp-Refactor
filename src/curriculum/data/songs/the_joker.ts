@@ -19,9 +19,17 @@ export const the_joker: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -33,99 +41,14 @@ export const the_joker: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
-      repeatCount: 4,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      repeatCount: 3,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      repeatCount: 4,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
@@ -139,6 +62,20 @@ export const the_joker: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -146,9 +83,56 @@ export const the_joker: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
-      repeatCount: 5,
+      id: 'verse_3',
+      label: 'Verse 3',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse_4',
+      label: 'Verse 4',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'chorus_3',
+      label: 'Chorus 3',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -161,8 +145,8 @@ export const the_joker: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'chorus_4',
+      label: 'Chorus 4',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -175,8 +159,8 @@ export const the_joker: Song = {
       ],
     },
     {
-      id: 'section_l',
-      label: 'Section L',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -187,8 +171,8 @@ export const the_joker: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'verse_7',
+      label: 'Verse 7',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -198,12 +182,6 @@ export const the_joker: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_n',
-      label: 'Section N',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -215,7 +193,6 @@ export const the_joker: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=dV3AziKTBUo' },
   ],

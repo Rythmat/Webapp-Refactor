@@ -19,25 +19,10 @@ export const me_myself_and_i: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      bars: [
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
       id: 'verse',
       label: 'Verse',
       bars: [
         {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 2 },
-            { degree: '2 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
-          ],
-        },
-        {
           chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
@@ -49,12 +34,15 @@ export const me_myself_and_i: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 2 },
+            { degree: '2 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 2 },
@@ -76,7 +64,6 @@ export const me_myself_and_i: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=4S37SGxZSMc' },
   ],

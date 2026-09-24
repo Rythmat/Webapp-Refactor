@@ -21,11 +21,12 @@ export const black_man: Song = {
     {
       id: 'intro',
       label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 3 }, { chords: [] }],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -47,12 +48,6 @@ export const black_man: Song = {
             { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
@@ -73,12 +68,6 @@ export const black_man: Song = {
             { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
@@ -99,13 +88,6 @@ export const black_man: Song = {
             { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      repeatCount: 6,
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
@@ -126,12 +108,6 @@ export const black_man: Song = {
             { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [{ degree: '♭6 7', chordName: 'G♭7', beat: 1, duration: 4 }],
         },
@@ -143,7 +119,63 @@ export const black_man: Song = {
       ],
     },
     {
-      id: 'chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+          repeatStart: true,
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 7', chordName: 'G♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '5 7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
+          ],
+          repeatEnd: true,
+        },
+      ],
+    },
+    {
+      id: 'chorus_1',
       label: 'Chorus',
       bars: [
         {
@@ -166,13 +198,6 @@ export const black_man: Song = {
             { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      repeatCount: 7,
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
@@ -196,141 +221,9 @@ export const black_man: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
-      bars: [
-        {
-          chords: [{ degree: '♭6 7', chordName: 'G♭7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '5 7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_k',
-      label: 'Section K',
-      repeatCount: 9,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_l',
-      label: 'Section L',
-      bars: [
-        {
-          chords: [{ degree: '♭6 7', chordName: 'G♭7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '5 7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_n',
-      label: 'Section N',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [
         { chords: [], restBars: 4 },
         {
@@ -368,8 +261,8 @@ export const black_man: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
+      id: 'verse_4',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -391,13 +284,6 @@ export const black_man: Song = {
             { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_q',
-      label: 'Section Q',
-      repeatCount: 7,
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
@@ -418,12 +304,6 @@ export const black_man: Song = {
             { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_r',
-      label: 'Section R',
-      bars: [
         {
           chords: [{ degree: '♭6 7', chordName: 'G♭7', beat: 1, duration: 4 }],
         },
@@ -435,8 +315,8 @@ export const black_man: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -458,12 +338,6 @@ export const black_man: Song = {
             { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_t',
-      label: 'Section T',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
@@ -487,7 +361,6 @@ export const black_man: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=pEoE2UQXduA' },
   ],

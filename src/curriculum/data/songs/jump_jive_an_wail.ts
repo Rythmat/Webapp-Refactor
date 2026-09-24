@@ -19,32 +19,19 @@ export const jump_jive_an_wail: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      repeatCount: 7,
-      bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         {
@@ -58,8 +45,8 @@ export const jump_jive_an_wail: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }],
@@ -73,8 +60,8 @@ export const jump_jive_an_wail: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -89,13 +76,14 @@ export const jump_jive_an_wail: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [{ chords: [], restBars: 12 }],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -106,8 +94,8 @@ export const jump_jive_an_wail: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
@@ -122,7 +110,6 @@ export const jump_jive_an_wail: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aHWcN5YxuYc' },
   ],

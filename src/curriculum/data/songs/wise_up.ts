@@ -19,8 +19,8 @@ export const wise_up: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -32,124 +32,6 @@ export const wise_up: Song = {
           chords: [
             { degree: '1 sus2', chordName: 'Gsus2', beat: 1, duration: 2 },
             { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 sus2', chordName: 'Gsus2', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 sus2', chordName: 'Gsus2', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
-        {
-          chords: [
-            { degree: '1 sus2', chordName: 'Gsus2', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 sus2', chordName: 'Gsus2', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        {
-          chords: [
-            { degree: '1 sus2', chordName: 'Gsus2', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 sus2', chordName: 'Gsus2', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
-          chords: [
-            { degree: '5 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '2 maj/♯4', chordName: 'A/C♯', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
         {
@@ -170,6 +52,106 @@ export const wise_up: Song = {
       id: 'bridge',
       label: 'Bridge',
       bars: [
+        {
+          chords: [
+            { degree: '1 sus2', chordName: 'Gsus2', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 sus2', chordName: 'Gsus2', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 sus2', chordName: 'Gsus2', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 sus2', chordName: 'Gsus2', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 maj', chordName: 'D', beat: 1, duration: 2 },
+            { degree: '2 maj/♯4', chordName: 'A/C♯', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 sus2', chordName: 'Gsus2', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 sus2', chordName: 'Gsus2', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'D', beat: 3, duration: 2 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'verse_2',
+      label: 'Verse 2',
+      bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
@@ -184,12 +166,6 @@ export const wise_up: Song = {
             { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
         {
           chords: [
             { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
@@ -214,12 +190,6 @@ export const wise_up: Song = {
             { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
         {
           chords: [
             { degree: '5 maj', chordName: 'D', beat: 1, duration: 2 },
@@ -247,8 +217,8 @@ export const wise_up: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -277,7 +247,6 @@ export const wise_up: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=aNmKghTvj0E' },
   ],

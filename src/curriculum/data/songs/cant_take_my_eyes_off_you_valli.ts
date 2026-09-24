@@ -19,8 +19,8 @@ export const cant_take_my_eyes_off_you_valli: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -42,29 +42,17 @@ export const cant_take_my_eyes_off_you_valli: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
         {
           chords: [
             { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -80,8 +68,8 @@ export const cant_take_my_eyes_off_you_valli: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -103,8 +91,8 @@ export const cant_take_my_eyes_off_you_valli: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'pre_chorus',
+      label: 'Pre-Chorus',
       bars: [
         {
           chords: [
@@ -117,8 +105,8 @@ export const cant_take_my_eyes_off_you_valli: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -131,9 +119,8 @@ export const cant_take_my_eyes_off_you_valli: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 3,
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -154,8 +141,8 @@ export const cant_take_my_eyes_off_you_valli: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -172,8 +159,8 @@ export const cant_take_my_eyes_off_you_valli: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -187,12 +174,6 @@ export const cant_take_my_eyes_off_you_valli: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_k',
-      label: 'Section K',
-      bars: [
         { chords: [{ degree: '♭3 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '♭3 7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
@@ -201,12 +182,6 @@ export const cant_take_my_eyes_off_you_valli: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_l',
-      label: 'Section L',
-      bars: [
         {
           chords: [
             { degree: '♭6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
@@ -223,12 +198,6 @@ export const cant_take_my_eyes_off_you_valli: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_m',
-      label: 'Section M',
-      bars: [
         {
           chords: [
             { degree: '4 maj/♭3', chordName: 'A/G', beat: 1, duration: 4 },
@@ -253,8 +222,8 @@ export const cant_take_my_eyes_off_you_valli: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -267,9 +236,8 @@ export const cant_take_my_eyes_off_you_valli: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      repeatCount: 5,
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [
@@ -290,8 +258,8 @@ export const cant_take_my_eyes_off_you_valli: Song = {
       ],
     },
     {
-      id: 'section_p',
-      label: 'Section P',
+      id: 'verse_7',
+      label: 'Verse 7',
       bars: [
         {
           chords: [
@@ -311,7 +279,6 @@ export const cant_take_my_eyes_off_you_valli: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=wVzvXW9bo5U' },
   ],

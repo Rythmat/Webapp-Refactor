@@ -21,6 +21,7 @@ export const boogie_shoes: Song = {
     {
       id: 'intro',
       label: 'Intro',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
@@ -30,28 +31,34 @@ export const boogie_shoes: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        {
+          chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+          repeatEnd: true,
+        },
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'interlude_1',
+      label: 'Interlude 1',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
@@ -61,93 +68,17 @@ export const boogie_shoes: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
-        { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
-        { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
-      bars: [
-        { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_k',
-      label: 'Section K',
-      bars: [
-        { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_l',
-      label: 'Section L',
-      bars: [
-        { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
+      id: 'verse_3',
       label: 'Verse 2',
       bars: [
+        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
@@ -156,9 +87,20 @@ export const boogie_shoes: Song = {
       ],
     },
     {
-      id: 'section_n',
-      label: 'Section N',
+      id: 'interlude_2',
+      label: 'Interlude 2',
+      instrumental: true,
       bars: [
+        { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
@@ -167,29 +109,17 @@ export const boogie_shoes: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_4',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_p',
-      label: 'Section P',
-      bars: [
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_q',
-      label: 'Section Q',
-      bars: [
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
@@ -198,20 +128,14 @@ export const boogie_shoes: Song = {
       ],
     },
     {
-      id: 'section_r',
-      label: 'Section R',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f_2',
-      label: 'Section F',
-      bars: [
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
@@ -220,7 +144,6 @@ export const boogie_shoes: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Ia0zeuZMJbo' },
   ],

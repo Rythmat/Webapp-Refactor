@@ -19,8 +19,8 @@ export const ordinary_pain: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
@@ -31,8 +31,8 @@ export const ordinary_pain: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -46,8 +46,8 @@ export const ordinary_pain: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -64,8 +64,8 @@ export const ordinary_pain: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -79,8 +79,8 @@ export const ordinary_pain: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -97,12 +97,6 @@ export const ordinary_pain: Song = {
             { degree: '1 7', chordName: 'F7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [
             { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
@@ -114,6 +108,21 @@ export const ordinary_pain: Song = {
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '5 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'verse_5',
+      label: 'Verse 5',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
+            { degree: '1 7', chordName: 'F7', beat: 3, duration: 2 },
+          ],
         },
       ],
     },
@@ -121,21 +130,6 @@ export const ordinary_pain: Song = {
       id: 'bridge',
       label: 'Bridge',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '5 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'F7', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
         {
           chords: [
             { degree: '4 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
@@ -146,12 +140,6 @@ export const ordinary_pain: Song = {
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -163,8 +151,8 @@ export const ordinary_pain: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -190,12 +178,6 @@ export const ordinary_pain: Song = {
             { degree: '4 7', chordName: 'B♭7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_f_2',
-      label: 'Section F',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
@@ -223,7 +205,6 @@ export const ordinary_pain: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=se0g2f5Ub0A' },
   ],

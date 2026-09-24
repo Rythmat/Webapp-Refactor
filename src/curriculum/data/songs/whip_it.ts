@@ -19,8 +19,8 @@ export const whip_it: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         { chords: [], restBars: 4 },
         {
@@ -44,9 +44,8 @@ export const whip_it: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 4,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
@@ -69,8 +68,8 @@ export const whip_it: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
@@ -89,30 +88,6 @@ export const whip_it: Song = {
         },
         {
           chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '♭7 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'A', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '♭7 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'A', beat: 3, duration: 2 },
-          ],
         },
       ],
     },
@@ -120,52 +95,6 @@ export const whip_it: Song = {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      repeatCount: 4,
-      bars: [
-        {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '♭7 maj', chordName: 'D', beat: 1, duration: 3 },
-            { degree: '4 maj', chordName: 'A', beat: 4, duration: 1 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '♭7 maj', chordName: 'D', beat: 1, duration: 3 },
-            { degree: '4 maj', chordName: 'A', beat: 4, duration: 1 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      repeatCount: 4,
-      bars: [
         {
           chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
@@ -187,9 +116,70 @@ export const whip_it: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      repeatCount: 3,
+      id: 'bridge',
+      label: 'Bridge',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
+      bars: [
+        {
+          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 maj', chordName: 'D', beat: 1, duration: 3 },
+            { degree: '4 maj', chordName: 'A', beat: 4, duration: 1 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 maj', chordName: 'D', beat: 1, duration: 3 },
+            { degree: '4 maj', chordName: 'A', beat: 4, duration: 1 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 maj', chordName: 'D', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'A', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 maj', chordName: 'D', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'A', beat: 3, duration: 2 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
@@ -212,8 +202,8 @@ export const whip_it: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
@@ -230,7 +220,6 @@ export const whip_it: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=j_QLzthSkfM' },
   ],

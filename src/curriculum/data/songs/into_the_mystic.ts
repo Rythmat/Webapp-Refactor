@@ -38,8 +38,8 @@ export const into_the_mystic: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -56,8 +56,8 @@ export const into_the_mystic: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -74,8 +74,8 @@ export const into_the_mystic: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -92,8 +92,8 @@ export const into_the_mystic: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -127,12 +127,6 @@ export const into_the_mystic: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
         {
           chords: [
             { degree: '3 min', chordName: 'Gmin', beat: 1, duration: 4 },
@@ -150,8 +144,8 @@ export const into_the_mystic: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -168,8 +162,8 @@ export const into_the_mystic: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -186,8 +180,8 @@ export const into_the_mystic: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -205,7 +199,6 @@ export const into_the_mystic: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=syIUmrSJWAU' },
   ],

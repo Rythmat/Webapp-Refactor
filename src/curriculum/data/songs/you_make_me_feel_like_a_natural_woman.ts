@@ -19,9 +19,19 @@ export const you_make_me_feel_like_a_natural_woman: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
+        {
+          chords: [
+            { degree: '5 maj/7', chordName: 'E/G♯', beat: 1, duration: 6 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 6 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
         {
           chords: [
@@ -35,24 +45,8 @@ export const you_make_me_feel_like_a_natural_woman: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
-        {
-          chords: [
-            { degree: '5 maj/7', chordName: 'E/G♯', beat: 1, duration: 6 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 6 }],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'pre_chorus_1',
+      label: 'Pre-Chorus 1',
       bars: [
         {
           chords: [
@@ -81,8 +75,90 @@ export const you_make_me_feel_like_a_natural_woman: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'chorus_1',
+      label: 'Chorus 1',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 6 },
+          ],
+        },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 6 }] },
+      ],
+    },
+    {
+      id: 'verse_2',
+      label: 'Verse 2',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
+        {
+          chords: [
+            { degree: '5 maj/7', chordName: 'E/G♯', beat: 1, duration: 6 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 6 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
+        {
+          chords: [
+            { degree: '5 maj/7', chordName: 'E/G♯', beat: 1, duration: 6 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 6 }],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
+      ],
+    },
+    {
+      id: 'pre_chorus_2',
+      label: 'Pre-Chorus 2',
+      bars: [
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 6 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 6 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 6 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 6 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 6 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 6 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 6 }] },
+      ],
+    },
+    {
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
@@ -104,106 +180,12 @@ export const you_make_me_feel_like_a_natural_woman: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
         {
-          chords: [
-            { degree: '5 maj/7', chordName: 'E/G♯', beat: 1, duration: 6 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 6 }],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
-        {
-          chords: [
-            { degree: '5 maj/7', chordName: 'E/G♯', beat: 1, duration: 6 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 6 }],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 6 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 6 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 6 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 6 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 6 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 6 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 6 }] },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 6 },
-          ],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 6 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
-        {
           chords: [{ degree: '1 7', chordName: 'A7sus', beat: 1, duration: 6 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
         {
           chords: [{ degree: '1 7', chordName: 'A7sus', beat: 1, duration: 6 }],
         },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
-      bars: [
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
         {
           chords: [{ degree: '4 7', chordName: 'D7sus', beat: 1, duration: 6 }],
@@ -223,9 +205,8 @@ export const you_make_me_feel_like_a_natural_woman: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
-      repeatCount: 3,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
@@ -245,7 +226,6 @@ export const you_make_me_feel_like_a_natural_woman: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=MOyvYnkdEcc' },
   ],

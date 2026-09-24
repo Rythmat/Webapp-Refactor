@@ -19,8 +19,8 @@ export const come_away_with_me: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 3 }] },
         {
@@ -49,8 +49,8 @@ export const come_away_with_me: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 3 }] },
         {
@@ -81,8 +81,8 @@ export const come_away_with_me: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 3 }] },
         {
@@ -124,12 +124,6 @@ export const come_away_with_me: Song = {
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 3 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 3 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 3 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 3 }] },
         {
           chords: [
@@ -157,8 +151,8 @@ export const come_away_with_me: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 3 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 3 }] },
@@ -175,7 +169,6 @@ export const come_away_with_me: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=lbjZPFBD6JU' },
   ],

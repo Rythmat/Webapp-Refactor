@@ -19,14 +19,11 @@ export const way_over_yonder: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      bars: [{ chords: [], restBars: 1 }],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [
+        { chords: [], restBars: 1 },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 6 }],
         },
@@ -44,148 +41,8 @@ export const way_over_yonder: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 6 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 6 },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'E♭min7/A♭',
-              beat: 1,
-              duration: 6,
-            },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 6 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 6 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 6 }],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        {
-          chords: [
-            { degree: '3 min7/6', chordName: 'Fmin7/B♭', beat: 1, duration: 6 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 min7/6', chordName: 'Fmin7/B♭', beat: 1, duration: 6 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 6 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 6 },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'E♭min7/A♭',
-              beat: 1,
-              duration: 6,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'E♭min7/A♭',
-              beat: 1,
-              duration: 6,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 6 }],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'E♭min7/A♭',
-              beat: 1,
-              duration: 6,
-            },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 6 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 6 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 6 }],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'E♭min7/A♭',
-              beat: 1,
-              duration: 6,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 6 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 6 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 6 }],
-        },
-        {
-          chords: [{ degree: '5 maj', chordName: 'A♭', beat: 1, duration: 6 }],
-        },
-        {
-          chords: [{ degree: '5 maj', chordName: 'A♭', beat: 1, duration: 6 }],
-        },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -242,12 +99,140 @@ export const way_over_yonder: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 6 },
           ],
         },
+        {
+          chords: [
+            {
+              degree: '2 min7/5',
+              chordName: 'E♭min7/A♭',
+              beat: 1,
+              duration: 6,
+            },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/5',
+              chordName: 'E♭min7/A♭',
+              beat: 1,
+              duration: 6,
+            },
+          ],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/5',
+              chordName: 'E♭min7/A♭',
+              beat: 1,
+              duration: 6,
+            },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/5',
+              chordName: 'E♭min7/A♭',
+              beat: 1,
+              duration: 6,
+            },
+          ],
+        },
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '5 maj', chordName: 'A♭', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '5 maj', chordName: 'A♭', beat: 1, duration: 6 }],
+        },
+      ],
+    },
+    {
+      id: 'verse_4',
+      label: 'Verse 4',
+      bars: [
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 6 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 6 },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/5',
+              chordName: 'E♭min7/A♭',
+              beat: 1,
+              duration: 6,
+            },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 6 }],
+        },
+      ],
+    },
+    {
+      id: 'bridge',
+      label: 'Bridge',
+      bars: [
+        {
+          chords: [
+            { degree: '3 min7/6', chordName: 'Fmin7/B♭', beat: 1, duration: 6 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 min7/6', chordName: 'Fmin7/B♭', beat: 1, duration: 6 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 6 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 6 },
+          ],
+        },
         {
           chords: [
             { degree: '1 maj/5', chordName: 'D♭/A♭', beat: 1, duration: 6 },
@@ -291,12 +276,6 @@ export const way_over_yonder: Song = {
             },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_e_2',
-      label: 'Section E',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 6 }],
         },
@@ -319,8 +298,8 @@ export const way_over_yonder: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -355,12 +334,6 @@ export const way_over_yonder: Song = {
             { degree: '3 min7/6', chordName: 'Fmin7/B♭', beat: 1, duration: 6 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [{ degree: '2 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
@@ -377,12 +350,6 @@ export const way_over_yonder: Song = {
             { degree: '7 min7', chordName: 'Cmin7', beat: 1, duration: 6 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_m',
-      label: 'Section M',
-      bars: [
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 6 },
@@ -398,8 +365,8 @@ export const way_over_yonder: Song = {
       ],
     },
     {
-      id: 'section_g_2',
-      label: 'Section G',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [{ degree: '2 maj', chordName: 'E♭', beat: 1, duration: 6 }],
@@ -420,12 +387,6 @@ export const way_over_yonder: Song = {
             { degree: '7 min7', chordName: 'Cmin7', beat: 1, duration: 6 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_o',
-      label: 'Section O',
-      bars: [
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 6 },
@@ -450,30 +411,14 @@ export const way_over_yonder: Song = {
         {
           chords: [{ degree: '2 maj', chordName: 'E♭', beat: 1, duration: 6 }],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
         {
           chords: [
-            {
-              degree: '♯4 min7/7',
-              chordName: 'Gmin7/C',
-              beat: 1,
-              duration: 6,
-            },
+            { degree: '♯4 min7/7', chordName: 'Gmin7/C', beat: 1, duration: 6 },
           ],
         },
         {
           chords: [
-            {
-              degree: '♯4 min7/7',
-              chordName: 'Gmin7/C',
-              beat: 1,
-              duration: 6,
-            },
+            { degree: '♯4 min7/7', chordName: 'Gmin7/C', beat: 1, duration: 6 },
           ],
         },
         {
@@ -489,8 +434,8 @@ export const way_over_yonder: Song = {
       ],
     },
     {
-      id: 'section_q',
-      label: 'Section Q',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -530,7 +475,6 @@ export const way_over_yonder: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=G8se6T5d3K0' },
   ],

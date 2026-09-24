@@ -19,9 +19,21 @@ export const build_me_up_buttercup: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -29,38 +41,8 @@ export const build_me_up_buttercup: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -86,8 +68,8 @@ export const build_me_up_buttercup: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
@@ -98,12 +80,6 @@ export const build_me_up_buttercup: Song = {
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
         {
           chords: [
             { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
@@ -120,12 +96,6 @@ export const build_me_up_buttercup: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
         {
           chords: [
             { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
@@ -161,12 +131,6 @@ export const build_me_up_buttercup: Song = {
         },
         { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
-      bars: [
         { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
@@ -174,9 +138,13 @@ export const build_me_up_buttercup: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -184,18 +152,8 @@ export const build_me_up_buttercup: Song = {
       ],
     },
     {
-      id: 'section_l',
-      label: 'Section L',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f_2',
-      label: 'Section F',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -221,19 +179,13 @@ export const build_me_up_buttercup: Song = {
       ],
     },
     {
-      id: 'section_n',
-      label: 'Section N',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
         { chords: [{ degree: '2 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -258,7 +210,6 @@ export const build_me_up_buttercup: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=hSofzQURQDk' },
   ],

@@ -34,12 +34,6 @@ export const marry_you: Song = {
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
@@ -51,7 +45,6 @@ export const marry_you: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=dElRVQFqj-k' },
   ],

@@ -19,8 +19,8 @@ export const la_vie_en_rose: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -42,12 +42,6 @@ export const la_vie_en_rose: Song = {
         },
         { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [] },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -69,8 +63,8 @@ export const la_vie_en_rose: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -90,12 +84,6 @@ export const la_vie_en_rose: Song = {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -115,8 +103,8 @@ export const la_vie_en_rose: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -142,12 +130,6 @@ export const la_vie_en_rose: Song = {
           ],
         },
         { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -171,7 +153,6 @@ export const la_vie_en_rose: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=qPU8mENUBXk' },
   ],

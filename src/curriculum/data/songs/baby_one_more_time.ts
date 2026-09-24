@@ -21,6 +21,7 @@ export const baby_one_more_time: Song = {
     {
       id: 'intro',
       label: 'Intro',
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -50,9 +51,67 @@ export const baby_one_more_time: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 9,
+      id: 'verse_1',
+      label: 'Verse 1',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+          repeatStart: true,
+        },
+        {
+          chords: [
+            { degree: '5 7/7', chordName: 'G7/B', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+          repeatEnd: true,
+        },
+      ],
+    },
+    {
+      id: 'interlude_1',
+      label: 'Interlude',
+      instrumental: true,
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'pre_chorus_1',
+      label: 'Pre-Chorus 1',
       bars: [
         {
           chords: [
@@ -73,97 +132,11 @@ export const baby_one_more_time: Song = {
             { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
         },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 7/7', chordName: 'G7/B', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
+      id: 'chorus_1',
       label: 'Chorus',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 7/7', chordName: 'G7/B', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -185,8 +158,8 @@ export const baby_one_more_time: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'pre_chorus_2',
+      label: 'Pre-Chorus 2',
       bars: [
         {
           chords: [
@@ -210,8 +183,8 @@ export const baby_one_more_time: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -232,9 +205,8 @@ export const baby_one_more_time: Song = {
       ],
     },
     {
-      id: 'verse_2',
+      id: 'verse_3',
       label: 'Verse 2',
-      repeatCount: 3,
       bars: [
         {
           chords: [
@@ -263,8 +235,8 @@ export const baby_one_more_time: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -287,7 +259,6 @@ export const baby_one_more_time: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=C-u5WLJ9Yk4' },
   ],

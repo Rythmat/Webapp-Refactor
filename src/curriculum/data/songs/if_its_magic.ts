@@ -19,8 +19,8 @@ export const if_its_magic: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse',
+      label: 'Verse',
       bars: [
         { chords: [] },
         {
@@ -47,12 +47,6 @@ export const if_its_magic: Song = {
             { degree: '2 7', chordName: 'F♯7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
         {
           chords: [
             { degree: '5 7', chordName: 'B7', beat: 1, duration: 2 },
@@ -78,12 +72,6 @@ export const if_its_magic: Song = {
             { degree: '4 maj', chordName: 'A', beat: 2, duration: 3 },
           ],
         },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -102,8 +90,8 @@ export const if_its_magic: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -119,12 +107,6 @@ export const if_its_magic: Song = {
         },
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
         {
           chords: [
             { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -139,12 +121,6 @@ export const if_its_magic: Song = {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [
             { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -167,8 +143,8 @@ export const if_its_magic: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -196,12 +172,6 @@ export const if_its_magic: Song = {
             { degree: '6 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -233,7 +203,6 @@ export const if_its_magic: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=fX36mGEqfw4' },
   ],

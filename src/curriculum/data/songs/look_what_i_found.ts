@@ -19,8 +19,8 @@ export const look_what_i_found: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -44,12 +44,6 @@ export const look_what_i_found: Song = {
             { degree: '♭3 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -81,8 +75,8 @@ export const look_what_i_found: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -115,8 +109,8 @@ export const look_what_i_found: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'pre_chorus',
+      label: 'Pre-Chorus',
       bars: [
         {
           chords: [
@@ -146,8 +140,8 @@ export const look_what_i_found: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -180,8 +174,8 @@ export const look_what_i_found: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -207,12 +201,6 @@ export const look_what_i_found: Song = {
             { degree: '4 c♯min7', chordName: 'F♯C♯min7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -244,8 +232,8 @@ export const look_what_i_found: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -277,8 +265,8 @@ export const look_what_i_found: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -308,8 +296,8 @@ export const look_what_i_found: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -337,12 +325,6 @@ export const look_what_i_found: Song = {
             { degree: '7 7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_k',
-      label: 'Section K',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
@@ -370,8 +352,8 @@ export const look_what_i_found: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -408,8 +390,8 @@ export const look_what_i_found: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [
@@ -441,8 +423,8 @@ export const look_what_i_found: Song = {
       ],
     },
     {
-      id: 'section_n',
-      label: 'Section N',
+      id: 'verse_7',
+      label: 'Verse 7',
       bars: [
         {
           chords: [
@@ -471,8 +453,8 @@ export const look_what_i_found: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_8',
+      label: 'Verse 8',
       bars: [
         {
           chords: [
@@ -504,8 +486,8 @@ export const look_what_i_found: Song = {
       ],
     },
     {
-      id: 'section_p',
-      label: 'Section P',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -532,7 +514,6 @@ export const look_what_i_found: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8uGVZoqJjn4' },
   ],

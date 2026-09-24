@@ -19,8 +19,8 @@ export const broken_halos: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -55,12 +55,6 @@ export const broken_halos: Song = {
             { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -156,12 +150,6 @@ export const broken_halos: Song = {
             { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -198,8 +186,8 @@ export const broken_halos: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -229,7 +217,6 @@ export const broken_halos: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=sI0TeFf6uD8' },
   ],

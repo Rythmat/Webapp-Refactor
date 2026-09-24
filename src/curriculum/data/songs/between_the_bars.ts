@@ -19,8 +19,9 @@ export const between_the_bars: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -65,8 +66,8 @@ export const between_the_bars: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -103,8 +104,8 @@ export const between_the_bars: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -135,8 +136,8 @@ export const between_the_bars: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -173,8 +174,8 @@ export const between_the_bars: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -224,9 +225,7 @@ export const between_the_bars: Song = {
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        {
-          chords: [{ degree: '7 6', chordName: 'G♭6', beat: 1, duration: 3 }],
-        },
+        { chords: [{ degree: '7 6', chordName: 'G♭6', beat: 1, duration: 3 }] },
         { chords: [{ degree: '♭7 6', chordName: 'F6', beat: 1, duration: 3 }] },
         {
           chords: [
@@ -241,8 +240,8 @@ export const between_the_bars: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 3 }],
@@ -279,7 +278,6 @@ export const between_the_bars: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=p4cJv6s_Yjw' },
   ],

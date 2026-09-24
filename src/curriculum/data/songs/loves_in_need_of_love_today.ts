@@ -19,8 +19,8 @@ export const loves_in_need_of_love_today: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         {
           chords: [
@@ -61,8 +61,8 @@ export const loves_in_need_of_love_today: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -95,8 +95,8 @@ export const loves_in_need_of_love_today: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'pre_chorus',
+      label: 'Pre-Chorus',
       bars: [
         {
           chords: [
@@ -121,8 +121,8 @@ export const loves_in_need_of_love_today: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -155,8 +155,8 @@ export const loves_in_need_of_love_today: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -213,8 +213,8 @@ export const loves_in_need_of_love_today: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -249,8 +249,8 @@ export const loves_in_need_of_love_today: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -281,8 +281,8 @@ export const loves_in_need_of_love_today: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -317,8 +317,8 @@ export const loves_in_need_of_love_today: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -349,8 +349,8 @@ export const loves_in_need_of_love_today: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -389,7 +389,6 @@ export const loves_in_need_of_love_today: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=FGZYWSfiYbM' },
   ],

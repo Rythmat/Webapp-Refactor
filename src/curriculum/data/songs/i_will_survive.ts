@@ -19,8 +19,8 @@ export const i_will_survive: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
       bars: [
         {
           chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }],
@@ -29,8 +29,8 @@ export const i_will_survive: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -49,8 +49,8 @@ export const i_will_survive: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
@@ -67,8 +67,8 @@ export const i_will_survive: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -87,8 +87,8 @@ export const i_will_survive: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
@@ -111,8 +111,8 @@ export const i_will_survive: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -131,8 +131,8 @@ export const i_will_survive: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
@@ -149,7 +149,6 @@ export const i_will_survive: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6dYWe1c3OyU' },
   ],

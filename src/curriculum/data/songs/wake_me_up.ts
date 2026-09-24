@@ -19,19 +19,20 @@ export const wake_me_up: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'chorus_1',
+      label: 'Chorus 1',
+      instrumental: true,
       bars: [{ chords: [], restBars: 16 }],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      repeatCount: 4,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -50,14 +51,14 @@ export const wake_me_up: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [{ chords: [], restBars: 12 }],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
-      repeatCount: 4,
       bars: [
         {
           chords: [
@@ -76,14 +77,14 @@ export const wake_me_up: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      instrumental: true,
       bars: [{ chords: [], restBars: 16 }],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      repeatCount: 4,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -102,13 +103,14 @@ export const wake_me_up: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'chorus_3',
+      label: 'Chorus 3',
+      instrumental: true,
       bars: [{ chords: [], restBars: 16 }],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -127,7 +129,6 @@ export const wake_me_up: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IcrbM1l_BoI' },
   ],

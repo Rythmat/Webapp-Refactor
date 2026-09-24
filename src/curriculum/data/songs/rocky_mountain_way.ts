@@ -19,9 +19,8 @@ export const rocky_mountain_way: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      repeatCount: 3,
+      id: 'intro',
+      label: 'Intro',
       bars: [
         { chords: [], restBars: 4 },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -30,8 +29,8 @@ export const rocky_mountain_way: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -44,8 +43,8 @@ export const rocky_mountain_way: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -55,20 +54,6 @@ export const rocky_mountain_way: Song = {
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -83,11 +68,19 @@ export const rocky_mountain_way: Song = {
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
@@ -100,8 +93,8 @@ export const rocky_mountain_way: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -114,7 +107,6 @@ export const rocky_mountain_way: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=zdTjzYOqhTo' },
   ],

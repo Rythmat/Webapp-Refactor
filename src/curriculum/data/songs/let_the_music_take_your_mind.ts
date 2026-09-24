@@ -20,52 +20,39 @@ export const let_the_music_take_your_mind: Song = {
 
   sections: [
     {
-      id: 'chorus_1',
-      label: 'Chorus',
-      bars: [
-        {
-          chords: [
-            { degree: '5 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
       id: 'verse_1',
-      label: 'Verse',
+      label: 'Verse 1',
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 4,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
+        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
       ],
@@ -97,31 +84,18 @@ export const let_the_music_take_your_mind: Song = {
       ],
     },
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'outro',
-      label: 'Outro',
-      bars: [
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_8',
-      label: 'Section H',
-      bars: [
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=iJfKHFrpfzw' },
   ],

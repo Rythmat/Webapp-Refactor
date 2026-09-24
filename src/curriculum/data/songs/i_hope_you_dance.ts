@@ -20,8 +20,8 @@ export const i_hope_you_dance: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -50,8 +50,8 @@ export const i_hope_you_dance: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'pre_chorus',
+      label: 'Pre-Chorus',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -69,12 +69,6 @@ export const i_hope_you_dance: Song = {
             { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
@@ -86,8 +80,8 @@ export const i_hope_you_dance: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -109,55 +103,6 @@ export const i_hope_you_dance: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
-            { degree: '3 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 2 },
-            { degree: '5 maj/7', chordName: 'F/A', beat: 3, duration: 1 },
-            { degree: '5 maj', chordName: 'F', beat: 4, duration: 1 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'F', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -166,6 +111,49 @@ export const i_hope_you_dance: Song = {
       bars: [
         {
           chords: [
+            { degree: '2 min7', chordName: 'Cmin7', beat: 1, duration: 2 },
+            { degree: '3 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '5 maj', chordName: 'F', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
+      bars: [
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 2 },
+            { degree: '5 maj/7', chordName: 'F/A', beat: 3, duration: 1 },
+            { degree: '5 maj', chordName: 'F', beat: 4, duration: 1 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '5 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
             { degree: '6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
@@ -191,8 +179,8 @@ export const i_hope_you_dance: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
@@ -217,8 +205,8 @@ export const i_hope_you_dance: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -236,9 +224,8 @@ export const i_hope_you_dance: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      repeatCount: 3,
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -267,8 +254,8 @@ export const i_hope_you_dance: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -293,7 +280,6 @@ export const i_hope_you_dance: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=RV-Z1YwaOiw' },
   ],

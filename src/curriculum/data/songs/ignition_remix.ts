@@ -19,14 +19,14 @@ export const ignition_remix: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      repeatCount: 3,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -40,13 +40,6 @@ export const ignition_remix: Song = {
         },
         { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      repeatCount: 6,
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -59,13 +52,6 @@ export const ignition_remix: Song = {
         },
         { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 7,
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -78,12 +64,6 @@ export const ignition_remix: Song = {
         },
         { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -99,7 +79,6 @@ export const ignition_remix: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=MKvqpnB0SxE' },
   ],

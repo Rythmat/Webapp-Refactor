@@ -19,8 +19,50 @@ export const them_changes: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse_1',
+      label: 'Verse 1',
+      instrumental: true,
+      bars: [
+        {
+          chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'chorus_1',
+      label: 'Chorus 1',
+      bars: [
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse_2',
+      label: 'Verse 2',
+      instrumental: true,
       bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
@@ -37,8 +79,19 @@ export const them_changes: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      bars: [
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
+      instrumental: true,
       bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
@@ -55,77 +108,13 @@ export const them_changes: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 4,
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        {
-          chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      repeatCount: 6,
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        {
-          chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
@@ -133,7 +122,6 @@ export const them_changes: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_DDbjm_fId8' },
   ],

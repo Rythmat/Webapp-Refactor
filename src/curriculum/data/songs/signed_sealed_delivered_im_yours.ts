@@ -28,8 +28,8 @@ export const signed_sealed_delivered_im_yours: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -47,8 +47,8 @@ export const signed_sealed_delivered_im_yours: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         {
@@ -61,8 +61,8 @@ export const signed_sealed_delivered_im_yours: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -80,8 +80,8 @@ export const signed_sealed_delivered_im_yours: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         {
@@ -91,6 +91,28 @@ export const signed_sealed_delivered_im_yours: Song = {
         },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+      ],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
+      bars: [
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -98,42 +120,14 @@ export const signed_sealed_delivered_im_yours: Song = {
       label: 'Bridge',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
@@ -146,7 +140,6 @@ export const signed_sealed_delivered_im_yours: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=6To0fvX_wFA' },
   ],

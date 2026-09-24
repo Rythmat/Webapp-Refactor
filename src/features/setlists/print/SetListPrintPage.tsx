@@ -2,9 +2,8 @@ import { Printer } from 'lucide-react';
 import { useEffect, useMemo, type FC } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { ChordChart } from '@/components/songLibrary/ChordChart';
-import { getSong } from '@/curriculum/data/songs';
-import { transposeSong } from '@/curriculum/songLibrary/transpose';
 import type { Song } from '@/curriculum/types/songLibrary';
+import { entryChart } from '../entryChart';
 import type { SetListEntry } from '../types';
 import { useSetLists } from '../useSetLists';
 import './setlist-print.css';
@@ -26,10 +25,9 @@ export const SetListPrintPage: FC = () => {
       (list?.entries ?? []).flatMap((entry): Page[] => {
         if (entry.kind === 'text')
           return entry.text.trim() ? [{ entry, song: null }] : [];
-        const song = getSong(entry.songId);
-        return song
-          ? [{ entry, song: transposeSong(song, entry.semitones) }]
-          : [];
+        const chart = entryChart(entry);
+        // A chart that cannot be drawn is left out rather than printed blank.
+        return chart?.song ? [{ entry, song: chart.song }] : [];
       }),
     [list],
   );

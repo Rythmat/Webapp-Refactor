@@ -77,8 +77,9 @@ describe('song chart form', () => {
       'Outro',
       'Outro', // repeat and fade
     ]);
+    // Intro, Verse ×2, Bridge, Verse ×2, Bridge, Verse, Tag, Interlude, Outro ×2.
     expect(performedBars(song)).toHaveLength(
-      4 + 8 + 8 + 9 + 8 + 8 + 9 + 8 + 4 + 4 + 8,
+      4 + 8 + 8 + 8 + 8 + 8 + 8 + 8 + 4 + 4 + 8,
     );
   });
 });

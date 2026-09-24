@@ -1,4 +1,5 @@
 import {
+  AudioLines,
   ChevronLeft,
   ChevronRight,
   Copy,
@@ -28,12 +29,10 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { SongRoutes } from '@/constants/routes';
-import { getSong } from '@/curriculum/data/songs';
-import {
-  semitonesToTonic,
-  transposeSong,
-} from '@/curriculum/songLibrary/transpose';
+import { semitonesToTonic } from '@/curriculum/songLibrary/transpose';
+import type { Song } from '@/curriculum/types/songLibrary';
 import { SongPickerDialog } from '@/features/classroom/slides/wizard/SongPickerDialog';
+import { entryChart } from '../entryChart';
 import {
   dropIndex,
   hasDragItem,
@@ -41,7 +40,11 @@ import {
   setDragItem,
 } from '../setListDnd';
 import { useSetViewMode } from '../setViewPreference';
-import type { SetListEntry, SetListSongEntry } from '../types';
+import type {
+  SetListEntry,
+  SetListProjectEntry,
+  SetListSongEntry,
+} from '../types';
 import { chartChangedSince, useSetLists } from '../useSetLists';
 import { InlineTitle } from './SetListsIndexPage';
 
@@ -255,7 +258,7 @@ const EntryRail: FC<{
   return (
     <ol className="custom-scrollbar flex-1 overflow-y-auto p-2">
       {entries.map((entry, index) => {
-        const song = entry.kind === 'song' ? getSong(entry.songId) : null;
+        const chart = entryChart(entry);
         const isSelected = entry.id === selectedId;
         return (
           <li
@@ -326,34 +329,47 @@ const EntryRail: FC<{
               <span className="w-4 flex-shrink-0 text-right text-[11px] text-white/30">
                 {index + 1}
               </span>
-              {entry.kind === 'song' ? (
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-center gap-1">
-                    <Music size={11} className="flex-shrink-0 text-white/25" />
-                    <span className="truncate text-sm text-white/90">
-                      {entry.title ?? song?.title ?? entry.songId}
-                    </span>
-                  </span>
-                  <span className="flex items-center gap-1.5 pl-4 text-[11px] text-white/35">
-                    <span className="truncate">
-                      {song?.artist ?? 'Missing song'}
-                    </span>
-                    {song && (
-                      <EntryKey
-                        entry={entry}
-                        setListId={setListId}
-                        song={song}
-                      />
-                    )}
-                  </span>
-                </span>
-              ) : (
+              {entry.kind === 'text' ? (
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-1 text-sm text-white/70">
                     <Type size={11} className="flex-shrink-0 text-white/25" />
                     <span className="truncate italic">
                       {entry.text.trim() || 'Text page'}
                     </span>
+                  </span>
+                </span>
+              ) : (
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-1">
+                    {entry.kind === 'project' ? (
+                      <AudioLines
+                        size={11}
+                        className="flex-shrink-0 text-white/25"
+                      />
+                    ) : (
+                      <Music
+                        size={11}
+                        className="flex-shrink-0 text-white/25"
+                      />
+                    )}
+                    <span className="truncate text-sm text-white/90">
+                      {chart?.title}
+                    </span>
+                  </span>
+                  <span className="flex items-center gap-1.5 pl-4 text-[11px] text-white/35">
+                    <span className="truncate">
+                      {chart?.artist ??
+                        (entry.kind === 'project'
+                          ? 'From the Studio'
+                          : 'Missing song')}
+                    </span>
+                    {chart?.song && (
+                      <EntryKey
+                        entry={entry}
+                        setListId={setListId}
+                        inKey={chart.song}
+                      />
+                    )}
                   </span>
                 </span>
               )}
@@ -389,14 +405,14 @@ const EntryRail: FC<{
   );
 };
 
-/** The key pill in the rail: this set's key for this song. */
+/** The key pill in the rail: this set's key for this chart. */
 const EntryKey: FC<{
-  entry: SetListSongEntry;
+  entry: SetListSongEntry | SetListProjectEntry;
   setListId: string;
-  song: NonNullable<ReturnType<typeof getSong>>;
-}> = ({ entry, setListId, song }) => {
+  /** Already in this set's key — the wheel moves from here. */
+  inKey: Song;
+}> = ({ entry, setListId, inKey }) => {
   const { actions } = useSetLists();
-  const inKey = transposeSong(song, entry.semitones);
   const shift = entry.semitones > 6 ? entry.semitones - 12 : entry.semitones;
   return (
     <Popover>
@@ -428,12 +444,12 @@ const EntryKey: FC<{
       >
         <KeyWheel
           selectedPc={((inKey.keyRoot % 12) + 12) % 12}
-          mode={normalizeSongMode(song.mode)}
+          mode={normalizeSongMode(inKey.mode)}
           onSelectPc={(pc) =>
             actions.setEntryTranspose(
               setListId,
               entry.id,
-              semitonesToTonic(song, pc),
+              entry.semitones + semitonesToTonic(inKey, pc),
             )
           }
           ariaLabel="Key for this set"
@@ -442,7 +458,7 @@ const EntryKey: FC<{
               className="text-[10px] font-medium capitalize"
               style={{ color: 'var(--color-text-dim)' }}
             >
-              {song.key.replace(/^[A-G](?:♯|♭)?\s*/, '') || 'major'}
+              {inKey.key.replace(/^[A-G](?:♯|♭)?\s*/, '') || 'major'}
             </span>
           }
         />
@@ -468,18 +484,13 @@ const Viewer: FC<{
   const [pageCount, setPageCount] = useState(1);
   const [notesOpen, setNotesOpen] = useState(false);
 
-  const song = entry?.kind === 'song' ? getSong(entry.songId) : null;
-  // A set always plays the current chart; this only says it is not the chart
-  // the player last looked at.
+  const chart = useMemo(() => (entry ? entryChart(entry) : null), [entry]);
+  const inKey = chart?.song ?? null;
+  // A library chart is always played from the published version; this only
+  // says it is not the one the player last looked at. A printed Studio page
+  // has no published version to drift from.
   const updatedFingerprint =
     entry?.kind === 'song' ? chartChangedSince(entry) : null;
-  const inKey = useMemo(
-    () =>
-      song && entry?.kind === 'song'
-        ? transposeSong(song, entry.semitones)
-        : null,
-    [song, entry],
-  );
 
   // How many screens tall the chart is.
   useEffect(() => {
@@ -564,18 +575,18 @@ const Viewer: FC<{
       <header className="flex flex-shrink-0 flex-wrap items-center gap-3 border-b border-white/10 px-5 py-2.5">
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-lg font-semibold text-white">
-            {entry.kind === 'song'
-              ? (entry.title ?? song?.title ?? entry.songId)
-              : 'Text page'}
+            {chart?.title ?? 'Text page'}
           </h1>
-          {entry.kind === 'song' && song && (
+          {chart && inKey && (
             <p className="truncate text-xs text-white/45">
-              {song.artist} · {inKey?.key}
+              {chart.artist ? `${chart.artist} · ` : ''}
+              {inKey.key}
+              {entry.kind === 'project' && ' · from the Studio'}
             </p>
           )}
         </div>
 
-        {entry.kind === 'song' && (
+        {entry.kind !== 'text' && (
           <button
             type="button"
             onClick={() => setNotesOpen((v) => !v)}
@@ -632,7 +643,7 @@ const Viewer: FC<{
         </div>
       )}
 
-      {entry.kind === 'song' && (notesOpen || entry.notes) && (
+      {entry.kind !== 'text' && (notesOpen || entry.notes) && (
         <input
           value={entry.notes ?? ''}
           autoFocus={notesOpen && !entry.notes}
@@ -664,13 +675,11 @@ const Viewer: FC<{
               : undefined
           }
         >
-          {entry.kind === 'song' && inKey ? (
-            <ChordChart key={`${entry.id}:${entry.semitones}`} song={inKey} />
-          ) : entry.kind === 'song' ? (
-            <p className="text-white/40">
-              This song is not in the library any more ({entry.songId}).
-            </p>
-          ) : (
+          {inKey ? (
+            <ChordChart key={`${entry.id}:${inKey.key}`} song={inKey} />
+          ) : chart ? (
+            <p className="text-white/40">{chart.missing}</p>
+          ) : entry.kind === 'text' ? (
             <textarea
               value={entry.text}
               onChange={(e) =>
@@ -680,7 +689,7 @@ const Viewer: FC<{
               className="min-h-[60vh] w-full resize-none bg-transparent leading-relaxed text-white/90 outline-none placeholder:text-white/25"
               style={{ fontSize: '16pt' }}
             />
-          )}
+          ) : null}
         </div>
       </div>
 

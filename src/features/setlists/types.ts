@@ -10,6 +10,8 @@
  * stored — see storage/gameOptionsSetListsStore.ts.
  */
 
+import type { SongMode, SongSection } from '@/curriculum/types/songLibrary';
+
 export const SETLIST_SCHEMA_VERSION = 1;
 
 /** The two lists every user starts with. Identified by role, never by title,
@@ -40,12 +42,52 @@ export interface SetListSongEntry extends EntryBase {
   notes?: string;
 }
 
+/**
+ * A lead sheet sent over from a Studio project.
+ *
+ * Unlike a library song, this entry OWNS its chart. A Studio project belongs
+ * to the player and can be deleted or rewritten at any time; the set must
+ * survive that, so sending a chart to a set list copies it — the way you would
+ * put a printed page on the stand. `projectId` is kept only so the Studio can
+ * offer to push a later edit into the sets that carry it, and so the set can
+ * offer to open the project; nothing breaks when the project is gone.
+ */
+export interface SetListProjectEntry extends EntryBase {
+  kind: 'project';
+  /** The project this was copied from, if it still exists. */
+  projectId?: string;
+  title: string;
+  /** The chart itself, in the song library's shape so it renders and
+   *  transposes like any other chart. */
+  chart: StoredChart;
+  /** Semitones from the chart as copied, -11..11. */
+  semitones: number;
+  notes?: string;
+  /** When the copy was taken, so the Studio can say what it would replace. */
+  copiedAt: number;
+}
+
+/** A chart that lives in the set list itself, shaped like a library song. */
+export interface StoredChart {
+  title: string;
+  artist?: string;
+  key: string;
+  keyRoot: number;
+  mode: SongMode;
+  tempo: number;
+  timeSignature: [number, number];
+  sections: SongSection[];
+}
+
 export interface SetListTextEntry extends EntryBase {
   kind: 'text';
   text: string;
 }
 
-export type SetListEntry = SetListSongEntry | SetListTextEntry;
+export type SetListEntry =
+  | SetListSongEntry
+  | SetListProjectEntry
+  | SetListTextEntry;
 
 export interface SetList {
   id: string;
@@ -105,5 +147,7 @@ export const LIMITS = {
   notes: 280,
   text: 4000,
   entriesPerList: 300,
+  /** A printed Studio chart lives in the document, so it has a ceiling. */
+  chartBars: 400,
   lists: 300,
 } as const;

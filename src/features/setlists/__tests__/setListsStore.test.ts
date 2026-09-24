@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   acceptChartUpdate,
+  addProjectEntry,
   addSongEntry,
   chartFingerprint,
   addTextEntry,
@@ -15,7 +16,9 @@ import {
   migrateSavedSongs,
   moveEntry,
   normalizeBlob,
+  projectEntries,
   removeEntry,
+  replaceProjectChart,
   renameSetList,
   reorder,
   roleList,
@@ -23,8 +26,14 @@ import {
   setEntryNotes,
   setEntryTranspose,
   toggleFavorite,
+  unlinkProject,
 } from '../setListsStore';
-import { FAVORITES_TITLE, INBOX_TITLE } from '../types';
+import {
+  FAVORITES_TITLE,
+  INBOX_TITLE,
+  LIMITS,
+  type StoredChart,
+} from '../types';
 
 const start = () => ensureDefaults(emptyBlob(1), 1);
 const inbox = (b: ReturnType<typeof start>) => roleList(b, 'inbox')!;
@@ -317,5 +326,160 @@ describe('chart corrections', () => {
     expect(blob.setLists[list].entries[0]).toMatchObject({
       chartFingerprint: 'def',
     });
+  });
+
+  /* ── Charts printed from the Studio ─────────────────────────────────── */
+
+  const studioChart = (chordName = 'G', bars = 4): StoredChart => ({
+    title: 'Blues in G',
+    key: 'G major',
+    keyRoot: 7,
+    mode: 'major',
+    tempo: 96,
+    timeSignature: [4, 4],
+    sections: [
+      {
+        id: 'studio_1',
+        label: '',
+        bars: Array.from({ length: bars }, () => ({
+          chords: [{ degree: '1 maj', chordName, beat: 1, duration: 4 }],
+        })),
+      },
+    ],
+  });
+
+  it('carries the chart itself, because a project may not keep one', () => {
+    let blob = start();
+    const list = inbox(blob).id;
+    const added = addProjectEntry(
+      blob,
+      list,
+      { projectId: 'p1', title: 'Blues in G', chart: studioChart() },
+      undefined,
+      2,
+    );
+    blob = added.blob;
+    const entry = blob.setLists[list].entries[0];
+    expect(entry).toMatchObject({
+      kind: 'project',
+      projectId: 'p1',
+      title: 'Blues in G',
+      semitones: 0,
+      copiedAt: 2,
+    });
+    // Unlike a library song, the chords ARE here.
+    expect(JSON.stringify(entry)).toContain('bars');
+  });
+
+  it('keeps the page when the project it came from is deleted', () => {
+    let blob = start();
+    const list = inbox(blob).id;
+    blob = addProjectEntry(
+      blob,
+      list,
+      { projectId: 'p1', title: 'Blues in G', chart: studioChart() },
+      undefined,
+      2,
+    ).blob;
+    blob = addProjectEntry(
+      blob,
+      list,
+      { projectId: 'p2', title: 'Other', chart: studioChart('D') },
+      undefined,
+      2,
+    ).blob;
+
+    blob = unlinkProject(blob, 'p1', 3);
+    const [gone, kept] = blob.setLists[list].entries;
+    // The link is severed; the chart is untouched. This is the promise.
+    expect(gone).toMatchObject({ kind: 'project', title: 'Blues in G' });
+    expect('projectId' in gone).toBe(false);
+    expect(gone.kind === 'project' && gone.chart.sections[0].bars).toHaveLength(
+      4,
+    );
+    // Another project's page is not disturbed.
+    expect(kept).toMatchObject({ projectId: 'p2' });
+    expect(projectEntries(blob, 'p1')).toEqual([]);
+    expect(projectEntries(blob, 'p2')).toHaveLength(1);
+  });
+
+  it('finds every set carrying a project, and replaces only those pages', () => {
+    let blob = start();
+    const a = inbox(blob).id;
+    const created = createSetList(blob, { title: 'Friday' }, 2);
+    blob = created.blob;
+    const b = created.setListId;
+    for (const list of [a, b]) {
+      blob = addProjectEntry(
+        blob,
+        list,
+        { projectId: 'p1', title: 'Blues in G', chart: studioChart() },
+        undefined,
+        2,
+      ).blob;
+    }
+
+    const carrying = projectEntries(blob, 'p1');
+    expect(carrying.map((c) => c.setListId).sort()).toEqual([a, b].sort());
+
+    // The Studio pushes a corrected chart into one of them.
+    const target = carrying.find((c) => c.setListId === a)!;
+    blob = replaceProjectChart(
+      blob,
+      a,
+      target.entry.id,
+      studioChart('G7'),
+      'Blues in G (fixed)',
+      9,
+    );
+    const updated = blob.setLists[a].entries[0];
+    expect(updated).toMatchObject({
+      title: 'Blues in G (fixed)',
+      copiedAt: 9,
+    });
+    expect(
+      updated.kind === 'project' &&
+        updated.chart.sections[0].bars[0].chords[0].chordName,
+    ).toBe('G7');
+    // The other set still holds the page it was given.
+    expect(
+      blob.setLists[b].entries[0].kind === 'project' &&
+        blob.setLists[b].entries[0].chart.sections[0].bars[0].chords[0]
+          .chordName,
+    ).toBe('G');
+  });
+
+  it('gives a printed chart its own key and notes in each set', () => {
+    let blob = start();
+    const list = inbox(blob).id;
+    const added = addProjectEntry(
+      blob,
+      list,
+      { title: 'Blues in G', chart: studioChart() },
+      undefined,
+      2,
+    );
+    blob = setEntryTranspose(added.blob, list, added.entryId, 3, 3);
+    blob = setEntryNotes(blob, list, added.entryId, 'count in 4', 4);
+    expect(blob.setLists[list].entries[0]).toMatchObject({
+      semitones: 3,
+      notes: 'count in 4',
+    });
+  });
+
+  it('will not let one chart grow the document without limit', () => {
+    const blob = start();
+    const list = inbox(blob).id;
+    const huge = addProjectEntry(
+      blob,
+      list,
+      { title: 'Long', chart: studioChart('G', LIMITS.chartBars + 50) },
+      undefined,
+      2,
+    ).blob;
+    const entry = huge.setLists[list].entries[0];
+    expect(
+      entry.kind === 'project' && entry.chart.sections[0].bars.length,
+    ).toBe(LIMITS.chartBars);
   });
 });

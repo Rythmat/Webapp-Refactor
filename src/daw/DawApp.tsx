@@ -8,6 +8,7 @@ import { PianoRollModal } from '@/daw/components/PianoRoll/PianoRollModal';
 import { ChordAnalysisPrompt } from '@/daw/components/Library/ChordAnalysisPrompt';
 import { PitchEditorModal } from '@/daw/components/PitchEditor/PitchEditorModal';
 import { LeadSheetView } from '@/daw/components/LeadSheet/LeadSheetView';
+import { SetListUpdatePrompt } from '@/daw/components/LeadSheet/SendToSetList';
 import { ScoreView } from '@/daw/components/Score/ScoreView';
 import { PracticeTrackView } from '@/daw/components/Practice/PracticeTrackView';
 import { StudioView } from '@/daw/components/Studio/StudioView';
@@ -449,6 +450,7 @@ function DawAppInner() {
         </div>
       )}
       <ChordAnalysisPrompt />
+      <SetListUpdatePrompt />
       <SettingsModal />
       <PrismSuggestionModal />
       <RecordingLimitModal />

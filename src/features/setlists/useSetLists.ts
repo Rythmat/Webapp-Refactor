@@ -6,7 +6,7 @@ import {
   type SaveState,
   type SetListsStatus,
 } from './storage/gameOptionsSetListsStore';
-import type { SaveDestination, SetListsBlob } from './types';
+import type { SaveDestination, SetListsBlob, StoredChart } from './types';
 
 /**
  * The set lists, and every edit the UI can make to them.
@@ -39,6 +39,23 @@ export interface UseSetLists {
       entryId: string,
       fingerprint: string,
     ) => void;
+    addProjectChart: (
+      setListId: string,
+      input: {
+        projectId?: string;
+        title: string;
+        chart: StoredChart;
+        semitones?: number;
+        notes?: string;
+      },
+    ) => string;
+    replaceProjectChart: (
+      setListId: string,
+      entryId: string,
+      chart: StoredChart,
+      title?: string,
+    ) => void;
+    unlinkProject: (projectId: string) => void;
     addText: (setListId: string, text?: string) => void;
     removeEntry: (setListId: string, entryId: string) => void;
     duplicateEntry: (setListId: string, entryId: string) => void;
@@ -149,6 +166,17 @@ export function useSetLists(): UseSetLists {
         apply((b, now) =>
           store.acceptChartUpdate(b, setListId, entryId, fingerprint, now),
         ),
+      addProjectChart: (setListId, input) =>
+        edit((b, now) => {
+          const r = store.addProjectEntry(b, setListId, input, undefined, now);
+          return { blob: r.blob, value: r.entryId };
+        }),
+      replaceProjectChart: (setListId, entryId, chart, title) =>
+        apply((b, now) =>
+          store.replaceProjectChart(b, setListId, entryId, chart, title, now),
+        ),
+      unlinkProject: (projectId) =>
+        apply((b, now) => store.unlinkProject(b, projectId, now)),
       addText: (setListId, text) =>
         apply(
           (b, now) =>
@@ -201,6 +229,36 @@ export function useSetLists(): UseSetLists {
     tree: useMemo(() => store.listTree(blob), [blob]),
     flush,
     actions,
+  };
+}
+
+/**
+ * The sets that carry a page printed from this Studio project, and the two
+ * things the Studio can do about them: push this chart into them, or cut the
+ * link when the project is gone. The pages themselves are never touched by
+ * either — that is the promise.
+ */
+export function useProjectSetListEntries(projectId: string | undefined) {
+  const { blob, status, actions, flush } = useSetLists();
+  const carrying = useMemo(
+    () => (projectId ? store.projectEntries(blob, projectId) : []),
+    [blob, projectId],
+  );
+  return {
+    carrying,
+    canSend: status !== 'signedOut',
+    /** True when at least one set's page is older than this chart. */
+    staleFor: useCallback(
+      (chart: { key: string; sections: StoredChart['sections'] }) => {
+        const now = store.chartFingerprint(chart);
+        return carrying.filter(
+          (c) => store.chartFingerprint(c.entry.chart) !== now,
+        );
+      },
+      [carrying],
+    ),
+    actions,
+    flush,
   };
 }
 

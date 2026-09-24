@@ -139,6 +139,8 @@ export const StaffMeasure: FC<{
   /** The song's key, which jazz and Roman labels are written in. */
   chordContext?: ChordContext;
   isFirst: boolean;
+  /** This bar's segno/coda is drawn with the section marker, not in the bar. */
+  signsInHeader?: boolean;
   hasRepeatStart?: boolean;
   hasRepeatEnd?: boolean;
   onChordClick?: (hit: ChordHit) => void;
@@ -155,6 +157,7 @@ export const StaffMeasure: FC<{
   notation,
   chordContext,
   isFirst,
+  signsInHeader,
   hasRepeatStart,
   hasRepeatEnd,
   onChordClick,
@@ -291,7 +294,12 @@ export const StaffMeasure: FC<{
       {/* Roadmap marks, in one lane right above this bar's own staff: the
           signs and cue at its start, the jumps at its end. They must read as
           attached to this staff, not to the system above. */}
-      <BarMarks bar={bar} width={width} y={staffTop - 22} />
+      <BarMarks
+        bar={bar}
+        width={width}
+        y={staffTop - 22}
+        signsInHeader={signsInHeader}
+      />
 
       {/* Fermata symbol above the bar */}
       {bar.fermata && (
@@ -593,24 +601,43 @@ const SegnoSign: FC<{ x: number; y: number }> = ({ x, y }) => (
 );
 
 /**
+ * A segno or coda in the HTML flow, for the lane above a section marker. The
+ * two signs mark WHERE THE FORM RETURNS TO, which is a property of the section,
+ * not of its first chord — so they are drawn with the marker rather than inside
+ * bar 1, where they read as one more symbol in the staff.
+ */
+const SectionSign: FC<{ kind: 'segno' | 'coda' }> = ({ kind }) => (
+  <svg
+    width={20}
+    height={20}
+    viewBox="-10 -10 20 20"
+    style={{ display: 'block', overflow: 'visible' }}
+  >
+    {kind === 'segno' ? <SegnoSign x={0} y={0} /> : <CodaSign x={0} y={0} />}
+  </svg>
+);
+
+/**
  * A bar's roadmap marks, drawn in the lane immediately above its own staff:
  * segno, coda sign, key change and cue at the bar's start; "To Coda", Fine,
  * a repeat count and a jump at its end. Keeping them inside the measure is
  * what makes them read as belonging to THIS staff — sitting them in a band at
  * the top of the row put a D.S. closer to the system above it than to its own.
  */
-const BarMarks: FC<{ bar: ChordBar; width: number; y: number }> = ({
-  bar,
-  width,
-  y,
-}) => {
+const BarMarks: FC<{
+  bar: ChordBar;
+  width: number;
+  y: number;
+  /** The section marker above is carrying this bar's segno/coda instead. */
+  signsInHeader?: boolean;
+}> = ({ bar, width, y, signsInHeader }) => {
   let leftX = 6;
   const signs: React.ReactNode[] = [];
-  if (bar.segno) {
+  if (bar.segno && !signsInHeader) {
     signs.push(<SegnoSign key="segno" x={leftX + 6} y={y - 5} />);
     leftX += 20;
   }
-  if (bar.coda) {
+  if (bar.coda && !signsInHeader) {
     signs.push(<CodaSign key="coda" x={leftX + 6} y={y - 5} />);
     leftX += 20;
   }
@@ -766,8 +793,28 @@ const SectionStaff: FC<{
     at += size;
   }
 
+  // A segno or coda on the section's first bar is drawn above the marker, where
+  // it reads as "the form comes back HERE" rather than as a chord decoration.
+  // A section with no marker of its own keeps its signs in the bar.
+  const hasMarker = !!editable || !!section.label;
+  const opensOnSegno = hasMarker && !!bars[0]?.segno;
+  const opensOnCoda = hasMarker && !!bars[0]?.coda;
+  const signsInHeader = opensOnSegno || opensOnCoda;
+
   return (
     <div style={{ marginBottom: 'clamp(1rem, 2vw, 1.5rem)' }}>
+      {signsInHeader && (
+        <div
+          className="flex items-center gap-2"
+          style={{
+            marginBottom: 'clamp(0.1rem, 0.2vw, 0.2rem)',
+            color: 'var(--color-text, #e8e8f0)',
+          }}
+        >
+          {opensOnSegno && <SectionSign kind="segno" />}
+          {opensOnCoda && <SectionSign kind="coda" />}
+        </div>
+      )}
       {/* Section header — inline-editable controls in the editor */}
       {editable ? (
         <div
@@ -936,6 +983,7 @@ const SectionStaff: FC<{
                           : {}
                       }
                       isFirst={bi === 0 && ri === 0}
+                      signsInHeader={globalBi === 0 && signsInHeader}
                       hasRepeatStart={!!bar.repeatStart}
                       hasRepeatEnd={!!bar.repeatEnd}
                       onChordClick={onChordClick}

@@ -9,9 +9,11 @@ import {
   type SaveDestination,
   type SetList,
   type SetListEntry,
+  type SetListProjectEntry,
   type SetListsBlob,
   type SetListSongEntry,
   type Show,
+  type StoredChart,
 } from './types';
 
 /**
@@ -481,6 +483,139 @@ export function addTextEntry(
   };
 }
 
+/**
+ * A Studio lead sheet, printed into a set.
+ *
+ * The chart travels with the entry. `projectId` is only a back-reference, so
+ * the Studio can offer to push a later edit here and the set can offer to open
+ * the project; losing the project loses neither the page nor its place.
+ */
+export function addProjectEntry(
+  blob: SetListsBlob,
+  setListId: string,
+  input: {
+    projectId?: string;
+    title: string;
+    chart: StoredChart;
+    semitones?: number;
+    notes?: string;
+  },
+  atIndex?: number,
+  now = 0,
+): { blob: SetListsBlob; entryId: string } {
+  const list = blob.setLists[setListId];
+  if (!list || list.entries.length >= LIMITS.entriesPerList)
+    return { blob, entryId: '' };
+  const entry: SetListProjectEntry = {
+    kind: 'project',
+    id: uid('e'),
+    ...(input.projectId ? { projectId: input.projectId } : {}),
+    title: clamp(input.title, LIMITS.title) || 'Untitled lead sheet',
+    chart: trimChart(input.chart),
+    semitones: mod12(input.semitones ?? 0),
+    ...(input.notes ? { notes: clamp(input.notes, LIMITS.notes) } : {}),
+    createdAt: now,
+    copiedAt: now,
+  };
+  const entries = [...list.entries];
+  entries.splice(atIndex ?? entries.length, 0, entry);
+  return {
+    entryId: entry.id,
+    blob: withEntries(blob, setListId, entries, now),
+  };
+}
+
+/** No entry may carry an unbounded chart into the one-document store. */
+function trimChart(chart: StoredChart): StoredChart {
+  let left = LIMITS.chartBars;
+  const sections: StoredChart['sections'] = [];
+  for (const section of chart.sections) {
+    if (left <= 0) break;
+    sections.push(
+      section.bars.length <= left
+        ? section
+        : { ...section, bars: section.bars.slice(0, left) },
+    );
+    left -= section.bars.length;
+  }
+  return { ...chart, sections };
+}
+
+/** The player took the Studio's offer: this page becomes the current chart. */
+export const replaceProjectChart = (
+  blob: SetListsBlob,
+  setListId: string,
+  entryId: string,
+  chart: StoredChart,
+  title: string | undefined,
+  now = 0,
+) =>
+  patchEntry(
+    blob,
+    setListId,
+    entryId,
+    (e) =>
+      e.kind === 'project'
+        ? {
+            ...e,
+            chart: trimChart(chart),
+            ...(title ? { title: clamp(title, LIMITS.title) } : {}),
+            copiedAt: now,
+          }
+        : e,
+    now,
+  );
+
+/** Every set that carries a page printed from this project. */
+export function projectEntries(
+  blob: SetListsBlob,
+  projectId: string,
+): { setListId: string; setListTitle: string; entry: SetListProjectEntry }[] {
+  const found: {
+    setListId: string;
+    setListTitle: string;
+    entry: SetListProjectEntry;
+  }[] = [];
+  for (const list of Object.values(blob.setLists)) {
+    for (const entry of list.entries) {
+      if (entry.kind === 'project' && entry.projectId === projectId)
+        found.push({
+          setListId: list.id,
+          setListTitle: list.title,
+          entry,
+        });
+    }
+  }
+  return found;
+}
+
+/**
+ * The project is gone. Cut the back-reference and keep the page — the one
+ * promise a set list has to make.
+ */
+export function unlinkProject(
+  blob: SetListsBlob,
+  projectId: string,
+  now = 0,
+): SetListsBlob {
+  let any = false;
+  const setLists: SetListsBlob['setLists'] = {};
+  for (const [id, list] of Object.entries(blob.setLists)) {
+    let touched = false;
+    const entries = list.entries.map((entry) => {
+      if (entry.kind !== 'project' || entry.projectId !== projectId)
+        return entry;
+      touched = true;
+      const next: SetListProjectEntry = { ...entry };
+      delete next.projectId;
+      return next;
+    });
+    any = any || touched;
+    setLists[id] = touched ? { ...list, entries, updatedAt: now } : list;
+  }
+  return any ? touch({ ...blob, setLists }, now) : blob;
+}
+
 export const removeEntry = (
   blob: SetListsBlob,
   setListId: string,
@@ -561,7 +696,7 @@ export const setEntryTranspose = (
     blob,
     setListId,
     entryId,
-    (e) => (e.kind === 'song' ? { ...e, semitones: mod12(semitones) } : e),
+    (e) => (e.kind === 'text' ? e : { ...e, semitones: mod12(semitones) }),
     now,
   );
 
@@ -577,7 +712,7 @@ export const setEntryNotes = (
     setListId,
     entryId,
     (e) =>
-      e.kind === 'song' ? { ...e, notes: clamp(notes, LIMITS.notes) } : e,
+      e.kind === 'text' ? e : { ...e, notes: clamp(notes, LIMITS.notes) },
     now,
   );
 
@@ -593,7 +728,7 @@ export const setEntryTitle = (
     setListId,
     entryId,
     (e) =>
-      e.kind === 'song' ? { ...e, title: clamp(title, LIMITS.title) } : e,
+      e.kind === 'text' ? e : { ...e, title: clamp(title, LIMITS.title) },
     now,
   );
 

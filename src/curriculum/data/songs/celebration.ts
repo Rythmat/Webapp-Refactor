@@ -146,7 +146,7 @@ export const celebration: Song = {
             { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
       ],
     },
     {

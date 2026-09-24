@@ -102,7 +102,7 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '7 7', chordName: 'C7(♯5)', beat: 1, duration: 2 },
+            { degree: '7 dom7', chordName: 'C7(♯5)', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -119,7 +119,7 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '♭3 7/♭7', chordName: 'E7/B', beat: 1, duration: 4 },
+            { degree: '♭3 dom7/♭7', chordName: 'E7/B', beat: 1, duration: 4 },
           ],
         },
         {
@@ -167,7 +167,7 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '7 7', chordName: 'C7(♯5)', beat: 1, duration: 2 },
+            { degree: '7 dom7', chordName: 'C7(♯5)', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -180,7 +180,7 @@ export const look_what_i_found: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
-            { degree: '7 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '7 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -259,7 +259,7 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '7 7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
+            { degree: '7 dom7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -275,7 +275,7 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '♭3 7/♭7', chordName: 'E7/B', beat: 1, duration: 4 },
+            { degree: '♭3 dom7/♭7', chordName: 'E7/B', beat: 1, duration: 4 },
           ],
         },
         {
@@ -322,13 +322,13 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '7 7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
+            { degree: '7 dom7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
-            { degree: '7 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '7 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -417,7 +417,7 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '7 7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
+            { degree: '7 dom7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -429,7 +429,7 @@ export const look_what_i_found: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
-            { degree: '7 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '7 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -480,7 +480,7 @@ export const look_what_i_found: Song = {
         },
         {
           chords: [
-            { degree: '7 7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
+            { degree: '7 dom7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -492,7 +492,7 @@ export const look_what_i_found: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
-            { degree: '7 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '7 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {

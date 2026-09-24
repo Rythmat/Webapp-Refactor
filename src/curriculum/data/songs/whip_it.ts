@@ -24,7 +24,7 @@ export const whip_it: Song = {
       bars: [
         { chords: [], restBars: 4 },
         {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -33,7 +33,7 @@ export const whip_it: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -48,7 +48,7 @@ export const whip_it: Song = {
       label: 'Verse 1',
       bars: [
         {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -57,7 +57,7 @@ export const whip_it: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -96,7 +96,7 @@ export const whip_it: Song = {
       label: 'Verse 2',
       bars: [
         {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -105,7 +105,7 @@ export const whip_it: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -140,7 +140,7 @@ export const whip_it: Song = {
       label: 'Verse 3',
       bars: [
         {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -149,7 +149,7 @@ export const whip_it: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -158,7 +158,7 @@ export const whip_it: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -167,7 +167,7 @@ export const whip_it: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -206,7 +206,7 @@ export const whip_it: Song = {
       label: 'Outro',
       bars: [
         {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -215,7 +215,7 @@ export const whip_it: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
       ],
     },

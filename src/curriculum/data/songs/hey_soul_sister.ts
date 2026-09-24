@@ -111,7 +111,7 @@ export const hey_soul_sister: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
         {
@@ -123,7 +123,7 @@ export const hey_soul_sister: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -141,7 +141,7 @@ export const hey_soul_sister: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -202,7 +202,7 @@ export const hey_soul_sister: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
         {
@@ -214,7 +214,7 @@ export const hey_soul_sister: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -232,7 +232,7 @@ export const hey_soul_sister: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -270,7 +270,7 @@ export const hey_soul_sister: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -288,7 +288,7 @@ export const hey_soul_sister: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
         {
@@ -300,7 +300,7 @@ export const hey_soul_sister: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -319,7 +319,7 @@ export const hey_soul_sister: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
         {

@@ -67,7 +67,7 @@ export const where_you_lead: Song = {
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '2 7', chordName: 'D7', beat: 3, duration: 2 },
+            { degree: '2 dom7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -110,7 +110,7 @@ export const where_you_lead: Song = {
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 7/5', chordName: 'C7/G', beat: 3, duration: 2 },
+            { degree: '1 dom7/5', chordName: 'C7/G', beat: 3, duration: 2 },
           ],
         },
         {
@@ -181,7 +181,7 @@ export const where_you_lead: Song = {
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 7/5', chordName: 'C7/G', beat: 3, duration: 2 },
+            { degree: '1 dom7/5', chordName: 'C7/G', beat: 3, duration: 2 },
           ],
         },
         {
@@ -228,7 +228,7 @@ export const where_you_lead: Song = {
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 7/5', chordName: 'C7/G', beat: 3, duration: 2 },
+            { degree: '1 dom7/5', chordName: 'C7/G', beat: 3, duration: 2 },
           ],
         },
         {

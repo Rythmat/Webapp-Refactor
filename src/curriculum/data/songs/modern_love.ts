@@ -30,7 +30,7 @@ export const modern_love: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7', chordName: 'E7sus', beat: 1, duration: 2 },
+            { degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Emin7', beat: 3, duration: 2 },
           ],
         },
@@ -42,12 +42,12 @@ export const modern_love: Song = {
         {
           chords: [
             { degree: '♭7 maj/♭6', chordName: 'D/C', beat: 1, duration: 2 },
-            { degree: '♭6 7', chordName: 'C7sus', beat: 3, duration: 2 },
+            { degree: '♭6 dom7', chordName: 'C7sus', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭6 7', chordName: 'C7sus', beat: 1, duration: 4 },
+            { degree: '♭6 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -59,17 +59,17 @@ export const modern_love: Song = {
         {
           chords: [
             { degree: '♭7 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '♭7 7', chordName: 'D7sus', beat: 3, duration: 2 },
+            { degree: '♭7 dom7', chordName: 'D7sus', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'D7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'D7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'E7sus', beat: 1, duration: 2 },
+            { degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Emin7', beat: 3, duration: 2 },
           ],
         },
@@ -118,7 +118,7 @@ export const modern_love: Song = {
       id: 'verse_3',
       label: 'Verse 3',
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭2 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
@@ -172,8 +172,8 @@ export const modern_love: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -198,7 +198,7 @@ export const modern_love: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7', chordName: 'E7sus', beat: 1, duration: 2 },
+            { degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Emin7', beat: 3, duration: 2 },
           ],
         },
@@ -210,12 +210,12 @@ export const modern_love: Song = {
         {
           chords: [
             { degree: '♭7 maj/♭6', chordName: 'D/C', beat: 1, duration: 2 },
-            { degree: '♭6 7', chordName: 'C7sus', beat: 3, duration: 2 },
+            { degree: '♭6 dom7', chordName: 'C7sus', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭6 7', chordName: 'C7sus', beat: 1, duration: 4 },
+            { degree: '♭6 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -227,17 +227,17 @@ export const modern_love: Song = {
         {
           chords: [
             { degree: '♭7 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '♭7 7', chordName: 'D7sus', beat: 3, duration: 2 },
+            { degree: '♭7 dom7', chordName: 'D7sus', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'D7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'D7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'E7sus', beat: 1, duration: 2 },
+            { degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Emin7', beat: 3, duration: 2 },
           ],
         },
@@ -286,7 +286,7 @@ export const modern_love: Song = {
       id: 'verse_7',
       label: 'Verse 7',
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭2 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
@@ -324,8 +324,8 @@ export const modern_love: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },

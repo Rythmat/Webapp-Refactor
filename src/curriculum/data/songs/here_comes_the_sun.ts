@@ -29,7 +29,7 @@ export const here_comes_the_sun: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -77,7 +77,7 @@ export const here_comes_the_sun: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -138,7 +138,7 @@ export const here_comes_the_sun: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -241,7 +241,7 @@ export const here_comes_the_sun: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -278,7 +278,7 @@ export const here_comes_the_sun: Song = {
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {

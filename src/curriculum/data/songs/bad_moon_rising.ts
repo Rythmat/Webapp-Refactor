@@ -169,7 +169,7 @@ export const bad_moon_rising: Song = {
         {
           chords: [
             { degree: '6 maj', chordName: 'B', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -178,7 +178,7 @@ export const bad_moon_rising: Song = {
         {
           chords: [
             { degree: '6 maj', chordName: 'B', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -193,13 +193,13 @@ export const bad_moon_rising: Song = {
         {
           chords: [
             { degree: '7 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'F♯7', beat: 3, duration: 2 },
+            { degree: '3 dom7', chordName: 'F♯7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '6 maj', chordName: 'B', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -208,7 +208,7 @@ export const bad_moon_rising: Song = {
         {
           chords: [
             { degree: '6 maj', chordName: 'B', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },

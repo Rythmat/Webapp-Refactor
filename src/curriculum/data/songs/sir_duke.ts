@@ -24,8 +24,8 @@ export const sir_duke: Song = {
       instrumental: true,
       bars: [
         { chords: [], restBars: 7 },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -50,8 +50,8 @@ export const sir_duke: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
@@ -70,8 +70,8 @@ export const sir_duke: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭5 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭5 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -80,34 +80,34 @@ export const sir_duke: Song = {
       bars: [
         {
           chords: [
-            { degree: '4 7', chordName: 'E7', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D♯7', beat: 2, duration: 1 },
-            { degree: '♭3 7', chordName: 'D7', beat: 3, duration: 1 },
-            { degree: '2 7', chordName: 'C♯7', beat: 4, duration: 1 },
+            { degree: '4 dom7', chordName: 'E7', beat: 1, duration: 1 },
+            { degree: '3 dom7', chordName: 'D♯7', beat: 2, duration: 1 },
+            { degree: '♭3 dom7', chordName: 'D7', beat: 3, duration: 1 },
+            { degree: '2 dom7', chordName: 'C♯7', beat: 4, duration: 1 },
           ],
         },
         {
           chords: [
-            { degree: '♭3 7', chordName: 'D7', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D♯7', beat: 2, duration: 1 },
-            { degree: '4 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '♭3 dom7', chordName: 'D7', beat: 1, duration: 1 },
+            { degree: '3 dom7', chordName: 'D♯7', beat: 2, duration: 1 },
+            { degree: '4 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'E7', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D♯7', beat: 2, duration: 1 },
-            { degree: '♭3 7', chordName: 'D7', beat: 3, duration: 1 },
-            { degree: '2 7', chordName: 'C♯7', beat: 4, duration: 1 },
+            { degree: '4 dom7', chordName: 'E7', beat: 1, duration: 1 },
+            { degree: '3 dom7', chordName: 'D♯7', beat: 2, duration: 1 },
+            { degree: '♭3 dom7', chordName: 'D7', beat: 3, duration: 1 },
+            { degree: '2 dom7', chordName: 'C♯7', beat: 4, duration: 1 },
           ],
         },
         {
           chords: [
-            { degree: '♭3 7', chordName: 'D7', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D♯7', beat: 2, duration: 1 },
-            { degree: '4 7', chordName: 'E7', beat: 3, duration: 1 },
-            { degree: '♭5 7', chordName: 'F7', beat: 4, duration: 1 },
-            { degree: '5 7', chordName: 'F♯7', beat: 4, duration: 1 },
+            { degree: '♭3 dom7', chordName: 'D7', beat: 1, duration: 1 },
+            { degree: '3 dom7', chordName: 'D♯7', beat: 2, duration: 1 },
+            { degree: '4 dom7', chordName: 'E7', beat: 3, duration: 1 },
+            { degree: '♭5 dom7', chordName: 'F7', beat: 4, duration: 1 },
+            { degree: '5 dom7', chordName: 'F♯7', beat: 4, duration: 1 },
           ],
         },
       ],
@@ -134,12 +134,12 @@ export const sir_duke: Song = {
           chords: [
             { degree: '1 maj/3', chordName: 'B/D♯', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'F♯7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'F♯7sus', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'F♯7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'F♯7sus', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -160,12 +160,12 @@ export const sir_duke: Song = {
           chords: [
             { degree: '1 maj/3', chordName: 'B/D♯', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'F♯7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'F♯7sus', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'F♯7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'F♯7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -210,8 +210,8 @@ export const sir_duke: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
@@ -230,8 +230,8 @@ export const sir_duke: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭5 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭5 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -240,34 +240,34 @@ export const sir_duke: Song = {
       bars: [
         {
           chords: [
-            { degree: '4 7', chordName: 'E7', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D♯7', beat: 2, duration: 1 },
-            { degree: '♭3 7', chordName: 'D7', beat: 3, duration: 1 },
-            { degree: '2 7', chordName: 'C♯7', beat: 4, duration: 1 },
+            { degree: '4 dom7', chordName: 'E7', beat: 1, duration: 1 },
+            { degree: '3 dom7', chordName: 'D♯7', beat: 2, duration: 1 },
+            { degree: '♭3 dom7', chordName: 'D7', beat: 3, duration: 1 },
+            { degree: '2 dom7', chordName: 'C♯7', beat: 4, duration: 1 },
           ],
         },
         {
           chords: [
-            { degree: '♭3 7', chordName: 'D7', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D♯7', beat: 2, duration: 1 },
-            { degree: '4 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '♭3 dom7', chordName: 'D7', beat: 1, duration: 1 },
+            { degree: '3 dom7', chordName: 'D♯7', beat: 2, duration: 1 },
+            { degree: '4 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'E7', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D♯7', beat: 2, duration: 1 },
-            { degree: '♭3 7', chordName: 'D7', beat: 3, duration: 1 },
-            { degree: '2 7', chordName: 'C♯7', beat: 4, duration: 1 },
+            { degree: '4 dom7', chordName: 'E7', beat: 1, duration: 1 },
+            { degree: '3 dom7', chordName: 'D♯7', beat: 2, duration: 1 },
+            { degree: '♭3 dom7', chordName: 'D7', beat: 3, duration: 1 },
+            { degree: '2 dom7', chordName: 'C♯7', beat: 4, duration: 1 },
           ],
         },
         {
           chords: [
-            { degree: '♭3 7', chordName: 'D7', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D♯7', beat: 2, duration: 1 },
-            { degree: '4 7', chordName: 'E7', beat: 3, duration: 1 },
-            { degree: '♭5 7', chordName: 'F7', beat: 4, duration: 1 },
-            { degree: '5 7', chordName: 'F♯7', beat: 4, duration: 1 },
+            { degree: '♭3 dom7', chordName: 'D7', beat: 1, duration: 1 },
+            { degree: '3 dom7', chordName: 'D♯7', beat: 2, duration: 1 },
+            { degree: '4 dom7', chordName: 'E7', beat: 3, duration: 1 },
+            { degree: '♭5 dom7', chordName: 'F7', beat: 4, duration: 1 },
+            { degree: '5 dom7', chordName: 'F♯7', beat: 4, duration: 1 },
           ],
         },
       ],
@@ -294,12 +294,12 @@ export const sir_duke: Song = {
           chords: [
             { degree: '1 maj/3', chordName: 'B/D♯', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'F♯7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'F♯7sus', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'F♯7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'F♯7sus', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -320,12 +320,12 @@ export const sir_duke: Song = {
           chords: [
             { degree: '1 maj/3', chordName: 'B/D♯', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'F♯7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'F♯7sus', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'F♯7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'F♯7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -370,12 +370,12 @@ export const sir_duke: Song = {
           chords: [
             { degree: '1 maj/3', chordName: 'B/D♯', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'F♯7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'F♯7sus', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'F♯7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'F♯7sus', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -396,12 +396,12 @@ export const sir_duke: Song = {
           chords: [
             { degree: '1 maj/3', chordName: 'B/D♯', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'F♯7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'F♯7sus', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'F♯7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'F♯7sus', beat: 1, duration: 4 },
           ],
         },
       ],

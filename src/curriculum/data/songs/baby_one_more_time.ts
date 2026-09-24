@@ -62,7 +62,7 @@ export const baby_one_more_time: Song = {
         },
         {
           chords: [
-            { degree: '5 7/7', chordName: 'G7/B', beat: 1, duration: 4 },
+            { degree: '5 dom7/7', chordName: 'G7/B', beat: 1, duration: 4 },
           ],
         },
         {
@@ -120,7 +120,7 @@ export const baby_one_more_time: Song = {
         },
         {
           chords: [
-            { degree: '5 7/7', chordName: 'G7/B', beat: 1, duration: 4 },
+            { degree: '5 dom7/7', chordName: 'G7/B', beat: 1, duration: 4 },
           ],
         },
         {
@@ -168,7 +168,7 @@ export const baby_one_more_time: Song = {
         },
         {
           chords: [
-            { degree: '5 7/7', chordName: 'G7/B', beat: 1, duration: 4 },
+            { degree: '5 dom7/7', chordName: 'G7/B', beat: 1, duration: 4 },
           ],
         },
         {
@@ -215,7 +215,7 @@ export const baby_one_more_time: Song = {
         },
         {
           chords: [
-            { degree: '5 7/7', chordName: 'G7/B', beat: 1, duration: 4 },
+            { degree: '5 dom7/7', chordName: 'G7/B', beat: 1, duration: 4 },
           ],
         },
         {
@@ -245,7 +245,7 @@ export const baby_one_more_time: Song = {
         },
         {
           chords: [
-            { degree: '5 7/7', chordName: 'G7/B', beat: 1, duration: 4 },
+            { degree: '5 dom7/7', chordName: 'G7/B', beat: 1, duration: 4 },
           ],
         },
         {

@@ -54,7 +54,7 @@ export const p_y_t_pretty_young_thing: Song = {
           ],
         },
         {
-          chords: [{ degree: '4 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -76,7 +76,7 @@ export const p_y_t_pretty_young_thing: Song = {
           ],
         },
         {
-          chords: [{ degree: '4 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -108,13 +108,13 @@ export const p_y_t_pretty_young_thing: Song = {
             },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '5 min7/1', chordName: 'F♯min7/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
@@ -137,7 +137,7 @@ export const p_y_t_pretty_young_thing: Song = {
             },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         {
           chords: [
             {
@@ -149,7 +149,7 @@ export const p_y_t_pretty_young_thing: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'B7alt', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'B7alt', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -165,7 +165,7 @@ export const p_y_t_pretty_young_thing: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 6', chordName: 'A6', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 maj6', chordName: 'A6', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -174,7 +174,7 @@ export const p_y_t_pretty_young_thing: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 6', chordName: 'A6', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 maj6', chordName: 'A6', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -194,7 +194,7 @@ export const p_y_t_pretty_young_thing: Song = {
             { degree: '5 min7/1', chordName: 'F♯min7/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -209,7 +209,7 @@ export const p_y_t_pretty_young_thing: Song = {
       id: 'verse_6',
       label: 'Verse 6',
       bars: [
-        { chords: [{ degree: '♭7 6', chordName: 'A6', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 maj6', chordName: 'A6', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -218,7 +218,7 @@ export const p_y_t_pretty_young_thing: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 6', chordName: 'A6', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 maj6', chordName: 'A6', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -232,13 +232,13 @@ export const p_y_t_pretty_young_thing: Song = {
             { degree: '5 min7/1', chordName: 'F♯min7/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '♭6 maj/♭7', chordName: 'G/A', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭7 9', chordName: 'A9', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom9', chordName: 'A9', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -251,7 +251,7 @@ export const p_y_t_pretty_young_thing: Song = {
           ],
         },
         {
-          chords: [{ degree: '4 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -273,7 +273,7 @@ export const p_y_t_pretty_young_thing: Song = {
           ],
         },
         {
-          chords: [{ degree: '4 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -305,13 +305,13 @@ export const p_y_t_pretty_young_thing: Song = {
             },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '5 min7/1', chordName: 'F♯min7/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
@@ -334,7 +334,7 @@ export const p_y_t_pretty_young_thing: Song = {
             },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         {
           chords: [
             {
@@ -346,7 +346,7 @@ export const p_y_t_pretty_young_thing: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'B7alt', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'B7alt', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -362,7 +362,7 @@ export const p_y_t_pretty_young_thing: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 6', chordName: 'A6', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 maj6', chordName: 'A6', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -371,7 +371,7 @@ export const p_y_t_pretty_young_thing: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 6', chordName: 'A6', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 maj6', chordName: 'A6', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -391,7 +391,7 @@ export const p_y_t_pretty_young_thing: Song = {
             { degree: '5 min7/1', chordName: 'F♯min7/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -406,7 +406,7 @@ export const p_y_t_pretty_young_thing: Song = {
       id: 'bridge',
       label: 'Bridge',
       bars: [
-        { chords: [{ degree: '♭7 6', chordName: 'A6', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 maj6', chordName: 'A6', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -415,7 +415,7 @@ export const p_y_t_pretty_young_thing: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 6', chordName: 'A6', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 maj6', chordName: 'A6', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
@@ -467,7 +467,7 @@ export const p_y_t_pretty_young_thing: Song = {
         {
           chords: [
             { degree: '4 maj/6', chordName: 'E/G♯', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F♯7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'F♯7sus', beat: 3, duration: 2 },
           ],
         },
         {
@@ -518,7 +518,7 @@ export const p_y_t_pretty_young_thing: Song = {
             { degree: '♭3 maj/5', chordName: 'D/F♯', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -533,7 +533,7 @@ export const p_y_t_pretty_young_thing: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 6', chordName: 'A6', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 maj6', chordName: 'A6', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -542,7 +542,7 @@ export const p_y_t_pretty_young_thing: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 6', chordName: 'A6', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 maj6', chordName: 'A6', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -562,7 +562,7 @@ export const p_y_t_pretty_young_thing: Song = {
             { degree: '5 min7/1', chordName: 'F♯min7/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [] },
       ],
     },

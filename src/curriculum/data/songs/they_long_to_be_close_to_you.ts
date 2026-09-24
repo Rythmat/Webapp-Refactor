@@ -99,7 +99,7 @@ export const they_long_to_be_close_to_you: Song = {
           repeatEnd: true,
         },
         {
-          chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }],
           ending: [2],
         },
       ],
@@ -111,17 +111,17 @@ export const they_long_to_be_close_to_you: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'C', beat: 1, duration: 1 },
-            { degree: '4 6', chordName: 'C6', beat: 2, duration: 1 },
+            { degree: '4 maj6', chordName: 'C6', beat: 2, duration: 1 },
             { degree: '4 maj7', chordName: 'Cmaj7', beat: 3, duration: 1 },
-            { degree: '4 6', chordName: 'C6', beat: 4, duration: 1 },
+            { degree: '4 maj6', chordName: 'C6', beat: 4, duration: 1 },
           ],
         },
         {
           chords: [
             { degree: '4 maj', chordName: 'C', beat: 1, duration: 1 },
-            { degree: '4 6', chordName: 'C6', beat: 2, duration: 1 },
+            { degree: '4 maj6', chordName: 'C6', beat: 2, duration: 1 },
             { degree: '4 maj7', chordName: 'Cmaj7', beat: 3, duration: 1 },
-            { degree: '4 6', chordName: 'C6', beat: 4, duration: 1 },
+            { degree: '4 maj6', chordName: 'C6', beat: 4, duration: 1 },
           ],
         },
         {
@@ -135,7 +135,7 @@ export const they_long_to_be_close_to_you: Song = {
             { degree: '6 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '6 9', chordName: 'E9', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom9', chordName: 'E9', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '4 add2', chordName: 'Cadd2', beat: 1, duration: 2 },
@@ -145,12 +145,12 @@ export const they_long_to_be_close_to_you: Song = {
         {
           chords: [
             { degree: '4 maj7', chordName: 'Cmaj7', beat: 1, duration: 2 },
-            { degree: '4 6', chordName: 'C6', beat: 3, duration: 2 },
+            { degree: '4 maj6', chordName: 'C6', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭6 7sus4', chordName: 'E♭7sus4', beat: 1, duration: 4 },
+            { degree: '♭6 dom7', chordName: 'E♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
@@ -271,17 +271,17 @@ export const they_long_to_be_close_to_you: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'D♭', beat: 1, duration: 1 },
-            { degree: '4 6', chordName: 'D♭6', beat: 2, duration: 1 },
+            { degree: '4 maj6', chordName: 'D♭6', beat: 2, duration: 1 },
             { degree: '4 maj7', chordName: 'D♭maj7', beat: 3, duration: 1 },
-            { degree: '4 6', chordName: 'D♭6', beat: 4, duration: 1 },
+            { degree: '4 maj6', chordName: 'D♭6', beat: 4, duration: 1 },
           ],
         },
         {
           chords: [
             { degree: '4 maj', chordName: 'D♭', beat: 1, duration: 1 },
-            { degree: '4 6', chordName: 'D♭6', beat: 2, duration: 1 },
+            { degree: '4 maj6', chordName: 'D♭6', beat: 2, duration: 1 },
             { degree: '4 maj7', chordName: 'D♭maj7', beat: 3, duration: 1 },
-            { degree: '4 6', chordName: 'D♭6', beat: 4, duration: 1 },
+            { degree: '4 maj6', chordName: 'D♭6', beat: 4, duration: 1 },
           ],
         },
         {
@@ -295,7 +295,7 @@ export const they_long_to_be_close_to_you: Song = {
             { degree: '6 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '6 9', chordName: 'F9', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom9', chordName: 'F9', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '4 add2', chordName: 'D♭add2', beat: 1, duration: 2 },
@@ -305,12 +305,12 @@ export const they_long_to_be_close_to_you: Song = {
         {
           chords: [
             { degree: '4 maj7', chordName: 'D♭maj7', beat: 1, duration: 2 },
-            { degree: '4 6', chordName: 'D♭6', beat: 3, duration: 2 },
+            { degree: '4 maj6', chordName: 'D♭6', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♯5 7sus4', chordName: 'E7sus4', beat: 1, duration: 4 },
+            { degree: '♯5 dom7', chordName: 'E7sus4', beat: 1, duration: 4 },
           ],
         },
         {

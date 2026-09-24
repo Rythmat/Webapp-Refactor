@@ -58,25 +58,25 @@ export const single_ladies: Song = {
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -118,25 +118,25 @@ export const single_ladies: Song = {
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -173,8 +173,8 @@ export const single_ladies: Song = {
         {
           chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -182,17 +182,17 @@ export const single_ladies: Song = {
       label: 'Interlude',
       instrumental: true,
       bars: [
-        { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }],
+          chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }],
           fermata: true,
         },
-        { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -214,25 +214,25 @@ export const single_ladies: Song = {
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
       ],
     },
     {

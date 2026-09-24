@@ -44,45 +44,45 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
-        { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '5 7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'C7(♯5)', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '7 7', chordName: 'E7', beat: 3, duration: 1 },
-            { degree: '♭7 7', chordName: 'E♭7', beat: 4, duration: 1 },
+            { degree: '7 dom7', chordName: 'E7', beat: 3, duration: 1 },
+            { degree: '♭7 dom7', chordName: 'E♭7', beat: 4, duration: 1 },
           ],
         },
-        { chords: [{ degree: '6 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -101,34 +101,34 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'verse_4',
       label: 'Verse 4',
       bars: [
-        { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '5 7/7', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '5 dom7/7', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -139,10 +139,10 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
             { degree: '2 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -165,28 +165,28 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
             { degree: '2 min7', chordName: 'A♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'A♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D♭7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '5 7/7', chordName: 'D♭7/F', beat: 1, duration: 4 },
+            { degree: '5 dom7/7', chordName: 'D♭7/F', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'A♭min7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'D♭7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'D♭7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -205,15 +205,15 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
             { degree: '2 min7', chordName: 'A♭min7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♯2 7', chordName: 'A7', beat: 1, duration: 1 },
-            { degree: '2 7', chordName: 'A♭7', beat: 2, duration: 1 },
-            { degree: '♯1 7', chordName: 'G7', beat: 3, duration: 2 },
+            { degree: '♯2 dom7', chordName: 'A7', beat: 1, duration: 1 },
+            { degree: '2 dom7', chordName: 'A♭7', beat: 2, duration: 1 },
+            { degree: '♯1 dom7', chordName: 'G7', beat: 3, duration: 2 },
           ],
         },
         {

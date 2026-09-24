@@ -45,8 +45,8 @@ export const saturn: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'G7sus', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'G7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'G7sus', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'G7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -60,7 +60,7 @@ export const saturn: Song = {
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '5 7/4', chordName: 'G7/F', beat: 1, duration: 4 },
+            { degree: '5 dom7/4', chordName: 'G7/F', beat: 1, duration: 4 },
           ],
         },
         {
@@ -84,7 +84,7 @@ export const saturn: Song = {
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
       ],
@@ -96,7 +96,7 @@ export const saturn: Song = {
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '5 7/4', chordName: 'G7/F', beat: 1, duration: 4 },
+            { degree: '5 dom7/4', chordName: 'G7/F', beat: 1, duration: 4 },
           ],
         },
         {
@@ -120,7 +120,7 @@ export const saturn: Song = {
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
       ],
@@ -202,7 +202,7 @@ export const saturn: Song = {
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '5 7/4', chordName: 'G7/F', beat: 1, duration: 4 },
+            { degree: '5 dom7/4', chordName: 'G7/F', beat: 1, duration: 4 },
           ],
         },
         {
@@ -226,7 +226,7 @@ export const saturn: Song = {
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
       ],
@@ -238,7 +238,7 @@ export const saturn: Song = {
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '5 7/4', chordName: 'G7/F', beat: 1, duration: 4 },
+            { degree: '5 dom7/4', chordName: 'G7/F', beat: 1, duration: 4 },
           ],
         },
         {
@@ -262,12 +262,12 @@ export const saturn: Song = {
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7/4', chordName: 'G7/F', beat: 3, duration: 2 },
+            { degree: '5 dom7/4', chordName: 'G7/F', beat: 3, duration: 2 },
           ],
         },
         {
@@ -277,7 +277,7 @@ export const saturn: Song = {
         },
         {
           chords: [
-            { degree: '4 7/♭3', chordName: 'F7/E♭', beat: 1, duration: 4 },
+            { degree: '4 dom7/♭3', chordName: 'F7/E♭', beat: 1, duration: 4 },
           ],
         },
         {
@@ -287,8 +287,8 @@ export const saturn: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'G7sus', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'G7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'G7sus', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'G7', beat: 3, duration: 2 },
           ],
         },
         {

@@ -29,7 +29,7 @@ export const december_1963_oh_what_a_night: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -42,28 +42,28 @@ export const december_1963_oh_what_a_night: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -122,28 +122,28 @@ export const december_1963_oh_what_a_night: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -208,8 +208,8 @@ export const december_1963_oh_what_a_night: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -222,42 +222,42 @@ export const december_1963_oh_what_a_night: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
   ],

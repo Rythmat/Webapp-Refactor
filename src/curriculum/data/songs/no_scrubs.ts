@@ -32,7 +32,7 @@ export const no_scrubs: Song = {
             { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
@@ -48,7 +48,7 @@ export const no_scrubs: Song = {
             { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
@@ -67,28 +67,28 @@ export const no_scrubs: Song = {
           chords: [{ degree: '♭6 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'D♯7b9', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 dom7', chordName: 'D♯7b9', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'D♯7b9', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 dom7', chordName: 'D♯7b9', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7sus', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7sus', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '7 7', chordName: 'G7', beat: 1, duration: 2 },
-            { degree: '♭7 7', chordName: 'F♯7', beat: 3, duration: 2 },
+            { degree: '7 dom7', chordName: 'G7', beat: 1, duration: 2 },
+            { degree: '♭7 dom7', chordName: 'F♯7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '6 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭6 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
@@ -97,12 +97,12 @@ export const no_scrubs: Song = {
         },
         {
           chords: [
-            { degree: '5 7/7', chordName: 'D♯7/G', beat: 1, duration: 4 },
+            { degree: '5 dom7/7', chordName: 'D♯7/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7/7', chordName: 'D♯7/G', beat: 1, duration: 4 },
+            { degree: '5 dom7/7', chordName: 'D♯7/G', beat: 1, duration: 4 },
           ],
         },
         {
@@ -110,15 +110,15 @@ export const no_scrubs: Song = {
             { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'F♯7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'F♯7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7/7', chordName: 'D♯7/G', beat: 1, duration: 4 },
+            { degree: '5 dom7/7', chordName: 'D♯7/G', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -137,7 +137,7 @@ export const no_scrubs: Song = {
             { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'D♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },

@@ -72,7 +72,7 @@ export const solsbury_hill: Song = {
           chords: [
             { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'F♯7', beat: 3, duration: 5 },
+            { degree: '5 dom7', chordName: 'F♯7', beat: 3, duration: 5 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },
@@ -124,7 +124,7 @@ export const solsbury_hill: Song = {
           chords: [
             { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'F♯7', beat: 3, duration: 5 },
+            { degree: '5 dom7', chordName: 'F♯7', beat: 3, duration: 5 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },
@@ -176,7 +176,7 @@ export const solsbury_hill: Song = {
           chords: [
             { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'F♯7', beat: 3, duration: 5 },
+            { degree: '5 dom7', chordName: 'F♯7', beat: 3, duration: 5 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },

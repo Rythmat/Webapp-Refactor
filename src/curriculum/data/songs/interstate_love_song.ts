@@ -29,7 +29,7 @@ export const interstate_love_song: Song = {
         },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '4 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -91,10 +91,10 @@ export const interstate_love_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '4 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '4 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -128,7 +128,7 @@ export const interstate_love_song: Song = {
         },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '4 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -203,10 +203,10 @@ export const interstate_love_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '4 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '4 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -237,7 +237,7 @@ export const interstate_love_song: Song = {
         },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '4 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
       ],
     },

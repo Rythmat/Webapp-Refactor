@@ -93,7 +93,7 @@ export const oh_you_pretty_things: Song = {
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
+            { degree: '6 dom7', chordName: 'E♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -127,7 +127,7 @@ export const oh_you_pretty_things: Song = {
         },
         {
           chords: [
-            { degree: '3 7/♯5', chordName: 'B♭7/D', beat: 1, duration: 4 },
+            { degree: '3 dom7/♯5', chordName: 'B♭7/D', beat: 1, duration: 4 },
           ],
         },
         {
@@ -143,13 +143,13 @@ export const oh_you_pretty_things: Song = {
         },
         {
           chords: [
-            { degree: '2 7/6', chordName: 'A♭7/E♭', beat: 1, duration: 4 },
+            { degree: '2 dom7/6', chordName: 'A♭7/E♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [{ degree: '5 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -175,7 +175,7 @@ export const oh_you_pretty_things: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '7 dom7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
       ],
@@ -192,7 +192,7 @@ export const oh_you_pretty_things: Song = {
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
+            { degree: '6 dom7', chordName: 'E♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -226,7 +226,7 @@ export const oh_you_pretty_things: Song = {
         },
         {
           chords: [
-            { degree: '3 7/♯5', chordName: 'B♭7/D', beat: 1, duration: 4 },
+            { degree: '3 dom7/♯5', chordName: 'B♭7/D', beat: 1, duration: 4 },
           ],
         },
         {
@@ -242,13 +242,13 @@ export const oh_you_pretty_things: Song = {
         },
         {
           chords: [
-            { degree: '2 7/6', chordName: 'A♭7/E♭', beat: 1, duration: 4 },
+            { degree: '2 dom7/6', chordName: 'A♭7/E♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [{ degree: '5 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -270,7 +270,7 @@ export const oh_you_pretty_things: Song = {
             { degree: '1 maj/5', chordName: 'G♭/D♭', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -298,7 +298,7 @@ export const oh_you_pretty_things: Song = {
             { degree: '1 maj/5', chordName: 'G♭/D♭', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },

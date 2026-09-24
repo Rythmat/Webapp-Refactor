@@ -25,22 +25,22 @@ export const happy: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -51,34 +51,12 @@ export const happy: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭3 maj/1', chordName: 'A♭/F', beat: 1, duration: 2 },
-            { degree: '4 maj/1', chordName: 'B♭/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 maj/1', chordName: 'C/F', beat: 1, duration: 2 },
-            { degree: '4 maj/1', chordName: 'B♭/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -95,12 +73,12 @@ export const happy: Song = {
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -117,12 +95,34 @@ export const happy: Song = {
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭3 maj/1', chordName: 'A♭/F', beat: 1, duration: 2 },
+            { degree: '4 maj/1', chordName: 'B♭/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 maj/1', chordName: 'C/F', beat: 1, duration: 2 },
+            { degree: '4 maj/1', chordName: 'B♭/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -165,12 +165,12 @@ export const happy: Song = {
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -182,27 +182,27 @@ export const happy: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -213,34 +213,12 @@ export const happy: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭3 maj/1', chordName: 'A♭/F', beat: 1, duration: 2 },
-            { degree: '4 maj/1', chordName: 'B♭/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 maj/1', chordName: 'C/F', beat: 1, duration: 2 },
-            { degree: '4 maj/1', chordName: 'B♭/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -257,12 +235,12 @@ export const happy: Song = {
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -279,12 +257,34 @@ export const happy: Song = {
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭3 maj/1', chordName: 'A♭/F', beat: 1, duration: 2 },
+            { degree: '4 maj/1', chordName: 'B♭/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 maj/1', chordName: 'C/F', beat: 1, duration: 2 },
+            { degree: '4 maj/1', chordName: 'B♭/F', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -327,12 +327,12 @@ export const happy: Song = {
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -343,22 +343,22 @@ export const happy: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -389,12 +389,12 @@ export const happy: Song = {
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -406,22 +406,22 @@ export const happy: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -452,12 +452,12 @@ export const happy: Song = {
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7(no 3)', beat: 1, duration: 4 },
           ],
         },
       ],

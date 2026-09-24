@@ -74,7 +74,7 @@ export const sittin_on_the_dock_of_the_bay: Song = {
         {
           chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
       ],
     },
     {

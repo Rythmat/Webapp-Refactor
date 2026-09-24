@@ -28,7 +28,7 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -44,7 +44,7 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -97,8 +97,8 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -110,7 +110,7 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -126,7 +126,7 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -179,8 +179,8 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -192,7 +192,7 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -208,7 +208,7 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -235,8 +235,8 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -285,8 +285,8 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -298,7 +298,7 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -314,7 +314,7 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },

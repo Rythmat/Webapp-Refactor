@@ -104,7 +104,7 @@ export const stay_with_me: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '3 7/♯5', chordName: 'E7/G♯', beat: 3, duration: 2 },
+            { degree: '3 dom7/♯5', chordName: 'E7/G♯', beat: 3, duration: 2 },
           ],
         },
         {
@@ -173,7 +173,7 @@ export const stay_with_me: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '3 7/♯5', chordName: 'E7/G♯', beat: 3, duration: 2 },
+            { degree: '3 dom7/♯5', chordName: 'E7/G♯', beat: 3, duration: 2 },
           ],
         },
         {

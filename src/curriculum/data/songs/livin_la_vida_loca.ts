@@ -114,12 +114,12 @@ export const livin_la_vida_loca: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 7', chordName: 'G♯7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'G♯7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'G♯7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'G♯7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -246,12 +246,12 @@ export const livin_la_vida_loca: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 7', chordName: 'G♯7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'G♯7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'G♯7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'G♯7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -376,12 +376,12 @@ export const livin_la_vida_loca: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 7', chordName: 'G♯7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'G♯7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'G♯7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'G♯7sus', beat: 1, duration: 4 },
           ],
         },
       ],

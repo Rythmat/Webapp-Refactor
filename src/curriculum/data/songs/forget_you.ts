@@ -96,9 +96,9 @@ export const forget_you: Song = {
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -110,7 +110,7 @@ export const forget_you: Song = {
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],

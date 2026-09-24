@@ -241,7 +241,7 @@ export const off_the_wall: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
       ],

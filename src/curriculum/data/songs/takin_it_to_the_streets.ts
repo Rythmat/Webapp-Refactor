@@ -295,10 +295,10 @@ export const takin_it_to_the_streets: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭6 7', chordName: 'A♭7', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 dom7', chordName: 'A♭7', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -315,8 +315,8 @@ export const takin_it_to_the_streets: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -325,7 +325,7 @@ export const takin_it_to_the_streets: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -341,7 +341,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -357,7 +357,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -373,7 +373,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -577,10 +577,10 @@ export const takin_it_to_the_streets: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭6 7', chordName: 'A♭7', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 dom7', chordName: 'A♭7', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -597,8 +597,8 @@ export const takin_it_to_the_streets: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -607,7 +607,7 @@ export const takin_it_to_the_streets: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -623,7 +623,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -639,7 +639,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -655,7 +655,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -859,10 +859,10 @@ export const takin_it_to_the_streets: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭6 7', chordName: 'A♭7', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 dom7', chordName: 'A♭7', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -879,8 +879,8 @@ export const takin_it_to_the_streets: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -889,7 +889,7 @@ export const takin_it_to_the_streets: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -905,7 +905,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -921,7 +921,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -937,7 +937,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -959,7 +959,7 @@ export const takin_it_to_the_streets: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -975,7 +975,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -991,7 +991,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -1007,7 +1007,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -1023,7 +1023,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -1039,7 +1039,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -1055,7 +1055,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -1071,7 +1071,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -1087,7 +1087,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -1103,7 +1103,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -1119,7 +1119,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -1135,7 +1135,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },

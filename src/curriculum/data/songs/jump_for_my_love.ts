@@ -114,7 +114,7 @@ export const jump_for_my_love: Song = {
             { degree: '2 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '5 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -208,7 +208,7 @@ export const jump_for_my_love: Song = {
             { degree: '2 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '5 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -257,9 +257,9 @@ export const jump_for_my_love: Song = {
           chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 dom7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {

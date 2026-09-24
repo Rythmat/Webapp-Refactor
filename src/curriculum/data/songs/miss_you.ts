@@ -299,7 +299,7 @@ export const miss_you: Song = {
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {

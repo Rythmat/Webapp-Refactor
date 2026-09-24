@@ -44,7 +44,7 @@ export const i_want_you_back: Song = {
           chords: [
             { degree: '1 maj', chordName: 'A♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'B♭min7', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'E♭7', beat: 3, duration: 1 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 3, duration: 1 },
             { degree: '1 maj', chordName: 'A♭', beat: 4, duration: 1 },
           ],
         },
@@ -70,7 +70,7 @@ export const i_want_you_back: Song = {
           chords: [
             { degree: '1 maj', chordName: 'A♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'B♭min7', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'E♭7', beat: 3, duration: 1 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 3, duration: 1 },
             { degree: '1 maj', chordName: 'A♭', beat: 4, duration: 1 },
           ],
         },
@@ -89,7 +89,7 @@ export const i_want_you_back: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -106,7 +106,7 @@ export const i_want_you_back: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 1 },
-            { degree: '5 7', chordName: 'E♭7', beat: 2, duration: 1 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 2, duration: 1 },
             { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
           ],
         },
@@ -138,7 +138,7 @@ export const i_want_you_back: Song = {
           chords: [
             { degree: '1 maj', chordName: 'A♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'B♭min7', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'E♭7', beat: 3, duration: 1 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 3, duration: 1 },
             { degree: '1 maj', chordName: 'A♭', beat: 4, duration: 1 },
           ],
         },
@@ -157,7 +157,7 @@ export const i_want_you_back: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -174,7 +174,7 @@ export const i_want_you_back: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 1 },
-            { degree: '5 7', chordName: 'E♭7', beat: 2, duration: 1 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 2, duration: 1 },
             { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
           ],
         },
@@ -187,7 +187,7 @@ export const i_want_you_back: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -204,7 +204,7 @@ export const i_want_you_back: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 1 },
-            { degree: '5 7', chordName: 'E♭7', beat: 2, duration: 1 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 2, duration: 1 },
             { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
           ],
         },
@@ -253,7 +253,7 @@ export const i_want_you_back: Song = {
           chords: [
             { degree: '1 maj', chordName: 'A♭', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'B♭min7', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'E♭7', beat: 3, duration: 1 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 3, duration: 1 },
             { degree: '1 maj', chordName: 'A♭', beat: 4, duration: 1 },
           ],
         },
@@ -275,7 +275,7 @@ export const i_want_you_back: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -292,7 +292,7 @@ export const i_want_you_back: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 1 },
-            { degree: '5 7', chordName: 'E♭7', beat: 2, duration: 1 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 2, duration: 1 },
             { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
           ],
         },
@@ -305,7 +305,7 @@ export const i_want_you_back: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -370,7 +370,7 @@ export const i_want_you_back: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -387,7 +387,7 @@ export const i_want_you_back: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 1 },
-            { degree: '5 7', chordName: 'E♭7', beat: 2, duration: 1 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 2, duration: 1 },
             { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
           ],
         },

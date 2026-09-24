@@ -22,34 +22,34 @@ export const psycho_killer: Song = {
       id: 'chorus_1',
       label: 'Chorus 1',
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '1 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '1 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '1 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -159,12 +159,12 @@ export const psycho_killer: Song = {
       id: 'chorus_2',
       label: 'Chorus 2',
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '1 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -272,26 +272,26 @@ export const psycho_killer: Song = {
         {
           chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '1 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭7 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '1 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
           fermata: true,
         },
       ],

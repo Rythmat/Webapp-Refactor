@@ -27,11 +27,11 @@ export const dont_let_me_be_lonely_tonight: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -39,11 +39,11 @@ export const dont_let_me_be_lonely_tonight: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -59,17 +59,17 @@ export const dont_let_me_be_lonely_tonight: Song = {
             { degree: '6 min7', chordName: 'Bmin7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -83,11 +83,11 @@ export const dont_let_me_be_lonely_tonight: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -95,11 +95,11 @@ export const dont_let_me_be_lonely_tonight: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -115,13 +115,13 @@ export const dont_let_me_be_lonely_tonight: Song = {
             { degree: '6 min7', chordName: 'Bmin7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -138,13 +138,13 @@ export const dont_let_me_be_lonely_tonight: Song = {
             { degree: '6 min7/5', chordName: 'Bmin7/A', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '♭7 maj', chordName: 'C', beat: 1, duration: 2 },
@@ -173,13 +173,13 @@ export const dont_let_me_be_lonely_tonight: Song = {
             { degree: '6 min7/5', chordName: 'Bmin7/A', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '♭7 maj', chordName: 'C', beat: 1, duration: 2 },
@@ -198,11 +198,11 @@ export const dont_let_me_be_lonely_tonight: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -210,11 +210,11 @@ export const dont_let_me_be_lonely_tonight: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -230,13 +230,13 @@ export const dont_let_me_be_lonely_tonight: Song = {
             { degree: '6 min7', chordName: 'Bmin7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
@@ -247,13 +247,13 @@ export const dont_let_me_be_lonely_tonight: Song = {
             { degree: '6 min7', chordName: 'Bmin7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],
@@ -267,11 +267,11 @@ export const dont_let_me_be_lonely_tonight: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -279,11 +279,11 @@ export const dont_let_me_be_lonely_tonight: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -297,11 +297,11 @@ export const dont_let_me_be_lonely_tonight: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 maj', chordName: 'D', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -309,7 +309,7 @@ export const dont_let_me_be_lonely_tonight: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 maj', chordName: 'D', beat: 1, duration: 2 },

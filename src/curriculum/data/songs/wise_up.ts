@@ -95,31 +95,31 @@ export const wise_up: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -153,29 +153,29 @@ export const wise_up: Song = {
       label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {

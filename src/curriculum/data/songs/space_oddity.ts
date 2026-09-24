@@ -86,7 +86,7 @@ export const space_oddity: Song = {
       label: 'Bridge',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -107,7 +107,7 @@ export const space_oddity: Song = {
             { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
@@ -190,7 +190,7 @@ export const space_oddity: Song = {
       bars: [
         { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '3 maj', chordName: 'E', beat: 1, duration: 4 }] },
       ],
     },
@@ -201,7 +201,7 @@ export const space_oddity: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '3 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -226,7 +226,7 @@ export const space_oddity: Song = {
         {
           chords: [
             { degree: '5 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '3 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -237,7 +237,7 @@ export const space_oddity: Song = {
         },
         {
           chords: [
-            { degree: '2 7/♯4', chordName: 'D7/F♯', beat: 1, duration: 4 },
+            { degree: '2 dom7/♯4', chordName: 'D7/F♯', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -305,7 +305,7 @@ export const space_oddity: Song = {
       bars: [
         { chords: [{ degree: '6 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '3 maj', chordName: 'E', beat: 1, duration: 4 }],
           fermata: true,

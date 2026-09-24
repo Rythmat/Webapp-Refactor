@@ -26,21 +26,21 @@ export const you_are_the_best_thing: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
@@ -53,7 +53,7 @@ export const you_are_the_best_thing: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
@@ -133,21 +133,21 @@ export const you_are_the_best_thing: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
@@ -160,7 +160,7 @@ export const you_are_the_best_thing: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
@@ -237,28 +237,28 @@ export const you_are_the_best_thing: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
@@ -271,7 +271,7 @@ export const you_are_the_best_thing: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
@@ -290,7 +290,7 @@ export const you_are_the_best_thing: Song = {
         {
           chords: [
             { degree: '5 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'D7', beat: 3, duration: 2 },
+            { degree: '3 dom7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -335,21 +335,21 @@ export const you_are_the_best_thing: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
@@ -362,7 +362,7 @@ export const you_are_the_best_thing: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
@@ -390,28 +390,28 @@ export const you_are_the_best_thing: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },
@@ -424,7 +424,7 @@ export const you_are_the_best_thing: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'B♭', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'Gmin7', beat: 3, duration: 2 },
           ],
         },

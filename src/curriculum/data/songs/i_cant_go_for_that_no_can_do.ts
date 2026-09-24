@@ -54,7 +54,7 @@ export const i_cant_go_for_that_no_can_do: Song = {
             { degree: '5 min7', chordName: 'C min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '5 min7', chordName: 'C min7', beat: 1, duration: 4 },
@@ -76,7 +76,7 @@ export const i_cant_go_for_that_no_can_do: Song = {
             { degree: '5 min7', chordName: 'C min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '5 min7', chordName: 'C min7', beat: 1, duration: 4 },

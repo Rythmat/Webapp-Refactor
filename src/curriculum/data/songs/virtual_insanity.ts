@@ -33,7 +33,7 @@ export const virtual_insanity: Song = {
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -50,7 +50,7 @@ export const virtual_insanity: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -63,7 +63,7 @@ export const virtual_insanity: Song = {
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -80,7 +80,7 @@ export const virtual_insanity: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -94,9 +94,9 @@ export const virtual_insanity: Song = {
       id: 'verse_1',
       label: 'Verse 1',
       bars: [
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭7 7', chordName: 'D♭7', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 dom7', chordName: 'D♭7', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -111,7 +111,7 @@ export const virtual_insanity: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -129,9 +129,9 @@ export const virtual_insanity: Song = {
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭7 7', chordName: 'D♭7', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 dom7', chordName: 'D♭7', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -146,12 +146,12 @@ export const virtual_insanity: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -209,9 +209,9 @@ export const virtual_insanity: Song = {
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭7 7', chordName: 'D♭7', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 dom7', chordName: 'D♭7', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -226,7 +226,7 @@ export const virtual_insanity: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -364,7 +364,7 @@ export const virtual_insanity: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
           ],
           fermata: true,
         },

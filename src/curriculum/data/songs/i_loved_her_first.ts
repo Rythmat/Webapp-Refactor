@@ -45,7 +45,7 @@ export const i_loved_her_first: Song = {
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 6 }] },
         {
@@ -69,7 +69,7 @@ export const i_loved_her_first: Song = {
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 6 }] },
       ],
     },
     {
@@ -95,9 +95,9 @@ export const i_loved_her_first: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'B7sus', beat: 1, duration: 6 }],
+          chords: [{ degree: '5 dom7', chordName: 'B7sus', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 6 }] },
       ],
     },
     {
@@ -127,9 +127,9 @@ export const i_loved_her_first: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'B7sus', beat: 1, duration: 6 }],
+          chords: [{ degree: '5 dom7', chordName: 'B7sus', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 6 }] },
       ],
     },
     {
@@ -159,7 +159,7 @@ export const i_loved_her_first: Song = {
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 6 }] },
       ],
     },
     {
@@ -185,9 +185,9 @@ export const i_loved_her_first: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'B7sus', beat: 1, duration: 6 }],
+          chords: [{ degree: '5 dom7', chordName: 'B7sus', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 6 }] },
         {
           chords: [
@@ -224,7 +224,7 @@ export const i_loved_her_first: Song = {
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 6 }] },
       ],
     },
     {
@@ -254,9 +254,9 @@ export const i_loved_her_first: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'B7sus', beat: 1, duration: 6 }],
+          chords: [{ degree: '5 dom7', chordName: 'B7sus', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 6 }] },
       ],
     },
     {
@@ -286,7 +286,7 @@ export const i_loved_her_first: Song = {
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 6 }] },
       ],
     },
     {
@@ -312,9 +312,9 @@ export const i_loved_her_first: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'B7sus', beat: 1, duration: 6 }],
+          chords: [{ degree: '5 dom7', chordName: 'B7sus', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 6 }] },
       ],
     },
     {
@@ -344,7 +344,7 @@ export const i_loved_her_first: Song = {
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 6 }] },
       ],
     },
     {
@@ -370,9 +370,9 @@ export const i_loved_her_first: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'B7sus', beat: 1, duration: 6 }],
+          chords: [{ degree: '5 dom7', chordName: 'B7sus', beat: 1, duration: 6 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 6 }] },
       ],
     },
     {

@@ -23,9 +23,9 @@ export const in_spite_of_all_the_danger: Song = {
       label: 'Intro',
       bars: [
         { chords: [], restBars: 1 },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -35,7 +35,7 @@ export const in_spite_of_all_the_danger: Song = {
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -43,7 +43,7 @@ export const in_spite_of_all_the_danger: Song = {
       label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
@@ -68,7 +68,7 @@ export const in_spite_of_all_the_danger: Song = {
       label: 'Bridge',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [], restBars: 1 },
         { chords: [], restBars: 1 },
       ],
@@ -80,7 +80,7 @@ export const in_spite_of_all_the_danger: Song = {
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -88,7 +88,7 @@ export const in_spite_of_all_the_danger: Song = {
       label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
@@ -122,10 +122,10 @@ export const in_spite_of_all_the_danger: Song = {
       id: 'verse_6',
       label: 'Verse 6',
       bars: [
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -135,7 +135,7 @@ export const in_spite_of_all_the_danger: Song = {
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -143,7 +143,7 @@ export const in_spite_of_all_the_danger: Song = {
       label: 'Chorus 3',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
@@ -152,7 +152,7 @@ export const in_spite_of_all_the_danger: Song = {
         },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },

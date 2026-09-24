@@ -52,8 +52,8 @@ export const make_you_feel_my_love: Song = {
         },
         {
           chords: [
-            { degree: '2 7', chordName: 'C7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F7', beat: 3, duration: 2 },
+            { degree: '2 dom7', chordName: 'C7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'F7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -95,8 +95,8 @@ export const make_you_feel_my_love: Song = {
         },
         {
           chords: [
-            { degree: '2 7', chordName: 'C7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F7', beat: 3, duration: 2 },
+            { degree: '2 dom7', chordName: 'C7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'F7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -138,8 +138,8 @@ export const make_you_feel_my_love: Song = {
         },
         {
           chords: [
-            { degree: '2 7', chordName: 'C7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F7', beat: 3, duration: 2 },
+            { degree: '2 dom7', chordName: 'C7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'F7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -159,7 +159,7 @@ export const make_you_feel_my_love: Song = {
         },
         {
           chords: [
-            { degree: '3 7/♯5', chordName: 'D7/F♯', beat: 1, duration: 2 },
+            { degree: '3 dom7/♯5', chordName: 'D7/F♯', beat: 1, duration: 2 },
             { degree: '4 maj/6', chordName: 'E♭/G', beat: 3, duration: 2 },
           ],
         },
@@ -210,8 +210,8 @@ export const make_you_feel_my_love: Song = {
         },
         {
           chords: [
-            { degree: '2 7', chordName: 'C7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F7', beat: 3, duration: 2 },
+            { degree: '2 dom7', chordName: 'C7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'F7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -219,8 +219,8 @@ export const make_you_feel_my_love: Song = {
         },
         {
           chords: [
-            { degree: '2 7', chordName: 'C7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F7', beat: 3, duration: 2 },
+            { degree: '2 dom7', chordName: 'C7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'F7', beat: 3, duration: 2 },
           ],
         },
         {

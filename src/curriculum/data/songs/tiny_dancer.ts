@@ -107,7 +107,7 @@ export const tiny_dancer: Song = {
         },
         {
           chords: [
-            { degree: '2 7/♯4', chordName: 'D7/F♯', beat: 1, duration: 4 },
+            { degree: '2 dom7/♯4', chordName: 'D7/F♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -115,7 +115,7 @@ export const tiny_dancer: Song = {
             { degree: '2 min7/4', chordName: 'Dmin7/F', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -172,12 +172,12 @@ export const tiny_dancer: Song = {
         },
         {
           chords: [
-            { degree: '5 7/7', chordName: 'G7/B', beat: 1, duration: 4 },
+            { degree: '5 dom7/7', chordName: 'G7/B', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7/2', chordName: 'G7/D', beat: 1, duration: 4 },
+            { degree: '5 dom7/2', chordName: 'G7/D', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -305,7 +305,7 @@ export const tiny_dancer: Song = {
         },
         {
           chords: [
-            { degree: '2 7/♯4', chordName: 'D7/F♯', beat: 1, duration: 4 },
+            { degree: '2 dom7/♯4', chordName: 'D7/F♯', beat: 1, duration: 4 },
           ],
         },
         {
@@ -313,7 +313,7 @@ export const tiny_dancer: Song = {
             { degree: '2 min7/4', chordName: 'Dmin7/F', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -368,12 +368,12 @@ export const tiny_dancer: Song = {
         },
         {
           chords: [
-            { degree: '5 7/7', chordName: 'G7/B', beat: 1, duration: 4 },
+            { degree: '5 dom7/7', chordName: 'G7/B', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7/2', chordName: 'G7/D', beat: 1, duration: 4 },
+            { degree: '5 dom7/2', chordName: 'G7/D', beat: 1, duration: 4 },
           ],
         },
       ],

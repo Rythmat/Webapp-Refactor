@@ -81,7 +81,7 @@ export const tupelo_honey: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {

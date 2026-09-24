@@ -357,11 +357,11 @@ export const jump: Song = {
           chords: [{ degree: '♭7 5', chordName: 'B♭5', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '6 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♭6 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '♭6 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '5 5', chordName: 'G5', beat: 1, duration: 4 }] },

@@ -360,8 +360,8 @@ export const way_over_yonder: Song = {
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '6 7', chordName: 'B♭7', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '6 7', chordName: 'B♭7', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 6 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 6 }] },
       ],
     },
     {

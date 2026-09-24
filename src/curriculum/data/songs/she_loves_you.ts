@@ -32,8 +32,8 @@ export const she_loves_you: Song = {
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -192,8 +192,8 @@ export const she_loves_you: Song = {
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
     {

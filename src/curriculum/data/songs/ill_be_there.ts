@@ -31,7 +31,7 @@ export const ill_be_there: Song = {
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -67,12 +67,12 @@ export const ill_be_there: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7sus', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -108,7 +108,7 @@ export const ill_be_there: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7sus', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -174,12 +174,12 @@ export const ill_be_there: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7sus', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -215,7 +215,7 @@ export const ill_be_there: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7sus', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },

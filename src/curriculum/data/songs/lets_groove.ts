@@ -84,7 +84,7 @@ export const lets_groove: Song = {
             { degree: '5 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 2 },

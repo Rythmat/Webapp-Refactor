@@ -120,8 +120,8 @@ export const rolling_in_the_deep: Song = {
             { degree: '5 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -258,8 +258,8 @@ export const rolling_in_the_deep: Song = {
             { degree: '5 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
       ],
     },
     {

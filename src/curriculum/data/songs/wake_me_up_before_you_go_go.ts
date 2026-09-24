@@ -23,10 +23,10 @@ export const wake_me_up_before_you_go_go: Song = {
       label: 'Intro',
       bars: [
         { chords: [] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -82,7 +82,7 @@ export const wake_me_up_before_you_go_go: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [] },
       ],
     },
@@ -124,7 +124,7 @@ export const wake_me_up_before_you_go_go: Song = {
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 2 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 2 },
             { degree: '2 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },
@@ -133,22 +133,22 @@ export const wake_me_up_before_you_go_go: Song = {
           chords: [
             { degree: '1 maj', chordName: 'C', beat: 1, duration: 1 },
             { degree: '4 maj/1', chordName: 'F/C', beat: 2, duration: 1 },
-            { degree: '1 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '1 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 maj', chordName: 'C', beat: 1, duration: 1 },
             { degree: '4 maj/1', chordName: 'F/C', beat: 2, duration: 1 },
-            { degree: '1 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '1 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -204,7 +204,7 @@ export const wake_me_up_before_you_go_go: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {

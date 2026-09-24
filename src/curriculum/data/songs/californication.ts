@@ -301,13 +301,13 @@ export const californication: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '2 7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '2 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '2 7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '2 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },

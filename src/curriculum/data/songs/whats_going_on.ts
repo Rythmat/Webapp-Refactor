@@ -78,7 +78,7 @@ export const whats_going_on: Song = {
             { degree: '2 min7/5', chordName: 'F♯min7/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -130,7 +130,7 @@ export const whats_going_on: Song = {
             { degree: '2 min7/5', chordName: 'F♯min7/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -288,7 +288,7 @@ export const whats_going_on: Song = {
             { degree: '2 min7/5', chordName: 'F♯min7/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {

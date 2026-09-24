@@ -102,7 +102,7 @@ export const like_a_prayer: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '6 dom7', chordName: 'D7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -110,7 +110,7 @@ export const like_a_prayer: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '6 dom7', chordName: 'D7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -123,7 +123,7 @@ export const like_a_prayer: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '6 dom7', chordName: 'D7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -131,7 +131,7 @@ export const like_a_prayer: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '6 dom7', chordName: 'D7sus', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -200,7 +200,7 @@ export const like_a_prayer: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '6 dom7', chordName: 'D7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -208,7 +208,7 @@ export const like_a_prayer: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '6 dom7', chordName: 'D7sus', beat: 1, duration: 4 }],
         },
       ],
     },

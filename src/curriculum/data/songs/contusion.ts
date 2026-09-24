@@ -23,10 +23,10 @@ export const contusion: Song = {
       label: 'Intro',
       instrumental: true,
       bars: [
-        { chords: [{ degree: '♯5 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯5 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯5 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯5 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♯5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -48,32 +48,32 @@ export const contusion: Song = {
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -162,32 +162,32 @@ export const contusion: Song = {
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -276,32 +276,32 @@ export const contusion: Song = {
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {

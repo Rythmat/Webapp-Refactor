@@ -36,8 +36,8 @@ export const the_big_country: Song = {
       id: 'pre_chorus_1',
       label: 'Pre-Chorus 1',
       bars: [
-        { chords: [{ degree: '1 6', chordName: 'C6', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 6', chordName: 'C6', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj6', chordName: 'C6', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj6', chordName: 'C6', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
@@ -72,8 +72,8 @@ export const the_big_country: Song = {
       id: 'pre_chorus_2',
       label: 'Pre-Chorus 2',
       bars: [
-        { chords: [{ degree: '1 6', chordName: 'C6', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 6', chordName: 'C6', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj6', chordName: 'C6', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj6', chordName: 'C6', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],

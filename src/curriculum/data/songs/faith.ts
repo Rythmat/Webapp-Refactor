@@ -90,13 +90,13 @@ export const faith: Song = {
         {
           chords: [
             { degree: '5 maj/7', chordName: 'F♯/A♯', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'G♯7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'G♯7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
       ],
     },
     {

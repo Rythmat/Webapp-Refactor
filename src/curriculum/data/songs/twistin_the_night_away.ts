@@ -22,9 +22,9 @@ export const twistin_the_night_away: Song = {
       id: 'intro',
       label: 'Intro',
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [], restBars: 1 },
       ],
     },

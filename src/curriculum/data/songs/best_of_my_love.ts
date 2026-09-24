@@ -24,9 +24,9 @@ export const best_of_my_love: Song = {
       instrumental: true,
       bars: [
         {
-          chords: [{ degree: '2 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '2 dom7', chordName: 'D7sus', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '4 maj/5', chordName: 'F/G', beat: 1, duration: 4 },

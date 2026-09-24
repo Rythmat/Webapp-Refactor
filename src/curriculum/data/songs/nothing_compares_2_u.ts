@@ -40,7 +40,7 @@ export const nothing_compares_2_u: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7sus', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -71,8 +71,8 @@ export const nothing_compares_2_u: Song = {
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -130,13 +130,13 @@ export const nothing_compares_2_u: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7sus', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7sus', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -204,13 +204,13 @@ export const nothing_compares_2_u: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7sus', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7sus', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -241,8 +241,8 @@ export const nothing_compares_2_u: Song = {
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -316,13 +316,13 @@ export const nothing_compares_2_u: Song = {
         {
           chords: [
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7sus', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7sus', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -353,8 +353,8 @@ export const nothing_compares_2_u: Song = {
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
     {

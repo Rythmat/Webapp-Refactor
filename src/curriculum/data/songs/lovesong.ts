@@ -34,7 +34,7 @@ export const lovesong: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -53,7 +53,7 @@ export const lovesong: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -99,7 +99,7 @@ export const lovesong: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {

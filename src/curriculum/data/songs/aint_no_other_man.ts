@@ -32,11 +32,11 @@ export const aint_no_other_man: Song = {
         {
           chords: [
             { degree: '1 min7/5', chordName: 'Fmin7/C', beat: 1, duration: 2 },
-            { degree: '♭2 7/♭6', chordName: 'G♭7/D♭', beat: 3, duration: 2 },
+            { degree: '♭2 dom7/♭6', chordName: 'G♭7/D♭', beat: 3, duration: 2 },
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
           fermata: true,
         },
         {
@@ -67,7 +67,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -78,7 +78,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -94,7 +94,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -105,8 +105,8 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -127,7 +127,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -138,34 +138,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
-            { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
-            { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -181,7 +154,34 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -208,7 +208,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -219,7 +219,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -235,7 +235,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -246,8 +246,8 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -262,7 +262,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -289,7 +289,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -300,7 +300,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -316,7 +316,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -327,8 +327,8 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -338,39 +338,39 @@ export const aint_no_other_man: Song = {
       label: 'Bridge',
       bars: [
         {
-          chords: [{ degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
+          chords: [{ degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 4 }],
+        },
+        {
           chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -398,7 +398,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -409,7 +409,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -420,7 +420,7 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -436,14 +436,14 @@ export const aint_no_other_man: Song = {
         },
         {
           chords: [
-            { degree: '♭6 7', chordName: 'D♭7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -461,7 +461,7 @@ export const aint_no_other_man: Song = {
         {
           chords: [
             { degree: '6 min7', chordName: 'Dmin7b5', beat: 1, duration: 1 },
-            { degree: '♭7 7', chordName: 'E♭7', beat: 2, duration: 1 },
+            { degree: '♭7 dom7', chordName: 'E♭7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },
@@ -473,7 +473,7 @@ export const aint_no_other_man: Song = {
         {
           chords: [
             { degree: '6 min7', chordName: 'Dmin7b5', beat: 1, duration: 1 },
-            { degree: '♭7 7', chordName: 'E♭7', beat: 2, duration: 1 },
+            { degree: '♭7 dom7', chordName: 'E♭7', beat: 2, duration: 1 },
             { degree: '1 min7', chordName: 'Fmin7', beat: 3, duration: 2 },
           ],
         },

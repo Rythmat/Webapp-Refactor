@@ -176,8 +176,8 @@ export const dancing_in_the_street: Song = {
       id: 'verse_3',
       label: 'Verse 3',
       bars: [
-        { chords: [{ degree: '3 7', chordName: 'G♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -199,9 +199,9 @@ export const dancing_in_the_street: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {

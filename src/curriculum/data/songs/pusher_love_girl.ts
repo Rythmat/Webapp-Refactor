@@ -24,7 +24,7 @@ export const pusher_love_girl: Song = {
       bars: [
         { chords: [], restBars: 1 },
         {
-          chords: [{ degree: '4 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
@@ -59,10 +59,10 @@ export const pusher_love_girl: Song = {
       label: 'Chorus 1',
       bars: [
         {
-          chords: [{ degree: '4 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '4 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
@@ -79,10 +79,10 @@ export const pusher_love_girl: Song = {
         },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '4 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '4 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
@@ -162,8 +162,8 @@ export const pusher_love_girl: Song = {
             { degree: '6 min7', chordName: 'G♯min7', beat: 2, duration: 3 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -183,10 +183,10 @@ export const pusher_love_girl: Song = {
       label: 'Chorus 2',
       bars: [
         {
-          chords: [{ degree: '4 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '4 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
@@ -203,10 +203,10 @@ export const pusher_love_girl: Song = {
         },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '4 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '4 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],

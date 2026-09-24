@@ -41,7 +41,7 @@ export const paranoid_android: Song = {
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7b5', beat: 1, duration: 1 },
-            { degree: '2 7', chordName: 'A7sus', beat: 2, duration: 3 },
+            { degree: '2 dom7', chordName: 'A7sus', beat: 2, duration: 3 },
           ],
         },
         {
@@ -52,7 +52,7 @@ export const paranoid_android: Song = {
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7b5', beat: 1, duration: 1 },
-            { degree: '2 7', chordName: 'A7sus', beat: 2, duration: 3 },
+            { degree: '2 dom7', chordName: 'A7sus', beat: 2, duration: 3 },
           ],
         },
         {
@@ -74,7 +74,7 @@ export const paranoid_android: Song = {
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7b5', beat: 1, duration: 1 },
-            { degree: '2 7', chordName: 'A7sus', beat: 2, duration: 3 },
+            { degree: '2 dom7', chordName: 'A7sus', beat: 2, duration: 3 },
           ],
         },
         {
@@ -91,7 +91,7 @@ export const paranoid_android: Song = {
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7b5', beat: 1, duration: 1 },
-            { degree: '2 7', chordName: 'A7sus', beat: 2, duration: 3 },
+            { degree: '2 dom7', chordName: 'A7sus', beat: 2, duration: 3 },
           ],
         },
         {
@@ -113,7 +113,7 @@ export const paranoid_android: Song = {
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7b5', beat: 1, duration: 1 },
-            { degree: '2 7', chordName: 'A7sus', beat: 2, duration: 3 },
+            { degree: '2 dom7', chordName: 'A7sus', beat: 2, duration: 3 },
           ],
         },
         {
@@ -124,7 +124,7 @@ export const paranoid_android: Song = {
         {
           chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
@@ -133,7 +133,7 @@ export const paranoid_android: Song = {
         {
           chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {

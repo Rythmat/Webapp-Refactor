@@ -76,8 +76,8 @@ export const redneck_woman: Song = {
       id: 'bridge',
       label: 'Bridge',
       bars: [
-        { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -130,8 +130,8 @@ export const redneck_woman: Song = {
       id: 'verse_3',
       label: 'Verse 3',
       bars: [
-        { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
@@ -155,7 +155,7 @@ export const redneck_woman: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'G♯min7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C♯7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'C♯7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -200,8 +200,8 @@ export const redneck_woman: Song = {
       id: 'verse_6',
       label: 'Verse 6',
       bars: [
-        { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],

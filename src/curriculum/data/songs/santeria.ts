@@ -398,7 +398,7 @@ export const santeria: Song = {
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
           fermata: true,
         },
       ],

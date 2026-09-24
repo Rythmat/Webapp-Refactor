@@ -23,8 +23,8 @@ export const signed_sealed_delivered_im_yours: Song = {
       label: 'Intro',
       bars: [
         { chords: [], restBars: 2 },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -50,14 +50,14 @@ export const signed_sealed_delivered_im_yours: Song = {
       id: 'chorus_1',
       label: 'Chorus 1',
       bars: [
-        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7/5', chordName: 'Gmin7/C', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -83,33 +83,33 @@ export const signed_sealed_delivered_im_yours: Song = {
       id: 'chorus_2',
       label: 'Chorus 2',
       bars: [
-        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7/5', chordName: 'Gmin7/C', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'verse_3',
       label: 'Verse 3',
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
@@ -119,21 +119,21 @@ export const signed_sealed_delivered_im_yours: Song = {
       id: 'bridge',
       label: 'Bridge',
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'verse_4',
       label: 'Verse 4',
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },

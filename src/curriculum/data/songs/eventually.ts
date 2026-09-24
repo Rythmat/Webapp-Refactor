@@ -70,7 +70,7 @@ export const eventually: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
@@ -139,7 +139,7 @@ export const eventually: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
@@ -194,7 +194,7 @@ export const eventually: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
@@ -263,7 +263,7 @@ export const eventually: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
@@ -291,7 +291,7 @@ export const eventually: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
@@ -343,7 +343,7 @@ export const eventually: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
@@ -412,7 +412,7 @@ export const eventually: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },

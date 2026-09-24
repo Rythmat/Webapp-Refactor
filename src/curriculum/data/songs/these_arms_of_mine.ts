@@ -59,11 +59,11 @@ export const these_arms_of_mine: Song = {
         },
         {
           chords: [
-            { degree: '1 (♯5)', chordName: 'B♭(♯5)', beat: 1, duration: 4 },
+            { degree: '1 aug', chordName: 'B♭(♯5)', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 6', chordName: 'B♭6', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj6', chordName: 'B♭6', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },

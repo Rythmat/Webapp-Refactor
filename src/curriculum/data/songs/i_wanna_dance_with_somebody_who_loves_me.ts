@@ -58,7 +58,7 @@ export const i_wanna_dance_with_somebody_who_loves_me: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'D♭7', beat: 1, duration: 1 },
+            { degree: '5 dom7', chordName: 'D♭7', beat: 1, duration: 1 },
             { degree: '1 maj', chordName: 'G♭', beat: 2, duration: 3 },
           ],
         },
@@ -204,7 +204,7 @@ export const i_wanna_dance_with_somebody_who_loves_me: Song = {
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '5 7', chordName: 'D♭7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'D♭7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -252,7 +252,7 @@ export const i_wanna_dance_with_somebody_who_loves_me: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'D♭7', beat: 1, duration: 1 },
+            { degree: '5 dom7', chordName: 'D♭7', beat: 1, duration: 1 },
             { degree: '1 maj', chordName: 'G♭', beat: 2, duration: 3 },
           ],
         },
@@ -398,7 +398,7 @@ export const i_wanna_dance_with_somebody_who_loves_me: Song = {
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '5 7', chordName: 'D♭7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'D♭7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -441,7 +441,7 @@ export const i_wanna_dance_with_somebody_who_loves_me: Song = {
             { degree: '2 min7', chordName: 'A♭min7', beat: 1, duration: 1 },
             { degree: '3 min7', chordName: 'B♭min7', beat: 2, duration: 1 },
             { degree: '4 maj', chordName: 'B', beat: 3, duration: 1 },
-            { degree: '5 7', chordName: 'D♭7sus', beat: 4, duration: 1 },
+            { degree: '5 dom7', chordName: 'D♭7sus', beat: 4, duration: 1 },
           ],
         },
         {
@@ -575,7 +575,7 @@ export const i_wanna_dance_with_somebody_who_loves_me: Song = {
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
+            { degree: '6 dom7', chordName: 'E♭7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -620,7 +620,7 @@ export const i_wanna_dance_with_somebody_who_loves_me: Song = {
             { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 1 },
             { degree: '♯4 min7', chordName: 'Cmin7', beat: 2, duration: 1 },
             { degree: '5 maj', chordName: 'D♭', beat: 3, duration: 1 },
-            { degree: '6 7', chordName: 'E♭7', beat: 4, duration: 1 },
+            { degree: '6 dom7', chordName: 'E♭7', beat: 4, duration: 1 },
           ],
         },
       ],
@@ -677,7 +677,7 @@ export const i_wanna_dance_with_somebody_who_loves_me: Song = {
             { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 1 },
             { degree: '♯4 min7', chordName: 'Cmin7', beat: 2, duration: 1 },
             { degree: '5 maj', chordName: 'D♭', beat: 3, duration: 1 },
-            { degree: '6 7', chordName: 'E♭7', beat: 4, duration: 1 },
+            { degree: '6 dom7', chordName: 'E♭7', beat: 4, duration: 1 },
           ],
         },
       ],

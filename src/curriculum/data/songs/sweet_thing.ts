@@ -236,9 +236,9 @@ export const sweet_thing: Song = {
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D♭7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D♭7', beat: 2, duration: 1 },
             { degree: '♭3 min7', chordName: 'Cmin7', beat: 3, duration: 1 },
-            { degree: '2 7', chordName: 'B7', beat: 4, duration: 1 },
+            { degree: '2 dom7', chordName: 'B7', beat: 4, duration: 1 },
           ],
         },
       ],

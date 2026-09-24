@@ -51,8 +51,8 @@ export const boogie_on_reggae_woman: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '2 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -77,15 +77,15 @@ export const boogie_on_reggae_woman: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '2 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'G♭7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'F7', beat: 3, duration: 2 },
+            { degree: '♭7 dom7', chordName: 'G♭7', beat: 1, duration: 2 },
+            { degree: '6 dom7', chordName: 'F7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -95,23 +95,23 @@ export const boogie_on_reggae_woman: Song = {
       label: 'Chorus',
       bars: [
         {
-          chords: [{ degree: '2 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+          chords: [{ degree: '2 dom7', chordName: 'B♭7', beat: 1, duration: 4 }],
           repeatStart: true,
         },
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭7 7', chordName: 'G♭7', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 dom7', chordName: 'G♭7', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'A♭7', beat: 1, duration: 2 },
-            { degree: '♯1 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 2 },
+            { degree: '♯1 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -144,8 +144,8 @@ export const boogie_on_reggae_woman: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '2 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },

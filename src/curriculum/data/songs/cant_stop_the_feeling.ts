@@ -48,12 +48,12 @@ export const cant_stop_the_feeling: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7', chordName: 'C7sus4', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'C7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'C7sus4', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'C7sus4', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -66,7 +66,7 @@ export const cant_stop_the_feeling: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭7 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
@@ -130,12 +130,12 @@ export const cant_stop_the_feeling: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7', chordName: 'C7sus4', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'C7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'C7sus4', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'C7sus4', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -148,7 +148,7 @@ export const cant_stop_the_feeling: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭7 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {

@@ -25,7 +25,7 @@ export const _24k_magic: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -39,12 +39,12 @@ export const _24k_magic: Song = {
         {
           chords: [
             { degree: '1 min/2', chordName: 'Fmin/G', beat: 1, duration: 2 },
-            { degree: '5 alt7', chordName: 'C alt7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'C alt7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -75,7 +75,7 @@ export const _24k_magic: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -85,7 +85,7 @@ export const _24k_magic: Song = {
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -95,39 +95,29 @@ export const _24k_magic: Song = {
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'B♭ min7', beat: 1, duration: 2 },
             { degree: '♭6 maj', chordName: 'D♭', beat: 3, duration: 1 },
-            { degree: '5 7', chordName: 'C7', beat: 4, duration: 1 },
+            { degree: '5 dom7', chordName: 'C7', beat: 4, duration: 1 },
           ],
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F7sus', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'B♭ min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -137,24 +127,34 @@ export const _24k_magic: Song = {
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'B♭ min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'B♭ min7', beat: 1, duration: 2 },
             { degree: '♭6 maj', chordName: 'D♭', beat: 3, duration: 1 },
-            { degree: '5 7', chordName: 'C7', beat: 4, duration: 1 },
+            { degree: '5 dom7', chordName: 'C7', beat: 4, duration: 1 },
           ],
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -166,40 +166,40 @@ export const _24k_magic: Song = {
         {
           chords: [
             { degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 2 },
-            { degree: '1 sus7', chordName: 'F sus7', beat: 3, duration: 2 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 2 },
-            { degree: '1 sus7', chordName: 'F sus7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
             { degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 2 },
-            { degree: '1 sus7', chordName: 'F sus7', beat: 3, duration: 2 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
             { degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 2 },
-            { degree: '1 sus7', chordName: 'F sus7', beat: 3, duration: 2 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 2 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -218,7 +218,7 @@ export const _24k_magic: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F7sus', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -228,7 +228,7 @@ export const _24k_magic: Song = {
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -238,24 +238,24 @@ export const _24k_magic: Song = {
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'B♭ min7', beat: 1, duration: 2 },
             { degree: '♭6 maj', chordName: 'D♭', beat: 3, duration: 1 },
-            { degree: '5 7', chordName: 'C7', beat: 4, duration: 1 },
+            { degree: '5 dom7', chordName: 'C7', beat: 4, duration: 1 },
           ],
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -266,7 +266,7 @@ export const _24k_magic: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F7sus', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -276,7 +276,7 @@ export const _24k_magic: Song = {
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -286,7 +286,7 @@ export const _24k_magic: Song = {
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -297,7 +297,7 @@ export const _24k_magic: Song = {
         {
           chords: [
             { degree: '♭6 maj', chordName: 'D♭', beat: 1, duration: 2 },
-            { degree: '1 sus7', chordName: 'F sus7', beat: 3, duration: 2 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -316,7 +316,7 @@ export const _24k_magic: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F7sus', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -326,7 +326,7 @@ export const _24k_magic: Song = {
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -336,19 +336,19 @@ export const _24k_magic: Song = {
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'B♭ min7', beat: 1, duration: 2 },
             { degree: '♭6 maj', chordName: 'D♭', beat: 3, duration: 1 },
-            { degree: '5 7', chordName: 'C7', beat: 4, duration: 1 },
+            { degree: '5 dom7', chordName: 'C7', beat: 4, duration: 1 },
           ],
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -362,7 +362,7 @@ export const _24k_magic: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F7sus', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -372,7 +372,7 @@ export const _24k_magic: Song = {
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -382,24 +382,24 @@ export const _24k_magic: Song = {
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'B♭ min7', beat: 1, duration: 2 },
             { degree: '♭6 maj', chordName: 'D♭', beat: 3, duration: 1 },
-            { degree: '5 7', chordName: 'C7', beat: 4, duration: 1 },
+            { degree: '5 dom7', chordName: 'C7', beat: 4, duration: 1 },
           ],
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 sus7', chordName: 'F sus7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'F sus7', beat: 1, duration: 4 },
           ],
         },
       ],

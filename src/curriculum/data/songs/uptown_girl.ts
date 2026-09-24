@@ -36,7 +36,7 @@ export const uptown_girl: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -53,7 +53,7 @@ export const uptown_girl: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -70,7 +70,7 @@ export const uptown_girl: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -92,7 +92,7 @@ export const uptown_girl: Song = {
             { degree: '♭7 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭3 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭3 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
@@ -106,7 +106,7 @@ export const uptown_girl: Song = {
             { degree: '5 min7', chordName: 'Bmin7b5', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -118,7 +118,7 @@ export const uptown_girl: Song = {
             { degree: '5 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -139,7 +139,7 @@ export const uptown_girl: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -156,7 +156,7 @@ export const uptown_girl: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -168,7 +168,7 @@ export const uptown_girl: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '♯4 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
@@ -177,19 +177,19 @@ export const uptown_girl: Song = {
         {
           chords: [
             { degree: '5 min7', chordName: 'Bmin7', beat: 1, duration: 2 },
-            { degree: '4 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '4 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '♯4 dim7', chordName: 'A♯dim7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -210,7 +210,7 @@ export const uptown_girl: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
       ],

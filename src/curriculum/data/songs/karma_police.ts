@@ -63,13 +63,13 @@ export const karma_police: Song = {
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '5 maj/7', chordName: 'D/F♯', beat: 1, duration: 1 },
             { degree: '6 min7', chordName: 'Emin7', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'D7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -127,7 +127,7 @@ export const karma_police: Song = {
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -151,7 +151,7 @@ export const karma_police: Song = {
             { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -159,13 +159,13 @@ export const karma_police: Song = {
       label: 'Verse 3',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '7 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '7 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -173,7 +173,7 @@ export const karma_police: Song = {
       label: 'Verse 4',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -187,7 +187,7 @@ export const karma_police: Song = {
             { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -235,7 +235,7 @@ export const karma_police: Song = {
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -259,7 +259,7 @@ export const karma_police: Song = {
             { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -267,13 +267,13 @@ export const karma_police: Song = {
       label: 'Verse 6',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '7 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '7 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -281,7 +281,7 @@ export const karma_police: Song = {
       label: 'Verse 7',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -306,18 +306,18 @@ export const karma_police: Song = {
             { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'Bmin7', beat: 1, duration: 4 },

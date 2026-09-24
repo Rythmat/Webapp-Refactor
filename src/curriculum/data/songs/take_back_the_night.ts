@@ -33,10 +33,10 @@ export const take_back_the_night: Song = {
         {
           chords: [
             { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 1 },
-            { degree: '♭7 7', chordName: 'A7sus', beat: 2, duration: 1 },
+            { degree: '♭7 dom7', chordName: 'A7sus', beat: 2, duration: 1 },
             { degree: '♭3 maj/5', chordName: 'D/F♯', beat: 3, duration: 1 },
             { degree: '4 min7', chordName: 'Emin7', beat: 3.5, duration: 1 },
-            { degree: '♭7 7', chordName: 'A7', beat: 4, duration: 1 },
+            { degree: '♭7 dom7', chordName: 'A7', beat: 4, duration: 1 },
           ],
         },
       ],
@@ -82,7 +82,7 @@ export const take_back_the_night: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
@@ -102,14 +102,14 @@ export const take_back_the_night: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'A7sus', beat: 1, duration: 1 },
+            { degree: '♭7 dom7', chordName: 'A7sus', beat: 1, duration: 1 },
             { degree: '♭3 maj/5', chordName: 'D/F♯', beat: 2, duration: 1 },
             { degree: '4 min7', chordName: 'Emin7', beat: 3, duration: 1 },
-            { degree: '♭7 7', chordName: 'A7', beat: 4, duration: 1 },
+            { degree: '♭7 dom7', chordName: 'A7', beat: 4, duration: 1 },
           ],
         },
       ],
@@ -155,7 +155,7 @@ export const take_back_the_night: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
       ],
@@ -175,14 +175,14 @@ export const take_back_the_night: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'A7sus', beat: 1, duration: 1 },
+            { degree: '♭7 dom7', chordName: 'A7sus', beat: 1, duration: 1 },
             { degree: '♭3 maj/5', chordName: 'D/F♯', beat: 2, duration: 1 },
             { degree: '4 min7', chordName: 'Emin7', beat: 3, duration: 1 },
-            { degree: '♭7 7', chordName: 'A7', beat: 4, duration: 1 },
+            { degree: '♭7 dom7', chordName: 'A7', beat: 4, duration: 1 },
           ],
         },
       ],

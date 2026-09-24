@@ -26,42 +26,42 @@ export const all_day_sucker: Song = {
         { chords: [], restBars: 2 },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -72,69 +72,69 @@ export const all_day_sucker: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 9', chordName: 'C♯9', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom9', chordName: 'C♯9', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '6 7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 7', chordName: 'D♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '6 dom7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'D♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 9', chordName: 'C♯9', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'D♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 dom9', chordName: 'C♯9', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'D♯7(♯9)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -151,30 +151,30 @@ export const all_day_sucker: Song = {
         {
           chords: [
             { degree: '♭7 min7', chordName: 'F♯min7', beat: 1, duration: 1 },
-            { degree: '♭3 7', chordName: 'B7', beat: 2, duration: 1 },
+            { degree: '♭3 dom7', chordName: 'B7', beat: 2, duration: 1 },
             { degree: '♭6 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭7 min7', chordName: 'F♯min7', beat: 1, duration: 1 },
-            { degree: '♭3 7', chordName: 'B7', beat: 2, duration: 1 },
+            { degree: '♭3 dom7', chordName: 'B7', beat: 2, duration: 1 },
             { degree: '♭6 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭7 min7', chordName: 'F♯min7', beat: 1, duration: 1 },
-            { degree: '♭3 7', chordName: 'B7', beat: 2, duration: 1 },
+            { degree: '♭3 dom7', chordName: 'B7', beat: 2, duration: 1 },
             { degree: '♭6 maj', chordName: 'E', beat: 3, duration: 1 },
-            { degree: '♭5 7', chordName: 'D7', beat: 4, duration: 1 },
+            { degree: '♭5 dom7', chordName: 'D7', beat: 4, duration: 1 },
           ],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'C♯min7', beat: 1, duration: 1 },
-            { degree: '2 7', chordName: 'A♯7(♯9)', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'D♯7(♯9)', beat: 3, duration: 2 },
+            { degree: '2 dom7', chordName: 'A♯7(♯9)', beat: 2, duration: 1 },
+            { degree: '5 dom7', chordName: 'D♯7(♯9)', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -186,27 +186,27 @@ export const all_day_sucker: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -217,69 +217,69 @@ export const all_day_sucker: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 9', chordName: 'C♯9', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom9', chordName: 'C♯9', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '6 7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 7', chordName: 'D♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '6 dom7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'D♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 9', chordName: 'C♯9', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'D♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 dom9', chordName: 'C♯9', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'D♯7(♯9)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -296,30 +296,30 @@ export const all_day_sucker: Song = {
         {
           chords: [
             { degree: '♭7 min7', chordName: 'F♯min7', beat: 1, duration: 1 },
-            { degree: '♭3 7', chordName: 'B7', beat: 2, duration: 1 },
+            { degree: '♭3 dom7', chordName: 'B7', beat: 2, duration: 1 },
             { degree: '♭6 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭7 min7', chordName: 'F♯min7', beat: 1, duration: 1 },
-            { degree: '♭3 7', chordName: 'B7', beat: 2, duration: 1 },
+            { degree: '♭3 dom7', chordName: 'B7', beat: 2, duration: 1 },
             { degree: '♭6 maj', chordName: 'E', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭7 min7', chordName: 'F♯min7', beat: 1, duration: 1 },
-            { degree: '♭3 7', chordName: 'B7', beat: 2, duration: 1 },
+            { degree: '♭3 dom7', chordName: 'B7', beat: 2, duration: 1 },
             { degree: '♭6 maj', chordName: 'E', beat: 3, duration: 1 },
-            { degree: '♭5 7', chordName: 'D7', beat: 4, duration: 1 },
+            { degree: '♭5 dom7', chordName: 'D7', beat: 4, duration: 1 },
           ],
         },
         {
           chords: [
             { degree: '4 min7', chordName: 'C♯min7', beat: 1, duration: 1 },
-            { degree: '2 7', chordName: 'A♯7(♯9)', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'D♯7(♯9)', beat: 3, duration: 2 },
+            { degree: '2 dom7', chordName: 'A♯7(♯9)', beat: 2, duration: 1 },
+            { degree: '5 dom7', chordName: 'D♯7(♯9)', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -330,32 +330,32 @@ export const all_day_sucker: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 7', chordName: 'D♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'D♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'D♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'D♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
       ],

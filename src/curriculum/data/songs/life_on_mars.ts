@@ -56,7 +56,7 @@ export const life_on_mars: Song = {
             { degree: '4 maj/1', chordName: 'A/E', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -70,7 +70,7 @@ export const life_on_mars: Song = {
         },
         {
           chords: [
-            { degree: '7 7', chordName: 'D♯7aug', beat: 1, duration: 4 },
+            { degree: '7 dom7', chordName: 'D♯7aug', beat: 1, duration: 4 },
           ],
         },
         {
@@ -86,7 +86,7 @@ export const life_on_mars: Song = {
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'G♯7aug', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'G♯7aug', beat: 1, duration: 4 },
           ],
         },
         {
@@ -116,7 +116,7 @@ export const life_on_mars: Song = {
         },
         {
           chords: [
-            { degree: '♭2 7', chordName: 'F7aug', beat: 1, duration: 4 },
+            { degree: '♭2 dom7', chordName: 'F7aug', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -148,7 +148,7 @@ export const life_on_mars: Song = {
         },
         {
           chords: [
-            { degree: '♭2 7', chordName: 'F7aug', beat: 1, duration: 4 },
+            { degree: '♭2 dom7', chordName: 'F7aug', beat: 1, duration: 4 },
           ],
         },
         {
@@ -228,7 +228,7 @@ export const life_on_mars: Song = {
             { degree: '4 maj/1', chordName: 'A/E', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -242,7 +242,7 @@ export const life_on_mars: Song = {
         },
         {
           chords: [
-            { degree: '7 7', chordName: 'D♯7aug', beat: 1, duration: 4 },
+            { degree: '7 dom7', chordName: 'D♯7aug', beat: 1, duration: 4 },
           ],
         },
         {
@@ -258,7 +258,7 @@ export const life_on_mars: Song = {
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'G♯7aug', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'G♯7aug', beat: 1, duration: 4 },
           ],
         },
         {
@@ -288,7 +288,7 @@ export const life_on_mars: Song = {
         },
         {
           chords: [
-            { degree: '♭2 7', chordName: 'F7aug', beat: 1, duration: 4 },
+            { degree: '♭2 dom7', chordName: 'F7aug', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -320,7 +320,7 @@ export const life_on_mars: Song = {
         },
         {
           chords: [
-            { degree: '♭2 7', chordName: 'F7aug', beat: 1, duration: 4 },
+            { degree: '♭2 dom7', chordName: 'F7aug', beat: 1, duration: 4 },
           ],
         },
         {

@@ -54,20 +54,20 @@ export const feel_like_makin_love: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'C7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'C7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -126,8 +126,8 @@ export const feel_like_makin_love: Song = {
             { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
@@ -180,20 +180,20 @@ export const feel_like_makin_love: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'C7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'C7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -252,8 +252,8 @@ export const feel_like_makin_love: Song = {
             { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
@@ -326,20 +326,20 @@ export const feel_like_makin_love: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'C7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'C7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -398,8 +398,8 @@ export const feel_like_makin_love: Song = {
             { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
@@ -452,20 +452,20 @@ export const feel_like_makin_love: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'C7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'C7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'B7', beat: 3, duration: 2 },
+            { degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 2 },
+            { degree: '6 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -524,8 +524,8 @@ export const feel_like_makin_love: Song = {
             { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },

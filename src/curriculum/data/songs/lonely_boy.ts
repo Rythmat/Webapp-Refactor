@@ -39,10 +39,10 @@ export const lonely_boy: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [], restBars: 8 },
       ],
     },
@@ -76,8 +76,8 @@ export const lonely_boy: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [], restBars: 8 },
         {
           chords: [
@@ -105,8 +105,8 @@ export const lonely_boy: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         { chords: [], restBars: 8 },
       ],
     },
@@ -129,10 +129,10 @@ export const lonely_boy: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -159,8 +159,8 @@ export const lonely_boy: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },

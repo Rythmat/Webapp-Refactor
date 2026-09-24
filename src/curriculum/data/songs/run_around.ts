@@ -31,7 +31,7 @@ export const run_around: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'D7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -43,7 +43,7 @@ export const run_around: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'D7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
       ],

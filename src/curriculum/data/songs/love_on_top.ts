@@ -74,7 +74,7 @@ export const love_on_top: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -86,7 +86,7 @@ export const love_on_top: Song = {
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -102,7 +102,7 @@ export const love_on_top: Song = {
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -165,8 +165,8 @@ export const love_on_top: Song = {
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭6 7', chordName: 'A♭7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'G7', beat: 3, duration: 2 },
+            { degree: '♭6 dom7', chordName: 'A♭7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'G7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -196,8 +196,8 @@ export const love_on_top: Song = {
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'A7', beat: 1, duration: 2 },
-            { degree: '♭6 7', chordName: 'A♭7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'A7', beat: 1, duration: 2 },
+            { degree: '♭6 dom7', chordName: 'A♭7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -223,8 +223,8 @@ export const love_on_top: Song = {
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '♭7 dom7', chordName: 'B♭7', beat: 1, duration: 2 },
+            { degree: '6 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -254,8 +254,8 @@ export const love_on_top: Song = {
         },
         {
           chords: [
-            { degree: '7 7', chordName: 'B7', beat: 1, duration: 2 },
-            { degree: '♭7 7', chordName: 'B♭7', beat: 3, duration: 2 },
+            { degree: '7 dom7', chordName: 'B7', beat: 1, duration: 2 },
+            { degree: '♭7 dom7', chordName: 'B♭7', beat: 3, duration: 2 },
           ],
         },
       ],

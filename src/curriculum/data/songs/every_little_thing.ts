@@ -26,12 +26,12 @@ export const every_little_thing: Song = {
         { chords: [], restBars: 1 },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 4 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'F7(♯5)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'F7(♯5)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -48,7 +48,7 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 4 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 4 },
           ],
         },
         {
@@ -59,7 +59,7 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 4 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -76,7 +76,7 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 4 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 4 },
           ],
         },
         {
@@ -87,8 +87,8 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F7(♯5)', beat: 3, duration: 2 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'F7(♯5)', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -105,7 +105,7 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 4 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 4 },
           ],
         },
         {
@@ -116,7 +116,7 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 4 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -133,7 +133,7 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 4 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 4 },
           ],
         },
         {
@@ -144,8 +144,8 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 2 },
-            { degree: '♭7 7', chordName: 'A♭7sus', beat: 3, duration: 2 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 2 },
+            { degree: '♭7 dom7', chordName: 'A♭7sus', beat: 3, duration: 2 },
           ],
         },
         {
@@ -156,7 +156,7 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 4 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 4 },
           ],
         },
         {
@@ -168,7 +168,7 @@ export const every_little_thing: Song = {
         {
           chords: [
             { degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 2 },
-            { degree: '♭7 7', chordName: 'A♭7sus', beat: 3, duration: 2 },
+            { degree: '♭7 dom7', chordName: 'A♭7sus', beat: 3, duration: 2 },
           ],
         },
         {
@@ -179,7 +179,7 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 4 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 4 },
           ],
         },
         {
@@ -191,7 +191,7 @@ export const every_little_thing: Song = {
         {
           chords: [
             { degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F7(♯5)', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'F7(♯5)', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -208,7 +208,7 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 4 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 4 },
           ],
         },
         {
@@ -219,7 +219,7 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 4 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -236,7 +236,7 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 4 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 4 },
           ],
         },
         {
@@ -247,8 +247,8 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F7(♯5)', beat: 3, duration: 2 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'F7(♯5)', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -261,12 +261,12 @@ export const every_little_thing: Song = {
         { chords: [], restBars: 1 },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 4 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'F7(♯5)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'F7(♯5)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -277,12 +277,12 @@ export const every_little_thing: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭7 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -293,32 +293,12 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'F7(♯5)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'F7(♯5)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'F7(♯5)', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '7 7', chordName: 'A7(♯5)', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '7 7', chordName: 'A7(♯5)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'F7(♯5)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -332,7 +312,27 @@ export const every_little_thing: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭7 7', chordName: 'A♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '7 dom7', chordName: 'A7(♯5)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '7 dom7', chordName: 'A7(♯5)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 dom7', chordName: 'A♭7', beat: 1, duration: 4 }],
         },
         {
           chords: [
@@ -342,13 +342,13 @@ export const every_little_thing: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F7(♯5)', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'F7(♯5)', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F7(♯5)', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'F7(♯5)', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -365,7 +365,7 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 4 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 4 },
           ],
         },
         {
@@ -376,7 +376,7 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 4 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -393,7 +393,7 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 4 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 4 },
           ],
         },
         {
@@ -404,8 +404,8 @@ export const every_little_thing: Song = {
         },
         {
           chords: [
-            { degree: '♭6 13', chordName: 'G♭13', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F7(♯5)', beat: 3, duration: 2 },
+            { degree: '♭6 dom13', chordName: 'G♭13', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'F7(♯5)', beat: 3, duration: 2 },
           ],
         },
       ],

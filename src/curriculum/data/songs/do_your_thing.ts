@@ -94,8 +94,8 @@ export const do_your_thing: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -154,8 +154,8 @@ export const do_your_thing: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {

@@ -214,8 +214,8 @@ export const rock_with_you: Song = {
             { degree: '5 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },

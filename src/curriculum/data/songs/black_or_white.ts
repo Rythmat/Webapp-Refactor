@@ -105,43 +105,43 @@ export const black_or_white: Song = {
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
-            { degree: '4 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '4 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
-            { degree: '4 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '4 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
-            { degree: '4 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '4 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
-            { degree: '4 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '4 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
-            { degree: '4 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '4 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
-            { degree: '4 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '4 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
-            { degree: '4 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '4 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
         {

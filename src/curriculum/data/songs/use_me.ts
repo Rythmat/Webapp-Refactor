@@ -32,8 +32,8 @@ export const use_me: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -44,8 +44,8 @@ export const use_me: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -68,8 +68,8 @@ export const use_me: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -80,8 +80,8 @@ export const use_me: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -104,8 +104,8 @@ export const use_me: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -116,8 +116,8 @@ export const use_me: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -140,8 +140,8 @@ export const use_me: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -152,8 +152,8 @@ export const use_me: Song = {
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
       ],
     },
   ],

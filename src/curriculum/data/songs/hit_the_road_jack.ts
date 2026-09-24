@@ -31,7 +31,7 @@ export const hit_the_road_jack: Song = {
         {
           chords: [
             { degree: '♯5 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -43,7 +43,7 @@ export const hit_the_road_jack: Song = {
         {
           chords: [
             { degree: '♯5 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E♭7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 3, duration: 2 },
           ],
         },
       ],

@@ -31,11 +31,11 @@ export const how_sweet_it_is_to_be_loved_by_you: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'D7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -51,7 +51,7 @@ export const how_sweet_it_is_to_be_loved_by_you: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'D7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -89,7 +89,7 @@ export const how_sweet_it_is_to_be_loved_by_you: Song = {
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -105,11 +105,11 @@ export const how_sweet_it_is_to_be_loved_by_you: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'D7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
       ],
     },
   ],

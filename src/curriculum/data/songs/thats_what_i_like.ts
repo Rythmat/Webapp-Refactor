@@ -50,12 +50,12 @@ export const thats_what_i_like: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -76,15 +76,15 @@ export const thats_what_i_like: Song = {
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '6 dom7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '6 dom7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -103,12 +103,12 @@ export const thats_what_i_like: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -129,15 +129,15 @@ export const thats_what_i_like: Song = {
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '6 dom7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '6 dom7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -179,7 +179,7 @@ export const thats_what_i_like: Song = {
         {
           chords: [
             { degree: '5 maj', chordName: 'A♭', beat: 1, duration: 2 },
-            { degree: '6 7/3', chordName: 'B♭7/F', beat: 3, duration: 2 },
+            { degree: '6 dom7/3', chordName: 'B♭7/F', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -200,12 +200,12 @@ export const thats_what_i_like: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -246,12 +246,12 @@ export const thats_what_i_like: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -375,7 +375,7 @@ export const thats_what_i_like: Song = {
         {
           chords: [
             { degree: '5 maj', chordName: 'A♭', beat: 1, duration: 2 },
-            { degree: '6 7/3', chordName: 'B♭7/F', beat: 3, duration: 2 },
+            { degree: '6 dom7/3', chordName: 'B♭7/F', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -396,12 +396,12 @@ export const thats_what_i_like: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -442,12 +442,12 @@ export const thats_what_i_like: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'A♭7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -474,7 +474,7 @@ export const thats_what_i_like: Song = {
         {
           chords: [
             { degree: '5 maj', chordName: 'A♭', beat: 1, duration: 2 },
-            { degree: '6 7/3', chordName: 'B♭7/F', beat: 3, duration: 2 },
+            { degree: '6 dom7/3', chordName: 'B♭7/F', beat: 3, duration: 2 },
           ],
         },
       ],

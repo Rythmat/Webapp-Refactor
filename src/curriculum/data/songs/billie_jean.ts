@@ -163,7 +163,7 @@ export const billie_jean: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -309,7 +309,7 @@ export const billie_jean: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
       ],
     },
     {

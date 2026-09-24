@@ -84,7 +84,7 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
       label: 'Verse 4',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -137,7 +137,7 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
           chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -215,7 +215,7 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
       label: 'Verse 9',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 4 }] },

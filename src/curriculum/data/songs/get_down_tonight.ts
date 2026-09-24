@@ -24,13 +24,13 @@ export const get_down_tonight: Song = {
       instrumental: true,
       bars: [
         {
-          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -38,13 +38,13 @@ export const get_down_tonight: Song = {
       label: 'Verse 1',
       bars: [
         {
-          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -59,8 +59,8 @@ export const get_down_tonight: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -68,13 +68,13 @@ export const get_down_tonight: Song = {
       label: 'Verse 2',
       bars: [
         {
-          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -89,8 +89,8 @@ export const get_down_tonight: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -98,13 +98,13 @@ export const get_down_tonight: Song = {
       label: 'Verse 3',
       bars: [
         {
-          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -119,8 +119,8 @@ export const get_down_tonight: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -128,13 +128,13 @@ export const get_down_tonight: Song = {
       label: 'Outro',
       bars: [
         {
-          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 dom7', chordName: 'F7sus', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
       ],
     },
   ],

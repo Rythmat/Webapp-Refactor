@@ -24,22 +24,22 @@ export const pick_up_the_pieces: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 7', chordName: 'C7sus4', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'C7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'C7sus4', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'C7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'C7sus4', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'C7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'C7sus4', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'C7sus4', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -96,12 +96,12 @@ export const pick_up_the_pieces: Song = {
       bars: [
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
@@ -132,22 +132,22 @@ export const pick_up_the_pieces: Song = {
       bars: [
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'C7(♯9)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'C7(♯9)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -158,7 +158,7 @@ export const pick_up_the_pieces: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 7', chordName: 'C7(♯9)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'C7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -205,12 +205,12 @@ export const pick_up_the_pieces: Song = {
       bars: [
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
@@ -231,22 +231,22 @@ export const pick_up_the_pieces: Song = {
       bars: [
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'C7(♯9)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'C7(♯9)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -257,22 +257,22 @@ export const pick_up_the_pieces: Song = {
       bars: [
         {
           chords: [
-            { degree: '5 7', chordName: 'C7(♯9)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'C7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'C7(♯9)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'C7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'C7(♯9)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'C7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'C7(♯9)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'C7(♯9)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -283,22 +283,22 @@ export const pick_up_the_pieces: Song = {
       bars: [
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -335,12 +335,12 @@ export const pick_up_the_pieces: Song = {
       bars: [
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
@@ -361,22 +361,22 @@ export const pick_up_the_pieces: Song = {
       bars: [
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -387,27 +387,27 @@ export const pick_up_the_pieces: Song = {
       bars: [
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'B♭7sus4', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'C7(♯9)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'C7(♯9)', beat: 1, duration: 4 },
           ],
         },
       ],

@@ -57,7 +57,7 @@ export const change_the_world: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'B7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7sus', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -135,7 +135,7 @@ export const change_the_world: Song = {
         {
           chords: [
             { degree: '2 min7/1', chordName: 'F♯min7/E', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'G♯7', beat: 3, duration: 2 },
+            { degree: '3 dom7', chordName: 'G♯7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -151,7 +151,7 @@ export const change_the_world: Song = {
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'G♯7', beat: 1, duration: 2 },
+            { degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 2 },
             { degree: '6 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -163,7 +163,7 @@ export const change_the_world: Song = {
         {
           chords: [
             { degree: '7 min7', chordName: 'D♯min7b5', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'G♯7', beat: 3, duration: 1 },
+            { degree: '3 dom7', chordName: 'G♯7', beat: 3, duration: 1 },
             { degree: '6 min7', chordName: 'C♯min7', beat: 4, duration: 1 },
           ],
         },
@@ -180,7 +180,7 @@ export const change_the_world: Song = {
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'G♯7', beat: 1, duration: 1 },
+            { degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 1 },
             { degree: '6 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
             { degree: '♭6 min7', chordName: 'Cmin7', beat: 3, duration: 1 },
             { degree: '5 min7', chordName: 'Bmin7', beat: 4, duration: 1 },
@@ -286,7 +286,7 @@ export const change_the_world: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'G♯7', beat: 3, duration: 2 },
+            { degree: '3 dom7', chordName: 'G♯7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -302,7 +302,7 @@ export const change_the_world: Song = {
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'G♯7', beat: 1, duration: 2 },
+            { degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 2 },
             { degree: '6 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
@@ -314,7 +314,7 @@ export const change_the_world: Song = {
         {
           chords: [
             { degree: '7 min7', chordName: 'D♯min7b5', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'G♯7', beat: 3, duration: 1 },
+            { degree: '3 dom7', chordName: 'G♯7', beat: 3, duration: 1 },
             { degree: '6 min7', chordName: 'C♯min7', beat: 4, duration: 1 },
           ],
         },
@@ -331,7 +331,7 @@ export const change_the_world: Song = {
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'G♯7', beat: 1, duration: 1 },
+            { degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 1 },
             { degree: '6 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
             { degree: '♭6 min7', chordName: 'Cmin7', beat: 3, duration: 1 },
             { degree: '5 min7', chordName: 'Bmin7', beat: 4, duration: 1 },

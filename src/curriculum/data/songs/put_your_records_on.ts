@@ -71,7 +71,7 @@ export const put_your_records_on: Song = {
             { degree: '6 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -160,7 +160,7 @@ export const put_your_records_on: Song = {
             { degree: '6 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'B7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -257,7 +257,7 @@ export const put_your_records_on: Song = {
           fermata: true,
         },
         {
-          chords: [{ degree: '♭7 7', chordName: 'G7', beat: 1, duration: 4 }],
+          chords: [{ degree: '♭7 dom7', chordName: 'G7', beat: 1, duration: 4 }],
           fermata: true,
         },
         {

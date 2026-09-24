@@ -47,7 +47,7 @@ export const crazy: Song = {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'G7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 dom7', chordName: 'G7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -80,7 +80,7 @@ export const crazy: Song = {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'G7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 dom7', chordName: 'G7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -113,7 +113,7 @@ export const crazy: Song = {
           chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'G7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 dom7', chordName: 'G7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -138,7 +138,7 @@ export const crazy: Song = {
           chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'G7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 dom7', chordName: 'G7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {

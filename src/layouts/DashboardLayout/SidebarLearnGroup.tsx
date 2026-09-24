@@ -1,4 +1,4 @@
-import type { LucideIcon } from 'lucide-react';
+import { ListMusic, type LucideIcon } from 'lucide-react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import {
   Tooltip,
@@ -7,7 +7,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/components/utilities';
-import { LearnRoutes } from '@/constants/routes';
+import { LearnRoutes, SongRoutes } from '@/constants/routes';
 
 interface SubItem {
   slug: string; // ?tab= value this icon activates
@@ -15,6 +15,10 @@ interface SubItem {
   icon?: LucideIcon;
   iconSrc?: string; // image icon (matches the Home section icons); wins over `icon`
   glyphClassName?: string; // per-item size override for the glyph
+  /** A page of its own rather than a Learn tab — Set Lists sits under Songs. */
+  to?: string;
+  /** Marked active when the path starts with this. */
+  match?: string;
 }
 
 const ITEMS: SubItem[] = [
@@ -23,6 +27,13 @@ const ITEMS: SubItem[] = [
     label: 'Songs',
     iconSrc: '/icons/popular-releases-icon.svg',
     glyphClassName: 'h-8 w-8',
+  },
+  {
+    slug: 'SetLists',
+    label: 'Set Lists',
+    icon: ListMusic,
+    to: SongRoutes.setLists(),
+    match: SongRoutes.setLists(),
   },
   { slug: 'Genre', label: 'Genre', iconSrc: '/icons/genre-icon.svg' },
   { slug: 'Theory', label: 'Theory', iconSrc: '/icons/theory-icon.svg' },
@@ -55,15 +66,17 @@ export const SidebarLearnGroup = () => {
   const [searchParams] = useSearchParams();
 
   const learnRoot = LearnRoutes.root();
+  const inSetLists = location.pathname.startsWith(SongRoutes.setLists());
   const inLearn =
     location.pathname === learnRoot ||
-    location.pathname.startsWith(`${learnRoot}/`);
+    location.pathname.startsWith(`${learnRoot}/`) ||
+    inSetLists;
   const activeTab = searchParams.get('tab') ?? '';
   const homeActive = inLearn && activeTab === ''; // Learn icon == the Home entry
   // Sub-tabs are secondary nav for the individual Learn areas, so they show only
   // once a specific tab is active — hidden on the Learn Home hub itself, which
   // has its own navigation and would otherwise duplicate it.
-  const showTabs = inLearn && activeTab !== '';
+  const showTabs = (inLearn && activeTab !== '') || inSetLists;
 
   return (
     <li>
@@ -121,8 +134,13 @@ export const SidebarLearnGroup = () => {
           <div className="overflow-hidden" aria-hidden={!showTabs}>
             <ul className="flex flex-col gap-1 pt-1">
               {ITEMS.map(
-                ({ slug, label, icon: Icon, iconSrc, glyphClassName }, i) => {
-                  const isActive = activeTab === slug;
+                (
+                  { slug, label, icon: Icon, iconSrc, glyphClassName, to, match },
+                  i,
+                ) => {
+                  const isActive = match
+                    ? location.pathname.startsWith(match)
+                    : activeTab === slug;
                   return (
                     <li
                       key={slug}
@@ -140,7 +158,7 @@ export const SidebarLearnGroup = () => {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Link
-                              to={`${learnRoot}?tab=${slug}`}
+                              to={to ?? `${learnRoot}?tab=${slug}`}
                               aria-label={label}
                               aria-current={isActive ? 'page' : undefined}
                               tabIndex={showTabs ? undefined : -1}

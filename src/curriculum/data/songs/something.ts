@@ -26,8 +26,8 @@ export const something: Song = {
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -40,8 +40,8 @@ export const something: Song = {
       id: 'chorus_1',
       label: 'Chorus 1',
       bars: [
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '5 maj', chordName: 'G', beat: 1, duration: 1 },
@@ -62,8 +62,8 @@ export const something: Song = {
             { degree: '6 min7/5', chordName: 'Amin7/G', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
@@ -129,8 +129,8 @@ export const something: Song = {
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -143,8 +143,8 @@ export const something: Song = {
       id: 'chorus_2',
       label: 'Chorus 2',
       bars: [
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '5 maj', chordName: 'G', beat: 1, duration: 1 },
@@ -165,8 +165,8 @@ export const something: Song = {
             { degree: '6 min7/5', chordName: 'Amin7/G', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },

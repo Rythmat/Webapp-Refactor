@@ -25,74 +25,74 @@ export const brother_soul: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'G7(♯9)', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'G7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'G7(♯9)', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'G7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -103,42 +103,42 @@ export const brother_soul: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {

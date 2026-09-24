@@ -32,7 +32,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -50,7 +50,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -68,7 +68,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -86,7 +86,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -110,7 +110,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -123,7 +123,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -148,7 +148,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -166,7 +166,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -185,7 +185,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -199,7 +199,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -287,7 +287,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -305,7 +305,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -324,7 +324,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -338,7 +338,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {

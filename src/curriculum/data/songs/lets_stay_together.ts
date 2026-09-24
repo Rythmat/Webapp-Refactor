@@ -43,7 +43,7 @@ export const lets_stay_together: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -262,7 +262,7 @@ export const lets_stay_together: Song = {
       id: 'outro',
       label: 'Outro',
       bars: [
-        { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
   ],

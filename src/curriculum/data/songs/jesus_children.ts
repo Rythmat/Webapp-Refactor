@@ -91,13 +91,13 @@ export const jesus_children: Song = {
         {
           chords: [
             { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '♭3 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭3 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -133,13 +133,13 @@ export const jesus_children: Song = {
         {
           chords: [
             { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '♭3 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭3 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -171,13 +171,13 @@ export const jesus_children: Song = {
         {
           chords: [
             { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '♭3 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭3 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -193,13 +193,13 @@ export const jesus_children: Song = {
         {
           chords: [
             { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '♭3 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭3 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -221,13 +221,13 @@ export const jesus_children: Song = {
         {
           chords: [
             { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '♭3 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭3 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -275,13 +275,13 @@ export const jesus_children: Song = {
         {
           chords: [
             { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '♭3 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭3 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -339,13 +339,13 @@ export const jesus_children: Song = {
         {
           chords: [
             { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '♭3 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭3 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -379,11 +379,11 @@ export const jesus_children: Song = {
             { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭3 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭3 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
       ],
     },
     {

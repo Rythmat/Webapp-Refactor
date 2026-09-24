@@ -76,22 +76,22 @@ export const killing_me_softly_flack: Song = {
       bars: [
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -143,7 +143,7 @@ export const killing_me_softly_flack: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Fmin7', beat: 1, duration: 4 },

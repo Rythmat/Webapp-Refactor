@@ -41,7 +41,7 @@ export const lets_go_crazy: Song = {
         {
           chords: [
             { degree: '4 maj', chordName: 'B', beat: 1, duration: 1 },
-            { degree: '5 7', chordName: 'C♯7', beat: 2, duration: 1 },
+            { degree: '5 dom7', chordName: 'C♯7', beat: 2, duration: 1 },
             { degree: '5 maj', chordName: 'C♯', beat: 3, duration: 2 },
           ],
         },

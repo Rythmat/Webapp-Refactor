@@ -50,7 +50,7 @@ export const no_easy_way_down: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 dom7', chordName: 'D7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -81,7 +81,7 @@ export const no_easy_way_down: Song = {
           chords: [
             { degree: '1 maj/3', chordName: 'G/B', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'Amin7', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'D7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -98,7 +98,7 @@ export const no_easy_way_down: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 dom7', chordName: 'D7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -162,7 +162,7 @@ export const no_easy_way_down: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 dom7', chordName: 'D7sus', beat: 1, duration: 4 }],
         },
       ],
     },
@@ -178,7 +178,7 @@ export const no_easy_way_down: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 dom7', chordName: 'D7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -208,7 +208,7 @@ export const no_easy_way_down: Song = {
         {
           chords: [
             { degree: '1 maj/3', chordName: 'G/B', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'D7sus', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'D7sus', beat: 3, duration: 2 },
           ],
         },
         {

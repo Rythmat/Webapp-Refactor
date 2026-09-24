@@ -25,13 +25,13 @@ export const you_are_the_sunshine_of_my_life: Song = {
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '5 7', chordName: 'F♯7(♯5)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'F♯7(♯5)', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '5 7', chordName: 'F♯7(♯5)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'F♯7(♯5)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -51,18 +51,18 @@ export const you_are_the_sunshine_of_my_life: Song = {
             { degree: '3 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F♯7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'F♯7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -76,18 +76,18 @@ export const you_are_the_sunshine_of_my_life: Song = {
             { degree: '3 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '6 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F♯7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'F♯7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -100,27 +100,27 @@ export const you_are_the_sunshine_of_my_life: Song = {
         {
           chords: [
             { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F♯7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'F♯7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F♯7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'F♯7', beat: 3, duration: 2 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 1 },
-            { degree: '5 7', chordName: 'F♯7', beat: 2, duration: 1 },
+            { degree: '5 dom7', chordName: 'F♯7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'A♭min7b5', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '3 7', chordName: 'D♯7alt', beat: 1, duration: 4 },
+            { degree: '3 dom7', chordName: 'D♯7alt', beat: 1, duration: 4 },
           ],
         },
         {
@@ -129,20 +129,20 @@ export const you_are_the_sunshine_of_my_life: Song = {
         {
           chords: [
             { degree: '7 min7', chordName: 'A♯min7', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D♯7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D♯7', beat: 2, duration: 1 },
             { degree: '6 min7', chordName: 'G♯min7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '2 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭6 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭6 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭6 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭6 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -162,20 +162,20 @@ export const you_are_the_sunshine_of_my_life: Song = {
             { degree: '4 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭7 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭7 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '♭3 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭6 7', chordName: 'G7', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭6 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭2 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '♭3 min7', chordName: 'Dmin7', beat: 1, duration: 2 },
-            { degree: '♭6 7', chordName: 'G7', beat: 3, duration: 2 },
+            { degree: '♭6 dom7', chordName: 'G7', beat: 3, duration: 2 },
           ],
         },
       ],

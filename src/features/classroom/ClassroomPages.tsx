@@ -52,9 +52,9 @@ const SetListsIndexPage = lazy(() =>
     default: m.SetListsIndexPage,
   })),
 );
-const SetListEditorPage = lazy(() =>
-  import('@/features/setlists/pages/SetListEditorPage').then((m) => ({
-    default: m.SetListEditorPage,
+const SetListWorkspace = lazy(() =>
+  import('@/features/setlists/pages/SetListWorkspace').then((m) => ({
+    default: m.SetListWorkspace,
   })),
 );
 const SetListPrintPage = lazy(() =>
@@ -694,7 +694,7 @@ export const songsPages = () => {
         path: 'setlists/:setListId',
         element: (
           <ContentGate needs={['songs']}>
-            <SetListEditorPage />
+            <SetListWorkspace />
           </ContentGate>
         ),
       },

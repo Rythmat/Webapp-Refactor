@@ -180,15 +180,15 @@ export const you_make_me_feel_like_a_natural_woman: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '1 7', chordName: 'A7sus', beat: 1, duration: 6 }],
+          chords: [{ degree: '1 dom7', chordName: 'A7sus', beat: 1, duration: 6 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '1 7', chordName: 'A7sus', beat: 1, duration: 6 }],
+          chords: [{ degree: '1 dom7', chordName: 'A7sus', beat: 1, duration: 6 }],
         },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '4 7', chordName: 'D7sus', beat: 1, duration: 6 }],
+          chords: [{ degree: '4 dom7', chordName: 'D7sus', beat: 1, duration: 6 }],
         },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
         {

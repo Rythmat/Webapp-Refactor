@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   acceptChartUpdate,
   addSongEntry,
+  chartFingerprint,
   addTextEntry,
   createSetList,
   deleteSetList,
@@ -23,7 +24,6 @@ import {
   setEntryTranspose,
   toggleFavorite,
 } from '../setListsStore';
-import { chartFingerprint } from '../setListsStore';
 import { FAVORITES_TITLE, INBOX_TITLE } from '../types';
 
 const start = () => ensureDefaults(emptyBlob(1), 1);

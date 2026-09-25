@@ -18,8 +18,6 @@ export interface TourStep {
 export interface TourTab {
   id: TourTabId;
   label: string;
-  /** App module accent (dashboard.css `data-tab`). */
-  accent: string;
   /** Faux URL shown in the window chrome. */
   path: string;
   /** Public feature page for "Learn more". */
@@ -33,7 +31,6 @@ const TABS: TourTab[] = [
   {
     id: 'studio',
     label: 'Studio',
-    accent: '#ffcc33',
     path: 'studio',
     href: MarketingRoutes.studio(),
     steps: [
@@ -75,7 +72,6 @@ const TABS: TourTab[] = [
   {
     id: 'learn',
     label: 'Learn',
-    accent: '#34d399',
     path: 'learn',
     href: MarketingRoutes.learn(),
     steps: [
@@ -108,7 +104,6 @@ const TABS: TourTab[] = [
   {
     id: 'arcade',
     label: 'Arcade',
-    accent: '#a78bfa',
     path: 'arcade',
     href: MarketingRoutes.arcade(),
     steps: [
@@ -138,7 +133,6 @@ const TABS: TourTab[] = [
   {
     id: 'globe',
     label: 'Globe',
-    accent: '#60a5fa',
     path: 'atlas',
     href: MarketingRoutes.globe(),
     steps: [
@@ -169,7 +163,6 @@ const TABS: TourTab[] = [
   {
     id: 'teach',
     label: 'Teach',
-    accent: '#f472b6',
     path: 'classroom',
     href: MarketingRoutes.teachers(),
     steps: [

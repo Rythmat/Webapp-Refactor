@@ -9,9 +9,9 @@ import {
 import { cn } from '@/components/utilities';
 import type { SceneProps } from './sceneTypes';
 
-// Globe module accent (dashboard.css data-tab="globe"), as cobe RGB 0–1.
-const BLUE: [number, number, number] = [0.376, 0.647, 0.98];
-const LIGHT: [number, number, number] = [0.75, 0.86, 1];
+// Neutral markers/arcs (cobe RGB 0–1): color here would read as a key center.
+const GREY: [number, number, number] = [0.8, 0.8, 0.82];
+const LIGHT: [number, number, number] = [1, 1, 1];
 
 const NEW_ORLEANS: [number, number] = [29.9511, -90.0715];
 const CHICAGO: [number, number] = [41.8781, -87.6298];
@@ -29,21 +29,21 @@ const MARKERS: GlobeMarker[] = [
     id: 'tour-chi',
     location: CHICAGO,
     label: '',
-    color: BLUE,
+    color: GREY,
     size: 0.035,
   },
   {
     id: 'tour-nyc',
     location: NEW_YORK,
     label: 'New York',
-    color: BLUE,
+    color: GREY,
     size: 0.035,
   },
 ];
 
 const ARCS: GlobeArc[] = [
-  { from: NEW_ORLEANS, to: CHICAGO, color: BLUE },
-  { from: NEW_ORLEANS, to: NEW_YORK, color: BLUE },
+  { from: NEW_ORLEANS, to: CHICAGO, color: GREY },
+  { from: NEW_ORLEANS, to: NEW_YORK, color: GREY },
   { from: CHICAGO, to: NEW_YORK, color: LIGHT },
 ];
 
@@ -90,7 +90,7 @@ const GlobeScene = ({ stepIndex, mode, compact, visible }: SceneProps) => {
             transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
             className="flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-white/[0.04] p-4 backdrop-blur-md"
           >
-            <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#60a5fa]">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/50">
               Pathways
             </span>
             <h4 className="text-lg font-bold leading-snug">

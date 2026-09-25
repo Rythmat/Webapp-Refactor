@@ -6,7 +6,6 @@ import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { keyCenterColor, majorScale } from '../../music';
 import type { SceneProps } from './sceneTypes';
 
-const ACCENT = '#f472b6';
 /** Lesson key: G major (key-center color = G's vermillion; whole scale one color). */
 const G = 7;
 const STUDENTS = [
@@ -95,7 +94,7 @@ export const TeachScene = ({
     <div className="flex h-full flex-col gap-3 p-4 text-white">
       <div className="flex items-center gap-2 text-xs">
         <span className="flex items-center gap-1.5 rounded-md bg-white/[0.06] px-2.5 py-1.5 font-semibold">
-          <Users className="size-3.5" style={{ color: ACCENT }} />
+          <Users className="size-3.5 text-white/70" />
           My class
         </span>
         <span
@@ -103,13 +102,13 @@ export const TeachScene = ({
           className={cn(
             'flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 font-semibold tracking-wider transition-shadow duration-500',
             stepIndex === 0 && auto
-              ? 'border-[#f472b6]/60 shadow-[0_0_0_4px_rgba(244,114,182,0.2)]'
+              ? 'border-white/50 shadow-[0_0_0_4px_rgba(255,255,255,0.12)]'
               : 'border-white/10',
           )}
         >
           Join code · 4F7K2
         </span>
-        <span className="ml-auto flex items-center gap-1.5 rounded-full bg-[#f472b6]/15 px-2.5 py-1 font-semibold text-[#f9a8d4]">
+        <span className="ml-auto flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 font-semibold text-white">
           <Wifi className="size-3.5" /> Live
         </span>
       </div>
@@ -126,7 +125,7 @@ export const TeachScene = ({
           className="flex flex-col gap-4 rounded-xl border border-white/[0.08] bg-white/[0.03] p-5"
         >
           <div className="flex items-center gap-2 text-xs text-white/50">
-            <Presentation className="size-4" style={{ color: ACCENT }} />
+            <Presentation className="size-4 text-white/70" />
             Projector
             <span className="ml-auto">
               Slide {slideNo} / {SLIDES}
@@ -154,17 +153,17 @@ export const TeachScene = ({
                 <div className="flex items-center gap-2 text-xs">
                   <span className="font-semibold">{s.name}</span>
                   {isJoined && (
-                    <span className="flex items-center gap-1 text-[#86efac]">
+                    <span className="flex items-center gap-1 text-white/60">
                       <Check className="size-3" /> Joined
                     </span>
                   )}
                   {showProgress && isJoined && (
                     <span className="ml-auto flex items-center gap-1.5">
                       <span className="flex items-center gap-0.5 rounded-full bg-white/[0.06] px-1.5 py-0.5">
-                        <Flame className="size-3 text-orange-400" />
+                        <Flame className="size-3 text-white/80" />
                         {s.streak}
                       </span>
-                      <span className="flex items-center gap-0.5 rounded-full bg-[#a78bfa]/20 px-1.5 py-0.5 text-[#c4b5fd]">
+                      <span className="flex items-center gap-0.5 rounded-full bg-white/10 px-1.5 py-0.5 text-white">
                         <Trophy className="size-3" />
                         {s.xp} XP
                       </span>

@@ -4,8 +4,9 @@ import { LANDING_MODULES } from './modules';
 
 /**
  * Five bento boxes under the hero horizon (Attio-style bordered row): Learn,
- * Studio, Globe, Arcade, Teach. Each cell jumps to its module's section; the
- * hover glow is tinted with the module's app accent.
+ * Studio, Globe, Arcade, Teach. Each cell jumps to its module's section.
+ * Neutral white UI — color on this page is reserved for the music color
+ * system (key centers / chords) and the rainbow brand motif.
  */
 export const ModuleBentoRow = () => {
   return (
@@ -23,10 +24,7 @@ export const ModuleBentoRow = () => {
             i === LANDING_MODULES.length - 1 && 'sm:max-lg:col-span-2',
           )}
         >
-          <SpotlightCard
-            accent={m.accent}
-            className="spotlight-flat flex h-full flex-col p-7 lg:min-h-56"
-          >
+          <SpotlightCard className="spotlight-flat flex h-full flex-col p-7 lg:min-h-56">
             <span className="transition-transform duration-300 group-hover:-translate-y-0.5">
               {m.icon}
             </span>
@@ -36,10 +34,7 @@ export const ModuleBentoRow = () => {
             <span className="mt-1 text-[15px] leading-snug text-white/50">
               {m.bento.body}
             </span>
-            <span
-              className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] opacity-70 transition-opacity group-hover:opacity-100"
-              style={{ color: m.accent }}
-            >
+            <span className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-white">
               {m.label}
             </span>
           </SpotlightCard>

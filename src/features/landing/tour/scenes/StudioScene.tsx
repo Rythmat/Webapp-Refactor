@@ -106,7 +106,7 @@ export const StudioScene = ({
       {/* Toolbar */}
       <div className="flex items-center gap-2 text-xs">
         <span className="flex items-center gap-1.5 rounded-md bg-white/[0.06] px-2.5 py-1.5 font-semibold">
-          <SlidersHorizontal className="size-3.5 text-[#ffcc33]" />
+          <SlidersHorizontal className="size-3.5 text-white/70" />
           My first song
         </span>
         <span
@@ -114,9 +114,17 @@ export const StudioScene = ({
           className={cn(
             'flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 font-semibold transition-shadow duration-500',
             stepIndex === 0 && mode === 'auto'
-              ? 'border-white/40 shadow-[0_0_0_4px_rgba(210,64,74,0.25)]'
+              ? 'border-white/40'
               : 'border-white/10',
           )}
+          style={
+            stepIndex === 0 && mode === 'auto'
+              ? {
+                  // Glow in the key center's own color (C major → red).
+                  boxShadow: `0 0 0 4px color-mix(in srgb, ${keyColor} 25%, transparent)`,
+                }
+              : undefined
+          }
         >
           <span
             className="size-2.5 rounded-full"
@@ -129,7 +137,7 @@ export const StudioScene = ({
             92 BPM · 4/4
           </span>
         )}
-        <span className="ml-auto grid size-7 place-items-center rounded-full bg-[#ffcc33] text-black">
+        <span className="ml-auto grid size-7 place-items-center rounded-full bg-white text-black">
           <Play className="size-3.5 fill-current" />
         </span>
       </div>

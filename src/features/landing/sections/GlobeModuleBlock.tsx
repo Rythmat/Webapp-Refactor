@@ -38,7 +38,7 @@ export const GlobeModuleBlock = ({ module: m }: { module: LandingModule }) => {
     >
       <div className="grid md:grid-cols-2">
         <div className="flex flex-col px-6 py-20 md:border-r md:border-white/[0.08] md:px-10 md:py-28">
-          <span className="w-fit rounded-md bg-[#60a5fa]/15 px-2 py-0.5 text-sm font-medium text-[#93c5fd]">
+          <span className="w-fit rounded-md bg-white/10 px-2 py-0.5 text-sm font-medium text-white/80">
             Globe
           </span>
           <Statement

@@ -8,10 +8,13 @@ import { useRef, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/components/utilities';
 
+/**
+ * Neutral tones only: brand yellow (#FFCC33) is nearly A's key-center color
+ * (#FFCB30), so it is not used for landing UI.
+ */
 const TONES = {
-  brand:
-    'bg-brand-base text-grey-darkest shadow-[0_8px_30px_-8px_rgba(255,204,51,0.55)] hover:bg-brand-light',
-  light: 'bg-white text-black hover:bg-white/90',
+  light:
+    'bg-white text-black shadow-[0_8px_30px_-10px_rgba(255,255,255,0.45)] hover:bg-white/90',
   ghost:
     'border border-white/15 bg-white/[0.04] text-white backdrop-blur-md hover:border-white/30 hover:bg-white/[0.08]',
 } as const;
@@ -32,7 +35,7 @@ export const MagneticButton = ({
   to,
   onClick,
   children,
-  tone = 'brand',
+  tone = 'light',
   size = 'md',
   strength = 6,
   className,

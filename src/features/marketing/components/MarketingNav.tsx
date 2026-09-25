@@ -29,7 +29,8 @@ const linkCls = cn(
  * Sticky marketing nav, shared by the landing (`/`) and every `/features/*`
  * page. Transparent over the hero, then a blurred glass bar once the window
  * scrolls (Linear-style). Logo + wordmark left; a Product mega-menu (module
- * pages, tinted with each module's app accent), Blog & For Teachers, Log in and
+ * pages; neutral white — color is reserved for the music color system), Blog &
+ * For Teachers, Log in and
  * a magnetic "Start free" CTA right. Collapses to an animated drawer on mobile;
  * the Start free CTA stays visible.
  *
@@ -107,35 +108,27 @@ export const MarketingNav = ({
               sideOffset={14}
               className="grid w-[30rem] grid-cols-2 gap-1 rounded-2xl border-white/10 bg-[#141416]/90 p-2 text-white shadow-[0_24px_60px_-12px_rgba(0,0,0,0.7)] backdrop-blur-xl"
             >
-              {productLinks.map(
-                ({ href, label, description, accent, Icon }) => (
-                  <DropdownMenuItem
-                    key={href}
-                    asChild
-                    className="cursor-pointer rounded-xl p-3 focus:bg-white/[0.06] focus:text-white"
-                  >
-                    <Link
-                      to={href}
-                      className="group/item flex items-start gap-3"
-                    >
-                      <span
-                        className="grid size-9 shrink-0 place-items-center rounded-lg transition-transform duration-200 group-hover/item:scale-110 [&_svg]:size-[18px]"
-                        style={{ background: `${accent}1f`, color: accent }}
-                      >
-                        <Icon />
+              {productLinks.map(({ href, label, description, Icon }) => (
+                <DropdownMenuItem
+                  key={href}
+                  asChild
+                  className="cursor-pointer rounded-xl p-3 focus:bg-white/[0.06] focus:text-white"
+                >
+                  <Link to={href} className="group/item flex items-start gap-3">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/[0.06] text-white transition-transform duration-200 group-hover/item:scale-110 [&_svg]:size-[18px]">
+                      <Icon />
+                    </span>
+                    <span>
+                      <span className="block text-sm font-semibold">
+                        {label}
                       </span>
-                      <span>
-                        <span className="block text-sm font-semibold">
-                          {label}
-                        </span>
-                        <span className="block text-xs leading-snug text-white/55">
-                          {description}
-                        </span>
+                      <span className="block text-xs leading-snug text-white/55">
+                        {description}
                       </span>
-                    </Link>
-                  </DropdownMenuItem>
-                ),
-              )}
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
           {navLinks.map((l) => (
@@ -147,14 +140,24 @@ export const MarketingNav = ({
           <Link to={LOGIN_HREF} className={linkCls}>
             Log in
           </Link>
-          <MagneticButton to={START_FREE_HREF} size="sm" strength={4}>
+          <MagneticButton
+            to={START_FREE_HREF}
+            tone="light"
+            size="sm"
+            strength={4}
+          >
             Start free
           </MagneticButton>
         </div>
 
         {/* Mobile */}
         <div className="flex items-center gap-2 md:hidden">
-          <MagneticButton to={START_FREE_HREF} size="sm" strength={0}>
+          <MagneticButton
+            to={START_FREE_HREF}
+            tone="light"
+            size="sm"
+            strength={0}
+          >
             Start free
           </MagneticButton>
           <button
@@ -182,31 +185,26 @@ export const MarketingNav = ({
             className="overflow-hidden border-t border-white/10 md:hidden"
           >
             <ul className="flex max-h-[calc(100svh-4rem)] flex-col gap-1 overflow-y-auto px-5 py-4">
-              {productLinks.map(
-                ({ href, label, description, accent, Icon }) => (
-                  <li key={href}>
-                    <Link
-                      to={href}
-                      className="flex items-center gap-3 rounded-xl px-2 py-3 text-white/85 hover:bg-white/5 hover:text-white"
-                    >
-                      <span
-                        className="grid size-9 shrink-0 place-items-center rounded-lg [&_svg]:size-[18px]"
-                        style={{ background: `${accent}1f`, color: accent }}
-                      >
-                        <Icon />
+              {productLinks.map(({ href, label, description, Icon }) => (
+                <li key={href}>
+                  <Link
+                    to={href}
+                    className="flex items-center gap-3 rounded-xl px-2 py-3 text-white/85 hover:bg-white/5 hover:text-white"
+                  >
+                    <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/[0.06] text-white [&_svg]:size-[18px]">
+                      <Icon />
+                    </span>
+                    <span>
+                      <span className="block text-base font-medium">
+                        {label}
                       </span>
-                      <span>
-                        <span className="block text-base font-medium">
-                          {label}
-                        </span>
-                        <span className="block text-xs text-white/50">
-                          {description}
-                        </span>
+                      <span className="block text-xs text-white/50">
+                        {description}
                       </span>
-                    </Link>
-                  </li>
-                ),
-              )}
+                    </span>
+                  </Link>
+                </li>
+              ))}
               <li aria-hidden className="my-2 h-px bg-white/10" />
               {navLinks.map((l) => (
                 <li key={l.href}>

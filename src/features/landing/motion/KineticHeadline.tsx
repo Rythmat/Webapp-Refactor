@@ -26,8 +26,6 @@ export const KineticHeadline = ({
   delay = 0,
   stagger = 0.06,
   whenInView = false,
-  highlight,
-  highlightClassName = 'text-rainbow',
   className,
   id,
 }: {
@@ -37,16 +35,12 @@ export const KineticHeadline = ({
   delay?: number;
   stagger?: number;
   whenInView?: boolean;
-  /** Words (exact match, punctuation included) to render with `highlightClassName`. */
-  highlight?: readonly string[];
-  highlightClassName?: string;
   className?: string;
   id?: string;
 }) => {
   const reduce = useReducedMotion();
   const Tag = as;
   const words = text.split(' ');
-  const isHighlighted = (w: string) => highlight?.includes(w) ?? false;
 
   if (reduce) {
     return (
@@ -54,9 +48,7 @@ export const KineticHeadline = ({
         {words.map((w, i) => (
           <Fragment key={`${w}-${i}`}>
             {i > 0 && ' '}
-            <span className={cn(isHighlighted(w) && highlightClassName)}>
-              {w}
-            </span>
+            <span>{w}</span>
           </Fragment>
         ))}
       </Tag>
@@ -78,12 +70,12 @@ export const KineticHeadline = ({
     : { animate: 'shown' };
 
   let pieceIndex = 0;
-  const piece = (content: string, key: string, extra?: string) => {
+  const piece = (content: string, key: string) => {
     const i = pieceIndex++;
     return (
       <motion.span
         key={key}
-        className={cn('inline-block will-change-transform', extra)}
+        className="inline-block will-change-transform"
         variants={{ hidden, shown }}
         transition={{
           duration: 0.8,
@@ -101,15 +93,14 @@ export const KineticHeadline = ({
       <span className="sr-only">{text}</span>
       <motion.span aria-hidden initial="hidden" {...trigger}>
         {words.map((w, wi) => {
-          const hl = isHighlighted(w) ? highlightClassName : undefined;
           return (
             <Fragment key={`${w}-${wi}`}>
               {wi > 0 && ' '}
               {split === 'word' ? (
-                piece(w, `w${wi}`, hl)
+                piece(w, `w${wi}`)
               ) : (
                 <span className="inline-block whitespace-nowrap">
-                  {Array.from(w).map((ch, ci) => piece(ch, `c${wi}-${ci}`, hl))}
+                  {Array.from(w).map((ch, ci) => piece(ch, `c${wi}-${ci}`))}
                 </span>
               )}
             </Fragment>

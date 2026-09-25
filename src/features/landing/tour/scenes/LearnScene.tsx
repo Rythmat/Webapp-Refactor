@@ -161,7 +161,7 @@ export const LearnScene = ({
           className="flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] p-4"
         >
           <div className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-[#34d399]/15 text-[#34d399]">
+            <span className="grid size-8 place-items-center rounded-lg bg-white/10 text-white">
               <BookOpen className="size-4" />
             </span>
             <div className="flex flex-col">
@@ -175,7 +175,8 @@ export const LearnScene = ({
             <button
               type="button"
               onClick={playScale}
-              className="ml-auto flex items-center gap-1.5 rounded-full bg-[#34d399] px-3 py-1.5 text-xs font-semibold text-[#101012] transition-transform hover:scale-105"
+              className="ml-auto flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-[#101012] transition-[transform,background-color] duration-300 hover:scale-105"
+              style={{ background: key.color }}
             >
               <Play className="size-3 fill-current" /> Play scale
             </button>
@@ -188,7 +189,7 @@ export const LearnScene = ({
                     className={cn(
                       'grid size-4 place-items-center rounded-full border',
                       i <= lessonProgress
-                        ? 'border-[#34d399] bg-[#34d399] text-[#101012]'
+                        ? 'border-white bg-white text-[#101012]'
                         : 'border-white/20',
                     )}
                   >

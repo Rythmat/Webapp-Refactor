@@ -1,50 +1,21 @@
 /* ── Landing design tokens (scoped to .landing-root) ────────────────────
    Layered on top of `.dashboard-root` (dashboard.css) so the landing inherits
-   the app's glass panels, grain texture and per-module accents, then adds a
-   fluid type scale, the circle-of-fifths key colors and the landing-only
-   surfaces (bento cards, spotlight glow, rainbow text).
+   the app's glass tokens and grain texture.
+
+   Color policy: landing UI is neutral (white / greys). Color appears only
+   where it means something in the music color system — key-center and chord
+   colors from the Prism engine — or as the deliberate rainbow motif (all 12
+   key-center colors in circle-of-fifths order: the hero rim and the active
+   table-of-contents rule), which never stands for a single key.
    ──────────────────────────────────────────────────────────────────────── */
 
 .landing-root {
   --landing-surface: #101012;
   --landing-surface-raised: #151518;
-  --brand: #ffcc33;
 
   /* Fluid type scale — clamp(min, preferred, max). */
   --fs-display: clamp(2.75rem, 1.2rem + 6.2vw, 7rem);
-  --fs-h2: clamp(2rem, 1.2rem + 3.2vw, 4.25rem);
   --fs-h3: clamp(1.25rem, 1rem + 1vw, 1.75rem);
-  --fs-lead: clamp(1.05rem, 0.95rem + 0.45vw, 1.35rem);
-
-  /* KEY_OF_COLORS (src/constants/theme.ts), in circle-of-fifths order. */
-  --key-0: #d2404a;
-  --key-1: #ff7348;
-  --key-2: #fea92a;
-  --key-3: #ffcb30;
-  --key-4: #aed580;
-  --key-5: #7fc783;
-  --key-6: #28a69a;
-  --key-7: #62b4f7;
-  --key-8: #7885cb;
-  --key-9: #9d7fce;
-  --key-10: #c785d3;
-  --key-11: #f8a8c5;
-
-  --rainbow: linear-gradient(
-    90deg,
-    var(--key-0),
-    var(--key-1),
-    var(--key-2),
-    var(--key-3),
-    var(--key-4),
-    var(--key-5),
-    var(--key-6),
-    var(--key-7),
-    var(--key-8),
-    var(--key-9),
-    var(--key-10),
-    var(--key-11)
-  );
 
   background-color: var(--landing-surface);
   color: var(--color-text);
@@ -54,66 +25,6 @@
   font-size: var(--fs-display);
   line-height: 0.98;
   letter-spacing: -0.035em;
-}
-
-.landing-root .fs-h2 {
-  font-size: var(--fs-h2);
-  line-height: 1.02;
-  letter-spacing: -0.03em;
-}
-
-.landing-root .fs-h3 {
-  font-size: var(--fs-h3);
-  line-height: 1.15;
-  letter-spacing: -0.01em;
-}
-
-.landing-root .fs-lead {
-  font-size: var(--fs-lead);
-  line-height: 1.5;
-}
-
-.landing-root .text-rainbow {
-  background-image: var(--rainbow);
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: landing-rainbow-pan 12s linear infinite alternate;
-}
-
-@keyframes landing-rainbow-pan {
-  from {
-    background-position: 0% 50%;
-  }
-  to {
-    background-position: 100% 50%;
-  }
-}
-
-/* Soft grain overlay for full-bleed sections (same texture as .glass-panel). */
-.landing-root .landing-grain::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--grain-texture);
-  background-size: 128px 128px;
-  opacity: 0.035;
-  pointer-events: none;
-}
-
-/* Linear-style hairline grid behind the hero. */
-.landing-root .landing-grid-bg {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
-  background-size: 64px 64px;
-  mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 40%, transparent);
-  -webkit-mask-image: radial-gradient(
-    ellipse 70% 60% at 50% 0%,
-    #000 40%,
-    transparent
-  );
 }
 
 /* ── Glass card with a pointer-tracking spotlight (SpotlightCard) ───── */
@@ -189,12 +100,6 @@
     0 24px 60px -24px color-mix(in srgb, var(--card-accent) 45%, transparent);
 }
 
-/* Rainbow ring for highlighted cards (e.g. the Pro plan). */
-.landing-root .rainbow-ring::after {
-  opacity: 1;
-  background: var(--rainbow);
-}
-
 /* ── Magnetic CTA shine sweep ───────────────────────────────────────── */
 .landing-shine {
   position: relative;
@@ -220,51 +125,12 @@
   transform: translateX(120%);
 }
 
-/* ── Looping mini-visual animations (paused while offscreen) ─────────── */
-.landing-root [data-anim-paused='true'] *,
-.landing-root [data-anim-paused='true'] {
-  animation-play-state: paused !important;
-}
-
-@keyframes landing-fall {
-  from {
-    transform: translateY(-120%);
-  }
-  to {
-    transform: translateY(420%);
-  }
-}
-
-@keyframes landing-playhead {
-  from {
-    left: 0%;
-  }
-  to {
-    left: 100%;
-  }
-}
-
-@keyframes landing-pulse-ring {
-  0% {
-    transform: scale(0.6);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scale(2.2);
-    opacity: 0;
-  }
-}
-
-@keyframes landing-dash {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes landing-spin {
-  to {
-    transform: rotate(360deg);
-  }
+/* Flat bento cell: no card chrome, just the spotlight glow (Attio row). */
+.landing-root .spotlight-card.spotlight-flat {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 /* ── Reduced motion: everything settles into its final, static state ── */
@@ -278,19 +144,7 @@
     scroll-behavior: auto !important;
   }
 
-  .landing-root .text-rainbow {
-    animation: none;
-  }
-
   .landing-root .spotlight-card[data-interactive='true']:hover {
     transform: none;
   }
-}
-
-/* Flat bento cell: no card chrome, just the spotlight glow (Attio row). */
-.landing-root .spotlight-card.spotlight-flat {
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
 }

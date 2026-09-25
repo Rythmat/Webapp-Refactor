@@ -5,13 +5,11 @@ import { LearnScene } from '../tour/scenes/LearnScene';
 import { StudioScene } from '../tour/scenes/StudioScene';
 import { TeachScene } from '../tour/scenes/TeachScene';
 import type { SceneProps } from '../tour/scenes/sceneTypes';
-import { TOUR_BY_ID, type TourTabId } from '../tour/tourSteps';
+import type { TourTabId } from '../tour/tourSteps';
 
 export interface LandingModule {
   id: TourTabId;
   label: string;
-  /** App module accent (dashboard.css `data-tab`). */
-  accent: string;
   /** Same icon as the app sidebar (ClassroomSidebar). */
   icon: ReactNode;
   /** Bento row cell. */
@@ -33,7 +31,6 @@ export const LANDING_MODULES: LandingModule[] = [
   {
     id: 'learn',
     label: 'Learn',
-    accent: TOUR_BY_ID.learn.accent,
     icon: sidebarIcon('/icons/learn-icon.svg'),
     bento: {
       title: 'Every key has a color.',
@@ -58,7 +55,6 @@ export const LANDING_MODULES: LandingModule[] = [
   {
     id: 'studio',
     label: 'Studio',
-    accent: TOUR_BY_ID.studio.accent,
     icon: sidebarIcon('/icons/studio-icon.svg'),
     bento: {
       title: 'A studio that knows theory.',
@@ -83,7 +79,6 @@ export const LANDING_MODULES: LandingModule[] = [
   {
     id: 'globe',
     label: 'Globe',
-    accent: TOUR_BY_ID.globe.accent,
     icon: sidebarIcon('/icons/globe-icon.svg'),
     bento: {
       title: 'Explore music history.',
@@ -107,7 +102,6 @@ export const LANDING_MODULES: LandingModule[] = [
   {
     id: 'arcade',
     label: 'Arcade',
-    accent: TOUR_BY_ID.arcade.accent,
     icon: sidebarIcon('/icons/arcade-icon.svg'),
     bento: {
       title: 'Train your ear through play.',
@@ -132,7 +126,6 @@ export const LANDING_MODULES: LandingModule[] = [
   {
     id: 'teach',
     label: 'Teach',
-    accent: TOUR_BY_ID.teach.accent,
     icon: <Laptop className="size-6 text-white/80" />,
     bento: {
       title: 'Teach music in real time.',

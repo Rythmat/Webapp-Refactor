@@ -66,13 +66,11 @@ export const TourCallout = ({
   point,
   stage,
   text,
-  accent,
   id,
 }: {
   point: Point | null;
   stage: { w: number; h: number };
   text: string;
-  accent: string;
   id: string;
 }) => {
   if (!point) return null;
@@ -95,10 +93,7 @@ export const TourCallout = ({
           transformOrigin: `${flipX ? 'right' : 'left'} ${flipY ? 'bottom' : 'top'}`,
         }}
       >
-        <span
-          className="mr-2 inline-block size-2 rounded-full align-middle"
-          style={{ background: accent, boxShadow: `0 0 10px ${accent}` }}
-        />
+        <span className="mr-2 inline-block size-1.5 rounded-full bg-white align-middle" />
         {text}
       </motion.div>
     </AnimatePresence>

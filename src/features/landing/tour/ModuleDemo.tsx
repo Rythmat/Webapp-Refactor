@@ -147,7 +147,6 @@ export const ModuleDemo = ({
                 point={point}
                 stage={design}
                 text={step.callout}
-                accent={tab.accent}
                 id={step.id}
               />
               <TourCursor
@@ -182,9 +181,7 @@ export const ModuleDemo = ({
                   <span
                     className="grid size-4 place-items-center rounded-full text-[10px] font-bold text-[#101012]"
                     style={{
-                      background: active
-                        ? tab.accent
-                        : 'rgba(255,255,255,0.35)',
+                      background: active ? '#ffffff' : 'rgba(255,255,255,0.35)',
                     }}
                   >
                     {i + 1}

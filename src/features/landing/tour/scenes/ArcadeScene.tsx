@@ -135,7 +135,7 @@ export const ArcadeScene = ({
     <div className="flex h-full flex-col gap-3 p-4 text-white">
       <div className="flex items-center gap-2 text-xs">
         <span className="flex items-center gap-1.5 rounded-md bg-white/[0.06] px-2.5 py-1.5 font-semibold">
-          <Sparkles className="size-3.5 text-[#a78bfa]" />
+          <Sparkles className="size-3.5 text-white/70" />
           Ear training · C major
         </span>
         <div
@@ -143,15 +143,15 @@ export const ArcadeScene = ({
           className={cn(
             'ml-auto flex items-center gap-2 rounded-full border px-1 py-1 transition-all duration-500',
             showScore
-              ? 'border-[#a78bfa]/50 shadow-[0_0_24px_-6px_#a78bfa]'
+              ? 'border-white/40 shadow-[0_0_24px_-6px_rgba(255,255,255,0.5)]'
               : 'border-white/10',
           )}
         >
           <span className="flex items-center gap-1 rounded-full bg-white/[0.06] px-2 py-0.5 font-semibold">
-            <Flame className="size-3.5 text-orange-400" />
+            <Flame className="size-3.5 text-white/80" />
             {streak}
           </span>
-          <span className="flex items-center gap-1 rounded-full bg-[#a78bfa]/20 px-2 py-0.5 font-semibold text-[#c4b5fd]">
+          <span className="flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 font-semibold text-white">
             <Trophy className="size-3.5" />
             {xp} XP
           </span>

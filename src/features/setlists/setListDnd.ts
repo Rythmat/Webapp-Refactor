@@ -1,3 +1,5 @@
+import type React from 'react';
+
 /**
  * Dragging entries into order — native HTML5 DnD with a typed payload, the
  * app's established pattern (see features/classroom/annual/calendarDnd.ts).
@@ -110,4 +112,31 @@ export function readShowDrag(dt: DataTransfer): ShowDrag | null {
   } catch {
     return null;
   }
+}
+
+/* ── Claiming a drop ──────────────────────────────────────────────────── */
+
+/**
+ * Take a drop only if the payload is ours, and otherwise leave it alone.
+ *
+ * Drop zones nest — a strip for set lists sits inside a show, which sits
+ * inside a band — so a handler that calls `stopPropagation()` before looking
+ * at what was dropped silently eats drags meant for its parent. That is
+ * exactly how dropping a second show into a band came to do nothing: the set
+ * list strip claimed the drop and then discarded it.
+ *
+ * Read first; claim only what you can use.
+ */
+export function claimDrop<T>(
+  event: Pick<
+    React.DragEvent,
+    'dataTransfer' | 'preventDefault' | 'stopPropagation'
+  >,
+  read: (dt: DataTransfer) => T | null,
+): T | null {
+  const item = read(event.dataTransfer);
+  if (!item) return null;
+  event.preventDefault();
+  event.stopPropagation();
+  return item;
 }

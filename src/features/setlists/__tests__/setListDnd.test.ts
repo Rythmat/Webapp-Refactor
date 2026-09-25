@@ -1,9 +1,14 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
+  SETLIST_CARD_MIME,
   SETLIST_DRAG_MIME,
+  SETLIST_SHOW_MIME,
+  claimDrop,
   dropIndex,
   hasDragItem,
+  readCardDrag,
   readDragItem,
+  readShowDrag,
   setDragItem,
 } from '../setListDnd';
 
@@ -64,5 +69,54 @@ describe('where the entry lands', () => {
     // Onto itself is a no-op either way.
     expect(dropIndex(2, 2, 'top')).toBe(2);
     expect(dropIndex(2, 2, 'bottom')).toBe(2);
+  });
+});
+
+describe('claimDrop', () => {
+  /**
+   * Drop zones nest: a set list strip inside a show inside a band. A handler
+   * that stops the event before reading it eats drags meant for its parent —
+   * which is what stopped a second show from ever joining a band.
+   */
+  const dropEvent = (mime?: string, payload?: unknown) => {
+    const data = new Map<string, string>();
+    if (mime) data.set(mime, JSON.stringify(payload));
+    return {
+      dataTransfer: {
+        types: [...data.keys()],
+        getData: (t: string) => data.get(t) ?? '',
+      } as unknown as DataTransfer,
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+    };
+  };
+
+  it('claims a drop it can read, and stops it going further', () => {
+    const e = dropEvent(SETLIST_CARD_MIME, { setListId: 'sl1' });
+    expect(claimDrop(e, readCardDrag)).toEqual({ setListId: 'sl1' });
+    expect(e.preventDefault).toHaveBeenCalled();
+    expect(e.stopPropagation).toHaveBeenCalled();
+  });
+
+  it('leaves a drop meant for something else completely alone', () => {
+    // A show dragged onto a set list strip belongs to the band around it.
+    const e = dropEvent(SETLIST_SHOW_MIME, { showId: 'sh1' });
+    expect(claimDrop(e, readCardDrag)).toBeNull();
+    expect(e.preventDefault).not.toHaveBeenCalled();
+    expect(e.stopPropagation).not.toHaveBeenCalled();
+  });
+
+  it('leaves an empty drag alone', () => {
+    const e = dropEvent();
+    expect(claimDrop(e, readShowDrag)).toBeNull();
+    expect(e.stopPropagation).not.toHaveBeenCalled();
+  });
+
+  it('reads a show drag, carrying the band it is already in', () => {
+    const e = dropEvent(SETLIST_SHOW_MIME, { showId: 'sh1', artistId: 'a1' });
+    expect(claimDrop(e, readShowDrag)).toEqual({
+      showId: 'sh1',
+      artistId: 'a1',
+    });
   });
 });

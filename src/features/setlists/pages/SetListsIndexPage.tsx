@@ -16,6 +16,7 @@ import { SearchInput } from '@/components/songLibrary/SearchInput';
 import { LearnRoutes, SongRoutes } from '@/constants/routes';
 import { getSong } from '@/curriculum/data/songs';
 import {
+  claimDrop,
   hasCardDrag,
   hasShowDrag,
   readCardDrag,
@@ -482,7 +483,7 @@ const ArtistBox: FC<{
 
   /** A show dropped on the band joins it — unless it is already in another. */
   const takeShow = (e: React.DragEvent) => {
-    const item = readShowDrag(e.dataTransfer);
+    const item = claimDrop(e, readShowDrag);
     if (!item) return false;
     if (item.artistId && item.artistId !== artist.id) return false;
     actions.fileShowAt(item.showId, artist.id, null);
@@ -501,10 +502,10 @@ const ArtistBox: FC<{
         if (!e.currentTarget.contains(e.relatedTarget as Node)) setOver(false);
       }}
       onDrop={(e) => {
-        e.preventDefault();
         setOver(false);
         takeShow(e);
       }}
+      data-band={artist.id}
       className={`rounded-xl border bg-white/[0.02] p-3 transition-colors ${
         over ? 'border-[#7ecfcf]/60' : 'border-white/10'
       }`}
@@ -528,16 +529,53 @@ const ArtistBox: FC<{
 
       <DropZone parent={{ kind: 'artist', id: artist.id }} lists={setLists} />
 
-      <div className="ml-1.5 mt-2 space-y-2 border-l border-white/10 pl-3">
+      <div
+        data-band-shows={artist.id}
+        className="ml-1.5 mt-2 space-y-2 border-l border-white/10 pl-3"
+      >
         {shows.map(({ show, setLists: showLists }) => (
           <ShowBox key={show.id} show={show} setLists={showLists} />
         ))}
-        {shows.length === 0 && (
-          <p className="py-1 text-[11px] text-white/25">
-            No shows yet — add one, or drag a loose show onto this band.
-          </p>
-        )}
+        {/* Always here, so there is somewhere to drop the next show however
+            many the band already has, and somewhere to drop one at the end. */}
+        <ShowDropStrip artistId={artist.id} empty={shows.length === 0} />
       </div>
+    </div>
+  );
+};
+
+/** The tail of a band's show list: drop here to add one at the bottom. */
+const ShowDropStrip: FC<{ artistId: string; empty: boolean }> = ({
+  artistId,
+  empty,
+}) => {
+  const { actions } = useSetLists();
+  const [over, setOver] = useState(false);
+  return (
+    <div
+      onDragOver={(e) => {
+        if (!hasShowDrag(e.dataTransfer)) return;
+        e.preventDefault();
+        e.stopPropagation();
+        setOver(true);
+      }}
+      onDragLeave={() => setOver(false)}
+      onDrop={(e) => {
+        setOver(false);
+        const item = claimDrop(e, readShowDrag);
+        if (!item) return;
+        if (item.artistId && item.artistId !== artistId) return;
+        actions.fileShowAt(item.showId, artistId, null);
+      }}
+      className={`rounded-lg border border-dashed px-2 py-1.5 text-[11px] transition-colors ${
+        over
+          ? 'border-[#7ecfcf] bg-[#7ecfcf]/10 text-white/70'
+          : 'border-white/10 text-white/25'
+      }`}
+    >
+      {empty
+        ? 'No shows yet — add one, or drag a show here.'
+        : 'Drop a show here'}
     </div>
   );
 };
@@ -553,6 +591,7 @@ const ShowBox: FC<{ show: Show; setLists: SetList[]; loose?: boolean }> = ({
 
   return (
     <div
+      data-show={show.id}
       draggable
       onDragStart={(e) => {
         e.stopPropagation();
@@ -569,11 +608,9 @@ const ShowBox: FC<{ show: Show; setLists: SetList[]; loose?: boolean }> = ({
       }}
       onDragLeave={() => setOver(false)}
       onDrop={(e) => {
-        const item = readShowDrag(e.dataTransfer);
         setOver(false);
+        const item = claimDrop(e, readShowDrag);
         if (!item || item.showId === show.id) return;
-        e.preventDefault();
-        e.stopPropagation();
         // Land above the show it was dropped on, in the same band as it.
         if (item.artistId && item.artistId !== show.artistId) return;
         actions.fileShowAt(item.showId, show.artistId, show.id);
@@ -664,12 +701,10 @@ const DropZone: FC<{ parent: SetListParent; lists: SetList[] }> = ({
   const [over, setOver] = useState<string | null>(null);
 
   const drop = (e: React.DragEvent, beforeId: string | null) => {
-    e.preventDefault();
-    e.stopPropagation();
     setOver(null);
-    const item = readCardDrag(e.dataTransfer);
-    if (!item) return;
-    actions.fileSetListAt(item.setListId, parent, beforeId);
+    // A show dragged onto this strip is meant for the band around it.
+    const item = claimDrop(e, readCardDrag);
+    if (item) actions.fileSetListAt(item.setListId, parent, beforeId);
   };
 
   return (

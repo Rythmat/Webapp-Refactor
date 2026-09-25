@@ -124,12 +124,13 @@ const SendDialog: FC<{
   const barCount = chart.sections.reduce((n, s) => n + s.bars.length, 0);
 
   const send = () => {
-    const setListId =
-      chosen === NEW_LIST
-        ? actions.createSetList(newTitle.trim() || 'New Set List')
-        : chosen;
-    if (!setListId) return;
-    actions.addProjectChart(setListId, {
+    // One edit: creating the list and adding the chart in two calls would each
+    // read the document as it was before, and the chart would be lost.
+    actions.sendProjectChart({
+      destination:
+        chosen === NEW_LIST
+          ? { kind: 'new', title: newTitle.trim() || 'New Set List' }
+          : { kind: 'existing', setListId: chosen },
       ...(projectId ? { projectId } : {}),
       title: title.trim() || chart.title,
       chart,

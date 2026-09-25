@@ -82,3 +82,32 @@ export function readCardDrag(dt: DataTransfer): SetListCardDrag | null {
     return null;
   }
 }
+
+/* ── Dragging a show into a band, or into order ───────────────────────── */
+
+export const SETLIST_SHOW_MIME = 'application/x-ma-setlist-show';
+
+export interface ShowDrag {
+  showId: string;
+  /** The band it is currently in, so a drop can refuse a hand-off. */
+  artistId?: string;
+}
+
+export function setShowDrag(dt: DataTransfer, item: ShowDrag): void {
+  dt.setData(SETLIST_SHOW_MIME, JSON.stringify(item));
+  dt.effectAllowed = 'move';
+}
+
+export const hasShowDrag = (dt: DataTransfer): boolean =>
+  Array.from(dt.types).includes(SETLIST_SHOW_MIME);
+
+export function readShowDrag(dt: DataTransfer): ShowDrag | null {
+  try {
+    const raw = dt.getData(SETLIST_SHOW_MIME);
+    if (!raw) return null;
+    const item = JSON.parse(raw) as ShowDrag;
+    return typeof item?.showId === 'string' ? item : null;
+  } catch {
+    return null;
+  }
+}

@@ -57,14 +57,61 @@ describe('defaults', () => {
     expect(Object.keys(ensureDefaults(once, 2).setLists)).toHaveLength(2);
   });
 
-  it('keeps the role lists when they are renamed, and refuses to delete them', () => {
-    let blob = start();
+  it('refuses to delete the role lists', () => {
+    const blob = start();
     const id = inbox(blob).id;
-    blob = renameSetList(blob, id, 'Gig Book', 2);
-    blob = ensureDefaults(blob, 3);
-    expect(Object.keys(blob.setLists)).toHaveLength(2);
-    expect(roleList(blob, 'inbox')?.title).toBe('Gig Book');
     expect(Object.keys(deleteSetList(blob, id, 4).setLists)).toHaveLength(2);
+    expect(
+      Object.keys(
+        deleteSetList(blob, roleList(blob, 'favorites')!.id, 4).setLists,
+      ),
+    ).toHaveLength(2);
+  });
+
+  it('will not rename the repertoire or the favourites', () => {
+    const blob = start();
+    const id = inbox(blob).id;
+    expect(renameSetList(blob, id, 'Gig Book', 2)).toBe(blob);
+  });
+
+  it('turns a renamed repertoire into the band it was reaching for', () => {
+    // The repertoire has a fixed name now. Anyone who renamed it did so
+    // before there were bands, and "My Band 1" is not what a master list of
+    // charts is called — so the name becomes a band rather than being lost.
+    // A document stored before the repertoire's name was fixed.
+    const before = start();
+    const id = inbox(before).id;
+    let blob = {
+      ...before,
+      setLists: {
+        ...before.setLists,
+        [id]: { ...before.setLists[id], title: 'My Band 1' },
+      },
+    };
+    blob = ensureDefaults(blob, 3);
+
+    expect(roleList(blob, 'inbox')?.title).toBe(INBOX_TITLE);
+    expect(organiser(blob).artists.map((n) => n.artist.title)).toEqual([
+      'My Band 1',
+    ]);
+    // Still two set lists: a band was made, not a third list.
+    expect(Object.keys(blob.setLists)).toHaveLength(2);
+  });
+
+  it('does not mint a second band on every edit', () => {
+    const first = start();
+    const id = inbox(first).id;
+    let blob: typeof first = {
+      ...first,
+      setLists: {
+        ...first.setLists,
+        [id]: { ...first.setLists[id], title: 'My Band 1' },
+      },
+    };
+    blob = ensureDefaults(blob, 3);
+    blob = ensureDefaults(blob, 4);
+    blob = ensureDefaults(blob, 5);
+    expect(organiser(blob).artists).toHaveLength(1);
   });
 });
 

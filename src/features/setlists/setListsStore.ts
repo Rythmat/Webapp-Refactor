@@ -212,7 +212,38 @@ export function ensureDefaults(blob: SetListsBlob, now = 0): SetListsBlob {
     if (hasRoleIn(next, role)) continue;
     next = createSetList(next, { title, role }, now).blob;
   }
-  return next;
+  return reclaimRenamedRepertoire(next, now);
+}
+
+/**
+ * The repertoire is a fixed idea with a fixed name, and no longer renameable.
+ *
+ * Anyone who renamed it did so before there were bands to name, and they were
+ * almost certainly reaching for one — "My Band 1" is not a thing a master list
+ * of charts is called. Rather than quietly drop the name, it becomes the band
+ * it was meant to be, once: after this the title is the default again, so it
+ * never fires twice.
+ */
+function reclaimRenamedRepertoire(
+  blob: SetListsBlob,
+  now: number,
+): SetListsBlob {
+  const inbox = Object.values(blob.setLists).find((l) => l.role === 'inbox');
+  if (!inbox || inbox.title === INBOX_TITLE) return blob;
+  const taken = Object.values(blob.artists).some(
+    (a) => a.title === inbox.title,
+  );
+  const named = taken ? blob : createArtist(blob, inbox.title, now).blob;
+  return touch(
+    {
+      ...named,
+      setLists: {
+        ...named.setLists,
+        [inbox.id]: { ...inbox, title: INBOX_TITLE, updatedAt: now },
+      },
+    },
+    now,
+  );
 }
 
 const hasRoleIn = (blob: SetListsBlob, role: 'inbox' | 'favorites') =>
@@ -322,6 +353,117 @@ export function createSetList(
       now,
     ),
   };
+}
+
+/** Move `id` so it sits just before `beforeId`, or last when that is null. */
+function placeBefore(
+  order: readonly string[],
+  id: string,
+  beforeId: string | null,
+): string[] {
+  if (id === beforeId) return [...order];
+  const without = order.filter((x) => x !== id);
+  const at = beforeId ? without.indexOf(beforeId) : -1;
+  if (beforeId && at < 0) return [...order];
+  if (at < 0) return [...without, id];
+  return [...without.slice(0, at), id, ...without.slice(at)];
+}
+
+/**
+ * Put a show in a band, or take it out of one with `undefined`.
+ *
+ * A show belongs to the band it was made in: it can join a band, and it can
+ * leave one, but it is never handed straight from one band to another. "The
+ * Quartet's summer tour" is not a thing that becomes somebody else's — to get
+ * the same shape elsewhere, duplicate it.
+ */
+export function fileShow(
+  blob: SetListsBlob,
+  showId: string,
+  artistId: string | undefined,
+  now = 0,
+): SetListsBlob {
+  const show = blob.shows[showId];
+  if (!show) return blob;
+  if (artistId && !blob.artists[artistId]) return blob;
+  if (show.artistId && artistId && show.artistId !== artistId) return blob;
+  if (show.artistId === artistId) return blob;
+  const next: Show = { ...show, updatedAt: now };
+  if (artistId) next.artistId = artistId;
+  else delete next.artistId;
+  return touch({ ...blob, shows: { ...blob.shows, [showId]: next } }, now);
+}
+
+/** Order a show among its siblings; `beforeShowId` null sends it last. */
+export function moveShow(
+  blob: SetListsBlob,
+  showId: string,
+  beforeShowId: string | null,
+  now = 0,
+): SetListsBlob {
+  if (!blob.shows[showId]) return blob;
+  return touch(
+    {
+      ...blob,
+      order: {
+        ...blob.order,
+        shows: placeBefore(blob.order.shows, showId, beforeShowId),
+      },
+    },
+    now,
+  );
+}
+
+/**
+ * Put a show in a band and order it, in one go.
+ *
+ * One gesture, one edit: two calls in a row would each read the document as it
+ * was before the drop and the second would undo the first.
+ */
+export function fileShowAt(
+  blob: SetListsBlob,
+  showId: string,
+  artistId: string | undefined,
+  beforeShowId: string | null,
+  now = 0,
+): SetListsBlob {
+  const filed = fileShow(blob, showId, artistId, now);
+  // A refused hand-off between bands is refused whole, order and all.
+  if (filed === blob && blob.shows[showId]?.artistId !== artistId) return blob;
+  return moveShow(filed, showId, beforeShowId, now);
+}
+
+/** File a set list and order it among its new siblings, in one edit. */
+export function fileSetListAt(
+  blob: SetListsBlob,
+  id: string,
+  parent: SetListParent | undefined,
+  beforeId: string | null,
+  now = 0,
+): SetListsBlob {
+  const filed = fileSetList(blob, id, parent, now);
+  if (filed === blob && blob.setLists[id]?.parent !== parent) return blob;
+  return moveSetListOrder(filed, id, beforeId, now);
+}
+
+/** Order a set list among its siblings; `beforeId` null sends it last. */
+export function moveSetListOrder(
+  blob: SetListsBlob,
+  id: string,
+  beforeId: string | null,
+  now = 0,
+): SetListsBlob {
+  if (!blob.setLists[id]) return blob;
+  return touch(
+    {
+      ...blob,
+      order: {
+        ...blob.order,
+        setLists: placeBefore(blob.order.setLists, id, beforeId),
+      },
+    },
+    now,
+  );
 }
 
 /**
@@ -565,13 +707,18 @@ export const renameShow = (
       )
     : blob;
 
+/**
+ * Rename a set list. The repertoire and the favourites keep their names: they
+ * are fixed ideas the app writes into, not sets a player made, and a rename
+ * would only be lost the next time the page drew their headings.
+ */
 export const renameSetList = (
   blob: SetListsBlob,
   id: string,
   title: string,
   now = 0,
 ) =>
-  blob.setLists[id]
+  blob.setLists[id] && !blob.setLists[id].role
     ? touch(
         {
           ...blob,
@@ -1018,6 +1165,53 @@ export function migrateSavedSongs(
 }
 
 /* ── Save this version as… ────────────────────────────────────────────── */
+
+/**
+ * Send a Studio chart to a set list, creating the set list if that is the
+ * chosen destination — one edit, like saveVersionAs. Two calls in a row would
+ * each read the document as it was before, and the second would lose the first.
+ */
+export function sendProjectChart(
+  blob: SetListsBlob,
+  input: {
+    destination: SaveDestination;
+    projectId?: string;
+    title: string;
+    chart: StoredChart;
+    semitones?: number;
+    notes?: string;
+  },
+  now = 0,
+): { blob: SetListsBlob; setListId: string; entryId: string } {
+  let next = ensureDefaults(blob, now);
+  let setListId: string;
+  if (input.destination.kind === 'new') {
+    const created = createSetList(
+      next,
+      { title: input.destination.title },
+      now,
+    );
+    next = created.blob;
+    setListId = created.setListId;
+  } else {
+    setListId = input.destination.setListId;
+    if (!next.setLists[setListId]) setListId = roleList(next, 'inbox')!.id;
+  }
+  const added = addProjectEntry(
+    next,
+    setListId,
+    {
+      ...(input.projectId ? { projectId: input.projectId } : {}),
+      title: input.title,
+      chart: input.chart,
+      semitones: input.semitones,
+      notes: input.notes,
+    },
+    undefined,
+    now,
+  );
+  return { blob: added.blob, setListId, entryId: added.entryId };
+}
 
 export function saveVersionAs(
   blob: SetListsBlob,

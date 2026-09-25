@@ -1,22 +1,30 @@
 import {
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Copy,
   ListMusic,
+  GripVertical,
   Plus,
   Star,
   Trash2,
   Users,
+  X,
 } from 'lucide-react';
 import { useMemo, useState, type FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SearchInput } from '@/components/songLibrary/SearchInput';
 import { LearnRoutes, SongRoutes } from '@/constants/routes';
 import { getSong } from '@/curriculum/data/songs';
-import { hasCardDrag, readCardDrag, setCardDrag } from '../setListDnd';
+import {
+  hasCardDrag,
+  hasShowDrag,
+  readCardDrag,
+  readShowDrag,
+  setCardDrag,
+  setShowDrag,
+} from '../setListDnd';
 import { isFavorite, roleList } from '../setListsStore';
-import type { SetList, SetListParent } from '../types';
+import type { Artist, SetList, SetListParent, Show } from '../types';
 import { useSetLists } from '../useSetLists';
 
 /**
@@ -432,71 +440,174 @@ const Organiser: FC<{
       ) : (
         <div className="space-y-3">
           {organiser.artists.map(({ artist, shows, setLists }) => (
-            <div
+            <ArtistBox
               key={artist.id}
-              className="rounded-xl border border-white/10 bg-white/[0.02] p-3"
-            >
-              <NodeHeader
-                icon={<Users size={14} className="text-white/35" />}
-                title={artist.title}
-                onRename={(t) => actions.renameArtist(artist.id, t)}
-                onDuplicate={() => actions.duplicateArtist(artist.id)}
-                onDelete={() => actions.deleteArtist(artist.id)}
-                extra={
-                  <button
-                    type="button"
-                    onClick={() => actions.createShow(artist.id)}
-                    className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-white/55 hover:border-white/30 hover:text-white"
-                  >
-                    <Plus size={11} /> Show
-                  </button>
-                }
-              />
-              <DropZone parent={{ kind: 'artist', id: artist.id }}>
-                {setLists}
-              </DropZone>
+              artist={artist}
+              shows={shows}
+              setLists={setLists}
+            />
+          ))}
 
-              {shows.map(({ show, setLists: showLists }) => (
-                <div
-                  key={show.id}
-                  className="ml-4 mt-2 border-l border-white/10 pl-3"
-                >
-                  <NodeHeader
-                    icon={<ChevronDown size={14} className="text-white/25" />}
-                    title={show.title}
-                    small
-                    onRename={(t) => actions.renameShow(show.id, t)}
-                    onDuplicate={() => actions.duplicateShow(show.id)}
-                    onDelete={() => actions.deleteShow(show.id)}
+          {organiser.looseShows.length > 0 && (
+            <div>
+              <p className="mb-1.5 text-[11px] text-white/30">
+                Shows with no band — drag one onto a band to put it there.
+              </p>
+              <div className="space-y-2">
+                {organiser.looseShows.map(({ show, setLists }) => (
+                  <ShowBox
+                    key={show.id}
+                    show={show}
+                    setLists={setLists}
+                    loose
                   />
-                  <DropZone parent={{ kind: 'show', id: show.id }}>
-                    {showLists}
-                  </DropZone>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          ))}
-
-          {organiser.looseShows.map(({ show, setLists }) => (
-            <div
-              key={show.id}
-              className="rounded-xl border border-white/10 bg-white/[0.02] p-3"
-            >
-              <NodeHeader
-                icon={<ListMusic size={14} className="text-white/35" />}
-                title={show.title}
-                onRename={(t) => actions.renameShow(show.id, t)}
-                onDuplicate={() => actions.duplicateShow(show.id)}
-                onDelete={() => actions.deleteShow(show.id)}
-              />
-              <DropZone parent={{ kind: 'show', id: show.id }}>
-                {setLists}
-              </DropZone>
-            </div>
-          ))}
+          )}
         </div>
       )}
     </section>
+  );
+};
+
+/** A band: its shows stacked under it, plus anything filed straight on it. */
+const ArtistBox: FC<{
+  artist: Artist;
+  shows: { show: Show; setLists: SetList[] }[];
+  setLists: SetList[];
+}> = ({ artist, shows, setLists }) => {
+  const { actions } = useSetLists();
+  const [over, setOver] = useState(false);
+
+  /** A show dropped on the band joins it — unless it is already in another. */
+  const takeShow = (e: React.DragEvent) => {
+    const item = readShowDrag(e.dataTransfer);
+    if (!item) return false;
+    if (item.artistId && item.artistId !== artist.id) return false;
+    actions.fileShowAt(item.showId, artist.id, null);
+    return true;
+  };
+
+  return (
+    <div
+      onDragOver={(e) => {
+        if (!hasShowDrag(e.dataTransfer) && !hasCardDrag(e.dataTransfer))
+          return;
+        e.preventDefault();
+        setOver(true);
+      }}
+      onDragLeave={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) setOver(false);
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        setOver(false);
+        takeShow(e);
+      }}
+      className={`rounded-xl border bg-white/[0.02] p-3 transition-colors ${
+        over ? 'border-[#7ecfcf]/60' : 'border-white/10'
+      }`}
+    >
+      <NodeHeader
+        icon={<Users size={14} className="text-white/35" />}
+        title={artist.title}
+        onRename={(t) => actions.renameArtist(artist.id, t)}
+        onDuplicate={() => actions.duplicateArtist(artist.id)}
+        onDelete={() => actions.deleteArtist(artist.id)}
+        alwaysOn={
+          <button
+            type="button"
+            onClick={() => actions.createShow(artist.id)}
+            className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-white/55 hover:border-white/30 hover:text-white"
+          >
+            <Plus size={11} /> Show
+          </button>
+        }
+      />
+
+      <DropZone parent={{ kind: 'artist', id: artist.id }} lists={setLists} />
+
+      <div className="ml-1.5 mt-2 space-y-2 border-l border-white/10 pl-3">
+        {shows.map(({ show, setLists: showLists }) => (
+          <ShowBox key={show.id} show={show} setLists={showLists} />
+        ))}
+        {shows.length === 0 && (
+          <p className="py-1 text-[11px] text-white/25">
+            No shows yet — add one, or drag a loose show onto this band.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+/** A show, wherever it sits. Draggable, so it can join a band or be reordered. */
+const ShowBox: FC<{ show: Show; setLists: SetList[]; loose?: boolean }> = ({
+  show,
+  setLists,
+  loose,
+}) => {
+  const { actions } = useSetLists();
+  const [over, setOver] = useState(false);
+
+  return (
+    <div
+      draggable
+      onDragStart={(e) => {
+        e.stopPropagation();
+        setShowDrag(e.dataTransfer, {
+          showId: show.id,
+          artistId: show.artistId,
+        });
+      }}
+      onDragOver={(e) => {
+        if (!hasShowDrag(e.dataTransfer)) return;
+        e.preventDefault();
+        e.stopPropagation();
+        setOver(true);
+      }}
+      onDragLeave={() => setOver(false)}
+      onDrop={(e) => {
+        const item = readShowDrag(e.dataTransfer);
+        setOver(false);
+        if (!item || item.showId === show.id) return;
+        e.preventDefault();
+        e.stopPropagation();
+        // Land above the show it was dropped on, in the same band as it.
+        if (item.artistId && item.artistId !== show.artistId) return;
+        actions.fileShowAt(item.showId, show.artistId, show.id);
+      }}
+      className={`rounded-lg border px-2.5 py-2 transition-colors ${
+        over
+          ? 'border-[#7ecfcf] bg-[#7ecfcf]/10'
+          : loose
+            ? 'border-white/10 bg-white/[0.02]'
+            : 'border-transparent'
+      }`}
+    >
+      <NodeHeader
+        icon={<GripVertical size={13} className="cursor-grab text-white/25" />}
+        title={show.title}
+        small
+        onRename={(t) => actions.renameShow(show.id, t)}
+        onDuplicate={() => actions.duplicateShow(show.id)}
+        onDelete={() => actions.deleteShow(show.id)}
+        alwaysOn={
+          show.artistId ? (
+            <button
+              type="button"
+              onClick={() => actions.fileShow(show.id, undefined)}
+              className="rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-white/45 hover:border-white/30 hover:text-white"
+              title="Take this show out of the band"
+            >
+              Out of band
+            </button>
+          ) : undefined
+        }
+      />
+      <DropZone parent={{ kind: 'show', id: show.id }} lists={setLists} />
+    </div>
   );
 };
 
@@ -504,11 +615,12 @@ const NodeHeader: FC<{
   icon: React.ReactNode;
   title: string;
   small?: boolean;
-  extra?: React.ReactNode;
+  /** Shown whether or not the row is hovered — a way in, not a tidy-up. */
+  alwaysOn?: React.ReactNode;
   onRename: (title: string) => void;
   onDuplicate: () => void;
   onDelete: () => void;
-}> = ({ icon, title, small, extra, onRename, onDuplicate, onDelete }) => (
+}> = ({ icon, title, small, alwaysOn, onRename, onDuplicate, onDelete }) => (
   <div className="group flex items-center gap-1.5">
     {icon}
     <InlineTitle
@@ -518,68 +630,106 @@ const NodeHeader: FC<{
         small ? 'text-sm text-white/70' : 'text-sm font-semibold text-white/90'
       }
     />
-    <span className="ml-auto flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-      {extra}
-      <button
-        type="button"
-        aria-label={`Duplicate ${title}`}
-        onClick={onDuplicate}
-        className="rounded p-1 text-white/30 hover:text-white"
-      >
-        <Copy size={13} />
-      </button>
-      <button
-        type="button"
-        aria-label={`Delete ${title}`}
-        onClick={onDelete}
-        className="rounded p-1 text-white/30 hover:text-red-400"
-      >
-        <Trash2 size={13} />
-      </button>
+    <span className="ml-auto flex items-center gap-1">
+      {alwaysOn}
+      <span className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+        <button
+          type="button"
+          aria-label={`Duplicate ${title}`}
+          onClick={onDuplicate}
+          className="rounded p-1 text-white/30 hover:text-white"
+        >
+          <Copy size={13} />
+        </button>
+        <button
+          type="button"
+          aria-label={`Delete ${title}`}
+          onClick={onDelete}
+          className="rounded p-1 text-white/30 hover:text-red-400"
+        >
+          <Trash2 size={13} />
+        </button>
+      </span>
     </span>
   </div>
 );
 
-/** Where a dragged set list lands. Empty, it says so rather than sitting blank. */
-const DropZone: FC<{ parent: SetListParent; children: SetList[] }> = ({
+/** Set lists filed here, stacked, and the place to drop another. */
+const DropZone: FC<{ parent: SetListParent; lists: SetList[] }> = ({
   parent,
-  children,
+  lists,
 }) => {
   const navigate = useNavigate();
   const { actions } = useSetLists();
-  const [over, setOver] = useState(false);
+  const [over, setOver] = useState<string | null>(null);
+
+  const drop = (e: React.DragEvent, beforeId: string | null) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setOver(null);
+    const item = readCardDrag(e.dataTransfer);
+    if (!item) return;
+    actions.fileSetListAt(item.setListId, parent, beforeId);
+  };
 
   return (
     <div
       onDragOver={(e) => {
         if (!hasCardDrag(e.dataTransfer)) return;
         e.preventDefault();
-        setOver(true);
+        e.stopPropagation();
+        setOver('end');
       }}
-      onDragLeave={() => setOver(false)}
-      onDrop={(e) => {
-        e.preventDefault();
-        setOver(false);
-        const item = readCardDrag(e.dataTransfer);
-        if (item) actions.fileSetList(item.setListId, parent);
+      onDragLeave={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) setOver(null);
       }}
-      className={`mt-1.5 flex min-h-9 flex-wrap items-center gap-1.5 rounded-lg border border-dashed px-2 py-1.5 transition-colors ${
+      onDrop={(e) => drop(e, null)}
+      className={`mt-1.5 flex min-h-9 flex-col gap-1 rounded-lg border border-dashed px-2 py-1.5 transition-colors ${
         over ? 'border-[#7ecfcf] bg-[#7ecfcf]/10' : 'border-white/10'
       }`}
     >
-      {children.length === 0 ? (
+      {lists.length === 0 ? (
         <span className="text-[11px] text-white/25">Drag a set list here</span>
       ) : (
-        children.map((list) => (
-          <button
+        lists.map((list) => (
+          <div
             key={list.id}
-            type="button"
-            onClick={() => navigate(SongRoutes.setList({ setListId: list.id }))}
-            className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-xs text-white/80 hover:border-white/35"
+            draggable
+            onDragStart={(e) => {
+              e.stopPropagation();
+              setCardDrag(e.dataTransfer, { setListId: list.id });
+            }}
+            onDragOver={(e) => {
+              if (!hasCardDrag(e.dataTransfer)) return;
+              e.preventDefault();
+              e.stopPropagation();
+              setOver(list.id);
+            }}
+            onDrop={(e) => drop(e, list.id)}
+            className={`flex items-center gap-1.5 rounded-md px-1.5 py-1 ${
+              over === list.id ? 'bg-[#7ecfcf]/20' : 'hover:bg-white/5'
+            }`}
           >
-            <ListMusic size={11} className="text-white/35" />
-            {list.title}
-          </button>
+            <GripVertical size={12} className="cursor-grab text-white/20" />
+            <button
+              type="button"
+              onClick={() =>
+                navigate(SongRoutes.setList({ setListId: list.id }))
+              }
+              className="min-w-0 flex-1 truncate text-left text-xs text-white/80 hover:text-white"
+            >
+              {list.title}
+            </button>
+            <button
+              type="button"
+              aria-label={`Take ${list.title} out`}
+              onClick={() => actions.fileSetList(list.id, undefined)}
+              className="rounded p-0.5 text-white/25 hover:text-white"
+              title="Take out"
+            >
+              <X size={12} />
+            </button>
+          </div>
         ))
       )}
     </div>

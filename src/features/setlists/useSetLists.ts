@@ -40,6 +40,22 @@ export interface UseSetLists {
     fileSetList: (id: string, parent: SetListParent | undefined) => void;
     duplicateSetList: (id: string) => string;
     createShow: (artistId?: string, title?: string) => string;
+    /** Put a show in a band, or take it out with undefined. */
+    fileShow: (showId: string, artistId: string | undefined) => void;
+    /** File and order in one edit — see fileShowAt. */
+    fileShowAt: (
+      showId: string,
+      artistId: string | undefined,
+      beforeShowId: string | null,
+    ) => void;
+    fileSetListAt: (
+      id: string,
+      parent: SetListParent | undefined,
+      beforeId: string | null,
+    ) => void;
+    /** Order among siblings; null sends it last. */
+    moveShow: (showId: string, beforeShowId: string | null) => void;
+    moveSetListOrder: (id: string, beforeId: string | null) => void;
     renameShow: (id: string, title: string) => void;
     deleteShow: (id: string) => void;
     duplicateShow: (id: string) => string;
@@ -53,16 +69,15 @@ export interface UseSetLists {
       entryId: string,
       fingerprint: string,
     ) => void;
-    addProjectChart: (
-      setListId: string,
-      input: {
-        projectId?: string;
-        title: string;
-        chart: StoredChart;
-        semitones?: number;
-        notes?: string;
-      },
-    ) => string;
+    /** Send a Studio chart to a set list, making the list if asked. */
+    sendProjectChart: (input: {
+      destination: SaveDestination;
+      projectId?: string;
+      title: string;
+      chart: StoredChart;
+      semitones?: number;
+      notes?: string;
+    }) => { setListId: string; entryId: string };
     replaceProjectChart: (
       setListId: string,
       entryId: string,
@@ -161,6 +176,18 @@ export function useSetLists(): UseSetLists {
           const r = store.createShow(b, artistId, title, now);
           return { blob: r.blob, value: r.showId };
         }),
+      fileShow: (showId, artistId) =>
+        apply((b, now) => store.fileShow(b, showId, artistId, now)),
+      fileShowAt: (showId, artistId, beforeShowId) =>
+        apply((b, now) =>
+          store.fileShowAt(b, showId, artistId, beforeShowId, now),
+        ),
+      fileSetListAt: (id, parent, beforeId) =>
+        apply((b, now) => store.fileSetListAt(b, id, parent, beforeId, now)),
+      moveShow: (showId, beforeShowId) =>
+        apply((b, now) => store.moveShow(b, showId, beforeShowId, now)),
+      moveSetListOrder: (id, beforeId) =>
+        apply((b, now) => store.moveSetListOrder(b, id, beforeId, now)),
       renameShow: (id, title) =>
         apply((b, now) => store.renameShow(b, id, title, now)),
       deleteShow: (id) => apply((b, now) => store.deleteShow(b, id, now)),
@@ -197,10 +224,13 @@ export function useSetLists(): UseSetLists {
         apply((b, now) =>
           store.acceptChartUpdate(b, setListId, entryId, fingerprint, now),
         ),
-      addProjectChart: (setListId, input) =>
+      sendProjectChart: (input) =>
         edit((b, now) => {
-          const r = store.addProjectEntry(b, setListId, input, undefined, now);
-          return { blob: r.blob, value: r.entryId };
+          const r = store.sendProjectChart(b, input, now);
+          return {
+            blob: r.blob,
+            value: { setListId: r.setListId, entryId: r.entryId },
+          };
         }),
       replaceProjectChart: (setListId, entryId, chart, title) =>
         apply((b, now) =>

@@ -11,10 +11,16 @@ import {
   emptyBlob,
   ensureDefaults,
   fileSetList,
+  fileShow,
+  fileSetListAt,
+  fileShowAt,
   flatSetLists,
   normalizeBlob,
+  moveSetListOrder,
+  moveShow,
   organiser,
   roleList,
+  sendProjectChart,
   setListOptions,
 } from '../setListsStore';
 import type { SetListsBlob } from '../types';
@@ -368,5 +374,218 @@ describe('reading a version 1 document', () => {
     );
     expect(roleList(read, 'inbox')?.title).toBe('My Lead Sheets');
     expect(flatSetLists(read)).toEqual([]);
+  });
+});
+
+describe('putting a show in a band', () => {
+  const two = () => {
+    const a = createArtist(start(), 'The Quartet', 2);
+    const b = createArtist(a.blob, 'The Trio', 2);
+    const sh = createShow(b.blob, undefined, 'Jazz Fest', 2);
+    return { blob: sh.blob, a: a.artistId, b: b.artistId, show: sh.showId };
+  };
+
+  it('lets a loose show join a band', () => {
+    const { blob, a, show } = two();
+    const joined = fileShow(blob, show, a, 3);
+    expect(joined.shows[show].artistId).toBe(a);
+    expect(organiser(joined).looseShows).toEqual([]);
+    expect(
+      organiser(joined).artists.find((n) => n.artist.id === a)!.shows,
+    ).toHaveLength(1);
+  });
+
+  it('lets it leave again', () => {
+    const { blob, a, show } = two();
+    const out = fileShow(fileShow(blob, show, a, 3), show, undefined, 4);
+    expect(out.shows[show].artistId).toBeUndefined();
+    expect(organiser(out).looseShows.map((s) => s.show.title)).toEqual([
+      'Jazz Fest',
+    ]);
+  });
+
+  it('never hands a show straight from one band to another', () => {
+    const { blob, a, b, show } = two();
+    const inA = fileShow(blob, show, a, 3);
+    // The rule: you do not put a show into a different band. Duplicate it.
+    expect(fileShow(inA, show, b, 4)).toBe(inA);
+    expect(inA.shows[show].artistId).toBe(a);
+  });
+
+  it('refuses a band that is not there, and a no-op move', () => {
+    const { blob, a, show } = two();
+    expect(fileShow(blob, show, 'ghost', 3)).toBe(blob);
+    expect(fileShow(blob, 'ghost', a, 3)).toBe(blob);
+    expect(fileShow(blob, show, undefined, 3)).toBe(blob);
+  });
+});
+
+describe('ordering within a band', () => {
+  const band = () => {
+    const a = createArtist(start(), 'The Quartet', 2);
+    let blob = a.blob;
+    const ids: string[] = [];
+    for (const title of ['One', 'Two', 'Three']) {
+      const made = createShow(blob, a.artistId, title, 2);
+      blob = made.blob;
+      ids.push(made.showId);
+    }
+    return { blob, artistId: a.artistId, ids };
+  };
+  const showTitles = (b: ReturnType<typeof band>['blob'], artistId: string) =>
+    organiser(b)
+      .artists.find((n) => n.artist.id === artistId)!
+      .shows.map((s) => s.show.title);
+
+  it('moves a show above another', () => {
+    const { blob, artistId, ids } = band();
+    expect(showTitles(blob, artistId)).toEqual(['One', 'Two', 'Three']);
+    const moved = moveShow(blob, ids[2], ids[0], 3);
+    expect(showTitles(moved, artistId)).toEqual(['Three', 'One', 'Two']);
+  });
+
+  it('sends a show last with null', () => {
+    const { blob, artistId, ids } = band();
+    expect(showTitles(moveShow(blob, ids[0], null, 3), artistId)).toEqual([
+      'Two',
+      'Three',
+      'One',
+    ]);
+  });
+
+  it('leaves another band shows alone', () => {
+    const { blob, artistId, ids } = band();
+    const other = createArtist(blob, 'The Trio', 2);
+    const x = createShow(other.blob, other.artistId, 'X', 2);
+    const y = createShow(x.blob, other.artistId, 'Y', 2);
+    const moved = moveShow(y.blob, ids[2], ids[0], 3);
+    expect(showTitles(moved, artistId)).toEqual(['Three', 'One', 'Two']);
+    expect(showTitles(moved, other.artistId)).toEqual(['X', 'Y']);
+  });
+
+  it('orders set lists the same way', () => {
+    const a = createArtist(start(), 'The Quartet', 2);
+    let blob = a.blob;
+    const ids: string[] = [];
+    for (const title of ['Set 1', 'Set 2', 'Set 3']) {
+      const made = createSetList(blob, { title }, 2);
+      blob = fileSetList(
+        made.blob,
+        made.setListId,
+        {
+          kind: 'artist',
+          id: a.artistId,
+        },
+        2,
+      );
+      ids.push(made.setListId);
+    }
+    expect(titles(organiser(blob).artists[0].setLists)).toEqual([
+      'Set 1',
+      'Set 2',
+      'Set 3',
+    ]);
+    const moved = moveSetListOrder(blob, ids[2], ids[0], 3);
+    expect(titles(organiser(moved).artists[0].setLists)).toEqual([
+      'Set 3',
+      'Set 1',
+      'Set 2',
+    ]);
+  });
+});
+
+describe('one gesture, one edit', () => {
+  /**
+   * Every one of these used to be two calls from a component, and each call
+   * reads the document as it was when the component rendered — so the second
+   * quietly threw away the first. They are single store functions now, and
+   * these tests are what keeps them that way.
+   */
+  const chart = () => ({
+    title: 'Blues in G',
+    key: 'G major',
+    keyRoot: 7,
+    mode: 'major' as const,
+    tempo: 96,
+    timeSignature: [4, 4] as [number, number],
+    sections: [{ id: 's1', label: '', bars: [{ chords: [] }] }],
+  });
+
+  it('files a show and orders it in the same edit', () => {
+    const a = createArtist(start(), 'The Quartet', 2);
+    const first = createShow(a.blob, a.artistId, 'One', 2);
+    const loose = createShow(first.blob, undefined, 'Jazz Fest', 2);
+
+    const done = fileShowAt(
+      loose.blob,
+      loose.showId,
+      a.artistId,
+      first.showId,
+      3,
+    );
+    const shows = organiser(done).artists[0].shows.map((s) => s.show.title);
+    // Both halves survived: it joined the band AND landed above "One".
+    expect(shows).toEqual(['Jazz Fest', 'One']);
+    expect(organiser(done).looseShows).toEqual([]);
+  });
+
+  it('files a set list and orders it in the same edit', () => {
+    const a = createArtist(start(), 'The Quartet', 2);
+    const one = createSetList(a.blob, { title: 'Set 1' }, 2);
+    const two = createSetList(one.blob, { title: 'Set 2' }, 2);
+    const parent = { kind: 'artist' as const, id: a.artistId };
+
+    let blob = fileSetListAt(two.blob, one.setListId, parent, null, 3);
+    blob = fileSetListAt(blob, two.setListId, parent, one.setListId, 4);
+    expect(titles(organiser(blob).artists[0].setLists)).toEqual([
+      'Set 2',
+      'Set 1',
+    ]);
+  });
+
+  it('makes the set list and adds the Studio chart in the same edit', () => {
+    const before = start();
+    const sent = sendProjectChart(
+      before,
+      {
+        destination: { kind: 'new', title: 'Friday' },
+        projectId: 'p1',
+        title: 'Blues in G',
+        chart: chart(),
+      },
+      3,
+    );
+    const made = sent.blob.setLists[sent.setListId];
+    expect(made.title).toBe('Friday');
+    // The chart is in it — not lost to a second write built on a stale blob.
+    expect(made.entries).toHaveLength(1);
+    expect(made.entries[0]).toMatchObject({ kind: 'project', projectId: 'p1' });
+    expect(sent.entryId).toBeTruthy();
+  });
+
+  it('sends to an existing list, and falls back to the repertoire if it is gone', () => {
+    const blob = createSetList(start(), { title: 'Friday' }, 2);
+    const ok = sendProjectChart(
+      blob.blob,
+      {
+        destination: { kind: 'existing', setListId: blob.setListId },
+        title: 'Blues in G',
+        chart: chart(),
+      },
+      3,
+    );
+    expect(ok.setListId).toBe(blob.setListId);
+
+    const orphan = sendProjectChart(
+      blob.blob,
+      {
+        destination: { kind: 'existing', setListId: 'gone' },
+        title: 'Blues in G',
+        chart: chart(),
+      },
+      3,
+    );
+    expect(orphan.setListId).toBe(roleList(blob.blob, 'inbox')!.id);
+    expect(orphan.blob.setLists[orphan.setListId].entries).toHaveLength(1);
   });
 });

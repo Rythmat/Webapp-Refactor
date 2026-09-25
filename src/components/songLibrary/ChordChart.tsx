@@ -123,6 +123,13 @@ export const StaffMeasure: FC<{
   /** The song's key, which jazz and Roman labels are written in. */
   chordContext?: ChordContext;
   isFirst: boolean;
+  /**
+   * Beats in this bar — the song's time-signature numerator. Chord `beat` and
+   * `duration` are written in those units (a 6/8 chart holds a chord for
+   * `duration: 6`), so the slashes and the beat grid have to count the same
+   * way or a 3/4 bar is drawn as a 4/4 one.
+   */
+  beatsPerBar?: number;
   /** This bar's segno/coda is drawn with the section marker, not in the bar. */
   signsInHeader?: boolean;
   hasRepeatStart?: boolean;
@@ -141,6 +148,7 @@ export const StaffMeasure: FC<{
   notation,
   chordContext,
   isFirst,
+  beatsPerBar = 4,
   signsInHeader,
   hasRepeatStart,
   hasRepeatEnd,
@@ -151,7 +159,6 @@ export const StaffMeasure: FC<{
   editable,
 }) => {
   const staffTop = CHORD_AREA_HEIGHT;
-  const beatsPerBar = 4;
   const cellW = width / beatsPerBar;
 
   const isMultiBarRest = bar.restBars != null && bar.restBars > 0;
@@ -742,6 +749,8 @@ const RoadmapBand: FC<{
 const SectionStaff: FC<{
   section: SongSection;
   sectionIdx: number;
+  /** The song's beats per bar, for the slashes and the beat grid. */
+  beatsPerBar: number;
   displayMode: DisplayMode;
   notation: ChordNotation;
   /** The key each bar of this section is written in. */
@@ -758,6 +767,7 @@ const SectionStaff: FC<{
 }> = ({
   section,
   sectionIdx,
+  beatsPerBar,
   displayMode,
   notation,
   barKeys,
@@ -991,6 +1001,7 @@ const SectionStaff: FC<{
                     <StaffMeasure
                       bar={bar}
                       barIndex={globalBi}
+                      beatsPerBar={beatsPerBar}
                       x={bi * barW}
                       width={barW}
                       displayMode={displayMode}
@@ -1050,6 +1061,11 @@ export const ChordChart: FC<ChordChartProps> = ({
     editable || onSelectChord || displayMode === 'hybrid'
       ? 'hybrid'
       : pickedNotation;
+  // A chart counts in its own metre: a 6/8 bar holds six, a 7/4 bar seven.
+  // Drawing every bar with four slashes is what made the library's seventeen
+  // non-4/4 songs read wrong.
+  const beatsPerBar = song.timeSignature?.[0] || 4;
+
   // Systems used by the sections above each one, so a page is the same number
   // of staves whether or not a section boundary falls inside it.
   const systemOffsets = useMemo(() => songSystemOffsets(song), [song]);
@@ -1102,6 +1118,7 @@ export const ChordChart: FC<ChordChartProps> = ({
             key={section.id + '_' + si}
             section={section}
             sectionIdx={si}
+            beatsPerBar={beatsPerBar}
             systemOffset={systemOffsets[si]}
             systemsPerPage={systemsPerPage}
             displayMode={displayMode}

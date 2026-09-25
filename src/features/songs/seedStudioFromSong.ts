@@ -20,6 +20,10 @@ export const seedStudioFromSong = (song: Song): void => {
   store.setRootNote(song.keyRoot % 12);
   store.setMode(song.mode === 'major' ? 'ionian' : song.mode);
   store.setBpm(song.tempo);
+  // Without this the Studio opens every song in 4/4, so a 3/4 or 7/4 chart
+  // gets four-beat bars drawn over correctly-placed ticks.
+  const [beats, unit] = song.timeSignature ?? [4, 4];
+  store.setTimeSignature(beats, unit);
   store.setChordRegions(regions);
   if (rowSizes) store.setMeasureRowSizes(rowSizes);
   // The Studio plays the roadmap out bar by bar, so it gets the performed

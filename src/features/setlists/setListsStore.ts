@@ -370,12 +370,14 @@ function placeBefore(
 }
 
 /**
- * Put a show in a band, or take it out of one with `undefined`.
+ * Put a show in a band, move it to another, or take it out with `undefined`.
  *
- * A show belongs to the band it was made in: it can join a band, and it can
- * leave one, but it is never handed straight from one band to another. "The
- * Quartet's summer tour" is not a thing that becomes somebody else's — to get
- * the same shape elsewhere, duplicate it.
+ * This once refused to hand a show from one band to another, on the grounds
+ * that "the Quartet's summer tour" is not a thing that becomes somebody
+ * else's. In use that was wrong twice over: it is a reorganisation people
+ * actually do, and refusing it silently — while the drop target still lit up —
+ * looked exactly like a broken drag. Anything that cannot be done should not
+ * offer itself; this one can be done.
  */
 export function fileShow(
   blob: SetListsBlob,
@@ -386,7 +388,6 @@ export function fileShow(
   const show = blob.shows[showId];
   if (!show) return blob;
   if (artistId && !blob.artists[artistId]) return blob;
-  if (show.artistId && artistId && show.artistId !== artistId) return blob;
   if (show.artistId === artistId) return blob;
   const next: Show = { ...show, updatedAt: now };
   if (artistId) next.artistId = artistId;
@@ -427,10 +428,14 @@ export function fileShowAt(
   beforeShowId: string | null,
   now = 0,
 ): SetListsBlob {
-  const filed = fileShow(blob, showId, artistId, now);
-  // A refused hand-off between bands is refused whole, order and all.
-  if (filed === blob && blob.shows[showId]?.artistId !== artistId) return blob;
-  return moveShow(filed, showId, beforeShowId, now);
+  if (!blob.shows[showId]) return blob;
+  if (artistId && !blob.artists[artistId]) return blob;
+  return moveShow(
+    fileShow(blob, showId, artistId, now),
+    showId,
+    beforeShowId,
+    now,
+  );
 }
 
 /** File a set list and order it among its new siblings, in one edit. */

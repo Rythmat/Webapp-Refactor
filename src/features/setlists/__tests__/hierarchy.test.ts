@@ -404,12 +404,32 @@ describe('putting a show in a band', () => {
     ]);
   });
 
-  it('never hands a show straight from one band to another', () => {
+  it('moves a show from one band to another', () => {
     const { blob, a, b, show } = two();
     const inA = fileShow(blob, show, a, 3);
-    // The rule: you do not put a show into a different band. Duplicate it.
-    expect(fileShow(inA, show, b, 4)).toBe(inA);
-    expect(inA.shows[show].artistId).toBe(a);
+    const inB = fileShow(inA, show, b, 4);
+    expect(inB.shows[show].artistId).toBe(b);
+    expect(
+      organiser(inB).artists.find((n) => n.artist.id === a)!.shows,
+    ).toEqual([]);
+    expect(
+      organiser(inB).artists.find((n) => n.artist.id === b)!.shows,
+    ).toHaveLength(1);
+  });
+
+  it('carries the set lists filed on it across', () => {
+    const { blob, a, b, show } = two();
+    const sl = createSetList(blob, { title: 'Night 1' }, 3);
+    let next = fileSetList(
+      sl.blob,
+      sl.setListId,
+      { kind: 'show', id: show },
+      3,
+    );
+    next = fileShow(next, show, a, 4);
+    next = fileShow(next, show, b, 5);
+    const band = organiser(next).artists.find((n) => n.artist.id === b)!;
+    expect(titles(band.shows[0].setLists)).toEqual(['Night 1']);
   });
 
   it('refuses a band that is not there, and a no-op move', () => {
@@ -509,6 +529,28 @@ describe('one gesture, one edit', () => {
     tempo: 96,
     timeSignature: [4, 4] as [number, number],
     sections: [{ id: 's1', label: '', bars: [{ chords: [] }] }],
+  });
+
+  it('moves a show to another band and orders it there in one edit', () => {
+    const a = createArtist(start(), 'The Quartet', 2);
+    const b = createArtist(a.blob, 'The Trio', 2);
+    const first = createShow(b.blob, b.artistId, 'Opener', 2);
+    const mover = createShow(first.blob, a.artistId, 'Closer', 2);
+
+    const done = fileShowAt(
+      mover.blob,
+      mover.showId,
+      b.artistId,
+      first.showId,
+      3,
+    );
+    const inB = organiser(done).artists.find(
+      (n) => n.artist.id === b.artistId,
+    )!;
+    expect(inB.shows.map((s) => s.show.title)).toEqual(['Closer', 'Opener']);
+    expect(
+      organiser(done).artists.find((n) => n.artist.id === a.artistId)!.shows,
+    ).toEqual([]);
   });
 
   it('files a show and orders it in the same edit', () => {

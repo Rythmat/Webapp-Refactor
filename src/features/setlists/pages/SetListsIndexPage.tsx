@@ -512,10 +512,6 @@ const ArtistBox: FC<{
   const { actions } = useSetLists();
   const [over, setOver] = useState(false);
 
-  /** A show from another band is refused: bands do not hand shows over. */
-  const canTake = (item: { artistId?: string }) =>
-    !item.artistId || item.artistId === artist.id;
-
   return (
     <div
       data-band={artist.id}
@@ -530,8 +526,7 @@ const ArtistBox: FC<{
       onDrop={(e) => {
         setOver(false);
         const item = claimDrop(e, readShowDrag);
-        if (item && canTake(item))
-          actions.fileShowAt(item.showId, artist.id, null);
+        if (item) actions.fileShowAt(item.showId, artist.id, null);
       }}
       className={`rounded-xl border bg-white/[0.02] p-3 transition-colors ${
         over ? 'border-[#7ecfcf] bg-[#7ecfcf]/[0.06]' : 'border-white/10'
@@ -601,7 +596,7 @@ const InsertLine: FC<{ artistId?: string; before: string | null }> = ({
         setOver(false);
         const item = claimDrop(e, readShowDrag);
         if (!item || item.showId === before) return;
-        if (item.artistId && item.artistId !== artistId) return;
+        // Any show, from anywhere: the gap says where, the band says whose.
         actions.fileShowAt(item.showId, artistId, before);
       }}
       aria-hidden

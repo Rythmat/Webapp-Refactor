@@ -449,52 +449,24 @@ const Organiser: FC<{
             />
           ))}
 
-          {organiser.looseShows.length > 0 && (
-            <div>
-              <p className="mb-1.5 text-[11px] text-white/30">
-                Shows with no band — drag one onto a band to put it there.
-              </p>
-              <div className="space-y-2">
-                {organiser.looseShows.map(({ show, setLists }) => (
-                  <ShowBox
-                    key={show.id}
-                    show={show}
-                    setLists={setLists}
-                    loose
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+          <LooseShows shows={organiser.looseShows} />
         </div>
       )}
     </section>
   );
 };
 
-/** A band: its shows stacked under it, plus anything filed straight on it. */
-const ArtistBox: FC<{
-  artist: Artist;
-  shows: { show: Show; setLists: SetList[] }[];
-  setLists: SetList[];
-}> = ({ artist, shows, setLists }) => {
+/** Shows in no band. Dropping one here takes it out of the band it was in. */
+const LooseShows: FC<{ shows: { show: Show; setLists: SetList[] }[] }> = ({
+  shows,
+}) => {
   const { actions } = useSetLists();
   const [over, setOver] = useState(false);
-
-  /** A show dropped on the band joins it — unless it is already in another. */
-  const takeShow = (e: React.DragEvent) => {
-    const item = claimDrop(e, readShowDrag);
-    if (!item) return false;
-    if (item.artistId && item.artistId !== artist.id) return false;
-    actions.fileShowAt(item.showId, artist.id, null);
-    return true;
-  };
-
+  if (shows.length === 0) return null;
   return (
     <div
       onDragOver={(e) => {
-        if (!hasShowDrag(e.dataTransfer) && !hasCardDrag(e.dataTransfer))
-          return;
+        if (!hasShowDrag(e.dataTransfer)) return;
         e.preventDefault();
         setOver(true);
       }}
@@ -503,11 +475,66 @@ const ArtistBox: FC<{
       }}
       onDrop={(e) => {
         setOver(false);
-        takeShow(e);
+        const item = claimDrop(e, readShowDrag);
+        if (item) actions.fileShowAt(item.showId, undefined, null);
       }}
+      className={`rounded-xl border border-dashed p-2 transition-colors ${
+        over ? 'border-[#7ecfcf] bg-[#7ecfcf]/[0.06]' : 'border-transparent'
+      }`}
+    >
+      <p className="mb-1.5 text-[11px] text-white/30">
+        Shows with no band — drag one onto a band to put it there.
+      </p>
+      {shows.map(({ show, setLists }) => (
+        <div key={show.id}>
+          <InsertLine before={show.id} />
+          <ShowBox show={show} setLists={setLists} loose />
+        </div>
+      ))}
+      <InsertLine before={null} />
+    </div>
+  );
+};
+
+/**
+ * A band. One drop target for shows: anywhere on it, and the show joins.
+ *
+ * There is deliberately no second target inside it — a show is not dropped
+ * "into" another show. Ordering is done by the thin lines between them, which
+ * only appear while a show is being dragged, so at any moment there is exactly
+ * one thing a drop can mean.
+ */
+const ArtistBox: FC<{
+  artist: Artist;
+  shows: { show: Show; setLists: SetList[] }[];
+  setLists: SetList[];
+}> = ({ artist, shows, setLists }) => {
+  const { actions } = useSetLists();
+  const [over, setOver] = useState(false);
+
+  /** A show from another band is refused: bands do not hand shows over. */
+  const canTake = (item: { artistId?: string }) =>
+    !item.artistId || item.artistId === artist.id;
+
+  return (
+    <div
       data-band={artist.id}
+      onDragOver={(e) => {
+        if (!hasShowDrag(e.dataTransfer)) return;
+        e.preventDefault();
+        setOver(true);
+      }}
+      onDragLeave={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) setOver(false);
+      }}
+      onDrop={(e) => {
+        setOver(false);
+        const item = claimDrop(e, readShowDrag);
+        if (item && canTake(item))
+          actions.fileShowAt(item.showId, artist.id, null);
+      }}
       className={`rounded-xl border bg-white/[0.02] p-3 transition-colors ${
-        over ? 'border-[#7ecfcf]/60' : 'border-white/10'
+        over ? 'border-[#7ecfcf] bg-[#7ecfcf]/[0.06]' : 'border-white/10'
       }`}
     >
       <NodeHeader
@@ -531,23 +558,33 @@ const ArtistBox: FC<{
 
       <div
         data-band-shows={artist.id}
-        className="ml-1.5 mt-2 space-y-2 border-l border-white/10 pl-3"
+        className="ml-1.5 mt-2 border-l border-white/10 pl-3"
       >
         {shows.map(({ show, setLists: showLists }) => (
-          <ShowBox key={show.id} show={show} setLists={showLists} />
+          <div key={show.id}>
+            <InsertLine artistId={artist.id} before={show.id} />
+            <ShowBox show={show} setLists={showLists} />
+          </div>
         ))}
-        {/* Always here, so there is somewhere to drop the next show however
-            many the band already has, and somewhere to drop one at the end. */}
-        <ShowDropStrip artistId={artist.id} empty={shows.length === 0} />
+        <InsertLine artistId={artist.id} before={null} />
+        {shows.length === 0 && (
+          <p className="py-1 text-[11px] text-white/25">
+            No shows yet — add one, or drag a show onto this band.
+          </p>
+        )}
       </div>
     </div>
   );
 };
 
-/** The tail of a band's show list: drop here to add one at the bottom. */
-const ShowDropStrip: FC<{ artistId: string; empty: boolean }> = ({
+/**
+ * The gap between two shows. Invisible until a show is in the air, then it is
+ * the only thing in the band that will take the drop — so "put it here" and
+ * "put it in this band" can never be the same gesture.
+ */
+const InsertLine: FC<{ artistId?: string; before: string | null }> = ({
   artistId,
-  empty,
+  before,
 }) => {
   const { actions } = useSetLists();
   const [over, setOver] = useState(false);
@@ -563,32 +600,29 @@ const ShowDropStrip: FC<{ artistId: string; empty: boolean }> = ({
       onDrop={(e) => {
         setOver(false);
         const item = claimDrop(e, readShowDrag);
-        if (!item) return;
+        if (!item || item.showId === before) return;
         if (item.artistId && item.artistId !== artistId) return;
-        actions.fileShowAt(item.showId, artistId, null);
+        actions.fileShowAt(item.showId, artistId, before);
       }}
-      className={`rounded-lg border border-dashed px-2 py-1.5 text-[11px] transition-colors ${
-        over
-          ? 'border-[#7ecfcf] bg-[#7ecfcf]/10 text-white/70'
-          : 'border-white/10 text-white/25'
-      }`}
+      aria-hidden
+      className="group/line -my-1 py-1"
     >
-      {empty
-        ? 'No shows yet — add one, or drag a show here.'
-        : 'Drop a show here'}
+      <div
+        className={`h-0.5 rounded-full transition-colors ${
+          over ? 'bg-[#7ecfcf]' : 'bg-transparent'
+        }`}
+      />
     </div>
   );
 };
 
-/** A show, wherever it sits. Draggable, so it can join a band or be reordered. */
+/** A show. It carries its set lists; it is not itself a target for shows. */
 const ShowBox: FC<{ show: Show; setLists: SetList[]; loose?: boolean }> = ({
   show,
   setLists,
   loose,
 }) => {
   const { actions } = useSetLists();
-  const [over, setOver] = useState(false);
-
   return (
     <div
       data-show={show.id}
@@ -600,27 +634,8 @@ const ShowBox: FC<{ show: Show; setLists: SetList[]; loose?: boolean }> = ({
           artistId: show.artistId,
         });
       }}
-      onDragOver={(e) => {
-        if (!hasShowDrag(e.dataTransfer)) return;
-        e.preventDefault();
-        e.stopPropagation();
-        setOver(true);
-      }}
-      onDragLeave={() => setOver(false)}
-      onDrop={(e) => {
-        setOver(false);
-        const item = claimDrop(e, readShowDrag);
-        if (!item || item.showId === show.id) return;
-        // Land above the show it was dropped on, in the same band as it.
-        if (item.artistId && item.artistId !== show.artistId) return;
-        actions.fileShowAt(item.showId, show.artistId, show.id);
-      }}
-      className={`rounded-lg border px-2.5 py-2 transition-colors ${
-        over
-          ? 'border-[#7ecfcf] bg-[#7ecfcf]/10'
-          : loose
-            ? 'border-white/10 bg-white/[0.02]'
-            : 'border-transparent'
+      className={`rounded-lg px-2.5 py-2 ${
+        loose ? 'border border-white/10 bg-white/[0.02]' : ''
       }`}
     >
       <NodeHeader

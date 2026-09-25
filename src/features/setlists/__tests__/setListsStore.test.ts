@@ -12,7 +12,8 @@ import {
   ensureDefaults,
   estimateBlobBytes,
   isFavorite,
-  listTree,
+  flatSetLists,
+  organiser,
   migrateSavedSongs,
   moveEntry,
   normalizeBlob,
@@ -39,13 +40,16 @@ const start = () => ensureDefaults(emptyBlob(1), 1);
 const inbox = (b: ReturnType<typeof start>) => roleList(b, 'inbox')!;
 
 describe('defaults', () => {
-  it('creates My Lead Sheets and My Favorites under a default artist and show', () => {
+  it('creates only the repertoire and the favourites, and no hierarchy', () => {
     const blob = start();
     expect(roleList(blob, 'inbox')?.title).toBe(INBOX_TITLE);
     expect(roleList(blob, 'favorites')?.title).toBe(FAVORITES_TITLE);
-    const tree = listTree(blob);
-    expect(tree).toHaveLength(1);
-    expect(tree[0].shows[0].setLists).toHaveLength(2);
+    // No band and no show until someone makes one: a player should never be
+    // shown two levels of filing for a system with one folder.
+    expect(organiser(blob).artists).toEqual([]);
+    expect(organiser(blob).looseShows).toEqual([]);
+    // Neither role list is in the flat grid — the repertoire is not a set.
+    expect(flatSetLists(blob)).toEqual([]);
   });
 
   it('is idempotent', () => {
@@ -281,12 +285,15 @@ describe('reading a stored document', () => {
   });
 });
 
-describe('auto-filing', () => {
-  it('puts a new set list under the default artist and show without being asked', () => {
+describe('a new set list', () => {
+  it('is filed nowhere, and shows in the flat list', () => {
     const created = createSetList(emptyBlob(1), { title: 'Saturday' }, 1);
-    const tree = listTree(created.blob);
-    expect(tree[0].artist.title).toBe('My Music');
-    expect(tree[0].shows[0].setLists.map((l) => l.title)).toContain('Saturday');
+    const list = created.blob.setLists[created.setListId];
+    expect(list.parent).toBeUndefined();
+    expect(flatSetLists(created.blob).map((l) => l.title)).toEqual([
+      'Saturday',
+    ]);
+    expect(organiser(created.blob).artists).toEqual([]);
   });
 });
 

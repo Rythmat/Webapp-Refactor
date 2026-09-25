@@ -50,3 +50,35 @@ export function dropIndex(
   const target = half === 'bottom' ? over + 1 : over;
   return from < target ? target - 1 : target;
 }
+
+/* ── Filing a whole set list into a band or a show ────────────────────── */
+
+/**
+ * A different drag from the one above: that one reorders songs inside a set,
+ * this one carries a whole set list from the flat grid into the organiser.
+ * Its own MIME, so neither can be dropped where the other belongs.
+ */
+export const SETLIST_CARD_MIME = 'application/x-ma-setlist-card';
+
+export interface SetListCardDrag {
+  setListId: string;
+}
+
+export function setCardDrag(dt: DataTransfer, item: SetListCardDrag): void {
+  dt.setData(SETLIST_CARD_MIME, JSON.stringify(item));
+  dt.effectAllowed = 'move';
+}
+
+export const hasCardDrag = (dt: DataTransfer): boolean =>
+  Array.from(dt.types).includes(SETLIST_CARD_MIME);
+
+export function readCardDrag(dt: DataTransfer): SetListCardDrag | null {
+  try {
+    const raw = dt.getData(SETLIST_CARD_MIME);
+    if (!raw) return null;
+    const item = JSON.parse(raw) as SetListCardDrag;
+    return typeof item?.setListId === 'string' ? item : null;
+  } catch {
+    return null;
+  }
+}

@@ -10,7 +10,7 @@ import { showSuccess } from '@/components/utils/toast';
 import { SongRoutes } from '@/constants/routes';
 import { transposeSong } from '@/curriculum/songLibrary/transpose';
 import type { Song } from '@/curriculum/types/songLibrary';
-import { listTree, roleList } from './setListsStore';
+import { roleList, setListOptions } from './setListsStore';
 import { useSetLists } from './useSetLists';
 
 /**
@@ -50,20 +50,7 @@ export const SaveVersionDialog: FC<SaveVersionDialogProps> = ({
   const [newTitle, setNewTitle] = useState('');
 
   const inbox = roleList(blob, 'inbox');
-  const options = useMemo(
-    () =>
-      listTree(blob).flatMap(({ artist, shows }) =>
-        shows.flatMap(({ show, setLists }) =>
-          setLists.map((list) => ({
-            id: list.id,
-            label: list.role
-              ? list.title
-              : `${artist.title} ▸ ${show.title} ▸ ${list.title}`,
-          })),
-        ),
-      ),
-    [blob],
-  );
+  const options = useMemo(() => setListOptions(blob), [blob]);
 
   const shift = semitones > 6 ? semitones - 12 : semitones;
   const chosen = destination || inbox?.id || NEW_LIST;

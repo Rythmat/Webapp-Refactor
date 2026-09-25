@@ -40,7 +40,14 @@ import {
   midiSequenceToQuarterNotes,
   midiSequenceToStoccatoEvents,
   midiSequenceToWholeNotes,
+  timedSequenceToEvents,
+  timedSequenceToMixedArticulation,
+  timedSequenceToStoccatoEvents,
 } from './content/noteSequences';
+import {
+  getBluesPhrases,
+  transposeBluesPhrase,
+} from '@/lib/learn/bluesPhrases';
 import { getScaleLesson } from '@/lib/learn/scaleLessons';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import {
@@ -267,6 +274,9 @@ export const ActivityFlow = ({
   // Practice Track over their own progression.
   const scaleLesson = getScaleLesson(modeLabel.toLowerCase());
   const hasPracticeTrack = isDiatonicMode || scaleLesson !== null;
+  // The two blues scales don't generate their melodies — they play a written
+  // line, in its own rhythm. See lib/learn/bluesPhrases.
+  const writtenPhrases = getBluesPhrases(modeLabel);
   const activityColor = useMemo(
     () => colorForKeyMode(rootKey, mode),
     [rootKey, mode],
@@ -450,14 +460,38 @@ export const ActivityFlow = ({
     // at its Play Along, the long phrase is separate material, and the three
     // articulation exercises share a third phrase so that only the touch
     // changes between them.
-    if (phrases) {
-      const { short, long, articulation } = phrases;
+    //
+    // The blues scales play a written line and keep its rhythm; every other
+    // lesson lays its generated phrase out in even notes. Both arrive here as
+    // the same three slots, so the seven activities below are written once.
+    const phraseEvents = (
+      slot: 'short' | 'long' | 'articulation',
+      prefix: string,
+      touch: 'as-written' | 'staccato' | 'mixed' = 'as-written',
+    ): NoteEvent[] => {
+      if (writtenPhrases) {
+        const written = transposeBluesPhrase(writtenPhrases[slot], rootMidi);
+        if (touch === 'staccato')
+          return timedSequenceToStoccatoEvents(written, prefix);
+        if (touch === 'mixed')
+          return timedSequenceToMixedArticulation(written, prefix);
+        return timedSequenceToEvents(written, prefix);
+      }
+      const generated = phrases?.[slot] ?? [];
+      if (touch === 'staccato')
+        return midiSequenceToStoccatoEvents(generated, prefix);
+      if (touch === 'mixed')
+        return midiSequenceToMixedArticulation(generated, prefix);
+      return midiSequenceToEvents(generated, prefix);
+    };
+
+    if (writtenPhrases || phrases) {
       sequences.push(
         {
           key: `contour-1-nh`,
           label: `${rootKey} ${modeTitle} Musical Contour • Hold`,
           Component: NoteHold,
-          seq: applyActivityColor(midiSequenceToEvents(short, `contour-1-nh`)),
+          seq: applyActivityColor(phraseEvents('short', `contour-1-nh`)),
           direction: `Play this short melodic phrase in ${rootKey} ${modeTitle}`,
           section: 'A' as SectionId,
         },
@@ -465,7 +499,7 @@ export const ActivityFlow = ({
           key: `contour-1-pa`,
           label: `${rootKey} ${modeTitle} Musical Contour • Play Along`,
           Component: PlayAlong,
-          seq: applyActivityColor(midiSequenceToEvents(short, `contour-1-pa`)),
+          seq: applyActivityColor(phraseEvents('short', `contour-1-pa`)),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle}`,
           section: 'A' as SectionId,
         },
@@ -473,7 +507,7 @@ export const ActivityFlow = ({
           key: `contour-2-nh`,
           label: `${rootKey} ${modeTitle} Melodic Phrase • Hold`,
           Component: NoteHold,
-          seq: applyActivityColor(midiSequenceToEvents(long, `contour-2-nh`)),
+          seq: applyActivityColor(phraseEvents('long', `contour-2-nh`)),
           direction: `Play this longer melodic phrase in ${rootKey} ${modeTitle}`,
           section: 'A' as SectionId,
         },
@@ -481,7 +515,7 @@ export const ActivityFlow = ({
           key: `contour-2-pa`,
           label: `${rootKey} ${modeTitle} Melodic Phrase • Play Along`,
           Component: PlayAlong,
-          seq: applyActivityColor(midiSequenceToEvents(long, `contour-2-pa`)),
+          seq: applyActivityColor(phraseEvents('long', `contour-2-pa`)),
           direction: `In a steady tempo, play this longer melodic phrase in ${rootKey} ${modeTitle}`,
           section: 'A' as SectionId,
         },
@@ -490,7 +524,7 @@ export const ActivityFlow = ({
           label: `${rootKey} ${modeTitle} Musical Contour (Staccato) • Play Along`,
           Component: PlayAlong,
           seq: applyActivityColor(
-            midiSequenceToStoccatoEvents(articulation, `contour-1-stac-pa`),
+            phraseEvents('articulation', `contour-1-stac-pa`, 'staccato'),
           ),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with short articulations (“staccato”).`,
           section: 'A' as SectionId,
@@ -500,7 +534,7 @@ export const ActivityFlow = ({
           label: `${rootKey} ${modeTitle} Musical Contour (Legato) • Play Along`,
           Component: PlayAlong,
           seq: applyActivityColor(
-            midiSequenceToEvents(articulation, `contour-1-lega-pa`),
+            phraseEvents('articulation', `contour-1-lega-pa`),
           ),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with long articulations (“legato”).`,
           section: 'A' as SectionId,
@@ -510,7 +544,7 @@ export const ActivityFlow = ({
           label: `${rootKey} ${modeTitle} Musical Contour (Mixed Articulation) • Play Along`,
           Component: PlayAlong,
           seq: applyActivityColor(
-            midiSequenceToMixedArticulation(articulation, `contour-1-mix-pa`),
+            phraseEvents('articulation', `contour-1-mix-pa`, 'mixed'),
           ),
           direction: `In a steady tempo, play this short melodic phrase in ${rootKey} ${modeTitle} with mixed articulations (“staccato” and “legato”). `,
           section: 'A' as SectionId,
@@ -813,9 +847,10 @@ export const ActivityFlow = ({
   // Melodies for the contour activities: three separate phrases drawn from the
   // fetched pool and resolved onto the lesson scale, each stating the mode's
   // quality and cadencing properly, with every leap inside a 5th (level 1).
-  // See content/melodyConstraints.ts.
+  // See content/melodyConstraints.ts. A lesson with written phrases never
+  // generates any — the line is the lesson.
   const melodyPhrases = useMemo(() => {
-    if (availableContours.length === 0) {
+    if (writtenPhrases || availableContours.length === 0) {
       return null;
     }
     const scale =
@@ -826,7 +861,7 @@ export const ActivityFlow = ({
       1,
       scaleLesson?.chordTones,
     );
-  }, [availableContours, scaleMidis, scaleLesson]);
+  }, [writtenPhrases, availableContours, scaleMidis, scaleLesson]);
 
   const flowDefinitions = useMemo(() => {
     const scale =
@@ -840,6 +875,8 @@ export const ActivityFlow = ({
   }, [
     scaleMidis,
     melodyPhrases,
+    writtenPhrases,
+    rootMidi,
     triads,
     chordsPending,
     activityColor,

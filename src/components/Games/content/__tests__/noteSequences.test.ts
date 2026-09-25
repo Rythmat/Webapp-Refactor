@@ -1,4 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import {
+  ALL_BLUES_PHRASES,
+  BLUES_LESSON_PHRASES,
+  transposeBluesPhrase,
+} from '@/lib/learn/bluesPhrases';
 import type { NoteEvent } from '../../PianoRollPlay';
 import {
   chordArpegiateEvents,
@@ -10,6 +15,9 @@ import {
   midiSequenceToStoccatoEvents,
   midiSequenceToWholeNotes,
   normalizeMidiSequence,
+  timedSequenceToEvents,
+  timedSequenceToMixedArticulation,
+  timedSequenceToStoccatoEvents,
 } from '../noteSequences';
 
 const C = [60, 64, 67]; // 1-3-5
@@ -159,5 +167,61 @@ describe('chordArpegiateEvents', () => {
       [960, [67]],
       [1920, C],
     ]);
+  });
+});
+
+describe('authored phrase builders', () => {
+  // The minor blues call-up as it reaches a lesson in C: B♭3 C4 E♭4 F4 up to
+  // a half note on G4 — straight eighths, then two beats held.
+  const written = () =>
+    transposeBluesPhrase(BLUES_LESSON_PHRASES.minorblues!.articulation, 60);
+
+  it('plays a written phrase at its written times and lengths', () => {
+    const events = timedSequenceToEvents(written(), 'call-up');
+    expect(events.map((e) => e.pitchName)).toEqual([
+      'A#3',
+      'C4',
+      'D#4',
+      'F4',
+      'G4',
+    ]);
+    expect(events.map((e) => e.startTicks)).toEqual([0, 240, 480, 720, 960]);
+    expect(events.map((e) => e.durationTicks)).toEqual([
+      240, 240, 240, 240, 960,
+    ]);
+  });
+
+  it('staccato shortens the notes without moving them', () => {
+    const plain = timedSequenceToEvents(written(), 'lega');
+    const short = timedSequenceToStoccatoEvents(written(), 'stac');
+    expect(short.map((e) => e.startTicks)).toEqual(
+      plain.map((e) => e.startTicks),
+    );
+    expect(short.map((e) => e.durationTicks)).toEqual([
+      120, 120, 120, 120, 480,
+    ]);
+  });
+
+  it('mixed articulation alternates long and short, the same way every time', () => {
+    const first = timedSequenceToMixedArticulation(written(), 'mix');
+    const second = timedSequenceToMixedArticulation(written(), 'mix');
+    expect(first.map((e) => e.durationTicks)).toEqual([
+      240, 120, 240, 120, 960,
+    ]);
+    expect(second.map((e) => e.durationTicks)).toEqual(
+      first.map((e) => e.durationTicks),
+    );
+  });
+
+  it('never writes a zero-length note', () => {
+    for (const phrase of ALL_BLUES_PHRASES) {
+      const events = timedSequenceToStoccatoEvents(
+        transposeBluesPhrase(phrase, 60),
+        phrase.id,
+      );
+      for (const event of events) {
+        expect(event.durationTicks).toBeGreaterThan(0);
+      }
+    }
   });
 });

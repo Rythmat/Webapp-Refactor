@@ -12,7 +12,7 @@
 
 import type { SongMode, SongSection } from '@/curriculum/types/songLibrary';
 
-export const SETLIST_SCHEMA_VERSION = 1;
+export const SETLIST_SCHEMA_VERSION = 2;
 
 /** The two lists every user starts with. Identified by role, never by title,
  *  so renaming "My Lead Sheets" cannot break them. */
@@ -91,18 +91,33 @@ export type SetListEntry =
 
 export interface SetList {
   id: string;
-  showId: string;
   title: string;
   /** The order IS the set order. A song may appear more than once. */
   entries: SetListEntry[];
+  /**
+   * Where this set is filed, once it has been dragged somewhere. Filing is an
+   * annotation, not a move: every set list stays in the flat list, and this
+   * only says where else it shows up. Unset means it is not filed at all.
+   */
+  parent?: SetListParent;
   role?: SetListRole;
   createdAt: number;
   updatedAt: number;
 }
 
+/** A set list can be filed under a band, or under one of its shows. */
+export type SetListParent =
+  | { kind: 'artist'; id: string }
+  | { kind: 'show'; id: string };
+
 export interface Show {
   id: string;
-  artistId: string;
+  /**
+   * The band this show belongs to, if any. A show can stand on its own — a
+   * one-off, a festival, a depping gig — and once it is under a band it stays
+   * there: a show is not moved between bands, it is duplicated.
+   */
+  artistId?: string;
   title: string;
   date?: string;
   venue?: string;
@@ -123,11 +138,15 @@ export interface SetListsBlob {
   artists: Record<string, Artist>;
   shows: Record<string, Show>;
   setLists: Record<string, SetList>;
-  /** The tree holds only ids; the entities live in the maps above. */
+  /**
+   * One flat order per kind; the entities above say how they nest. A set list
+   * appears in `setLists` whether or not it is filed, because the flat list is
+   * the whole library and the hierarchy is a second way to look at it.
+   */
   order: {
     artists: string[];
-    showsByArtist: Record<string, string[]>;
-    setListsByShow: Record<string, string[]>;
+    shows: string[];
+    setLists: string[];
   };
 }
 
@@ -136,9 +155,12 @@ export type SaveDestination =
   | { kind: 'existing'; setListId: string }
   | { kind: 'new'; title: string };
 
-export const DEFAULT_ARTIST_TITLE = 'My Music';
-export const DEFAULT_SHOW_TITLE = 'Unfiled';
+export const DEFAULT_ARTIST_TITLE = 'New Band';
+export const DEFAULT_SHOW_TITLE = 'New Show';
+/** The master list of what a player performs — a repertoire, not a set. */
 export const INBOX_TITLE = 'My Lead Sheets';
+/** A subset of the repertoire, shown as a filter within it rather than as a
+ *  list of its own. */
 export const FAVORITES_TITLE = 'My Favorites';
 
 /** Caps, so one user's document cannot grow unbounded. */
@@ -150,4 +172,6 @@ export const LIMITS = {
   /** A printed Studio chart lives in the document, so it has a ceiling. */
   chartBars: 400,
   lists: 300,
+  artists: 100,
+  shows: 300,
 } as const;

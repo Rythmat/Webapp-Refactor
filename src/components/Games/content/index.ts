@@ -27,3 +27,8 @@ export {
   pickRandomProgression,
   pickRandomProgressions,
 } from './progressionSelector';
+export {
+  timedSequenceToEvents,
+  timedSequenceToMixedArticulation,
+  timedSequenceToStoccatoEvents,
+} from './noteSequences';

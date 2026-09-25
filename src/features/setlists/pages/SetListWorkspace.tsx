@@ -953,8 +953,15 @@ const SetPanel: FC<{
   const navigate = useNavigate();
   const { blob, status, saveState, actions, flush } = useSetLists();
   const list = blob.setLists[setListId];
-  const show = list ? blob.shows[list.showId] : undefined;
-  const artist = show ? blob.artists[show.artistId] : undefined;
+  // A set list is filed under a band, under one of its shows, or nowhere.
+  const parent = list?.parent;
+  const show = parent?.kind === 'show' ? blob.shows[parent.id] : undefined;
+  const artist =
+    parent?.kind === 'artist'
+      ? blob.artists[parent.id]
+      : show?.artistId
+        ? blob.artists[show.artistId]
+        : undefined;
   if (!list) return null;
   return (
     <>
@@ -967,13 +974,15 @@ const SetPanel: FC<{
           <ChevronLeft size={14} /> Set Lists
         </button>
         <div className="flex items-center gap-1 text-[11px] text-white/35">
+          {/* Only what this set is actually filed under: an unfiled set
+              shows no breadcrumb rather than an empty one. */}
           {artist && (
             <InlineTitle
               value={artist.title}
               onCommit={(t) => actions.renameArtist(artist.id, t)}
             />
           )}
-          <span>▸</span>
+          {artist && show && <span>▸</span>}
           {show && (
             <InlineTitle
               value={show.title}

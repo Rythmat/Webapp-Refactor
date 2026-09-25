@@ -17,6 +17,7 @@
  */
 
 import * as Tone from 'tone';
+import type { TimedNote } from '@/lib/learn/bluesPhrases';
 import { pitchNameToMidi, type NoteEvent } from '../PianoRollPlay';
 
 const NOTE_DURATION_TICKS = 480;
@@ -273,3 +274,46 @@ export function chordGroupOnsets(
   }
   return found;
 }
+
+// ── Authored phrases ───────────────────────────────────────────────────────
+//
+// The builders above impose a rhythm: every note gets the same length, laid
+// end to end. A written line already has one, so these three keep the start
+// times exactly as transcribed and only decide how long each note is held.
+// See lib/learn/bluesPhrases for the phrases themselves.
+
+const timedEvents = (
+  notes: TimedNote[],
+  prefix: string,
+  held: (note: TimedNote, index: number) => number,
+): NoteEvent[] =>
+  notes.map((note, idx) => ({
+    id: `${prefix}-${idx}-${note.midi}`,
+    pitchName: Tone.Frequency(note.midi, 'midi').toNote(),
+    startTicks: note.startTicks,
+    durationTicks: Math.max(1, Math.round(held(note, idx))),
+  }));
+
+/** The line as written: every note held for its own value. */
+export const timedSequenceToEvents = (
+  notes: TimedNote[],
+  prefix: string,
+): NoteEvent[] => timedEvents(notes, prefix, (note) => note.durationTicks);
+
+/** Staccato: the written placement, half the written length. */
+export const timedSequenceToStoccatoEvents = (
+  notes: TimedNote[],
+  prefix: string,
+): NoteEvent[] => timedEvents(notes, prefix, (note) => note.durationTicks / 2);
+
+/**
+ * Mixed articulation: long, short, long, short. Alternating rather than
+ * random, so the exercise a student is shown is the one they are graded on.
+ */
+export const timedSequenceToMixedArticulation = (
+  notes: TimedNote[],
+  prefix: string,
+): NoteEvent[] =>
+  timedEvents(notes, prefix, (note, idx) =>
+    idx % 2 === 0 ? note.durationTicks : note.durationTicks / 2,
+  );

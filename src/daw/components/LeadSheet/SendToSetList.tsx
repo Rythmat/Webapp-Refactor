@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dialog';
 import { showSuccess } from '@/components/utils/toast';
 import { useStore } from '@/daw/store';
-import { listTree, roleList } from '@/features/setlists/setListsStore';
+import { roleList, setListOptions } from '@/features/setlists/setListsStore';
 import {
   useProjectSetListEntries,
   useSetLists,
@@ -119,20 +119,7 @@ const SendDialog: FC<{
   const [newTitle, setNewTitle] = useState('');
 
   const inbox = roleList(blob, 'inbox');
-  const options = useMemo(
-    () =>
-      listTree(blob).flatMap(({ artist, shows }) =>
-        shows.flatMap(({ show, setLists }) =>
-          setLists.map((list) => ({
-            id: list.id,
-            label: list.role
-              ? list.title
-              : `${artist.title} ▸ ${show.title} ▸ ${list.title}`,
-          })),
-        ),
-      ),
-    [blob],
-  );
+  const options = useMemo(() => setListOptions(blob), [blob]);
   const chosen = destination || inbox?.id || NEW_LIST;
   const barCount = chart.sections.reduce((n, s) => n + s.bars.length, 0);
 

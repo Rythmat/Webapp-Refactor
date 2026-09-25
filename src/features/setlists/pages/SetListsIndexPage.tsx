@@ -1,40 +1,62 @@
-import { ChevronLeft, ListMusic, Plus, Star, Trash2 } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  ListMusic,
+  Plus,
+  Star,
+  Trash2,
+  Users,
+} from 'lucide-react';
 import { useMemo, useState, type FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SearchInput } from '@/components/songLibrary/SearchInput';
 import { LearnRoutes, SongRoutes } from '@/constants/routes';
-import type { SetList } from '../types';
+import { getSong } from '@/curriculum/data/songs';
+import { hasCardDrag, readCardDrag, setCardDrag } from '../setListDnd';
+import { isFavorite, roleList } from '../setListsStore';
+import type { SetList, SetListParent } from '../types';
 import { useSetLists } from '../useSetLists';
 
 /**
- * The set lists a performer has built, grouped the way they filed them:
- * Artist ▸ Show ▸ Set List, with My Lead Sheets and My Favorites pinned on top.
+ * Set Lists.
+ *
+ * Flat by default: every set a player has is one grid of cards, because that
+ * is what they have. Underneath, an organiser they build themselves — bands,
+ * their shows, and whatever they have dragged into either. Nothing announces
+ * a hierarchy before one exists.
+ *
+ * A set filed under a band stays in the grid as well. Filing is not a move; it
+ * is a second way to find the same set, so nothing ever goes missing because
+ * it was put somewhere.
+ *
+ * My Lead Sheets is not in the grid at all. It is the player's repertoire —
+ * the master list of what they play — so it gets its own panel down the side,
+ * with Favorites as a filter within it rather than a list of its own.
  */
 
 const SONG_LIST_ROUTE = LearnRoutes.root(undefined, { tab: 'Songs' });
 
 export const SetListsIndexPage: FC = () => {
   const navigate = useNavigate();
-  const { tree, blob, status, saveState, actions } = useSetLists();
+  const { blob, organiser, flat, status, saveState, actions } = useSetLists();
   const [search, setSearch] = useState('');
+  const [repertoireOpen, setRepertoireOpen] = useState(true);
 
+  const needle = search.trim().toLowerCase();
   const matches = (list: SetList) =>
-    !search.trim() ||
-    list.title.toLowerCase().includes(search.trim().toLowerCase());
+    !needle || list.title.toLowerCase().includes(needle);
 
-  const roleLists = useMemo(
-    () =>
-      Object.values(blob.setLists)
-        .filter((l) => l.role)
-        .filter(matches),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [blob, search],
-  );
+  const visible = useMemo(() => flat.filter(matches), [flat, needle]);
 
   const newSetList = () => {
     const id = actions.createSetList('New Set List');
     if (id) navigate(SongRoutes.setList({ setListId: id }));
   };
+
+  const hasOrganiser =
+    organiser.artists.length > 0 || organiser.looseShows.length > 0;
 
   return (
     <div
@@ -100,109 +122,533 @@ export const SetListsIndexPage: FC = () => {
         </div>
       </header>
 
-      <div className="custom-scrollbar mt-4 flex-1 overflow-y-auto px-6 pb-10 md:px-10">
-        {roleLists.length > 0 && (
-          <div className="mb-6 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {roleLists.map((list) => (
-              <SetListCard key={list.id} list={list} pinned />
-            ))}
-          </div>
-        )}
+      <div className="mt-4 flex min-h-0 flex-1 gap-4 px-6 pb-10 md:px-10">
+        <Repertoire
+          open={repertoireOpen}
+          onToggle={() => setRepertoireOpen((v) => !v)}
+        />
 
-        {tree.map(({ artist, shows }) => {
-          const visible = shows
-            .map((s) => ({
-              ...s,
-              setLists: s.setLists.filter((l) => !l.role && matches(l)),
-            }))
-            .filter((s) => s.setLists.length > 0);
-          if (visible.length === 0) return null;
-          return (
-            <section key={artist.id} className="mb-6">
-              <InlineTitle
-                value={artist.title}
-                onCommit={(title) => actions.renameArtist(artist.id, title)}
-                className="text-xs font-semibold uppercase tracking-wide text-white/40"
-              />
-              {visible.map(({ show, setLists }) => (
-                <div key={show.id} className="mt-2">
-                  <InlineTitle
-                    value={show.title}
-                    onCommit={(title) => actions.renameShow(show.id, title)}
-                    className="text-sm text-white/60"
-                  />
-                  <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                    {setLists.map((list) => (
-                      <SetListCard
-                        key={list.id}
-                        list={list}
-                        onDelete={() => actions.deleteSetList(list.id)}
-                      />
-                    ))}
-                  </div>
-                </div>
+        <div className="custom-scrollbar min-w-0 flex-1 overflow-y-auto">
+          {visible.length > 0 ? (
+            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {visible.map((list) => (
+                <SetListCard
+                  key={list.id}
+                  list={list}
+                  filedIn={filedLabel(list, blob)}
+                  onOpen={() =>
+                    navigate(SongRoutes.setList({ setListId: list.id }))
+                  }
+                  onDuplicate={() => actions.duplicateSetList(list.id)}
+                  onDelete={() => actions.deleteSetList(list.id)}
+                  onUnfile={
+                    list.parent
+                      ? () => actions.fileSetList(list.id, undefined)
+                      : undefined
+                  }
+                />
               ))}
-            </section>
-          );
-        })}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-dashed border-white/15 px-6 py-10 text-center">
+              <ListMusic className="mx-auto mb-3 text-white/30" size={28} />
+              <p className="text-white/70">
+                {needle ? 'Nothing by that name.' : 'No set lists yet.'}
+              </p>
+              {!needle && (
+                <>
+                  <p className="mt-1 text-sm text-white/40">
+                    Build a set for a show, or star a song to start My
+                    Favorites.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={newSetList}
+                    className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#7ecfcf] px-3 py-1.5 text-sm font-semibold text-[#191919]"
+                  >
+                    <Plus size={15} /> New Set List
+                  </button>
+                </>
+              )}
+            </div>
+          )}
 
-        {Object.keys(blob.setLists).length === 0 && (
-          <div className="rounded-xl border border-dashed border-white/15 px-6 py-10 text-center">
-            <ListMusic className="mx-auto mb-3 text-white/30" size={28} />
-            <p className="text-white/70">No set lists yet.</p>
-            <p className="mt-1 text-sm text-white/40">
-              Build a set for a show, or star a song to start My Favorites.
-            </p>
-            <button
-              type="button"
-              onClick={newSetList}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#7ecfcf] px-3 py-1.5 text-sm font-semibold text-[#191919]"
-            >
-              <Plus size={15} /> New Set List
-            </button>
-          </div>
-        )}
+          <Organiser hasAny={hasOrganiser} organiser={organiser} />
+        </div>
       </div>
     </div>
   );
 };
 
+/** Where a set is filed, for the line on its card. */
+function filedLabel(
+  list: SetList,
+  blob: ReturnType<typeof useSetLists>['blob'],
+): string | undefined {
+  const parent = list.parent;
+  if (!parent) return undefined;
+  if (parent.kind === 'artist') return blob.artists[parent.id]?.title;
+  const show = blob.shows[parent.id];
+  if (!show) return undefined;
+  const band = show.artistId ? blob.artists[show.artistId]?.title : undefined;
+  return band ? `${band} ▸ ${show.title}` : show.title;
+}
+
+/* ── The repertoire ───────────────────────────────────────────────────── */
+
+/**
+ * My Lead Sheets: the master list of charts a player performs, with the
+ * starred ones as a filter over it. It is not a set list and does not sit in
+ * the grid — you cannot file it under a band or delete it.
+ */
+const Repertoire: FC<{ open: boolean; onToggle: () => void }> = ({
+  open,
+  onToggle,
+}) => {
+  const navigate = useNavigate();
+  const { blob, actions } = useSetLists();
+  const [starredOnly, setStarredOnly] = useState(false);
+  const inbox = roleList(blob, 'inbox');
+  const entries = inbox?.entries ?? [];
+
+  const songs = entries.flatMap((entry) => {
+    if (entry.kind === 'text') return [];
+    const songId = entry.kind === 'song' ? entry.songId : undefined;
+    const starred = songId ? isFavorite(blob, songId) : false;
+    if (starredOnly && !starred) return [];
+    const title =
+      entry.title ??
+      (songId ? (getSong(songId)?.title ?? songId) : 'Lead sheet');
+    return [{ id: entry.id, title, songId, starred }];
+  });
+
+  if (!open)
+    return (
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-label="Show My Lead Sheets"
+        className="hidden h-full w-9 flex-shrink-0 flex-col items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] py-3 text-white/45 hover:text-white lg:flex"
+      >
+        <ChevronRight size={15} />
+        <span
+          className="text-[11px] font-medium tracking-wide"
+          style={{ writingMode: 'vertical-rl' }}
+        >
+          My Lead Sheets
+        </span>
+      </button>
+    );
+
+  return (
+    <aside className="hidden w-64 flex-shrink-0 flex-col rounded-xl border border-white/10 bg-white/[0.02] lg:flex">
+      <div className="flex flex-shrink-0 items-center justify-between px-3 py-2.5">
+        <span className="text-xs font-semibold uppercase tracking-wide text-white/50">
+          My Lead Sheets
+        </span>
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-label="Hide My Lead Sheets"
+          className="rounded p-0.5 text-white/35 hover:text-white"
+        >
+          <ChevronLeft size={15} />
+        </button>
+      </div>
+
+      <div className="flex flex-shrink-0 gap-1 px-3 pb-2">
+        {(
+          [
+            ['All', false],
+            ['★ Favorites', true],
+          ] as const
+        ).map(([label, only]) => (
+          <button
+            key={label}
+            type="button"
+            onClick={() => setStarredOnly(only)}
+            aria-pressed={starredOnly === only}
+            className={`rounded-full px-2 py-0.5 text-[11px] transition-colors ${
+              starredOnly === only
+                ? 'bg-white text-black'
+                : 'text-white/50 hover:text-white'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-2 pb-2">
+        {songs.length === 0 ? (
+          <p className="px-2 py-4 text-xs leading-relaxed text-white/35">
+            {starredOnly
+              ? 'Nothing starred yet.'
+              : 'Charts you save land here — it is your master list of what you play.'}
+          </p>
+        ) : (
+          songs.map((song) => (
+            <div
+              key={song.id}
+              className="group flex items-center gap-1 rounded-lg px-2 py-1 hover:bg-white/5"
+            >
+              <button
+                type="button"
+                onClick={() =>
+                  inbox &&
+                  navigate(
+                    `${SongRoutes.setList({ setListId: inbox.id })}?entry=${song.id}`,
+                  )
+                }
+                className="min-w-0 flex-1 truncate text-left text-sm text-white/80 hover:text-white"
+              >
+                {song.title}
+              </button>
+              {song.songId && (
+                <button
+                  type="button"
+                  aria-label={song.starred ? 'Unstar' : 'Star'}
+                  onClick={() => actions.toggleFavorite(song.songId!)}
+                  className={
+                    song.starred
+                      ? 'text-[#7ecfcf]'
+                      : 'text-white/20 opacity-0 transition-opacity hover:text-white/60 group-hover:opacity-100'
+                  }
+                >
+                  <Star
+                    size={13}
+                    fill={song.starred ? 'currentColor' : 'none'}
+                  />
+                </button>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+    </aside>
+  );
+};
+
+/* ── The organiser ────────────────────────────────────────────────────── */
+
+/**
+ * What the three levels are, drawn rather than described.
+ *
+ * Shown only while the organiser is empty: it is there to teach the shape
+ * once, then get out of the way.
+ */
+const StructureDiagram: FC = () => (
+  <div className="rounded-xl border border-dashed border-white/10 px-4 py-5">
+    <div className="flex flex-wrap items-start gap-x-8 gap-y-5">
+      <figure className="min-w-60">
+        <div className="flex items-center gap-2">
+          <Users size={14} className="text-white/40" />
+          <span className="text-sm font-semibold text-white/80">Band</span>
+          <span className="text-[11px] text-white/30">The Quartet</span>
+        </div>
+
+        <div className="ml-[7px] border-l border-white/15 pl-4 pt-1.5">
+          <div className="flex items-center gap-2">
+            <span aria-hidden className="ml-[-17px] h-px w-[9px] bg-white/15" />
+            <ListMusic size={13} className="text-white/35" />
+            <span className="text-sm text-white/70">Show / Tour</span>
+            <span className="text-[11px] text-white/30">Summer Tour</span>
+          </div>
+
+          <div className="ml-[6px] border-l border-white/15 pl-4 pt-1.5">
+            <Leaf label="Night 1" />
+            <Leaf label="Night 2" />
+          </div>
+
+          <div className="pt-2">
+            <Leaf label="Rehearsal" note="straight under the band" />
+          </div>
+        </div>
+      </figure>
+
+      <figure className="min-w-52 pt-0.5">
+        <div className="flex items-center gap-2">
+          <ListMusic size={13} className="text-white/35" />
+          <span className="text-sm text-white/70">Show / Tour</span>
+          <span className="text-[11px] text-white/30">Jazz Fest</span>
+        </div>
+        <div className="ml-[6px] border-l border-white/15 pl-4 pt-1.5">
+          <Leaf label="Festival set" note="a show with no band" />
+        </div>
+      </figure>
+    </div>
+
+    <p className="mt-4 max-w-2xl text-xs leading-relaxed text-white/40">
+      A band does not need a show, and a show does not need a band — but a show
+      belongs to the band it was made in and stays there; to use it elsewhere,
+      duplicate it. Drag a set list from the grid above into any of these. It
+      stays in the grid wherever you file it: this is a second way to find a
+      set, not a move.
+    </p>
+  </div>
+);
+
+const Leaf: FC<{ label: string; note?: string }> = ({ label, note }) => (
+  <div className="flex items-center gap-2 py-0.5">
+    <span aria-hidden className="ml-[-17px] h-px w-[9px] bg-white/15" />
+    <span className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-xs text-white/70">
+      <ListMusic size={10} className="text-white/35" />
+      {label}
+    </span>
+    {note && <span className="text-[11px] text-white/25">{note}</span>}
+  </div>
+);
+
+const Organiser: FC<{
+  hasAny: boolean;
+  organiser: ReturnType<typeof useSetLists>['organiser'];
+}> = ({ hasAny, organiser }) => {
+  const { actions } = useSetLists();
+
+  return (
+    <section className="mt-8">
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-white/40">
+          Bands &amp; Shows
+        </h2>
+        <button
+          type="button"
+          onClick={() => actions.createArtist()}
+          className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-white/60 hover:border-white/30 hover:text-white"
+        >
+          <Plus size={12} /> Band
+        </button>
+        <button
+          type="button"
+          onClick={() => actions.createShow(undefined)}
+          className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-white/60 hover:border-white/30 hover:text-white"
+        >
+          <Plus size={12} /> Show
+        </button>
+      </div>
+
+      {!hasAny ? (
+        <StructureDiagram />
+      ) : (
+        <div className="space-y-3">
+          {organiser.artists.map(({ artist, shows, setLists }) => (
+            <div
+              key={artist.id}
+              className="rounded-xl border border-white/10 bg-white/[0.02] p-3"
+            >
+              <NodeHeader
+                icon={<Users size={14} className="text-white/35" />}
+                title={artist.title}
+                onRename={(t) => actions.renameArtist(artist.id, t)}
+                onDuplicate={() => actions.duplicateArtist(artist.id)}
+                onDelete={() => actions.deleteArtist(artist.id)}
+                extra={
+                  <button
+                    type="button"
+                    onClick={() => actions.createShow(artist.id)}
+                    className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-white/55 hover:border-white/30 hover:text-white"
+                  >
+                    <Plus size={11} /> Show
+                  </button>
+                }
+              />
+              <DropZone parent={{ kind: 'artist', id: artist.id }}>
+                {setLists}
+              </DropZone>
+
+              {shows.map(({ show, setLists: showLists }) => (
+                <div
+                  key={show.id}
+                  className="ml-4 mt-2 border-l border-white/10 pl-3"
+                >
+                  <NodeHeader
+                    icon={<ChevronDown size={14} className="text-white/25" />}
+                    title={show.title}
+                    small
+                    onRename={(t) => actions.renameShow(show.id, t)}
+                    onDuplicate={() => actions.duplicateShow(show.id)}
+                    onDelete={() => actions.deleteShow(show.id)}
+                  />
+                  <DropZone parent={{ kind: 'show', id: show.id }}>
+                    {showLists}
+                  </DropZone>
+                </div>
+              ))}
+            </div>
+          ))}
+
+          {organiser.looseShows.map(({ show, setLists }) => (
+            <div
+              key={show.id}
+              className="rounded-xl border border-white/10 bg-white/[0.02] p-3"
+            >
+              <NodeHeader
+                icon={<ListMusic size={14} className="text-white/35" />}
+                title={show.title}
+                onRename={(t) => actions.renameShow(show.id, t)}
+                onDuplicate={() => actions.duplicateShow(show.id)}
+                onDelete={() => actions.deleteShow(show.id)}
+              />
+              <DropZone parent={{ kind: 'show', id: show.id }}>
+                {setLists}
+              </DropZone>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+};
+
+const NodeHeader: FC<{
+  icon: React.ReactNode;
+  title: string;
+  small?: boolean;
+  extra?: React.ReactNode;
+  onRename: (title: string) => void;
+  onDuplicate: () => void;
+  onDelete: () => void;
+}> = ({ icon, title, small, extra, onRename, onDuplicate, onDelete }) => (
+  <div className="group flex items-center gap-1.5">
+    {icon}
+    <InlineTitle
+      value={title}
+      onCommit={onRename}
+      className={
+        small ? 'text-sm text-white/70' : 'text-sm font-semibold text-white/90'
+      }
+    />
+    <span className="ml-auto flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+      {extra}
+      <button
+        type="button"
+        aria-label={`Duplicate ${title}`}
+        onClick={onDuplicate}
+        className="rounded p-1 text-white/30 hover:text-white"
+      >
+        <Copy size={13} />
+      </button>
+      <button
+        type="button"
+        aria-label={`Delete ${title}`}
+        onClick={onDelete}
+        className="rounded p-1 text-white/30 hover:text-red-400"
+      >
+        <Trash2 size={13} />
+      </button>
+    </span>
+  </div>
+);
+
+/** Where a dragged set list lands. Empty, it says so rather than sitting blank. */
+const DropZone: FC<{ parent: SetListParent; children: SetList[] }> = ({
+  parent,
+  children,
+}) => {
+  const navigate = useNavigate();
+  const { actions } = useSetLists();
+  const [over, setOver] = useState(false);
+
+  return (
+    <div
+      onDragOver={(e) => {
+        if (!hasCardDrag(e.dataTransfer)) return;
+        e.preventDefault();
+        setOver(true);
+      }}
+      onDragLeave={() => setOver(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setOver(false);
+        const item = readCardDrag(e.dataTransfer);
+        if (item) actions.fileSetList(item.setListId, parent);
+      }}
+      className={`mt-1.5 flex min-h-9 flex-wrap items-center gap-1.5 rounded-lg border border-dashed px-2 py-1.5 transition-colors ${
+        over ? 'border-[#7ecfcf] bg-[#7ecfcf]/10' : 'border-white/10'
+      }`}
+    >
+      {children.length === 0 ? (
+        <span className="text-[11px] text-white/25">Drag a set list here</span>
+      ) : (
+        children.map((list) => (
+          <button
+            key={list.id}
+            type="button"
+            onClick={() => navigate(SongRoutes.setList({ setListId: list.id }))}
+            className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-xs text-white/80 hover:border-white/35"
+          >
+            <ListMusic size={11} className="text-white/35" />
+            {list.title}
+          </button>
+        ))
+      )}
+    </div>
+  );
+};
+
+/* ── A card ───────────────────────────────────────────────────────────── */
+
 const SetListCard: FC<{
   list: SetList;
-  pinned?: boolean;
-  onDelete?: () => void;
-}> = ({ list, pinned, onDelete }) => {
-  const navigate = useNavigate();
-  const songs = list.entries.filter((e) => e.kind === 'song').length;
+  filedIn?: string;
+  onOpen: () => void;
+  onDuplicate: () => void;
+  onDelete: () => void;
+  onUnfile?: () => void;
+}> = ({ list, filedIn, onOpen, onDuplicate, onDelete, onUnfile }) => {
+  const songs = list.entries.filter((e) => e.kind !== 'text').length;
   const texts = list.entries.length - songs;
   return (
     <div
       role="button"
       tabIndex={0}
-      onClick={() => navigate(SongRoutes.setList({ setListId: list.id }))}
+      draggable
+      onDragStart={(e) => setCardDrag(e.dataTransfer, { setListId: list.id })}
+      onClick={onOpen}
       onKeyDown={(e) => {
-        if (e.key === 'Enter')
-          navigate(SongRoutes.setList({ setListId: list.id }));
+        if (e.key === 'Enter') onOpen();
       }}
       className="group flex cursor-pointer items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 transition-colors hover:border-white/25"
     >
       <div className="min-w-0">
         <div className="flex items-center gap-1.5">
-          {list.role === 'favorites' ? (
-            <Star size={14} className="flex-shrink-0 text-[#7ecfcf]" />
-          ) : (
-            <ListMusic size={14} className="flex-shrink-0 text-white/40" />
-          )}
+          <ListMusic size={14} className="flex-shrink-0 text-white/40" />
           <span className="truncate font-medium text-white/90">
             {list.title}
           </span>
         </div>
-        <p className="mt-0.5 text-xs text-white/40">
-          {songs} {songs === 1 ? 'song' : 'songs'}
+        <p className="mt-0.5 truncate text-xs text-white/40">
+          {songs} {songs === 1 ? 'chart' : 'charts'}
           {texts > 0 && ` · ${texts} note${texts === 1 ? '' : 's'}`}
+          {filedIn && ` · ${filedIn}`}
         </p>
       </div>
-      {!pinned && onDelete && (
+      <span className="flex flex-shrink-0 items-center opacity-0 transition-opacity group-hover:opacity-100">
+        {onUnfile && (
+          <button
+            type="button"
+            aria-label={`Take ${list.title} out of ${filedIn}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onUnfile();
+            }}
+            className="rounded p-1 text-white/30 hover:text-white"
+            title="Unfile"
+          >
+            <ChevronLeft size={15} />
+          </button>
+        )}
+        <button
+          type="button"
+          aria-label={`Duplicate ${list.title}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onDuplicate();
+          }}
+          className="rounded p-1 text-white/30 hover:text-white"
+        >
+          <Copy size={15} />
+        </button>
         <button
           type="button"
           aria-label={`Delete ${list.title}`}
@@ -210,11 +656,11 @@ const SetListCard: FC<{
             e.stopPropagation();
             onDelete();
           }}
-          className="rounded p-1 text-white/30 opacity-0 transition-opacity hover:text-red-400 group-hover:opacity-100"
+          className="rounded p-1 text-white/30 hover:text-red-400"
         >
           <Trash2 size={15} />
         </button>
-      )}
+      </span>
     </div>
   );
 };

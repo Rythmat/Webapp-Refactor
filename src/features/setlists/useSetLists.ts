@@ -6,7 +6,12 @@ import {
   type SaveState,
   type SetListsStatus,
 } from './storage/gameOptionsSetListsStore';
-import type { SaveDestination, SetListsBlob, StoredChart } from './types';
+import type {
+  SaveDestination,
+  SetListParent,
+  SetListsBlob,
+  StoredChart,
+} from './types';
 
 /**
  * The set lists, and every edit the UI can make to them.
@@ -22,17 +27,26 @@ export interface UseSetLists {
   isSaving: boolean;
   isDirty: boolean;
   saveState: SaveState;
-  tree: store.SetListTree[];
+  /** Bands and shows, with what is filed under them. */
+  organiser: store.SetListOrganiser;
+  /** Every set list, in order — the flat library. */
+  flat: ReturnType<typeof store.flatSetLists>;
   flush: () => Promise<void>;
   actions: {
-    createSetList: (title?: string, showId?: string) => string;
+    createSetList: (title?: string, parent?: SetListParent) => string;
     renameSetList: (id: string, title: string) => void;
     deleteSetList: (id: string) => void;
-    moveSetList: (id: string, toShowId: string) => void;
-    createShow: (artistId: string, title?: string) => string;
+    /** File under a band or show, or unfile with undefined. */
+    fileSetList: (id: string, parent: SetListParent | undefined) => void;
+    duplicateSetList: (id: string) => string;
+    createShow: (artistId?: string, title?: string) => string;
     renameShow: (id: string, title: string) => void;
+    deleteShow: (id: string) => void;
+    duplicateShow: (id: string) => string;
     createArtist: (title?: string) => string;
     renameArtist: (id: string, title: string) => void;
+    deleteArtist: (id: string) => void;
+    duplicateArtist: (id: string) => string;
     addSong: (setListId: string, songId: string, atIndex?: number) => void;
     acceptChartUpdate: (
       setListId: string,
@@ -127,16 +141,21 @@ export function useSetLists(): UseSetLists {
 
   const actions = useMemo<UseSetLists['actions']>(
     () => ({
-      createSetList: (title, showId) =>
+      createSetList: (title, parent) =>
         edit((b, now) => {
-          const r = store.createSetList(b, { title, showId }, now);
+          const r = store.createSetList(b, { title, parent }, now);
           return { blob: r.blob, value: r.setListId };
         }),
       renameSetList: (id, title) =>
         apply((b, now) => store.renameSetList(b, id, title, now)),
       deleteSetList: (id) => apply((b, now) => store.deleteSetList(b, id, now)),
-      moveSetList: (id, toShowId) =>
-        apply((b, now) => store.moveSetList(b, id, toShowId, now)),
+      fileSetList: (id, parent) =>
+        apply((b, now) => store.fileSetList(b, id, parent, now)),
+      duplicateSetList: (id) =>
+        edit((b, now) => {
+          const r = store.duplicateSetList(b, id, b.setLists[id]?.parent, now);
+          return { blob: r.blob, value: r.setListId };
+        }),
       createShow: (artistId, title) =>
         edit((b, now) => {
           const r = store.createShow(b, artistId, title, now);
@@ -144,6 +163,12 @@ export function useSetLists(): UseSetLists {
         }),
       renameShow: (id, title) =>
         apply((b, now) => store.renameShow(b, id, title, now)),
+      deleteShow: (id) => apply((b, now) => store.deleteShow(b, id, now)),
+      duplicateShow: (id) =>
+        edit((b, now) => {
+          const r = store.duplicateShow(b, id, now);
+          return { blob: r.blob, value: r.showId };
+        }),
       createArtist: (title) =>
         edit((b, now) => {
           const r = store.createArtist(b, title, now);
@@ -151,6 +176,12 @@ export function useSetLists(): UseSetLists {
         }),
       renameArtist: (id, title) =>
         apply((b, now) => store.renameArtist(b, id, title, now)),
+      deleteArtist: (id) => apply((b, now) => store.deleteArtist(b, id, now)),
+      duplicateArtist: (id) =>
+        edit((b, now) => {
+          const r = store.duplicateArtist(b, id, now);
+          return { blob: r.blob, value: r.artistId };
+        }),
       addSong: (setListId, songId, atIndex) =>
         apply(
           (b, now) =>
@@ -226,7 +257,8 @@ export function useSetLists(): UseSetLists {
     isSaving,
     isDirty,
     saveState,
-    tree: useMemo(() => store.listTree(blob), [blob]),
+    organiser: useMemo(() => store.organiser(blob), [blob]),
+    flat: useMemo(() => store.flatSetLists(blob), [blob]),
     flush,
     actions,
   };

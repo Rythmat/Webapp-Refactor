@@ -2,7 +2,7 @@ import { MarketingRoutes } from '@/constants/routes';
 
 export type TourTabId = 'learn' | 'studio' | 'globe' | 'arcade' | 'teach';
 
-export interface TourStep {
+interface TourStep {
   id: string;
   /** Short label for the step list under the window. */
   label: string;

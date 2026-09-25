@@ -9,7 +9,7 @@ import {
 import { AuthRoutes, MarketingRoutes } from '@/constants/routes';
 import type { ProductPageData } from './types';
 
-export const TEACHERS_CONTACT = 'mailto:hello@music-atlas.io';
+const TEACHERS_CONTACT = 'mailto:hello@music-atlas.io';
 
 /** For Teachers page data — also feeds the landing page's Teachers band. */
 export const teachersPageData: ProductPageData = {

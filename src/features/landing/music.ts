@@ -55,19 +55,11 @@ export const KEY_CENTERS = KEYS.slice(1).map((name, i) => ({
   color: rgb(KEY_COLORS[(i + 1) as ColorIndex]),
 }));
 
-/** The four fixed scale-family colors (KEY_COLORS 13–16; they never rotate). */
-export const SCALE_FAMILY_COLORS = [
-  { name: 'Melodic minor', color: rgb(KEY_COLORS[13]) },
-  { name: 'Harmonic minor', color: rgb(KEY_COLORS[14]) },
-  { name: 'Harmonic major', color: rgb(KEY_COLORS[15]) },
-  { name: 'Double harmonic', color: rgb(KEY_COLORS[16]) },
-];
-
 /** A major key center's color (the color the user's key selection receives). */
 export const keyCenterColor = (tonicPc: number): string =>
   rgb(KEY_COLORS[fifthsIndex(tonicPc)]);
 
-export const noteName = (midi: number) => NOTE_NAMES[((midi % 12) + 12) % 12];
+const noteName = (midi: number) => NOTE_NAMES[((midi % 12) + 12) % 12];
 
 const QUALITY_SUFFIX: Record<string, string> = {
   major: '',
@@ -158,10 +150,6 @@ export const DEMO_KEY_ROOT = 60;
  * borrowed from C minor, whose parent key is Eb) → purple.
  */
 export const DEMO_PROGRESSION = ['1 major', '3 major', '4 major', '4 minor'];
-export const DEMO_CHORDS = DEMO_PROGRESSION.map((t) =>
-  demoChord(t, DEMO_KEY_ROOT),
-);
-
 /** Major-scale pitch classes for a tonic (all shown in the key-center color). */
 export const majorScale = (tonicPc: number) =>
   [0, 2, 4, 5, 7, 9, 11].map((i) => (tonicPc + i) % 12);

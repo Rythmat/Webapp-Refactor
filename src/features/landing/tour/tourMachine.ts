@@ -8,8 +8,8 @@
  * they pick a tab), and never runs in `static` (reduced-motion) mode.
  */
 
-export type PauseReason = 'focus' | 'offscreen' | 'hidden' | 'manual';
-export type TourStatus = 'playing' | 'user' | 'static';
+type PauseReason = 'focus' | 'offscreen' | 'hidden' | 'manual';
+type TourStatus = 'playing' | 'user' | 'static';
 
 export interface TourTiming {
   steps: ReadonlyArray<{ durationMs: number }>;

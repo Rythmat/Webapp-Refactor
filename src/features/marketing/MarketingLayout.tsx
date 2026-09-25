@@ -11,9 +11,9 @@ import { MarketingNav } from './components/MarketingNav';
 export const MarketingLayout = () => {
   return (
     <div className="min-h-screen w-full bg-[#0b0b0d] text-white">
-      {/* Same config as the landing top rail so the nav bar is identical across
-          the landing and every /features page (edge-aligned + always-solid). */}
-      <MarketingNav solid fluid />
+      {/* Same config as the landing so the nav is identical across the landing
+          and every /features page: edge-aligned, glass once the window scrolls. */}
+      <MarketingNav fluid />
       <main>
         <Suspense fallback={<div className="min-h-screen" />}>
           <Outlet />

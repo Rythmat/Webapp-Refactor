@@ -1,8 +1,8 @@
-import { ChevronDown, Menu, X } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { ArrowRight, ChevronDown, Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Logo } from '@/components/Logo';
-import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/components/utilities';
+import { MagneticButton } from '@/features/landing/motion/MagneticButton';
 import {
   LOGIN_HREF,
   navLinks,
@@ -17,17 +18,23 @@ import {
   START_FREE_HREF,
 } from '../content/nav';
 
-const linkCls =
-  'text-base font-medium text-white transition-colors hover:text-white/80';
+/** Nav link with an underline that grows in from the left on hover/focus. */
+const linkCls = cn(
+  'relative text-[15px] font-medium text-white/70 transition-colors hover:text-white focus-visible:text-white focus-visible:outline-none',
+  'after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-white/70 after:transition-transform after:duration-300',
+  'hover:after:scale-x-100 focus-visible:after:scale-x-100',
+);
 
 /**
- * Sticky marketing nav — logo + wordmark, a Product dropdown (module pages), Blog
- * & For Teachers links, and white Log in / Start free CTAs. Collapses to a drawer
- * on mobile; the Start free CTA stays visible.
+ * Sticky marketing nav, shared by the landing (`/`) and every `/features/*`
+ * page. Transparent over the hero, then a blurred glass bar once the window
+ * scrolls (Linear-style). Logo + wordmark left; a Product mega-menu (module
+ * pages, tinted with each module's app accent), Blog & For Teachers, Log in and
+ * a magnetic "Start free" CTA right. Collapses to an animated drawer on mobile;
+ * the Start free CTA stays visible.
  *
- * `fluid` stretches the row to the viewport's edge padding (`px-6 md:px-10`) so the
- * logo/CTAs line up with a full-width page like the landing; the default centres the
- * row in a `max-w-6xl` column to match the marketing site's content.
+ * `solid` forces the glass bar on regardless of scroll. `fluid` stretches the
+ * row to the viewport's edge padding; the default centres it in `max-w-6xl`.
  */
 export const MarketingNav = ({
   solid = false,
@@ -35,9 +42,9 @@ export const MarketingNav = ({
 }: { solid?: boolean; fluid?: boolean } = {}) => {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  // `solid` forces the backdrop on (used on the landing, which scrolls in an
-  // inner container so the window-scroll transition can't fire).
-  const showSolid = solid || scrolled;
+  const reduce = useReducedMotion();
+  const { pathname } = useLocation();
+  const showSolid = solid || scrolled || open;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -45,6 +52,9 @@ export const MarketingNav = ({
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  // Close the drawer whenever the route changes.
+  useEffect(() => setOpen(false), [pathname]);
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
@@ -56,62 +66,76 @@ export const MarketingNav = ({
   return (
     <header
       className={cn(
-        'fixed inset-x-0 top-0 z-50 transition-colors duration-300',
+        'fixed inset-x-0 top-0 z-50 border-b transition-[background-color,border-color,backdrop-filter] duration-300',
         showSolid
-          ? 'border-b border-white/[0.08] bg-[#0b0b0d]/85 backdrop-blur-md'
-          : 'border-b border-transparent',
+          ? 'border-white/[0.06] bg-[#101012]/70 shadow-[inset_0_-1px_0_rgba(255,255,255,0.02)] backdrop-blur-xl backdrop-saturate-150'
+          : 'border-transparent bg-transparent',
       )}
     >
       <nav
+        aria-label="Main"
         className={cn(
-          'flex h-24 w-full items-center justify-between gap-4',
-          fluid ? 'px-6 md:px-10' : 'mx-auto max-w-6xl px-5 sm:px-8',
+          'flex h-16 w-full items-center justify-between gap-4',
+          fluid ? 'px-5 md:px-10' : 'mx-auto max-w-6xl px-5 sm:px-8',
         )}
       >
         <Link
           to="/"
           aria-label="Music Atlas home"
-          className="flex items-center gap-2"
+          className="group flex items-center gap-2 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
         >
-          <Logo className="h-7 w-auto text-white" />
-          <span className="text-lg font-semibold tracking-tight text-white sm:text-xl">
+          <Logo className="h-6 w-auto text-white transition-transform duration-500 group-hover:rotate-[20deg]" />
+          <span className="text-lg font-semibold tracking-tight text-white">
             Music Atlas
           </span>
         </Link>
 
-        {/* Desktop nav — logo alone left, all items grouped right (BandLab layout) */}
-        <div className="hidden items-center gap-8 md:flex">
-          <DropdownMenu>
+        {/* Desktop */}
+        <div className="hidden items-center gap-7 md:flex">
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger
               className={cn(
                 linkCls,
-                'inline-flex items-center gap-1 outline-none',
+                'group inline-flex items-center gap-1 outline-none data-[state=open]:text-white',
               )}
             >
-              Product <ChevronDown className="size-4" />
+              Product
+              <ChevronDown className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="start"
-              className="w-64 border-white/10 bg-[#141416] text-white"
+              sideOffset={14}
+              className="grid w-[30rem] grid-cols-2 gap-1 rounded-2xl border-white/10 bg-[#141416]/90 p-2 text-white shadow-[0_24px_60px_-12px_rgba(0,0,0,0.7)] backdrop-blur-xl"
             >
-              {productLinks.map((l) => (
-                <DropdownMenuItem
-                  key={l.href}
-                  asChild
-                  className="cursor-pointer focus:bg-white/10 focus:text-white"
-                >
-                  <Link to={l.href}>
-                    <span>
-                      <span className="block text-sm font-medium">
-                        {l.label}
+              {productLinks.map(
+                ({ href, label, description, accent, Icon }) => (
+                  <DropdownMenuItem
+                    key={href}
+                    asChild
+                    className="cursor-pointer rounded-xl p-3 focus:bg-white/[0.06] focus:text-white"
+                  >
+                    <Link
+                      to={href}
+                      className="group/item flex items-start gap-3"
+                    >
+                      <span
+                        className="grid size-9 shrink-0 place-items-center rounded-lg transition-transform duration-200 group-hover/item:scale-110 [&_svg]:size-[18px]"
+                        style={{ background: `${accent}1f`, color: accent }}
+                      >
+                        <Icon />
                       </span>
-                      <span className="block text-xs text-white/50">
-                        {l.description}
+                      <span>
+                        <span className="block text-sm font-semibold">
+                          {label}
+                        </span>
+                        <span className="block text-xs leading-snug text-white/55">
+                          {description}
+                        </span>
                       </span>
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-              ))}
+                    </Link>
+                  </DropdownMenuItem>
+                ),
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
           {navLinks.map((l) => (
@@ -119,65 +143,94 @@ export const MarketingNav = ({
               {l.label}
             </Link>
           ))}
+          <span aria-hidden className="h-5 w-px bg-white/10" />
           <Link to={LOGIN_HREF} className={linkCls}>
             Log in
           </Link>
-          <Button
-            asChild
-            className="h-9 rounded-full bg-white px-3 text-base font-medium text-black shadow-none hover:bg-white/90 active:bg-white/80"
-          >
-            <Link to={START_FREE_HREF}>Start free</Link>
-          </Button>
+          <MagneticButton to={START_FREE_HREF} size="sm" strength={4}>
+            Start free
+          </MagneticButton>
         </div>
 
         {/* Mobile */}
         <div className="flex items-center gap-2 md:hidden">
-          <Button
-            asChild
-            className="h-9 rounded-full bg-white px-3 text-base font-medium text-black shadow-none hover:bg-white/90 active:bg-white/80"
-          >
-            <Link to={START_FREE_HREF}>Start free</Link>
-          </Button>
+          <MagneticButton to={START_FREE_HREF} size="sm" strength={0}>
+            Start free
+          </MagneticButton>
           <button
             type="button"
             aria-label={open ? 'Close menu' : 'Open menu'}
             aria-expanded={open}
+            aria-controls="marketing-mobile-menu"
             onClick={() => setOpen((v) => !v)}
-            className="grid size-9 place-items-center rounded-full border border-white/15 text-white"
+            className="grid size-9 place-items-center rounded-full border border-white/15 text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
         </div>
       </nav>
 
-      {open && (
-        <div className="border-t border-white/10 bg-[#0b0b0d]/95 backdrop-blur-md md:hidden">
-          <ul className="flex flex-col gap-1 px-5 py-4">
-            {[...productLinks, ...navLinks].map((l) => (
-              <li key={l.href}>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            id="marketing-mobile-menu"
+            key="drawer"
+            initial={reduce ? false : { height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={reduce ? undefined : { height: 0, opacity: 0 }}
+            transition={{ duration: 0.28, ease: [0.2, 0.8, 0.2, 1] }}
+            className="overflow-hidden border-t border-white/10 md:hidden"
+          >
+            <ul className="flex max-h-[calc(100svh-4rem)] flex-col gap-1 overflow-y-auto px-5 py-4">
+              {productLinks.map(
+                ({ href, label, description, accent, Icon }) => (
+                  <li key={href}>
+                    <Link
+                      to={href}
+                      className="flex items-center gap-3 rounded-xl px-2 py-3 text-white/85 hover:bg-white/5 hover:text-white"
+                    >
+                      <span
+                        className="grid size-9 shrink-0 place-items-center rounded-lg [&_svg]:size-[18px]"
+                        style={{ background: `${accent}1f`, color: accent }}
+                      >
+                        <Icon />
+                      </span>
+                      <span>
+                        <span className="block text-base font-medium">
+                          {label}
+                        </span>
+                        <span className="block text-xs text-white/50">
+                          {description}
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                ),
+              )}
+              <li aria-hidden className="my-2 h-px bg-white/10" />
+              {navLinks.map((l) => (
+                <li key={l.href}>
+                  <Link
+                    to={l.href}
+                    className="flex items-center justify-between rounded-xl px-2 py-3 text-base text-white/85 hover:bg-white/5 hover:text-white"
+                  >
+                    {l.label}
+                    <ArrowRight className="size-4 text-white/40" />
+                  </Link>
+                </li>
+              ))}
+              <li className="mt-2">
                 <Link
-                  to={l.href}
-                  onClick={() => setOpen(false)}
-                  className="block rounded-lg px-2 py-3 text-base text-white/80 hover:bg-white/5 hover:text-white"
+                  to={LOGIN_HREF}
+                  className="flex h-11 items-center justify-center rounded-full border border-white/15 text-base font-medium text-white hover:bg-white/10"
                 >
-                  {l.label}
-                </Link>
-              </li>
-            ))}
-            <li className="mt-2">
-              <Button
-                asChild
-                variant="ghost"
-                className="w-full text-white hover:bg-white/10 hover:text-white"
-              >
-                <Link to={LOGIN_HREF} onClick={() => setOpen(false)}>
                   Log in
                 </Link>
-              </Button>
-            </li>
-          </ul>
-        </div>
-      )}
+              </li>
+            </ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 };

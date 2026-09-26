@@ -94,12 +94,18 @@ export const ChordSymbolText: FC<{
         >
           {/* A long stroke, not a typed slash: it has to reach from under the
               chord down to the foot of the bass note, so it is set well over
-              its own line and the line box is shortened to let it. */}
+              its own line and the line box is shortened to let it.
+
+              The space after it carries the bass clear of the chord above, so
+              the two sit on a diagonal — chord up and to the left, bass note
+              down and to the right, the stroke joining them. Set against the
+              stroke's own size, which is a fixed share of the letter, so the
+              offset holds at every size the chart is set in. */}
           <span
             style={{
               fontSize: '2.6em',
               lineHeight: 0.42,
-              marginRight: '0.04em',
+              marginRight: '0.2em',
               opacity: 0.8,
             }}
           >

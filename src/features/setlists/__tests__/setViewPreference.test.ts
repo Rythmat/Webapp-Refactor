@@ -1,53 +1,51 @@
 import { describe, expect, it } from 'vitest';
+import { SCREEN_SIZES } from '@/constants/theme';
 import {
   gridBarsPerRow,
+  isPhoneViewport,
+  PHONE_MEDIA_QUERY,
   resolveChartFormat,
-  STAFF_MIN_HEIGHT,
-  STAFF_MIN_WIDTH,
   TWO_BAR_MAX_WIDTH,
 } from '../setViewPreference';
 
 /**
- * What the stand shows on a given device, decided by the room it actually has
- * rather than the size of the window — the set rail and the Atlas sidebar take
- * their share first.
+ * The staff chart is the chart. Only a phone is given the chord grid instead,
+ * and nothing about how the stand is divided up changes that — a cramped
+ * stand on a laptop is a window to widen or a choice to make in the menu.
  */
 describe('resolveChartFormat', () => {
-  it('honours an explicit choice at any width', () => {
-    expect(resolveChartFormat('staff', 320)).toBe('staff');
-    expect(resolveChartFormat('chords', 1600)).toBe('chords');
+  it('honours an explicit choice on any device', () => {
+    expect(resolveChartFormat('staff', true)).toBe('staff');
+    expect(resolveChartFormat('chords', false)).toBe('chords');
   });
 
-  it('gives a phone the chord grid and a tablet the staff', () => {
-    // Measured on the real stand, rail drawered on the small ones.
-    expect(resolveChartFormat('auto', 377, 715)).toBe('chords'); // iPhone upright
-    expect(resolveChartFormat('auto', 732, 986)).toBe('staff'); // iPad upright
-    expect(resolveChartFormat('auto', 772, 654)).toBe('staff'); // iPad sideways
-    expect(resolveChartFormat('auto', 1032, 734)).toBe('staff'); // laptop
+  it('gives a phone the chord grid and everything else the staff', () => {
+    expect(resolveChartFormat('auto', true)).toBe('chords');
+    expect(resolveChartFormat('auto', false)).toBe('staff');
+  });
+});
+
+describe('isPhoneViewport', () => {
+  it('knows a phone from a tablet, whichever way round it is held', () => {
+    expect(isPhoneViewport(393, 852)).toBe(true); // iPhone upright
+    expect(isPhoneViewport(852, 393)).toBe(true); // iPhone sideways
+    expect(isPhoneViewport(956, 440)).toBe(true); // the largest iPhone, sideways
+    expect(isPhoneViewport(768, 1024)).toBe(false); // iPad upright
+    expect(isPhoneViewport(1024, 768)).toBe(false); // iPad sideways
+    expect(isPhoneViewport(744, 1133)).toBe(false); // iPad mini upright
+    expect(isPhoneViewport(1512, 858)).toBe(false); // laptop
   });
 
-  it('gives a sideways phone the grid, though it is wide enough for a staff', () => {
-    // 764 passes the width test and fails on height: two systems and then a
-    // page turn is not a chart you can play from.
-    expect(resolveChartFormat('auto', 764, 199)).toBe('chords');
-    expect(resolveChartFormat('auto', 764, STAFF_MIN_HEIGHT - 1)).toBe(
-      'chords',
+  it('turns over exactly at the sm breakpoint', () => {
+    expect(isPhoneViewport(SCREEN_SIZES.sm - 1, 900)).toBe(true);
+    expect(isPhoneViewport(SCREEN_SIZES.sm, 900)).toBe(false);
+  });
+
+  it('is the same rule the media query asks', () => {
+    // Both sides of the comma, so it matches when either side is short.
+    expect(PHONE_MEDIA_QUERY).toBe(
+      `(max-width: ${SCREEN_SIZES.sm - 0.02}px), (max-height: ${SCREEN_SIZES.sm - 0.02}px)`,
     );
-    expect(resolveChartFormat('auto', 764, STAFF_MIN_HEIGHT)).toBe('staff');
-  });
-
-  it('ignores height when it has not been measured', () => {
-    expect(resolveChartFormat('auto', 1032)).toBe('staff');
-  });
-
-  it('assumes the roomy case before the stand has been measured', () => {
-    // Otherwise a desktop flashes the phone format on its first paint.
-    expect(resolveChartFormat('auto', 0)).toBe('staff');
-  });
-
-  it('switches exactly at the threshold, not around it', () => {
-    expect(resolveChartFormat('auto', STAFF_MIN_WIDTH - 1)).toBe('chords');
-    expect(resolveChartFormat('auto', STAFF_MIN_WIDTH)).toBe('staff');
   });
 });
 

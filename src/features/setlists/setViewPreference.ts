@@ -1,4 +1,5 @@
 import { useCallback, useSyncExternalStore } from 'react';
+import { SCREEN_SIZES } from '@/constants/theme';
 
 /**
  * How a set list reads on the stand: whole pages, or one long scroll.
@@ -123,14 +124,16 @@ export function useStavesPerPage(): [
 /**
  * Which way the chart is drawn on the stand.
  *
- * 'staff' is the lead sheet as it prints. 'chords' is bars of chord symbols,
- * the format a phone can be read from: the staff chart draws its symbols
- * inside the SVG, so four bars across a phone puts them at about five pixels,
- * while a box of text stays the size it needs to be.
+ * 'staff' is the lead sheet as it prints, and it is what a player wants
+ * everywhere there is room for it. 'chords' is bars of chord symbols, the
+ * format a phone can be read from: the staff chart draws its symbols inside
+ * the SVG, so four bars across a phone puts them at about five pixels, while
+ * a box of text stays the size it needs to be.
  *
- * 'auto' is the default and picks by how much room the stand actually has —
- * not by the size of the window, since the set rail and the Atlas sidebar
- * take their share first.
+ * 'auto' is the default and it asks one question — is this a phone. Nothing
+ * else gets the phone format, however the stand is divided up; a cramped
+ * stand on a laptop is a window the player can widen, or a choice they can
+ * make in the menu, not something to decide for them.
  */
 
 export const CHART_FORMATS = ['auto', 'staff', 'chords'] as const;
@@ -139,14 +142,17 @@ export type ChartFormat = (typeof CHART_FORMATS)[number];
 const FORMAT_KEY = 'musicAtlas:setListChartFormat';
 const FORMAT_EVENT = 'setlist-format-change';
 
-/** Below this, a staff chart's chord symbols stop being readable. */
-export const STAFF_MIN_WIDTH = 620;
 /**
- * Below this, a staff chart shows barely two systems and the page is mostly
- * turning. A phone held sideways is wide enough for the staff and nowhere
- * near tall enough for it, so height has to count as well as width.
+ * A phone, in either orientation: its short side is under the `sm` breakpoint.
+ * A tablet held upright is 768 across and a tablet on its side is 744 tall, so
+ * both stay clear of it; every phone made falls under it one way round.
  */
-export const STAFF_MIN_HEIGHT = 420;
+export const PHONE_MEDIA_QUERY = `(max-width: ${SCREEN_SIZES.sm - 0.02}px), (max-height: ${SCREEN_SIZES.sm - 0.02}px)`;
+
+/** The same rule as a plain predicate, for tests and for the print path. */
+export const isPhoneViewport = (width: number, height: number): boolean =>
+  Math.min(width, height) < SCREEN_SIZES.sm;
+
 /**
  * Below this, even a compactly-set symbol has no room in a quarter of the row.
  * Deliberately small: a phone reads four bars across, as iRealPro does, and it
@@ -154,19 +160,13 @@ export const STAFF_MIN_HEIGHT = 420;
  */
 export const TWO_BAR_MAX_WIDTH = 330;
 
-/** What `auto` resolves to for a stand of this width. */
+/** What `auto` resolves to on this device. */
 export function resolveChartFormat(
   format: ChartFormat,
-  standWidth: number,
-  standHeight = 0,
+  isPhone: boolean,
 ): 'staff' | 'chords' {
   if (format !== 'auto') return format;
-  // Zero means "not measured yet"; assume the roomy case so a desktop does
-  // not flash the phone format on its first paint.
-  if (standWidth === 0) return 'staff';
-  if (standWidth < STAFF_MIN_WIDTH) return 'chords';
-  if (standHeight > 0 && standHeight < STAFF_MIN_HEIGHT) return 'chords';
-  return 'staff';
+  return isPhone ? 'chords' : 'staff';
 }
 
 /** Bars to a row in the chord grid, for a stand of this width. */

@@ -51,6 +51,7 @@ import {
 import {
   CHART_FORMATS,
   gridBarsPerRow,
+  PHONE_MEDIA_QUERY,
   resolveChartFormat,
   STAVES_PER_PAGE,
   useChartFormat,
@@ -506,11 +507,13 @@ const Viewer: FC<{
   const [notesOpen, setNotesOpen] = useState(false);
   const pageCount = Math.max(1, pages.length);
 
-  // The format is chosen by the room the stand actually has, not the size of
-  // the window: the set rail and the Atlas sidebar take their share first.
+  // The staff chart is the chart; only a phone gets the chord grid instead.
+  // How the stand is divided up still decides how many bars go across a row,
+  // because that is a question about the room this chart has.
   const [stand, setStand] = useState({ width: 0, height: 0 });
   const [format, setFormat] = useChartFormat();
-  const drawnAs = resolveChartFormat(format, stand.width, stand.height);
+  const isPhone = useMediaQuery(PHONE_MEDIA_QUERY);
+  const drawnAs = resolveChartFormat(format, isPhone);
   const barsPerRow = gridBarsPerRow(stand.width);
   const systemsPerPage = view === 'page' ? staves : undefined;
 
@@ -760,7 +763,7 @@ const Viewer: FC<{
               value={format}
               onChange={(e) => setFormat(e.target.value as ChartFormat)}
               className="rounded-full border border-white/15 bg-transparent px-1.5 py-0.5 text-xs capitalize text-white/70 outline-none focus:border-white/35"
-              title={`How the chart is drawn — auto picks ${drawnAs} at this width`}
+              title={`How the chart is drawn — auto picks ${drawnAs} on this device`}
             >
               {CHART_FORMATS.map((f) => (
                 <option key={f} value={f} className="bg-[#161618]">

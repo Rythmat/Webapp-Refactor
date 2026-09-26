@@ -55,9 +55,54 @@ const MARKS_HEIGHT = 14;
 const THIN = '1px solid currentColor';
 const THICK = '3px solid currentColor';
 
-/** Room for the letter, given how many chords share the bar. */
-const chordSize = (count: number): number =>
-  count <= 1 ? 22 : count === 2 ? 17 : 13;
+/**
+ * The smallest share of a bar that any chord in the song has to itself.
+ *
+ * A chord's room is the distance to the chord after it, so two chords in a
+ * 4/4 bar have half a bar each and four have a quarter. The tightest one in
+ * the song sets the type size for all of them.
+ */
+export function tightestChordSlot(song: Song): number {
+  const beats = song.timeSignature?.[0] || 4;
+  let tightest = 1;
+  for (const section of song.sections)
+    for (const bar of section.bars)
+      bar.chords.forEach((hit, i) => {
+        const next = bar.chords[i + 1]?.beat ?? beats + 1;
+        tightest = Math.min(tightest, (next - hit.beat) / beats);
+      });
+  // A bar of sixteenths would set the whole chart in six point; past a
+  // quarter of a bar the answer is to let the symbols run close together.
+  return Math.min(1, Math.max(tightest, 0.25));
+}
+
+/**
+ * One type size for the whole chart.
+ *
+ * Sizing each bar by how many chords were in it made a chorus of one-chord
+ * bars come out half again as big as the verse above it. Size belongs to the
+ * chart, not to a bar: it comes from the room a chord has — a bar's width
+ * narrowed by the closest two chords in the song — and every bar then reads
+ * the same.
+ *
+ * `cqw` is one per cent of the chart's own width, so the browser works this
+ * out itself. That holds through the stand's page zoom and in print, with
+ * nothing measured and no second paint.
+ */
+export function chartTypeScale(
+  barsInWidestRow: number,
+  tightestSlot: number,
+): { chord: string; label: string; marks: string } {
+  // A compactly-set symbol is about 2.75 letter-widths across — the quality
+  // and the bass are stacked in one narrow column beside the letter.
+  const letter = ((100 / barsInWidestRow) * tightestSlot) / 2.75;
+  const cq = (factor: number) => `${(letter * factor).toFixed(2)}cqw`;
+  return {
+    chord: `clamp(13px, ${cq(1)}, 26px)`,
+    label: `clamp(11px, ${cq(0.62)}, 16px)`,
+    marks: `clamp(9px, ${cq(0.52)}, 13px)`,
+  };
+}
 
 const hasMarks = (bar: ChordBar): boolean =>
   !!(
@@ -79,6 +124,8 @@ const Bar: FC<{
   notation: ChordNotation;
   context: ReturnType<typeof contextOf>;
   isLast: boolean;
+  beatsPerBar: number;
+  size: string;
   /** Drawn before the first bar of the chart, as on paper. */
   timeSignature?: [number, number];
   onChordClick?: (hit: ChordHit) => void;
@@ -88,49 +135,68 @@ const Bar: FC<{
   notation,
   context,
   isLast,
+  beatsPerBar,
+  size,
   timeSignature,
   onChordClick,
-}) => {
-  const size = chordSize(bar.chords.length);
-  return (
-    <div
-      className="relative flex min-w-0 flex-1 items-center"
-      style={{
-        height: BAR_HEIGHT,
-        borderLeft: bar.repeatStart ? THICK : THIN,
-        borderRight: isLast ? THIN : bar.repeatEnd ? THICK : undefined,
-        paddingLeft: bar.repeatStart ? 9 : 3,
-        paddingRight: bar.repeatEnd ? 9 : 1,
-      }}
-    >
-      {bar.repeatStart && <RepeatDots side="left" />}
-      {bar.repeatEnd && <RepeatDots side="right" />}
+}) => (
+  <div
+    className="relative flex min-w-0 flex-1 items-center"
+    style={{
+      height: BAR_HEIGHT,
+      borderLeft: bar.repeatStart ? THICK : THIN,
+      borderRight: isLast ? THIN : bar.repeatEnd ? THICK : undefined,
+      paddingLeft: bar.repeatStart ? 9 : 3,
+      paddingRight: bar.repeatEnd ? 9 : 1,
+    }}
+  >
+    {bar.repeatStart && <RepeatDots side="left" />}
+    {bar.repeatEnd && <RepeatDots side="right" />}
 
-      {timeSignature && (
-        <span
-          aria-label={`${timeSignature[0]}/${timeSignature[1]} time`}
-          className="mr-1.5 inline-flex flex-shrink-0 flex-col items-center leading-[0.85]"
-          style={{ fontFamily: 'serif', fontSize: 17, fontWeight: 700 }}
-        >
-          <span>{timeSignature[0]}</span>
-          <span>{timeSignature[1]}</span>
-        </span>
-      )}
+    {timeSignature && (
+      <span
+        aria-label={`${timeSignature[0]}/${timeSignature[1]} time`}
+        className="mr-1.5 inline-flex flex-shrink-0 flex-col items-center leading-[0.85]"
+        style={{ fontFamily: 'serif', fontSize: 17, fontWeight: 700 }}
+      >
+        <span>{timeSignature[0]}</span>
+        <span>{timeSignature[1]}</span>
+      </span>
+    )}
 
+    {/* The bar's own span, which the chords are placed across by beat. */}
+    <div className="relative h-full min-w-0 flex-1">
       {bar.restBars ? (
-        <span className="text-sm opacity-60">— {bar.restBars} —</span>
+        <span className="absolute inset-0 flex items-center justify-center text-sm opacity-60">
+          — {bar.restBars} —
+        </span>
       ) : (
-        // Chords sit against the barline, left to right, as they are played.
+        // A chord sits where it is played: beat 1 against the barline, beat 3
+        // halfway across. Reading a bar is reading where in it a change lands,
+        // and chords packed against the left edge threw that away.
         bar.chords.map((hit, i) => {
           const label = chordText(hit, displayMode, notation, context);
+          const at = Math.min(
+            0.9,
+            Math.max(0, (hit.beat - 1) / Math.max(1, beatsPerBar)),
+          );
           return (
             <button
               key={i}
               type="button"
               onClick={() => onChordClick?.(hit)}
               aria-label={chordAriaLabel(hit, label)}
-              className="min-w-0 flex-shrink truncate rounded pr-1.5 text-left font-bold transition-colors hover:text-[#7ecfcf]"
-              style={{ background: 'none', border: 'none', color: 'inherit' }}
+              className="absolute truncate rounded pr-1.5 text-left font-bold transition-colors hover:text-[#7ecfcf]"
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'inherit',
+                left: `${(at * 100).toFixed(3)}%`,
+                // Never past its own barline, however long the symbol.
+                maxWidth: `${((1 - at) * 100).toFixed(3)}%`,
+                top: '50%',
+                transform: 'translateY(-50%)',
+              }}
             >
               <ChordSymbolText text={label} size={size} />
             </button>
@@ -138,8 +204,8 @@ const Bar: FC<{
         })
       )}
     </div>
-  );
-};
+  </div>
+);
 
 const RepeatDots: FC<{ side: 'left' | 'right' }> = ({ side }) => (
   <span
@@ -154,7 +220,7 @@ const RepeatDots: FC<{ side: 'left' | 'right' }> = ({ side }) => (
 
 /* ── The lane above a row, where the roadmap is written ───────────────── */
 
-const BarMarks: FC<{ bar: ChordBar }> = ({ bar }) => {
+const BarMarks: FC<{ bar: ChordBar; size: string }> = ({ bar, size }) => {
   const marks: string[] = [];
   if (bar.segno) marks.push('𝄋');
   if (bar.coda) marks.push('𝄌');
@@ -170,7 +236,7 @@ const BarMarks: FC<{ bar: ChordBar }> = ({ bar }) => {
       className="flex min-w-0 flex-1 items-end overflow-hidden whitespace-nowrap"
       style={{
         height: MARKS_HEIGHT,
-        fontSize: 10,
+        fontSize: size,
         lineHeight: 1,
         fontFamily: 'serif',
         // A volta is a bracket over the bars it covers, as it is on paper.
@@ -199,6 +265,8 @@ const GridSection: FC<{
   barsPerRow: number;
   systemOffset: number;
   systemsPerPage?: number;
+  beatsPerBar: number;
+  type: ReturnType<typeof chartTypeScale>;
   timeSignature?: [number, number];
   onChordClick?: (hit: ChordHit) => void;
 }> = ({
@@ -210,6 +278,8 @@ const GridSection: FC<{
   barsPerRow,
   systemOffset,
   systemsPerPage,
+  beatsPerBar,
+  type,
   timeSignature,
   onChordClick,
 }) => {
@@ -234,12 +304,15 @@ const GridSection: FC<{
         <div className="flex items-baseline gap-2 leading-none">
           <span
             className="font-bold text-white/60"
-            style={{ fontFamily: 'serif', fontSize: 12 }}
+            style={{ fontFamily: 'serif', fontSize: type.label }}
           >
             {section.label}
           </span>
           {section.instrumental && (
-            <span className="text-[10px] italic text-white/40">
+            <span
+              className="italic text-white/40"
+              style={{ fontSize: type.marks }}
+            >
               {section.instrumental === 'first-time'
                 ? 'Instrumental 1st time'
                 : 'Instrumental'}
@@ -262,7 +335,7 @@ const GridSection: FC<{
             {showMarks && (
               <div className="flex text-white/75">
                 {row.bars.map((bar, bi) => (
-                  <BarMarks key={bi} bar={bar} />
+                  <BarMarks key={bi} bar={bar} size={type.marks} />
                 ))}
               </div>
             )}
@@ -275,6 +348,8 @@ const GridSection: FC<{
                   notation={notation}
                   context={contextOf(keys[row.from + bi])}
                   isLast={bi === row.bars.length - 1}
+                  beatsPerBar={beatsPerBar}
+                  size={type.chord}
                   timeSignature={
                     sectionIdx === 0 && ri === 0 && bi === 0
                       ? timeSignature
@@ -310,9 +385,27 @@ export const ChordGrid: FC<ChordGridProps> = ({
     () => songSystemOffsets(song, barsPerRow),
     [song, barsPerRow],
   );
+  // A section that ends two bars over folds them into its last row, so the
+  // widest row in the chart can be six where the chart reads four. Type set
+  // for four would then run over the barline, so the widest row decides.
+  const type = useMemo(() => {
+    let widest = barsPerRow;
+    for (const section of song.sections)
+      for (const size of systemRowSizes(
+        sectionBars(section).length,
+        barsPerRow,
+      ))
+        widest = Math.max(widest, size);
+    return chartTypeScale(widest, tightestChordSlot(song));
+  }, [song, barsPerRow]);
 
   return (
-    <div className="flex min-w-0 flex-col">
+    // The container the `cqw` in the type scale is a percentage of: the chart
+    // sets its own type from its own width, wherever it has been put.
+    <div
+      className="flex min-w-0 flex-col"
+      style={{ containerType: 'inline-size' }}
+    >
       {song.sections.map((section, si) => (
         <GridSection
           key={section.id + '_' + si}
@@ -324,6 +417,8 @@ export const ChordGrid: FC<ChordGridProps> = ({
           barsPerRow={barsPerRow}
           systemOffset={systemOffsets[si]}
           systemsPerPage={systemsPerPage}
+          beatsPerBar={song.timeSignature?.[0] || 4}
+          type={type}
           timeSignature={song.timeSignature}
           onChordClick={onChordClick}
         />

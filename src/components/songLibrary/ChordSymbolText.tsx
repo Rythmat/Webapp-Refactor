@@ -47,12 +47,13 @@ export function splitChordSymbol(text: string): ChordParts {
 
 export const ChordSymbolText: FC<{
   text: string;
-  /** Size of the letter; everything else is set from it. */
-  size: number;
+  /** Size of the letter; everything else is set from it in `em`, so a CSS
+   *  length that the browser works out for itself — a `clamp()` over the
+   *  chart's width — sets the whole symbol just as a number does. */
+  size: number | string;
   style?: CSSProperties;
 }> = ({ text, size, style }) => {
   const { root, accidental, quality, bass } = splitChordSymbol(text);
-  const small = Math.round(size * 0.58);
 
   return (
     <span
@@ -63,7 +64,7 @@ export const ChordSymbolText: FC<{
       {(accidental || quality || bass) && (
         <span
           className="inline-flex flex-col leading-none"
-          style={{ fontSize: small }}
+          style={{ fontSize: '0.58em' }}
         >
           {/* The accidental rides above the letter, the quality sits under
               it — so a chord takes one column of width, not a line of text. */}
@@ -72,7 +73,7 @@ export const ChordSymbolText: FC<{
           </span>
           <span>{quality}</span>
           {bass && (
-            <span style={{ fontSize: Math.round(small * 0.92) }}>
+            <span style={{ fontSize: '0.92em' }}>
               <span style={{ opacity: 0.7 }}>/</span>
               {bass}
             </span>

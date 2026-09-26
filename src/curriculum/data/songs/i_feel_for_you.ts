@@ -4,7 +4,7 @@ export const i_feel_for_you: Song = {
   id: 'i_feel_for_you',
   title: 'I Feel For You',
   artist: 'Prince',
-  year: 2019,
+  year: 1979,
   historicalDescription:
     "Prince writes and records 'I Feel For You', a sleek funk-pop gem that will take on a life far beyond its author. Chaka Khan's 1984 cover — featuring a Stevie Wonder harmonica intro and a Melle Mel rap — becomes a landmark crossover hit, carrying Prince's songwriting genius from Minneapolis to the global pop mainstream.",
   key: 'F♯ major',

@@ -27,7 +27,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-hiphop-atlanta-2003',
-    year: 2003,
+    year: 2004,
     location: { lat: 33.749, lng: -84.388, city: 'Atlanta', country: 'US' },
     genre: ['Hip Hop', 'Southern Hip Hop', 'Crunk'],
     title: "OutKast's 'Speakerboxxx/The Love Below' wins Album of the Year",
@@ -97,7 +97,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-chopped-houston-1995',
-    year: 1995,
+    year: 1991,
     location: { lat: 29.7604, lng: -95.3698, city: 'Houston', country: 'US' },
     genre: ['Chopped & Screwed', 'Southern Hip Hop'],
     title: 'DJ Screw invents chopped and screwed',
@@ -238,9 +238,9 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
     id: 'evt-baile-funk-saopaulo-2004',
     year: 2004,
     location: {
-      lat: -23.5505,
-      lng: -46.6333,
-      city: 'São Paulo',
+      lat: -22.9068,
+      lng: -43.1729,
+      city: 'Rio de Janeiro',
       country: 'Brazil',
     },
     genre: ['Baile Funk', 'Electronic', 'Hip Hop'],
@@ -286,7 +286,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-bongo-flava-dar-1990',
-    year: 1990,
+    year: 1995,
     location: {
       lat: -6.7924,
       lng: 39.2083,
@@ -374,7 +374,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-palestinian-hiphop-ramallah-2007',
-    year: 2007,
+    year: 2006,
     location: {
       lat: 31.9038,
       lng: 35.2034,
@@ -694,7 +694,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-hiphop-saopaulo-1995',
-    year: 1995,
+    year: 1997,
     location: {
       lat: -23.5505,
       lng: -46.6333,
@@ -717,7 +717,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-k-hiphop-seoul-1996',
-    year: 1996,
+    year: 1992,
     location: {
       lat: 37.5665,
       lng: 126.978,
@@ -760,7 +760,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-hiplife-accra-2004',
-    year: 2004,
+    year: 1997,
     location: { lat: 5.6037, lng: -0.187, city: 'Accra', country: 'Ghana' },
     genre: ['Hiplife', 'Hip Hop'],
     title: 'Hiplife: Highlife Meets Hip Hop in Accra',

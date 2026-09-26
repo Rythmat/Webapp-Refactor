@@ -4,7 +4,7 @@ export const low_rider: Song = {
   id: 'low_rider',
   title: 'Low Rider',
   artist: 'War',
-  year: 1976,
+  year: 1975,
   historicalDescription:
     "War releases 'Low Rider', a slow-burning funk groove that becomes an anthem for Chicano car culture in Los Angeles. The band — a multiracial collective from Long Beach — captures the laid-back pride of lowrider culture with a sound that is equal parts funk, Latin soul, and street poetry. It becomes one of the defining crossover hits of the decade.",
   key: 'G minor',

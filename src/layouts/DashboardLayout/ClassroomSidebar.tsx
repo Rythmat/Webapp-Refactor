@@ -14,11 +14,11 @@ import {
   ClassroomRoutes,
   GameRoutes,
   LearnRoutes,
+  OfficeRoutes,
   ProfileRoutes,
   SearchRoutes,
   SettingsRoutes,
   StudioRoutes,
-  TeacherRoutes,
 } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { SidebarMainNavItem } from './SidebarMainNavItem';
@@ -33,7 +33,11 @@ interface SidebarProps {
  */
 export const ClassroomSidebar = ({ className }: SidebarProps) => {
   const { role } = useAuthContext();
-  const canManage = role === 'teacher' || role === 'admin';
+  // Teachers only. `ProtectedPage` deliberately keeps console roles (admin,
+  // editor) out of the whole student/teacher app and redirects them to
+  // /console, so offering an admin an "Office" link only ever produced a
+  // bounce. There is no dual admin+teacher account: `UserRole` is scalar.
+  const canManage = role === 'teacher';
   return (
     <aside
       className={cn(
@@ -119,8 +123,9 @@ export const ClassroomSidebar = ({ className }: SidebarProps) => {
           {canManage && (
             <SidebarMainNavItem
               icon={GraduationCap}
-              label="Manage"
-              to={TeacherRoutes.root()}
+              label="Office"
+              to={OfficeRoutes.root()}
+              activePaths={[OfficeRoutes.root()]}
               isCollapsed
               glyphClassName="h-6 w-6"
             />

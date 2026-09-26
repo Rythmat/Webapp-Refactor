@@ -10,7 +10,12 @@
 import { Search, UserPlus, Users, X } from 'lucide-react';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useClassroom, useClassrooms, useMe } from '@/hooks/data';
+import {
+  useCanManageClassroom,
+  useClassroom,
+  useClassroomRole,
+} from '@/hooks/data';
+import { ClassroomTeachersList } from './components/ClassroomTeachersList';
 import { InviteStudentDialog } from './components/InviteStudentDialog';
 import { InviteTeacherDialog } from './components/InviteTeacherDialog';
 import { RosterTabs } from './components/RosterTabs';
@@ -18,23 +23,18 @@ import { RosterTabs } from './components/RosterTabs';
 export const ClassroomStudentsPage = () => {
   const { classroomId } = useParams<{ classroomId: string }>();
   const { data: classroom } = useClassroom(classroomId);
-  const { data: me } = useMe();
-  const { data: allClassrooms = [] } = useClassrooms();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [isInviteTeacherOpen, setIsInviteTeacherOpen] = useState(false);
 
-  const ownerName = me?.nickname || me?.username || 'You';
-  const ownerInitial = ownerName.charAt(0).toUpperCase() || 'T';
-
-  // Only the classroom owner may invite co-teachers. `useClassroom` returns
-  // `teacherName` (not `teacherId`), so we derive ownership from the owned-list
-  // the workspace guard already loads — mirrors ClassroomWorkspaceLayout.
-  const isOwner = Boolean(
-    me?.id &&
-      allClassrooms.some((c) => c.id === classroomId && c.teacherId === me.id),
-  );
+  // Only the classroom OWNER may add or remove co-teachers — an editor can
+  // change the curriculum, not the staff list.
+  const { role, isResolved } = useClassroomRole(classroomId);
+  // Server-backed, changes other people's access → fail CLOSED on an unknown
+  // role. Only the owner may change the staff list; editors manage students.
+  const isOwner = isResolved && role === 'owner';
+  const canEdit = useCanManageClassroom(classroomId);
 
   return (
     <div className="flex flex-col gap-6 md:gap-8">
@@ -54,19 +54,12 @@ export const ClassroomStudentsPage = () => {
             </button>
           )}
         </div>
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 md:p-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-base font-medium text-white">
-              {ownerInitial}
-            </div>
-            <div className="flex flex-col">
-              <span className="text-base font-medium text-white">
-                {ownerName}
-              </span>
-              <span className="text-sm text-white/40">Owner</span>
-            </div>
-          </div>
-        </div>
+        {classroomId && (
+          <ClassroomTeachersList
+            classroomId={classroomId}
+            canManageTeachers={isOwner}
+          />
+        )}
       </section>
 
       <section className="flex flex-col gap-3">
@@ -106,7 +99,11 @@ export const ClassroomStudentsPage = () => {
               )}
             </div>
 
-            <RosterTabs classroomId={classroomId} searchQuery={searchQuery} />
+            <RosterTabs
+              canEdit={canEdit}
+              classroomId={classroomId}
+              searchQuery={searchQuery}
+            />
           </div>
         )}
       </section>

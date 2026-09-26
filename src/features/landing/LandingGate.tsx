@@ -4,16 +4,16 @@ import { FullScreenLoading } from '@/components/FullScreenLoading';
 import { AdminRoutes, ProfileRoutes } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 
-const LandingDashboard = lazy(() =>
-  import('./LandingDashboard').then(({ LandingDashboard }) => ({
-    default: LandingDashboard,
+const LandingPage = lazy(() =>
+  import('./LandingPage').then(({ LandingPage }) => ({
+    default: LandingPage,
   })),
 );
 
 /**
- * Root gate. Logged-out visitors see the public landing (a near-exact copy of
- * the Home dashboard); authenticated users are sent to their home surface (same
- * role routing as `WildcardPage`). Mounted at `/`.
+ * Root gate. Logged-out visitors see the public landing page; authenticated
+ * users are sent to their home surface (same role routing as `WildcardPage`).
+ * Mounted at `/`.
  */
 export const LandingGate = () => {
   const { role, isBootstrapLoading } = useAuthContext();
@@ -31,7 +31,7 @@ export const LandingGate = () => {
 
   return (
     <Suspense fallback={<FullScreenLoading />}>
-      <LandingDashboard />
+      <LandingPage />
     </Suspense>
   );
 };

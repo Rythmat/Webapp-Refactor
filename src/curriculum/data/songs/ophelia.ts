@@ -4,7 +4,7 @@ export const ophelia: Song = {
   id: 'ophelia',
   title: 'Ophelia',
   artist: 'The Band',
-  year: 1992,
+  year: 1975,
   historicalDescription:
     "The Band revisits 'Ophelia', originally recorded in 1975, as part of their enduring catalog that blends Americana, rock, and R&B into something timeless. The song's rollicking energy captures the rootsy spirit that made The Band a touchstone for generations of musicians seeking authenticity over spectacle.",
   key: 'C major',

@@ -1,7 +1,10 @@
 /**
  * Shared result list for the content picker tabs. Renders `PickableItem` rows
- * with a thumbnail, disables any item whose ref/label would trip the publish
- * firewall (with an explanation), and calls `onPick` on select.
+ * with a thumbnail, disables any item that carries a teacher-only field name
+ * (which would trip the publish firewall), and calls `onPick` on select.
+ *
+ * The gate is over the item's KEYS, never its text — a song called "Tears of a
+ * Clown" is ordinary content and must stay pickable.
  */
 import { AlertTriangle, Music } from 'lucide-react';
 import { refFirewallCollision } from '../../../slides/contentRefs';
@@ -20,7 +23,7 @@ export const PickerResultList = ({
 }: PickerResultListProps) => (
   <ul className="max-h-[46vh] min-h-32 overflow-y-auto px-2 pb-3">
     {items.map((item) => {
-      const collision = refFirewallCollision(item.ref, item.title);
+      const collision = refFirewallCollision(item);
       return (
         <li key={item.key}>
           <button
@@ -29,7 +32,7 @@ export const PickerResultList = ({
             onClick={() => onPick(item)}
             title={
               collision
-                ? `Can't link yet — the reference contains “${collision}”, which the publisher blocks.`
+                ? `Can't link yet — this item carries the teacher-only field “${collision}”, which the publisher blocks.`
                 : undefined
             }
             className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"

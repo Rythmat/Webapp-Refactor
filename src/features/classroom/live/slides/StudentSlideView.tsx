@@ -1,5 +1,9 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  STUDENT_REFLOW_QUERY,
+  useMediaQuery,
+} from '@/hooks/useIsNarrowViewport';
 import type { DaySnapshot } from '../../publish/publishDay';
 import { SlideRenderer } from '../../slides/SlideRenderer';
 import {
@@ -58,6 +62,9 @@ export const StudentSlideView = ({
   onNext,
   canAdvance = true,
 }: StudentSlideViewProps) => {
+  // Rule 11's reading column, chosen by width AND pointer — a touch device
+  // cannot hit the scaled canvas's controls. See the hook.
+  const narrow = useMediaQuery(STUDENT_REFLOW_QUERY);
   const reducedMotion = useReducedMotion();
   const deck = deckFromSnapshot(snapshot);
   const slideIndex = slideIndexOverride ?? state.slideIndex ?? -1;
@@ -115,7 +122,24 @@ export const StudentSlideView = ({
     ) : undefined;
 
   return (
-    <div className="mx-auto w-full max-w-md">
+    <div
+      className="mx-auto w-full"
+      style={
+        narrow
+          ? undefined
+          : {
+              // The canvas is scaled to fit this box, so the box's size IS the
+              // student's type size. Capping it at 768px (Rule 11's
+              // BREAKPOINT, which is not a max width) pinned the fit scale at
+              // 0.6 on a 1440px laptop and rendered a question at 12px.
+              //
+              // Take the width available, bounded by what the viewport can
+              // show at 16:9 so the slide never runs off the bottom. 13rem is
+              // the page chrome above and below it.
+              maxWidth: 'min(100%, calc((100vh - 13rem) * 16 / 9))',
+            }
+      }
+    >
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={slide.id}
@@ -123,8 +147,18 @@ export const StudentSlideView = ({
           animate={{ opacity: 1, y: 0 }}
           exit={reducedMotion ? undefined : { opacity: 0, y: -8 }}
           transition={{ duration: 0.2 }}
+          // A zone-mode slide is a 1280x720 canvas fitted by `useStageScale`,
+          // which measures its CONTAINER. This column had width but no height,
+          // so the stage measured 0 tall and the slide rendered blank. The
+          // aspect box gives it one, derived from the column's own width —
+          // NOT from `100vw`, which is the viewport and so reserved a
+          // laptop-height gap above a column a third that wide.
+          // The reflow is a reading column of unknown height; only the fitted
+          // stage needs an aspect box to measure against.
+          className={narrow ? 'w-full' : 'w-full [aspect-ratio:16/9]'}
         >
           <SlideRenderer
+            layoutMode={narrow ? 'reflow' : 'stage'}
             slide={slide}
             surface="student"
             language={language}

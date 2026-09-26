@@ -1,7 +1,7 @@
 /**
  * SlideDeckEditor — the WYSIWYG slide editor that replaces the old form-based
  * DayEditor. The lesson is authored as a slide DECK (`day.deck.slides`, the
- * single source of truth) rendered through the same `SlidePresentBody` used
+ * single source of truth) rendered through the same `SlideStage` used
  * when Presenting, so "what you edit is what you present."
  *
  * Edit routing: slide content → the deck; interactions → the phase cell + the
@@ -13,10 +13,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
+import { useCanEditClassroom } from '@/hooks/data';
 import { insertActivityIntoCell } from '../../content/applySeed';
 import type { Activity } from '../../content/types';
 import { PHASE_FULL_NAMES, PHASES } from '../../phases';
 import { publishDay } from '../../publish/publishDay';
+import { useTeacherConfig } from '../../settings/useTeacherConfig';
 import { slideInteractionIds } from '../../slides/deck';
 import {
   deleteSlideAt,
@@ -72,8 +74,11 @@ export const SlideDeckEditor = () => {
     dayId: string;
   }>();
   const navigate = useNavigate();
-  const { getDay, saveDay } = useLocalPlan();
   const cid = classroomId ?? '';
+  const { getDay, saveDay } = useLocalPlan(cid);
+  // Viewers may READ a deck but never write one. Gating the save path rather
+  // than each control means a new button cannot silently become writable.
+  const canEdit = useCanEditClassroom(cid);
 
   const [draft, setDraft] = useState<Day | undefined>(() => {
     const d = dayId ? getDay(dayId) : undefined;
@@ -84,9 +89,11 @@ export const SlideDeckEditor = () => {
     null,
   );
   const [language, setLanguage] = useState<StudentLanguage>('en');
-  // Age preset is pinned to 'high' (the canvas/present type-scale baseline); the
-  // Middle/High/College picker was removed from the editor chrome.
-  const agePreset: AgePreset = 'high';
+  // Per-section age preset. This used to be hard-coded 'high' while
+  // `agePresetDefault` sat in settings with ZERO readers — a picker teachers
+  // could set that changed nothing. It now resolves per classroom.
+  const { config: teacherConfig } = useTeacherConfig(cid);
+  const agePreset: AgePreset = teacherConfig.agePresetDefault;
   const [rationaleCollapsed, setRationaleCollapsed] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   // The Add-slide template awaiting a content pick (opens a scoped picker).
@@ -104,7 +111,7 @@ export const SlideDeckEditor = () => {
   useEffect(() => {
     if (!draft) return;
     const handle = setTimeout(() => {
-      saveDay(draft);
+      if (canEdit) saveDay(draft);
       setSavedAt(Date.now());
     }, AUTOSAVE_DEBOUNCE_MS);
     return () => clearTimeout(handle);

@@ -1,0 +1,1503 @@
+{
+  "schema": 1,
+  "generatedFrom": "2026-09 globe data review (multi-agent, each entry double-verified)",
+  "note": "Apply to the globe_event drafts in the admin console, then publish. Ids are stable and are the join key; no id is renamed.",
+  "kind": "globe_event",
+  "items": [
+    {
+      "id": "evt-acid-house-london-1986",
+      "kind": "event",
+      "fields": {
+        "year": 1988
+      }
+    },
+    {
+      "id": "evt-afrobeat-lagos-1971",
+      "kind": "event",
+      "fields": {
+        "year": 1972
+      }
+    },
+    {
+      "id": "evt-andean-lapaz-1965",
+      "kind": "event",
+      "fields": {
+        "year": 1966
+      }
+    },
+    {
+      "id": "evt-arabic-indie-beirut-2005",
+      "kind": "event",
+      "fields": {
+        "year": 2008
+      }
+    },
+    {
+      "id": "evt-baile-funk-saopaulo-2004",
+      "kind": "event",
+      "fields": {
+        "location.city": "Rio de Janeiro",
+        "location.lat": -22.9068,
+        "location.lng": -43.1729
+      }
+    },
+    {
+      "id": "evt-blues-burbank-1989",
+      "kind": "event",
+      "fields": {
+        "year": 1990,
+        "location.city": "Los Angeles",
+        "location.lat": 34.0522,
+        "location.lng": -118.2437
+      }
+    },
+    {
+      "id": "evt-blues-chicago-1961-etta",
+      "kind": "event",
+      "fields": {
+        "year": 1960
+      }
+    },
+    {
+      "id": "evt-blues-rochester-1965",
+      "kind": "event",
+      "fields": {
+        "year": 1964
+      }
+    },
+    {
+      "id": "evt-bobmarley-wilmington-1965",
+      "kind": "event",
+      "fields": {
+        "year": 1966
+      }
+    },
+    {
+      "id": "evt-bollywood-mumbai-1960",
+      "kind": "event",
+      "fields": {
+        "year": 1971
+      }
+    },
+    {
+      "id": "evt-bongo-flava-dar-1990",
+      "kind": "event",
+      "fields": {
+        "year": 1995
+      }
+    },
+    {
+      "id": "evt-bossanova-rio-1962",
+      "kind": "event",
+      "fields": {
+        "year": 1963
+      }
+    },
+    {
+      "id": "evt-burna-boy-lagos-2020",
+      "kind": "event",
+      "fields": {
+        "year": 2021
+      }
+    },
+    {
+      "id": "evt-calypso-sanjose-1970",
+      "kind": "event",
+      "fields": {
+        "year": 2002
+      }
+    },
+    {
+      "id": "evt-carnatic-chennai-1800",
+      "kind": "event",
+      "fields": {
+        "location.city": "Thanjavur",
+        "location.lat": 10.787,
+        "location.lng": 79.1378
+      }
+    },
+    {
+      "id": "evt-chaabi-algiers-1920",
+      "kind": "event",
+      "fields": {
+        "year": 1928
+      }
+    },
+    {
+      "id": "evt-chopped-houston-1995",
+      "kind": "event",
+      "fields": {
+        "year": 1991
+      }
+    },
+    {
+      "id": "evt-choral-suva-1985",
+      "kind": "event",
+      "fields": {
+        "year": 1972
+      }
+    },
+    {
+      "id": "evt-classical-vienna-1700",
+      "kind": "event",
+      "fields": {
+        "year": 1750
+      }
+    },
+    {
+      "id": "evt-cumbia-villera-buenosaires-1990",
+      "kind": "event",
+      "fields": {
+        "year": 1999
+      }
+    },
+    {
+      "id": "evt-dancehall-kingston-2010",
+      "kind": "event",
+      "fields": {
+        "year": 2009
+      }
+    },
+    {
+      "id": "evt-dennery-castries-2014",
+      "kind": "event",
+      "fields": {
+        "year": 2016
+      }
+    },
+    {
+      "id": "evt-dombra-almaty-1990",
+      "kind": "event",
+      "fields": {
+        "year": 1991
+      }
+    },
+    {
+      "id": "evt-eurovision-sanmarino-2011",
+      "kind": "event",
+      "fields": {
+        "year": 2008
+      }
+    },
+    {
+      "id": "evt-flamenco-seville-1922",
+      "kind": "event",
+      "fields": {
+        "location.city": "Granada",
+        "location.lat": 37.1773,
+        "location.lng": -3.5986
+      }
+    },
+    {
+      "id": "evt-folkfestival-anchorage-1980",
+      "kind": "event",
+      "fields": {
+        "year": 1975,
+        "location.city": "Juneau",
+        "location.lat": 58.3019,
+        "location.lng": -134.4197
+      }
+    },
+    {
+      "id": "evt-funk-dayton-1981-lakeside",
+      "kind": "event",
+      "fields": {
+        "year": 1980
+      }
+    },
+    {
+      "id": "evt-funk-nyc-1963-james-brown-apollo",
+      "kind": "event",
+      "fields": {
+        "year": 1962
+      }
+    },
+    {
+      "id": "evt-gamelan-jakarta-900",
+      "kind": "event",
+      "fields": {
+        "location.city": "Yogyakarta",
+        "location.lat": -7.7956,
+        "location.lng": 110.3695
+      }
+    },
+    {
+      "id": "evt-ginblossoms-phoenix-1993",
+      "kind": "event",
+      "fields": {
+        "year": 1992
+      }
+    },
+    {
+      "id": "evt-gwar-richmond-1985",
+      "kind": "event",
+      "fields": {
+        "year": 1984
+      }
+    },
+    {
+      "id": "evt-hanson-tulsa-2007",
+      "kind": "event",
+      "fields": {
+        "year": 2003
+      }
+    },
+    {
+      "id": "evt-highlife-accra-1958",
+      "kind": "event",
+      "fields": {
+        "year": 1957
+      }
+    },
+    {
+      "id": "evt-hindustani-varanasi-1560",
+      "kind": "event",
+      "fields": {
+        "location.city": "Agra",
+        "location.lat": 27.1767,
+        "location.lng": 78.0081
+      }
+    },
+    {
+      "id": "evt-hiphop-atlanta-2003",
+      "kind": "event",
+      "fields": {
+        "year": 2004
+      }
+    },
+    {
+      "id": "evt-hiphop-saopaulo-1995",
+      "kind": "event",
+      "fields": {
+        "year": 1997
+      }
+    },
+    {
+      "id": "evt-hiplife-accra-2004",
+      "kind": "event",
+      "fields": {
+        "year": 1997
+      }
+    },
+    {
+      "id": "evt-jamband-boston-2008-dopapod",
+      "kind": "event",
+      "fields": {
+        "year": 2007
+      }
+    },
+    {
+      "id": "evt-jamband-norwalk-2016-goose",
+      "kind": "event",
+      "fields": {
+        "year": 2014
+      }
+    },
+    {
+      "id": "evt-jazz-coltrane-love-supreme-1965",
+      "kind": "event",
+      "fields": {
+        "year": 1964
+      }
+    },
+    {
+      "id": "evt-jazz-wayne-shorter-speak-no-evil-1966",
+      "kind": "event",
+      "fields": {
+        "year": 1964
+      }
+    },
+    {
+      "id": "evt-jonimitchell-saskatoon-1964",
+      "kind": "event",
+      "fields": {
+        "year": 1962
+      }
+    },
+    {
+      "id": "evt-josquin-rome-1486",
+      "kind": "event",
+      "fields": {
+        "year": 1489
+      }
+    },
+    {
+      "id": "evt-k-hiphop-seoul-1996",
+      "kind": "event",
+      "fields": {
+        "year": 1992
+      }
+    },
+    {
+      "id": "evt-khaliji-pop-kuwait-1975",
+      "kind": "event",
+      "fields": {
+        "year": 1983
+      }
+    },
+    {
+      "id": "evt-klasik-kualalumpur-1400",
+      "kind": "event",
+      "fields": {
+        "location.city": "Malacca",
+        "location.lat": 2.1896,
+        "location.lng": 102.2501
+      }
+    },
+    {
+      "id": "evt-kompa-portauprince-1957",
+      "kind": "event",
+      "fields": {
+        "year": 1955
+      }
+    },
+    {
+      "id": "evt-kora-banjul-1970",
+      "kind": "event",
+      "fields": {
+        "year": 1973
+      }
+    },
+    {
+      "id": "evt-kuduro-luanda-2005",
+      "kind": "event",
+      "fields": {
+        "year": 2006
+      }
+    },
+    {
+      "id": "evt-mahori-bangkok-1600",
+      "kind": "event",
+      "fields": {
+        "location.city": "Ayutthaya",
+        "location.lat": 14.3532,
+        "location.lng": 100.5689
+      }
+    },
+    {
+      "id": "evt-maori-haka-auckland-1900",
+      "kind": "event",
+      "fields": {
+        "year": 1950
+      }
+    },
+    {
+      "id": "evt-marc-anthony-nyc-1999",
+      "kind": "event",
+      "fields": {
+        "year": 1997
+      }
+    },
+    {
+      "id": "evt-marimba-guatemalacity-1955",
+      "kind": "event",
+      "fields": {
+        "year": 1978
+      }
+    },
+    {
+      "id": "evt-media-la-2020-ffviiremake",
+      "kind": "event",
+      "fields": {
+        "location.city": "Tokyo",
+        "location.lat": 35.6762,
+        "location.lng": 139.6503,
+        "location.country": "Japan"
+      }
+    },
+    {
+      "id": "evt-media-london-1994-lionking",
+      "kind": "event",
+      "fields": {
+        "location.city": "Los Angeles",
+        "location.lat": 34.0522,
+        "location.lng": -118.2437,
+        "location.country": "US"
+      }
+    },
+    {
+      "id": "evt-media-nyc-1900-silentfilm",
+      "kind": "event",
+      "fields": {
+        "year": 1905
+      }
+    },
+    {
+      "id": "evt-media-nyc-2009-madmen",
+      "kind": "event",
+      "fields": {
+        "year": 2007
+      }
+    },
+    {
+      "id": "evt-mizrahi-telaviv-1980",
+      "kind": "event",
+      "fields": {
+        "year": 1982
+      }
+    },
+    {
+      "id": "evt-moutya-victoria-2011",
+      "kind": "event",
+      "fields": {
+        "year": 2021
+      }
+    },
+    {
+      "id": "evt-odissi-mumbai-1952",
+      "kind": "event",
+      "fields": {
+        "location.city": "Bhubaneswar",
+        "location.lat": 20.2961,
+        "location.lng": 85.8245
+      }
+    },
+    {
+      "id": "evt-omengat-ngerulmud-1995",
+      "kind": "event",
+      "fields": {
+        "location.city": "Koror",
+        "location.lat": 7.3419,
+        "location.lng": 134.4792
+      }
+    },
+    {
+      "id": "evt-pacific-suva-1985",
+      "kind": "event",
+      "fields": {
+        "year": 1972
+      }
+    },
+    {
+      "id": "evt-palestinian-hiphop-ramallah-2007",
+      "kind": "event",
+      "fields": {
+        "year": 2006
+      }
+    },
+    {
+      "id": "evt-pasillo-quito-1930",
+      "kind": "event",
+      "fields": {
+        "year": 1956
+      }
+    },
+    {
+      "id": "evt-persian-classical-isfahan-1501",
+      "kind": "event",
+      "fields": {
+        "year": 1598
+      }
+    },
+    {
+      "id": "evt-philly-soul-philadelphia-1972",
+      "kind": "event",
+      "fields": {
+        "year": 1971
+      }
+    },
+    {
+      "id": "evt-piphat-bangkok-1350",
+      "kind": "event",
+      "fields": {
+        "location.city": "Ayutthaya",
+        "location.lat": 14.3532,
+        "location.lng": 100.5689
+      }
+    },
+    {
+      "id": "evt-powwow-albuquerque-1970",
+      "kind": "event",
+      "fields": {
+        "year": 1983
+      }
+    },
+    {
+      "id": "evt-qawwali-lahore-1987",
+      "kind": "event",
+      "fields": {
+        "year": 1985
+      }
+    },
+    {
+      "id": "evt-raga-rock-mumbai-1965",
+      "kind": "event",
+      "fields": {
+        "year": 1966
+      }
+    },
+    {
+      "id": "evt-rai-algiers-1990",
+      "kind": "event",
+      "fields": {
+        "year": 1992,
+        "location.city": "Oran",
+        "location.lat": 35.6969,
+        "location.lng": -0.6331
+      }
+    },
+    {
+      "id": "evt-redrocks-denver-1971",
+      "kind": "event",
+      "fields": {
+        "year": 1968
+      }
+    },
+    {
+      "id": "evt-reggae-spanish-town-2019-koffee",
+      "kind": "event",
+      "fields": {
+        "year": 2020
+      }
+    },
+    {
+      "id": "evt-rosalia-sanjuan-2018",
+      "kind": "event",
+      "fields": {
+        "location.city": "Barcelona",
+        "location.lat": 41.3874,
+        "location.lng": 2.1686,
+        "location.country": "Spain"
+      }
+    },
+    {
+      "id": "evt-rtl-luxembourg-1954",
+      "kind": "event",
+      "fields": {
+        "year": 1957
+      }
+    },
+    {
+      "id": "evt-sea-dance-podgorica-2014",
+      "kind": "event",
+      "fields": {
+        "location.city": "Budva",
+        "location.lat": 42.2864,
+        "location.lng": 18.84
+      }
+    },
+    {
+      "id": "evt-shambo-windhoek-2000",
+      "kind": "event",
+      "fields": {
+        "year": 2004
+      }
+    },
+    {
+      "id": "evt-shostakovich-moscow-1937",
+      "kind": "event",
+      "fields": {
+        "location.city": "St. Petersburg",
+        "location.lat": 59.9343,
+        "location.lng": 30.3351
+      }
+    },
+    {
+      "id": "evt-spiritual-nashville-1867",
+      "kind": "event",
+      "fields": {
+        "year": 1871
+      }
+    },
+    {
+      "id": "evt-stockhausen-dusseldorf-1956",
+      "kind": "event",
+      "fields": {
+        "location.city": "Cologne",
+        "location.lat": 50.9375,
+        "location.lng": 6.9603
+      }
+    },
+    {
+      "id": "evt-swing-nyc-1935",
+      "kind": "event",
+      "fields": {
+        "location.city": "Los Angeles",
+        "location.lat": 34.0522,
+        "location.lng": -118.2437
+      }
+    },
+    {
+      "id": "evt-tebino-tarawa-1978",
+      "kind": "event",
+      "fields": {
+        "year": 1979
+      }
+    },
+    {
+      "id": "evt-troubadour-seville-1200",
+      "kind": "event",
+      "fields": {
+        "year": 1270
+      }
+    },
+    {
+      "id": "evt-wilma-missoula-2014",
+      "kind": "event",
+      "fields": {
+        "year": 2015
+      }
+    },
+    {
+      "id": "song-across_the_universe",
+      "kind": "song",
+      "fields": {
+        "year": 1969
+      }
+    },
+    {
+      "id": "song-after_midnight",
+      "kind": "song",
+      "fields": {
+        "year": 1970
+      }
+    },
+    {
+      "id": "song-against_the_wind",
+      "kind": "song",
+      "fields": {
+        "year": 1980
+      }
+    },
+    {
+      "id": "song-aint_it_funky_now",
+      "kind": "song",
+      "fields": {
+        "year": 1970
+      }
+    },
+    {
+      "id": "song-aint_no_mountain_high_enough",
+      "kind": "song",
+      "fields": {
+        "year": 1967
+      }
+    },
+    {
+      "id": "song-aint_nobody",
+      "kind": "song",
+      "fields": {
+        "year": 1983
+      }
+    },
+    {
+      "id": "song-air",
+      "kind": "song",
+      "fields": {
+        "year": 1979
+      }
+    },
+    {
+      "id": "song-all_my_loving",
+      "kind": "song",
+      "fields": {
+        "year": 1963
+      }
+    },
+    {
+      "id": "song-american_girl",
+      "kind": "song",
+      "fields": {
+        "year": 1976
+      }
+    },
+    {
+      "id": "song-another_star",
+      "kind": "song",
+      "fields": {
+        "year": 1976
+      }
+    },
+    {
+      "id": "song-ants_marching",
+      "kind": "song",
+      "fields": {
+        "year": 1994
+      }
+    },
+    {
+      "id": "song-as",
+      "kind": "song",
+      "fields": {
+        "year": 1976
+      }
+    },
+    {
+      "id": "song-auld_lang_syne",
+      "kind": "song",
+      "fields": {
+        "year": 1788
+      }
+    },
+    {
+      "id": "song-bad_fish",
+      "kind": "song",
+      "fields": {
+        "year": 1992
+      }
+    },
+    {
+      "id": "song-bad_moon_rising",
+      "kind": "song",
+      "fields": {
+        "year": 1969
+      }
+    },
+    {
+      "id": "song-bare_necessities",
+      "kind": "song",
+      "fields": {
+        "year": 1967
+      }
+    },
+    {
+      "id": "song-beauty_and_the_beast",
+      "kind": "song",
+      "fields": {
+        "year": 1977
+      }
+    },
+    {
+      "id": "song-best_of_my_love",
+      "kind": "song",
+      "fields": {
+        "year": 1977
+      }
+    },
+    {
+      "id": "song-between_the_bars",
+      "kind": "song",
+      "fields": {
+        "year": 1997
+      }
+    },
+    {
+      "id": "song-blame_it_on_the_boogie",
+      "kind": "song",
+      "fields": {
+        "year": 1978
+      }
+    },
+    {
+      "id": "song-born_under_punches",
+      "kind": "song",
+      "fields": {
+        "year": 1980
+      }
+    },
+    {
+      "id": "song-brother_soul",
+      "kind": "song",
+      "fields": {
+        "year": 1969
+      }
+    },
+    {
+      "id": "song-burn_this_disco_out",
+      "kind": "song",
+      "fields": {
+        "year": 1979
+      }
+    },
+    {
+      "id": "song-cant_feel_my_face",
+      "kind": "song",
+      "fields": {
+        "year": 2015
+      }
+    },
+    {
+      "id": "song-cant_hide_love",
+      "kind": "song",
+      "fields": {
+        "year": 1975
+      }
+    },
+    {
+      "id": "song-cashs_dreams",
+      "kind": "song",
+      "fields": {
+        "year": 1999
+      }
+    },
+    {
+      "id": "song-celebration",
+      "kind": "song",
+      "fields": {
+        "year": 1980
+      }
+    },
+    {
+      "id": "song-cisco_kid",
+      "kind": "song",
+      "fields": {
+        "year": 1972
+      }
+    },
+    {
+      "id": "song-cissy_strut",
+      "kind": "song",
+      "fields": {
+        "year": 1969
+      }
+    },
+    {
+      "id": "song-come_and_get_your_love",
+      "kind": "song",
+      "fields": {
+        "year": 1973
+      }
+    },
+    {
+      "id": "song-cruise",
+      "kind": "song",
+      "fields": {
+        "year": 2012
+      }
+    },
+    {
+      "id": "song-december_1963_oh_what_a_night",
+      "kind": "song",
+      "fields": {
+        "year": 1975
+      }
+    },
+    {
+      "id": "song-dog_days_are_over",
+      "kind": "song",
+      "fields": {
+        "year": 2008
+      }
+    },
+    {
+      "id": "song-dont_worry_about_the_government",
+      "kind": "song",
+      "fields": {
+        "year": 1977
+      }
+    },
+    {
+      "id": "song-feeling_alright",
+      "kind": "song",
+      "fields": {
+        "year": 1969
+      }
+    },
+    {
+      "id": "song-fire",
+      "kind": "song",
+      "fields": {
+        "year": 1967
+      }
+    },
+    {
+      "id": "song-five_years",
+      "kind": "song",
+      "fields": {
+        "year": 1972
+      }
+    },
+    {
+      "id": "song-footloose",
+      "kind": "song",
+      "fields": {
+        "year": 1984
+      }
+    },
+    {
+      "id": "song-fourfiveseconds",
+      "kind": "song",
+      "fields": {
+        "year": 2015
+      }
+    },
+    {
+      "id": "song-fresh_eyes",
+      "kind": "song",
+      "fields": {
+        "year": 2016
+      }
+    },
+    {
+      "id": "song-friend_of_the_devil",
+      "kind": "song",
+      "fields": {
+        "year": 1970
+      }
+    },
+    {
+      "id": "song-funk_49",
+      "kind": "song",
+      "fields": {
+        "year": 1970
+      }
+    },
+    {
+      "id": "song-get_down_on_it",
+      "kind": "song",
+      "fields": {
+        "year": 1981
+      }
+    },
+    {
+      "id": "song-gimme_shelter",
+      "kind": "song",
+      "fields": {
+        "year": 1969
+      }
+    },
+    {
+      "id": "song-happy_xmas_war_is_over",
+      "kind": "song",
+      "fields": {
+        "year": 1971
+      }
+    },
+    {
+      "id": "song-hard_rock_cafe",
+      "kind": "song",
+      "fields": {
+        "year": 1977
+      }
+    },
+    {
+      "id": "song-hava_nagila",
+      "kind": "song",
+      "fields": {
+        "year": 1918
+      }
+    },
+    {
+      "id": "song-here_comes_the_sun",
+      "kind": "song",
+      "fields": {
+        "year": 1969
+      }
+    },
+    {
+      "id": "song-hold_on_im_comin",
+      "kind": "song",
+      "fields": {
+        "year": 1966
+      }
+    },
+    {
+      "id": "song-home_again",
+      "kind": "song",
+      "fields": {
+        "year": 1971
+      }
+    },
+    {
+      "id": "song-how_come_you_dont_call_me",
+      "kind": "song",
+      "fields": {
+        "year": 2001
+      }
+    },
+    {
+      "id": "song-i_cant_go_for_that_no_can_do",
+      "kind": "song",
+      "fields": {
+        "year": 1981
+      }
+    },
+    {
+      "id": "song-i_cant_help_it",
+      "kind": "song",
+      "fields": {
+        "year": 1979
+      }
+    },
+    {
+      "id": "song-i_feel_for_you",
+      "kind": "song",
+      "fields": {
+        "year": 1979
+      }
+    },
+    {
+      "id": "song-i_got_a_woman",
+      "kind": "song",
+      "fields": {
+        "year": 1954
+      }
+    },
+    {
+      "id": "song-i_love_rock_n_roll",
+      "kind": "song",
+      "fields": {
+        "year": 1981
+      }
+    },
+    {
+      "id": "song-i_shot_the_sheriff",
+      "kind": "song",
+      "fields": {
+        "year": 1973
+      }
+    },
+    {
+      "id": "song-id_rather_go_blind",
+      "kind": "song",
+      "fields": {
+        "year": 1967
+      }
+    },
+    {
+      "id": "song-if_you_want_me_to_stay",
+      "kind": "song",
+      "fields": {
+        "year": 1973
+      }
+    },
+    {
+      "id": "song-ill_be_there",
+      "kind": "song",
+      "fields": {
+        "year": 1970
+      }
+    },
+    {
+      "id": "song-ill_make_love_to_you",
+      "kind": "song",
+      "fields": {
+        "year": 1994
+      }
+    },
+    {
+      "id": "song-im_comin_out",
+      "kind": "song",
+      "fields": {
+        "year": 1980
+      }
+    },
+    {
+      "id": "song-in_my_life",
+      "kind": "song",
+      "fields": {
+        "year": 1965
+      }
+    },
+    {
+      "id": "song-in_spite_of_all_the_danger",
+      "kind": "song",
+      "fields": {
+        "year": 1995
+      }
+    },
+    {
+      "id": "song-into_the_mystic",
+      "kind": "song",
+      "fields": {
+        "year": 1970
+      }
+    },
+    {
+      "id": "song-is_this_love",
+      "kind": "song",
+      "fields": {
+        "year": 1978
+      }
+    },
+    {
+      "id": "song-it_takes_two",
+      "kind": "song",
+      "fields": {
+        "year": 1988
+      }
+    },
+    {
+      "id": "song-jack_diane",
+      "kind": "song",
+      "fields": {
+        "year": 1982
+      }
+    },
+    {
+      "id": "song-jessies_girl",
+      "kind": "song",
+      "fields": {
+        "year": 1981
+      }
+    },
+    {
+      "id": "song-juice",
+      "kind": "song",
+      "fields": {
+        "year": 2019
+      }
+    },
+    {
+      "id": "song-jump_for_my_love",
+      "kind": "song",
+      "fields": {
+        "year": 1983
+      }
+    },
+    {
+      "id": "song-jungle_boogie",
+      "kind": "song",
+      "fields": {
+        "year": 1973
+      }
+    },
+    {
+      "id": "song-just_a_girl",
+      "kind": "song",
+      "fields": {
+        "year": 1995
+      }
+    },
+    {
+      "id": "song-just_my_imagination_running_away_with_me",
+      "kind": "song",
+      "fields": {
+        "year": 1971
+      }
+    },
+    {
+      "id": "song-kashmir",
+      "kind": "song",
+      "fields": {
+        "year": 1975
+      }
+    },
+    {
+      "id": "song-kiss_on_my_list",
+      "kind": "song",
+      "fields": {
+        "year": 1980
+      }
+    },
+    {
+      "id": "song-lady_marmalade",
+      "kind": "song",
+      "fields": {
+        "year": 2001
+      }
+    },
+    {
+      "id": "song-landslide",
+      "kind": "song",
+      "fields": {
+        "year": 1975
+      }
+    },
+    {
+      "id": "song-lean_on_me",
+      "kind": "song",
+      "fields": {
+        "year": 1972
+      }
+    },
+    {
+      "id": "song-let_the_music_take_your_mind",
+      "kind": "song",
+      "fields": {
+        "year": 1970
+      }
+    },
+    {
+      "id": "song-lets_dance",
+      "kind": "song",
+      "fields": {
+        "year": 1983
+      }
+    },
+    {
+      "id": "song-lets_get_it_on",
+      "kind": "song",
+      "fields": {
+        "year": 1973
+      }
+    },
+    {
+      "id": "song-lets_go_crazy",
+      "kind": "song",
+      "fields": {
+        "year": 1984
+      }
+    },
+    {
+      "id": "song-lets_groove",
+      "kind": "song",
+      "fields": {
+        "year": 1981
+      }
+    },
+    {
+      "id": "song-life_on_mars",
+      "kind": "song",
+      "fields": {
+        "year": 1971
+      }
+    },
+    {
+      "id": "song-listening_wind",
+      "kind": "song",
+      "fields": {
+        "year": 1980
+      }
+    },
+    {
+      "id": "song-little_talks",
+      "kind": "song",
+      "fields": {
+        "year": 2011
+      }
+    },
+    {
+      "id": "song-livin_on_a_prayer",
+      "kind": "song",
+      "fields": {
+        "year": 1986
+      }
+    },
+    {
+      "id": "song-long_train_running",
+      "kind": "song",
+      "fields": {
+        "year": 1973
+      }
+    },
+    {
+      "id": "song-look_what_i_found",
+      "kind": "song",
+      "fields": {
+        "year": 2018
+      }
+    },
+    {
+      "id": "song-love_and_happiness",
+      "kind": "song",
+      "fields": {
+        "year": 1972
+      }
+    },
+    {
+      "id": "song-love_goes_building_on_fire",
+      "kind": "song",
+      "fields": {
+        "year": 1977
+      }
+    },
+    {
+      "id": "song-love_never_felt_so_good",
+      "kind": "song",
+      "fields": {
+        "year": 2014
+      }
+    },
+    {
+      "id": "song-love_on_the_brain",
+      "kind": "song",
+      "fields": {
+        "year": 2016
+      }
+    },
+    {
+      "id": "song-loving_cup",
+      "kind": "song",
+      "fields": {
+        "year": 1972
+      }
+    },
+    {
+      "id": "song-low_rider",
+      "kind": "song",
+      "fields": {
+        "year": 1975
+      }
+    },
+    {
+      "id": "song-luck_be_a_lady",
+      "kind": "song",
+      "fields": {
+        "year": 1963
+      }
+    },
+    {
+      "id": "song-man_i_feel_like_a_woman",
+      "kind": "song",
+      "fields": {
+        "year": 1997
+      }
+    },
+    {
+      "id": "song-maneater",
+      "kind": "song",
+      "fields": {
+        "year": 1982
+      }
+    },
+    {
+      "id": "song-mercy",
+      "kind": "song",
+      "fields": {
+        "year": 2008
+      }
+    },
+    {
+      "id": "song-midnight_train_to_georgia",
+      "kind": "song",
+      "fields": {
+        "year": 1973
+      }
+    },
+    {
+      "id": "song-one_way_out",
+      "kind": "song",
+      "fields": {
+        "year": 1972
+      }
+    },
+    {
+      "id": "song-ophelia",
+      "kind": "song",
+      "fields": {
+        "year": 1975
+      }
+    },
+    {
+      "id": "song-ordinary_people",
+      "kind": "song",
+      "fields": {
+        "year": 2004
+      }
+    },
+    {
+      "id": "song-oye_como_va",
+      "kind": "song",
+      "fields": {
+        "year": 1970
+      }
+    },
+    {
+      "id": "song-passionfruit",
+      "kind": "song",
+      "fields": {
+        "year": 2017
+      }
+    },
+    {
+      "id": "song-pick_up_the_pieces",
+      "kind": "song",
+      "fields": {
+        "year": 1974
+      }
+    },
+    {
+      "id": "song-pride_and_joy",
+      "kind": "song",
+      "fields": {
+        "year": 1983
+      }
+    },
+    {
+      "id": "song-proud_mary",
+      "kind": "song",
+      "fields": {
+        "year": 1971
+      }
+    },
+    {
+      "id": "song-pumped_up_for_kicks",
+      "kind": "song",
+      "fields": {
+        "year": 2010
+      }
+    },
+    {
+      "id": "song-raise_your_glass",
+      "kind": "song",
+      "fields": {
+        "year": 2010
+      }
+    },
+    {
+      "id": "song-ramble_on",
+      "kind": "song",
+      "fields": {
+        "year": 1969
+      }
+    },
+    {
+      "id": "song-rebel_rebel",
+      "kind": "song",
+      "fields": {
+        "year": 1974
+      }
+    },
+    {
+      "id": "song-rich_girl",
+      "kind": "song",
+      "fields": {
+        "year": 1976
+      }
+    },
+    {
+      "id": "song-rock_steady",
+      "kind": "song",
+      "fields": {
+        "year": 1971
+      }
+    },
+    {
+      "id": "song-rocky_mountain_way",
+      "kind": "song",
+      "fields": {
+        "year": 1973
+      }
+    },
+    {
+      "id": "song-say_something",
+      "kind": "song",
+      "fields": {
+        "year": 2018
+      }
+    },
+    {
+      "id": "song-september",
+      "kind": "song",
+      "fields": {
+        "year": 1978
+      }
+    },
+    {
+      "id": "song-shining_star",
+      "kind": "song",
+      "fields": {
+        "year": 1975
+      }
+    },
+    {
+      "id": "song-shotgun",
+      "kind": "song",
+      "fields": {
+        "year": 1965
+      }
+    },
+    {
+      "id": "song-sing_a_simple_song",
+      "kind": "song",
+      "fields": {
+        "year": 1968
+      }
+    },
+    {
+      "id": "song-sing_a_song",
+      "kind": "song",
+      "fields": {
+        "year": 1975
+      }
+    },
+    {
+      "id": "song-single_ladies",
+      "kind": "song",
+      "fields": {
+        "year": 2008
+      }
+    }
+  ]
+}

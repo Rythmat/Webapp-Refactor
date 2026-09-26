@@ -4,7 +4,7 @@ export const juice: Song = {
   id: 'juice',
   title: 'Juice',
   artist: 'Lizzo',
-  year: 2018,
+  year: 2019,
   historicalDescription:
     "Lizzo releases 'Juice', a strutting, self-love anthem that channels the spirit of 1970s funk and 1980s pop into something boldly modern. The Minneapolis-raised artist's unapologetic confidence and genre-blending charisma announce her as a singular voice — one that will soon carry her to mainstream stardom and ignite a cultural conversation around body positivity and self-worth.",
   key: 'D minor',

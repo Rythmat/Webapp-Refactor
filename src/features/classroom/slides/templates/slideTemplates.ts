@@ -6,9 +6,11 @@
  * and a layout tuned for that content type.
  *
  * Pure + React-free (like `songSession.ts`) so it unit-tests without a tree.
- * All derived body copy is filtered line-by-line through the publish firewall
- * (`refFirewallCollision`) so a stray forbidden substring can never make the
- * Day un-publishable — the colliding line is dropped, the slide still ships.
+ *
+ * Derived body copy is no longer filtered line-by-line: the publish firewall
+ * matches teacher-only object KEYS exactly, so a content VALUE can never make
+ * the Day un-publishable. The old line filter silently deleted any sentence
+ * containing `notes`, `standard` or `clo` from a student's slide.
  */
 import { REGION_HINTS } from '@/components/ClassroomLayout/globe/data/regionHints';
 import { CITIES, MUSICAL_ERAS, REGIONS } from '@/components/atlas/data';
@@ -29,7 +31,6 @@ import type {
   SlideMediaEmbed,
 } from '../../plan/deckEditor/contentPicker/catalog';
 import type { LocalizedText } from '../../types';
-import { refFirewallCollision } from '../contentRefs';
 import { slideUid } from '../deckEdit';
 import type { ContentSlide, SlideLayout, SlideMedia } from '../types';
 
@@ -178,15 +179,12 @@ const LAYOUTS: Record<SlideTemplateId, SlideLayout> = {
   },
 };
 
-/** Keep only firewall-safe lines; join them, or return undefined if none. */
+/** Trim + drop blank lines; join them, or return undefined if none remain. */
 const safeBody = (
   lines: string[],
   joiner = '\n',
 ): LocalizedText | undefined => {
-  const safe = lines
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .filter((s) => refFirewallCollision('', s) === null);
+  const safe = lines.map((s) => s.trim()).filter(Boolean);
   return safe.length ? { en: safe.join(joiner) } : undefined;
 };
 

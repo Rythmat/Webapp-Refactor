@@ -25,6 +25,7 @@ const EMPTY_STORE: SessionStore = {
   sessions: {},
   responses: {},
   positions: {},
+  presence: {},
   seq: {},
 };
 

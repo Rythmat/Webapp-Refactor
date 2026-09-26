@@ -4,7 +4,7 @@ export const all_my_loving: Song = {
   id: 'all_my_loving',
   title: 'All My Loving',
   artist: 'The Beatles',
-  year: 1964,
+  year: 1963,
   historicalDescription:
     "The Beatles open their landmark Ed Sullivan Show appearance with 'All My Loving', instantly captivating 73 million American viewers and igniting Beatlemania across the United States. Written by Paul McCartney on a tour bus and originally released on 'With the Beatles', the song becomes a symbol of the British Invasion — the moment British rock and roll conquers America and reshapes pop music forever.",
   key: 'E major',

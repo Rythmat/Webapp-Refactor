@@ -4,7 +4,7 @@ export const aint_it_funky_now: Song = {
   id: 'aint_it_funky_now',
   title: 'Ain’t It Funky Now',
   artist: 'Grant Green',
-  year: 2005,
+  year: 1970,
   historicalDescription:
     "Grant Green's 'Ain't It Funky Now' captures the guitarist's signature blend of jazz precision and deep soul groove, sitting comfortably in the tradition of organ-combo funk that Green championed throughout his career. Though released posthumously in 2005, the track embodies the raw, street-level funk aesthetic that made Green a beloved figure in soul-jazz circles and a cornerstone of hip-hop sampling culture.",
   key: 'F major',

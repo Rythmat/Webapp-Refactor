@@ -4,7 +4,7 @@ export const dog_days_are_over: Song = {
   id: 'dog_days_are_over',
   title: 'Dog Days Are Over',
   artist: 'Florence and the Machine',
-  year: 2010,
+  year: 2008,
   historicalDescription:
     "Florence and the Machine release 'Dog Days Are Over' to international audiences, Florence Welch's soaring vocals and explosive orchestral percussion announcing an entirely new kind of indie rock. The song becomes an anthem of cathartic release, propelling the British band from cult darlings to global stars and establishing Welch as one of the most distinctive voices of her generation.",
   key: 'G major',

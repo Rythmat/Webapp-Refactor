@@ -4,7 +4,7 @@ export const pick_up_the_pieces: Song = {
   id: 'pick_up_the_pieces',
   title: 'Pick Up The Pieces',
   artist: 'The Average White Band',
-  year: 1996,
+  year: 1974,
   historicalDescription:
     "The Average White Band's 'Pick Up The Pieces' stands as one of the great ironies of funk — a group of white Scottish musicians delivering one of the genre's most celebrated instrumental grooves. Originally released in 1974, the track becomes a defining statement that funk is a feeling, not a birthright, and its infectious horn riff and locked-in rhythm section continue to influence musicians and producers for decades.",
   key: 'F minor',

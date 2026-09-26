@@ -4,7 +4,7 @@ export const cissy_strut: Song = {
   id: 'cissy_strut',
   title: 'Cissy Strut',
   artist: 'The Meters',
-  year: 1974,
+  year: 1969,
   historicalDescription:
     "The Meters lay down 'Cissy Strut', a masterclass in New Orleans funk built on interlocking guitar, bass, and drums with almost no harmonic decoration — just groove. The track becomes one of the most sampled songs in recorded music history, its locked-in pocket influencing hip hop producers and funk musicians for decades. It is the sound of New Orleans telling the world that rhythm is everything.",
   key: 'C major',

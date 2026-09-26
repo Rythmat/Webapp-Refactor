@@ -16,6 +16,10 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getIdbMirror } from '@/lib/local-store/idbMirror';
+import {
+  setAnnualAccess,
+  setAnnualStoreReader,
+} from '../persistence/localCurriculumRepository';
 import type { Semester, Unit, Year } from '../types';
 import {
   getNextNSchoolDays,
@@ -121,6 +125,23 @@ const annualPlanMirror = getIdbMirror<AnnualPlanStore>({
     }
   },
 });
+
+/**
+ * Resolves once the IDB mirror has hydrated. Backup/export MUST await this —
+ * see the note on `publishedStoreReady`.
+ */
+export const annualPlanReady: Promise<void> = annualPlanMirror.ready;
+
+// Inject annual-plan access into the curriculum repository. The repository
+// cannot import this module at runtime (it would be a cycle: the repository's
+// plan migration needs the annual store, and this module is itself a mirror),
+// so the dependency is registered here instead.
+setAnnualAccess({
+  read: () => annualPlanMirror.read(),
+  write: (store) => annualPlanMirror.write(store as AnnualPlanStore),
+  ready: annualPlanMirror.ready,
+});
+setAnnualStoreReader(() => annualPlanMirror.read());
 
 export const readAnnualPlanStore = (): AnnualPlanStore =>
   annualPlanMirror.read();

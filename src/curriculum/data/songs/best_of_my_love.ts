@@ -4,7 +4,7 @@ export const best_of_my_love: Song = {
   id: 'best_of_my_love',
   title: 'Best Of My Love',
   artist: 'The Emotions',
-  year: 1996,
+  year: 1977,
   historicalDescription:
     "The Emotions bring their silky harmonies back to the charts with 'Best Of My Love', a buoyant pop track that leans into the decade's taste for feel-good nostalgia. The song reintroduces the Chicago-bred sister trio to a new generation raised on contemporary R&B, reminding listeners that the warmth and precision of classic soul vocal groups still has a place in the 1990s.",
   key: 'C major',

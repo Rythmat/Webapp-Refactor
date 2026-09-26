@@ -1,4 +1,6 @@
-import { Facebook, Instagram, Linkedin, Youtube } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { LegalRoutes, MarketingRoutes } from '@/constants/routes';
+import { SOCIAL_LINKS } from '@/constants/social';
 
 interface Column {
   title: string;
@@ -9,9 +11,8 @@ const COLUMNS: Column[] = [
   {
     title: 'Company',
     links: [
-      { label: 'About', href: '#' },
-      { label: 'Blog', href: '#' },
-      { label: 'Careers', href: '#' },
+      { label: 'Blog', href: MarketingRoutes.blog() },
+      { label: 'For Teachers', href: MarketingRoutes.teachers() },
     ],
   },
   {
@@ -24,40 +25,14 @@ const COLUMNS: Column[] = [
   {
     title: 'Legal',
     links: [
-      {
-        label: 'Privacy Policy',
-        href: 'https://www.musicatlas.io/policies/privacy',
-      },
-      {
-        label: 'Terms & Conditions',
-        href: 'https://www.musicatlas.io/policies/terms',
-      },
+      { label: 'Privacy Policy', href: LegalRoutes.privacyPolicy() },
+      { label: 'Terms & Conditions', href: LegalRoutes.termsOfService() },
     ],
   },
 ];
 
-const SOCIAL_LINKS = [
-  {
-    label: 'Youtube',
-    href: 'https://www.youtube.com/@MusicAtlasIO',
-    Icon: Youtube,
-  },
-  {
-    label: 'Instagram',
-    href: 'https://www.instagram.com/musicatlas.io/',
-    Icon: Instagram,
-  },
-  {
-    label: 'Facebook',
-    href: 'https://www.facebook.com/musicatlasio/',
-    Icon: Facebook,
-  },
-  {
-    label: 'LinkedIn',
-    href: 'https://linkedin.com/company/music-atlas/',
-    Icon: Linkedin,
-  },
-];
+const linkCls =
+  'text-base text-white/80 transition-colors hover:text-white md:text-lg';
 
 export const DashboardFooter = () => {
   return (
@@ -72,15 +47,15 @@ export const DashboardFooter = () => {
               <ul className="flex flex-col gap-1">
                 {col.links.map((link) => (
                   <li key={link.label}>
-                    <a
-                      href={link.href}
-                      className="text-base text-white/80 transition-colors hover:text-white md:text-lg"
-                      {...(link.href.startsWith('http')
-                        ? { rel: 'noreferrer', target: '_blank' }
-                        : {})}
-                    >
-                      {link.label}
-                    </a>
+                    {link.href.startsWith('/') ? (
+                      <Link to={link.href} className={linkCls}>
+                        {link.label}
+                      </Link>
+                    ) : (
+                      <a href={link.href} className={linkCls}>
+                        {link.label}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>

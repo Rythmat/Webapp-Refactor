@@ -28,8 +28,9 @@ const hasText = (t: LocalizedText | undefined): boolean =>
 /**
  * Projector aggregate style inferred from the interaction type: choice → bars,
  * text → wall, number → scale. Others (draw / check-in / atlas / showcase) have
- * no reveal viz, so `reveal` is omitted. Never emits 'cloud' (the Rule 1
- * forbidden substring 'clo').
+ * no reveal viz, so `reveal` is omitted. The text token is 'words' rather than
+ * 'cloud' for historical reasons — the firewall matches keys exactly now, so
+ * either would publish cleanly.
  */
 export const revealForInteraction = (
   interaction: Interaction,

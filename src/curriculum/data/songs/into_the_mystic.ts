@@ -4,7 +4,7 @@ export const into_the_mystic: Song = {
   id: 'into_the_mystic',
   title: 'Into The Mystic',
   artist: 'Van Morrison',
-  year: 2002,
+  year: 1970,
   historicalDescription:
     "Van Morrison's 'Into The Mystic' endures as one of his most beloved compositions — a soulful, fog-drenched meditation on transcendence and homecoming that blurs the line between the sacred and the earthly. Originally released on his landmark 1970 album 'Moondance', the song's imagery of souls and the sea cements Morrison's reputation as rock's great mystic poet, influencing generations of singer-songwriters drawn to spiritual yearning.",
   key: 'E♭ major',

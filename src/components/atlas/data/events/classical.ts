@@ -531,7 +531,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-classical-vienna-1700',
-    year: 1700,
+    year: 1750,
     location: {
       lat: 48.2082,
       lng: 16.3738,
@@ -811,7 +811,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-troubadour-seville-1200',
-    year: 1200,
+    year: 1270,
     location: { lat: 37.3891, lng: -5.9845, city: 'Seville', country: 'Spain' },
     genre: ['Classical', 'Secular'],
     title: 'Alfonso X and the Cantigas de Santa Maria: Iberian medieval song',
@@ -873,7 +873,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-josquin-rome-1486',
-    year: 1486,
+    year: 1489,
     location: { lat: 41.9028, lng: 12.4964, city: 'Rome', country: 'Italy' },
     genre: ['Classical', 'Sacred'],
     title:
@@ -1464,7 +1464,12 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-shostakovich-moscow-1937',
     year: 1937,
-    location: { lat: 55.7558, lng: 37.6173, city: 'Moscow', country: 'Russia' },
+    location: {
+      lat: 59.9343,
+      lng: 30.3351,
+      city: 'St. Petersburg',
+      country: 'Russia',
+    },
     genre: ['Classical', 'Symphonic'],
     title: 'Shostakovich premieres the Fifth Symphony under Stalinist terror',
     description:
@@ -1508,9 +1513,9 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
     id: 'evt-stockhausen-dusseldorf-1956',
     year: 1956,
     location: {
-      lat: 51.2277,
-      lng: 6.7735,
-      city: 'Dusseldorf',
+      lat: 50.9375,
+      lng: 6.9603,
+      city: 'Cologne',
       country: 'Germany',
     },
     genre: ['Classical', 'Electronic', 'Avant-Garde'],
@@ -1648,9 +1653,9 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
     id: 'evt-gamelan-jakarta-900',
     year: 900,
     location: {
-      lat: -6.2088,
-      lng: 106.8456,
-      city: 'Jakarta',
+      lat: -7.7956,
+      lng: 110.3695,
+      city: 'Yogyakarta',
       country: 'Indonesia',
     },
     genre: ['Gamelan', 'Javanese Classical'],
@@ -1674,9 +1679,9 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
     id: 'evt-piphat-bangkok-1350',
     year: 1350,
     location: {
-      lat: 13.7563,
-      lng: 100.5018,
-      city: 'Bangkok',
+      lat: 14.3532,
+      lng: 100.5689,
+      city: 'Ayutthaya',
       country: 'Thailand',
     },
     genre: ['Piphat', 'Thai Classical'],
@@ -1725,9 +1730,9 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
     id: 'evt-klasik-kualalumpur-1400',
     year: 1400,
     location: {
-      lat: 3.139,
-      lng: 101.6869,
-      city: 'Kuala Lumpur',
+      lat: 2.1896,
+      lng: 102.2501,
+      city: 'Malacca',
       country: 'Malaysia',
     },
     genre: ['Malay Classical', 'Court Music'],
@@ -1795,7 +1800,7 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-persian-classical-isfahan-1501',
-    year: 1501,
+    year: 1598,
     location: { lat: 32.6546, lng: 51.668, city: 'Isfahan', country: 'Iran' },
     genre: ['Persian Classical', 'Dastgah'],
     title: 'Safavid Isfahan becomes the capital of Persian classical music',
@@ -1818,9 +1823,9 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
     id: 'evt-hindustani-varanasi-1560',
     year: 1560,
     location: {
-      lat: 25.3176,
-      lng: 82.9739,
-      city: 'Varanasi',
+      lat: 27.1767,
+      lng: 78.0081,
+      city: 'Agra',
       country: 'India',
     },
     genre: ['Hindustani Classical', 'Indian Classical'],
@@ -1893,9 +1898,9 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
     id: 'evt-mahori-bangkok-1600',
     year: 1600,
     location: {
-      lat: 13.7563,
-      lng: 100.5018,
-      city: 'Bangkok',
+      lat: 14.3532,
+      lng: 100.5689,
+      city: 'Ayutthaya',
       country: 'Thailand',
     },
     genre: ['Mahori', 'Thai Classical'],
@@ -1916,7 +1921,12 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-carnatic-chennai-1800',
     year: 1800,
-    location: { lat: 13.0827, lng: 80.2707, city: 'Chennai', country: 'India' },
+    location: {
+      lat: 10.787,
+      lng: 79.1378,
+      city: 'Thanjavur',
+      country: 'India',
+    },
     genre: ['Carnatic', 'Indian Classical'],
     title:
       "The Trinity of Carnatic music perfects South India's classical tradition",
@@ -1958,7 +1968,12 @@ export const CLASSICAL_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-odissi-mumbai-1952',
     year: 1952,
-    location: { lat: 19.076, lng: 72.8777, city: 'Mumbai', country: 'India' },
+    location: {
+      lat: 20.2961,
+      lng: 85.8245,
+      city: 'Bhubaneswar',
+      country: 'India',
+    },
     genre: ['Odissi', 'Indian Classical', 'Dance Music'],
     title:
       "Odissi music and dance revived as one of India's oldest classical traditions",

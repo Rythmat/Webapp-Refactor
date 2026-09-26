@@ -1,0 +1,757 @@
+[
+  {
+    "id": "conakry",
+    "from": "Abidjan",
+    "to": "Conakry"
+  },
+  {
+    "id": "bissau",
+    "from": "Conakry",
+    "to": "Bissau"
+  },
+  {
+    "id": "freetown",
+    "from": "Bissau",
+    "to": "Western Area"
+  },
+  {
+    "id": "monrovia",
+    "from": "Western Area",
+    "to": "Montserrado"
+  },
+  {
+    "id": "lome",
+    "from": "Montserrado",
+    "to": "Maritime"
+  },
+  {
+    "id": "cotonou",
+    "from": "Maritime",
+    "to": "Littoral"
+  },
+  {
+    "id": "niamey",
+    "from": "Littoral",
+    "to": "Niamey"
+  },
+  {
+    "id": "nouakchott",
+    "from": "Niamey",
+    "to": "Nouakchott"
+  },
+  {
+    "id": "banjul",
+    "from": "Nouakchott",
+    "to": "Banjul"
+  },
+  {
+    "id": "praia",
+    "from": "Banjul",
+    "to": "Santiago"
+  },
+  {
+    "id": "kinshasa",
+    "from": "Santiago",
+    "to": "Kinshasa"
+  },
+  {
+    "id": "brazzaville",
+    "from": "Kinshasa",
+    "to": "Brazzaville"
+  },
+  {
+    "id": "douala",
+    "from": "Brazzaville",
+    "to": "Littoral"
+  },
+  {
+    "id": "libreville",
+    "from": "Littoral",
+    "to": "Estuaire"
+  },
+  {
+    "id": "malabo",
+    "from": "Estuaire",
+    "to": "Bioko Norte"
+  },
+  {
+    "id": "bangui",
+    "from": "Bioko Norte",
+    "to": "Bangui"
+  },
+  {
+    "id": "ndjamena",
+    "from": "Bangui",
+    "to": "N'Djamena"
+  },
+  {
+    "id": "sao-tome",
+    "from": "N'Djamena",
+    "to": "Água Grande"
+  },
+  {
+    "id": "dar-es-salaam",
+    "from": "Água Grande",
+    "to": "Dar es Salaam"
+  },
+  {
+    "id": "kampala",
+    "from": "Dar es Salaam",
+    "to": "Central"
+  },
+  {
+    "id": "kigali",
+    "from": "Central",
+    "to": "Kigali"
+  },
+  {
+    "id": "bujumbura",
+    "from": "Kigali",
+    "to": "Bujumbura Mairie"
+  },
+  {
+    "id": "mogadishu",
+    "from": "Bujumbura Mairie",
+    "to": "Banaadir"
+  },
+  {
+    "id": "asmara",
+    "from": "Banaadir",
+    "to": "Maekel"
+  },
+  {
+    "id": "djibouti-city",
+    "from": "Maekel",
+    "to": "Djibouti"
+  },
+  {
+    "id": "juba",
+    "from": "Djibouti",
+    "to": "Central Equatoria"
+  },
+  {
+    "id": "antananarivo",
+    "from": "Central Equatoria",
+    "to": "Analamanga"
+  },
+  {
+    "id": "moroni",
+    "from": "Analamanga",
+    "to": "Grande Comore"
+  },
+  {
+    "id": "port-louis",
+    "from": "Grande Comore",
+    "to": "Port Louis"
+  },
+  {
+    "id": "victoria-seychelles",
+    "from": "Port Louis",
+    "to": "Mahé"
+  },
+  {
+    "id": "maputo",
+    "from": "Mahé",
+    "to": "Maputo"
+  },
+  {
+    "id": "harare",
+    "from": "Maputo",
+    "to": "Harare"
+  },
+  {
+    "id": "lusaka",
+    "from": "Harare",
+    "to": "Lusaka"
+  },
+  {
+    "id": "blantyre",
+    "from": "Lusaka",
+    "to": "Southern"
+  },
+  {
+    "id": "gaborone",
+    "from": "Southern",
+    "to": "South-East"
+  },
+  {
+    "id": "windhoek",
+    "from": "South-East",
+    "to": "Khomas"
+  },
+  {
+    "id": "mbabane",
+    "from": "Khomas",
+    "to": "Hhohho"
+  },
+  {
+    "id": "maseru",
+    "from": "Hhohho",
+    "to": "Maseru"
+  },
+  {
+    "id": "oslo",
+    "from": "Maseru",
+    "to": "Oslo"
+  },
+  {
+    "id": "helsinki",
+    "from": "Oslo",
+    "to": "Uusimaa"
+  },
+  {
+    "id": "copenhagen",
+    "from": "Uusimaa",
+    "to": "Capital Region"
+  },
+  {
+    "id": "dublin",
+    "from": "Capital Region",
+    "to": "Leinster"
+  },
+  {
+    "id": "amsterdam",
+    "from": "Leinster",
+    "to": "North Holland"
+  },
+  {
+    "id": "brussels",
+    "from": "North Holland",
+    "to": "Brussels-Capital"
+  },
+  {
+    "id": "luxembourg-city",
+    "from": "Brussels-Capital",
+    "to": "Luxembourg"
+  },
+  {
+    "id": "zurich",
+    "from": "Luxembourg",
+    "to": "Zürich"
+  },
+  {
+    "id": "naples",
+    "from": "Zürich",
+    "to": "Campania"
+  },
+  {
+    "id": "monte-carlo",
+    "from": "Campania",
+    "to": "Monte Carlo"
+  },
+  {
+    "id": "vaduz",
+    "from": "Monte Carlo",
+    "to": "Vaduz"
+  },
+  {
+    "id": "andorra-la-vella",
+    "from": "Vaduz",
+    "to": "Andorra la Vella"
+  },
+  {
+    "id": "san-marino-city",
+    "from": "Andorra la Vella",
+    "to": "San Marino"
+  },
+  {
+    "id": "valletta",
+    "from": "San Marino",
+    "to": "Valletta"
+  },
+  {
+    "id": "vatican-city",
+    "from": "Valletta",
+    "to": "Vatican City"
+  },
+  {
+    "id": "warsaw",
+    "from": "Vatican City",
+    "to": "Masovia"
+  },
+  {
+    "id": "prague",
+    "from": "Masovia",
+    "to": "Prague"
+  },
+  {
+    "id": "bratislava",
+    "from": "Prague",
+    "to": "Bratislava"
+  },
+  {
+    "id": "bucharest",
+    "from": "Bratislava",
+    "to": "Bucharest"
+  },
+  {
+    "id": "sofia",
+    "from": "Bucharest",
+    "to": "Sofia City"
+  },
+  {
+    "id": "zagreb",
+    "from": "Sofia City",
+    "to": "Zagreb"
+  },
+  {
+    "id": "belgrade",
+    "from": "Zagreb",
+    "to": "Belgrade"
+  },
+  {
+    "id": "sarajevo",
+    "from": "Belgrade",
+    "to": "Sarajevo"
+  },
+  {
+    "id": "podgorica",
+    "from": "Sarajevo",
+    "to": "Podgorica"
+  },
+  {
+    "id": "skopje",
+    "from": "Podgorica",
+    "to": "Skopje"
+  },
+  {
+    "id": "tirana",
+    "from": "Skopje",
+    "to": "Tirana"
+  },
+  {
+    "id": "ljubljana",
+    "from": "Tirana",
+    "to": "Ljubljana"
+  },
+  {
+    "id": "kyiv",
+    "from": "Ljubljana",
+    "to": "Kyiv"
+  },
+  {
+    "id": "minsk",
+    "from": "Kyiv",
+    "to": "Minsk"
+  },
+  {
+    "id": "chisinau",
+    "from": "Minsk",
+    "to": "Chișinău"
+  },
+  {
+    "id": "athens",
+    "from": "Chișinău",
+    "to": "Attica"
+  },
+  {
+    "id": "nicosia",
+    "from": "Attica",
+    "to": "Nicosia"
+  },
+  {
+    "id": "vilnius",
+    "from": "Nicosia",
+    "to": "Vilnius"
+  },
+  {
+    "id": "riga",
+    "from": "Vilnius",
+    "to": "Riga"
+  },
+  {
+    "id": "tallinn",
+    "from": "Riga",
+    "to": "Harju"
+  },
+  {
+    "id": "tehran",
+    "from": "Harju",
+    "to": "Tehran"
+  },
+  {
+    "id": "baghdad",
+    "from": "Tehran",
+    "to": "Baghdad"
+  },
+  {
+    "id": "damascus",
+    "from": "Baghdad",
+    "to": "Damascus"
+  },
+  {
+    "id": "amman",
+    "from": "Damascus",
+    "to": "Amman"
+  },
+  {
+    "id": "tel-aviv",
+    "from": "Amman",
+    "to": "Tel Aviv"
+  },
+  {
+    "id": "ramallah",
+    "from": "Tel Aviv",
+    "to": "Ramallah and al-Bireh"
+  },
+  {
+    "id": "riyadh",
+    "from": "Ramallah and al-Bireh",
+    "to": "Riyadh"
+  },
+  {
+    "id": "sanaa",
+    "from": "Riyadh",
+    "to": "Amanat Al Asimah"
+  },
+  {
+    "id": "muscat",
+    "from": "Amanat Al Asimah",
+    "to": "Muscat"
+  },
+  {
+    "id": "dubai",
+    "from": "Muscat",
+    "to": "Dubai"
+  },
+  {
+    "id": "doha",
+    "from": "Dubai",
+    "to": "Doha"
+  },
+  {
+    "id": "manama",
+    "from": "Doha",
+    "to": "Capital"
+  },
+  {
+    "id": "tbilisi",
+    "from": "Al Asimah",
+    "to": "Tbilisi"
+  },
+  {
+    "id": "yerevan",
+    "from": "Tbilisi",
+    "to": "Yerevan"
+  },
+  {
+    "id": "baku",
+    "from": "Yerevan",
+    "to": "Baku"
+  },
+  {
+    "id": "almaty",
+    "from": "Baku",
+    "to": "Almaty"
+  },
+  {
+    "id": "bishkek",
+    "from": "Almaty",
+    "to": "Bishkek"
+  },
+  {
+    "id": "dushanbe",
+    "from": "Bishkek",
+    "to": "Dushanbe"
+  },
+  {
+    "id": "ashgabat",
+    "from": "Dushanbe",
+    "to": "Ashgabat"
+  },
+  {
+    "id": "lahore",
+    "from": "Ashgabat",
+    "to": "Punjab"
+  },
+  {
+    "id": "dhaka",
+    "from": "Punjab",
+    "to": "Dhaka"
+  },
+  {
+    "id": "colombo",
+    "from": "Dhaka",
+    "to": "Western"
+  },
+  {
+    "id": "kathmandu",
+    "from": "Western",
+    "to": "Bagmati"
+  },
+  {
+    "id": "thimphu",
+    "from": "Bagmati",
+    "to": "Thimphu"
+  },
+  {
+    "id": "male",
+    "from": "Thimphu",
+    "to": "Malé"
+  },
+  {
+    "id": "kabul",
+    "from": "Malé",
+    "to": "Kabul"
+  },
+  {
+    "id": "ulaanbaatar",
+    "from": "Kabul",
+    "to": "Ulaanbaatar"
+  },
+  {
+    "id": "pyongyang",
+    "from": "Ulaanbaatar",
+    "to": "Pyongyang"
+  },
+  {
+    "id": "yangon",
+    "from": "Pyongyang",
+    "to": "Yangon"
+  },
+  {
+    "id": "bangkok",
+    "from": "Yangon",
+    "to": "Bangkok"
+  },
+  {
+    "id": "hanoi",
+    "from": "Bangkok",
+    "to": "Hanoi"
+  },
+  {
+    "id": "vientiane",
+    "from": "Hanoi",
+    "to": "Vientiane"
+  },
+  {
+    "id": "phnom-penh",
+    "from": "Vientiane",
+    "to": "Phnom Penh"
+  },
+  {
+    "id": "kuala-lumpur",
+    "from": "Phnom Penh",
+    "to": "Kuala Lumpur"
+  },
+  {
+    "id": "singapore-city",
+    "from": "Kuala Lumpur",
+    "to": "Singapore"
+  },
+  {
+    "id": "jakarta",
+    "from": "Singapore",
+    "to": "Jakarta"
+  },
+  {
+    "id": "manila",
+    "from": "Jakarta",
+    "to": "Metro Manila"
+  },
+  {
+    "id": "dili",
+    "from": "Metro Manila",
+    "to": "Dili"
+  },
+  {
+    "id": "bandar-seri-begawan",
+    "from": "Dili",
+    "to": "Brunei-Muara"
+  },
+  {
+    "id": "auckland",
+    "from": "Brunei-Muara",
+    "to": "Auckland"
+  },
+  {
+    "id": "port-moresby",
+    "from": "Auckland",
+    "to": "National Capital"
+  },
+  {
+    "id": "suva",
+    "from": "National Capital",
+    "to": "Central"
+  },
+  {
+    "id": "honiara",
+    "from": "Central",
+    "to": "Guadalcanal"
+  },
+  {
+    "id": "port-vila",
+    "from": "Guadalcanal",
+    "to": "Shefa"
+  },
+  {
+    "id": "apia",
+    "from": "Shefa",
+    "to": "Tuamasaga"
+  },
+  {
+    "id": "nukualofa",
+    "from": "Tuamasaga",
+    "to": "Tongatapu"
+  },
+  {
+    "id": "tarawa",
+    "from": "Tongatapu",
+    "to": "Gilbert Islands"
+  },
+  {
+    "id": "palikir",
+    "from": "Gilbert Islands",
+    "to": "Pohnpei"
+  },
+  {
+    "id": "majuro",
+    "from": "Pohnpei",
+    "to": "Majuro"
+  },
+  {
+    "id": "ngerulmud",
+    "from": "Majuro",
+    "to": "Melekeok"
+  },
+  {
+    "id": "yaren",
+    "from": "Melekeok",
+    "to": "Yaren"
+  },
+  {
+    "id": "funafuti",
+    "from": "Yaren",
+    "to": "Funafuti"
+  },
+  {
+    "id": "port-of-spain",
+    "from": "Distrito Nacional",
+    "to": "Port of Spain"
+  },
+  {
+    "id": "bridgetown",
+    "from": "Port of Spain",
+    "to": "Saint Michael"
+  },
+  {
+    "id": "nassau",
+    "from": "Saint Michael",
+    "to": "New Providence"
+  },
+  {
+    "id": "st-georges",
+    "from": "New Providence",
+    "to": "Saint George"
+  },
+  {
+    "id": "castries",
+    "from": "Saint George",
+    "to": "Castries"
+  },
+  {
+    "id": "kingstown",
+    "from": "Castries",
+    "to": "Saint George"
+  },
+  {
+    "id": "basseterre",
+    "from": "Saint John",
+    "to": "Saint George Basseterre"
+  },
+  {
+    "id": "belize-city",
+    "from": "Saint George Basseterre",
+    "to": "Belize"
+  },
+  {
+    "id": "guatemala-city",
+    "from": "Belize",
+    "to": "Guatemala"
+  },
+  {
+    "id": "tegucigalpa",
+    "from": "Guatemala",
+    "to": "Francisco Morazán"
+  },
+  {
+    "id": "san-salvador",
+    "from": "Francisco Morazán",
+    "to": "San Salvador"
+  },
+  {
+    "id": "managua",
+    "from": "San Salvador",
+    "to": "Managua"
+  },
+  {
+    "id": "san-jose",
+    "from": "Managua",
+    "to": "San José"
+  },
+  {
+    "id": "panama-city",
+    "from": "San José",
+    "to": "Panamá"
+  },
+  {
+    "id": "caracas",
+    "from": "Panamá",
+    "to": "Capital District"
+  },
+  {
+    "id": "quito",
+    "from": "Capital District",
+    "to": "Pichincha"
+  },
+  {
+    "id": "lima",
+    "from": "Pichincha",
+    "to": "Lima"
+  },
+  {
+    "id": "la-paz",
+    "from": "Lima",
+    "to": "La Paz"
+  },
+  {
+    "id": "santiago",
+    "from": "La Paz",
+    "to": "Santiago Metropolitan"
+  },
+  {
+    "id": "asuncion",
+    "from": "Santiago Metropolitan",
+    "to": "Asunción"
+  },
+  {
+    "id": "montevideo",
+    "from": "Asunción",
+    "to": "Montevideo"
+  },
+  {
+    "id": "georgetown",
+    "from": "Montevideo",
+    "to": "Demerara-Mahaica"
+  },
+  {
+    "id": "paramaribo",
+    "from": "Demerara-Mahaica",
+    "to": "Paramaribo"
+  },
+  {
+    "id": "tokyo",
+    "from": "Kantō",
+    "to": "Tokyo"
+  },
+  {
+    "id": "tripoli",
+    "from": "Tripolitania",
+    "to": "Tripoli"
+  },
+  {
+    "id": "kingston",
+    "from": "Surrey",
+    "to": "Kingston"
+  }
+]

@@ -143,7 +143,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-across_the_universe',
-    year: 1994,
+    year: 1969,
     location: {
       lat: 53.41,
       lng: -2.98,
@@ -175,7 +175,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-after_midnight',
-    year: 1983,
+    year: 1970,
     location: {
       lat: 51.51,
       lng: -0.13,
@@ -191,7 +191,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-against_the_wind',
-    year: 2000,
+    year: 1980,
     location: {
       lat: 42.33,
       lng: -83.05,
@@ -228,7 +228,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-aint_it_funky_now',
-    year: 2005,
+    year: 1970,
     location: {
       lat: 38.63,
       lng: -90.2,
@@ -244,7 +244,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-aint_no_mountain_high_enough',
-    year: 2012,
+    year: 1967,
     location: {
       lat: 38.91,
       lng: -77.04,
@@ -302,7 +302,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-aint_nobody',
-    year: 2000,
+    year: 1983,
     location: {
       lat: 41.85,
       lng: -87.65,
@@ -334,7 +334,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-air',
-    year: 2000,
+    year: 1979,
     location: {
       lat: 40.71,
       lng: -74.01,
@@ -424,7 +424,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-all_my_loving',
-    year: 1964,
+    year: 1963,
     location: {
       lat: 53.41,
       lng: -2.98,
@@ -504,7 +504,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-american_girl',
-    year: 2000,
+    year: 1976,
     location: {
       lat: 29.65,
       lng: -82.32,
@@ -584,7 +584,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-another_star',
-    year: 1977,
+    year: 1976,
     location: {
       lat: 42.33,
       lng: -83.05,
@@ -600,7 +600,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-ants_marching',
-    year: 1995,
+    year: 1994,
     location: {
       lat: 38.03,
       lng: -78.48,
@@ -637,7 +637,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-as',
-    year: 1977,
+    year: 1976,
     location: {
       lat: 42.33,
       lng: -83.05,
@@ -669,7 +669,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-auld_lang_syne',
-    year: 1993,
+    year: 1788,
     location: {
       lat: 51.51,
       lng: -0.13,
@@ -701,7 +701,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-bad_fish',
-    year: 2008,
+    year: 1992,
     location: {
       lat: 33.77,
       lng: -118.19,
@@ -717,7 +717,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-bad_moon_rising',
-    year: 2000,
+    year: 1969,
     location: {
       lat: 37.92,
       lng: -122.3,
@@ -733,7 +733,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-bare_necessities',
-    year: 2000,
+    year: 1967,
     location: {
       lat: 34.05,
       lng: -118.24,
@@ -781,7 +781,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-beauty_and_the_beast',
-    year: 1978,
+    year: 1977,
     location: {
       lat: 51.51,
       lng: -0.13,
@@ -813,7 +813,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-best_of_my_love',
-    year: 1996,
+    year: 1977,
     location: {
       lat: 41.85,
       lng: -87.65,
@@ -829,7 +829,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-between_the_bars',
-    year: 1996,
+    year: 1997,
     location: {
       lat: 45.52,
       lng: -122.68,
@@ -978,7 +978,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-blame_it_on_the_boogie',
-    year: 2005,
+    year: 1978,
     location: {
       lat: 41.59,
       lng: -87.35,
@@ -1074,7 +1074,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-born_under_punches',
-    year: 1983,
+    year: 1980,
     location: {
       lat: 40.71,
       lng: -74.01,
@@ -1128,7 +1128,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-brother_soul',
-    year: 2000,
+    year: 1969,
     location: {
       lat: 40.71,
       lng: -74.01,
@@ -1176,7 +1176,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-burn_this_disco_out',
-    year: 2022,
+    year: 1979,
     location: {
       lat: 41.59,
       lng: -87.35,
@@ -1330,7 +1330,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-cant_feel_my_face',
-    year: 2000,
+    year: 2015,
     location: {
       lat: 43.65,
       lng: -79.38,
@@ -1362,7 +1362,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-cant_hide_love',
-    year: 2000,
+    year: 1975,
     location: {
       lat: 41.85,
       lng: -87.65,
@@ -1469,7 +1469,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-cashs_dreams',
-    year: 2000,
+    year: 1999,
     location: {
       lat: 40.71,
       lng: -74.01,
@@ -1485,7 +1485,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-celebration',
-    year: 2000,
+    year: 1980,
     location: {
       lat: 40.72,
       lng: -74.08,
@@ -1618,7 +1618,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-cisco_kid',
-    year: 1997,
+    year: 1972,
     location: {
       lat: 33.77,
       lng: -118.19,
@@ -1634,7 +1634,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-cissy_strut',
-    year: 1974,
+    year: 1969,
     location: {
       lat: 29.95,
       lng: -90.07,
@@ -1666,7 +1666,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-come_and_get_your_love',
-    year: 2000,
+    year: 1973,
     location: {
       lat: 40.71,
       lng: -74.01,
@@ -1895,7 +1895,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-cruise',
-    year: 2013,
+    year: 2012,
     location: {
       lat: 36.17,
       lng: -86.78,
@@ -2060,7 +2060,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-december_1963_oh_what_a_night',
-    year: 2008,
+    year: 1975,
     location: {
       lat: 40.74,
       lng: -74.17,
@@ -2129,7 +2129,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-dog_days_are_over',
-    year: 2010,
+    year: 2008,
     location: {
       lat: 51.51,
       lng: -0.13,
@@ -2272,7 +2272,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-dont_worry_about_the_government',
-    year: 1976,
+    year: 1977,
     location: {
       lat: 40.71,
       lng: -74.01,
@@ -2644,7 +2644,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-feeling_alright',
-    year: 1991,
+    year: 1969,
     location: {
       lat: 53.38,
       lng: -1.47,
@@ -2660,7 +2660,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-fire',
-    year: 2000,
+    year: 1967,
     location: {
       lat: 47.61,
       lng: -122.33,
@@ -2724,7 +2724,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-five_years',
-    year: 2015,
+    year: 1972,
     location: {
       lat: 51.51,
       lng: -0.13,
@@ -2798,7 +2798,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-footloose',
-    year: 2000,
+    year: 1984,
     location: {
       lat: 47.61,
       lng: -122.33,
@@ -2851,7 +2851,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-fourfiveseconds',
-    year: 2000,
+    year: 2015,
     location: {
       lat: 13.1,
       lng: -59.62,
@@ -2904,7 +2904,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-fresh_eyes',
-    year: 2017,
+    year: 2016,
     location: {
       lat: 34.05,
       lng: -118.24,
@@ -2920,7 +2920,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-friend_of_the_devil',
-    year: 1981,
+    year: 1970,
     location: {
       lat: 37.77,
       lng: -122.42,
@@ -2957,7 +2957,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-funk_49',
-    year: 1997,
+    year: 1970,
     location: {
       lat: 41.5,
       lng: -81.69,
@@ -3005,7 +3005,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-get_down_on_it',
-    year: 2000,
+    year: 1981,
     location: {
       lat: 40.72,
       lng: -74.08,
@@ -3090,7 +3090,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-gimme_shelter',
-    year: 1971,
+    year: 1969,
     location: {
       lat: 51.51,
       lng: -0.13,
@@ -3367,7 +3367,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-happy_xmas_war_is_over',
-    year: 1989,
+    year: 1971,
     location: {
       lat: 53.41,
       lng: -2.98,
@@ -3383,7 +3383,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-hard_rock_cafe',
-    year: 2000,
+    year: 1977,
     location: {
       lat: 40.71,
       lng: -74.01,
@@ -3436,7 +3436,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-hava_nagila',
-    year: 1996,
+    year: 1918,
     location: {
       lat: 51.51,
       lng: -0.13,
@@ -3569,7 +3569,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-here_comes_the_sun',
-    year: 2015,
+    year: 1969,
     location: {
       lat: 53.41,
       lng: -2.98,
@@ -3750,7 +3750,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-hold_on_im_comin',
-    year: 2007,
+    year: 1966,
     location: {
       lat: 25.77,
       lng: -80.19,
@@ -3787,7 +3787,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-home_again',
-    year: 2022,
+    year: 1971,
     location: {
       lat: 40.71,
       lng: -74.01,
@@ -3867,7 +3867,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-how_come_you_dont_call_me',
-    year: 2000,
+    year: 2001,
     location: {
       lat: 40.71,
       lng: -74.01,
@@ -3946,7 +3946,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-i_cant_go_for_that_no_can_do',
-    year: 2000,
+    year: 1981,
     location: {
       lat: 39.95,
       lng: -75.17,
@@ -3967,7 +3967,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-i_cant_help_it',
-    year: 2018,
+    year: 1979,
     location: {
       lat: 41.59,
       lng: -87.35,
@@ -4020,7 +4020,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-i_feel_for_you',
-    year: 2019,
+    year: 1979,
     location: {
       lat: 44.98,
       lng: -93.27,
@@ -4052,7 +4052,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-i_got_a_woman',
-    year: 2008,
+    year: 1954,
     location: {
       lat: 31.58,
       lng: -84.17,
@@ -4153,7 +4153,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-i_love_rock_n_roll',
-    year: 2000,
+    year: 1981,
     location: {
       lat: 40.71,
       lng: -74.01,
@@ -4190,7 +4190,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-i_shot_the_sheriff',
-    year: 2005,
+    year: 1973,
     location: {
       lat: 17.99,
       lng: -76.79,
@@ -4349,7 +4349,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-id_rather_go_blind',
-    year: 1992,
+    year: 1967,
     location: {
       lat: 34.05,
       lng: -118.24,
@@ -4402,7 +4402,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-if_you_want_me_to_stay',
-    year: 2000,
+    year: 1973,
     location: {
       lat: 37.77,
       lng: -122.42,
@@ -4439,7 +4439,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-ill_be_there',
-    year: 1988,
+    year: 1970,
     location: {
       lat: 41.59,
       lng: -87.35,
@@ -4455,7 +4455,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-ill_make_love_to_you',
-    year: 2000,
+    year: 1994,
     location: {
       lat: 39.95,
       lng: -75.17,
@@ -4503,7 +4503,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-im_comin_out',
-    year: 2000,
+    year: 1980,
     location: {
       lat: 42.33,
       lng: -83.05,
@@ -4614,7 +4614,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-in_my_life',
-    year: 2025,
+    year: 1965,
     location: {
       lat: 53.41,
       lng: -2.98,
@@ -4630,7 +4630,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-in_spite_of_all_the_danger',
-    year: 1994,
+    year: 1995,
     location: {
       lat: 53.41,
       lng: -2.98,
@@ -4688,7 +4688,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-into_the_mystic',
-    year: 2002,
+    year: 1970,
     location: {
       lat: 54.6,
       lng: -5.93,
@@ -4704,7 +4704,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-is_this_love',
-    year: 1977,
+    year: 1978,
     location: {
       lat: 17.99,
       lng: -76.79,
@@ -4752,7 +4752,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-it_takes_two',
-    year: 2000,
+    year: 1988,
     location: {
       lat: 40.71,
       lng: -74.01,
@@ -4832,7 +4832,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-jack_diane',
-    year: 2000,
+    year: 1982,
     location: {
       lat: 38.96,
       lng: -85.89,
@@ -4848,7 +4848,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-jessies_girl',
-    year: 2018,
+    year: 1981,
     location: {
       lat: -33.87,
       lng: 151.21,
@@ -4944,7 +4944,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-juice',
-    year: 2018,
+    year: 2019,
     location: {
       lat: 42.33,
       lng: -83.05,
@@ -4976,7 +4976,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-jump_for_my_love',
-    year: 1992,
+    year: 1983,
     location: {
       lat: 37.8,
       lng: -122.27,
@@ -5008,7 +5008,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-jungle_boogie',
-    year: 2000,
+    year: 1973,
     location: {
       lat: 40.72,
       lng: -74.08,
@@ -5024,7 +5024,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-just_a_girl',
-    year: 1996,
+    year: 1995,
     location: {
       lat: 33.84,
       lng: -117.91,
@@ -5088,7 +5088,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-just_my_imagination_running_away_with_me',
-    year: 2020,
+    year: 1971,
     location: {
       lat: 42.33,
       lng: -83.05,
@@ -5157,7 +5157,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-kashmir',
-    year: 2025,
+    year: 1975,
     location: {
       lat: 51.51,
       lng: -0.13,
@@ -5258,7 +5258,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-kiss_on_my_list',
-    year: 2000,
+    year: 1980,
     location: {
       lat: 39.95,
       lng: -75.17,
@@ -5306,7 +5306,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-lady_marmalade',
-    year: 2000,
+    year: 2001,
     location: {
       lat: 40.31,
       lng: -75.13,
@@ -5327,7 +5327,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-landslide',
-    year: 1988,
+    year: 1975,
     location: {
       lat: 51.51,
       lng: -0.13,
@@ -5391,7 +5391,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-lean_on_me',
-    year: 1989,
+    year: 1972,
     location: {
       lat: 37.73,
       lng: -81.38,
@@ -5423,7 +5423,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-let_the_music_take_your_mind',
-    year: 2000,
+    year: 1970,
     location: {
       lat: 40.72,
       lng: -74.08,
@@ -5445,7 +5445,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-lets_dance',
-    year: 1976,
+    year: 1983,
     location: {
       lat: 51.51,
       lng: -0.13,
@@ -5461,7 +5461,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-lets_get_it_on',
-    year: 1975,
+    year: 1973,
     location: {
       lat: 38.91,
       lng: -77.04,
@@ -5477,7 +5477,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-lets_go_crazy',
-    year: 1987,
+    year: 1984,
     location: {
       lat: 44.98,
       lng: -93.27,
@@ -5493,7 +5493,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-lets_groove',
-    year: 2000,
+    year: 1981,
     location: {
       lat: 41.85,
       lng: -87.65,
@@ -5585,7 +5585,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-life_on_mars',
-    year: 1972,
+    year: 1971,
     location: {
       lat: 51.51,
       lng: -0.13,
@@ -5638,7 +5638,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-listening_wind',
-    year: 2000,
+    year: 1980,
     location: {
       lat: 40.71,
       lng: -74.01,
@@ -5670,7 +5670,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-little_talks',
-    year: 2010,
+    year: 2011,
     location: {
       lat: 64.13,
       lng: -21.82,
@@ -5702,7 +5702,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-livin_on_a_prayer',
-    year: 1987,
+    year: 1986,
     location: {
       lat: 40.46,
       lng: -74.36,
@@ -5766,7 +5766,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-long_train_running',
-    year: 1987,
+    year: 1973,
     location: {
       lat: 37.34,
       lng: -121.89,
@@ -5782,7 +5782,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-look_what_i_found',
-    year: 2019,
+    year: 2018,
     location: {
       lat: 40.71,
       lng: -74.01,
@@ -5798,7 +5798,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-love_and_happiness',
-    year: 2001,
+    year: 1972,
     location: {
       lat: 35.15,
       lng: -90.05,
@@ -5814,7 +5814,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-love_goes_building_on_fire',
-    year: 2000,
+    year: 1977,
     location: {
       lat: 40.71,
       lng: -74.01,
@@ -5830,7 +5830,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-love_never_felt_so_good',
-    year: 2000,
+    year: 2014,
     location: {
       lat: 41.59,
       lng: -87.35,
@@ -5851,7 +5851,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-love_on_the_brain',
-    year: 2000,
+    year: 2016,
     location: {
       lat: 13.1,
       lng: -59.62,
@@ -5968,7 +5968,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-loving_cup',
-    year: 1975,
+    year: 1972,
     location: {
       lat: 51.51,
       lng: -0.13,
@@ -5984,7 +5984,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-low_rider',
-    year: 1976,
+    year: 1975,
     location: {
       lat: 33.77,
       lng: -118.19,
@@ -6000,7 +6000,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-luck_be_a_lady',
-    year: 1970,
+    year: 1963,
     location: {
       lat: 40.74,
       lng: -74.03,
@@ -6096,7 +6096,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-man_i_feel_like_a_woman',
-    year: 1998,
+    year: 1997,
     location: {
       lat: 48.48,
       lng: -81.33,
@@ -6138,7 +6138,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-maneater',
-    year: 2000,
+    year: 1982,
     location: {
       lat: 39.95,
       lng: -75.17,
@@ -6244,7 +6244,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-mercy',
-    year: 2007,
+    year: 2008,
     location: {
       lat: 52.93,
       lng: -4.52,
@@ -6260,7 +6260,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-midnight_train_to_georgia',
-    year: 2000,
+    year: 1973,
     location: {
       lat: 33.75,
       lng: -84.39,
@@ -6772,7 +6772,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-one_way_out',
-    year: 2004,
+    year: 1972,
     location: {
       lat: 32.84,
       lng: -83.63,
@@ -6804,7 +6804,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-ophelia',
-    year: 1992,
+    year: 1975,
     location: {
       lat: 42.04,
       lng: -74.12,
@@ -6836,7 +6836,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-ordinary_people',
-    year: 2000,
+    year: 2004,
     location: {
       lat: 45.42,
       lng: -75.69,
@@ -6868,7 +6868,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-oye_como_va',
-    year: 2007,
+    year: 1970,
     location: {
       lat: 37.77,
       lng: -122.42,
@@ -6969,7 +6969,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-passionfruit',
-    year: 2000,
+    year: 2017,
     location: {
       lat: 43.65,
       lng: -79.38,
@@ -7017,7 +7017,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-pick_up_the_pieces',
-    year: 1996,
+    year: 1974,
     location: {
       lat: 56.46,
       lng: -2.97,
@@ -7139,7 +7139,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-pride_and_joy',
-    year: 2000,
+    year: 1983,
     location: {
       lat: 32.78,
       lng: -96.8,
@@ -7155,7 +7155,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-proud_mary',
-    year: 2000,
+    year: 1971,
     location: {
       lat: 38.63,
       lng: -90.2,
@@ -7203,7 +7203,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-pumped_up_for_kicks',
-    year: 2000,
+    year: 2010,
     location: {
       lat: 34.05,
       lng: -118.24,
@@ -7288,7 +7288,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-raise_your_glass',
-    year: 2013,
+    year: 2010,
     location: {
       lat: 40.31,
       lng: -75.13,
@@ -7304,7 +7304,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-ramble_on',
-    year: 2024,
+    year: 1969,
     location: {
       lat: 51.51,
       lng: -0.13,
@@ -7352,7 +7352,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-rebel_rebel',
-    year: 1973,
+    year: 1974,
     location: {
       lat: 51.51,
       lng: -0.13,
@@ -7400,7 +7400,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-rich_girl',
-    year: 2000,
+    year: 1976,
     location: {
       lat: 39.95,
       lng: -75.17,
@@ -7448,7 +7448,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-rock_steady',
-    year: 2004,
+    year: 1971,
     location: {
       lat: 42.33,
       lng: -83.05,
@@ -7480,7 +7480,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-rocky_mountain_way',
-    year: 1985,
+    year: 1973,
     location: {
       lat: 41.5,
       lng: -81.69,
@@ -7677,7 +7677,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-say_something',
-    year: 2000,
+    year: 2018,
     location: {
       lat: 35.15,
       lng: -90.05,
@@ -7731,7 +7731,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-september',
-    year: 2000,
+    year: 1978,
     location: {
       lat: 41.85,
       lng: -87.65,
@@ -7912,7 +7912,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-shining_star',
-    year: 2000,
+    year: 1975,
     location: {
       lat: 41.85,
       lng: -87.65,
@@ -7928,7 +7928,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-shotgun',
-    year: 2000,
+    year: 1965,
     location: {
       lat: 42.33,
       lng: -83.05,
@@ -8013,7 +8013,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-sing_a_simple_song',
-    year: 2000,
+    year: 1968,
     location: {
       lat: 37.77,
       lng: -122.42,
@@ -8034,7 +8034,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-sing_a_song',
-    year: 2000,
+    year: 1975,
     location: {
       lat: 41.85,
       lng: -87.65,
@@ -8050,7 +8050,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'song-single_ladies',
-    year: 2000,
+    year: 2008,
     location: {
       lat: 37.77,
       lng: -122.42,

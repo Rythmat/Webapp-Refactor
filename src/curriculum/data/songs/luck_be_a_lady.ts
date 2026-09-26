@@ -4,7 +4,7 @@ export const luck_be_a_lady: Song = {
   id: 'luck_be_a_lady',
   title: 'Luck Be A Lady',
   artist: 'Frank Sinatra',
-  year: 1970,
+  year: 1963,
   historicalDescription:
     "Frank Sinatra performs 'Luck Be A Lady', the showstopping number from Frank Loesser's Broadway musical Guys and Dolls. Originally written for the 1950 stage production, the song becomes indelibly associated with Sinatra — a swaggering, big-band declaration that captures his persona as the ultimate ring-a-ding Chairman of the Board at his most theatrically commanding.",
   key: 'D major',

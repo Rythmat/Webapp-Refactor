@@ -1,10 +1,17 @@
 /**
  * Preview — the teacher's "student view" smoke-test for a Day they're
- * authoring locally. Runs the current draft Day through `buildStudentView`
- * (the load-bearing firewall selector) and renders each phase the way a
- * student would see it during a live session: student label, title, prompt,
- * launch tiles, and any interactions the teacher has attached, rendered via
- * the real `InteractionInput` components.
+ * authoring locally.
+ *
+ * When the Day carries a DECK, Preview shows the deck — the thing the teacher
+ * actually authored and the thing a class will actually see. It renders each
+ * slide through the real `SlideRenderer` at the `student` surface, over a
+ * `publishDay(day)` snapshot, so what you preview is literally what publishing
+ * would emit (including the Rule 1 whitelist projection).
+ *
+ * Deck-less legacy Days fall back to the five phase cells via
+ * `buildStudentView` (the load-bearing firewall selector): student label,
+ * title, prompt, launch tiles, and any interactions the teacher has attached,
+ * rendered via the real `InteractionInput` components.
  *
  * Submissions are captured in local state only — no server round trip, no
  * localStorage write. The preview is a rendering harness, not a persistence
@@ -16,6 +23,10 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
 import { buildStudentView, type StudentPhaseView } from '../buildStudentView';
 import { InteractionInput } from '../live/interactions';
+import { publishDay } from '../publish/publishDay';
+import { useTeacherConfig } from '../settings/useTeacherConfig';
+import { SlideRenderer } from '../slides/SlideRenderer';
+import { deckFromSnapshot, interactionsForSlide } from '../slides/deck';
 import type {
   AgePreset,
   InteractionResponsePayload,
@@ -43,8 +54,11 @@ export const PreviewPage = () => {
   const day = dayId ? getDay(dayId) : undefined;
 
   const [language, setLanguage] = useState<StudentLanguage>('en');
-  // Age preset pinned to 'high' (the type-scale baseline); picker removed.
-  const agePreset: AgePreset = 'high';
+  // Per-section age preset. This used to be hard-coded 'high' while
+  // `agePresetDefault` sat in settings with ZERO readers — a picker teachers
+  // could set that changed nothing. It now resolves per classroom.
+  const { config: teacherConfig } = useTeacherConfig(cid);
+  const agePreset: AgePreset = teacherConfig.agePresetDefault;
   const [submissions, setSubmissions] = useState<
     Record<string, InteractionResponsePayload>
   >({});
@@ -54,6 +68,12 @@ export const PreviewPage = () => {
     const config: StudentViewConfig = { language, agePreset };
     return buildStudentView(day, config);
   }, [day, language, agePreset]);
+
+  // Preview the published projection, not the draft: this is the only way the
+  // teacher can see what publishing will actually emit.
+  const snapshot = useMemo(() => (day ? publishDay(day) : null), [day]);
+  const deck = snapshot ? deckFromSnapshot(snapshot) : null;
+  const hasDeck = !!deck && deck.slides.length > 0;
 
   if (!day || !view) {
     return (
@@ -113,23 +133,43 @@ export const PreviewPage = () => {
           {day.label || 'Untitled Day'}
         </h1>
         <p className="text-xs text-white/40">
-          Responses below are local to this preview — nothing is persisted. Use
-          this to smoke-test how a student device will render the Day you're
-          authoring.
+          {hasDeck
+            ? 'The published deck, exactly as a student device will render it. Responses are local to this preview — nothing is persisted.'
+            : 'This Day has no slides yet, so the five phase cells are shown. Responses below are local to this preview — nothing is persisted.'}
         </p>
       </div>
 
-      <div className="flex flex-col gap-4 md:gap-5">
-        {view.phases.map((phase) => (
-          <PhasePreview
-            key={phase.phaseKey}
-            phase={phase}
-            language={language}
-            submissions={submissions}
-            onSubmit={handleSubmit}
-          />
-        ))}
-      </div>
+      {hasDeck && deck && snapshot ? (
+        <div className="flex flex-col gap-4 md:gap-5">
+          {deck.slides.map((slide, i) => (
+            <figure key={slide.id} className="flex flex-col gap-2">
+              <figcaption className="text-xs text-white/40">
+                Slide {i + 1} of {deck.slides.length}
+              </figcaption>
+              <div className="aspect-video w-full overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+                <SlideRenderer
+                  slide={slide}
+                  surface="student"
+                  language={language}
+                  interactions={interactionsForSlide(snapshot, slide)}
+                />
+              </div>
+            </figure>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4 md:gap-5">
+          {view.phases.map((phase) => (
+            <PhasePreview
+              key={phase.phaseKey}
+              phase={phase}
+              language={language}
+              submissions={submissions}
+              onSubmit={handleSubmit}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

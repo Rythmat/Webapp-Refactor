@@ -11,6 +11,28 @@ export { useClassroomDetailsByCode } from './useClassroomDetailsByCode';
 export { useClassroom } from './useClassroom';
 export type { Classroom } from './useClassroom';
 export { useJoinClassroom } from './useJoinClassroom';
+// ── Co-teachers (P1) — the real, shipped /classrooms/:id/teachers API ──────
+export {
+  useClassroomTeachers,
+  classroomTeachersKey,
+} from './useClassroomTeachers';
+export { useAddClassroomTeacher } from './useAddClassroomTeacher';
+export { useUpdateClassroomTeacherRole } from './useUpdateClassroomTeacherRole';
+export { useRemoveClassroomTeacher } from './useRemoveClassroomTeacher';
+export {
+  useClassroomRole,
+  useCanEditClassroom,
+  useCanManageClassroom,
+  useIsClassroomOwner,
+  useMyClassrooms,
+} from './useClassroomRole';
+export type {
+  ClassroomRole,
+  ClassroomTeacher,
+  ClassroomTeacherRole,
+  ClassroomOwner,
+} from './classroomTeachers.types';
+
 export { useClassroomInvitations } from './useClassroomInvitations';
 export { useCreateClassroomInvitation } from './useCreateClassroomInvitation';
 export { useCancelClassroomInvitation } from './useCancelClassroomInvitation';

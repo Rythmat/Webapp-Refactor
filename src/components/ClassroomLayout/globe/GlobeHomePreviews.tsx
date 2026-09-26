@@ -2,6 +2,7 @@ import { ArrowRight, Clock, Globe, Guitar } from 'lucide-react';
 import { type FC, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { HISTORICAL_MODULES, MUSICAL_ERAS } from '@/components/atlas/data';
+import { eraRangeLabel } from '@/components/atlas/data/musicalEras';
 import { GlobeSectionHeader } from './GlobeSectionHeader';
 import { GlobeTile } from './GlobeTile';
 import { RegionsMarquee } from './RegionsMarquee';
@@ -115,7 +116,7 @@ export const GlobeHomePreviews = () => {
           <GlobeTile
             key={era.id}
             title={era.label}
-            subtitle={`${era.yearStart}–${era.yearEnd}`}
+            subtitle={eraRangeLabel(era)}
             seed={`era:${era.id}`}
             onClick={openTab('Eras')}
             ariaLabel={`Open ${era.label} in Eras`}

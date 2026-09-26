@@ -4,7 +4,7 @@ export const raise_your_glass: Song = {
   id: 'raise_your_glass',
   title: 'Raise Your Glass',
   artist: 'Pink',
-  year: 2013,
+  year: 2010,
   historicalDescription:
     "Pink's anthemic 'Raise Your Glass' becomes a rallying cry for the outsiders, the underdogs, and the unapologetically different. Blending pop-rock attitude with a defiant message of self-acceptance, it cements Pink's reputation as one of pop's most authentic voices — never chasing trends, always championing those who don't fit the mold.",
   key: 'G major',

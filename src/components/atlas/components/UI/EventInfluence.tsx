@@ -1,5 +1,5 @@
 import { ArrowUpRight, ArrowDownRight, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import {
   useAppDispatch,
   useAppState,
@@ -12,9 +12,10 @@ import {
 } from '@/components/atlas/data';
 import type { UpstreamChainNode } from '@/components/atlas/data/eventConnections';
 import type { HistoricalEvent } from '@/components/atlas/types';
+import { contentGeneration } from '@/content/contentStore';
 
 // Recursive influence tree (used for both upstream and downstream)
-function InfluenceTree({
+const InfluenceTree = memo(function InfluenceTree({
   nodes,
   onNavigate,
   depth = 0,
@@ -61,7 +62,7 @@ function InfluenceTree({
       })}
     </div>
   );
-}
+});
 
 function countNodes(nodes: UpstreamChainNode[]): number {
   let n = 0;
@@ -100,8 +101,8 @@ function CollapsibleInfluence({
         className="mb-1 flex items-center gap-1 text-xs font-medium text-white/60 transition-colors hover:text-white"
         onClick={(e) => {
           e.stopPropagation();
-          // Toggle the globe arcs (and, via GlobeController, the zoom-out +
-          // auto-rotate). In the modal, just toggle the local section.
+          // Toggle the globe arcs. In the modal, just toggle the local
+          // section.
           if (affectsGlobe)
             dispatch({ type: 'TOGGLE_ARC_DIRECTION', payload: direction });
           else setLocalOpen((o) => !o);
@@ -122,7 +123,7 @@ function CollapsibleInfluence({
  * chains for an event. Renders nothing when the event has no connections.
  * Shared by the region DetailsCard list and the search-results pinned event.
  */
-export function EventInfluence({
+function EventInfluenceInner({
   event,
   onNavigate,
   defaultOpen = false,
@@ -133,19 +134,35 @@ export function EventInfluence({
   onNavigate: (event: HistoricalEvent) => void;
   /** Render the chains expanded regardless of the globe arc state. */
   defaultOpen?: boolean;
-  /** Whether toggling a section drives the globe arcs / zoom / rotation. */
+  /** Whether toggling a section drives the globe's influence arcs. */
   affectsGlobe?: boolean;
   className?: string;
 }) {
-  const upstreamChain = getUpstreamChain(event.id);
-  const downstreamChain = getDownstreamChain(event.id);
+  // Both walks cross the whole influence graph — a hub event's downstream tree
+  // runs to ~495 nodes — and this component re-renders whenever anything in the
+  // atlas context changes. contentGeneration is in the deps because
+  // MUSIC_HISTORY is filled in place after the CDN bundle lands (see
+  // contentStore.ts), which the event id alone would not reflect.
+  const { upstreamChain, downstreamChain, upstreamCount, downstreamCount } =
+    useMemo(() => {
+      const up = getUpstreamChain(event.id);
+      const down = getDownstreamChain(event.id);
+      return {
+        upstreamChain: up,
+        downstreamChain: down,
+        upstreamCount: countNodes(up),
+        downstreamCount: countNodes(down),
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [event.id, contentGeneration]);
+
   if (upstreamChain.length === 0 && downstreamChain.length === 0) return null;
 
   return (
     <div className={className}>
       {upstreamChain.length > 0 && (
         <CollapsibleInfluence
-          count={countNodes(upstreamChain)}
+          count={upstreamCount}
           label="Influenced by"
           direction="upstream"
           defaultOpen={defaultOpen}
@@ -156,7 +173,7 @@ export function EventInfluence({
       )}
       {downstreamChain.length > 0 && (
         <CollapsibleInfluence
-          count={countNodes(downstreamChain)}
+          count={downstreamCount}
           label="Influenced"
           direction="downstream"
           defaultOpen={defaultOpen}
@@ -172,3 +189,5 @@ export function EventInfluence({
     </div>
   );
 }
+
+export const EventInfluence = memo(EventInfluenceInner);

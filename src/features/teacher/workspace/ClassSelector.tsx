@@ -23,8 +23,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { TeacherRoutes } from '@/constants/routes';
-import { useClassroom, useClassrooms, useMe } from '@/hooks/data';
+import { OfficeRoutes, TeacherRoutes } from '@/constants/routes';
+import { useClassroom, useClassrooms, useMyClassrooms } from '@/hooks/data';
 import { CreateClassroomDialog } from '../components/CreateClassroomDialog';
 
 interface ClassSelectorProps {
@@ -35,7 +35,6 @@ export const ClassSelector = ({ classroomId }: ClassSelectorProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: classroom } = useClassroom(classroomId);
-  const { data: me } = useMe();
   const { data: allClassrooms = [] } = useClassrooms();
   const [createOpen, setCreateOpen] = useState(false);
 
@@ -48,10 +47,16 @@ export const ClassSelector = ({ classroomId }: ClassSelectorProps) => {
       NonNullable<ComponentProps<typeof CreateClassroomDialog>['onCreated']>
     >[0],
   ) => {
+    // `['classrooms']` is a PREFIX match, and two different shapes live under
+    // it: `useClassrooms` caches an ARRAY at ['classrooms', params] while
+    // `useClassroom` caches a single OBJECT at ['classrooms', classroomId].
+    // Spreading the object threw "old is not iterable", so creating a class
+    // while any classroom detail was cached crashed this handler. Only the
+    // list shape is updated.
     queryClient.setQueriesData<typeof allClassrooms>(
       { queryKey: ['classrooms'] },
       (old) =>
-        old
+        Array.isArray(old)
           ? [
               ...old,
               {
@@ -65,9 +70,9 @@ export const ClassSelector = ({ classroomId }: ClassSelectorProps) => {
     navigate(TeacherRoutes.classroomDashboard({ classroomId: created.id }));
   };
 
-  const owned = me?.id
-    ? allClassrooms.filter((c) => c.teacherId === me.id)
-    : [];
+  // `allClassrooms` above is still needed for the optimistic cache write; only
+  // the ownership filter moves to the role hook.
+  const { classrooms: owned } = useMyClassrooms();
   const currentName = classroom?.name ?? 'Classroom';
 
   return (
@@ -110,7 +115,7 @@ export const ClassSelector = ({ classroomId }: ClassSelectorProps) => {
           {owned.length > 0 && <DropdownMenuSeparator />}
 
           <DropdownMenuItem
-            onSelect={() => navigate(TeacherRoutes.classrooms())}
+            onSelect={() => navigate(OfficeRoutes.root())}
             className="flex items-center gap-2 text-white/80"
           >
             <LayoutGrid className="h-4 w-4 text-white/50" />

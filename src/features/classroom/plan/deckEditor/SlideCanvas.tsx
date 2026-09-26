@@ -1,6 +1,7 @@
 /**
  * SlideCanvas — the WYSIWYG editor surface, now freeform. It renders the slide
- * through the shared `SlideStage` (via `SlidePresentBody`) so what the teacher
+ * through the shared `SlideStage` in ZONE mode — the same path the projector,
+ * the student device and Present use — so what the teacher
  * arranges is exactly what presents. In EN/ES it injects editable blocks
  * (title/prompt/media/tiles/checklist) as `blockOverrides`; each block can be
  * dragged, resized, and hidden. In "Both" it's a read-only bilingual preview.
@@ -8,16 +9,14 @@
  */
 import type { ReactNode } from 'react';
 import { cn } from '@/components/utilities';
-import {
-  SlidePresentBody,
-  slideToPresentContent,
-} from '../../presentation/SlidePresentBody';
-import { showBlock } from '../../slides/slideLayout';
+import { PHASE_ACCENT_HEX } from '../../presentation/phaseAccent';
+import { resolveElements } from '../../slides/migrateDeckV1';
+import { SlideStage } from '../../slides/parts/SlideStage';
+import { hideBlock, showBlock } from '../../slides/slideLayout';
 import type {
   Slide,
   SlideBlockKey,
   SlideBlockStyle,
-  SlideLayout,
   SlideMedia,
 } from '../../slides/types';
 import type {
@@ -33,6 +32,7 @@ import { LaunchTileRowEditor } from './LaunchTileRowEditor';
 import { ResetChecklistEditor } from './ResetChecklistEditor';
 import { SlideAppearanceMenu } from './SlideAppearanceMenu';
 import { SlideMediaEditor } from './SlideMediaEditor';
+import { editorGhostElements } from './editorGhosts';
 
 type EditLanguage = 'en' | 'es';
 
@@ -80,8 +80,15 @@ export const SlideCanvas = ({
   interactions,
 }: SlideCanvasProps) => {
   const editLang: EditLanguage | null = language === 'both' ? null : language;
+  // Derived elements, plus editor-only placeholders for the text fields this
+  // slide has not got yet — otherwise a slide with no prompt shows no prompt
+  // editor and the teacher can never add one. See `editorGhosts.ts`.
+  const realElements = resolveElements(slide);
+  const canvasElements = [
+    ...realElements,
+    ...editorGhostElements(slide, realElements),
+  ];
   const editable = editLang !== null;
-  const present = slideToPresentContent(slide);
 
   const overrides: Partial<Record<SlideBlockKey, ReactNode>> | undefined =
     editLang !== null
@@ -186,15 +193,36 @@ export const SlideCanvas = ({
       className="presentation-root relative flex min-h-0 flex-1 overflow-hidden rounded-2xl border border-white/10 bg-[#141416]"
       data-age={agePreset}
     >
-      <SlidePresentBody
-        slide={present}
+      {/*
+        The canvas renders through the SAME element path as the class, so
+        "editing == presenting" holds by construction. It used to go through
+        `slideToPresentContent` → block mode, which ignores `presetId`
+        entirely — so a preset-authored slide was edited in one set of zones
+        and projected in another.
+
+        The editor's controls did not have to be rewritten: `zoneOverrides`
+        takes the same block-key map the block path took, and the stage maps
+        each derived element back to its source field with
+        `blockKeyForElement`.
+      */}
+      <SlideStage
+        slide={slide}
+        surface="present"
         language={language}
-        blockOverrides={overrides}
+        elements={canvasElements}
+        interactionsById={Object.fromEntries(
+          (interactions ?? []).map((i) => [i.id, i]),
+        )}
+        zoneOverrides={overrides}
         editable={editable}
         selectedBlock={selectedBlock}
         onSelectBlock={onSelectBlock}
-        onLayoutChange={(layout: SlideLayout) => onPatch({ layout })}
-        interactions={interactions}
+        onHideBlock={(key) => {
+          onPatch({ layout: hideBlock(slide, key) });
+          onSelectBlock(null);
+        }}
+        accent={slide.accent ?? PHASE_ACCENT_HEX[slide.phase]}
+        blocks={{}}
       />
       {editable && <SlideAppearanceMenu slide={slide} onPatch={onPatch} />}
       {editable && (

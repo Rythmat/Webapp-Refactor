@@ -221,7 +221,7 @@ export const classroomPages = () => {
     path: ClassroomRoutes.root.definition,
     // Gated at the group shell rather than per route: slide decks resolve songs
     // for artwork and titles from several components deep in this tree
-    // (SlideMediaPanel, AppRouteSlide, DeckWizardPage), and missing one of them
+    // (SlideMediaPanel, SlideLiveLayer, DeckWizardPage), and missing one of them
     // would show a teacher a deck with blank media rather than an error.
     element: (
       <AppContext>

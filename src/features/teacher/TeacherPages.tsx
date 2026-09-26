@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
-import { Outlet } from 'react-router';
-import { TeacherRoutes } from '@/constants/routes';
+import { Navigate, Outlet } from 'react-router';
+import { OfficeRoutes, TeacherRoutes } from '@/constants/routes';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
 import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
@@ -97,6 +97,12 @@ const AnnualUnitPage = lazy(() =>
   })),
 );
 
+const AssignmentsPage = lazy(() =>
+  import('@/features/classroom/assignments/AssignmentsPage').then(
+    ({ AssignmentsPage }) => ({ default: AssignmentsPage }),
+  ),
+);
+
 const AssignmentProgressPage = lazy(() =>
   import('@/features/classroom/assignments/AssignmentProgressPage').then(
     ({ AssignmentProgressPage }) => ({ default: AssignmentProgressPage }),
@@ -149,8 +155,10 @@ export const teacherPages = () => {
             element: <TeacherLanding />,
           },
           {
+            // Back-compat: the classroom picker now lives at the top-level
+            // /office route (see officePages below); keep the old URL working.
             path: TeacherRoutes.classrooms.definition,
-            element: <ClassroomSelectionPage />,
+            element: <Navigate to={OfficeRoutes.root()} replace />,
           },
           {
             // GC-style workspace: the four tab pages nest under one layout
@@ -211,6 +219,14 @@ export const teacherPages = () => {
                 element: <PreviewPage />,
               },
               {
+                // `TeacherRoutes.assignments` was defined but never registered,
+                // so the teacher's own assignments URL 404'd and the only way
+                // in was the student-side ClassroomRoutes path, which
+                // AssignmentsPage then re-branched on role.
+                path: TeacherRoutes.assignments.definition,
+                element: <AssignmentsPage />,
+              },
+              {
                 path: TeacherRoutes.assignmentProgress.definition,
                 element: <AssignmentProgressPage />,
               },
@@ -238,6 +254,34 @@ export const teacherPages = () => {
             element: <ProjectorPage />,
           },
         ],
+      },
+    ],
+  };
+};
+
+/**
+ * The teacher "Office" — the classroom picker/home, promoted to a top-level
+ * `/office` URL. It reproduces the same guard + dashboard shell the picker had
+ * as a child of `/teacher` (AppContext → ProtectedPage teacherOnly →
+ * ClassroomDashboard), since React Router can't nest an absolute `/office`
+ * child under the `/teacher` parent.
+ */
+export const officePages = () => {
+  return {
+    path: OfficeRoutes.root.definition,
+    element: (
+      <AppContext>
+        <ProtectedPage teacherOnly>
+          <Suspense>
+            <Outlet />
+          </Suspense>
+        </ProtectedPage>
+      </AppContext>
+    ),
+    children: [
+      {
+        element: <ClassroomDashboard fallback={<DashboardContentSkeleton />} />,
+        children: [{ index: true, element: <ClassroomSelectionPage /> }],
       },
     ],
   };

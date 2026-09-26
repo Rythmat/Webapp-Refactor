@@ -126,7 +126,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-kuduro-luanda-2005',
-    year: 2005,
+    year: 2006,
     location: { lat: -8.8399, lng: 13.2894, city: 'Luanda', country: 'Angola' },
     genre: ['Kuduro', 'Electronic'],
     title: 'Kuduro takes over Angola and Portugal',
@@ -333,9 +333,9 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
     id: 'evt-sea-dance-podgorica-2014',
     year: 2014,
     location: {
-      lat: 42.4304,
-      lng: 19.2594,
-      city: 'Podgorica',
+      lat: 42.2864,
+      lng: 18.84,
+      city: 'Budva',
       country: 'Montenegro',
     },
     genre: ['Electronic', 'Rock', 'Pop'],
@@ -475,7 +475,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-acid-house-london-1986',
-    year: 1986,
+    year: 1988,
     location: { lat: 51.5074, lng: -0.1278, city: 'London', country: 'UK' },
     genre: ['Acid House', 'Rave'],
     title: 'Acid House Arrives: The UK Rave Explosion',

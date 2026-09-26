@@ -4,7 +4,7 @@ export const lets_get_it_on: Song = {
   id: 'lets_get_it_on',
   title: 'Let’s Get It On',
   artist: 'Marvin Gaye',
-  year: 1975,
+  year: 1973,
 
   historicalDescription:
     "Marvin Gaye's 'Let's Get It On' becomes one of the most celebrated expressions of sensuality in soul music history. Released at the height of his creative freedom, the song pushes the boundaries of what R&B can say openly about desire and intimacy — transforming the love song into something unapologetically carnal and deeply human.",

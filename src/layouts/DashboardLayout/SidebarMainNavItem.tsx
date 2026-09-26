@@ -10,6 +10,8 @@ import { cn } from '@/components/utilities';
 
 export type NavItemProps = {
   to: string;
+  /** Extra paths (besides `to`) that also mark this item active. */
+  activePaths?: string[];
   /** Lucide component icon; ignored when `iconSrc` is set. */
   icon?: LucideIcon;
   /** Path to an SVG/PNG (e.g. `/icons/learn-icon.svg`). Takes precedence over `icon`. */
@@ -35,7 +37,11 @@ const isRouteActive = (currentPath: string, targetPath: string) => {
 
 export function SidebarMainNavItem(props: NavItemProps) {
   const location = useLocation();
-  const active = !props.external && isRouteActive(location.pathname, props.to);
+  const active =
+    !props.external &&
+    (isRouteActive(location.pathname, props.to) ||
+      (props.activePaths?.some((p) => isRouteActive(location.pathname, p)) ??
+        false));
   const Icon = props.icon;
   const dim = props.variant === 'dim';
 

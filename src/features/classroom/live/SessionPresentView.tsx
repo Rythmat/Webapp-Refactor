@@ -1,6 +1,6 @@
 /**
  * SessionPresentView — the full-screen "Present" surface for a LIVE session. It
- * reuses the exact Preview slide view (`Focus` → `SlidePresentBody` at
+ * reuses the exact Preview slide view (`Focus` → `SlideRenderer` at
  * `surface="present"`) so what the teacher projects matches the editor/Preview,
  * but it is driven by SESSION state: prev/next call back through `onNavigate`
  * (wired to `sendNav`) so students and the projector follow. It covers the app
@@ -11,9 +11,9 @@ import { Maximize2, Minimize2, StopCircle, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Focus } from '../presentation/Focus';
 import { SegmentedControl } from '../presentation/SegmentedControl';
-import { slideToPresentContent } from '../presentation/SlidePresentBody';
+import type { SlideSlots } from '../slides/SlideRenderer';
 import type { Slide } from '../slides/types';
-import type { StudentLanguage } from '../types';
+import type { Interaction, StudentLanguage } from '../types';
 import '../presentation.css';
 
 const LANGUAGE_OPTIONS: { value: StudentLanguage; label: string }[] = [
@@ -23,7 +23,16 @@ const LANGUAGE_OPTIONS: { value: StudentLanguage; label: string }[] = [
 ];
 
 interface SessionPresentViewProps {
+  /**
+   * Pre-gated slots, built exactly as the projector builds them. Present IS
+   * the projected surface in a single-screen room, so it must never show
+   * identified responses — and `SlideRenderer` only calls `reveal` for the
+   * interactions `interactionPolicy` permits on a projected surface.
+   */
+  slots?: SlideSlots;
   currentSlide: Slide;
+  /** Interactions resolved for the current slide. */
+  interactions: Interaction[];
   slideIndex: number;
   slideCount: number;
   dayLabel: string;
@@ -36,12 +45,14 @@ interface SessionPresentViewProps {
 
 export const SessionPresentView = ({
   currentSlide,
+  interactions,
   slideIndex,
   slideCount,
   dayLabel,
   onNavigate,
   onExit,
   onEnd,
+  slots,
 }: SessionPresentViewProps) => {
   const [language, setLanguage] = useState<StudentLanguage>('en');
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -118,7 +129,8 @@ export const SessionPresentView = ({
       </header>
 
       <Focus
-        slide={slideToPresentContent(currentSlide)}
+        slide={currentSlide}
+        interactions={interactions}
         language={language}
         onExit={onExit}
         onPrev={() => onNavigate(slideIndex - 1)}
@@ -126,6 +138,7 @@ export const SessionPresentView = ({
         hasPrev={slideIndex > 0}
         hasNext={slideIndex < slideCount - 1}
         position={`${slideIndex + 1} / ${slideCount}`}
+        slots={slots}
       />
     </div>
   );

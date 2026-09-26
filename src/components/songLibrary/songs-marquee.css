@@ -17,3 +17,19 @@
     transform: translateX(-50%);
   }
 }
+
+/* Pause the ticker while hovered (so a card can be read/clicked), and stop it
+   entirely for visitors who prefer reduced motion — the strip then scrolls
+   horizontally by hand instead. */
+.song-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .song-marquee-track {
+    animation: none;
+  }
+  .song-marquee.song-marquee {
+    overflow-x: auto;
+  }
+}

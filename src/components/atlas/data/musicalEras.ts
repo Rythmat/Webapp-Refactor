@@ -67,9 +67,23 @@ export const MUSICAL_ERAS: MusicalEra[] = [
     id: 'global-digital',
     label: 'Global Digital',
     yearStart: 2000,
-    yearEnd: 2025,
+    // Open-ended on purpose: RegionTimeline filters inclusively, so a hard
+    // 2025 meant the first event dated 2026 would belong to no era at all and
+    // vanish from every era filter.
+    yearEnd: 2100,
     activeBg: 'bg-teal-500/20',
     activeText: 'text-teal-300',
     activeBorder: 'border-teal-500/40',
   },
 ];
+
+/**
+ * "1900–1945", or "2000–present" for the era still running.
+ *
+ * The current era's `yearEnd` is deliberately far in the future so that nothing
+ * ever falls outside every era; that sentinel must not reach the screen.
+ */
+export const eraRangeLabel = (era: MusicalEra): string =>
+  era.yearEnd >= new Date().getFullYear()
+    ? `${era.yearStart}–present`
+    : `${era.yearStart}–${era.yearEnd}`;

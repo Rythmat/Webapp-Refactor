@@ -4,7 +4,7 @@ export const look_what_i_found: Song = {
   id: 'look_what_i_found',
   title: 'Look What I Found',
   artist: 'Lady Gaga',
-  year: 2019,
+  year: 2018,
   historicalDescription:
     "Lady Gaga contributes 'Look What I Found' to the soundtrack of 'A Star Is Born', the 2018 film in which she also stars alongside Bradley Cooper. The pop-rock track showcases Gaga's range beyond her electronic dance roots, reinforcing the film's narrative of an artist discovering her voice. The soundtrack becomes one of the most celebrated musical achievements of her career.",
   key: 'D♭ minor',

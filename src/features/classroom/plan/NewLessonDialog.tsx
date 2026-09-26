@@ -10,6 +10,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/components/utilities';
 import { TeacherRoutes } from '@/constants/routes';
+import { useCanEditClassroom } from '@/hooks/data';
 import { useAnnualPlan } from '../annual/useAnnualPlan';
 import { useThemeBank } from '../content/hooks';
 import type { Unit } from '../types';
@@ -33,7 +34,9 @@ export const NewLessonDialog = ({
   const navigate = useNavigate();
   const { plan, addDayToUnit, suggestDayScheduleInUnit } =
     useAnnualPlan(classroomId);
-  const { getDay, saveDay } = useLocalPlan();
+  const { getDay, saveDay: saveDayRaw } = useLocalPlan(classroomId);
+  const canEdit = useCanEditClassroom(classroomId);
+  const saveDay = canEdit ? saveDayRaw : () => {};
   const { byId } = useThemeBank();
 
   const units = useMemo<Unit[]>(

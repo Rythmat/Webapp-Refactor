@@ -388,7 +388,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-jamband-norwalk-2016-goose',
-    year: 2016,
+    year: 2014,
     location: {
       lat: 41.1176,
       lng: -73.4079,
@@ -677,7 +677,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-jamband-boston-2008-dopapod',
-    year: 2008,
+    year: 2007,
     location: {
       lat: 42.3601,
       lng: -71.0589,

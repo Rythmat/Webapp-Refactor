@@ -6,11 +6,9 @@
  */
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest';
+import { expectNoForbiddenKeys } from '../firewall.testUtils';
 import { newBlankDay } from '../plan/newBlankDay';
-import {
-  FORBIDDEN_SUBSTRINGS,
-  findForbiddenSubstring,
-} from '../publish/publishDay';
+import { findForbiddenKey } from '../publish/publishDay';
 import {
   STORAGE_KEY as PUBLISHED_KEY,
   publishDayForUser,
@@ -74,27 +72,8 @@ const hydratedDay = (id?: string): Day => {
   };
 };
 
-const assertNoForbiddenKeys = (obj: unknown): void => {
-  const walk = (v: unknown): void => {
-    if (Array.isArray(v)) {
-      v.forEach(walk);
-      return;
-    }
-    if (v && typeof v === 'object') {
-      for (const [key, val] of Object.entries(v)) {
-        const lower = key.toLowerCase();
-        for (const forbidden of FORBIDDEN_SUBSTRINGS) {
-          expect(
-            lower.includes(forbidden),
-            `key "${key}" contains forbidden substring "${forbidden}"`,
-          ).toBe(false);
-        }
-        walk(val);
-      }
-    }
-  };
-  walk(obj);
-};
+const assertNoForbiddenKeys = (obj: unknown): void =>
+  expectNoForbiddenKeys(obj, 'published snapshot');
 
 const getResolver = () => ({
   getPublishedDay: (publishedDayId: string) =>
@@ -116,7 +95,7 @@ describe('publishedDays store', () => {
     const stored = readPublishedStoreForUser(USER_ID).entries[pd.id];
     expect(stored).toBeDefined();
     expect(stored!.sourceRef).toBe(day.id);
-    expect(findForbiddenSubstring(stored!.snapshot)).toBeNull();
+    expect(findForbiddenKey(stored!.snapshot)).toBeNull();
 
     const rawKey = `${PUBLISHED_KEY}:${USER_ID}`;
     const rawEnvelope = JSON.parse(window.localStorage.getItem(rawKey) ?? '{}');

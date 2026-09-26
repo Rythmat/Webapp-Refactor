@@ -4,7 +4,7 @@ export const across_the_universe: Song = {
   id: 'across_the_universe',
   title: 'Across The Universe',
   artist: 'The Beatles',
-  year: 1994,
+  year: 1969,
   historicalDescription:
     "John Lennon's meditative 'Across The Universe' finally receives its definitive release on 'Let It Be... Naked' after a troubled history — first recorded in 1968, then buried on charity compilations and later over-produced by Phil Spector. The song's mantra-inspired lyrics, drawn from Lennon's immersion in Transcendental Meditation, stand among his most poetic writing and endure as one of the Beatles' most quietly radical compositions.",
   key: 'D♭ major',

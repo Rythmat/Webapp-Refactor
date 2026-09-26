@@ -143,7 +143,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-rtl-luxembourg-1954',
-    year: 1954,
+    year: 1957,
     location: {
       lat: 49.6117,
       lng: 6.1319,
@@ -167,7 +167,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-eurovision-sanmarino-2011',
-    year: 2011,
+    year: 2008,
     location: {
       lat: 43.9424,
       lng: 12.4578,
@@ -256,7 +256,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-hanson-tulsa-2007',
-    year: 2007,
+    year: 2003,
     location: { lat: 36.154, lng: -95.9928, city: 'Tulsa', country: 'US' },
     genre: ['Pop Rock', 'Indie', 'Alternative'],
     title: "Hanson's independent label sparks Tulsa music revival",
@@ -276,7 +276,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-bollywood-mumbai-1960',
-    year: 1960,
+    year: 1971,
     location: { lat: 19.076, lng: 72.8777, city: 'Mumbai', country: 'India' },
     genre: ['Bollywood', 'Filmi', 'Disco'],
     title: 'R.D. Burman fuses disco, rock, and jazz into Bollywood scores',

@@ -342,6 +342,14 @@ export const TeacherRoutes = {
 };
 
 /**
+ * Teacher "Office" — the standalone classroom picker/home, promoted to a
+ * top-level URL (no `/teacher` prefix).
+ */
+export const OfficeRoutes = {
+  root: createRouteDefinition('/office'),
+};
+
+/**
  * The routes for the classroom.
  */
 const classroomPrefix = '/classrooms';

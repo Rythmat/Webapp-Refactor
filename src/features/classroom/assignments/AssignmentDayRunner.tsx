@@ -1,10 +1,10 @@
 import { ArrowLeft, CheckCircle2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ClassroomRoutes } from '@/constants/routes';
 import { InteractionInput } from '../live/interactions';
-import { findForbiddenSubstring } from '../publish/publishDay';
 import { usePublishedDays } from '../publish/usePublishedDays';
+import { useSanitizedPublishedDay } from '../publish/useRuleOneReadGuard';
 import type {
   Interaction,
   InteractionResponsePayload,
@@ -39,18 +39,21 @@ export const AssignmentDayRunner = () => {
     useMyAssignmentProgress(aid, enrollmentId, cid);
 
   const assignment = getAssignment(aid);
-  const publishedDay = assignment?.publishedDayId
+  const storedDay = assignment?.publishedDayId
     ? getPublishedDay(assignment.publishedDayId)
     : undefined;
+  // Rule 1, read path: strip any stray teacher-only key and render anyway. A
+  // student must never be shown "Assignment not available" because a snapshot
+  // published by an older build carried one extra field.
+  const { day: publishedDay } = useSanitizedPublishedDay(
+    storedDay,
+    'assignment-runner',
+    cid,
+  );
 
   const [language, setLanguage] = useState<StudentLanguage>('en');
 
-  const forbidden = useMemo(
-    () => (publishedDay ? findForbiddenSubstring(publishedDay.snapshot) : null),
-    [publishedDay],
-  );
-
-  if (!assignment || !publishedDay || forbidden !== null) {
+  if (!assignment || !publishedDay) {
     return (
       <div className="mx-auto flex w-full max-w-[900px] flex-col gap-4 px-6 py-10">
         <p className="text-sm text-white/60">Assignment not available.</p>

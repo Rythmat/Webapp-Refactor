@@ -11,6 +11,7 @@
  */
 import { ChevronLeft, ChevronRight, Settings } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
+import { useCanEditClassroom } from '@/hooks/data';
 import { useLocalPlan } from '../plan/useLocalPlan';
 import { SegmentedControl } from '../presentation/SegmentedControl';
 import type { Day, StudentLanguage, Unit } from '../types';
@@ -85,7 +86,10 @@ export const CalendarView = ({
     songsReady,
     statusFor,
   } = useWeekGridData(classroomId, plan);
-  const { saveDay } = useLocalPlan();
+  const { saveDay: saveDayRaw } = useLocalPlan(classroomId);
+  const canEdit = useCanEditClassroom(classroomId);
+  // Drag-to-schedule is a write; viewers get a read-only calendar.
+  const saveDay = canEdit ? saveDayRaw : () => {};
   const { setUnitSchedule } = useAnnualPlan(classroomId);
   const [mode, setMode] = useState<CalendarMode>('month');
   const [view, setView] = useState<ViewMonth>(() => resolveInitialMonth(today));

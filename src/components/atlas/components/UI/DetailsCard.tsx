@@ -6,8 +6,6 @@ import {
   MapPin,
   Maximize2,
   Minimize2,
-  Pause,
-  Play,
   GripVertical,
 } from 'lucide-react';
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
@@ -34,30 +32,24 @@ function EventList({
   enlarged,
   pinnedEventId,
   sequenceActive,
-  rotationEngaged,
-  rotationPaused,
   onToggle,
   onEnlarge,
   onShrink,
   onNavigateToEvent,
   onSelectArtist,
   onVideoPlay,
-  onToggleRotation,
 }: {
   events: HistoricalEvent[];
   expandedEvents: Set<string>;
   enlarged: boolean;
   pinnedEventId?: string;
   sequenceActive: boolean;
-  rotationEngaged: boolean;
-  rotationPaused: boolean;
   onToggle: (id: string) => void;
   onEnlarge: (event: HistoricalEvent) => void;
   onShrink: () => void;
   onNavigateToEvent: (event: HistoricalEvent) => void;
   onSelectArtist: (artist: AtlasArtist) => void;
   onVideoPlay: () => void;
-  onToggleRotation: () => void;
 }) {
   if (events.length === 0) {
     return (
@@ -123,29 +115,6 @@ function EventList({
                   />
                 </h4>
                 <div className="flex shrink-0 items-center gap-1.5">
-                  {rotationEngaged && event.id === pinnedEventId && (
-                    <button
-                      aria-label={
-                        rotationPaused
-                          ? 'Resume globe rotation'
-                          : 'Pause globe rotation'
-                      }
-                      title={
-                        rotationPaused ? 'Resume rotation' : 'Pause rotation'
-                      }
-                      className="rounded text-white/40 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onToggleRotation();
-                      }}
-                    >
-                      {rotationPaused ? (
-                        <Play className="size-3.5" />
-                      ) : (
-                        <Pause className="size-3.5" />
-                      )}
-                    </button>
-                  )}
                   <button
                     aria-label={focused ? 'Shrink' : 'Enlarge'}
                     title={focused ? 'Shrink' : 'Enlarge'}
@@ -218,14 +187,8 @@ function EventList({
 }
 
 export function DetailsCard() {
-  const {
-    selectedLocation,
-    pinnedEvent,
-    activeModule,
-    activeTour,
-    visibleArcDirections,
-    rotationPaused,
-  } = useAppState();
+  const { selectedLocation, pinnedEvent, activeModule, activeTour } =
+    useAppState();
   const dispatch = useAppDispatch();
   const navigate = useAtlasNavigate();
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set());
@@ -235,10 +198,6 @@ export function DetailsCard() {
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const sequenceActive = !!(activeModule || activeTour);
-  // The globe auto-rotates while a pinned event's influence arcs are open.
-  const rotationEngaged = !!pinnedEvent && visibleArcDirections.size > 0;
-  const toggleRotation = () =>
-    dispatch({ type: 'SET_ROTATION_PAUSED', payload: !rotationPaused });
 
   const onDragStart = useCallback(
     (e: React.MouseEvent) => {
@@ -350,8 +309,8 @@ export function DetailsCard() {
   };
 
   // Enlarge the panel, focused on an event. If it's the event already playing,
-  // don't re-navigate (that would re-pin it, resetting the arcs and stopping the
-  // globe spin); just grow the panel so the video keeps playing uninterrupted.
+  // don't re-navigate (that would re-pin it, resetting the arcs); just grow the
+  // panel so the video keeps playing uninterrupted.
   const enlargeEvent = (event: HistoricalEvent) => {
     if (pinnedEvent?.id !== event.id) navigate.toEvent(event);
     setExpandedEvents(new Set([event.id]));
@@ -382,26 +341,8 @@ export function DetailsCard() {
       )}
 
       <div className="shrink-0 p-4">
-        {/* Pause rotation + Collapse + Close buttons */}
+        {/* Collapse + Close buttons */}
         <div className="absolute right-3 top-3 flex items-center gap-1">
-          {rotationEngaged && (
-            <button
-              aria-label={
-                rotationPaused
-                  ? 'Resume globe rotation'
-                  : 'Pause globe rotation'
-              }
-              title={rotationPaused ? 'Resume rotation' : 'Pause rotation'}
-              className="text-white/40 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
-              onClick={toggleRotation}
-            >
-              {rotationPaused ? (
-                <Play className="size-4" />
-              ) : (
-                <Pause className="size-4" />
-              )}
-            </button>
-          )}
           {!enlarged && (
             <button
               aria-label={collapsed ? 'Expand details' : 'Collapse details'}
@@ -484,15 +425,12 @@ export function DetailsCard() {
           enlarged={enlarged}
           pinnedEventId={pinnedEvent?.id}
           sequenceActive={sequenceActive}
-          rotationEngaged={rotationEngaged}
-          rotationPaused={rotationPaused}
           onToggle={toggleEvent}
           onEnlarge={enlargeEvent}
           onShrink={() => setEnlarged(false)}
           onNavigateToEvent={navigateToEvent}
           onSelectArtist={selectArtist}
           onVideoPlay={() => dispatch({ type: 'OPEN_INFLUENCE_ARCS' })}
-          onToggleRotation={toggleRotation}
         />
       )}
     </div>

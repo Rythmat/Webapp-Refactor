@@ -9,7 +9,7 @@ import {
 // ── Constants ────────────────────────────────────────────────────────────
 
 /** Spectrum order: warm → cool matching the circle-of-fifths color wheel */
-const SPECTRUM_ORDER: ColorIndex[] = [
+export const SPECTRUM_ORDER: ColorIndex[] = [
   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
 ];
 
@@ -25,7 +25,7 @@ for (const [idx, rgb] of Object.entries(KEY_COLORS)) {
  * Compute the KEY_COLORS index for a chord by calling the engine's
  * getChordColor (which handles mode remapping) and reverse-looking up.
  */
-function colorIndexForChord(
+export function colorIndexForChord(
   chordName: string,
   rootMidi: number,
   mode: string,
@@ -33,6 +33,34 @@ function colorIndexForChord(
   const parentRoot = rootMidi - getModeOffset(mode);
   const rgb = getChordColor(chordName, parentRoot);
   return RGB_TO_INDEX.get(rgb.join(',')) ?? 0;
+}
+
+/** CSS gradient from KEY_COLORS, in spectrum order */
+export const SPECTRUM_GRADIENT = `linear-gradient(to right, ${SPECTRUM_ORDER.map(
+  (idx, i) => {
+    const [r, g, b] = KEY_COLORS[idx];
+    const pct = (i / (SPECTRUM_ORDER.length - 1)) * 100;
+    return `rgb(${r}, ${g}, ${b}) ${pct}%`;
+  },
+).join(', ')})`;
+
+/**
+ * Group chord options by their rotated color index. Unknown colors (0=white)
+ * are skipped — only accessible via Advanced.
+ */
+export function groupChordsByColor(
+  chordOptions: readonly string[],
+  rootMidi: number,
+  mode: string,
+): Map<number, string[]> {
+  const groups = new Map<number, string[]>();
+  for (const name of chordOptions) {
+    const colorIdx = colorIndexForChord(name, rootMidi, mode);
+    if (colorIdx === 0) continue;
+    if (!groups.has(colorIdx)) groups.set(colorIdx, []);
+    groups.get(colorIdx)!.push(name);
+  }
+  return groups;
 }
 
 // ── Props ────────────────────────────────────────────────────────────────
@@ -53,27 +81,10 @@ export function ColorSpectrum({
   onSelectChord,
 }: ColorSpectrumProps) {
   // Group available chords by their rotated color index
-  const colorGroups = useMemo(() => {
-    const groups = new Map<number, string[]>();
-    for (const name of chordOptions) {
-      const colorIdx = colorIndexForChord(name, rootMidi, mode);
-      // Skip unknown color (0=white) — only accessible via Advanced
-      if (colorIdx === 0) continue;
-      if (!groups.has(colorIdx)) groups.set(colorIdx, []);
-      groups.get(colorIdx)!.push(name);
-    }
-    return groups;
-  }, [chordOptions, rootMidi, mode]);
-
-  // CSS gradient from KEY_COLORS
-  const gradient = useMemo(() => {
-    const stops = SPECTRUM_ORDER.map((idx, i) => {
-      const [r, g, b] = KEY_COLORS[idx];
-      const pct = (i / (SPECTRUM_ORDER.length - 1)) * 100;
-      return `rgb(${r}, ${g}, ${b}) ${pct}%`;
-    });
-    return `linear-gradient(to right, ${stops.join(', ')})`;
-  }, []);
+  const colorGroups = useMemo(
+    () => groupChordsByColor(chordOptions, rootMidi, mode),
+    [chordOptions, rootMidi, mode],
+  );
 
   const handleClick = useCallback(
     (colorIdx: number) => () => {
@@ -88,7 +99,7 @@ export function ColorSpectrum({
   return (
     <div
       className="relative w-full overflow-hidden rounded-lg"
-      style={{ background: gradient, height: '100%' }}
+      style={{ background: SPECTRUM_GRADIENT, height: '100%' }}
     >
       {/* Segment overlays — dim unavailable, clickable available */}
       <div className="absolute inset-0 flex">

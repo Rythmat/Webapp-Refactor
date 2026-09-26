@@ -1,24 +1,35 @@
 /**
- * Build Song Connections
+ * ⚠️ RETIRED — DO NOT RUN. Kept for reference only.
  *
- * Generates four kinds of connections involving song events on the globe:
+ * This generated the song-related blocks of EVENT_CONNECTIONS. A link-by-link
+ * review in 2026-09 rejected 905 of its 1,123 song←event edges: matching on a
+ * genre FAMILY, a 30-year window and a shared country is simply too loose, and
+ * it produced things like a Phish side-project event "influencing" a Britney
+ * Spears single and a Spice Girls event "influencing" Hava Nagila. It also
+ * depended on song years that were themselves wrong (filled from MusicBrainz
+ * "earliest release by artist", which caught reissues), so its year-ordering
+ * heuristics inverted edges as well.
  *
- *   (a) song ← historical event   (genre + era + location heuristic, tightened)
- *   (b) song ← other song          (same-artist or cover heuristic)
- *   (c) song → historical event    (hand-curated from songInfluencesEvent.json)
- *   (d) song → later song          (reverse of b)
+ * The 217 edges that survived review now live in eventConnections.ts as
+ * ordinary hand-maintained data, alongside the song→song and song→event
+ * blocks. Running this script would overwrite them with the rejected set.
  *
- * Each generator emits a comment-delimited block inside EVENT_CONNECTIONS in
- * eventConnections.ts so blocks can be replaced independently.
- *
- * Usage:
- *   node src/scripts/buildSongConnections.mjs           # all songs
- *   node src/scripts/buildSongConnections.mjs --pilot   # restrict to pilotSongs.json
- *   node src/scripts/buildSongConnections.mjs --dry-run # don't write to file
+ * Add new song influence links by hand, and only where the relationship is
+ * documented or the artists/labels/scene genuinely connect. See
+ * docs/globe-review/removed-connections.md for what was taken out and why.
  */
 
 import fs from 'fs';
 import path from 'path';
+
+if (!process.argv.includes('--i-know-this-is-retired')) {
+  console.error(
+    'buildSongConnections.mjs is retired — it would overwrite the reviewed\n' +
+      'song influence links in eventConnections.ts with the rejected set.\n' +
+      'See the comment at the top of this file.',
+  );
+  process.exit(1);
+}
 
 const EVENTS_DIR =
   '/Users/marfizo/Documents/Full App Code/Webapp-Refactor/src/components/atlas/data/events';

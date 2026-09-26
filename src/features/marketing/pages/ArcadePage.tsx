@@ -1,11 +1,11 @@
 import { AudioWaveform, Ear, Flame, Puzzle, Users, Waves } from 'lucide-react';
 import { AuthRoutes, GameRoutes, MarketingRoutes } from '@/constants/routes';
+import { MODULE_ICONS } from '@/features/landing/sections/moduleIcons';
 import { ProductPageTemplate } from '../ProductPageTemplate';
 import type { ProductPageData } from '../content/types';
 
 const data: ProductPageData = {
   slug: 'arcade',
-  accent: '#a78bfa',
   seo: {
     title: 'Arcade — Level up your ears and skills | Music Atlas',
     description:
@@ -19,7 +19,6 @@ const data: ProductPageData = {
       '13 music games that turn ear training, theory and technique into play — earn XP as you drill.',
     primaryCta: { label: 'Start free', href: AuthRoutes.signIn() },
     secondaryCta: { label: 'Play the Arcade', href: GameRoutes.root() },
-    artSeed: 'arcade',
   },
   stats: [
     { value: '13', label: 'games' },
@@ -74,16 +73,19 @@ const data: ProductPageData = {
     links: [
       {
         label: 'Studio',
+        icon: MODULE_ICONS.studio,
         description: 'Make music in your browser',
         href: MarketingRoutes.studio(),
       },
       {
         label: 'Learn',
+        icon: MODULE_ICONS.learn,
         description: 'Theory, technique & real songs',
         href: MarketingRoutes.learn(),
       },
       {
         label: 'Globe',
+        icon: MODULE_ICONS.globe,
         description: 'Explore the world of music',
         href: MarketingRoutes.globe(),
       },

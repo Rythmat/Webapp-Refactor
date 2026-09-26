@@ -4,7 +4,7 @@ export const livin_on_a_prayer: Song = {
   id: 'livin_on_a_prayer',
   title: 'Livin’ On A Prayer',
   artist: 'Jon Bon Jovi',
-  year: 1987,
+  year: 1986,
   historicalDescription:
     "Bon Jovi releases 'Livin' On A Prayer', a working-class anthem built around the story of Tommy and Gina struggling to make ends meet. The song becomes one of the defining rock hits of the 1980s, cementing Bon Jovi's place at the top of the arena rock world and capturing the blue-collar spirit of a generation.",
   key: 'E minor',

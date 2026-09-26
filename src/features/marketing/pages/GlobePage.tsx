@@ -7,12 +7,12 @@ import {
   Globe as GlobeIcon,
 } from 'lucide-react';
 import { AtlasRoutes, AuthRoutes, MarketingRoutes } from '@/constants/routes';
+import { MODULE_ICONS } from '@/features/landing/sections/moduleIcons';
 import { ProductPageTemplate } from '../ProductPageTemplate';
 import type { ProductPageData } from '../content/types';
 
 const data: ProductPageData = {
   slug: 'globe',
-  accent: '#60a5fa',
   seo: {
     title: 'Globe — Explore the world of music | Music Atlas',
     description:
@@ -26,7 +26,6 @@ const data: ProductPageData = {
       'An interactive 3D globe of music history and geography — travel by place and era to discover how the music you love came to be.',
     primaryCta: { label: 'Start free', href: AuthRoutes.signIn() },
     secondaryCta: { label: 'Open the Globe', href: AtlasRoutes.root() },
-    artSeed: 'globe',
   },
   featuresHeading: 'A living map of music',
   features: [
@@ -79,16 +78,19 @@ const data: ProductPageData = {
     links: [
       {
         label: 'Learn',
+        icon: MODULE_ICONS.learn,
         description: 'Theory, technique & real songs',
         href: MarketingRoutes.learn(),
       },
       {
         label: 'Studio',
+        icon: MODULE_ICONS.studio,
         description: 'Make music in your browser',
         href: MarketingRoutes.studio(),
       },
       {
         label: 'Arcade',
+        icon: MODULE_ICONS.arcade,
         description: 'Train your ear through play',
         href: MarketingRoutes.arcade(),
       },

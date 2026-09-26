@@ -4,7 +4,7 @@ export const jump_for_my_love: Song = {
   id: 'jump_for_my_love',
   title: 'Jump (For My Love)',
   artist: 'The Pointer Sisters',
-  year: 1992,
+  year: 1983,
   historicalDescription:
     "The Pointer Sisters release 'Jump (For My Love)', a jubilant pop and R&B anthem that showcases the group's powerhouse harmonies and irresistible energy. The song becomes one of their signature hits, cementing their place as one of the most versatile acts of the era — capable of moving seamlessly from country to R&B to high-energy pop.",
   key: 'B♭ major',

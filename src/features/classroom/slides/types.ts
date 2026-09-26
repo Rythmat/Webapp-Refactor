@@ -17,6 +17,7 @@
  */
 import type { PhaseKey } from '../phases';
 import type { LaunchTile, LocalizedText } from '../types';
+import type { ZoneName } from './slideGrid';
 
 /** Visual media block usable on content / media / interaction slides. */
 export type SlideMedia =
@@ -53,9 +54,9 @@ export type SlideMedia =
  * `SlideCommon.layout`; absent ⇒ the kind's default (flow) arrangement.
  *
  * Firewall note: this is student-safe by construction — the keys are a fixed
- * identifier set and every value is a number/boolean, so it carries no free
- * text and can't contain a Rule-1 forbidden substring. It is whitelist-copied
- * in `publishDay.projectSlideLayout` (never spread).
+ * identifier set that collides with no `FORBIDDEN_KEYS` entry, and every value
+ * is a number/boolean. It is whitelist-copied in
+ * `publishDay.projectSlideLayout` (never spread).
  */
 export type SlideBlockKey =
   | 'title'
@@ -86,9 +87,9 @@ export type SlideLayout = Partial<Record<SlideBlockKey, SlideBlockRect>>;
  * Per-block text formatting (font scale / bold / alignment).
  *
  * Firewall note: student-safe by construction — every value is a number, a
- * boolean, or an enum token (`left`/`center`/`right`, none of which contain a
- * Rule-1 forbidden substring), so it carries no free text. Whitelist-copied in
- * `publishDay.projectTextStyle` (never spread), exactly like `SlideLayout`.
+ * boolean, or an enum token (`left`/`center`/`right`), and no key matches a
+ * `FORBIDDEN_KEYS` entry. Whitelist-copied in `publishDay.projectTextStyle`
+ * (never spread), exactly like `SlideLayout`.
  */
 export interface SlideBlockStyle {
   /** Multiplier on the block's resolved `--slide-<block>-fz` token (clamp 0.5–2). */
@@ -113,6 +114,94 @@ export const SLIDE_BLOCK_KEYS: readonly SlideBlockKey[] = [
   'interaction',
 ] as const;
 
+// ── P2: the zone-based element model ────────────────────────────────────────
+//
+// Elements REPLACE freeform rects as the layout model. An element stores only
+// `{zone, order, hidden?, z?}`; its rectangle is DERIVED from `SLIDE_GRID`.
+// That is what keeps layout data free of free text, which in turn keeps
+// `publishDay`'s whitelist projection trivially safe.
+//
+// `SlideElement.id` is an ELEMENT uid. It is NOT the response join key — that
+// is `interactionId`, and confusing the two breaks response aggregation across
+// live sessions and async assignments.
+
+export interface SlideElementStyle {
+  /** Clamped 0.5–2 at render; text shrinks to fit, then clips. */
+  fontScale?: number;
+  bold?: boolean;
+  align?: 'left' | 'center' | 'right';
+}
+
+export interface SlideElementBase {
+  id: string;
+  /** Enum token only — never free text, never a rect. */
+  zone: ZoneName;
+  /** Position within a `column`/`row` zone. Ties fall back to array order. */
+  order?: number;
+  hidden?: boolean;
+  z?: number;
+  style?: SlideElementStyle;
+}
+
+/**
+ * What renders inline. Ids only — never a URL, never free text.
+ *
+ * P3 adds `hrefForEmbed`, which is TOTAL over this union, so an element that
+ * has an embed can never lack a canonical link.
+ */
+export type EmbedDescriptor =
+  | SlideMedia
+  | { type: 'image'; assetId: string }
+  | { type: 'atlasCard'; ref: string };
+
+/** Where the content lives. Exactly one href per content element. */
+export type ContentHref =
+  | { kind: 'atlas'; ref: string }
+  | { kind: 'external'; url: string; host: string };
+
+export interface SlideContentElement extends SlideElementBase {
+  kind: 'content';
+  /** `null` renders as a link card. There is no third state. */
+  embed: EmbedDescriptor | null;
+  href: ContentHref;
+  label: LocalizedText;
+  caption?: LocalizedText;
+}
+
+export interface SlideTextElement extends SlideElementBase {
+  kind: 'text';
+  role: 'title' | 'subtitle' | 'body' | 'label';
+  text: LocalizedText;
+  /** Bilingual render mode within the same zone. `stacked` is the default. */
+  secondary?: 'stacked' | 'inline' | 'off';
+}
+
+export interface SlideChecklistElement extends SlideElementBase {
+  kind: 'checklist';
+  items: LocalizedText[];
+}
+
+export interface SlideInteractionElement extends SlideElementBase {
+  kind: 'interaction';
+  /** The response join key. Re-keyed by every duplicate/copy operation. */
+  interactionId: string;
+  reveal?: 'bars' | 'wall' | 'words' | 'scale';
+  /**
+   * A draw interaction may annotate another element; the overlay renders at
+   * THAT element's zone rect. This is how rhythm-grid and chord-chart
+   * annotation slides actually work.
+   */
+  drawTargetElementId?: string;
+}
+
+export type SlideElement =
+  | SlideTextElement
+  | SlideContentElement
+  | SlideChecklistElement
+  | SlideInteractionElement;
+
+export type SlideElementKind = SlideElement['kind'];
+
 interface SlideCommon {
   id: string;
   /** IMPACT anchor — drives derived currentPhase, phase chip, report grouping. */
@@ -122,11 +211,23 @@ interface SlideCommon {
   /** Teacher-set countdown seconds (Phase 4 UI; parameterized by templates now). */
   timerSec?: number;
   /**
-   * Freeform arrangement of this slide's blocks. Undefined ⇒ the kind's default
-   * flow layout (existing decks render unchanged). Only touched blocks are
-   * stored; the rest resolve from `defaultLayoutForKind` at render.
+   * @deprecated P2 replaced freeform rects with zone-assigned `elements`.
+   *
+   * READ-ONLY from here on: `migrateDeckV1` resolves each stored rect to its
+   * nearest zone and then IGNORES the rect. Still present so existing decks and
+   * already-published v1 snapshots render, and so the migration has something
+   * to read. Nothing should write it.
    */
-  layout?: SlideLayout;
+  readonly layout?: SlideLayout;
+  /**
+   * Zone-assigned content. Optional ON PURPOSE: legacy decks and already-
+   * published v1 snapshots have none, and `resolveElements(slide)` derives them
+   * lazily at render so both keep working. Present on everything this build
+   * authors.
+   */
+  elements?: SlideElement[];
+  /** The layout preset this slide was built from; "Reset to standard" re-applies it. */
+  presetId?: string;
   /**
    * Per-slide accent override (a `#RRGGBB` hex) driving the radial glow + phase
    * chip dot. Undefined ⇒ the phase default (`PHASE_ACCENT_HEX`). Student-safe:
@@ -140,6 +241,16 @@ interface SlideCommon {
   textStyle?: SlideTextStyle;
   /** Hide the phase-label chip ("Connect"/"Practice"/…) on this slide. */
   hidePhaseLabel?: boolean;
+  /**
+   * Draw the left accent bar (`SLIDE_GRID.accentBar`, tinted by the phase
+   * accent). The objectives preset is built around it.
+   *
+   * A FLAG, not an element, and deliberately so: `accentBar` is a `chrome`
+   * zone, and `validateLayout` refuses any element placed in a chrome zone.
+   * Chrome is "rendered from deck/slide flags, never moved by a teacher"
+   * (slideGrid.ts) — this is the flag that sentence refers to.
+   */
+  accentBar?: boolean;
 }
 
 /** Title card / section header / closing frame. */
@@ -243,4 +354,10 @@ export interface SlideDeck {
   /** Ordered. Template-guaranteed soft invariant: `slide.phase` is non-decreasing in PHASES order. */
   slides: Slide[];
   templateRef?: SlideDeckTemplateRef;
+  /**
+   * When true (the DEFAULT — treat `undefined` as locked), a teacher may switch
+   * a slide's preset but not re-zone individual elements. Unlocked allows drag
+   * between zones. There is no freeform positioning in either mode.
+   */
+  layoutLock?: boolean;
 }

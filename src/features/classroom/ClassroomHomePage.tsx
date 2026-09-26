@@ -11,7 +11,7 @@ import { useMemo } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ClassroomLayout } from '@/components/ClassroomLayout/ClassroomLayout';
 import { ClassroomRoutes, TeacherRoutes } from '@/constants/routes';
-import { useClassroom, useClassrooms, useMe } from '@/hooks/data';
+import { useClassroom, useIsClassroomOwner, useMe } from '@/hooks/data';
 import { useAssignments } from './assignments/useAssignments';
 import { useEnrollments } from './enrollments';
 import { useClassroomLiveSession } from './live/useClassroomLiveSession';
@@ -26,7 +26,6 @@ export const ClassroomHomePage = () => {
   } = useClassroom(classroomId);
 
   const { data: user, isLoading: isUserLoading, error: userError } = useMe();
-  const { data: allClassrooms } = useClassrooms();
   const { myEnrollment } = useEnrollments(classroomId ?? '');
   const myStatus = myEnrollment?.status;
   const { assignments } = useAssignments(classroomId ?? '');
@@ -34,10 +33,9 @@ export const ClassroomHomePage = () => {
   const [searchParams] = useSearchParams();
   const previewAsStudent = searchParams.get('viewAs') === 'student';
 
-  const ownerRow = allClassrooms?.find((c) => c.id === classroomId);
-  const isOwner = Boolean(
-    user?.id && ownerRow && ownerRow.teacherId === user.id,
-  );
+  // Owner-only check, no teachers probe: this page is student-facing and a
+  // real student would 403 on every render. See `useIsClassroomOwner`.
+  const isOwner = useIsClassroomOwner(classroomId);
 
   const isLoading = isClassroomLoading || isUserLoading;
   const isError = classroomError || userError;

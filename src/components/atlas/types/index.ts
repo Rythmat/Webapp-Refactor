@@ -108,7 +108,6 @@ export interface AppState {
   selectedSubdivisions: string[];
   selectedCities: string[];
   selectedLocation: SelectedLocation | null;
-  globeAltitude: number;
   activeTab: CategoryTab;
   searchQuery: string;
   isSearchOpen: boolean;
@@ -125,8 +124,11 @@ export interface AppState {
    * null. The globe shifts right by half of this so the region clears the card.
    */
   detailsPanelWidth: number | null;
-  /** True while the user has paused the influence-arc globe auto-rotation. */
-  rotationPaused: boolean;
+  /**
+   * True while the globe is spinning. Only ever set by the user, from the spin
+   * control on the globe page — nothing starts it automatically.
+   */
+  globeRotating: boolean;
 }
 
 export type AppAction =
@@ -137,7 +139,6 @@ export type AppAction =
   | { type: 'TOGGLE_SUBDIVISION'; payload: string }
   | { type: 'TOGGLE_CITY'; payload: string }
   | { type: 'SELECT_LOCATION'; payload: SelectedLocation | null }
-  | { type: 'SET_ALTITUDE'; payload: number }
   | { type: 'SET_TAB'; payload: CategoryTab }
   | { type: 'SET_SEARCH'; payload: string }
   | { type: 'SET_SEARCH_OPEN'; payload: boolean }
@@ -148,7 +149,7 @@ export type AppAction =
       payload: { year?: number; lat?: number; lng?: number; zoom?: number };
     }
   | { type: 'CLEAR_FLY_TARGET' }
-  | { type: 'SET_ROTATION_PAUSED'; payload: boolean }
+  | { type: 'SET_GLOBE_ROTATING'; payload: boolean }
   | { type: 'START_MODULE'; payload: { moduleId: string } }
   | { type: 'MODULE_STEP'; payload: number }
   | { type: 'EXIT_MODULE' }

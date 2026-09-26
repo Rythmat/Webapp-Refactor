@@ -1,95 +1,81 @@
+import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { HexWaveBackground } from '@/components/ui/hex-wave-background';
-import { generateStudioTileSvg } from '@/lib/studioProjectTile';
+import { KineticHeadline } from '@/features/landing/motion/KineticHeadline';
+import { MagneticButton } from '@/features/landing/motion/MagneticButton';
+import { HeroArc } from '@/features/landing/sections/HeroArc';
 import type { Cta } from '../content/types';
-import { MarketingButton } from './MarketingButton';
-import { Reveal } from './Reveal';
+
+const EASE = [0.2, 0.8, 0.2, 1] as const;
 
 /**
- * Product-page hero: copy on the left, a glass "product window" framing the app's
- * interactive hex art on the right (stands in for a real screenshot). Accent-tinted.
+ * Product-page hero in the landing's style: a small eyebrow over a huge
+ * centered kinetic headline, the subtext and CTAs, sitting on the landing's
+ * glowing planet horizon. The H1 is plain text (the LCP element); the horizon
+ * is CSS/SVG only.
  */
 export const MarketingHero = ({
   eyebrow,
   headline,
   subtext,
-  accent,
   primaryCta,
   secondaryCta,
-  artSeed,
 }: {
   eyebrow?: string;
   headline: string;
   subtext: string;
-  accent: string;
   primaryCta: Cta;
   secondaryCta?: Cta;
-  artSeed: string;
 }) => {
-  const art = generateStudioTileSvg(`feature:${artSeed}`, 800, 500);
-  return (
-    <section className="relative overflow-hidden px-6 pb-16 pt-32 sm:pt-36 md:px-10">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[420px]"
-        style={{
-          background: `radial-gradient(60% 60% at 30% 0%, ${accent}1f, transparent 70%)`,
-        }}
-      />
-      <div className="relative z-10 grid w-full items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="flex flex-col items-start gap-6">
-          {eyebrow && (
-            <Reveal>
-              <span
-                className="text-xs font-semibold uppercase tracking-[0.16em]"
-                style={{ color: accent }}
-              >
-                {eyebrow}
-              </span>
-            </Reveal>
-          )}
-          <Reveal delay={0.05}>
-            <h1 className="max-w-2xl text-4xl font-semibold leading-[1.05] text-white md:text-5xl lg:text-6xl">
-              {headline}
-            </h1>
-          </Reveal>
-          <Reveal delay={0.1}>
-            <p className="max-w-xl text-lg text-white/70">{subtext}</p>
-          </Reveal>
-          <Reveal delay={0.15}>
-            <div className="flex flex-wrap items-center gap-3">
-              <MarketingButton href={primaryCta.href} className="px-7">
-                {primaryCta.label}
-                <ArrowRight className="size-4" />
-              </MarketingButton>
-              {secondaryCta && (
-                <MarketingButton href={secondaryCta.href} tone="ghost">
-                  {secondaryCta.label}
-                </MarketingButton>
-              )}
-            </div>
-          </Reveal>
-        </div>
+  const reduce = useReducedMotion();
+  const rise = (delay: number) => ({
+    initial: reduce ? false : { opacity: 0, y: 8 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.6, delay, ease: EASE },
+  });
 
-        <Reveal delay={0.15} className="relative">
-          <div className="relative aspect-[8/5] w-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">
-            <HexWaveBackground
-              src={art}
-              drain={false}
-              className="pointer-events-none absolute inset-0 h-full w-full"
-              backgroundColor="#0D0B08"
-              colorThreshold={0.05}
-              brushRadius={90}
-            />
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0"
-              style={{
-                background: `linear-gradient(to top, rgba(0,0,0,0.55), transparent 60%), radial-gradient(120% 80% at 20% 0%, ${accent}22, transparent 60%)`,
-              }}
-            />
-          </div>
-        </Reveal>
+  return (
+    <section
+      aria-labelledby="hero-title"
+      className="relative isolate overflow-hidden pt-32 md:pt-44"
+    >
+      <div className="relative z-10 flex flex-col items-center px-5 text-center">
+        {eyebrow && (
+          <motion.p {...rise(0)} className="text-base text-white/55 md:text-lg">
+            {eyebrow}
+          </motion.p>
+        )}
+        <KineticHeadline
+          as="h1"
+          id="hero-title"
+          text={headline}
+          delay={0.15}
+          stagger={0.08}
+          className="fs-display mt-3 text-balance font-bold text-white"
+        />
+        <motion.p
+          {...rise(0.5)}
+          className="mt-6 max-w-[46ch] text-lg text-white/55 md:text-xl"
+        >
+          {subtext}
+        </motion.p>
+        <motion.div
+          {...rise(0.65)}
+          className="mt-9 flex flex-wrap items-center justify-center gap-3"
+        >
+          <MagneticButton to={primaryCta.href} size="lg">
+            {primaryCta.label}
+            <ArrowRight />
+          </MagneticButton>
+          {secondaryCta && (
+            <MagneticButton to={secondaryCta.href} tone="ghost" size="lg">
+              {secondaryCta.label}
+            </MagneticButton>
+          )}
+        </motion.div>
+      </div>
+
+      <div className="mt-10 md:mt-16">
+        <HeroArc />
       </div>
     </section>
   );

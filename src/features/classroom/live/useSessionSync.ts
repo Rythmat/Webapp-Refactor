@@ -16,6 +16,11 @@ import { recordMspResponseForUser } from '../msp/mspResponseInbox';
 import type { PhaseKey } from '../phases';
 import type { InteractionResponsePayload } from '../types';
 import {
+  isLocalSessionId,
+  toTransportStatus,
+  type SessionTransportStatus,
+} from './connectionStatus';
+import {
   createSessionSocketController,
   type ConnectionStatus,
   type SendEndResult,
@@ -38,15 +43,20 @@ import {
 import { useLocalSessionStore } from './useLocalSessionStore';
 
 export type { ConnectionStatus };
+export type { SessionTransportStatus };
 
 /** Sessions started by the offline/dev mock (`startSessionForUser`) never
- *  exist on the server — route their sends through the local envelope. */
-const isLocalSession = (sessionId: string): boolean =>
-  sessionId.startsWith('local-sess-');
+ *  exist on the server — route their sends through the local envelope.
+ *  Single owner: `connectionStatus.ts`. */
+const isLocalSession = isLocalSessionId;
 
 export interface UseSessionSync {
   state: SessionState | null;
-  connectionStatus: ConnectionStatus;
+  /**
+   * SESSION truth, not socket truth: a `local-sess-` id always reports
+   * `practice`, never `connected`. See `connectionStatus.ts`.
+   */
+  connectionStatus: SessionTransportStatus;
   sendNav: (phase: PhaseKey, slideIndex?: number) => void;
   sendLock: (locked: boolean) => void;
   sendShare: (interactionId: string, on: boolean) => void;
@@ -124,8 +134,14 @@ export const useSessionSync = (
   // report page keeps reading the same store post-session.
   const state = getSession(sessionId) ?? null;
 
-  const [connectionStatus, setConnectionStatus] =
+  // Raw SOCKET status. Never surfaced directly — `connectionStatus` below
+  // folds it together with the session's transport to produce session truth.
+  const [socketStatus, setSocketStatus] =
     useState<ConnectionStatus>('connecting');
+  const connectionStatus: SessionTransportStatus = toTransportStatus(
+    sessionId,
+    socketStatus,
+  );
   const controllerRef = useRef<SessionSocketController | null>(null);
 
   // For server sessions the backend derives the authoritative enrollment
@@ -137,7 +153,9 @@ export const useSessionSync = (
     // Local mock sessions have no server/socket — sends go through the
     // Sprint-4 envelope below; state already flows from the local store.
     if (isLocalSession(sessionId)) {
-      setConnectionStatus('connected');
+      // No server, no socket. `toTransportStatus` already pins this session to
+      // `practice`; setting a socket status here would be meaningless, and
+      // setting `connected` is the bug this phase removes.
       return;
     }
 
@@ -176,7 +194,7 @@ export const useSessionSync = (
             query: { token, role, classroomId },
           }),
         ),
-      onStatusChange: setConnectionStatus,
+      onStatusChange: setSocketStatus,
       // The teacher's local mirror is ended optimistically; if the server end
       // never lands, tell them the class may not have been notified.
       onEndFailed: () =>

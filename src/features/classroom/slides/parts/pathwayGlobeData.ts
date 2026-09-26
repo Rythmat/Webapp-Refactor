@@ -35,7 +35,9 @@ export const buildPathwayGlobeData = (
   const markers: GlobeMarker[] = events.map((e, i) => {
     const active = i === activeIndex;
     return {
-      id: `stop-${i}`,
+      // Only the active stop shows a label, and only a labelled marker needs
+      // the DOM anchor an id creates (see cobe-globe-cdn.tsx).
+      ...(active ? { id: `stop-${i}` } : {}),
       location: coordOf(e),
       label: active ? e.location.city : '',
       color: rgb(getEventCountryColor(e)),
@@ -51,7 +53,7 @@ export const buildPathwayGlobeData = (
     const angle = centralAngle(from, to);
     if (angle > maxAngle) maxAngle = angle;
     arcs.push({
-      id: `hop-${i}`,
+      // No label consumer for arc anchors either.
       from,
       to,
       color: rgb(getEventCountryColor(events[i])),

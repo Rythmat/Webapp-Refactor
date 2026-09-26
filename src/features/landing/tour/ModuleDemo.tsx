@@ -9,7 +9,7 @@ import { cn } from '@/components/utilities';
 import { TourCallout, TourCursor, type Point } from './TourCursor';
 import { TourWindow } from './TourWindow';
 import type { SceneProps } from './scenes/sceneTypes';
-import type { TourTab } from './tourSteps';
+import type { TourScript } from './tourSteps';
 import { useModuleTour } from './useModuleTour';
 import { useTourSynth } from './useTourSynth';
 
@@ -19,6 +19,7 @@ const DESIGN = {
   compact: { w: 680, h: 700 },
 };
 const COMPACT_BELOW = 640;
+const MAX_SCALE = 1.15;
 
 /**
  * One module's guided demo ("the product is the demo"): the live scene inside
@@ -32,7 +33,7 @@ export const ModuleDemo = ({
   Scene,
   className,
 }: {
-  tab: TourTab;
+  tab: TourScript;
   Scene: ComponentType<SceneProps>;
   className?: string;
 }) => {
@@ -56,29 +57,68 @@ export const ModuleDemo = ({
   }, []);
   const compact = width < COMPACT_BELOW;
   const design = compact ? DESIGN.compact : DESIGN.desktop;
-  const scale = Math.min(1, width / design.w);
+  // Fills its column: shrinks freely, grows a little past the design size
+  // (the TOC column leaves ~1110px on a full-width page).
+  const scale = Math.min(MAX_SCALE, width / design.w);
 
   // ── Cursor target ──────────────────────────────────────────────────────
+  // The callout anchors to the step's target; the cursor also follows it
+  // when a scene moves `data-tour-target` for a later click in the step
+  // (each move clicks again).
   const [point, setPoint] = useState<Point | null>(null);
+  const [cursor, setCursor] = useState<Point | null>(null);
+  const [moves, setMoves] = useState(0);
   const showCursor = state.status === 'playing' && !compact && !tour.reduce;
+  // The observer's callback can run after the next step's commit and before
+  // this effect re-runs; the scene's moves then belong to the new step.
+  const stepRef = useRef(step);
+  stepRef.current = step;
   useEffect(() => {
-    if (!showCursor) return;
-    const measure = () => {
-      const stage = stageRef.current;
-      const el = stage?.querySelector<HTMLElement>(
+    const stage = stageRef.current;
+    if (!showCursor || !stage) return;
+    let current: Element | null = null;
+    const locate = () => {
+      const el = stage.querySelector<HTMLElement>(
         `[data-tour-target="${step.target}"]`,
       );
-      if (!stage || !el) return;
+      if (!el) return null;
       const s = stage.getBoundingClientRect();
       const r = el.getBoundingClientRect();
-      setPoint({
+      const at = {
         x: (r.left - s.left + r.width / 2) / scale,
         y: (r.top - s.top + r.height / 2) / scale,
-      });
+      };
+      return { el, at };
+    };
+    const measure = () => {
+      const found = locate();
+      if (!found) return;
+      current = found.el;
+      setPoint(found.at);
+      setCursor(found.at);
+    };
+    const follow = () => {
+      if (stepRef.current !== step) return;
+      const found = locate();
+      if (!found || !current || found.el === current) return;
+      current = found.el;
+      setCursor(found.at);
+      setMoves((n) => n + 1);
     };
     const timers = [120, 700].map((ms) => window.setTimeout(measure, ms));
-    return () => timers.forEach(clearTimeout);
+    const observer = new MutationObserver(follow);
+    observer.observe(stage, {
+      subtree: true,
+      attributeFilter: ['data-tour-target'],
+    });
+    return () => {
+      timers.forEach(clearTimeout);
+      observer.disconnect();
+    };
   }, [showCursor, step, scale, compact]);
+
+  // Every step-pill click (the current step's too) lets the scene reset.
+  const [pillClicks, setPillClicks] = useState(0);
 
   // Keyboard focus inside the demo pauses it (pointer clicks don't).
   const onFocusCapture = (e: React.FocusEvent) => {
@@ -138,6 +178,9 @@ export const ModuleDemo = ({
                 compact={compact}
                 onUserAction={tour.onUserAction}
                 playNotes={synth.playFromGesture}
+                stepProgress={tour.stepProgress}
+                audio={synth.audio}
+                resetKey={pillClicks}
               />
             </div>
           </TourWindow>
@@ -150,8 +193,8 @@ export const ModuleDemo = ({
                 id={step.id}
               />
               <TourCursor
-                point={point}
-                clickKey={step.click ? step.id : null}
+                point={cursor}
+                clickKey={step.click ? `${step.id}:${moves}` : null}
               />
             </>
           )}
@@ -170,7 +213,10 @@ export const ModuleDemo = ({
                 <button
                   type="button"
                   aria-current={active ? 'step' : undefined}
-                  onClick={() => tour.selectStep(i)}
+                  onClick={() => {
+                    setPillClicks((n) => n + 1);
+                    tour.selectStep(i);
+                  }}
                   className={cn(
                     'flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70',
                     active
@@ -196,7 +242,7 @@ export const ModuleDemo = ({
           aria-live={state.status === 'playing' ? 'off' : 'polite'}
           className={cn(
             'text-sm text-white/60 md:ml-auto md:max-w-[40ch] md:text-right',
-            showCursor && 'md:sr-only',
+            showCursor && 'sr-only',
           )}
         >
           {step.callout}

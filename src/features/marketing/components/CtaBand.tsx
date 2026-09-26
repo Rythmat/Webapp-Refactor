@@ -1,8 +1,11 @@
 import { ArrowRight } from 'lucide-react';
+import { KineticHeadline } from '@/features/landing/motion/KineticHeadline';
+import { MagneticButton } from '@/features/landing/motion/MagneticButton';
+import { KEY_CENTERS } from '@/features/landing/music';
 import type { Cta } from '../content/types';
-import { MarketingButton } from './MarketingButton';
-import { MarketingSection } from './MarketingSection';
-import { Reveal } from './Reveal';
+
+/** The rainbow brand motif ("every key"), as a short hairline rule. */
+const RAINBOW = `linear-gradient(to right, ${KEY_CENTERS.map((k) => k.color).join(', ')})`;
 
 /** Closing call-to-action band, restating the primary conversion. */
 export const CtaBand = ({
@@ -10,44 +13,43 @@ export const CtaBand = ({
   subtext,
   primaryCta,
   secondaryCta,
-  accent,
 }: {
   headline: string;
   subtext?: string;
   primaryCta: Cta;
   secondaryCta?: Cta;
-  accent: string;
 }) => {
   return (
-    <MarketingSection>
-      <Reveal>
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] px-6 py-16 text-center sm:px-12">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 -top-10 h-24 opacity-50 blur-2xl"
-            style={{ background: accent }}
-          />
-          <h2 className="relative mx-auto max-w-2xl text-3xl font-semibold text-white md:text-4xl">
-            {headline}
-          </h2>
-          {subtext && (
-            <p className="relative mx-auto mt-3 max-w-xl text-white/70">
-              {subtext}
-            </p>
-          )}
-          <div className="relative mt-8 flex flex-wrap items-center justify-center gap-3">
-            <MarketingButton href={primaryCta.href} className="px-8">
-              {primaryCta.label}
-              <ArrowRight className="size-4" />
-            </MarketingButton>
-            {secondaryCta && (
-              <MarketingButton href={secondaryCta.href} tone="ghost">
-                {secondaryCta.label}
-              </MarketingButton>
-            )}
-          </div>
-        </div>
-      </Reveal>
-    </MarketingSection>
+    <section
+      aria-labelledby="cta-title"
+      className="flex flex-col items-center px-6 py-24 text-center md:px-10 md:py-32"
+    >
+      <span
+        aria-hidden
+        className="mb-10 h-px w-24"
+        style={{ backgroundImage: RAINBOW }}
+      />
+      <KineticHeadline
+        as="h2"
+        id="cta-title"
+        text={headline}
+        whenInView
+        className="max-w-[20ch] text-balance text-4xl font-bold leading-[1.05] tracking-[-0.03em] text-white md:text-6xl"
+      />
+      {subtext && (
+        <p className="mt-5 max-w-[44ch] text-lg text-white/55">{subtext}</p>
+      )}
+      <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+        <MagneticButton to={primaryCta.href} size="lg">
+          {primaryCta.label}
+          <ArrowRight />
+        </MagneticButton>
+        {secondaryCta && (
+          <MagneticButton to={secondaryCta.href} tone="ghost" size="lg">
+            {secondaryCta.label}
+          </MagneticButton>
+        )}
+      </div>
+    </section>
   );
 };

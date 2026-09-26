@@ -5,8 +5,9 @@
    Color policy: landing UI is neutral (white / greys). Color appears only
    where it means something in the music color system — key-center and chord
    colors from the Prism engine — or as the deliberate rainbow motif (all 12
-   key-center colors in circle-of-fifths order: the hero rim and the active
-   table-of-contents rule), which never stands for a single key.
+   key-center colors in circle-of-fifths order: the hero rim, the active
+   table-of-contents rule and the module statements' lead sweep), which never
+   stands for a single key.
    ──────────────────────────────────────────────────────────────────────── */
 
 .landing-root {

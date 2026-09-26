@@ -1,4 +1,3 @@
-import { Laptop } from 'lucide-react';
 import type { ComponentType, ReactNode } from 'react';
 import { ArcadeScene } from '../tour/scenes/ArcadeScene';
 import { LearnScene } from '../tour/scenes/LearnScene';
@@ -6,6 +5,7 @@ import { StudioScene } from '../tour/scenes/StudioScene';
 import { TeachScene } from '../tour/scenes/TeachScene';
 import type { SceneProps } from '../tour/scenes/sceneTypes';
 import type { TourTabId } from '../tour/tourSteps';
+import { MODULE_ICONS } from './moduleIcons';
 
 export interface LandingModule {
   id: TourTabId;
@@ -22,16 +22,12 @@ export interface LandingModule {
   Scene?: ComponentType<SceneProps>;
 }
 
-const sidebarIcon = (src: string) => (
-  <img src={src} alt="" draggable={false} className="size-6" />
-);
-
 /** The five modules, in bento / table-of-contents order. */
 export const LANDING_MODULES: LandingModule[] = [
   {
     id: 'learn',
     label: 'Learn',
-    icon: sidebarIcon('/icons/learn-icon.svg'),
+    icon: MODULE_ICONS.learn,
     bento: {
       title: 'Every key has a color.',
       body: 'Lessons that make the circle of fifths something you can see.',
@@ -55,7 +51,7 @@ export const LANDING_MODULES: LandingModule[] = [
   {
     id: 'studio',
     label: 'Studio',
-    icon: sidebarIcon('/icons/studio-icon.svg'),
+    icon: MODULE_ICONS.studio,
     bento: {
       title: 'A studio that knows theory.',
       body: 'Pick a key and Prism suggests what comes next.',
@@ -79,7 +75,7 @@ export const LANDING_MODULES: LandingModule[] = [
   {
     id: 'globe',
     label: 'Globe',
-    icon: sidebarIcon('/icons/globe-icon.svg'),
+    icon: MODULE_ICONS.globe,
     bento: {
       title: 'Explore music history.',
       body: 'Follow how styles of music travelled from city to city.',
@@ -102,7 +98,7 @@ export const LANDING_MODULES: LandingModule[] = [
   {
     id: 'arcade',
     label: 'Arcade',
-    icon: sidebarIcon('/icons/arcade-icon.svg'),
+    icon: MODULE_ICONS.arcade,
     bento: {
       title: 'Train your ear through play.',
       body: 'Build streaks and earn XP as your ear improves.',
@@ -126,7 +122,7 @@ export const LANDING_MODULES: LandingModule[] = [
   {
     id: 'teach',
     label: 'Teach',
-    icon: <Laptop className="size-6 text-white/80" />,
+    icon: MODULE_ICONS.teach,
     bento: {
       title: 'Teach music in real time.',
       body: 'Your projector and every student device stay in sync.',

@@ -13,7 +13,7 @@ import {
   type TourAction,
   type TourState,
 } from './tourMachine';
-import type { TourTab } from './tourSteps';
+import type { TourScript } from './tourSteps';
 
 /**
  * Drives one module's guided demo with the pure `tourMachine` (a single tab
@@ -22,7 +22,7 @@ import type { TourTab } from './tourSteps';
  * `stepProgress` (0–1 within the current step) updates every frame for
  * progress bars. Reduced motion → static mode (end state, no clock).
  */
-export const useModuleTour = (tab: TourTab, ref: RefObject<Element>) => {
+export const useModuleTour = (tab: TourScript, ref: RefObject<Element>) => {
   const reduce = useReducedMotion();
   const tabs = useRef([tab]).current;
   const [state, setState] = useState<TourState>(() =>

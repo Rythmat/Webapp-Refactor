@@ -83,9 +83,9 @@ export const MarketingNav = ({
         <Link
           to="/"
           aria-label="Music Atlas home"
-          className="group flex items-center gap-2 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+          className="flex items-center gap-2 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
         >
-          <Logo className="h-6 w-auto text-white transition-transform duration-500 group-hover:rotate-[20deg]" />
+          <Logo className="size-8" />
           <span className="text-lg font-semibold tracking-tight text-white">
             Music Atlas
           </span>

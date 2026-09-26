@@ -4,6 +4,7 @@ import { lazy, Suspense, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/components/utilities';
 import { useNearViewport } from '../motion/useInView';
+import { SILENT_TOUR_AUDIO } from '../tour/scenes/sceneTypes';
 import { TOUR_BY_ID } from '../tour/tourSteps';
 import { useModuleTour } from '../tour/useModuleTour';
 import { FeatureCells } from './ModuleBlock';
@@ -115,6 +116,8 @@ export const GlobeModuleBlock = ({ module: m }: { module: LandingModule }) => {
                   compact
                   onUserAction={noop}
                   playNotes={noop}
+                  stepProgress={tour.stepProgress}
+                  audio={SILENT_TOUR_AUDIO}
                 />
               </div>
             </Suspense>

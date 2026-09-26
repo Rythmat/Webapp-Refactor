@@ -21,8 +21,8 @@ const LESSON_STEPS = [
 /**
  * Learn scene — the app's read-only CircleOfFifthsSvg cycling through major key
  * centers, then G major's scale on the keys in its key-center color (one color
- * for the whole scale), then a playable lesson card. In `user` mode the key
- * chips below the circle pick any major key center.
+ * for the whole scale), then a playable lesson card. The circle is the demo's
+ * navigation: clicking a slice picks that major key center.
  */
 export const LearnScene = ({
   stepIndex,
@@ -30,6 +30,7 @@ export const LearnScene = ({
   compact,
   onUserAction,
   playNotes,
+  audio,
 }: SceneProps) => {
   const [cycleIdx, setCycleIdx] = useState(0);
   const [userKey, setUserKey] = useState<number | null>(null);
@@ -110,7 +111,10 @@ export const LearnScene = ({
     scale.forEach((m, i) =>
       window.setTimeout(() => {
         setPressed(m);
-        playNotes([m], 0.35);
+        // Only the first note is the gesture; the rest are sound-gated, so
+        // muting mid-run stays muted.
+        if (i === 0) playNotes([m], 0.35);
+        else audio.notes([m], 0.35);
       }, i * 220),
     );
     window.setTimeout(() => setPressed(null), scale.length * 220 + 200);
@@ -125,32 +129,18 @@ export const LearnScene = ({
         compact ? 'grid-cols-1 grid-rows-[auto_1fr]' : 'grid-cols-[42%_1fr]',
       )}
     >
-      {/* Circle + key chips */}
-      <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] p-3">
+      {/* Circle of fifths (key-center navigation) */}
+      <div className="flex flex-col items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] p-3">
         <div data-tour-target="circle">
           <CircleOfFifthsSvg
             selectedPitch={key.pitchClass}
             selectedMode="major"
-            size={compact ? 150 : 250}
+            size={compact ? 170 : 290}
             ariaLabel={`Key center: ${displayAccidentals(key.name)} major`}
+            onSelectPitch={(pc) =>
+              chooseKey(KEY_CENTERS.findIndex((k) => k.pitchClass === pc))
+            }
           />
-        </div>
-        <div className="flex flex-wrap justify-center gap-1">
-          {KEY_CENTERS.map((k, i) => (
-            <button
-              key={k.name}
-              type="button"
-              onClick={() => chooseKey(i)}
-              aria-pressed={i === keyIdx}
-              className={cn(
-                'grid h-6 min-w-7 place-items-center rounded-md px-1 text-[11px] font-bold text-[#101012] transition-transform hover:-translate-y-0.5',
-                i === keyIdx ? 'ring-2 ring-white' : 'opacity-60',
-              )}
-              style={{ background: k.color }}
-            >
-              {displayAccidentals(k.name)}
-            </button>
-          ))}
         </div>
       </div>
 

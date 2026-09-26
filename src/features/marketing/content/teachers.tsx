@@ -7,6 +7,7 @@ import {
   Wifi,
 } from 'lucide-react';
 import { AuthRoutes, MarketingRoutes } from '@/constants/routes';
+import { MODULE_ICONS } from '@/features/landing/sections/moduleIcons';
 import type { ProductPageData } from './types';
 
 const TEACHERS_CONTACT = 'mailto:hello@music-atlas.io';
@@ -14,7 +15,6 @@ const TEACHERS_CONTACT = 'mailto:hello@music-atlas.io';
 /** For Teachers page data — also feeds the landing page's Teachers band. */
 export const teachersPageData: ProductPageData = {
   slug: 'teachers',
-  accent: '#f472b6',
   seo: {
     title: 'For Teachers — Teach music in real time | Music Atlas',
     description:
@@ -28,7 +28,6 @@ export const teachersPageData: ProductPageData = {
       'Run live, synced lessons where your projector leads and every student device follows — with rosters, assignments and progress built in.',
     primaryCta: { label: 'Set up your classroom', href: AuthRoutes.signIn() },
     secondaryCta: { label: 'Book a demo', href: TEACHERS_CONTACT },
-    artSeed: 'teachers',
   },
   featuresHeading: 'A classroom that runs itself',
   features: [
@@ -84,16 +83,19 @@ export const teachersPageData: ProductPageData = {
     links: [
       {
         label: 'Learn',
+        icon: MODULE_ICONS.learn,
         description: 'The curriculum you’ll assign',
         href: MarketingRoutes.learn(),
       },
       {
         label: 'Arcade',
+        icon: MODULE_ICONS.arcade,
         description: 'Games to drill skills in class',
         href: MarketingRoutes.arcade(),
       },
       {
         label: 'Studio',
+        icon: MODULE_ICONS.studio,
         description: 'Creative projects for students',
         href: MarketingRoutes.studio(),
       },

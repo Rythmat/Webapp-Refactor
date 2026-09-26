@@ -15,17 +15,28 @@ interface TourStep {
   durationMs: number;
 }
 
-export interface TourTab {
-  id: TourTabId;
+/** One demo's guided script (what `ModuleDemo` plays). */
+export interface TourScript {
   label: string;
   /** Faux URL shown in the window chrome. */
   path: string;
-  /** Public feature page for "Learn more". */
-  href: string;
   steps: TourStep[];
 }
 
+/** A landing module's demo. */
+interface TourTab extends TourScript {
+  id: TourTabId;
+  /** Public feature page for "Learn more". */
+  href: string;
+}
+
 const STEP_MS = 3600;
+/**
+ * Studio "Play it back": the Play press, one 4-bar pass at 120 BPM and the C
+ * it resolves to (`studioScript` PLAY_AT_MS + LOOP_MS + RESOLVE_MS; asserted
+ * in tests).
+ */
+const STUDIO_PLAY_MS = 9400;
 
 const TABS: TourTab[] = [
   {
@@ -38,34 +49,37 @@ const TABS: TourTab[] = [
         id: 'key',
         label: 'Pick a key',
         callout:
-          'Pick a key center — C major. Its color, red, colors every diatonic chord.',
+          'Pick C on the circle of fifths. Its red floods every track and diatonic chord.',
         target: 'key',
         click: true,
         durationMs: STEP_MS,
       },
       {
         id: 'suggest',
-        label: 'Prism suggests',
+        label: 'Pick by color',
         callout:
-          'Prism suggests what can come next, straight from its progression graph.',
+          'Prism lights the colors that can come next. Green holds one chord: E.',
         target: 'pick',
         click: true,
         durationMs: STEP_MS,
       },
       {
         id: 'build',
-        label: 'Build the progression',
+        label: 'Create the clip',
         callout:
-          'Borrowed chords take the color of the key they come from — Fm is Eb’s purple.',
-        target: 'lane',
+          'Create writes the clip. Fm is borrowed, so it keeps E♭’s purple.',
+        target: 'create',
+        click: true,
         durationMs: STEP_MS,
       },
       {
         id: 'play',
         label: 'Play it back',
-        callout: 'Play it back and watch each chord light up the keys.',
-        target: 'keys',
-        durationMs: STEP_MS,
+        callout:
+          'Play it back: the red playhead runs four bars, each note in its chord’s color.',
+        target: 'roll',
+        click: true,
+        durationMs: STUDIO_PLAY_MS,
       },
     ],
   },
@@ -191,6 +205,71 @@ const TABS: TourTab[] = [
     ],
   },
 ];
+
+/** Learn page demo: scales, chords and modes on the circle of fifths. */
+export const THEORY_TOUR: TourScript = {
+  label: 'Theory',
+  path: 'learn?tab=Theory',
+  steps: [
+    {
+      id: 'key',
+      label: 'Pick a key',
+      callout: 'Pick a key on the circle — its scale lights up in its color.',
+      target: 'circle',
+      durationMs: STEP_MS,
+    },
+    {
+      id: 'chords',
+      label: 'Build the chords',
+      callout:
+        'Stack the scale into seven chords. They all belong to the key, so they share its color.',
+      target: 'chords',
+      click: true,
+      durationMs: STEP_MS,
+    },
+    {
+      id: 'modes',
+      label: 'Modes by color',
+      callout:
+        'Same root, seven modes. Each takes its parent key’s color — one step around the circle.',
+      target: 'modes',
+      click: true,
+      durationMs: STEP_MS,
+    },
+  ],
+};
+
+/** Learn page demo: a real song's chord chart, colored and playable. */
+export const SONGS_TOUR: TourScript = {
+  label: 'Songs',
+  path: 'songs',
+  steps: [
+    {
+      id: 'song',
+      label: 'Pick a song',
+      callout: 'Pick from 650+ real songs, each with a chord chart.',
+      target: 'songs',
+      click: true,
+      durationMs: STEP_MS,
+    },
+    {
+      id: 'colors',
+      label: 'Every chord has a color',
+      callout:
+        'G and C belong to G major. B7 and Cmin7 come from outside the key, so they get their own colors.',
+      target: 'chart',
+      durationMs: STEP_MS,
+    },
+    {
+      id: 'play',
+      label: 'Play along',
+      callout: 'Press play and watch each chord light up the keys.',
+      target: 'play',
+      click: true,
+      durationMs: STEP_MS * 2,
+    },
+  ],
+};
 
 /** Tour data by module id. */
 export const TOUR_BY_ID = Object.fromEntries(

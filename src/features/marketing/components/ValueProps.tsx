@@ -1,44 +1,77 @@
+import { ArrowDown } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { cn } from '@/components/utilities';
+import { SpotlightCard } from '@/features/landing/motion/SpotlightCard';
 import type { ValueProp } from '../content/types';
-import { MarketingSection } from './MarketingSection';
-import { Reveal } from './Reveal';
+import { SectionHeading } from './SectionHeading';
 
-/** Benefit grid — "outcomes, not features." */
+/**
+ * Feature bento, set like the landing's module row: hairline cells with an
+ * icon, title and body. A cell with `href` jumps to its live demo on the page.
+ * Neutral white UI — color is reserved for the music color system.
+ */
 export const ValueProps = ({
   heading,
   items,
-  accent,
 }: {
   heading?: string;
   items: ValueProp[];
-  accent: string;
 }) => {
-  return (
-    <MarketingSection>
-      {heading && (
-        <Reveal>
-          <h2 className="mb-10 max-w-2xl text-3xl font-semibold text-white md:text-4xl">
-            {heading}
-          </h2>
-        </Reveal>
+  const cell = (item: ValueProp): ReactNode => (
+    <SpotlightCard className="spotlight-flat flex h-full flex-col p-7 lg:min-h-56">
+      {item.icon && (
+        <span className="text-white/80 transition-transform duration-300 group-hover:-translate-y-0.5 [&_svg]:size-8">
+          {item.icon}
+        </span>
       )}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((item, i) => (
-          <Reveal key={item.title} delay={i * 0.04}>
-            <div className="flex h-full flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-              {item.icon && (
-                <span
-                  className="flex size-10 items-center justify-center rounded-xl [&_svg]:size-5"
-                  style={{ background: `${accent}22`, color: accent }}
-                >
-                  {item.icon}
-                </span>
+      <span className="mt-auto pt-8 text-lg font-semibold text-white lg:pt-16">
+        {item.title}
+      </span>
+      <span className="mt-1 text-[15px] leading-snug text-white/50">
+        {item.body}
+      </span>
+      {item.href && (
+        <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-white">
+          Try it
+          <ArrowDown className="size-3.5 transition-transform duration-300 group-hover:translate-y-0.5" />
+        </span>
+      )}
+    </SpotlightCard>
+  );
+
+  return (
+    <section
+      aria-labelledby={heading ? 'features-title' : undefined}
+      aria-label={heading ? undefined : 'Features'}
+    >
+      {heading && <SectionHeading id="features-title" text={heading} />}
+      <div className="grid grid-cols-1 gap-px border-y border-white/[0.08] bg-white/[0.08] sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((item, i) => {
+          const cls = cn(
+            'group block bg-[#101012]',
+            // Odd count: the last cell spans the 2-col tablet row.
+            items.length % 2 === 1 &&
+              i === items.length - 1 &&
+              'sm:max-lg:col-span-2',
+          );
+          return item.href ? (
+            <a
+              key={item.title}
+              href={item.href}
+              className={cn(
+                cls,
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/60',
               )}
-              <h3 className="text-lg font-semibold text-white">{item.title}</h3>
-              <p className="text-sm text-white/70">{item.body}</p>
+            >
+              {cell(item)}
+            </a>
+          ) : (
+            <div key={item.title} className={cls}>
+              {cell(item)}
             </div>
-          </Reveal>
-        ))}
+          );
+        })}
       </div>
-    </MarketingSection>
+    </section>
   );
 };

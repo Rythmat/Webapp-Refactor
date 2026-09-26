@@ -83,7 +83,13 @@ export const TourCallout = ({
         aria-hidden
         initial={{ opacity: 0, scale: 0.92, y: flipY ? 6 : -6 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.96 }}
+        // The last step's callout leaves at once; the next one waits for
+        // the cursor to arrive.
+        exit={{
+          opacity: 0,
+          scale: 0.96,
+          transition: { duration: 0.12, delay: 0 },
+        }}
         transition={{ duration: 0.35, delay: 0.45, ease: [0.2, 0.8, 0.2, 1] }}
         className="pointer-events-none absolute z-20 w-max max-w-[280px] rounded-xl border border-white/15 bg-[#18181b]/85 px-3.5 py-2.5 text-[13px] leading-snug text-white shadow-[0_18px_40px_-12px_rgba(0,0,0,0.8)] backdrop-blur-xl"
         style={{

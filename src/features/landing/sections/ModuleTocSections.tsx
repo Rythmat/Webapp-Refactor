@@ -65,7 +65,7 @@ export const ModuleTocSections = () => {
   }, []);
 
   return (
-    <div ref={ref} className="lg:grid lg:grid-cols-[300px_1fr]">
+    <div ref={ref} className="lg:grid lg:grid-cols-[200px_1fr]">
       {/* Sidebar TOC (desktop) / pill bar (mobile) */}
       <div className="sticky top-16 z-20 border-b border-white/[0.08] bg-[#101012]/85 backdrop-blur-xl lg:static lg:border-b-0 lg:border-r lg:bg-transparent lg:backdrop-blur-none">
         <nav
@@ -81,7 +81,7 @@ export const ModuleTocSections = () => {
                 onClick={scrollToModule(m.id)}
                 aria-current={isActive ? 'true' : undefined}
                 className={cn(
-                  'relative shrink-0 rounded-full px-3 py-1.5 text-[15px] transition-colors duration-300 lg:rounded-none lg:px-14 lg:py-2 lg:text-lg',
+                  'relative shrink-0 rounded-full px-3 py-1.5 text-[15px] transition-colors duration-300 lg:rounded-none lg:px-10 lg:py-2 lg:text-lg',
                   isActive
                     ? 'bg-white/10 text-white lg:bg-transparent'
                     : 'text-white/35 hover:text-white/70',

@@ -5,7 +5,12 @@ import createGlobe from '@/lib/cobe';
 import { buildCountryTexture } from './globe-country-texture';
 
 export interface GlobeMarker {
-  id: string;
+  /**
+   * Only needed for a marker that shows a label: cobe creates one positioned
+   * DOM anchor per id and rewrites its inline styles every frame, so an id on a
+   * silent dot is pure cost (see src/lib/cobe/index.js — `if (!e) continue`).
+   */
+  id?: string;
   location: [number, number];
   /** Shown as a floating pill only when non-empty. */
   label: string;
@@ -56,7 +61,7 @@ const toCobeMarkers = (markers: GlobeMarker[]) =>
   markers.map((m) => ({
     location: m.location,
     size: m.size ?? 0.03,
-    id: m.id,
+    ...(m.id ? { id: m.id } : {}),
     ...(m.color ? { color: m.color } : {}),
   }));
 
@@ -78,9 +83,14 @@ const lerpPoint = (
   t: number,
 ): [number, number] => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
 
-// Build the colored country map once (shared across mounts). Resolves to null
-// on failure, so the globe falls back to the default single-colour land.
-const countryTexturePromise = buildCountryTexture().catch(() => null);
+// Built once and shared across mounts, but only from the first mount: at module
+// scope this fired the 839 KB GeoJSON fetch plus a 2048x1024 raster the moment
+// the chunk evaluated, even on pages where no globe ever rendered.
+let countryTexturePromise: Promise<HTMLCanvasElement | null> | null = null;
+const getCountryTexture = () => {
+  countryTexturePromise ??= buildCountryTexture().catch(() => null);
+  return countryTexturePromise;
+};
 
 export function GlobeCdn({
   markers = defaultMarkers,
@@ -99,11 +109,10 @@ export function GlobeCdn({
   const phiOffsetRef = useRef(0);
   const thetaOffsetRef = useRef(0);
   const isPausedRef = useRef(false);
-  // Render-loop halting: the `paused` prop or the canvas being offscreen.
+  // Render loop also halts for the `paused` prop (e.g. an inactive tab).
   const pausedPropRef = useRef(paused);
   pausedPropRef.current = paused;
-  const offscreenRef = useRef(false);
-  const resumeLoopRef = useRef<(() => void) | null>(null);
+  const syncRunningRef = useRef<(() => void) | null>(null);
 
   // Latest mapped data + tunables, read by the (deferred) init and rAF loop.
   const speedRef = useRef(speed);
@@ -164,16 +173,22 @@ export function GlobeCdn({
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
-    let animationId: number;
+    let animationId: number | null = null;
     let phi = 0;
     let disposed = false;
-    let halted = false;
+    // The globe is usually below the fold on Home and the landing page, where
+    // it used to keep running its full-canvas fragment shader forever.
+    let onScreen = true;
+    let running = false;
+    let lastTs: number | null = null;
+    let io: IntersectionObserver | null = null;
+    let syncRunning: (() => void) | null = null;
 
     async function init() {
       const width = canvas.offsetWidth;
       if (width === 0 || globeRef.current) return;
       // Land dots take their colour from this per-country map (null → fallback).
-      const mapTexture = (await countryTexturePromise) ?? undefined;
+      const mapTexture = (await getCountryTexture()) ?? undefined;
       if (disposed || globeRef.current || canvas.offsetWidth === 0) return;
 
       // Dark-theme palette — echoes the Atlas globe's warm, low-key base while
@@ -207,15 +222,19 @@ export function GlobeCdn({
       });
 
       function animate(t: number) {
-        // Stop scheduling frames while paused/offscreen; resumeLoopRef restarts.
-        if (pausedPropRef.current || offscreenRef.current) {
-          halted = true;
-          return;
-        }
+        // Advance by elapsed time, not per callback: a fixed step ran twice as
+        // fast on a 120Hz display and stalled the featured-event cadence
+        // whenever the browser throttled frames. `speed` stays in the same
+        // units (radians per 60Hz frame) so callers need no change.
+        const dt =
+          lastTs === null ? 1 : Math.min(3, (t - lastTs) / (1000 / 60));
+        lastTs = t;
+
         // Auto-rotate unless the user is dragging the globe.
         if (!isPausedRef.current) {
-          phi += speedRef.current;
-          rotationAccumRef.current += speedRef.current;
+          const step = speedRef.current * dt;
+          phi += step;
+          rotationAccumRef.current += step;
           if (rotationAccumRef.current >= TWO_PI) {
             rotationAccumRef.current -= TWO_PI;
             onRotationCompleteRef.current?.();
@@ -241,46 +260,73 @@ export function GlobeCdn({
           theta: 0.2 + thetaOffsetRef.current + dragOffset.current.theta,
           ...(arcsUpdate ? { arcs: arcsUpdate } : {}),
         });
-        animationId = requestAnimationFrame(animate);
+        // Guarded: a frame already queued when stop() ran would otherwise
+        // re-arm the loop and defeat the pause.
+        animationId = running ? requestAnimationFrame(animate) : null;
       }
-      resumeLoopRef.current = () => {
-        if (!halted || disposed) return;
-        halted = false;
-        // Restart the arc grow-in clock so arcs don't jump after a long pause.
+      setTimeout(() => canvas && (canvas.style.opacity = '1'));
+
+      function start() {
+        if (running || disposed) return;
+        running = true;
+        lastTs = null; // don't integrate the gap we spent paused
+        // Same reason: an arc grow-in interrupted by the pause would otherwise
+        // measure against a stale timestamp and snap straight to finished.
         if (arcAnimatingRef.current) arcAnimStartRef.current = null;
         animationId = requestAnimationFrame(animate);
+      }
+
+      function stop() {
+        running = false;
+        if (animationId !== null) cancelAnimationFrame(animationId);
+        animationId = null;
+      }
+
+      syncRunning = () => {
+        if (onScreen && !document.hidden && !pausedPropRef.current) start();
+        else stop();
       };
-      animationId = requestAnimationFrame(animate);
-      setTimeout(() => canvas && (canvas.style.opacity = '1'));
+      syncRunningRef.current = syncRunning;
+      syncRunning();
+
+      io = new IntersectionObserver(([entry]) => {
+        onScreen = !!entry?.isIntersecting;
+        syncRunning?.();
+      });
+      io.observe(canvas);
+      document.addEventListener('visibilitychange', syncRunning);
     }
 
-    // Halt the render loop while the canvas is offscreen.
-    const io =
-      typeof IntersectionObserver === 'undefined'
-        ? null
-        : new IntersectionObserver(([entry]) => {
-            offscreenRef.current = !entry.isIntersecting;
-            if (entry.isIntersecting) resumeLoopRef.current?.();
-          });
-    io?.observe(canvas);
-
+    // Kept for the component's lifetime: the drawing buffer is sized once at
+    // creation, so without this a layout change left the canvas CSS-stretched.
+    let lastWidth = 0;
+    const ro = new ResizeObserver((entries) => {
+      const width = Math.round(entries[0]?.contentRect.width ?? 0);
+      if (width === 0) return;
+      if (!globeRef.current) {
+        void init();
+        return;
+      }
+      if (width !== lastWidth) {
+        lastWidth = width;
+        globeRef.current.update({ width, height: width });
+      }
+    });
+    ro.observe(canvas);
     if (canvas.offsetWidth > 0) {
-      init();
-    } else {
-      const ro = new ResizeObserver((entries) => {
-        if (entries[0]?.contentRect.width > 0) {
-          ro.disconnect();
-          init();
-        }
-      });
-      ro.observe(canvas);
+      lastWidth = Math.round(canvas.offsetWidth);
+      void init();
     }
 
     return () => {
       disposed = true;
+      ro.disconnect();
       io?.disconnect();
-      resumeLoopRef.current = null;
-      if (animationId) cancelAnimationFrame(animationId);
+      syncRunningRef.current = null;
+      if (syncRunning) {
+        document.removeEventListener('visibilitychange', syncRunning);
+      }
+      if (animationId !== null) cancelAnimationFrame(animationId);
       if (globeRef.current) {
         globeRef.current.destroy();
         globeRef.current = null;
@@ -289,7 +335,7 @@ export function GlobeCdn({
   }, []);
 
   useEffect(() => {
-    if (!paused) resumeLoopRef.current?.();
+    syncRunningRef.current?.();
   }, [paused]);
 
   // On data change: markers + arc altitude update immediately; arcs restart
@@ -317,7 +363,7 @@ export function GlobeCdn({
         }}
       />
       {markers
-        .filter((m) => m.label)
+        .filter((m) => m.label && m.id)
         .map((m) => (
           <div
             key={m.id}

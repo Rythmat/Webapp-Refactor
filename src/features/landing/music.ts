@@ -1,14 +1,24 @@
 import {
+  abbreviateSequence,
+  ALL_MODES,
   degreeMidi,
   generateChord,
   getChordColor,
+  getModeOffset,
   getOptions,
   getScaleSpellings,
   KEY_COLORS,
   KEYS,
+  MODE_DISPLAY,
   unstepChord,
   type ColorIndex,
 } from '@prism/engine';
+import {
+  chordRgbFor,
+  normalizeMode,
+} from '@/curriculum/songLibrary/chordColor';
+import { chordNameToMidi } from '@/curriculum/songLibrary/chordParser';
+import type { Song } from '@/curriculum/types/songLibrary';
 
 /**
  * Landing demo music data, computed from the app's real Prism theory engine
@@ -27,18 +37,19 @@ import {
  * always the color of the key the visitor sees selected.
  */
 
+/** Display spellings (real ♭ / ♯) for the chord-root fallback. */
 const NOTE_NAMES = [
   'C',
-  'Db',
+  'D♭',
   'D',
-  'Eb',
+  'E♭',
   'E',
   'F',
-  'F#',
+  'F♯',
   'G',
-  'Ab',
+  'A♭',
   'A',
-  'Bb',
+  'B♭',
   'B',
 ] as const;
 
@@ -82,6 +93,8 @@ export interface DemoChord {
   name: string;
   /** Roman numeral, e.g. "III". */
   roman: string;
+  /** Studio chord-ruler label: letter root + abbreviated quality, "E maj". */
+  label: string;
   midis: number[];
   /** `getChordColor` for this chord in the demo key. */
   color: string;
@@ -95,7 +108,8 @@ const toRoman = (token: string) => {
   const n = Number(deg.replace(/[b#]/, ''));
   const base = ROMAN[n - 1] ?? '?';
   const lower = quality.startsWith('minor') || quality.startsWith('diminished');
-  return acc + (lower ? base.toLowerCase() : base);
+  const roman = acc + (lower ? base.toLowerCase() : base);
+  return quality === 'diminished' ? `${roman}°` : roman;
 };
 
 /**
@@ -131,6 +145,7 @@ export const demoChord = (token: string, keyRootMidi = 60): DemoChord => {
       spellRoot(token, keyRootMidi) +
       (QUALITY_SUFFIX[quality] ?? ` ${quality}`),
     roman: toRoman(token),
+    label: `${spellRoot(token, keyRootMidi)} ${abbreviateSequence(quality)}`,
     midis: generateChord(chordRoot, quality),
     color: rgb(getChordColor(token, keyRootMidi, 'ionian')),
   };
@@ -153,3 +168,148 @@ export const DEMO_PROGRESSION = ['1 major', '3 major', '4 major', '4 minor'];
 /** Major-scale pitch classes for a tonic (all shown in the key-center color). */
 export const majorScale = (tonicPc: number) =>
   [0, 2, 4, 5, 7, 9, 11].map((i) => (tonicPc + i) % 12);
+
+/** The key center (name, pitch class, color) for a pitch class. */
+export const keyCenterOf = (pc: number) =>
+  KEY_CENTERS[((((pc % 12) + 12) % 12) * 7) % 12];
+
+// ── Theory demo ───────────────────────────────────────────────────────────
+
+/**
+ * Tonic between F3 and E4, so a key's scale (up to its octave) and all seven
+ * diatonic triads sit inside the demos' three-octave keys (C3–C6) in any key.
+ */
+const tonicMidi = (pc: number) => 53 + ((((pc - 5) % 12) + 12) % 12);
+
+const DIATONIC_TRIADS = [
+  '1 major',
+  '2 minor',
+  '3 minor',
+  '4 major',
+  '5 major',
+  '6 minor',
+  '7 diminished',
+];
+
+/** A major key's seven diatonic triads, I → vii° (all in the key's color). */
+export const diatonicTriads = (tonicPc: number): DemoChord[] =>
+  DIATONIC_TRIADS.map((t) => demoChord(t, tonicMidi(tonicPc)));
+
+/** Whole/half steps between a diatonic scale's notes, up to the octave. */
+export const stepPattern = (intervals: readonly number[]): ('W' | 'H')[] =>
+  [...intervals.slice(1), 12].map((n, i) =>
+    n - intervals[i] === 1 ? 'H' : 'W',
+  );
+
+export interface DemoMode {
+  mode: string;
+  /** Display name, e.g. "Dorian". */
+  name: string;
+  /** Scale from the tonic up to its octave. */
+  midis: number[];
+  intervals: readonly number[];
+  /** The major key whose notes the mode uses — it takes that key's color. */
+  parent: (typeof KEY_CENTERS)[number];
+}
+
+/** The diatonic modes from brightest to darkest. */
+const MODES_BRIGHT_TO_DARK = [
+  'lydian',
+  'ionian',
+  'mixolydian',
+  'dorian',
+  'aeolian',
+  'phrygian',
+  'locrian',
+];
+
+/**
+ * The seven parallel modes of one root, brightest → darkest. Each takes the
+ * color of its parent major key (C Dorian uses B♭ major's notes → B♭'s
+ * color), so the colors walk one step around the circle of fifths.
+ */
+export const parallelModes = (tonicPc: number): DemoMode[] => {
+  const tonic = tonicMidi(tonicPc);
+  return MODES_BRIGHT_TO_DARK.map((mode) => {
+    const intervals = ALL_MODES[mode];
+    return {
+      mode,
+      name: MODE_DISPLAY[mode],
+      midis: [...intervals.map((i) => tonic + i), tonic + 12],
+      intervals,
+      parent: keyCenterOf(tonicPc - getModeOffset(mode)),
+    };
+  });
+};
+
+// ── Songs demo ────────────────────────────────────────────────────────────
+
+export interface SongChartHit {
+  /** Chord as written in the song, e.g. "Cmin7". */
+  name: string;
+  /** The song's hybrid degree, e.g. "4 min7". */
+  degree: string;
+  /** Beat position in the bar (1-indexed) and length in beats. */
+  beat: number;
+  duration: number;
+  /** Voiced for the demo keys (C3–B4). */
+  midis: number[];
+  color: string;
+  /** Shares the key's color (diatonic), vs. borrowed from another key. */
+  inKey: boolean;
+}
+
+export interface SongChartSection {
+  label: string;
+  /** Bars per chart row (the song's `measuresPerRow`, default 4). */
+  perRow: number;
+  /** Each bar's chords; an empty bar is a rest. */
+  bars: SongChartHit[][];
+}
+
+/**
+ * A chord for the demo keys: its root in the C3 octave under the chord tones
+ * folded into C4–B4. Display/playback only — never color a chord from this
+ * voicing (the engine reads the lowest note as the root).
+ */
+const voiceForKeys = (midis: number[]) =>
+  midis.length === 0
+    ? []
+    : [
+        48 + (midis[0] % 12),
+        ...midis.map((m) => 60 + (m % 12)).sort((a, b) => a - b),
+      ];
+
+/** A song's key color: its parent major key's color (minor → relative major). */
+export const songKeyColor = (song: Song) =>
+  keyCenterOf(song.keyRoot - getModeOffset(normalizeMode(song.mode))).color;
+
+/**
+ * A song's chord chart for the Songs demo. Colors come from the song's chord
+ * names in root position (`chordRgbFor`, the same as the app's chord chart).
+ */
+export const songDemoChart = (song: Song): SongChartSection[] => {
+  const keyColor = songKeyColor(song);
+  return song.sections.map((section) => ({
+    label: section.label,
+    perRow: section.measuresPerRow ?? 4,
+    bars: section.bars.map((bar) =>
+      bar.chords.map((hit) => {
+        const color = rgb(
+          chordRgbFor(hit.chordName, song.keyRoot, song.mode) ?? [
+            232, 232, 240,
+          ],
+        );
+        return {
+          name: hit.chordName,
+          degree: hit.degree,
+          beat: hit.beat,
+          duration: hit.duration,
+          midis: voiceForKeys(chordNameToMidi(hit.chordName)),
+          color,
+          inKey: color === keyColor,
+        };
+      }),
+    ),
+  }));
+};

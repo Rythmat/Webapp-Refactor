@@ -57,6 +57,32 @@ export interface ChordGridProps {
 }
 
 const BAR_HEIGHT = 52;
+/**
+ * A chart with slash chords needs taller bars: the bass note is set on its
+ * own level under the chord, so the symbol is about twice as tall as a plain
+ * one and would otherwise reach both barlines. Charts without one keep the
+ * shorter bar and fit more on a screen.
+ */
+const SLASH_BAR_HEIGHT = 68;
+
+/** Whether any chord in the song has a bass note under it. */
+export const hasSlashChord = (song: Song): boolean =>
+  song.sections.some((section) =>
+    section.bars.some((bar) =>
+      bar.chords.some((hit) => hit.chordName.includes('/')),
+    ),
+  );
+
+/**
+ * Air between one system and the next, as a share of the bar's own height.
+ *
+ * Without it the barlines of one row run straight into the row below and the
+ * chart reads as one long ruled column rather than as systems. A printed
+ * chart leaves about a third of a staff between them.
+ */
+export const rowGapFor = (barHeight: number): number =>
+  Math.round(barHeight * 0.3);
+
 const MARKS_HEIGHT = 14;
 const THIN = '1px solid currentColor';
 const THICK = '3px solid currentColor';
@@ -132,6 +158,7 @@ const Bar: FC<{
   isLast: boolean;
   beatsPerBar: number;
   size: string;
+  barHeight: number;
   /** Drawn before the first bar of the chart, as on paper. */
   timeSignature?: [number, number];
   onChordClick?: (hit: ChordHit) => void;
@@ -143,13 +170,14 @@ const Bar: FC<{
   isLast,
   beatsPerBar,
   size,
+  barHeight,
   timeSignature,
   onChordClick,
 }) => (
   <div
     className="relative flex min-w-0 flex-1 items-center"
     style={{
-      height: BAR_HEIGHT,
+      height: barHeight,
       borderLeft: bar.repeatStart ? THICK : THIN,
       borderRight: isLast ? THIN : bar.repeatEnd ? THICK : undefined,
       paddingLeft: bar.repeatStart ? 9 : 3,
@@ -273,6 +301,7 @@ const GridSection: FC<{
   systemsPerPage?: number;
   beatsPerBar: number;
   type: ReturnType<typeof chartTypeScale>;
+  barHeight: number;
   timeSignature?: [number, number];
   onChordClick?: (hit: ChordHit) => void;
 }> = ({
@@ -286,6 +315,7 @@ const GridSection: FC<{
   systemsPerPage,
   beatsPerBar,
   type,
+  barHeight,
   timeSignature,
   onChordClick,
 }) => {
@@ -336,7 +366,10 @@ const GridSection: FC<{
             key={ri}
             data-chart-system={system}
             {...(rowOpensPage ? { 'data-page-start': system } : {})}
-            style={{ ...(rowOpensPage ? pageBreak : {}) }}
+            style={{
+              marginBottom: rowGapFor(barHeight),
+              ...(rowOpensPage ? pageBreak : {}),
+            }}
           >
             {showMarks && (
               <div className="flex text-white/75">
@@ -356,6 +389,7 @@ const GridSection: FC<{
                   isLast={bi === row.bars.length - 1}
                   beatsPerBar={beatsPerBar}
                   size={type.chord}
+                  barHeight={barHeight}
                   timeSignature={
                     sectionIdx === 0 && ri === 0 && bi === 0
                       ? timeSignature
@@ -411,6 +445,8 @@ export const ChordGrid: FC<ChordGridProps> = ({
     return chartTypeScale(widest, tightestChordSlot(song));
   }, [song, barsPerRow]);
 
+  const barHeight = hasSlashChord(song) ? SLASH_BAR_HEIGHT : BAR_HEIGHT;
+
   return (
     // The container the `cqw` in the type scale is a percentage of: the chart
     // sets its own type from its own width, wherever it has been put.
@@ -431,6 +467,7 @@ export const ChordGrid: FC<ChordGridProps> = ({
           systemsPerPage={systemsPerPage}
           beatsPerBar={song.timeSignature?.[0] || 4}
           type={type}
+          barHeight={barHeight}
           timeSignature={song.timeSignature}
           onChordClick={onChordClick}
         />

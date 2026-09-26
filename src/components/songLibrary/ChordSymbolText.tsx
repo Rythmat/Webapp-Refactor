@@ -6,8 +6,12 @@ import type { CSSProperties, FC } from 'react';
  *
  * This is what lets four bars fit across a phone. Written flat, "B♭maj7/D♭"
  * is nine characters at full size and needs about 110px; with the accidental
- * raised, the quality dropped and the bass small, the same chord reads at a
- * glance in barely half that, because the eye only has to find the letter.
+ * raised, the quality dropped and the bass set under a stroke, the same chord
+ * reads at a glance in barely half that, because the eye only has to find the
+ * letter.
+ *
+ * Three levels, then: the accidental above the letter, the quality beside it,
+ * and a slash chord's bass note below on its own stroke.
  */
 
 export interface ChordParts {
@@ -57,27 +61,51 @@ export const ChordSymbolText: FC<{
 
   return (
     <span
-      className="inline-flex items-start whitespace-nowrap leading-none"
+      className="inline-flex flex-col items-start whitespace-nowrap leading-none"
       style={{ fontFamily: 'serif', fontSize: size, ...style }}
     >
-      <span>{root}</span>
-      {(accidental || quality || bass) && (
-        <span
-          className="inline-flex flex-col leading-none"
-          style={{ fontSize: '0.58em' }}
-        >
-          {/* The accidental rides above the letter, the quality sits under
-              it — so a chord takes one column of width, not a line of text. */}
-          <span style={{ height: accidental ? undefined : 0 }}>
-            {accidental}
-          </span>
-          <span>{quality}</span>
-          {bass && (
-            <span style={{ fontSize: '0.92em' }}>
-              <span style={{ opacity: 0.7 }}>/</span>
-              {bass}
+      <span className="inline-flex items-start leading-none">
+        <span>{root}</span>
+        {(accidental || quality) && (
+          <span
+            className="inline-flex flex-col leading-none"
+            style={{ fontSize: '0.58em' }}
+          >
+            {/* The accidental rides above the letter, the quality sits under
+                it — so a chord takes one column of width, not a line of
+                text. */}
+            <span style={{ height: accidental ? undefined : 0 }}>
+              {accidental}
             </span>
-          )}
+            <span>{quality}</span>
+          </span>
+        )}
+      </span>
+
+      {/* A slash chord is engraved on two levels — the chord, a long stroke
+          beneath it, and the bass note at the foot of the stroke. Written
+          along one line it reads as two chords; stacked, the eye takes the
+          top as the chord and the bottom as the note under it, which is what
+          it is. It is also narrower, which a bar on a phone needs. */}
+      {bass && (
+        <span
+          className="inline-flex items-baseline leading-none"
+          style={{ fontSize: '0.58em', marginTop: '0.18em' }}
+        >
+          {/* A long stroke, not a typed slash: it has to reach from under the
+              chord down to the foot of the bass note, so it is set well over
+              its own line and the line box is shortened to let it. */}
+          <span
+            style={{
+              fontSize: '2.6em',
+              lineHeight: 0.42,
+              marginRight: '0.04em',
+              opacity: 0.8,
+            }}
+          >
+            /
+          </span>
+          <span>{bass}</span>
         </span>
       )}
     </span>

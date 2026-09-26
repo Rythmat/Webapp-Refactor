@@ -7,7 +7,13 @@ import type {
   SongSection,
 } from '@/curriculum/types/songLibrary';
 import { ChordChart } from '../ChordChart';
-import { ChordGrid, chartTypeScale, tightestChordSlot } from '../ChordGrid';
+import {
+  ChordGrid,
+  chartTypeScale,
+  hasSlashChord,
+  rowGapFor,
+  tightestChordSlot,
+} from '../ChordGrid';
 
 /**
  * The phone format is the same chart, read a different way.
@@ -342,5 +348,51 @@ describe('tightestChordSlot', () => {
 
   it('leaves a chart with no chords alone', () => {
     expect(tightestChordSlot(withBars([{ chords: [], restBars: 4 }]))).toBe(1);
+  });
+});
+
+/** Air between systems, and the room a two-level symbol needs. */
+describe('ChordGrid spacing', () => {
+  const bass = (n: string): ChordBar => ({
+    chords: [{ degree: '1 maj', chordName: n, beat: 1, duration: 4 }],
+  });
+
+  it('leaves about a third of a bar between one system and the next', () => {
+    expect(rowGapFor(52)).toBe(16);
+    expect(rowGapFor(68)).toBe(20);
+  });
+
+  it('puts that gap under every row, not only under a section', () => {
+    // Eight bars is two rows inside one section; without a gap their
+    // barlines run together and the chart reads as one ruled column.
+    const s = song([section('a', 'Verse', eight('C'))]);
+    const html = renderToStaticMarkup(<ChordGrid song={s} />);
+    expect(
+      (html.match(new RegExp(`margin-bottom:${rowGapFor(52)}px`, 'g')) ?? [])
+        .length,
+    ).toBe(2);
+  });
+
+  it('gives a chart with slash chords taller bars', () => {
+    const plain = song([section('a', 'Verse', [bar('C')])]);
+    const slash = song([section('a', 'Verse', [bass('C/B♭')])]);
+    expect(hasSlashChord(plain)).toBe(false);
+    expect(hasSlashChord(slash)).toBe(true);
+    expect(renderToStaticMarkup(<ChordGrid song={plain} />)).toContain(
+      'height:52px',
+    );
+    // The bass is set on its own level, so the symbol is twice as tall and
+    // would otherwise reach both barlines.
+    expect(renderToStaticMarkup(<ChordGrid song={slash} />)).toContain(
+      'height:68px',
+    );
+  });
+
+  it('sees a slash chord wherever in the song it is', () => {
+    const late = song([
+      section('a', 'Verse', eight('C')),
+      section('b', 'Chorus', [bar('F'), bass('G/B')]),
+    ]);
+    expect(hasSlashChord(late)).toBe(true);
   });
 });

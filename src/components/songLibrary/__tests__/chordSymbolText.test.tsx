@@ -30,7 +30,7 @@ describe('splitChordSymbol', () => {
     });
   });
 
-  it('drops the quality below the letter', () => {
+  it('takes the quality off the letter whole', () => {
     expect(splitChordSymbol('Amin7')).toMatchObject({
       root: 'A',
       quality: 'min7',
@@ -125,5 +125,38 @@ describe('ChordSymbolText', () => {
     // Everything below the letter is set in em, so one CSS length does it all.
     expect(html).toContain('font-size:clamp(13px, 4cqw, 26px)');
     expect(html).toContain('font-size:0.58em');
+  });
+});
+
+/**
+ * Where the quality sits. A chart writes B−7 and F♯−7 with the dash high
+ * beside the letter; stacking it under the accidental dropped it below the
+ * letter's middle, into the space a bass note occupies.
+ */
+describe('ChordSymbolText placement', () => {
+  const render = (text: string) =>
+    renderToStaticMarkup(<ChordSymbolText text={text} size={26} />);
+
+  it('sets the accidental and the quality as one raised run', () => {
+    // Not a column of two: they share a line, so neither is pushed down.
+    expect(render('F♯−')).toContain('>♯−<');
+    expect(render('B♭Δ7')).toContain('>♭Δ7<');
+    expect(render('D♯°7')).toContain('>♯°7<');
+  });
+
+  it('puts a quality in the same place with or without an accidental', () => {
+    // "B−7" was always right; "F♯−" was the one hanging low.
+    const withAccidental = render('F♯−7');
+    const without = render('B−7');
+    const raised = /font-size:0\.58em"[^>]*>([^<]*)</;
+    expect(raised.exec(withAccidental)?.[1]).toBe('♯−7');
+    expect(raised.exec(without)?.[1]).toBe('−7');
+  });
+
+  it('sets the whole lower level in, so the stroke crosses the symbol', () => {
+    // Offsetting only the bass left the stroke hanging off the left edge
+    // instead of running diagonally under the chord.
+    const html = render('C/B♭');
+    expect(html).toMatch(/margin-top:0\.18em;margin-left:0\.6em/);
   });
 });

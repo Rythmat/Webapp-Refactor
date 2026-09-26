@@ -66,18 +66,15 @@ export const ChordSymbolText: FC<{
     >
       <span className="inline-flex items-start leading-none">
         <span>{root}</span>
+        {/* The accidental and the quality ride together at the top of the
+            letter, the way a chart writes them: B♭, B−7, F♯−7. Stacking the
+            quality under the accidental pushed it below the letter's middle,
+            so "F♯−" hung its dash where a bass note goes while "B−7" — which
+            has no accidental to displace it — sat correctly high. */}
         {(accidental || quality) && (
-          <span
-            className="inline-flex flex-col leading-none"
-            style={{ fontSize: '0.58em' }}
-          >
-            {/* The accidental rides above the letter, the quality sits under
-                it — so a chord takes one column of width, not a line of
-                text. */}
-            <span style={{ height: accidental ? undefined : 0 }}>
-              {accidental}
-            </span>
-            <span>{quality}</span>
+          <span className="leading-none" style={{ fontSize: '0.58em' }}>
+            {accidental}
+            {quality}
           </span>
         )}
       </span>
@@ -90,22 +87,28 @@ export const ChordSymbolText: FC<{
       {bass && (
         <span
           className="inline-flex items-baseline leading-none"
-          style={{ fontSize: '0.58em', marginTop: '0.18em' }}
+          style={{
+            fontSize: '0.58em',
+            marginTop: '0.18em',
+            // The whole lower level is set in, stroke and all, so the stroke
+            // starts under the middle of the chord and finishes past its
+            // right — a diagonal across the symbol rather than a tail hung
+            // off its left edge.
+            marginLeft: '0.6em',
+          }}
         >
           {/* A long stroke, not a typed slash: it has to reach from under the
               chord down to the foot of the bass note, so it is set well over
               its own line and the line box is shortened to let it.
 
-              The space after it carries the bass clear of the chord above, so
-              the two sit on a diagonal — chord up and to the left, bass note
-              down and to the right, the stroke joining them. Set against the
-              stroke's own size, which is a fixed share of the letter, so the
-              offset holds at every size the chart is set in. */}
+              Every offset here is in `em`, so the whole figure holds its
+              shape wherever the chart's type lands between its floor and its
+              cap. */}
           <span
             style={{
               fontSize: '2.6em',
               lineHeight: 0.42,
-              marginRight: '0.2em',
+              marginRight: '0.05em',
               opacity: 0.8,
             }}
           >

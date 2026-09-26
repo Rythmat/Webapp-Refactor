@@ -190,89 +190,103 @@ parser expanded them. Collapsing these back is mechanical and safe — the
 performed order is provably unchanged — but it changes how the chart _reads_,
 so say if you would rather any of them stayed long.
 
-| Song                                                                 | Library bars | Page ~bars | Longhand by | Page has                             | Your answer |
-| -------------------------------------------------------------------- | ------------ | ---------- | ----------- | ------------------------------------ | ----------- |
-| Can’t Buy Me Love (`cant_buy_me_love`)                               | 187          | 81         | **106**     | 2 repeat dots                        |             |
-| Don’t You Worry ‘Bout A Thing (`dont_you_worry_bout_a_thing`)        | 175          | 100        | **75**      | 8 repeat dots, 4x 4x                 |             |
-| My Old Man (`my_old_man`)                                            | 142          | 68         | **74**      | 2 repeat dots                        |             |
-| Takin’ It To The Streets (`takin_it_to_the_streets`)                 | 200          | 127        | **73**      | —                                    |             |
-| The Seed 2.0 (`the_seed_2_0`)                                        | 163          | 93         | **70**      | 2 repeat dots, 4x 5x                 |             |
-| FourFiveSeconds (`fourfiveseconds`)                                  | 122          | 62         | **60**      | 4 repeat dots                        |             |
-| Midnight Train To Georgia (`midnight_train_to_georgia`)              | 120          | 60         | **60**      | 4 repeat dots                        |             |
-| Higher Ground (`higher_ground`)                                      | 116          | 60         | **56**      | 8 repeat dots, 3x                    |             |
-| Knocks Me Off My Feet (`knocks_me_off_my_feet`)                      | 122          | 66         | **56**      | 2 repeat dots                        |             |
-| Feeling Alright (`feeling_alright`)                                  | 147          | 92         | **55**      | —                                    |             |
-| HandClap (`handclap`)                                                | 119          | 64         | **55**      | 3 repeat dots                        |             |
-| Paranoid Android (`paranoid_android`)                                | 143          | 88         | **55**      | 4 repeat dots, 3x                    |             |
-| Africa (`africa`)                                                    | 140          | 87         | **53**      | 8 repeat dots, 4x                    |             |
-| Feel Like Makin’ Love (`feel_like_makin_love`)                       | 116          | 64         | **52**      | 14 repeat dots, 4x 3x 3x             |             |
-| Hard Rock Cafe (`hard_rock_cafe`)                                    | 124          | 72         | **52**      | 6 repeat dots, 5x                    |             |
-| Oh! You Pretty Things (`oh_you_pretty_things`)                       | 98           | 46         | **52**      | 2 repeat dots                        |             |
-| Saving All My Love For You (`saving_all_my_love_for_you`)            | 111          | 59         | **52**      | 2 repeat dots                        |             |
-| You And I (`you_and_i`)                                              | 136          | 84         | **52**      | 2 repeat dots                        |             |
-| Blackbird (`blackbird`)                                              | 87           | 36         | **51**      | 1 repeat dots                        |             |
-| Till There Was You (`till_there_was_you`)                            | 115          | 64         | **51**      | —                                    |             |
-| Eventually (`eventually`)                                            | 104          | 54         | **50**      | 2 repeat dots                        |             |
-| Ain’t Nobody (`aint_nobody`)                                         | 108          | 59         | **49**      | 7 repeat dots, 4x, 1× 1st ending     |             |
-| Wannabe (`wannabe`)                                                  | 101          | 52         | **49**      | 6 repeat dots, 4x                    |             |
-| Drink In My Hand (`drink_in_my_hand`)                                | 116          | 68         | **48**      | 2 repeat dots                        |             |
-| I Should Have Known Better (`i_should_have_known_better`)            | 124          | 76         | **48**      | 2 repeat dots                        |             |
-| Rainy Days And Mondays (`rainy_days_and_mondays`)                    | 114          | 66         | **48**      | —                                    |             |
-| Caravan (`caravan`)                                                  | 92           | 46         | **46**      | 6 repeat dots, 4x 4x                 |             |
-| I Loved Her First (`i_loved_her_first`)                              | 100          | 54         | **46**      | 8 repeat dots                        |             |
-| Kiss From A Rose (`kiss_from_a_rose`)                                | 125          | 79         | **46**      | —                                    |             |
-| The Sign (`the_sign`)                                                | 88           | 42         | **46**      | 5 repeat dots                        |             |
-| I Kissed A Girl (`i_kissed_a_girl`)                                  | 107          | 62         | **45**      | 1 repeat dots                        |             |
-| Karma Police (`karma_police`)                                        | 88           | 44         | **44**      | 3 repeat dots                        |             |
-| Burn This Disco Out (`burn_this_disco_out`)                          | 105          | 62         | **43**      | 11 repeat dots, 3x                   |             |
-| Hit Me With Your Best Shot (`hit_me_with_your_best_shot`)            | 95           | 52         | **43**      | 4 repeat dots, 3x                    |             |
-| Living For The City (`living_for_the_city`)                          | 136          | 93         | **43**      | 8 repeat dots                        |             |
-| September (`september`)                                              | 101          | 58         | **43**      | 3 repeat dots                        |             |
-| Sir Duke (`sir_duke`)                                                | 125          | 82         | **43**      | 3 repeat dots, 3x                    |             |
-| 1612 (`1612`)                                                        | 148          | 106        | **42**      | 10 repeat dots, 3x 3x 3x             |             |
-| Don’t Worry About The Government (`dont_worry_about_the_government`) | 88           | 46         | **42**      | 2 repeat dots                        |             |
-| I Will (`i_will`)                                                    | 86           | 44         | **42**      | —                                    |             |
-| Rolling In The Deep (`rolling_in_the_deep`)                          | 100          | 58         | **42**      | 10 repeat dots, 4x 4x                |             |
-| Smells Like Teen Spirit (`smells_like_teen_spirit`)                  | 90           | 48         | **42**      | 10 repeat dots, 5x 3x 5x 3x 4x 5x 5x |             |
-| 1999 (`1999`)                                                        | 92           | 52         | **40**      | 15 repeat dots, 5x 4x                |             |
-| Ain’t No Mountain High Enough (`aint_no_mountain_high_enough`)       | 92           | 52         | **40**      | 6 repeat dots, 4x                    |             |
-| Aladdin Sane (`aladdin_sane`)                                        | 115          | 75         | **40**      | 4 repeat dots                        |             |
-| Love The One You’re With (`love_the_one_youre_with`)                 | 94           | 54         | **40**      | 4 repeat dots, 3x 3x                 |             |
-| Luck Be A Lady (`luck_be_a_lady`)                                    | 127          | 87         | **40**      | 12 repeat dots, 4x 4x 4x 8x 4x       |             |
-| Paper Bag (`paper_bag`)                                              | 104          | 64         | **40**      | 2 repeat dots, 3x                    |             |
-| Smooth Operator (`smooth_operator`)                                  | 111          | 71         | **40**      | 16 repeat dots, 4x 4x                |             |
-| Something Just Like This (`something_just_like_this`)                | 80           | 40         | **40**      | 11 repeat dots, 6x 4x 4x 4x          |             |
-| Come And Get Your Love (`come_and_get_your_love`)                    | 84           | 46         | **38**      | 10 repeat dots, 3x 4x                |             |
-| Canned Heat (`canned_heat`)                                          | 88           | 51         | **37**      | 12 repeat dots, 6x 4x                |             |
-| Dear Prudence (`dear_prudence`)                                      | 90           | 53         | **37**      | 5 repeat dots                        |             |
-| Homegrown (`homegrown`)                                              | 96           | 60         | **36**      | 1 repeat dots                        |             |
-| Joy Inside My Tears (`joy_inside_my_tears`)                          | 91           | 55         | **36**      | 2 repeat dots, 4x                    |             |
-| Wonderwall (`wonderwall`)                                            | 81           | 45         | **36**      | 4 repeat dots, 8x                    |             |
-| Changes (`changes`)                                                  | 103          | 68         | **35**      | 2 repeat dots, 1× 1st ending         |             |
-| Nothing Compares 2 U (`nothing_compares_2_u`)                        | 84           | 49         | **35**      | 6 repeat dots, 3x 3x                 |             |
-| You’re My Best Friend (`youre_my_best_friend`)                       | 118          | 83         | **35**      | —                                    |             |
-| Jump (`jump`)                                                        | 102          | 68         | **34**      | 14 repeat dots, 4x 4x                |             |
-| Say It Ain’t So (`say_it_aint_so`)                                   | 65           | 32         | **33**      | 10 repeat dots, 4x 3x                |             |
-| The Book I Read (`the_book_i_read`)                                  | 101          | 68         | **33**      | 10 repeat dots, 6x 6x                |             |
-| Black Hole Sun (`black_hole_sun`)                                    | 88           | 56         | **32**      | 4 repeat dots, 6x                    |             |
-| Down Under (`down_under`)                                            | 65           | 33         | **32**      | 12 repeat dots, 3x 3x                |             |
-| Good Times (`good_times`)                                            | 60           | 28         | **32**      | 10 repeat dots, 6x 4x 4x 4x 4x       |             |
-| Here Comes The Sun (`here_comes_the_sun`)                            | 119          | 87         | **32**      | 4 repeat dots, 5x                    |             |
-| Rich Girl (`rich_girl`)                                              | 82           | 50         | **32**      | —                                    |             |
-| Tears Of A Clown (`tears_of_a_clown`)                                | 78           | 46         | **32**      | 10 repeat dots, 4x 4x                |             |
-| 50 Ways To Leave Your Lover (`50_ways_to_leave_your_lover`)          | 79           | 48         | **31**      | 2 repeat dots                        |             |
-| Don’t Know Why (`dont_know_why`)                                     | 85           | 54         | **31**      | 2 repeat dots, 1× 1st ending         |             |
-| I Choose You (`i_choose_you`)                                        | 68           | 37         | **31**      | 6 repeat dots, 3x                    |             |
-| Just The Two Of Us (`just_the_two_of_us`)                            | 83           | 52         | **31**      | 4 repeat dots                        |             |
-| Power Of Love (`power_of_love`)                                      | 83           | 52         | **31**      | 4 repeat dots, 5x 3x 5x              |             |
-| Thinking Out Loud (`thinking_out_loud`)                              | 75           | 44         | **31**      | 10 repeat dots, 4x 4x 4x 3x          |             |
-| Ants Marching (`ants_marching`)                                      | 110          | 80         | **30**      | 12 repeat dots, 6x                   |             |
-| How Come You Don’t Call Me (`how_come_you_dont_call_me`)             | 64           | 34         | **30**      | 4 repeat dots, 6x 5x 3x              |             |
-| Beautiful (`beautiful`)                                              | 143          | 114        | **29**      | —                                    |             |
-| Easy (`easy`)                                                        | 70           | 41         | **29**      | 6 repeat dots                        |             |
-| Haven't Met You Yet (`havent_met_you_yet`)                           | 136          | 107        | **29**      | 2 repeat dots, 4x                    |             |
-| She’s No Lady (`shes_no_lady`)                                       | 61           | 32         | **29**      | 1 repeat dots                        |             |
-| …and 160 more                                                        |              |            |             |                                      |             |
+**A second cause lives in this list: charts written in half time.** 50 Ways To
+Leave Your Lover was in this table at 79 against 48, and it was not longhand at
+all — every bar held one chord that should have been two, so every bar was half
+a bar. Halving it reproduced the page exactly. The tell is a ratio near 2:1 with
+no repeated sections and nearly every bar holding a single whole-bar chord; on
+those numbers fourteen others look the same, listed below. **I have not verified
+them** — two spot-checks against the page were inconclusive, so treat this as a
+place to look first, not a finding.
+
+`brother_soul` · `la_vie_en_rose` · `something_just_like_this` ·
+`say_it_aint_so` · `i_will` · `crazy_love` ·
+`dont_worry_about_the_government` · `the_sign` · `handclap` · `good_times` ·
+`aint_nobody` · `pastime_paradise` · `days_like_this` · `in_the_midnight_hour`
+
+| Song                                                                 | Library bars | Page ~bars | Longhand by | Page has                             | Your answer                        |
+| -------------------------------------------------------------------- | ------------ | ---------- | ----------- | ------------------------------------ | ---------------------------------- |
+| Can’t Buy Me Love (`cant_buy_me_love`)                               | 187          | 81         | **106**     | 2 repeat dots                        |                                    |
+| Don’t You Worry ‘Bout A Thing (`dont_you_worry_bout_a_thing`)        | 175          | 100        | **75**      | 8 repeat dots, 4x 4x                 |                                    |
+| My Old Man (`my_old_man`)                                            | 142          | 68         | **74**      | 2 repeat dots                        |                                    |
+| Takin’ It To The Streets (`takin_it_to_the_streets`)                 | 200          | 127        | **73**      | —                                    |                                    |
+| The Seed 2.0 (`the_seed_2_0`)                                        | 163          | 93         | **70**      | 2 repeat dots, 4x 5x                 |                                    |
+| FourFiveSeconds (`fourfiveseconds`)                                  | 122          | 62         | **60**      | 4 repeat dots                        |                                    |
+| Midnight Train To Georgia (`midnight_train_to_georgia`)              | 120          | 60         | **60**      | 4 repeat dots                        |                                    |
+| Higher Ground (`higher_ground`)                                      | 116          | 60         | **56**      | 8 repeat dots, 3x                    |                                    |
+| Knocks Me Off My Feet (`knocks_me_off_my_feet`)                      | 122          | 66         | **56**      | 2 repeat dots                        |                                    |
+| Feeling Alright (`feeling_alright`)                                  | 147          | 92         | **55**      | —                                    |                                    |
+| HandClap (`handclap`)                                                | 119          | 64         | **55**      | 3 repeat dots                        |                                    |
+| Paranoid Android (`paranoid_android`)                                | 143          | 88         | **55**      | 4 repeat dots, 3x                    |                                    |
+| Africa (`africa`)                                                    | 140          | 87         | **53**      | 8 repeat dots, 4x                    |                                    |
+| Feel Like Makin’ Love (`feel_like_makin_love`)                       | 116          | 64         | **52**      | 14 repeat dots, 4x 3x 3x             |                                    |
+| Hard Rock Cafe (`hard_rock_cafe`)                                    | 124          | 72         | **52**      | 6 repeat dots, 5x                    |                                    |
+| Oh! You Pretty Things (`oh_you_pretty_things`)                       | 98           | 46         | **52**      | 2 repeat dots                        |                                    |
+| Saving All My Love For You (`saving_all_my_love_for_you`)            | 111          | 59         | **52**      | 2 repeat dots                        |                                    |
+| You And I (`you_and_i`)                                              | 136          | 84         | **52**      | 2 repeat dots                        |                                    |
+| Blackbird (`blackbird`)                                              | 87           | 36         | **51**      | 1 repeat dots                        |                                    |
+| Till There Was You (`till_there_was_you`)                            | 115          | 64         | **51**      | —                                    |                                    |
+| Eventually (`eventually`)                                            | 104          | 54         | **50**      | 2 repeat dots                        |                                    |
+| Ain’t Nobody (`aint_nobody`)                                         | 108          | 59         | **49**      | 7 repeat dots, 4x, 1× 1st ending     |                                    |
+| Wannabe (`wannabe`)                                                  | 101          | 52         | **49**      | 6 repeat dots, 4x                    |                                    |
+| Drink In My Hand (`drink_in_my_hand`)                                | 116          | 68         | **48**      | 2 repeat dots                        |                                    |
+| I Should Have Known Better (`i_should_have_known_better`)            | 124          | 76         | **48**      | 2 repeat dots                        |                                    |
+| Rainy Days And Mondays (`rainy_days_and_mondays`)                    | 114          | 66         | **48**      | —                                    |                                    |
+| Caravan (`caravan`)                                                  | 92           | 46         | **46**      | 6 repeat dots, 4x 4x                 |                                    |
+| I Loved Her First (`i_loved_her_first`)                              | 100          | 54         | **46**      | 8 repeat dots                        |                                    |
+| Kiss From A Rose (`kiss_from_a_rose`)                                | 125          | 79         | **46**      | —                                    |                                    |
+| The Sign (`the_sign`)                                                | 88           | 42         | **46**      | 5 repeat dots                        |                                    |
+| I Kissed A Girl (`i_kissed_a_girl`)                                  | 107          | 62         | **45**      | 1 repeat dots                        |                                    |
+| Karma Police (`karma_police`)                                        | 88           | 44         | **44**      | 3 repeat dots                        |                                    |
+| Burn This Disco Out (`burn_this_disco_out`)                          | 105          | 62         | **43**      | 11 repeat dots, 3x                   |                                    |
+| Hit Me With Your Best Shot (`hit_me_with_your_best_shot`)            | 95           | 52         | **43**      | 4 repeat dots, 3x                    |                                    |
+| Living For The City (`living_for_the_city`)                          | 136          | 93         | **43**      | 8 repeat dots                        |                                    |
+| September (`september`)                                              | 101          | 58         | **43**      | 3 repeat dots                        |                                    |
+| Sir Duke (`sir_duke`)                                                | 125          | 82         | **43**      | 3 repeat dots, 3x                    |                                    |
+| 1612 (`1612`)                                                        | 148          | 106        | **42**      | 10 repeat dots, 3x 3x 3x             |                                    |
+| Don’t Worry About The Government (`dont_worry_about_the_government`) | 88           | 46         | **42**      | 2 repeat dots                        |                                    |
+| I Will (`i_will`)                                                    | 86           | 44         | **42**      | —                                    |                                    |
+| Rolling In The Deep (`rolling_in_the_deep`)                          | 100          | 58         | **42**      | 10 repeat dots, 4x 4x                |                                    |
+| Smells Like Teen Spirit (`smells_like_teen_spirit`)                  | 90           | 48         | **42**      | 10 repeat dots, 5x 3x 5x 3x 4x 5x 5x |                                    |
+| 1999 (`1999`)                                                        | 92           | 52         | **40**      | 15 repeat dots, 5x 4x                |                                    |
+| Ain’t No Mountain High Enough (`aint_no_mountain_high_enough`)       | 92           | 52         | **40**      | 6 repeat dots, 4x                    |                                    |
+| Aladdin Sane (`aladdin_sane`)                                        | 115          | 75         | **40**      | 4 repeat dots                        |                                    |
+| Love The One You’re With (`love_the_one_youre_with`)                 | 94           | 54         | **40**      | 4 repeat dots, 3x 3x                 |                                    |
+| Luck Be A Lady (`luck_be_a_lady`)                                    | 127          | 87         | **40**      | 12 repeat dots, 4x 4x 4x 8x 4x       |                                    |
+| Paper Bag (`paper_bag`)                                              | 104          | 64         | **40**      | 2 repeat dots, 3x                    |                                    |
+| Smooth Operator (`smooth_operator`)                                  | 111          | 71         | **40**      | 16 repeat dots, 4x 4x                |                                    |
+| Something Just Like This (`something_just_like_this`)                | 80           | 40         | **40**      | 11 repeat dots, 6x 4x 4x 4x          |                                    |
+| Come And Get Your Love (`come_and_get_your_love`)                    | 84           | 46         | **38**      | 10 repeat dots, 3x 4x                |                                    |
+| Canned Heat (`canned_heat`)                                          | 88           | 51         | **37**      | 12 repeat dots, 6x 4x                |                                    |
+| Dear Prudence (`dear_prudence`)                                      | 90           | 53         | **37**      | 5 repeat dots                        |                                    |
+| Homegrown (`homegrown`)                                              | 96           | 60         | **36**      | 1 repeat dots                        |                                    |
+| Joy Inside My Tears (`joy_inside_my_tears`)                          | 91           | 55         | **36**      | 2 repeat dots, 4x                    |                                    |
+| Wonderwall (`wonderwall`)                                            | 81           | 45         | **36**      | 4 repeat dots, 8x                    |                                    |
+| Changes (`changes`)                                                  | 103          | 68         | **35**      | 2 repeat dots, 1× 1st ending         |                                    |
+| Nothing Compares 2 U (`nothing_compares_2_u`)                        | 84           | 49         | **35**      | 6 repeat dots, 3x 3x                 |                                    |
+| You’re My Best Friend (`youre_my_best_friend`)                       | 118          | 83         | **35**      | —                                    |                                    |
+| Jump (`jump`)                                                        | 102          | 68         | **34**      | 14 repeat dots, 4x 4x                |                                    |
+| Say It Ain’t So (`say_it_aint_so`)                                   | 65           | 32         | **33**      | 10 repeat dots, 4x 3x                |                                    |
+| The Book I Read (`the_book_i_read`)                                  | 101          | 68         | **33**      | 10 repeat dots, 6x 6x                |                                    |
+| Black Hole Sun (`black_hole_sun`)                                    | 88           | 56         | **32**      | 4 repeat dots, 6x                    |                                    |
+| Down Under (`down_under`)                                            | 65           | 33         | **32**      | 12 repeat dots, 3x 3x                |                                    |
+| Good Times (`good_times`)                                            | 60           | 28         | **32**      | 10 repeat dots, 6x 4x 4x 4x 4x       |                                    |
+| Here Comes The Sun (`here_comes_the_sun`)                            | 119          | 87         | **32**      | 4 repeat dots, 5x                    |                                    |
+| Rich Girl (`rich_girl`)                                              | 82           | 50         | **32**      | —                                    |                                    |
+| Tears Of A Clown (`tears_of_a_clown`)                                | 78           | 46         | **32**      | 10 repeat dots, 4x 4x                |                                    |
+| 50 Ways To Leave Your Lover (`50_ways_to_leave_your_lover`)          | 79           | 48         | **31**      | 2 repeat dots                        | **Done** — half time, not longhand |
+| Don’t Know Why (`dont_know_why`)                                     | 85           | 54         | **31**      | 2 repeat dots, 1× 1st ending         |                                    |
+| I Choose You (`i_choose_you`)                                        | 68           | 37         | **31**      | 6 repeat dots, 3x                    |                                    |
+| Just The Two Of Us (`just_the_two_of_us`)                            | 83           | 52         | **31**      | 4 repeat dots                        |                                    |
+| Power Of Love (`power_of_love`)                                      | 83           | 52         | **31**      | 4 repeat dots, 5x 3x 5x              |                                    |
+| Thinking Out Loud (`thinking_out_loud`)                              | 75           | 44         | **31**      | 10 repeat dots, 4x 4x 4x 3x          |                                    |
+| Ants Marching (`ants_marching`)                                      | 110          | 80         | **30**      | 12 repeat dots, 6x                   |                                    |
+| How Come You Don’t Call Me (`how_come_you_dont_call_me`)             | 64           | 34         | **30**      | 4 repeat dots, 6x 5x 3x              |                                    |
+| Beautiful (`beautiful`)                                              | 143          | 114        | **29**      | —                                    |                                    |
+| Easy (`easy`)                                                        | 70           | 41         | **29**      | 6 repeat dots                        |                                    |
+| Haven't Met You Yet (`havent_met_you_yet`)                           | 136          | 107        | **29**      | 2 repeat dots, 4x                    |                                    |
+| She’s No Lady (`shes_no_lady`)                                       | 61           | 32         | **29**      | 1 repeat dots                        |                                    |
+| …and 160 more                                                        |              |            |             |                                      |                                    |
 
 ## 4. Roadmap on the page, none in the data — 543 songs
 

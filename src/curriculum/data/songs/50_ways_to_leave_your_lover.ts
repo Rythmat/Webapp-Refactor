@@ -19,58 +19,55 @@ export const _50_ways_to_leave_your_lover: Song = {
 
   sections: [
     {
+      id: 'intro',
+      label: 'Intro',
+      bars: [{ chords: [], restBars: 6, cue: 'Drums only' }],
+    },
+    {
       id: 'verse_1',
       label: 'Verse 1',
+      instrumental: true,
       bars: [
-        { chords: [], restBars: 6 },
         {
           chords: [
-            { degree: '1 min/♭3', chordName: 'Emin/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '1 min/♭3', chordName: 'Emin/G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 dim', chordName: 'D♯dim', beat: 1, duration: 4 },
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 dim', chordName: 'F♯dim', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
+            { degree: '7 dim', chordName: 'D♯dim', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '2 dim', chordName: 'F♯dim', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
+            { degree: '4 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -85,53 +82,46 @@ export const _50_ways_to_leave_your_lover: Song = {
       label: 'Verse 2',
       bars: [
         {
+          repeatStart: true,
           chords: [
-            { degree: '1 min/♭3', chordName: 'Emin/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '1 min/♭3', chordName: 'Emin/G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 dim', chordName: 'D♯dim', beat: 1, duration: 4 },
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 dim', chordName: 'F♯dim', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
+            { degree: '7 dim', chordName: 'D♯dim', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+            { degree: '2 dim', chordName: 'F♯dim', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
+            { degree: '4 min7', chordName: 'Amin7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -147,44 +137,40 @@ export const _50_ways_to_leave_your_lover: Song = {
       bars: [
         {
           chords: [
-            { degree: '1 min/♭3', chordName: 'Emin/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '1 min/♭3', chordName: 'Emin/G', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '7 dim', chordName: 'D♯dim', beat: 1, duration: 4 },
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '2 dim', chordName: 'F♯dim', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
+            { degree: '7 dim', chordName: 'D♯dim', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '2 dim', chordName: 'F♯dim', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7', beat: 3, duration: 2 },
           ],
         },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
+            { degree: '♭7 maj', chordName: 'D', beat: 3, duration: 2 },
+          ],
         },
         {
-          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭6 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'B7', beat: 3, duration: 2 },
+          ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 2 },
@@ -216,21 +202,12 @@ export const _50_ways_to_leave_your_lover: Song = {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
           chords: [{ degree: '♭5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '♭6 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭6 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭6 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -242,35 +219,9 @@ export const _50_ways_to_leave_your_lover: Song = {
           chords: [{ degree: '♭5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '♭6 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭6 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '♭6 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭6 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭6 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
@@ -282,14 +233,27 @@ export const _50_ways_to_leave_your_lover: Song = {
           chords: [{ degree: '♭5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭6 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
         },
-        { chords: [{ degree: '♭6 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭6 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         {
+          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭5 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭6 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          repeatEnd: true,
+          fine: true,
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
       ],

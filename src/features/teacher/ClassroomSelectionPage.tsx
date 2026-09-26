@@ -7,11 +7,11 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ClassroomRoutes, TeacherRoutes } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
-import { useClassrooms, useMe } from '@/hooks/data';
+import { useMyClassrooms } from '@/hooks/data';
 import { CreateClassroomDialog } from './components/CreateClassroomDialog';
 import { DeleteClassroomDialog } from './components/DeleteClassroomDialog';
 import { EditClassroomDialog } from './components/EditClassroomDialog';
@@ -43,22 +43,19 @@ const copyCode = async (code: string) => {
 };
 
 export const ClassroomSelectionPage = () => {
-  const navigate = useNavigate();
   const { role } = useAuthContext();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [shareTarget, setShareTarget] = useState<ShareTarget | null>(null);
   const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
-  const { data: allClassrooms = [], isLoading } = useClassrooms();
-  const { data: me } = useMe();
-  const ownedClassrooms = me?.id
-    ? allClassrooms.filter((c) => c.teacherId === me.id)
-    : allClassrooms;
+  const { classrooms: ownedClassrooms, isLoading } = useMyClassrooms();
 
   // Bounce non-teachers to the student picker rather than back to /teacher.
+  // Declarative redirect, NOT `navigate()` — calling it during render mutates
+  // router state mid-commit, which React logs as a warning and which leaves a
+  // dead history entry behind (`replace` is what a guard wants, not a push).
   if (role !== 'teacher' && role !== 'admin') {
-    navigate(ClassroomRoutes.picker());
-    return null;
+    return <Navigate to={ClassroomRoutes.picker()} replace />;
   }
 
   return (
@@ -66,7 +63,7 @@ export const ClassroomSelectionPage = () => {
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-2">
           <h1 className="text-4xl font-medium leading-tight text-white md:text-5xl">
-            Classrooms
+            Office
           </h1>
           <p className="text-base text-white/60">
             Manage your classrooms, invite students, and open the projector.

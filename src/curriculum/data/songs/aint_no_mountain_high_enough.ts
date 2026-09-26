@@ -4,7 +4,7 @@ export const aint_no_mountain_high_enough: Song = {
   id: 'aint_no_mountain_high_enough',
   title: 'Ain’t No Mountain High Enough',
   artist: 'Marvin Gaye',
-  year: 2012,
+  year: 1967,
   historicalDescription:
     "Marvin Gaye and Tammi Terrell release 'Ain't No Mountain High Enough' on Motown, a soaring declaration of devotion written by Nickolas Ashford and Valerie Simpson. Their electric vocal chemistry captures the joy and ambition of soul music at its peak, and the song becomes one of the defining duets of the 1960s — later reimagined as a #1 hit by Diana Ross in 1970.",
   key: 'G minor',

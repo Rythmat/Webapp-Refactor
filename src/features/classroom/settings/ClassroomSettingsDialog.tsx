@@ -17,77 +17,72 @@ import {
 } from 'lucide-react';
 import { useRef } from 'react';
 import { toast } from 'sonner';
+import { useMe } from '@/hooks/data';
 import type { StudentLanguage } from '../types';
+import {
+  exportTeacherBackup,
+  parseTeacherBackup,
+  restoreTeacherBackup,
+} from './planBackup';
 import {
   useTeacherConfig,
   type AtlasModule,
   type LocalContextMode,
 } from './useTeacherConfig';
 
-const EXPORT_KEYS = [
-  'ma-teacher:plan:v1',
-  'ma-teacher:annualPlan:v1',
-  'ma-teacher:settings:v1',
-  'ma-teacher:activities:personal:v1',
-  'ma-teacher:clos:personal:v1',
-  'ma-teacher:themes:personal:v1',
-  'ma-teacher:seeds:personal:v1',
-];
-
-const exportPlan = () => {
-  const stores: Record<string, unknown> = {};
-  for (const key of EXPORT_KEYS) {
-    const raw = window.localStorage.getItem(key);
-    if (raw) {
-      try {
-        stores[key] = JSON.parse(raw);
-      } catch {
-        // skip malformed
-      }
+const exportPlan = async (userId: string | null) => {
+  try {
+    // Async on purpose: the annual plan and published days live in IndexedDB,
+    // and a synchronous read before hydration silently returns an empty store.
+    const backup = await exportTeacherBackup(userId);
+    const count = Object.keys(backup.stores).length;
+    if (count === 0) {
+      toast.error('Nothing to back up yet.');
+      return;
     }
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'atlas-classroom-plan.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(
+      `Downloaded ${count} store${count === 1 ? '' : 's'}, including your Unit plan`,
+    );
+  } catch {
+    toast.error('Could not build a backup');
   }
-  const payload = { version: 1, stores };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], {
-    type: 'application/json',
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'atlas-classroom-plan.json';
-  a.click();
-  URL.revokeObjectURL(url);
-  toast.success('Plan downloaded');
 };
 
-const restorePlan = (file: File) => {
-  const reader = new FileReader();
-  reader.onload = () => {
-    try {
-      const parsed = JSON.parse(String(reader.result)) as {
-        stores?: Record<string, unknown>;
-      };
-      const stores = parsed.stores ?? {};
-      let n = 0;
-      for (const [key, value] of Object.entries(stores)) {
-        if (!EXPORT_KEYS.includes(key)) continue;
-        window.localStorage.setItem(key, JSON.stringify(value));
-        window.dispatchEvent(new Event(`${key}:changed`));
-        n += 1;
-      }
-      toast.success(
-        `Restored ${n} store${n === 1 ? '' : 's'} — reload to refresh`,
-      );
-    } catch {
-      toast.error('Could not read that file');
+const restorePlan = async (userId: string | null, file: File) => {
+  try {
+    const backup = parseTeacherBackup(await file.text());
+    const { restored, skipped } = await restoreTeacherBackup(userId, backup);
+    if (restored.length === 0) {
+      toast.error('That backup contained nothing this version can restore.');
+      return;
     }
-  };
-  reader.readAsText(file);
+    toast.success(
+      `Restored ${restored.length} store${restored.length === 1 ? '' : 's'}${
+        skipped.length ? ` (${skipped.length} unknown skipped)` : ''
+      } — reload to refresh`,
+    );
+  } catch (err) {
+    toast.error(
+      err instanceof Error ? err.message : 'Could not read that file',
+    );
+  }
 };
 
 const MODULES: AtlasModule[] = ['globe', 'learn', 'studio', 'arcade'];
 const LOCAL_MODES: LocalContextMode[] = ['show', 'hide', 'replace'];
 
 interface ClassroomSettingsDialogProps {
+  /** Scopes per-section settings (age preset, language, IMPACT toggle). */
+  classroomId: string;
   onClose: () => void;
   /** Whether an annual plan exists — gates the Annual-plan control section. */
   planSeeded: boolean;
@@ -102,6 +97,7 @@ interface ClassroomSettingsDialogProps {
 }
 
 export const ClassroomSettingsDialog = ({
+  classroomId,
   onClose,
   planSeeded,
   language,
@@ -110,7 +106,12 @@ export const ClassroomSettingsDialog = ({
   onUseCanonical,
   onReset,
 }: ClassroomSettingsDialogProps) => {
-  const { config, setConfig } = useTeacherConfig();
+  const { config, setConfig, setClassroomConfig } =
+    useTeacherConfig(classroomId);
+  const { data: me } = useMe();
+  // Published days are a PER-USER store; backing up under the wrong scope
+  // would produce a file that restores into a different bucket.
+  const userId = me?.id ?? null;
   const fileRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -249,11 +250,14 @@ export const ClassroomSettingsDialog = ({
             />
           )}
           <label className="flex items-center justify-between gap-2 text-sm text-white/70">
-            Default age preset
+            Age preset for this class
             <select
               value={config.agePresetDefault}
               onChange={(e) =>
-                setConfig({
+                // PER SECTION, not tenant-wide: a teacher with a middle-school
+                // and a college section wants different type scales, which is
+                // exactly what AgePreset is for.
+                setClassroomConfig({
                   agePresetDefault: e.target
                     .value as typeof config.agePresetDefault,
                 })
@@ -278,7 +282,7 @@ export const ClassroomSettingsDialog = ({
           <div className="flex gap-2">
             <button
               type="button"
-              onClick={exportPlan}
+              onClick={() => void exportPlan(userId)}
               className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 hover:border-white/25 hover:text-white"
             >
               <Download className="h-4 w-4" />
@@ -299,7 +303,7 @@ export const ClassroomSettingsDialog = ({
               className="hidden"
               onChange={(e) => {
                 const f = e.target.files?.[0];
-                if (f) restorePlan(f);
+                if (f) void restorePlan(userId, f);
                 e.target.value = '';
               }}
             />

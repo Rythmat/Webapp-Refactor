@@ -2,14 +2,24 @@ import { useEffect, useRef } from 'react';
 import type { GlobeMethods } from 'react-globe.gl';
 import { DirectionalLight, AmbientLight } from 'three';
 
+/**
+ * Attach the warm camera-mounted "sun" plus a dim ambient.
+ *
+ * `ready` is not optional in practice: the <Globe> element does not exist on
+ * the first render, so an effect keyed only on the ref object (whose identity
+ * never changes) found `globeRef.current === undefined`, returned early and
+ * never ran again — both globes shipped with globe.gl's default lights instead
+ * of these. Pass the `onGlobeReady` flag.
+ */
 export function useGlobeLighting(
   globeRef: React.MutableRefObject<GlobeMethods | undefined>,
+  ready: boolean,
 ) {
   const lightsSetUp = useRef(false);
 
   useEffect(() => {
     const globe = globeRef.current;
-    if (!globe || lightsSetUp.current) return;
+    if (!ready || !globe || lightsSetUp.current) return;
 
     const camera = globe.camera();
     const scene = globe.scene();
@@ -40,5 +50,5 @@ export function useGlobeLighting(
       ambient.dispose();
       lightsSetUp.current = false;
     };
-  }, [globeRef]);
+  }, [globeRef, ready]);
 }

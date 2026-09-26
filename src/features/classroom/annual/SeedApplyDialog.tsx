@@ -17,6 +17,8 @@ import type { Day } from '../types';
 interface SeedApplyDialogProps {
   seed: LessonSeed;
   unitDays: Day[];
+  /** Needed so a Day created from a seed is scoped to this classroom. */
+  classroomId: string;
   onNewDay: (dayId: string) => void;
   suggestSchedule: () => string | null;
   onClose: () => void;
@@ -25,13 +27,14 @@ interface SeedApplyDialogProps {
 export const SeedApplyDialog = ({
   seed,
   unitDays,
+  classroomId,
   onNewDay,
   suggestSchedule,
   onClose,
 }: SeedApplyDialogProps) => {
-  const { getDay, saveDay } = useLocalPlan();
+  const { getDay, saveDay } = useLocalPlan(classroomId);
   const { byId } = useActivityBank();
-  const { config } = useTeacherConfig();
+  const { config } = useTeacherConfig(classroomId);
   const [targetId, setTargetId] = useState<string>('new');
 
   const targetDay = targetId === 'new' ? null : (getDay(targetId) ?? null);

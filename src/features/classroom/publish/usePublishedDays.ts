@@ -117,6 +117,22 @@ const mirrorFor = (userId: string | null | undefined) =>
 const readStore = (userId: string | null | undefined): PublishedStore =>
   mirrorFor(userId).read();
 
+/**
+ * Resolves once the IDB mirror has hydrated. Backup/export MUST await this:
+ * the migration moved the value into IndexedDB and REMOVED the localStorage
+ * copy, so a synchronous read before hydration returns an empty store — which
+ * is exactly how "Download my plan" came to omit the entire Unit tree.
+ */
+export const publishedStoreReady = (
+  userId: string | null | undefined,
+): Promise<void> => mirrorFor(userId).ready;
+
+/** Backup/restore entry point — see `settings/planBackup.ts`. */
+export const writePublishedStoreForUser = (
+  userId: string | null | undefined,
+  store: PublishedStore,
+): void => mirrorFor(userId).write(store);
+
 const writeStore = (
   userId: string | null | undefined,
   store: PublishedStore,
@@ -319,7 +335,7 @@ export const usePublishedDays = (classroomId: string): UsePublishedDays => {
         if (isFirewallError(err)) {
           // The server-normalized error only carries the canonical code, not
           // the offending term. The client pre-flight above (lines 254–257)
-          // already caught anything in our local FORBIDDEN_SUBSTRINGS list,
+          // already caught anything in our local FORBIDDEN_KEYS list,
           // so any error surfacing here is a server-only rule the client
           // can't identify — throw the generic message.
           throw new Error('Rule 1 firewall violation');

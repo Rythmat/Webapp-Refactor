@@ -1,5 +1,5 @@
 import { getCountryColor } from '@/components/atlas/data/continentColors';
-import { GEOJSON_URLS } from '@/components/atlas/data/menuItems';
+import { loadCountries } from '@/components/atlas/data/geoLoader';
 
 /**
  * Builds a colored equirectangular world-map texture where each country is
@@ -71,9 +71,7 @@ let cache: Promise<HTMLCanvasElement> | null = null;
 export function buildCountryTexture(): Promise<HTMLCanvasElement> {
   if (cache) return cache;
   cache = (async () => {
-    const res = await fetch(GEOJSON_URLS.countries);
-    if (!res.ok) throw new Error(`GeoJSON fetch failed: ${res.status}`);
-    const data = (await res.json()) as { features?: Feature[] };
+    const features = (await loadCountries()) as unknown as Feature[];
 
     const canvas = document.createElement('canvas');
     canvas.width = TEX_W;
@@ -82,7 +80,7 @@ export function buildCountryTexture(): Promise<HTMLCanvasElement> {
     if (!ctx) throw new Error('2D context unavailable');
     ctx.clearRect(0, 0, TEX_W, TEX_H); // transparent ocean
 
-    for (const feat of data.features ?? []) drawFeature(ctx, feat);
+    for (const feat of features) drawFeature(ctx, feat);
     return canvas;
   })();
   // Allow a later mount to retry if this attempt failed.

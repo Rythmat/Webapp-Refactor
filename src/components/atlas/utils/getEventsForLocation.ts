@@ -15,7 +15,10 @@ const COUNTRY_ALIASES: Record<string, string> = {
   Korea: 'South Korea',
   'Dem. Rep. Korea': 'North Korea',
   'Czech Republic': 'Czechia',
-  "Côte d'Ivoire": 'Ivory Coast',
+  // NB: no "Côte d'Ivoire" entry. There used to be one mapping it to
+  // 'Ivory Coast', but Natural Earth, CITIES and the events all spell it
+  // "Côte d'Ivoire" — so the alias rewrote a name that matched into one that
+  // did not, and clicking the country listed nothing.
 };
 
 /**

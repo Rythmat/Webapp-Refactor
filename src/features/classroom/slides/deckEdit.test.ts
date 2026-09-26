@@ -19,7 +19,7 @@ import {
   slidesArePhaseOrdered,
   updateSlideAt,
 } from './deckEdit';
-import type { SlideKind } from './types';
+import type { SlideKind, Slide } from './types';
 
 const KINDS: SlideKind[] = [
   'content',
@@ -70,8 +70,9 @@ describe('Rule 1 firewall — scans keys (field-name leaks), not content values'
   });
 
   it('still catches a leaked teacher-only field KEY (belt-and-suspenders)', () => {
-    // Simulate a future transform bug letting a rationale field ride through —
-    // the key 'impactTags' contains the forbidden substring 'impact'.
+    // Simulate a future transform bug letting a rationale field ride through.
+    // The matcher names the offending KEY exactly (`impactTags`), not a
+    // fragment of it — see FORBIDDEN_KEYS in publishDay.ts.
     const dirty = {
       dayId: 'd',
       label: 'Clean label',
@@ -82,7 +83,7 @@ describe('Rule 1 firewall — scans keys (field-name leaks), not content values'
         slides: [{ id: 's', title: { en: 'Clean' }, impactTags: ['leak'] }],
       },
     } as unknown as DaySnapshot;
-    expect(findForbiddenSubstring(dirty)).toBe('impact');
+    expect(findForbiddenSubstring(dirty)).toBe('impactTags');
   });
 });
 
@@ -208,5 +209,129 @@ describe('duplicateSlideAt', () => {
     // …and the cell now holds both interactions; nothing dangles.
     expect(dup.cells.connectRegulate.presentation.interactions).toHaveLength(2);
     expect(findDanglingInteractionIds(publishDay(dup))).toEqual([]);
+  });
+
+  it('re-keys element ids and the interaction refs INSIDE elements', () => {
+    // Latent until P2 task 5 starts emitting `elements` eagerly: today every
+    // slide's elements are derived by `migrateSlideV1`, which reads the legacy
+    // `interactionIds`, so a derived element can never be stale.
+    //
+    // Once elements are AUTHORED, `structuredClone` copies them verbatim and
+    // `remapSlideInteractions` does not reach inside: it rewrites
+    // `interactionIds` only (deckEdit.ts setSlideInteractionIds). The copy's
+    // footer element would still name the ORIGINAL interaction — and since
+    // `interactionsForSlide` resolves from the NEW id, the lookup misses and
+    // the interaction silently disappears from the duplicated slide.
+    //
+    // Element ids must be re-keyed too: they embed the source slide id
+    // (`eid(slide.id, ...)`), so a verbatim copy leaves two slides claiming the
+    // same element ids — which `drawTargetElementId` resolves by id.
+    const { day, slideId } = dayWithInteractionSlide();
+    const withIx = setSlideInteractions(day, slideId, [
+      textInteraction('ix-a'),
+    ]);
+    const authored: Day = {
+      ...withIx,
+      deck: {
+        ...withIx.deck!,
+        slides: withIx.deck!.slides.map((s) =>
+          s.id === slideId
+            ? {
+                ...s,
+                elements: [
+                  {
+                    id: `${slideId}:title`,
+                    zone: 'title',
+                    order: 0,
+                    kind: 'text',
+                    role: 'title',
+                    text: { en: 'Q' },
+                  },
+                  {
+                    id: `${slideId}:interaction:0`,
+                    zone: 'footer',
+                    order: 0,
+                    kind: 'interaction',
+                    interactionId: 'ix-a',
+                  },
+                ],
+              }
+            : s,
+        ),
+      },
+    };
+
+    const dup = duplicateSlideAt(authored, 0);
+    const clone = dup.deck!.slides[1];
+    const cloneIx = slideInteractionIds(clone)[0];
+    const elementIx = clone.elements?.find((e) => e.kind === 'interaction');
+
+    // The element must point at the clone's OWN interaction, not the original's.
+    expect(elementIx?.kind === 'interaction' && elementIx.interactionId).toBe(
+      cloneIx,
+    );
+    // And no element id may be shared with the slide it was copied from.
+    const originalElementIds = new Set(
+      (dup.deck!.slides[0].elements ?? []).map((e) => e.id),
+    );
+    for (const e of clone.elements ?? []) {
+      expect(originalElementIds.has(e.id)).toBe(false);
+    }
+  });
+});
+
+describe('updateSlideAt — changing kind', () => {
+  const styled = (): Slide =>
+    ({
+      id: 's1',
+      kind: 'content',
+      phase: 'connectRegulate',
+      title: { en: 'T' },
+      prompt: { en: 'P' },
+      accent: '#ff0000',
+      textStyle: { title: { bold: true, align: 'center' } },
+      hidePhaseLabel: true,
+      timerSec: 120,
+      presetId: 'objectives',
+      accentBar: true,
+    }) as unknown as Slide;
+
+  it('keeps the slide-level presentation fields that every kind supports', () => {
+    // These live on SlideCommon, so they are meaningful for the NEW kind too.
+    // Dropping them silently reset a teacher's accent, formatting, timer and
+    // preset with nothing in the UI saying so.
+    const [next] = updateSlideAt([styled()], 0, { kind: 'interaction' });
+    expect(next.kind).toBe('interaction');
+    expect(next.accent).toBe('#ff0000');
+    expect(next.textStyle).toEqual({ title: { bold: true, align: 'center' } });
+    expect(next.hidePhaseLabel).toBe(true);
+    expect(next.timerSec).toBe(120);
+    expect(next.presetId).toBe('objectives');
+    expect(next.accentBar).toBe(true);
+  });
+
+  it('still rebuilds the kind-specific fields', () => {
+    const [next] = updateSlideAt([styled()], 0, { kind: 'interaction' });
+    expect(next.kind === 'interaction' && next.interactionIds).toEqual([]);
+    // `body` belongs to ContentSlide alone and must NOT ride along.
+    expect(next).not.toHaveProperty('body');
+  });
+
+  it('does not carry derived elements across a kind change', () => {
+    // Elements are derived from the slide's own fields; a list derived for the
+    // OLD kind can name an interaction the new kind no longer has.
+    const withElements = {
+      ...styled(),
+      elements: [
+        {
+          id: 's1:interaction:0',
+          zone: 'footer',
+          kind: 'interaction',
+          interactionId: 'gone',
+        },
+      ],
+    } as unknown as Slide;
+    const [next] = updateSlideAt([withElements], 0, { kind: 'media' });
+    expect(next.elements).toBeUndefined();
   });
 });

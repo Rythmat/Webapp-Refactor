@@ -1,21 +1,24 @@
 /**
  * usePersonalContent — teacher-authored content stored alongside the canonical
- * banks (`ma-teacher:{activities,clos,themes,seeds}:personal:v1`). Same
- * local-first + same-tab-broadcast idiom as useLocalPlan. The bank hooks merge
+ * banks. Storage belongs to the curriculum repository (the personal library);
+ * this module is the React binding plus the shape guards. The bank hooks merge
  * these in (badged `source:'personal'`), so authored items appear in every
  * picker/browser. Canonical content is never written here.
  */
 import { useCallback, useEffect, useState } from 'react';
+import { localCurriculumRepository as repo } from '../persistence/localCurriculumRepository';
 import type { Activity, Clo, LessonSeed, Theme } from './types';
 
+/**
+ * The four personal banks. These used to carry localStorage keys; storage now
+ * belongs to the curriculum repository, so only the bank NAMES survive here.
+ */
 const KEYS = {
-  activities: 'ma-teacher:activities:personal:v1',
-  clos: 'ma-teacher:clos:personal:v1',
-  themes: 'ma-teacher:themes:personal:v1',
-  seeds: 'ma-teacher:seeds:personal:v1',
+  activities: 'activities',
+  clos: 'clos',
+  themes: 'themes',
+  seeds: 'seeds',
 } as const;
-
-const isBrowser = typeof window !== 'undefined';
 
 // Shape guards — a hand-edited / foreign restore file can carry malformed items;
 // drop anything missing the fields consumers dereference so a bad import can't
@@ -42,28 +45,6 @@ const isSeed = (x: unknown): x is LessonSeed =>
   hasLtTitle(x) &&
   (x.kind === 'day' || x.kind === 'activity');
 
-const readList = <T>(key: string, isValid: (x: unknown) => x is T): T[] => {
-  if (!isBrowser) return [];
-  try {
-    const raw = window.localStorage.getItem(key);
-    if (!raw) return [];
-    const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.filter(isValid) : [];
-  } catch {
-    return [];
-  }
-};
-
-const writeList = <T>(key: string, items: T[]): void => {
-  if (!isBrowser) return;
-  try {
-    window.localStorage.setItem(key, JSON.stringify(items));
-    window.dispatchEvent(new Event(`${key}:changed`));
-  } catch {
-    // Quota / privacy mode — no-op.
-  }
-};
-
 interface PersonalContent {
   activities: Activity[];
   clos: Clo[];
@@ -71,12 +52,20 @@ interface PersonalContent {
   seeds: LessonSeed[];
 }
 
-const readAll = (): PersonalContent => ({
-  activities: readList(KEYS.activities, isActivity),
-  clos: readList(KEYS.clos, isClo),
-  themes: readList(KEYS.themes, isTheme),
-  seeds: readList(KEYS.seeds, isSeed),
-});
+/**
+ * Read through the repository, then re-validate. The shape guards stay: a
+ * hand-edited or foreign restore file can carry malformed items, and dropping
+ * them here is what stops a bad import white-screening a picker.
+ */
+const readAll = (): PersonalContent => {
+  const lib = repo.getLibrary();
+  return {
+    activities: (lib.activities ?? []).filter(isActivity),
+    clos: (lib.clos ?? []).filter(isClo),
+    themes: (lib.themes ?? []).filter(isTheme),
+    seeds: (lib.seeds ?? []).filter(isSeed),
+  };
+};
 
 export interface UsePersonalContent extends PersonalContent {
   addActivity: (activity: Activity) => void;
@@ -89,63 +78,45 @@ export interface UsePersonalContent extends PersonalContent {
 export const usePersonalContent = (): UsePersonalContent => {
   const [content, setContent] = useState<PersonalContent>(readAll);
 
-  useEffect(() => {
-    if (!isBrowser) return;
-    const onChange = () => setContent(readAll());
-    const changeEvents = Object.values(KEYS).map((k) => `${k}:changed`);
-    changeEvents.forEach((e) => window.addEventListener(e, onChange));
-    const onStorage = (e: StorageEvent) => {
-      if (e.key && (Object.values(KEYS) as string[]).includes(e.key))
-        onChange();
-    };
-    window.addEventListener('storage', onStorage);
-    return () => {
-      changeEvents.forEach((e) => window.removeEventListener(e, onChange));
-      window.removeEventListener('storage', onStorage);
-    };
-  }, []);
+  // One subscription, through the repository — replaces four `<key>:changed`
+  // listeners plus a `storage` handler.
+  useEffect(() => repo.subscribe(() => setContent(readAll())), []);
 
   const addItem = useCallback(
     <T extends { id: string }>(
-      key: string,
+      kind: keyof typeof KEYS,
       item: T,
       isValid: (x: unknown) => x is T,
     ) => {
-      const next = [
-        ...readList<T>(key, isValid).filter((i) => i.id !== item.id),
-        item,
-      ];
-      writeList(key, next);
+      const lib = repo.getLibrary();
+      const existing = (lib[kind] as unknown[]).filter(isValid) as T[];
+      repo.putLibrary({
+        ...lib,
+        [kind]: [...existing.filter((i) => i.id !== item.id), item],
+      });
       setContent(readAll());
     },
     [],
   );
 
   const addActivity = useCallback(
-    (a: Activity) => addItem(KEYS.activities, a, isActivity),
+    (a: Activity) => addItem('activities', a, isActivity),
     [addItem],
   );
-  const addClo = useCallback(
-    (c: Clo) => addItem(KEYS.clos, c, isClo),
-    [addItem],
-  );
+  const addClo = useCallback((c: Clo) => addItem('clos', c, isClo), [addItem]);
   const addTheme = useCallback(
-    (t: Theme) => addItem(KEYS.themes, t, isTheme),
+    (t: Theme) => addItem('themes', t, isTheme),
     [addItem],
   );
   const addSeed = useCallback(
-    (s: LessonSeed) => addItem(KEYS.seeds, s, isSeed),
+    (s: LessonSeed) => addItem('seeds', s, isSeed),
     [addItem],
   );
 
   const remove = useCallback((kind: keyof typeof KEYS, id: string) => {
-    const key = KEYS[kind];
-    const hasId = (x: unknown): x is { id: string } =>
-      isObj(x) && typeof x.id === 'string';
-    writeList(
-      key,
-      readList<{ id: string }>(key, hasId).filter((i) => i.id !== id),
-    );
+    const lib = repo.getLibrary();
+    const items = (lib[kind] as { id: string }[]) ?? [];
+    repo.putLibrary({ ...lib, [kind]: items.filter((i) => i.id !== id) });
     setContent(readAll());
   }, []);
 

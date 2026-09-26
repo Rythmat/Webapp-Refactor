@@ -625,6 +625,122 @@ describe('applySocketMessageForUser (writes state + responses to the store)', ()
   });
 });
 
+describe('Rule 2 — projector responses bucket by `anon`, not `undefined` (P0)', () => {
+  const snap: ServerSessionSnapshot = {
+    id: 'sess-proj',
+    classroomId: CLASSROOM_ID,
+    teacherId: 'teacher-1',
+    publishedDayId: PUBLISHED_DAY_ID,
+    code: 'PROJ',
+    status: 'live',
+    state: {
+      phase: 'connectRegulate',
+      interactionIndex: 0,
+      locked: false,
+      mode: 'teacher_paced',
+      share: null,
+    },
+    startedAt: '2026-01-01T00:00:00.000Z',
+    endedAt: null,
+  };
+
+  const hello = () =>
+    applySocketMessageForUser(USER_ID, 'sess-proj', {
+      type: 'hello',
+      session: snap,
+      role: 'projector',
+    });
+
+  /** Exactly what `stripForProjector` puts on the wire: no enrollmentId. */
+  const projectorResponse = (
+    anon: string,
+    text: string,
+  ): SessionSocketMessage => ({
+    type: 'response',
+    at: '2026-01-01T00:00:00.000Z',
+    interactionId: 'ix-1',
+    anon,
+    payload: { kind: 'text', text },
+  });
+
+  beforeEach(hello);
+
+  it('buckets a stripped response under its anon key', () => {
+    applySocketMessageForUser(
+      USER_ID,
+      'sess-proj',
+      projectorResponse('a1b2c3d4', 'hello'),
+    );
+    const bag = readSessionsStoreForUser(USER_ID).responses['sess-proj'];
+    expect(Object.keys(bag ?? {})).toEqual(['a1b2c3d4']);
+    expect(bag?.['a1b2c3d4']?.['ix-1']).toEqual({
+      kind: 'text',
+      text: 'hello',
+    });
+  });
+
+  it('never creates the literal key "undefined"', () => {
+    applySocketMessageForUser(
+      USER_ID,
+      'sess-proj',
+      projectorResponse('a1b2c3d4', 'hello'),
+    );
+    const bag = readSessionsStoreForUser(USER_ID).responses['sess-proj'] ?? {};
+    expect(Object.keys(bag)).not.toContain('undefined');
+    expect(bag['undefined' as keyof typeof bag]).toBeUndefined();
+  });
+
+  it('30 distinct anons produce 30 buckets, not 1 — the whole-class reveal bug', () => {
+    for (let i = 0; i < 30; i++) {
+      applySocketMessageForUser(
+        USER_ID,
+        'sess-proj',
+        projectorResponse(`anon${String(i).padStart(2, '0')}`, `answer ${i}`),
+      );
+    }
+    const bag = readSessionsStoreForUser(USER_ID).responses['sess-proj'] ?? {};
+    expect(Object.keys(bag)).toHaveLength(30);
+    // and each kept its own payload
+    expect(bag['anon07']?.['ix-1']).toEqual({ kind: 'text', text: 'answer 7' });
+    expect(bag['anon29']?.['ix-1']).toEqual({
+      kind: 'text',
+      text: 'answer 29',
+    });
+  });
+
+  it('the same anon answering twice updates in place (one student, one bucket)', () => {
+    applySocketMessageForUser(
+      USER_ID,
+      'sess-proj',
+      projectorResponse('a1b2c3d4', 'first'),
+    );
+    applySocketMessageForUser(
+      USER_ID,
+      'sess-proj',
+      projectorResponse('a1b2c3d4', 'second'),
+    );
+    const bag = readSessionsStoreForUser(USER_ID).responses['sess-proj'] ?? {};
+    expect(Object.keys(bag)).toHaveLength(1);
+    expect(bag['a1b2c3d4']?.['ix-1']).toEqual({
+      kind: 'text',
+      text: 'second',
+    });
+  });
+
+  it('identified responses still bucket by enrollmentId', () => {
+    applySocketMessageForUser(USER_ID, 'sess-proj', {
+      type: 'response',
+      at: '2026-01-01T00:00:00.000Z',
+      interactionId: 'ix-1',
+      sessionId: 'sess-proj',
+      enrollmentId: 'enr-9',
+      payload: { kind: 'text', text: 'teacher view' },
+    });
+    const bag = readSessionsStoreForUser(USER_ID).responses['sess-proj'] ?? {};
+    expect(Object.keys(bag)).toEqual(['enr-9']);
+  });
+});
+
 describe('storage schema + scoping', () => {
   it('schema-version mismatch backs up to .bak and returns empty', () => {
     window.localStorage.setItem(

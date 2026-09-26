@@ -10,8 +10,8 @@
  * `getModesForGenreLevel`) in. Never serialize flow copy into slides — an
  * `ActivityStep` carries an `assessment` field that would trip the firewall;
  * only step COUNTS and section ids are read. All student-facing copy is freshly
- * authored bilingual (`GenreLevelProfile` copy is English-only) and must avoid
- * `FORBIDDEN_SUBSTRINGS` (en AND es).
+ * authored bilingual (`GenreLevelProfile` copy is English-only); the firewall
+ * constrains field NAMES (`FORBIDDEN_KEYS`), not copy.
  */
 import type { CurriculumGenreId } from '@/curriculum/bridge/genreIdMap';
 import type {

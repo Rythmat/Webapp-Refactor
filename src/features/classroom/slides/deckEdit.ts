@@ -34,6 +34,52 @@ const setSlideInteractionIds = (slide: Slide, ids: string[]): Slide => {
   }
 };
 
+/**
+ * Re-key a copied slide's elements.
+ *
+ * Two separate things have to be rewritten, and missing either is silent:
+ *
+ *  1. `element.id` — element ids embed the slide they were derived from
+ *     (`migrateDeckV1`'s `eid(slide.id, key, i)`), so a verbatim copy leaves two
+ *     slides claiming the same ids. `drawTargetElementId` resolves an element BY
+ *     ID, so a draw overlay on the copy would target the original's rect.
+ *  2. `element.interactionId` — the interaction reference inside an element is a
+ *     SECOND copy of the one in `interactionIds`, and `setSlideInteractionIds`
+ *     only rewrites the latter. Left alone, the copy's footer element names the
+ *     ORIGINAL interaction; `interactionsForSlide` resolves the new id, the
+ *     lookup misses, and the interaction disappears from the duplicated slide.
+ *
+ * Harmless today — every slide's elements are derived from `interactionIds` on
+ * read — and load-bearing the moment elements are authored rather than derived.
+ */
+const remapSlideElements = (
+  slide: Slide,
+  newSlideId: string,
+  oldSlideId: string,
+  interactionIdMap: Map<string, string>,
+): Slide => {
+  if (!slide.elements?.length) return slide;
+
+  const elementIdFor = (oldId: string): string =>
+    oldId.startsWith(`${oldSlideId}:`)
+      ? `${newSlideId}:${oldId.slice(oldSlideId.length + 1)}`
+      : `${newSlideId}:${oldId}`;
+
+  const elements = slide.elements.map((element) => {
+    const next = { ...element, id: elementIdFor(element.id) };
+    if (next.kind === 'interaction') {
+      next.interactionId =
+        interactionIdMap.get(next.interactionId) ?? next.interactionId;
+      if (next.drawTargetElementId !== undefined) {
+        next.drawTargetElementId = elementIdFor(next.drawTargetElementId);
+      }
+    }
+    return next;
+  });
+
+  return { ...slide, elements };
+};
+
 /** Rewrite a slide's interaction references through an old→new id map. */
 const remapSlideInteractions = (
   slide: Slide,
@@ -126,11 +172,29 @@ export const updateSlideAt = (
       patch.kind,
       phase,
     );
+    // Everything on SlideCommon survives: these describe the SLIDE, not its
+    // kind, so they are just as meaningful afterwards. Dropping them reset a
+    // teacher's accent, text formatting, timer and preset with nothing in the
+    // UI saying so. `elements` deliberately does NOT survive — it is derived
+    // from the old kind's fields and can name an interaction the new kind no
+    // longer has; `resolveElements` re-derives it on the next render.
     nextSlide = {
       ...rebuilt,
       id: current.id,
       title: current.title,
       ...(current.prompt !== undefined ? { prompt: current.prompt } : {}),
+      ...(current.accent !== undefined ? { accent: current.accent } : {}),
+      ...(current.textStyle !== undefined
+        ? { textStyle: current.textStyle }
+        : {}),
+      ...(current.hidePhaseLabel !== undefined
+        ? { hidePhaseLabel: current.hidePhaseLabel }
+        : {}),
+      ...(current.timerSec !== undefined ? { timerSec: current.timerSec } : {}),
+      ...(current.presetId !== undefined ? { presetId: current.presetId } : {}),
+      ...(current.accentBar !== undefined
+        ? { accentBar: current.accentBar }
+        : {}),
       ...(patch.phase ? { phase: patch.phase } : {}),
       ...(layout ? { layout } : {}),
     };
@@ -189,8 +253,14 @@ export const duplicateSlideAt = (day: Day, index: number): Day => {
     clonedInteractions.push({ ...structuredClone(src), id: newId });
   }
 
-  const clone = remapSlideInteractions(
-    { ...structuredClone(original), id: slideUid() },
+  const newSlideId = slideUid();
+  const clone = remapSlideElements(
+    remapSlideInteractions(
+      { ...structuredClone(original), id: newSlideId },
+      idMap,
+    ),
+    newSlideId,
+    original.id,
     idMap,
   );
 

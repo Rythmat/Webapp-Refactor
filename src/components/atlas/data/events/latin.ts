@@ -52,7 +52,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-bossanova-rio-1962',
-    year: 1962,
+    year: 1963,
     location: {
       lat: -22.9068,
       lng: -43.1729,
@@ -507,7 +507,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-pasillo-quito-1930',
-    year: 1930,
+    year: 1956,
     location: {
       lat: -0.1807,
       lng: -78.4678,
@@ -879,7 +879,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-cumbia-villera-buenosaires-1990',
-    year: 1990,
+    year: 1999,
     location: {
       lat: -34.6037,
       lng: -58.3816,
@@ -1569,7 +1569,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-marc-anthony-nyc-1999',
-    year: 1999,
+    year: 1997,
     location: {
       lat: 40.7128,
       lng: -74.006,

@@ -2,6 +2,7 @@ import type { Feature } from 'geojson';
 import {
   Bookmark,
   BookOpen,
+  Eye,
   Play,
   PlusCircle,
   Radio,
@@ -21,16 +22,21 @@ import {
 } from '@/components/songLibrary/FilterDropdown';
 import { SearchInput } from '@/components/songLibrary/SearchInput';
 import { TeacherRoutes } from '@/constants/routes';
+import { useCanEditClassroom } from '@/hooks/data';
 import { useAnnualPlan } from '../annual/useAnnualPlan';
 import { useAssignments } from '../assignments/useAssignments';
 import { useThemeBank } from '../content/hooks';
 import { topicOf, type ThemeTopic } from '../content/themeTopic';
 import { useLocalSessionStore } from '../live/useLocalSessionStore';
-import { useStartClassroomSession } from '../live/useStartClassroomSession';
+import {
+  confirmPracticeSession,
+  useStartClassroomSession,
+} from '../live/useStartClassroomSession';
 import { usePublishedDays } from '../publish/usePublishedDays';
 import type { Day, Unit } from '../types';
 import { LessonThumb } from './LessonThumb';
 import { NewLessonDialog } from './NewLessonDialog';
+import { UnassignedDaysTray } from './UnassignedDaysTray';
 import {
   deriveLessonStatus,
   StatusChip,
@@ -93,11 +99,15 @@ export const PlanPage = () => {
   const { classroomId } = useParams<{ classroomId: string }>();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { listDays, deleteDay } = useLocalPlan();
   const cid = classroomId ?? '';
+  // Viewers get a read-only Lessons tab: no publishing, no Go Live, no tray
+  // adoption. Defaults to false while the role resolves.
+  const canEdit = useCanEditClassroom(cid);
+  const { listDays, deleteDay, saveDay, listUnassignedDays, isHydrated } =
+    useLocalPlan(cid);
   const { publishedDays, publishDayToClassroom } = usePublishedDays(cid);
   const { assignments } = useAssignments(cid);
-  const { getActiveSessionForClassroom } = useLocalSessionStore();
+  const { getActiveSessionForClassroom, endSession } = useLocalSessionStore();
   const startClassroomSession = useStartClassroomSession();
   const { plan } = useAnnualPlan(cid);
   const { byId } = useThemeBank();
@@ -132,7 +142,8 @@ export const PlanPage = () => {
     }
   }, [searchParams, setSearchParams]);
 
-  const days = listDays();
+  const days = listDays(cid);
+  const unassignedDays = listUnassignedDays();
   const activeSession = getActiveSessionForClassroom(cid);
 
   // Resolve a Day's published record → open assignment → live state into a
@@ -162,6 +173,14 @@ export const PlanPage = () => {
         classroomId: cid,
         publishedDayId: pd.id,
       });
+      // NO SILENT MOCKS: a local session is never presented as a real one.
+      if (started.transport === 'local') {
+        if (!confirmPracticeSession(started.reason)) {
+          // Declined — tear it down so it doesn't linger looking live.
+          endSession(started.sessionId);
+          return;
+        }
+      }
       navigate(
         TeacherRoutes.session({
           classroomId: cid,
@@ -242,6 +261,8 @@ export const PlanPage = () => {
         </div>
         <button
           type="button"
+          disabled={!canEdit}
+          title={canEdit ? undefined : 'Viewers cannot create lessons'}
           onClick={() => setNewOpen(true)}
           className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/85"
         >
@@ -250,7 +271,21 @@ export const PlanPage = () => {
         </button>
       </header>
 
-      {days.length === 0 ? (
+      <UnassignedDaysTray
+        days={unassignedDays}
+        classroomId={cid}
+        onAdopt={saveDay}
+        canEdit={canEdit}
+      />
+
+      {!isHydrated && days.length === 0 ? (
+        // Days live in IndexedDB now, and a synchronous read returns EMPTY
+        // until it hydrates. Rendering "No lessons yet" in that window tells a
+        // teacher their work is gone. Say "loading" until we actually know.
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8 text-center text-sm text-white/50">
+          Loading lessons…
+        </div>
+      ) : days.length === 0 ? (
         <EmptyState onNew={() => setNewOpen(true)} />
       ) : (
         <>
@@ -317,6 +352,7 @@ export const PlanPage = () => {
                         onToggleSaved={() => toggleSaved(entry.day.id)}
                         onDelete={handleDelete}
                         onStartSession={handleStartSession}
+                        canEdit={canEdit}
                         countryFeatures={countryFeatures}
                         songsReady={songsReady}
                       />
@@ -347,6 +383,8 @@ interface LessonCardProps {
   onToggleSaved: () => void;
   onDelete: (dayId: string, dayLabel: string) => void;
   onStartSession: (day: Day) => void;
+  /** Viewers see the lesson but cannot start a session or edit it. */
+  canEdit: boolean;
   countryFeatures: Feature[] | null;
   songsReady: boolean;
 }
@@ -360,6 +398,7 @@ const LessonCard = ({
   onToggleSaved,
   onDelete,
   onStartSession,
+  canEdit,
   countryFeatures,
   songsReady,
 }: LessonCardProps) => (
@@ -393,9 +432,11 @@ const LessonCard = ({
         </button>
         <button
           type="button"
+          disabled={!canEdit}
+          title={canEdit ? undefined : 'Viewers cannot delete lessons'}
           onClick={() => onDelete(day.id, day.label)}
           aria-label={`Delete ${day.label}`}
-          className="flex h-8 w-8 items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/[0.04] hover:text-white/80"
+          className="flex h-8 w-8 items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/[0.04] hover:text-white/80 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
         >
           <Trash2 className="h-4 w-4" />
         </button>
@@ -410,12 +451,23 @@ const LessonCard = ({
     </div>
 
     <div className="mt-auto flex flex-wrap gap-2">
+      {/* Three distinct verbs that were previously two, both called "Present":
+          Preview  = see the lesson as a student, no session, no projector.
+          Present  = Presentation Mode, the projected deck, still no session.
+          Go Live  = create a session students can actually join. */}
       <Link
-        to={TeacherRoutes.present({ classroomId: cid, dayId: day.id })}
+        to={TeacherRoutes.dayPreview({ classroomId: cid, dayId: day.id })}
         className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/85"
       >
-        <Play className="h-4 w-4" />
+        <Eye className="h-4 w-4" />
         Preview
+      </Link>
+      <Link
+        to={TeacherRoutes.present({ classroomId: cid, dayId: day.id })}
+        className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 transition-colors hover:border-white/25 hover:text-white"
+      >
+        <Play className="h-4 w-4" />
+        Present
       </Link>
       <Link
         to={TeacherRoutes.dayEditor({ classroomId: cid, dayId: day.id })}
@@ -436,11 +488,13 @@ const LessonCard = ({
       )}
       <button
         type="button"
+        disabled={!canEdit}
+        title={canEdit ? undefined : 'Viewers cannot start a live session'}
         onClick={() => onStartSession(day)}
-        className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/[0.06] px-4 py-2 text-sm text-emerald-200 transition-colors hover:border-emerald-400 hover:text-emerald-100"
+        className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/[0.06] px-4 py-2 text-sm text-emerald-200 transition-colors hover:border-emerald-400 hover:text-emerald-100 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-emerald-400/40"
       >
         <Radio className="h-4 w-4" />
-        Present
+        Go Live
       </button>
     </div>
   </li>

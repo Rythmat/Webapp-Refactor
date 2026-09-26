@@ -17,7 +17,7 @@ import { useGeoData, useGlobeLighting } from '@/components/atlas/hooks';
 // 100·(1+altitude), default 50° FOV), so the limb lands at LIMB_FROM_TOP·height
 // regardless of the hero's size.
 const OVERSIZE_H = 2.6; // globe square ≈ this × the hero height (so we see a big cap)
-const MAX_CANVAS = 2000; // perf clamp on canvas pixels
+const MAX_CANVAS = 1400; // perf clamp on canvas pixels
 const VIEW_LAT = 25; // Northern-Hemisphere framing
 const VIEW_ALTITUDE = 1.8; // camera distance (smaller = bigger sphere)
 const LIMB_FROM_TOP = 0.1; // top limb/atmosphere sits ~10% down the hero
@@ -63,10 +63,12 @@ export function HeroGlobe({ className }: Props) {
     typeof import('react-globe.gl').default | null
   >(null);
   const [globeReady, setGlobeReady] = useState(false);
-  const { countries, loading, error } = useGeoData();
+  const rendererRef = useRef<ReturnType<GlobeMethods['renderer']> | null>(null);
+  // States are never drawn here, so skip the 2.3 MB admin-1 download entirely.
+  const { countries, loading, error } = useGeoData({ countriesOnly: true });
 
   // Day/night lighting (camera-attached warm "sun" + ambient)
-  useGlobeLighting(globeRef);
+  useGlobeLighting(globeRef, globeReady);
 
   // Ocean material + country polygon materials — same look as BaseGlobe.
   const globeMaterial = useMemo(() => createOceanMaterial(), []);
@@ -77,7 +79,9 @@ export function HeroGlobe({ className }: Props) {
     [],
   );
 
-  // Dispose GL materials on unmount so tab switches don't leak memory.
+  // Dispose GL materials AND the renderer on unmount so tab switches don't leak
+  // memory — a WebGL context that is only dropped by GC keeps its whole
+  // framebuffer alive, and browsers cap how many contexts a page may hold.
   useEffect(() => {
     const caps = capCache.current;
     const sides = sideCache.current;
@@ -85,6 +89,11 @@ export function HeroGlobe({ className }: Props) {
       caps.forEach((m) => m.dispose());
       sides.forEach((m) => m.dispose());
       globeMaterial.dispose();
+      // Captured in handleReady, not read here: React nulls the ref on unmount,
+      // and at mount time the lazy <Globe> does not exist yet.
+      rendererRef.current?.dispose();
+      rendererRef.current?.forceContextLoss?.();
+      rendererRef.current = null;
     };
   }, [globeMaterial]);
 
@@ -144,8 +153,18 @@ export function HeroGlobe({ className }: Props) {
   const handleReady = () => {
     const globe = globeRef.current;
     if (!globe) return;
-    // Clamp devicePixelRatio — the oversized square is expensive on Retina.
-    globe.renderer().setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    // Render at 1 device pixel per CSS pixel. This globe is decorative: it sits
+    // behind a dark gradient, is cropped to a cap, and most of the square canvas
+    // is clipped by the hero card, so the extra Retina pixels bought nothing but
+    // ~2.25x the fragment work every frame.
+    //
+    // (Rendering only the visible crop via camera.setViewOffset would save more
+    // still, but three-render-objects re-derives camera.aspect and re-applies
+    // its own viewOffset on every resize — three-render-objects.mjs:599-607 —
+    // so a virtual square frame has to be re-imposed after each one. Not worth
+    // that fragility for a background element.)
+    rendererRef.current = globe.renderer();
+    rendererRef.current.setPixelRatio(1);
     // Spin, but no user interaction. NB: keep controls.enabled = true — react-
     // globe.gl only ticks controls.update() (which drives autoRotate) while
     // enabled; disabling it would freeze the spin.

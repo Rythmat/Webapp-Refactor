@@ -11,8 +11,10 @@ import { Settings, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useCanEditClassroom } from '@/hooks/data';
 import { useLocalPlan } from '../plan/useLocalPlan';
 import { ClassroomSettingsDialog } from '../settings/ClassroomSettingsDialog';
+import { useTeacherConfig } from '../settings/useTeacherConfig';
 import type { StudentLanguage } from '../types';
 import { CalendarView } from './CalendarView';
 import { SchoolCalendarDialog } from './SchoolCalendarDialog';
@@ -32,8 +34,14 @@ export const AnnualPlanPage = () => {
     removeNonSchoolDate,
     restoreDefaultNonSchoolDate,
   } = useAnnualPlan(cid);
-  const { saveDay, getDay, clearAllDays } = useLocalPlan();
-  const [language, setLanguage] = useState<StudentLanguage>('en');
+  const { saveDay, getDay, clearAllDays } = useLocalPlan(cid);
+  // Persisted per classroom. This was component state, so the calendar's
+  // language reset to English on every navigation away and back.
+  const { config: teacherConfig, setClassroomConfig } = useTeacherConfig(cid);
+  const canEdit = useCanEditClassroom(cid);
+  const language = teacherConfig.language;
+  const setLanguage = (value: StudentLanguage) =>
+    setClassroomConfig({ language: value });
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [showingSchoolCalendar, setShowingSchoolCalendar] = useState(false);
   const [showingSettings, setShowingSettings] = useState(false);
@@ -69,13 +77,15 @@ export const AnnualPlanPage = () => {
   };
 
   const handleReset = () => {
+    if (!canEdit) return;
     // Full restore: swap in a fresh canonical Unit tree, WIPE every authored Day
     // (clearing any corrupted/duplicated backlog), then re-materialize the
     // canonical curriculum. Order matters: the wipe must run before autoPopulate
     // so the fresh lesson days it creates aren't cleared. Published snapshots +
     // live sessions live in a separate store and are unaffected.
     const reseeded = resetToTemplate();
-    clearAllDays();
+    // Scoped: a reset here used to wipe EVERY classroom's Days.
+    clearAllDays(cid);
     const result = autoPopulateFromTemplate(reseeded, {
       saveDay,
       addDayToUnit,
@@ -149,6 +159,7 @@ export const AnnualPlanPage = () => {
 
       {showingSettings && (
         <ClassroomSettingsDialog
+          classroomId={cid}
           onClose={() => setShowingSettings(false)}
           planSeeded={Boolean(plan)}
           language={language}

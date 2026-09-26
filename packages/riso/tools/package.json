@@ -1,0 +1,13 @@
+{
+  "name": "@riso/tools",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "setup": "playwright-core install chromium chromium-headless-shell firefox"
+  },
+  "devDependencies": {
+    "ffmpeg-static": "5.3.0",
+    "playwright-core": "1.60.0"
+  },
+  "private": true
+}

@@ -2,8 +2,15 @@
  * SlideAppearanceMenu — editor-only per-slide appearance control (accent color +
  * phase-label visibility). A palette trigger pinned top-right of the canvas opens
  * a portal popover (AddSlideMenu recipe, so it escapes the canvas overflow):
- * preset accent swatches + a custom color + reset-to-default, and a "Show phase
- * label" switch. Both write through the deck autosave via `onPatch`.
+ * preset accent swatches + a custom color + reset-to-default, the LAYOUT PRESET
+ * picker, and a "Show phase label" switch. All write through the deck autosave
+ * via `onPatch`.
+ *
+ * The preset list is filtered to the presets legal for this slide's kind: a
+ * preset that authors middle-band content would suppress the live layer on an
+ * interaction or showcase slide, leaving a student with no way to answer. That
+ * rule is `LIVE_LAYER_KINDS`/`bandFree` in `templates/presets.ts` and is
+ * asserted per preset in `presets.test.ts`.
  */
 import { Check, Palette, RotateCcw } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -11,6 +18,8 @@ import { createPortal } from 'react-dom';
 import { Switch } from '@/components/ui/switch';
 import { KEY_OF_COLORS } from '@/constants/theme';
 import { PHASE_ACCENT_HEX } from '../../presentation/phaseAccent';
+import { showsPhaseChip } from '../../slides/deck';
+import { PRESET_LIST, presetFor } from '../../slides/templates/presets';
 import type { Slide } from '../../slides/types';
 
 // The 12 circle-of-fifths key colors (C, G, D, A, E, B, F#, Db, Ab, Eb, Bb, F) —
@@ -123,11 +132,62 @@ export const SlideAppearanceMenu = ({
               Reset to phase default
             </button>
 
+            {/*
+              Layout preset — P2 task 8's "Reset to standard".
+              Because elements are DERIVED, switching preset is a one-field
+              write: `resetToPreset` sets `presetId`, drops any stored rects and
+              syncs the accent-bar flag, and the next render re-derives every
+              zone from it. There is no element list to rewrite and nothing to
+              migrate, which is the whole reason the derived model was chosen.
+            */}
+            <div className="mt-4 border-t border-white/10 pt-3">
+              <p className="mb-2 text-xs uppercase tracking-wider text-white/40">
+                Layout
+              </p>
+              <select
+                aria-label="Slide layout preset"
+                value={slide.presetId ?? ''}
+                onChange={(e) => {
+                  const id = e.target.value;
+                  if (!id) {
+                    // "Automatic" — no preset; the migration derives zones from
+                    // the slide's own shape, which is what a legacy slide does.
+                    onPatch({ presetId: undefined, accentBar: undefined });
+                    return;
+                  }
+                  const preset = presetFor(id);
+                  onPatch({
+                    presetId: id,
+                    accentBar: preset?.accentBar ? true : undefined,
+                  });
+                }}
+                className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1.5 text-sm text-white/85"
+              >
+                <option value="">Automatic</option>
+                {PRESET_LIST.filter((preset) =>
+                  preset.kinds.includes(slide.kind),
+                ).map((preset) => (
+                  <option key={preset.id} value={preset.id}>
+                    {preset.label}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1.5 text-[11px] leading-snug text-white/35">
+                Presets that would cover a question or a shared project are not
+                offered for this slide.
+              </p>
+            </div>
+
             <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3">
               <span className="text-sm text-white/80">Show phase label</span>
               <Switch
-                checked={slide.hidePhaseLabel === false}
-                onCheckedChange={(v) => onPatch({ hidePhaseLabel: !v })}
+                checked={showsPhaseChip(slide)}
+                onCheckedChange={(v) =>
+                  // Showing the chip is the default, so record it by CLEARING
+                  // the flag rather than writing `false` — the stored slide
+                  // stays minimal and `showsPhaseChip` is the only reader.
+                  onPatch({ hidePhaseLabel: v ? undefined : true })
+                }
               />
             </div>
           </div>,

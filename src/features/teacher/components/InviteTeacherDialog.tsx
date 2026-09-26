@@ -1,12 +1,21 @@
 /**
- * InviteTeacherDialog — invite another Teacher User to co-teach this classroom.
+ * InviteTeacherDialog — add another Teacher User as a co-teacher.
  *
- * Mirrors InviteStudentDialog's shell, but teachers are invited by email (each
- * invite mints its own `/join/teacher/:code` link, so the link + QR are
- * per-invitation rather than a persistent classroom code). Wired to the
- * classroom-scoped invitation hooks; the create/list network calls are backed
- * by a backend contract that is still being implemented, so the pending list
- * degrades to empty when the endpoint 404s.
+ * PRIMARY PATH (live): `POST /classrooms/:id/teachers` with `{email, role}`.
+ * This is a real, shipped endpoint. It attaches an EXISTING Music Atlas
+ * account to the classroom as `editor` or `viewer`.
+ *
+ * LEGACY INVITE-BY-LINK (flag-gated, off): the QR + join-link half below POSTs
+ * to `/classrooms/:id/invitations`, which does not exist — it 404s on every
+ * use, which is why every invite silently failed. Worse, the code it minted
+ * was resolved at sign-up against `GET /teachers/invitations/{code}`, a
+ * PLATFORM-level table with no classroom binding, so even a successful mint
+ * would have lost the classroom on arrival.
+ *
+ * That half is kept, behind `SERVER_CLASSROOM_INVITATIONS_ENABLED`, because
+ * inviting someone who does NOT yet have an account is a real capability the
+ * teachers endpoint cannot express. The flag is false, so the UI is hidden
+ * until the P9 endpoint ships. See the P9 row in CONTRACT-DELTAS.md.
  */
 import { Copy, Loader2, Send, X } from 'lucide-react';
 import { useState } from 'react';
@@ -22,11 +31,21 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { AuthRoutes } from '@/constants/routes';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { AuthRoutes } from '@/constants/routes';
+import { SERVER_CLASSROOM_INVITATIONS_ENABLED } from '@/constants/serverEndpoints';
+import {
+  useAddClassroomTeacher,
   useCancelClassroomInvitation,
   useClassroomInvitations,
   useCreateClassroomInvitation,
+  type ClassroomTeacherRole,
 } from '@/hooks/data';
 
 // Vite's CJS interop hands back the module namespace instead of the default
@@ -57,18 +76,58 @@ export const InviteTeacherDialog = ({
   onOpenChange,
 }: InviteTeacherDialogProps) => {
   const [email, setEmail] = useState('');
+  const [role, setRole] = useState<ClassroomTeacherRole>('editor');
   const [lastCode, setLastCode] = useState<string | null>(null);
 
+  const addTeacher = useAddClassroomTeacher();
+
+  // Legacy path only. The hooks are still constructed (hooks cannot be called
+  // conditionally) but the query is DISABLED while the flag is off, so no
+  // request is made to the route that 404s.
   const createInvitation = useCreateClassroomInvitation();
   const cancelInvitation = useCancelClassroomInvitation();
   const { data: invitations = [] } = useClassroomInvitations(classroomId, {
-    enabled: isOpen,
+    enabled: isOpen && SERVER_CLASSROOM_INVITATIONS_ENABLED,
   });
 
   const trimmedEmail = email.trim();
   const isValidEmail = EMAIL_RE.test(trimmedEmail);
 
-  const handleSend = () => {
+  const handleAdd = () => {
+    if (!isValidEmail || addTeacher.isPending) return;
+    addTeacher.mutate(
+      { classroomId, email: trimmedEmail, role },
+      {
+        onSuccess: (added) => {
+          setEmail('');
+          toast.success(
+            `${added.fullName || added.email || trimmedEmail} added as ${added.role}`,
+          );
+        },
+        onError: (err) => {
+          // Surface what the server actually said. An unregistered email is
+          // the known open question on this endpoint (CONTRACT-DELTAS P1) —
+          // claiming success would be the silent lie this renovation removes.
+          const status =
+            (err as { status?: number; response?: { status?: number } })
+              ?.status ??
+            (err as { response?: { status?: number } })?.response?.status;
+          toast.error(
+            status === 404
+              ? `No Music Atlas account for ${trimmedEmail}. They need to sign up first.`
+              : 'Could not add that co-teacher. Please try again.',
+          );
+        },
+      },
+    );
+  };
+
+  /**
+   * Legacy invite-by-LINK. Only reachable while
+   * `SERVER_CLASSROOM_INVITATIONS_ENABLED` is true, because the route it calls
+   * does not exist yet. Kept whole so P9 can turn it on rather than rebuild it.
+   */
+  const handleLegacyInvite = () => {
     if (!isValidEmail || createInvitation.isPending) return;
     createInvitation.mutate(
       { classroomId, email: trimmedEmail },
@@ -128,29 +187,57 @@ export const InviteTeacherDialog = ({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleSend();
+                  if (e.key === 'Enter') handleAdd();
                 }}
                 className="border-white/10 bg-white/[0.02] text-white placeholder:text-white/40 focus-visible:border-white/25 focus-visible:ring-0"
               />
+              <Select
+                value={role}
+                onValueChange={(v) => setRole(v as ClassroomTeacherRole)}
+              >
+                <SelectTrigger
+                  aria-label="Co-teacher role"
+                  className="w-[130px] shrink-0 border-white/10 bg-white/[0.02] text-white"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="editor">Editor</SelectItem>
+                  <SelectItem value="viewer">Viewer</SelectItem>
+                </SelectContent>
+              </Select>
               <Button
-                onClick={handleSend}
-                disabled={!isValidEmail || createInvitation.isPending}
+                onClick={handleAdd}
+                disabled={!isValidEmail || addTeacher.isPending}
                 className="rounded-full bg-white text-black hover:bg-white/85"
               >
-                {createInvitation.isPending ? (
+                {addTeacher.isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <Send className="h-4 w-4" />
                 )}
-                Send
+                Add
               </Button>
+              {SERVER_CLASSROOM_INVITATIONS_ENABLED && (
+                <Button
+                  variant="outline"
+                  onClick={handleLegacyInvite}
+                  disabled={!isValidEmail || createInvitation.isPending}
+                  className="rounded-full border-white/10 bg-transparent text-white/80 hover:bg-white/[0.04] hover:text-white"
+                >
+                  Invite by link
+                </Button>
+              )}
             </div>
             <p className="text-xs text-white/50">
-              They&rsquo;ll get a link to join this classroom as a co-teacher.
+              {role === 'editor'
+                ? 'Editors can change lessons and run live sessions.'
+                : 'Viewers can see everything but change nothing.'}{' '}
+              They must already have a Music Atlas account.
             </p>
           </div>
 
-          {lastCode && lastLink && (
+          {SERVER_CLASSROOM_INVITATIONS_ENABLED && lastCode && lastLink && (
             <>
               <div className="flex flex-col gap-2">
                 <h3 className="text-sm font-medium text-white/85">Join Link</h3>
@@ -187,7 +274,7 @@ export const InviteTeacherDialog = ({
             </>
           )}
 
-          {invitations.length > 0 && (
+          {SERVER_CLASSROOM_INVITATIONS_ENABLED && invitations.length > 0 && (
             <div className="flex flex-col gap-2">
               <h3 className="text-sm font-medium text-white/85">
                 Pending Invitations

@@ -103,12 +103,22 @@ export const useEnsureLessonUnits = (classroomId: string): void => {
     }
   }, [classroomId, plan, seedFromTemplate]);
 
-  // Adopt any orphan Day (not in a Unit) into a Unit, once Units exist —
-  // skipping duplicates so a "Reset to template" doesn't double every lesson.
+  // Adopt this classroom's orphan Days (not in a Unit) into a Unit, once Units
+  // exist — skipping duplicates so a "Reset to template" doesn't double every
+  // lesson.
+  //
+  // SCOPED, and that is the whole point: `listDays()` used to return the global
+  // bucket, so a brand-new classroom seeded its Units on first Lessons render
+  // and then immediately adopted every OTHER classroom's unfiled Days. Days
+  // with no classroom are deliberately not swept either — they belong to the
+  // "not in a classroom" tray until the teacher places them.
   useEffect(() => {
-    if (units.length === 0) return;
-    for (const { dayId, unitId } of planOrphanAdoptions(units, listDays())) {
+    if (!classroomId || units.length === 0) return;
+    for (const { dayId, unitId } of planOrphanAdoptions(
+      units,
+      listDays(classroomId),
+    )) {
       addDayToUnit(unitId, dayId);
     }
-  }, [units, listDays, addDayToUnit]);
+  }, [classroomId, units, listDays, addDayToUnit]);
 };

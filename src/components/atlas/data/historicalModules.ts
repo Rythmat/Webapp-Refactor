@@ -31,7 +31,7 @@ export const HISTORICAL_MODULES: HistoricalModule[] = [
     eventIds: [
       'evt-contradanza-havana-1800',
       'evt-son-havana-1930',
-      'evt-mambo-havana-1948',
+      'evt-mambo-havana-1950',
       'evt-revolution-havana-1959',
       'evt-boogaloo-nyc-1966',
       'evt-salsa-nyc-1971',
@@ -89,6 +89,7 @@ export const HISTORICAL_MODULES: HistoricalModule[] = [
     eventIds: [
       'evt-diaspora-kingston-kumina-1950',
       'evt-soundsystem-kingston-1956',
+      'evt-ska-kingston-1962',
       'evt-rocksteady-kingston-1966',
       'evt-reggae-kingston-1971',
       'evt-roots-reggae-kingston-1973',
@@ -178,7 +179,10 @@ export const HISTORICAL_MODULES: HistoricalModule[] = [
     description: 'Reggae-fueled London punk radiating worldwide',
     emoji: '🤘',
     eventIds: [
-      'evt-reggae-kingston-1977',
+      // Was evt-reggae-kingston-1977 ("Exodus"), which postdates the punk
+      // event it is supposed to have fuelled. The 1971 Wailers breakthrough is
+      // the reggae London punk actually grew up on.
+      'evt-reggae-kingston-1971',
       'evt-punk-london-1976',
       'evt-doa-vancouver-1978',
       'evt-punk-zagreb-1978',
@@ -233,7 +237,9 @@ export const HISTORICAL_MODULES: HistoricalModule[] = [
       'evt-jungle-london-1993',
       'evt-asian-underground-london-1998',
       'evt-grime-london-2003',
-      'evt-drill-london-2019',
+      // Was a second drill step; dubstep is the missing link between grime and
+      // drill and the lineage jumped 2003 -> 2019 without it.
+      'evt-dubstep-burial-london-2007',
       'evt-uk-drill-london-2022',
     ],
   },
@@ -246,7 +252,8 @@ export const HISTORICAL_MODULES: HistoricalModule[] = [
     emoji: '🎵',
     eventIds: [
       'evt-kpop-seoul-1996',
-      'evt-k-hiphop-seoul-1996',
+      // evt-k-hiphop-seoul-1996 removed: same artist, same year, same city,
+      // and it read as the same step twice.
       'evt-gangnam-style-seoul-2012',
       'evt-bts-seoul-2013',
       'evt-kpop-global-2020',
@@ -279,8 +286,10 @@ export const HISTORICAL_MODULES: HistoricalModule[] = [
       'Jamaica’s fast evolution from African-rooted folk drumming to a global sound of resistance.',
     emoji: '🌿',
     eventIds: [
-      'evt-diaspora-kingston-kumina-1950',
+      // Swapped: the file dates the Kumina entry 1950, so it followed Mento in
+      // the step list and the pathway counted backwards on screen.
       'evt-mento-kingston-1947',
+      'evt-diaspora-kingston-kumina-1950',
       'evt-ska-kingston-1962',
       'evt-rocksteady-kingston-1966',
       'evt-reggae-kingston-1971',
@@ -296,7 +305,9 @@ export const HISTORICAL_MODULES: HistoricalModule[] = [
     eventIds: [
       'evt-spiritual-nashville-1867',
       'evt-blues-clarksdale-1903',
-      'evt-blues-chicago-1958',
+      // Was evt-blues-chicago-1958 (a Muddy Waters compilation), which put the
+      // Chicago step after the Elvis step it precedes in the story.
+      'evt-blues-chicago-1952-walter',
       'evt-elvis-memphis-1954',
       'evt-british-blues-london-1962',
     ],
@@ -310,7 +321,7 @@ export const HISTORICAL_MODULES: HistoricalModule[] = [
     eventIds: [
       'evt-diaspora-havana-rumba-1886',
       'evt-son-havana-1930',
-      'evt-mambo-havana-1948',
+      'evt-mambo-havana-1950',
       'evt-salsa-nyc-1971',
     ],
   },
@@ -324,6 +335,19 @@ export const HISTORICAL_MODULES: HistoricalModule[] = [
       'evt-diaspora-chicago-gospel-1932',
       'evt-soul-memphis-1962',
       'evt-funk-augusta-1970',
+    ],
+  },
+  {
+    id: 'baghdad-to-al-andalus',
+    title: 'Baghdad to al-Andalus',
+    description:
+      'How the Abbasid court’s art music travelled west with Ziryab and became the Andalusi tradition of North Africa.',
+    emoji: '🪕',
+    eventIds: [
+      'evt-arabic-classical-baghdad-800',
+      'evt-ziryab-cordoba-822',
+      'evt-andalusi-fez-1492',
+      'evt-malouf-tunis-1934',
     ],
   },
   {

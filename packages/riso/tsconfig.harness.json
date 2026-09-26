@@ -1,0 +1,7 @@
+{
+  /* The harness is checked by neither tsconfig.json ("include": ["src"]) nor tsconfig.tools.json
+     ("include": ["tools"]). Without this file a dangling import in harness/ — e.g. a film
+     registered in films.ts whose module does not exist — is invisible to every command in CI. */
+  "extends": "./tsconfig.json",
+  "include": ["harness", "src"]
+}

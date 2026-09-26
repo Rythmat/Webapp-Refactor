@@ -10,9 +10,10 @@
  * pipeline (aggregation, share/reveal, reports, CSV) works unmodified.
  *
  * Firewall discipline: every string authored here is student-safe bilingual
- * copy and must avoid the `FORBIDDEN_SUBSTRINGS` of `publishDay` (en AND es —
- * beware e.g. "impacto"). `songSession.test.ts` proves the generated Day
- * publishes clean.
+ * copy. Since the firewall matches object KEYS exactly (`FORBIDDEN_KEYS` in
+ * `publishDay`), copy is unconstrained — what must never appear is a
+ * teacher-only FIELD. `songSession.test.ts` proves the generated Day publishes
+ * clean.
  */
 import type { Song } from '@/curriculum/types/songLibrary';
 import { PHASES, type PhaseKey } from '../../phases';

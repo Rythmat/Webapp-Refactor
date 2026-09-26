@@ -4,7 +4,7 @@ export const happy_xmas_war_is_over: Song = {
   id: 'happy_xmas_war_is_over',
   title: 'Happy Xmas (War Is Over)',
   artist: 'John Lennon',
-  year: 1989,
+  year: 1971,
   historicalDescription:
     "John Lennon and Yoko Ono's anti-war anthem 'Happy Xmas (War Is Over)' returns to the charts, its message undimmed by time. Originally recorded in 1971 as a protest against the Vietnam War, the song's choral grandeur and simple, devastating refrain — 'War is over, if you want it' — transform it into a perennial holiday standard that doubles as a political rallying cry.",
   key: 'A major',

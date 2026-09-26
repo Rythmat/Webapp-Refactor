@@ -40,6 +40,10 @@ interface HexPoint {
   color: string;
 }
 
+interface HexBin {
+  points: HexPoint[];
+}
+
 interface PinnedPoint {
   lat: number;
   lng: number;
@@ -58,6 +62,56 @@ function escapeHtml(text: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 }
+
+/* ── Stable accessors ───────────────────────────────────────────────────────
+ *
+ * react-kapsule forwards any prop whose REFERENCE changed (react-kapsule.mjs:
+ * "filter(p => prevPropsRef.current[p] !== props[p])"), and three-globe declares
+ * arcColor / hexTopColor / hexSideColor / pointColor / pointRadius WITHOUT
+ * `triggerUpdate: false` — so an inline arrow re-runs that layer's update on
+ * every React render, rebuilding ~300 hex geometries and re-uploading every
+ * arc's vertex colours. Anything that depends only on its datum therefore lives
+ * out here, where its identity never changes. Accessors that depend on the
+ * current selection are useCallback'd on the selection itself, so they change
+ * once per selection (which is the digest we actually want).
+ */
+
+const arcColorAccessor = (d: object): [string, string] => {
+  const arc = d as ArcDatum;
+  if (arc.direction === 'downstream') return ['#ffffffe6', '#ffffff66'];
+  const c = getContrastColor(arc.color);
+  return [`${c}e6`, `${c}66`];
+};
+
+const arcLabelAccessor = (d: object): string => {
+  const arc = d as ArcDatum;
+  const arrow = arc.direction === 'upstream' ? '→' : '←';
+  return `<span style="color:#fff;font-size:12px">${escapeHtml(arc.label)} ${arrow}</span>`;
+};
+
+const polygonLabelAccessor = (polygon: object): string => {
+  const feat = polygon as Feature;
+  const isState = feat.properties?._layer === 'state';
+  const name = feat.properties?.NAME ?? feat.properties?.name ?? '';
+  if (isState) {
+    return `<span style="color: #d4d4d8; font-size: 12px;">${name}</span>`;
+  }
+  return `<span style="color: #fff; font-size: 13px; font-weight: 600;">${name}</span>`;
+};
+
+const hexLabelAccessor = (d: object): string => {
+  const hex = d as HexBin;
+  const names = hex.points.map((p) => p.name).join(', ');
+  return `<span style="color:#fff;font-size:12px;font-weight:600">${names}</span>`;
+};
+
+const pointLabelAccessor = (d: object): string => {
+  const p = d as PinnedPoint;
+  return `<span style="color:#fff;font-size:12px;font-weight:600">${escapeHtml(p.name)}</span>`;
+};
+
+const pointColorAccessor = (d: object): string => (d as PinnedPoint).color;
+const pointRadiusAccessor = (d: object): number => (d as PinnedPoint).size;
 
 // Rough centroid from GeoJSON feature coordinates
 function getCentroid(feat: Feature): { lat: number; lng: number } | null {
@@ -81,13 +135,38 @@ function getCentroid(feat: Feature): { lat: number; lng: number } | null {
   return { lat: sLat / coords.length, lng: sLng / coords.length };
 }
 
+/**
+ * State/province polygons appear below this altitude. Hysteresis: the camera
+ * has to travel past the far edge of the band to flip the layer back, so a
+ * fly that settles near the threshold cannot oscillate.
+ */
+const SHOW_STATES_ENTER = 2.1;
+const SHOW_STATES_LEAVE = 2.3;
+
+/** Full device pixel ratio on a full-viewport canvas is 2-3x the pixels we need. */
+const MAX_PIXEL_RATIO = 1.5;
+
+/**
+ * Must be passed on the first mount — globe.gl reads it when it constructs the
+ * WebGLRenderer and ignores later changes.
+ */
+const RENDERER_CONFIG = {
+  antialias: true,
+  alpha: true,
+  powerPreference: 'high-performance' as const,
+};
+
+type AnimatableGlobe = GlobeMethods & {
+  pauseAnimation: () => void;
+  resumeAnimation: () => void;
+};
+
 export function BaseGlobe() {
   const globeRef = useRef<GlobeMethods | undefined>(undefined);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const { countries, adminRegions, loading, error } = useGeoData();
   const {
-    globeAltitude,
     pinnedEvent,
     selectedLocation,
     visibleArcDirections,
@@ -107,8 +186,10 @@ export function BaseGlobe() {
   // Ocean material — matte black so continents float on a dark sphere
   const globeMaterial = useMemo(() => createOceanMaterial(), []);
 
-  // Day/night lighting (camera-attached directional light)
-  useGlobeLighting(globeRef);
+  // Day/night lighting (camera-attached directional light). Keyed on
+  // globeReady: the globe element does not exist on the first render, so an
+  // effect that ran only on mount would never find a camera to attach to.
+  useGlobeLighting(globeRef, globeReady);
 
   // Measure container with ResizeObserver
   useEffect(() => {
@@ -144,21 +225,43 @@ export function BaseGlobe() {
     };
   }, []);
 
-  const showStates = globeAltitude < 2.2;
+  // Altitude drives exactly one thing: whether state/province polygons show.
+  // globe.gl calls onZoom from the OrbitControls 'change' handler, i.e. on
+  // EVERY frame while flying, dragging or auto-rotating, so the raw number is
+  // kept in a ref and only the boolean reaches React.
+  const altitudeRef = useRef(2.5);
+  const [showStates, setShowStates] = useState(false);
 
-  // Merge country + admin region (US state / CA province) polygons
-  const polygonFeatures = useMemo(() => {
-    const countryFeatures = (countries?.features ?? []).map((f) => ({
-      ...f,
-      properties: { ...f.properties, _layer: 'country' },
-    }));
-    if (!showStates || !adminRegions?.features) return countryFeatures;
-    const regionFeatures = adminRegions.features.map((f) => ({
-      ...f,
-      properties: { ...f.properties, _layer: 'state' },
-    }));
-    return [...countryFeatures, ...regionFeatures];
-  }, [countries, adminRegions, showStates]);
+  // Country polygons and state polygons are memoised SEPARATELY and never
+  // rebuilt: three-globe stamps a random `__id` on each feature object and
+  // diffs on it (three-globe.mjs:2244), so re-spreading the features would
+  // make it tear down and rebuild all ~620 conic geometries every time the
+  // camera crossed the threshold.
+  const countryFeatures = useMemo(
+    () =>
+      (countries?.features ?? []).map((f) => ({
+        ...f,
+        properties: { ...f.properties, _layer: 'country' },
+      })),
+    [countries],
+  );
+
+  const stateFeatures = useMemo(
+    () =>
+      (adminRegions?.features ?? []).map((f) => ({
+        ...f,
+        properties: { ...f.properties, _layer: 'state' },
+      })),
+    [adminRegions],
+  );
+
+  const polygonFeatures = useMemo(
+    () =>
+      showStates && stateFeatures.length > 0
+        ? [...countryFeatures, ...stateFeatures]
+        : countryFeatures,
+    [countryFeatures, stateFeatures, showStates],
+  );
 
   // While a guided sequence (Pathway / Region tour / City tour) is active, the
   // globe is simplified to just that selection's cities; otherwise all cities.
@@ -209,17 +312,20 @@ export function BaseGlobe() {
 
   const influenceArcs = useMemo(() => {
     if (visibleArcDirections.size === 0) return []; // No dropdowns open → no arcs
-    return allArcs.filter((arc: any) =>
-      visibleArcDirections.has(arc.direction),
-    );
+    return allArcs.filter((arc) => visibleArcDirections.has(arc.direction));
   }, [allArcs, visibleArcDirections]);
 
-  // Altitude tracking
+  // Altitude tracking — ref-only, plus a hysteresis flip of the states layer.
   const handleZoom = useCallback(
     (pov: { lat: number; lng: number; altitude: number }) => {
-      dispatch({ type: 'SET_ALTITUDE', payload: pov.altitude });
+      altitudeRef.current = pov.altitude;
+      setShowStates((current) =>
+        current
+          ? pov.altitude <= SHOW_STATES_LEAVE
+          : pov.altitude < SHOW_STATES_ENTER,
+      );
     },
-    [dispatch],
+    [],
   );
 
   // Country/state/province polygon click — fly to the polygon's own centroid,
@@ -261,13 +367,32 @@ export function BaseGlobe() {
   // Hex click — open the city
   const handleHexClick = useCallback(
     (hex: object) => {
-      const h = hex as { points: HexPoint[] };
+      const h = hex as HexBin;
       if (h.points.length > 0) {
         navigate.toPlace({ type: 'city', id: h.points[0].id });
       }
     },
     [navigate],
   );
+
+  const handlePointClick = useCallback(
+    (d: object) => navigate.toEvent((d as PinnedPoint).eventId),
+    [navigate],
+  );
+
+  const handleArcClick = useCallback(
+    (d: object) => navigate.toEvent((d as ArcDatum).eventId),
+    [navigate],
+  );
+
+  const handleGlobeReady = useCallback(() => {
+    // The oversized full-viewport canvas is the single biggest GPU cost here,
+    // and three-render-objects only clamps the ratio to 2.
+    globeRef.current
+      ?.renderer()
+      .setPixelRatio(Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO));
+    setGlobeReady(true);
+  }, []);
 
   // Check if a polygon feature matches the current selection
   const isSelected = useCallback(
@@ -337,10 +462,76 @@ export function BaseGlobe() {
     [isSelected],
   );
 
+  // A hex is highlighted when it holds the selected city or the pinned event's
+  // city. Derived to primitives so the two colour accessors below change
+  // identity once per selection instead of once per render.
+  const selectedCityId =
+    selectedLocation?.type === 'city' ? selectedLocation.id : null;
+  const pinnedCityName = pinnedEvent
+    ? pinnedEvent.location.city.toLowerCase()
+    : null;
+
+  const isHexHighlighted = useCallback(
+    (points: HexPoint[]): boolean =>
+      (selectedCityId !== null &&
+        points.some((p) => p.id === selectedCityId)) ||
+      (pinnedCityName !== null &&
+        points.some((p) => p.name.toLowerCase() === pinnedCityName)),
+    [selectedCityId, pinnedCityName],
+  );
+
+  const hexSideColor = useCallback(
+    (d: object) => {
+      const hex = d as HexBin;
+      if (isHexHighlighted(hex.points)) return 'rgba(255, 255, 255, 0.8)';
+      const base = hex.points[0]?.color ?? '#ffffff';
+      return `${getContrastColor(base)}cc`;
+    },
+    [isHexHighlighted],
+  );
+
+  const hexTopColor = useCallback(
+    (d: object) => {
+      const hex = d as HexBin;
+      if (isHexHighlighted(hex.points)) return '#ffffff';
+      const base = hex.points[0]?.color ?? '#ffffff';
+      return getContrastColor(base);
+    },
+    [isHexHighlighted],
+  );
+
   const Globe = GlobeModule;
   const hasError = error || globeError;
   const ready =
     !loading && !hasError && size.width > 0 && size.height > 0 && Globe;
+
+  // Stop rendering entirely while the tab is hidden or the globe is scrolled
+  // out of view — otherwise the arc dash animation and the globe's rotation
+  // keep the GPU busy behind a background tab.
+  useEffect(() => {
+    if (!globeReady) return;
+    const globe = globeRef.current as AnimatableGlobe | undefined;
+    const el = containerRef.current;
+    if (!globe || !el) return;
+
+    let onScreen = true;
+    const sync = () => {
+      if (onScreen && !document.hidden) globe.resumeAnimation();
+      else globe.pauseAnimation();
+    };
+
+    const io = new IntersectionObserver(([entry]) => {
+      onScreen = !!entry?.isIntersecting;
+      sync();
+    });
+    io.observe(el);
+    document.addEventListener('visibilitychange', sync);
+    return () => {
+      io.disconnect();
+      document.removeEventListener('visibilitychange', sync);
+      globe.resumeAnimation();
+    };
+  }, [globeReady]);
 
   // When an event card is expanded it overlays the left; slide the globe right
   // by half the card's occluding width so the centred region clears the card.
@@ -452,40 +643,26 @@ export function BaseGlobe() {
         <Globe
           ref={globeRef}
           globeOffset={globeOffset}
+          rendererConfig={RENDERER_CONFIG}
           arcAltitudeAutoScale={0.4}
-          arcColor={(d: object) => {
-            const arc = d as ArcDatum;
-            if (arc.direction === 'downstream')
-              return ['#ffffffe6', '#ffffff66'];
-            const c = getContrastColor(arc.color);
-            return [`${c}e6`, `${c}66`];
-          }}
+          arcColor={arcColorAccessor}
           arcDashAnimateTime={1500}
           arcDashGap={0.2}
           arcDashLength={0.4}
           arcEndLat="endLat"
           arcEndLng="endLng"
-          arcLabel={(d: object) => {
-            const arc = d as ArcDatum;
-            const arrow = arc.direction === 'upstream' ? '\u2192' : '\u2190';
-            return `<span style="color:#fff;font-size:12px">${escapeHtml(arc.label)} ${arrow}</span>`;
-          }}
+          arcLabel={arcLabelAccessor}
           arcsData={influenceArcs}
           arcStartLat="startLat"
           arcStartLng="startLng"
-          arcsTransitionDuration={800}
+          // 0, not 800: the entrance tween rebuilds a TubeGeometry per arc per
+          // frame, which is what made opening a dense influence web stall. The
+          // shader dash animation still supplies the sense of motion.
+          arcsTransitionDuration={0}
           arcStroke={0.5}
           atmosphereAltitude={0.18}
           atmosphereColor="#ffffff"
-          polygonLabel={(polygon: object) => {
-            const feat = polygon as Feature;
-            const isState = feat.properties?._layer === 'state';
-            const name = feat.properties?.NAME ?? feat.properties?.name ?? '';
-            if (isState) {
-              return `<span style="color: #d4d4d8; font-size: 12px;">${name}</span>`;
-            }
-            return `<span style="color: #fff; font-size: 13px; font-weight: 600;">${name}</span>`;
-          }}
+          polygonLabel={polygonLabelAccessor}
           // City hexagons
           backgroundColor="rgba(0,0,0,0)"
           enablePointerInteraction={true}
@@ -499,77 +676,36 @@ export function BaseGlobe() {
           hexBinPointsData={hexPoints}
           hexBinPointWeight={1}
           hexBinResolution={4}
-          hexLabel={(d: object) => {
-            const hex = d as { points: HexPoint[] };
-            const names = hex.points.map((p) => p.name).join(', ');
-            return `<span style="color:#fff;font-size:12px;font-weight:600">${names}</span>`;
-          }}
+          hexLabel={hexLabelAccessor}
           hexMargin={0.05}
-          hexSideColor={(d: object) => {
-            const hex = d as { points: HexPoint[] };
-            const isCitySelected =
-              selectedLocation?.type === 'city' &&
-              hex.points.some((p) => p.id === selectedLocation.id);
-            const isPinnedCity =
-              pinnedEvent &&
-              hex.points.some(
-                (p) =>
-                  p.name.toLowerCase() ===
-                  pinnedEvent.location.city.toLowerCase(),
-              );
-            if (isCitySelected || isPinnedCity)
-              return 'rgba(255, 255, 255, 0.8)';
-            const base = hex.points[0]?.color ?? '#ffffff';
-            return `${getContrastColor(base)}cc`;
-          }}
-          hexTopColor={(d: object) => {
-            const hex = d as { points: HexPoint[] };
-            const isCitySelected =
-              selectedLocation?.type === 'city' &&
-              hex.points.some((p) => p.id === selectedLocation.id);
-            const isPinnedCity =
-              pinnedEvent &&
-              hex.points.some(
-                (p) =>
-                  p.name.toLowerCase() ===
-                  pinnedEvent.location.city.toLowerCase(),
-              );
-            if (isCitySelected || isPinnedCity) return '#ffffff';
-            const base = hex.points[0]?.color ?? '#ffffff';
-            return getContrastColor(base);
-          }}
+          hexSideColor={hexSideColor}
+          hexTopColor={hexTopColor}
           hexTransitionDuration={800}
           pointAltitude={0.03}
-          pointLabel={(d: object) => {
-            const p = d as PinnedPoint;
-            return `<span style="color:#fff;font-size:12px;font-weight:600">${escapeHtml(p.name)}</span>`;
-          }}
+          pointLabel={pointLabelAccessor}
           // Influence arcs
-          pointColor={(d: object) => (d as PinnedPoint).color}
-          onPointClick={(d: object) =>
-            navigate.toEvent((d as PinnedPoint).eventId)
-          }
+          pointColor={pointColorAccessor}
+          onPointClick={handlePointClick}
           pointLat="lat"
           pointLng="lng"
-          pointRadius={(d: object) => (d as PinnedPoint).size}
+          pointRadius={pointRadiusAccessor}
           polygonAltitude={polygonAltitude}
           polygonCapMaterial={polygonCapMaterial}
           polygonGeoJsonGeometry="geometry"
           polygonSideMaterial={polygonSideMaterial}
           polygonStrokeColor={polygonStrokeColor}
+          polygonsTransitionDuration={250}
           showAtmosphere={true}
           width={size.width}
           onPolygonClick={handlePolygonClick}
           onZoom={handleZoom}
-          onArcClick={(d: object) => {
-            navigate.toEvent((d as ArcDatum).eventId);
-          }}
+          onArcClick={handleArcClick}
           // Controls
           // No mount intro animation — a deep-link fly would otherwise animate
           // to the default view first (disorienting). GlobeController positions
           // the camera directly over the target instead.
           animateIn={false}
-          onGlobeReady={() => setGlobeReady(true)}
+          onGlobeReady={handleGlobeReady}
           // Country + state polygons (vector landmasses)
           polygonsData={polygonFeatures}
           onHexClick={handleHexClick}

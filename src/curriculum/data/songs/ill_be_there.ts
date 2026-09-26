@@ -4,7 +4,7 @@ export const ill_be_there: Song = {
   id: 'ill_be_there',
   title: 'I’ll Be There',
   artist: 'Michael Jackson',
-  year: 1988,
+  year: 1970,
   historicalDescription:
     "Michael Jackson performs 'I'll Be There', the landmark ballad that first showcased his extraordinary emotional range as a child prodigy with The Jackson 5. Departing from the group's uptempo Motown hits, the song proves that Jackson can command a slow, tender melody with the maturity of a seasoned adult performer — a quiet signal of the solo superstardom to come.",
   key: 'F major',

@@ -9,6 +9,18 @@
  * keeps working. On a server create, the result is seeded into the local mirror
  * (`applySocketMessageForUser` 'hello') so the teacher dashboard has immediate
  * state before the socket connects.
+ *
+ * NO SILENT MOCKS. The degrade is never invisible: this hook returns a
+ * DISCRIMINATED result naming the transport and, for a local session, WHY it
+ * fell back. Callers must confirm with the teacher before starting a practice
+ * session, and every surface then badges it (`ConnectionBadge`). The previous
+ * version swallowed the failure in a bare `catch {}` and returned a session id
+ * indistinguishable from a real one — a teacher could run a whole lesson
+ * against a session no student could join.
+ *
+ * There is deliberately no `flag-off` reason: `POST /classrooms/:id/sessions`
+ * IS registered server-side, so there is no feature flag gating it. Inventing
+ * one would misreport a network failure as a disabled capability.
  */
 import { useCallback } from 'react';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
@@ -27,11 +39,61 @@ export interface StartClassroomSessionInput {
   initialSlideIndex?: number;
 }
 
-export interface StartedClassroomSession {
-  sessionId: string;
-  /** True when a server session was created (discoverable cross-user). */
-  isServer: boolean;
-}
+/** Why a start fell back to the local mock. Never 'flag-off' — see the note
+ *  in the module doc block. */
+export type LocalSessionReason =
+  /** Not signed in, or the token had not resolved yet. */
+  | 'no-token'
+  /** Request never completed — offline, DNS, CORS, timeout. */
+  | 'network'
+  /** Server answered with a non-2xx; the status is carried inline. */
+  | `http-${number}`
+  /** 2xx but the body carried no session id — a contract violation. */
+  | 'no-session-id';
+
+export type StartedClassroomSession =
+  | {
+      transport: 'server';
+      sessionId: string;
+      /** @deprecated Read `transport` instead. Kept for one cycle. */
+      isServer: true;
+    }
+  | {
+      transport: 'local';
+      sessionId: string;
+      reason: LocalSessionReason;
+      /** @deprecated Read `transport` instead. Kept for one cycle. */
+      isServer: false;
+    };
+
+/** Teacher-facing copy for each fallback reason, used by the confirm dialog. */
+export const LOCAL_SESSION_REASON_COPY: Record<LocalSessionReason, string> = {
+  'no-token': 'You are not signed in, so no session could be created.',
+  network: 'The server could not be reached.',
+  'no-session-id': 'The server accepted the request but returned no session.',
+} as Record<LocalSessionReason, string>;
+
+/** Human-readable cause for any reason, including the templated http-NNN. */
+export const describeLocalSessionReason = (
+  reason: LocalSessionReason,
+): string =>
+  LOCAL_SESSION_REASON_COPY[reason] ??
+  (reason.startsWith('http-')
+    ? `The server rejected the request (${reason.slice(5)}).`
+    : 'The server could not be reached.');
+
+/** Extract an HTTP status from whatever the generated client threw. */
+const httpStatusOf = (err: unknown): number | null => {
+  const e = err as {
+    status?: unknown;
+    response?: { status?: unknown };
+    cause?: { status?: unknown };
+  };
+  for (const v of [e?.status, e?.response?.status, e?.cause?.status]) {
+    if (typeof v === 'number' && v >= 100 && v < 600) return v;
+  }
+  return null;
+};
 
 const toIso = (v: unknown): string =>
   typeof v === 'string' ? v : v ? new Date(v as never).toISOString() : '';
@@ -49,6 +111,8 @@ export const useStartClassroomSession = () => {
     async (
       input: StartClassroomSessionInput,
     ): Promise<StartedClassroomSession> => {
+      let reason: LocalSessionReason = 'no-token';
+
       if (token) {
         try {
           const server = await musicAtlas.classrooms.postClassroomsByIdSessions(
@@ -76,10 +140,18 @@ export const useStartClassroomSession = () => {
                 endedAt: toIsoOrNull(server.endedAt),
               },
             });
-            return { sessionId: server.id, isServer: true };
+            return {
+              transport: 'server',
+              sessionId: server.id,
+              isServer: true,
+            };
           }
-        } catch {
-          // Endpoint unavailable / offline — fall through to the local mock.
+          reason = 'no-session-id';
+        } catch (err) {
+          // Endpoint unavailable / offline — fall through to the local mock,
+          // but RECORD WHY so the caller can tell the teacher.
+          const status = httpStatusOf(err);
+          reason = status === null ? 'network' : `http-${status}`;
         }
       }
 
@@ -89,8 +161,38 @@ export const useStartClassroomSession = () => {
         initialPhase: input.initialPhase,
         initialSlideIndex: input.initialSlideIndex,
       });
-      return { sessionId: local.sessionId, isServer: false };
+      return {
+        transport: 'local',
+        sessionId: local.sessionId,
+        reason,
+        isServer: false,
+      };
     },
     [musicAtlas, token, userId, startLocal],
+  );
+};
+
+/**
+ * The hard stop before a teacher drives a lesson no student can join.
+ *
+ * Returns true when the teacher chose to continue in practice mode. Callers
+ * that get `false` MUST tear the local session down again (`endSession`) —
+ * otherwise a declined practice session lingers in the classroom looking live.
+ *
+ * Native `confirm` on purpose: this is a blocking, unmissable decision made
+ * seconds before class starts, and PlanPage already uses the same idiom for
+ * its destructive confirm. It is also the one dialog that must work even if
+ * the app's own UI is in a degraded state.
+ */
+export const confirmPracticeSession = (reason: LocalSessionReason): boolean => {
+  if (typeof window === 'undefined') return false;
+  return window.confirm(
+    [
+      'Practice mode — this device only. Students cannot join.',
+      '',
+      describeLocalSessionReason(reason),
+      '',
+      'Start a practice session anyway?',
+    ].join('\n'),
   );
 };

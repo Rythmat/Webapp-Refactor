@@ -4,7 +4,7 @@ export const lean_on_me: Song = {
   id: 'lean_on_me',
   title: 'Lean On Me',
   artist: 'Bill Withers',
-  year: 1989,
+  year: 1972,
   historicalDescription:
     "Bill Withers re-releases 'Lean On Me' as the world rediscovers its message of communal strength and solidarity. Originally recorded in 1972, the song's simple gospel-rooted piano figure and unadorned vocals had already made it a soul classic — but its placement in the 1988 film 'Lean on Me' brings it back to the charts and a new generation. Few songs so effortlessly capture the idea that human beings need each other.",
   key: 'C major',

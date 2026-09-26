@@ -1,0 +1,1682 @@
+[
+  {
+    "id": "evt-jamband-norwalk-2016-goose",
+    "kind": "event",
+    "newYear": 2014,
+    "current": "2016 (title 'Goose emerges from Norwalk, Connecticut'; descr",
+    "proposed": "year-fix:evt-jamband-norwalk-2016-goose=2014 (rename id to evt-jamband-norwalk-2014-goose)",
+    "confidence": 0.65
+  },
+  {
+    "id": "evt-jamband-boston-2008-dopapod",
+    "kind": "event",
+    "newYear": 2007,
+    "current": "2008",
+    "proposed": "year-fix:evt-jamband-boston-2008-dopapod=2007 (rename id to evt-jamband-boston-2007-dopapo",
+    "confidence": 0.45
+  },
+  {
+    "id": "evt-tebino-tarawa-1978",
+    "kind": "event",
+    "newYear": 1979,
+    "current": "1978",
+    "proposed": "1979 (and id -> evt-tebino-tarawa-1979)",
+    "confidence": 0.95
+  },
+  {
+    "id": "evt-choral-suva-1985",
+    "kind": "event",
+    "newYear": 1972,
+    "current": "1985",
+    "proposed": "1972 (and id -> evt-choral-suva-1972)",
+    "confidence": 0.85
+  },
+  {
+    "id": "evt-khaliji-pop-kuwait-1975",
+    "kind": "event",
+    "newYear": 1983,
+    "current": "1975",
+    "proposed": "1983 (or 1984; id -> evt-khaliji-pop-kuwait-1983)",
+    "confidence": 0.8
+  },
+  {
+    "id": "evt-chaabi-algiers-1920",
+    "kind": "event",
+    "newYear": 1928,
+    "current": "1920",
+    "proposed": "1928 (first recordings) or c. 1930 (id -> evt-chaabi-algiers-1928)",
+    "confidence": 0.55
+  },
+  {
+    "id": "evt-shambo-windhoek-2000",
+    "kind": "event",
+    "newYear": 2004,
+    "current": "2000",
+    "proposed": "2004 (The Dogg's debut album 'Shimaliw' Osatana'; id -> evt-shambo-windhoek-2004)",
+    "confidence": 0.55
+  },
+  {
+    "id": "evt-moutya-victoria-2011",
+    "kind": "event",
+    "newYear": 2021,
+    "current": "2011",
+    "proposed": "2021 (UNESCO inscription of Moutya, 15 Dec 2021; id -> evt-moutya-victoria-2021) and retit",
+    "confidence": 0.5
+  },
+  {
+    "id": "evt-jonimitchell-saskatoon-1964",
+    "kind": "event",
+    "newYear": 1962,
+    "current": "1964",
+    "proposed": "1962 (id -> evt-jonimitchell-saskatoon-1962)",
+    "confidence": 0.55
+  },
+  {
+    "id": "evt-blues-burbank-1989",
+    "kind": "event",
+    "newYear": 1990,
+    "current": "year: 1989 with title 'Bonnie Raitt wins Album of the Year w",
+    "proposed": "Change year to 1990 (32nd Grammy Awards, Feb 21 1990) and id to evt-blues-*-1990; or keep ",
+    "confidence": 0.85
+  },
+  {
+    "id": "evt-blues-rochester-1965",
+    "kind": "event",
+    "newYear": 1964,
+    "current": "year: 1965 with title 'Son House rediscovered during the fol",
+    "proposed": "Change year to 1964 (rediscovered June 1964 in Rochester by Nick Perls, Dick Waterman and ",
+    "confidence": 0.9
+  },
+  {
+    "id": "evt-blues-chicago-1961-etta",
+    "kind": "event",
+    "newYear": 1960,
+    "current": "year: 1961 with title 'Etta James records \"At Last\"'",
+    "proposed": "Change year to 1960 (recorded and released as a single Nov 1960; album 'At Last!' Nov 1960",
+    "confidence": 0.7
+  },
+  {
+    "id": "evt-eurovision-sanmarino-2011",
+    "kind": "event",
+    "newYear": 2008,
+    "current": "2011 — title: \"San Marino debuts at Eurovision, forging a mu",
+    "proposed": "year-fix:evt-eurovision-sanmarino-2011=2008 (rename id suffix to -2008 and update eventCon",
+    "confidence": 0.95
+  },
+  {
+    "id": "evt-hanson-tulsa-2007",
+    "kind": "event",
+    "newYear": 2003,
+    "current": "2007 — description: \"found 3CG Records and launch the annual",
+    "proposed": "year-fix:evt-hanson-tulsa-2007=2003 (3CG Records founded after leaving Island Def Jam in 2",
+    "confidence": 0.85
+  },
+  {
+    "id": "evt-bollywood-mumbai-1960",
+    "kind": "event",
+    "newYear": 1971,
+    "current": "1960 — title: \"R.D. Burman fuses disco, rock, and jazz into ",
+    "proposed": "year-fix:evt-bollywood-mumbai-1960=1971 (Hare Rama Hare Krishna / \"Dum Maro Dum\") or 1966 ",
+    "confidence": 0.7
+  },
+  {
+    "id": "evt-rtl-luxembourg-1954",
+    "kind": "event",
+    "newYear": 1957,
+    "current": "1954 — \"reaches its peak influence... broadcasting rock and ",
+    "proposed": "year 1957 (or reword to \"is becoming Europe's most influential pop station\"); drop the \"pi",
+    "confidence": 0.45
+  },
+  {
+    "id": "evt-hiphop-atlanta-2003",
+    "kind": "event",
+    "newYear": 2004,
+    "current": "year: 2003; title: \"OutKast's 'Speakerboxxx/The Love Below' ",
+    "proposed": "year-fix:evt-hiphop-atlanta-2003=2004 (rename id evt-hiphop-atlanta-2004) — or keep 2003 a",
+    "confidence": 0.9
+  },
+  {
+    "id": "evt-hiphop-saopaulo-1995",
+    "kind": "event",
+    "newYear": 1997,
+    "current": "year: 1995; description cites \"landmark album 'Sobrevivendo ",
+    "proposed": "year-fix:evt-hiphop-saopaulo-1995=1997 (rename id evt-hiphop-saopaulo-1997) — Sobrevivendo",
+    "confidence": 0.85
+  },
+  {
+    "id": "evt-palestinian-hiphop-ramallah-2007",
+    "kind": "event",
+    "newYear": 2006,
+    "current": "year: 2007; \"release their debut album 'Dedication'\"; \"'Min ",
+    "proposed": "year-fix:evt-palestinian-hiphop-ramallah-2007=2006 (Dedication/Ihda' released 2006) or 200",
+    "confidence": 0.8
+  },
+  {
+    "id": "evt-k-hiphop-seoul-1996",
+    "kind": "event",
+    "newYear": 1992,
+    "current": "year: 1996; title \"Seo Taiji & Boys Spark K-Hip Hop\"; descri",
+    "proposed": "year-fix:evt-k-hiphop-seoul-1996=1992 (rename id evt-k-hiphop-seoul-1992) — or retitle to ",
+    "confidence": 0.7
+  },
+  {
+    "id": "evt-chopped-houston-1995",
+    "kind": "event",
+    "newYear": 1991,
+    "current": "year: 1995; title \"DJ Screw invents chopped and screwed\" (hi",
+    "proposed": "year-fix:evt-chopped-houston-1995=1991 for the 'invents' framing, or keep 1995 and retitle",
+    "confidence": 0.6
+  },
+  {
+    "id": "evt-hiplife-accra-2004",
+    "kind": "event",
+    "newYear": 1997,
+    "current": "year: 2004; title \"Hiplife: Highlife Meets Hip Hop in Accra\"",
+    "proposed": "year-fix:evt-hiplife-accra-2004=1997 (Reggie Rockstone's 'Makaa Maka'; he coined hiplife i",
+    "confidence": 0.5
+  },
+  {
+    "id": "evt-bongo-flava-dar-1990",
+    "kind": "event",
+    "newYear": 1995,
+    "current": "year: 1990; \"Artists like Mr. II (Sugu) and Professor Jay\" (",
+    "proposed": "year-fix:evt-bongo-flava-dar-1990=1995 (Mr. II's debut 'Ni Mimi'), or 1991 for Saleh J's f",
+    "confidence": 0.45
+  },
+  {
+    "id": "evt-media-nyc-2009-madmen",
+    "kind": "event",
+    "newYear": 2007,
+    "current": "2009 (id evt-media-nyc-2009-madmen) (musicForMedia.ts:1173)",
+    "proposed": "year-fix:evt-media-nyc-2009-madmen=2007 (id evt-media-nyc-2007-madmen)",
+    "confidence": 0.7
+  },
+  {
+    "id": "evt-media-nyc-1900-silentfilm",
+    "kind": "event",
+    "newYear": 1905,
+    "current": "1900 (id evt-media-nyc-1900-silentfilm); description cites n",
+    "proposed": "year-fix:evt-media-nyc-1900-silentfilm=1905 (first nickelodeon era; id evt-media-nyc-1905-",
+    "confidence": 0.55
+  },
+  {
+    "id": "evt-troubadour-seville-1200",
+    "kind": "event",
+    "newYear": 1270,
+    "current": "1200 (classical.ts:813)",
+    "proposed": "1270 (compilation c. 1257-1283; Alfonso X reigned 1252-1284) and rename id to evt-troubado",
+    "confidence": 0.9
+  },
+  {
+    "id": "evt-persian-classical-isfahan-1501",
+    "kind": "event",
+    "newYear": 1598,
+    "current": "1501 with city Isfahan; 'Shah Ismail I founds the Safavid dy",
+    "proposed": "Either year 1598 (Shah Abbas I makes Isfahan the Safavid capital) with title 'Safavid Isfa",
+    "confidence": 0.6
+  },
+  {
+    "id": "evt-classical-vienna-1700",
+    "kind": "event",
+    "newYear": 1750,
+    "current": "1700; 'The Habsburg courts of Vienna ... composers from Bach",
+    "proposed": "Year ~1750 (start of the Viennese Classical period; rename id evt-classical-vienna-1750) a",
+    "confidence": 0.5
+  },
+  {
+    "id": "evt-josquin-rome-1486",
+    "kind": "event",
+    "newYear": 1489,
+    "current": "1486 (classical.ts:875)",
+    "proposed": "1489 (first documented papal chapel record, June 1489); rename id evt-josquin-rome-1489",
+    "confidence": 0.5
+  },
+  {
+    "id": "evt-kuduro-luanda-2005",
+    "kind": "event",
+    "newYear": 2006,
+    "current": "2005 (description cites Buraka Som Sistema bridging kuduro t",
+    "proposed": "2006 (Buraka Som Sistema formed; 'From Buraka to the World' EP) or 2008 ('Sound of Kuduro'",
+    "confidence": 0.45
+  },
+  {
+    "id": "evt-acid-house-london-1986",
+    "kind": "event",
+    "newYear": 1988,
+    "current": "1986 (id evt-acid-house-london-1986; title \"Acid House Arriv",
+    "proposed": "year-fix: 1988 (rename id to evt-acid-house-london-1988); 1987 at the earliest",
+    "confidence": 0.75
+  },
+  {
+    "id": "evt-jazz-coltrane-love-supreme-1965",
+    "kind": "event",
+    "newYear": 1964,
+    "current": "year 1965; title 'John Coltrane records 'A Love Supreme'' (j",
+    "proposed": "Either year-fix: 1964 (rename id to ...-1964) or retitle to 'John Coltrane releases 'A Lov",
+    "confidence": 0.85
+  },
+  {
+    "id": "evt-jazz-wayne-shorter-speak-no-evil-1966",
+    "kind": "event",
+    "newYear": 1964,
+    "current": "year 1966; title 'Wayne Shorter records 'Speak No Evil'' (ja",
+    "proposed": "Either year-fix: 1964 (rename id) or retitle to 'Wayne Shorter's 'Speak No Evil' is releas",
+    "confidence": 0.8
+  },
+  {
+    "id": "evt-spiritual-nashville-1867",
+    "kind": "event",
+    "newYear": 1871,
+    "current": "1867",
+    "proposed": "1871 (and id suffix -> evt-spiritual-nashville-1871)",
+    "confidence": 0.9
+  },
+  {
+    "id": "evt-marimba-guatemalacity-1955",
+    "kind": "event",
+    "newYear": 1978,
+    "current": "1955",
+    "proposed": "1978 (Decreto 66-78; id suffix -> -1978). Alternatively 1999 (Decreto 31-99, 'simbolo patr",
+    "confidence": 0.8
+  },
+  {
+    "id": "evt-folkfestival-anchorage-1980",
+    "kind": "event",
+    "newYear": 1975,
+    "current": "1980",
+    "proposed": "1975 (Alaska Folk Festival founding) or 1989 if retitled to Anchorage Folk Festival",
+    "confidence": 0.65
+  },
+  {
+    "id": "evt-pacific-suva-1985",
+    "kind": "event",
+    "newYear": 1972,
+    "current": "1985 (city Suva)",
+    "proposed": "1972 (id suffix -> -1972). Or keep 1985 and move the pin to Papeete, Tahiti (-17.5516, -14",
+    "confidence": 0.85
+  },
+  {
+    "id": "evt-rai-algiers-1990",
+    "kind": "event",
+    "newYear": 1992,
+    "current": "1990",
+    "proposed": "1992 (id suffix -> -1992)",
+    "confidence": 0.85
+  },
+  {
+    "id": "evt-mizrahi-telaviv-1980",
+    "kind": "event",
+    "newYear": 1982,
+    "current": "1980",
+    "proposed": "1982 (id suffix -> -1982)",
+    "confidence": 0.85
+  },
+  {
+    "id": "evt-qawwali-lahore-1987",
+    "kind": "event",
+    "newYear": 1985,
+    "current": "1987",
+    "proposed": "1985 (id suffix -> -1985)",
+    "confidence": 0.8
+  },
+  {
+    "id": "evt-andean-lapaz-1965",
+    "kind": "event",
+    "newYear": 1966,
+    "current": "1965",
+    "proposed": "1966 (id suffix -> -1966)",
+    "confidence": 0.6
+  },
+  {
+    "id": "evt-dombra-almaty-1990",
+    "kind": "event",
+    "newYear": 1991,
+    "current": "1990 ('Post-Soviet Kazakhstan')",
+    "proposed": "1991 or 1992 (id suffix accordingly)",
+    "confidence": 0.6
+  },
+  {
+    "id": "evt-powwow-albuquerque-1970",
+    "kind": "event",
+    "newYear": 1983,
+    "current": "1970",
+    "proposed": "1983 (first Gathering of Nations powwow)",
+    "confidence": 0.55
+  },
+  {
+    "id": "evt-maori-haka-auckland-1900",
+    "kind": "event",
+    "newYear": 1950,
+    "current": "1900 ('As Māori communities urbanize around Auckland')",
+    "proposed": "c. 1950 (post-WWII Māori urban migration) with matching id suffix, or reword description t",
+    "confidence": 0.55
+  },
+  {
+    "id": "evt-burna-boy-lagos-2020",
+    "kind": "event",
+    "newYear": 2021,
+    "current": "2020 (title: \"Burna Boy wins Grammy\")",
+    "proposed": "year-fix: 2021 (and id -> evt-burna-boy-lagos-2021), or retitle to \"Burna Boy releases 'Tw",
+    "confidence": 0.85
+  },
+  {
+    "id": "evt-highlife-accra-1958",
+    "kind": "event",
+    "newYear": 1957,
+    "current": "1958 (\"Highlife meets jazz at Ghana independence celebration",
+    "proposed": "year-fix: 1957 (independence, 6 March 1957) or 1956 if the anchor is Louis Armstrong's Acc",
+    "confidence": 0.65
+  },
+  {
+    "id": "evt-afrobeat-lagos-1971",
+    "kind": "event",
+    "newYear": 1972,
+    "current": "1971 (\"Fela Kuti opens the Afrika Shrine\")",
+    "proposed": "year-fix: 1972 (id evt-afrobeat-lagos-1972), or retitle to \"Fela Kuti opens the Afro-Spot,",
+    "confidence": 0.55
+  },
+  {
+    "id": "evt-kora-banjul-1970",
+    "kind": "event",
+    "newYear": 1973,
+    "current": "1970 (\"begins performing... for international audiences\")",
+    "proposed": "year-fix: 1973 (id evt-kora-banjul-1973) - his first US tour and Newport Jazz Festival app",
+    "confidence": 0.55
+  },
+  {
+    "id": "evt-bossanova-rio-1962",
+    "kind": "event",
+    "newYear": 1963,
+    "current": "year 1962, city Rio de Janeiro; title '\"The Girl from Ipanem",
+    "proposed": "year-fix: 1963 and city New York City (lat 40.7128, lng -74.006), id evt-bossanova-nyc-196",
+    "confidence": 0.9
+  },
+  {
+    "id": "evt-pasillo-quito-1930",
+    "kind": "event",
+    "newYear": 1956,
+    "current": "year 1930, city Quito; title 'Julio Jaramillo and the golden",
+    "proposed": "year-fix: 1956 and city Guayaquil (lat -2.1894, lng -79.8891), id evt-pasillo-guayaquil-19",
+    "confidence": 0.9
+  },
+  {
+    "id": "evt-cumbia-villera-buenosaires-1990",
+    "kind": "event",
+    "newYear": 1999,
+    "current": "year 1990; id evt-cumbia-villera-buenosaires-1990; 'groups l",
+    "proposed": "year-fix: 1999 (id evt-cumbia-villera-buenosaires-1999); add Pablo Lescano's Flor de Piedr",
+    "confidence": 0.85
+  },
+  {
+    "id": "evt-marc-anthony-nyc-1999",
+    "kind": "event",
+    "newYear": 1997,
+    "current": "year 1999; title 'Marc Anthony releases \"Contra la Corriente",
+    "proposed": "year-fix: 1997 (id evt-marc-anthony-nyc-1997) to match the 'releases' title — OR keep 1999",
+    "confidence": 0.85
+  },
+  {
+    "id": "evt-philly-soul-philadelphia-1972",
+    "kind": "event",
+    "newYear": 1971,
+    "current": "1972 (title: \"Gamble & Huff launch Philadelphia Internationa",
+    "proposed": "year-fix:evt-philly-soul-philadelphia-1972=1971 (rename id to -1971), or retitle to \"Phila",
+    "confidence": 0.7
+  },
+  {
+    "id": "evt-bobmarley-wilmington-1965",
+    "kind": "event",
+    "newYear": 1966,
+    "current": "1965",
+    "proposed": "year-fix:evt-bobmarley-wilmington-1965=1966 (rename id to evt-bobmarley-wilmington-1966)",
+    "confidence": 0.85
+  },
+  {
+    "id": "evt-funk-nyc-1963-james-brown-apollo",
+    "kind": "event",
+    "newYear": 1962,
+    "current": "1963 (title: \"James Brown records 'Live at the Apollo'\")",
+    "proposed": "year-fix:evt-funk-nyc-1963-james-brown-apollo=1962 (rename id to -1962), or retitle to \"Ja",
+    "confidence": 0.85
+  },
+  {
+    "id": "evt-funk-dayton-1981-lakeside",
+    "kind": "event",
+    "newYear": 1980,
+    "current": "1981",
+    "proposed": "year-fix:evt-funk-dayton-1981-lakeside=1980 (album and single released late 1980; it hit #",
+    "confidence": 0.55
+  },
+  {
+    "id": "evt-reggae-spanish-town-2019-koffee",
+    "kind": "event",
+    "newYear": 2020,
+    "current": "2019 (title: 'Koffee wins Grammy for Rapture EP')",
+    "proposed": "year-fix: 2020 (Grammy awarded 26 Jan 2020), or retitle to 'Koffee releases the Rapture EP",
+    "confidence": 0.65
+  },
+  {
+    "id": "evt-kompa-portauprince-1957",
+    "kind": "event",
+    "newYear": 1955,
+    "current": "1957",
+    "proposed": "1955 (kompa direk is conventionally dated to 26 July 1955, when Nemours founded Ensemble A",
+    "confidence": 0.55
+  },
+  {
+    "id": "evt-dancehall-kingston-2010",
+    "kind": "event",
+    "newYear": 2009,
+    "current": "2010",
+    "proposed": "2009 (Major Lazer's debut 'Guns Don't Kill People... Lazers Do', recorded at Tuff Gong in ",
+    "confidence": 0.5
+  },
+  {
+    "id": "evt-dennery-castries-2014",
+    "kind": "event",
+    "newYear": 2016,
+    "current": "2014 (description cites Teddyson John's 'Vent')",
+    "proposed": "2016 (when 'Vent' and the Dennery Segment wave broke regionally), or keep 2014 and drop th",
+    "confidence": 0.45
+  },
+  {
+    "id": "evt-calypso-sanjose-1970",
+    "kind": "event",
+    "newYear": 2002,
+    "current": "1970 ('gains wider attention')",
+    "proposed": "2002 (Papaya Music's 'Babylon' brought Ferguson national/international recognition) or c. ",
+    "confidence": 0.4
+  },
+  {
+    "id": "evt-ginblossoms-phoenix-1993",
+    "kind": "event",
+    "newYear": 1992,
+    "current": "year 1993; \"The Gin Blossoms release 'New Miserable Experien",
+    "proposed": "year-fix: 1992 (rename id evt-ginblossoms-phoenix-1992), or keep 1993 and reword to \"'New ",
+    "confidence": 0.85
+  },
+  {
+    "id": "evt-redrocks-denver-1971",
+    "kind": "event",
+    "newYear": 1968,
+    "current": "year 1971; \"the steady stream of major acts through the 1970",
+    "proposed": "Either re-anchor on 1968 (Hendrix) / 1964 (Beatles), or keep 1971 and describe the actual ",
+    "confidence": 0.6
+  },
+  {
+    "id": "evt-wilma-missoula-2014",
+    "kind": "event",
+    "newYear": 2015,
+    "current": "year 2014; \"The historic Wilma Theater in downtown Missoula ",
+    "proposed": "year-fix: 2015 (id evt-wilma-missoula-2015); capacity ~1,500",
+    "confidence": 0.6
+  },
+  {
+    "id": "song-five_years",
+    "kind": "song",
+    "newYear": 1972,
+    "current": "2015",
+    "proposed": "1972",
+    "confidence": 0.97
+  },
+  {
+    "id": "song-footloose",
+    "kind": "song",
+    "newYear": 1984,
+    "current": "2000",
+    "proposed": "1984",
+    "confidence": 0.97
+  },
+  {
+    "id": "song-fourfiveseconds",
+    "kind": "song",
+    "newYear": 2015,
+    "current": "2000",
+    "proposed": "2015",
+    "confidence": 0.97
+  },
+  {
+    "id": "song-friend_of_the_devil",
+    "kind": "song",
+    "newYear": 1970,
+    "current": "1981",
+    "proposed": "1970",
+    "confidence": 0.97
+  },
+  {
+    "id": "song-funk_49",
+    "kind": "song",
+    "newYear": 1970,
+    "current": "1997",
+    "proposed": "1970",
+    "confidence": 0.97
+  },
+  {
+    "id": "song-get_down_on_it",
+    "kind": "song",
+    "newYear": 1981,
+    "current": "2000",
+    "proposed": "1981",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-gimme_shelter",
+    "kind": "song",
+    "newYear": 1969,
+    "current": "1971",
+    "proposed": "1969",
+    "confidence": 0.97
+  },
+  {
+    "id": "song-happy_xmas_war_is_over",
+    "kind": "song",
+    "newYear": 1971,
+    "current": "1989",
+    "proposed": "1971",
+    "confidence": 0.97
+  },
+  {
+    "id": "song-hard_rock_cafe",
+    "kind": "song",
+    "newYear": 1977,
+    "current": "2000",
+    "proposed": "1977",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-here_comes_the_sun",
+    "kind": "song",
+    "newYear": 1969,
+    "current": "2015",
+    "proposed": "1969",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-hold_on_im_comin",
+    "kind": "song",
+    "newYear": 1966,
+    "current": "2007",
+    "proposed": "1966",
+    "confidence": 0.97
+  },
+  {
+    "id": "song-home_again",
+    "kind": "song",
+    "newYear": 1971,
+    "current": "2022",
+    "proposed": "1971",
+    "confidence": 0.97
+  },
+  {
+    "id": "song-how_come_you_dont_call_me",
+    "kind": "song",
+    "newYear": 2001,
+    "current": "2000",
+    "proposed": "2001",
+    "confidence": 0.85
+  },
+  {
+    "id": "song-i_cant_go_for_that_no_can_do",
+    "kind": "song",
+    "newYear": 1981,
+    "current": "2000",
+    "proposed": "1981",
+    "confidence": 0.97
+  },
+  {
+    "id": "song-i_cant_help_it",
+    "kind": "song",
+    "newYear": 1979,
+    "current": "2018",
+    "proposed": "1979",
+    "confidence": 0.97
+  },
+  {
+    "id": "song-i_feel_for_you",
+    "kind": "song",
+    "newYear": 1979,
+    "current": "2019",
+    "proposed": "1979",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-i_got_a_woman",
+    "kind": "song",
+    "newYear": 1954,
+    "current": "2008",
+    "proposed": "1954",
+    "confidence": 0.85
+  },
+  {
+    "id": "song-fresh_eyes",
+    "kind": "song",
+    "newYear": 2016,
+    "current": "2017",
+    "proposed": "2016",
+    "confidence": 0.85
+  },
+  {
+    "id": "song-hava_nagila",
+    "kind": "song",
+    "newYear": 1918,
+    "current": "1996",
+    "proposed": "1918",
+    "confidence": 0.5
+  },
+  {
+    "id": "evt-arabic-indie-beirut-2005",
+    "kind": "event",
+    "newYear": 2008,
+    "current": "2005 (rock.ts:1804, id 'evt-arabic-indie-beirut-2005', year:",
+    "proposed": "2008 — and rename id to evt-arabic-indie-beirut-2008",
+    "confidence": 0.9
+  },
+  {
+    "id": "evt-raga-rock-mumbai-1965",
+    "kind": "event",
+    "newYear": 1966,
+    "current": "1965 (rock.ts:1723), city Mumbai, title 'Ravi Shankar & Geor",
+    "proposed": "1966 (id evt-raga-rock-mumbai-1966)",
+    "confidence": 0.6
+  },
+  {
+    "id": "evt-gwar-richmond-1985",
+    "kind": "event",
+    "newYear": 1984,
+    "current": "1985 (rock.ts:1624); title 'GWAR forms in Richmond's undergr",
+    "proposed": "1984 (id evt-gwar-richmond-1984)",
+    "confidence": 0.5
+  },
+  {
+    "id": "song-i_love_rock_n_roll",
+    "kind": "song",
+    "newYear": 1981,
+    "current": "2000",
+    "proposed": "1981",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-i_shot_the_sheriff",
+    "kind": "song",
+    "newYear": 1973,
+    "current": "2005",
+    "proposed": "1973",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-id_rather_go_blind",
+    "kind": "song",
+    "newYear": 1967,
+    "current": "1992",
+    "proposed": "1967",
+    "confidence": 0.8
+  },
+  {
+    "id": "song-if_you_want_me_to_stay",
+    "kind": "song",
+    "newYear": 1973,
+    "current": "2000",
+    "proposed": "1973",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-ill_be_there",
+    "kind": "song",
+    "newYear": 1970,
+    "current": "1988",
+    "proposed": "1970",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-ill_make_love_to_you",
+    "kind": "song",
+    "newYear": 1994,
+    "current": "2000",
+    "proposed": "1994",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-im_comin_out",
+    "kind": "song",
+    "newYear": 1980,
+    "current": "2000",
+    "proposed": "1980",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-in_my_life",
+    "kind": "song",
+    "newYear": 1965,
+    "current": "2025",
+    "proposed": "1965",
+    "confidence": 1
+  },
+  {
+    "id": "song-in_spite_of_all_the_danger",
+    "kind": "song",
+    "newYear": 1995,
+    "current": "1994",
+    "proposed": "1995",
+    "confidence": 0.7
+  },
+  {
+    "id": "song-into_the_mystic",
+    "kind": "song",
+    "newYear": 1970,
+    "current": "2002",
+    "proposed": "1970",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-is_this_love",
+    "kind": "song",
+    "newYear": 1978,
+    "current": "1977",
+    "proposed": "1978",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-it_takes_two",
+    "kind": "song",
+    "newYear": 1988,
+    "current": "2000",
+    "proposed": "1988",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-jack_diane",
+    "kind": "song",
+    "newYear": 1982,
+    "current": "2000",
+    "proposed": "1982",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-jessies_girl",
+    "kind": "song",
+    "newYear": 1981,
+    "current": "2018",
+    "proposed": "1981",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-juice",
+    "kind": "song",
+    "newYear": 2019,
+    "current": "2018",
+    "proposed": "2019",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-jump_for_my_love",
+    "kind": "song",
+    "newYear": 1983,
+    "current": "1992",
+    "proposed": "1983",
+    "confidence": 0.85
+  },
+  {
+    "id": "song-jungle_boogie",
+    "kind": "song",
+    "newYear": 1973,
+    "current": "2000",
+    "proposed": "1973",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-just_a_girl",
+    "kind": "song",
+    "newYear": 1995,
+    "current": "1996",
+    "proposed": "1995",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-just_my_imagination_running_away_with_me",
+    "kind": "song",
+    "newYear": 1971,
+    "current": "2020",
+    "proposed": "1971",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-kashmir",
+    "kind": "song",
+    "newYear": 1975,
+    "current": "2025",
+    "proposed": "1975",
+    "confidence": 1
+  },
+  {
+    "id": "song-kiss_on_my_list",
+    "kind": "song",
+    "newYear": 1980,
+    "current": "2000",
+    "proposed": "1980",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-lady_marmalade",
+    "kind": "song",
+    "newYear": 2001,
+    "current": "2000",
+    "proposed": "2001",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-landslide",
+    "kind": "song",
+    "newYear": 1975,
+    "current": "1988",
+    "proposed": "1975",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-lean_on_me",
+    "kind": "song",
+    "newYear": 1972,
+    "current": "1989",
+    "proposed": "1972",
+    "confidence": 1
+  },
+  {
+    "id": "song-cant_hide_love",
+    "kind": "song",
+    "newYear": 1975,
+    "current": "2000",
+    "proposed": "1975",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-cashs_dreams",
+    "kind": "song",
+    "newYear": 1999,
+    "current": "2000",
+    "proposed": "1999",
+    "confidence": 0.8
+  },
+  {
+    "id": "song-celebration",
+    "kind": "song",
+    "newYear": 1980,
+    "current": "2000",
+    "proposed": "1980",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-cisco_kid",
+    "kind": "song",
+    "newYear": 1972,
+    "current": "1997",
+    "proposed": "1972",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-cissy_strut",
+    "kind": "song",
+    "newYear": 1969,
+    "current": "1974",
+    "proposed": "1969",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-come_and_get_your_love",
+    "kind": "song",
+    "newYear": 1973,
+    "current": "2000",
+    "proposed": "1973",
+    "confidence": 0.85
+  },
+  {
+    "id": "song-cruise",
+    "kind": "song",
+    "newYear": 2012,
+    "current": "2013",
+    "proposed": "2012",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-december_1963_oh_what_a_night",
+    "kind": "song",
+    "newYear": 1975,
+    "current": "2008",
+    "proposed": "1975",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-dog_days_are_over",
+    "kind": "song",
+    "newYear": 2008,
+    "current": "2010",
+    "proposed": "2008",
+    "confidence": 0.85
+  },
+  {
+    "id": "song-dont_worry_about_the_government",
+    "kind": "song",
+    "newYear": 1977,
+    "current": "1976",
+    "proposed": "1977",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-feeling_alright",
+    "kind": "song",
+    "newYear": 1969,
+    "current": "1991",
+    "proposed": "1969",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-fire",
+    "kind": "song",
+    "newYear": 1967,
+    "current": "2000",
+    "proposed": "1967",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-across_the_universe",
+    "kind": "song",
+    "newYear": 1969,
+    "current": "1994",
+    "proposed": "1969",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-after_midnight",
+    "kind": "song",
+    "newYear": 1970,
+    "current": "1983",
+    "proposed": "1970",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-against_the_wind",
+    "kind": "song",
+    "newYear": 1980,
+    "current": "2000",
+    "proposed": "1980",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-aint_it_funky_now",
+    "kind": "song",
+    "newYear": 1970,
+    "current": "2005",
+    "proposed": "1970",
+    "confidence": 0.85
+  },
+  {
+    "id": "song-aint_no_mountain_high_enough",
+    "kind": "song",
+    "newYear": 1967,
+    "current": "2012",
+    "proposed": "1967",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-aint_nobody",
+    "kind": "song",
+    "newYear": 1983,
+    "current": "2000",
+    "proposed": "1983",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-air",
+    "kind": "song",
+    "newYear": 1979,
+    "current": "2000",
+    "proposed": "1979",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-all_my_loving",
+    "kind": "song",
+    "newYear": 1963,
+    "current": "1964",
+    "proposed": "1963",
+    "confidence": 0.8
+  },
+  {
+    "id": "song-american_girl",
+    "kind": "song",
+    "newYear": 1976,
+    "current": "2000",
+    "proposed": "1976",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-another_star",
+    "kind": "song",
+    "newYear": 1976,
+    "current": "1977",
+    "proposed": "1976",
+    "confidence": 0.6
+  },
+  {
+    "id": "song-ants_marching",
+    "kind": "song",
+    "newYear": 1994,
+    "current": "1995",
+    "proposed": "1994",
+    "confidence": 0.55
+  },
+  {
+    "id": "song-as",
+    "kind": "song",
+    "newYear": 1976,
+    "current": "1977",
+    "proposed": "1976",
+    "confidence": 0.6
+  },
+  {
+    "id": "song-auld_lang_syne",
+    "kind": "song",
+    "newYear": 1788,
+    "current": "1993",
+    "proposed": "1788",
+    "confidence": 0.5
+  },
+  {
+    "id": "song-bad_fish",
+    "kind": "song",
+    "newYear": 1992,
+    "current": "2008",
+    "proposed": "1992",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-bad_moon_rising",
+    "kind": "song",
+    "newYear": 1969,
+    "current": "2000",
+    "proposed": "1969",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-bare_necessities",
+    "kind": "song",
+    "newYear": 1967,
+    "current": "2000",
+    "proposed": "1967",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-beauty_and_the_beast",
+    "kind": "song",
+    "newYear": 1977,
+    "current": "1978",
+    "proposed": "1977",
+    "confidence": 0.6
+  },
+  {
+    "id": "song-best_of_my_love",
+    "kind": "song",
+    "newYear": 1977,
+    "current": "1996",
+    "proposed": "1977",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-between_the_bars",
+    "kind": "song",
+    "newYear": 1997,
+    "current": "1996",
+    "proposed": "1997",
+    "confidence": 0.8
+  },
+  {
+    "id": "song-blame_it_on_the_boogie",
+    "kind": "song",
+    "newYear": 1978,
+    "current": "2005",
+    "proposed": "1978",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-born_under_punches",
+    "kind": "song",
+    "newYear": 1980,
+    "current": "1983",
+    "proposed": "1980",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-brother_soul",
+    "kind": "song",
+    "newYear": 1969,
+    "current": "2000",
+    "proposed": "1969",
+    "confidence": 0.5
+  },
+  {
+    "id": "song-burn_this_disco_out",
+    "kind": "song",
+    "newYear": 1979,
+    "current": "2022",
+    "proposed": "1979",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-cant_feel_my_face",
+    "kind": "song",
+    "newYear": 2015,
+    "current": "2000",
+    "proposed": "2015",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-one_way_out",
+    "kind": "song",
+    "newYear": 1972,
+    "current": "2004",
+    "proposed": "1972",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-ophelia",
+    "kind": "song",
+    "newYear": 1975,
+    "current": "1992",
+    "proposed": "1975",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-ordinary_people",
+    "kind": "song",
+    "newYear": 2004,
+    "current": "2000",
+    "proposed": "2004",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-oye_como_va",
+    "kind": "song",
+    "newYear": 1970,
+    "current": "2007",
+    "proposed": "1970",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-passionfruit",
+    "kind": "song",
+    "newYear": 2017,
+    "current": "2000",
+    "proposed": "2017",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-pick_up_the_pieces",
+    "kind": "song",
+    "newYear": 1974,
+    "current": "1996",
+    "proposed": "1974",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-pride_and_joy",
+    "kind": "song",
+    "newYear": 1983,
+    "current": "2000",
+    "proposed": "1983",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-proud_mary",
+    "kind": "song",
+    "newYear": 1971,
+    "current": "2000",
+    "proposed": "1971",
+    "confidence": 0.85
+  },
+  {
+    "id": "song-pumped_up_for_kicks",
+    "kind": "song",
+    "newYear": 2010,
+    "current": "2000",
+    "proposed": "2010",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-raise_your_glass",
+    "kind": "song",
+    "newYear": 2010,
+    "current": "2013",
+    "proposed": "2010",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-ramble_on",
+    "kind": "song",
+    "newYear": 1969,
+    "current": "2024",
+    "proposed": "1969",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-rebel_rebel",
+    "kind": "song",
+    "newYear": 1974,
+    "current": "1973",
+    "proposed": "1974",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-rich_girl",
+    "kind": "song",
+    "newYear": 1976,
+    "current": "2000",
+    "proposed": "1976",
+    "confidence": 0.85
+  },
+  {
+    "id": "song-rock_steady",
+    "kind": "song",
+    "newYear": 1971,
+    "current": "2004",
+    "proposed": "1971",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-rocky_mountain_way",
+    "kind": "song",
+    "newYear": 1973,
+    "current": "1985",
+    "proposed": "1973",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-say_something",
+    "kind": "song",
+    "newYear": 2018,
+    "current": "2000",
+    "proposed": "2018",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-september",
+    "kind": "song",
+    "newYear": 1978,
+    "current": "2000",
+    "proposed": "1978",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-shining_star",
+    "kind": "song",
+    "newYear": 1975,
+    "current": "2000",
+    "proposed": "1975",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-shotgun",
+    "kind": "song",
+    "newYear": 1965,
+    "current": "2000",
+    "proposed": "1965",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-sing_a_simple_song",
+    "kind": "song",
+    "newYear": 1968,
+    "current": "2000",
+    "proposed": "1968",
+    "confidence": 0.85
+  },
+  {
+    "id": "song-sing_a_song",
+    "kind": "song",
+    "newYear": 1975,
+    "current": "2000",
+    "proposed": "1975",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-single_ladies",
+    "kind": "song",
+    "newYear": 2008,
+    "current": "2000",
+    "proposed": "2008",
+    "confidence": 0.85
+  },
+  {
+    "id": "song-let_the_music_take_your_mind",
+    "kind": "song",
+    "newYear": 1970,
+    "current": "2000",
+    "proposed": "1970",
+    "confidence": 0.85
+  },
+  {
+    "id": "song-lets_dance",
+    "kind": "song",
+    "newYear": 1983,
+    "current": "1976",
+    "proposed": "1983",
+    "confidence": 0.99
+  },
+  {
+    "id": "song-lets_get_it_on",
+    "kind": "song",
+    "newYear": 1973,
+    "current": "1975",
+    "proposed": "1973",
+    "confidence": 0.99
+  },
+  {
+    "id": "song-lets_go_crazy",
+    "kind": "song",
+    "newYear": 1984,
+    "current": "1987",
+    "proposed": "1984",
+    "confidence": 0.99
+  },
+  {
+    "id": "song-lets_groove",
+    "kind": "song",
+    "newYear": 1981,
+    "current": "2000",
+    "proposed": "1981",
+    "confidence": 0.99
+  },
+  {
+    "id": "song-life_on_mars",
+    "kind": "song",
+    "newYear": 1971,
+    "current": "1972",
+    "proposed": "1971",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-listening_wind",
+    "kind": "song",
+    "newYear": 1980,
+    "current": "2000",
+    "proposed": "1980",
+    "confidence": 0.99
+  },
+  {
+    "id": "song-little_talks",
+    "kind": "song",
+    "newYear": 2011,
+    "current": "2010",
+    "proposed": "2011",
+    "confidence": 0.85
+  },
+  {
+    "id": "song-livin_on_a_prayer",
+    "kind": "song",
+    "newYear": 1986,
+    "current": "1987",
+    "proposed": "1986",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-long_train_running",
+    "kind": "song",
+    "newYear": 1973,
+    "current": "1987",
+    "proposed": "1973",
+    "confidence": 0.99
+  },
+  {
+    "id": "song-look_what_i_found",
+    "kind": "song",
+    "newYear": 2018,
+    "current": "2019",
+    "proposed": "2018",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-love_and_happiness",
+    "kind": "song",
+    "newYear": 1972,
+    "current": "2001",
+    "proposed": "1972",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-love_goes_building_on_fire",
+    "kind": "song",
+    "newYear": 1977,
+    "current": "2000",
+    "proposed": "1977",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-love_never_felt_so_good",
+    "kind": "song",
+    "newYear": 2014,
+    "current": "2000",
+    "proposed": "2014",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-love_on_the_brain",
+    "kind": "song",
+    "newYear": 2016,
+    "current": "2000",
+    "proposed": "2016",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-loving_cup",
+    "kind": "song",
+    "newYear": 1972,
+    "current": "1975",
+    "proposed": "1972",
+    "confidence": 0.98
+  },
+  {
+    "id": "song-low_rider",
+    "kind": "song",
+    "newYear": 1975,
+    "current": "1976",
+    "proposed": "1975",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-luck_be_a_lady",
+    "kind": "song",
+    "newYear": 1963,
+    "current": "1970",
+    "proposed": "1963",
+    "confidence": 0.8
+  },
+  {
+    "id": "song-man_i_feel_like_a_woman",
+    "kind": "song",
+    "newYear": 1997,
+    "current": "1998",
+    "proposed": "1997",
+    "confidence": 0.85
+  },
+  {
+    "id": "song-maneater",
+    "kind": "song",
+    "newYear": 1982,
+    "current": "2000",
+    "proposed": "1982",
+    "confidence": 0.99
+  },
+  {
+    "id": "song-mercy",
+    "kind": "song",
+    "newYear": 2008,
+    "current": "2007",
+    "proposed": "2008",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-midnight_train_to_georgia",
+    "kind": "song",
+    "newYear": 1973,
+    "current": "2000",
+    "proposed": "1973",
+    "confidence": 0.99
+  },
+  {
+    "id": "song-aint_no_mountain_high_enough",
+    "kind": "song",
+    "newYear": 1967,
+    "current": "2012",
+    "proposed": "1967",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-against_the_wind",
+    "kind": "song",
+    "newYear": 1980,
+    "current": "2000",
+    "proposed": "1980",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-air",
+    "kind": "song",
+    "newYear": 1979,
+    "current": "2000",
+    "proposed": "1979",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-aint_it_funky_now",
+    "kind": "song",
+    "newYear": 1970,
+    "current": "2005",
+    "proposed": "1970",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-aint_nobody",
+    "kind": "song",
+    "newYear": 1983,
+    "current": "2000",
+    "proposed": "1983",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-american_girl",
+    "kind": "song",
+    "newYear": 1976,
+    "current": "2000",
+    "proposed": "1976",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-bad_fish",
+    "kind": "song",
+    "newYear": 1992,
+    "current": "2008",
+    "proposed": "1992",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-bad_moon_rising",
+    "kind": "song",
+    "newYear": 1969,
+    "current": "2000",
+    "proposed": "1969",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-best_of_my_love",
+    "kind": "song",
+    "newYear": 1977,
+    "current": "1996",
+    "proposed": "1977",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-blame_it_on_the_boogie",
+    "kind": "song",
+    "newYear": 1978,
+    "current": "2005",
+    "proposed": "1978",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-burn_this_disco_out",
+    "kind": "song",
+    "newYear": 1979,
+    "current": "2022",
+    "proposed": "1979",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-cant_hide_love",
+    "kind": "song",
+    "newYear": 1975,
+    "current": "2000",
+    "proposed": "1975",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-celebration",
+    "kind": "song",
+    "newYear": 1980,
+    "current": "2000",
+    "proposed": "1980",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-cisco_kid",
+    "kind": "song",
+    "newYear": 1972,
+    "current": "1997",
+    "proposed": "1972",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-cissy_strut",
+    "kind": "song",
+    "newYear": 1969,
+    "current": "1974",
+    "proposed": "1969",
+    "confidence": 0.95
+  },
+  {
+    "id": "song-december_1963_oh_what_a_night",
+    "kind": "song",
+    "newYear": 1975,
+    "current": "2008",
+    "proposed": "1975",
+    "confidence": 0.85
+  },
+  {
+    "id": "song-born_under_punches",
+    "kind": "song",
+    "newYear": 1980,
+    "current": "1983",
+    "proposed": "1980",
+    "confidence": 0.9
+  },
+  {
+    "id": "song-between_the_bars",
+    "kind": "song",
+    "newYear": 1997,
+    "current": "1996",
+    "proposed": "1997",
+    "confidence": 0.75
+  },
+  {
+    "id": "song-after_midnight",
+    "kind": "song",
+    "newYear": 1970,
+    "current": "1983",
+    "proposed": "1970",
+    "confidence": 0.7
+  },
+  {
+    "id": "song-auld_lang_syne",
+    "kind": "song",
+    "newYear": 1788,
+    "current": "1993",
+    "proposed": "1788",
+    "confidence": 0.6
+  }
+]

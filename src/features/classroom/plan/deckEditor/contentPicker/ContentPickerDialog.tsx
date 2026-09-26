@@ -99,7 +99,7 @@ export const ContentPickerDialog = ({
   // Final safety net — never emit a tile that would fail the publish firewall
   // (the result list already disables such rows).
   const commit = (tile: PickedTile, embed?: SlideMediaEmbed) => {
-    if (refFirewallCollision(tile.activityRef, tile.label?.en)) return;
+    if (refFirewallCollision(tile)) return;
     onSelect(tile, embed);
     onOpenChange(false);
   };

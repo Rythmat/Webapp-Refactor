@@ -42,6 +42,22 @@
 }
 
 .slide-frame[data-surface='student'] {
+  /* Rule 11: a student at >=768px renders the IDENTICAL stage, contain-fit.
+     Same canvas, same design-px scale as the projector — the difference
+     between a wall and a Chromebook is the fit transform, which is already
+     applied. Slightly tighter than the projector because a student reads at
+     arm's length rather than from the back row. */
+  --slide-title-fz: 3.5rem;
+  --slide-prompt-fz: 1.75rem;
+  --slide-question-fz: 2.5rem;
+  --slide-body-fz: 1.375rem;
+  --slide-label-fz: 1rem;
+}
+
+/* The reflow is a natural-flow column, NOT the scaled canvas: nothing
+   multiplies these, so they are real screen px for a phone. These are the
+   values the student surface used everywhere before P2 put it on the stage. */
+.slide-frame[data-layout='reflow'] {
   --slide-title-fz: 1.5rem;
   --slide-prompt-fz: 1.0625rem;
   --slide-question-fz: 1.25rem;
@@ -88,6 +104,15 @@
 }
 
 .slide-frame--welcome[data-surface='student'] {
+  /* Design px on the canvas, like the base student scale — 2rem here was the
+     old phone value and would now SHRINK a welcome title below an ordinary
+     one. */
+  --slide-title-fz: 4.5rem;
+}
+
+/* …but in the reflow it is a real phone size again, and must come after the
+   `--welcome` rules or it loses to them on source order (equal specificity). */
+.slide-frame--welcome[data-layout='reflow'] {
   --slide-title-fz: 2rem;
 }
 
@@ -167,4 +192,35 @@
   .slide-media__skeleton {
     animation: none;
   }
+}
+
+/* ── Scrolling band ──────────────────────────────────────────────────────
+   A student's question and input can exceed the band: six options plus a
+   Submit need ~426 design px in a 284px box. The band scrolls, but a clean
+   cut at the edge reads as "that is all there is" rather than "there is
+   more" — a student simply does not answer the option they cannot see.
+
+   Lea Verou's scrolling-shadow trick: the two `local` gradients scroll WITH
+   the content and so cover the `scroll`-attached shadows when the box is at
+   its top/bottom. The cue therefore appears only when something is actually
+   hidden, with no JS and no scroll listener.
+   ────────────────────────────────────────────────────────────────────── */
+.slide-band-scroll {
+  background:
+    linear-gradient(#141416 40%, rgba(20, 20, 22, 0)) top / 100% 36px no-repeat
+      local,
+    linear-gradient(rgba(20, 20, 22, 0), #141416 60%) bottom / 100% 36px
+      no-repeat local,
+    radial-gradient(
+        farthest-side at 50% 0,
+        rgba(255, 255, 255, 0.5),
+        rgba(0, 0, 0, 0)
+      )
+      top / 100% 20px no-repeat scroll,
+    radial-gradient(
+        farthest-side at 50% 100%,
+        rgba(255, 255, 255, 0.5),
+        rgba(0, 0, 0, 0)
+      )
+      bottom / 100% 20px no-repeat scroll;
 }

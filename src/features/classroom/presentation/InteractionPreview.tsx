@@ -7,7 +7,7 @@
  *
  * This is intentionally NOT the live answer widget — no Submit button, no live
  * `<canvas>`. The real, interactive inputs live in `live/interactions/*` and are
- * rendered on the projector/student surfaces via `QuestionSlide`. The question
+ * rendered on the projector/student surfaces in the slide's reveal band. The question
  * text + options are still authored in the side-panel `InteractionEditor`; this
  * only mirrors them onto the slide.
  */

@@ -310,7 +310,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
   // =============================================
   {
     id: 'evt-media-nyc-1900-silentfilm',
-    year: 1900,
+    year: 1905,
     location: {
       lat: 40.7128,
       lng: -74.006,
@@ -750,10 +750,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     id: 'evt-media-london-1994-lionking',
     year: 1994,
     location: {
-      lat: 51.5074,
-      lng: -0.1278,
-      city: 'London',
-      country: 'United Kingdom',
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
     },
     genre: ['Film Scoring', 'Classical'],
     title: 'Hans Zimmer\'s "The Lion King" launches a film scoring empire',
@@ -1171,7 +1171,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-media-nyc-2009-madmen',
-    year: 2009,
+    year: 2007,
     location: {
       lat: 40.7128,
       lng: -74.006,
@@ -1549,10 +1549,10 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
     id: 'evt-media-la-2020-ffviiremake',
     year: 2020,
     location: {
-      lat: 34.0522,
-      lng: -118.2437,
-      city: 'Los Angeles',
-      country: 'United States',
+      lat: 35.6762,
+      lng: 139.6503,
+      city: 'Tokyo',
+      country: 'Japan',
     },
     genre: ['Classical', 'Electronic'],
     title:

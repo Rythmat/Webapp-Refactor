@@ -4,7 +4,7 @@ export const kashmir: Song = {
   id: 'kashmir',
   title: 'Kashmir',
   artist: 'Led Zeppelin',
-  year: 2025,
+  year: 1975,
   historicalDescription:
     "Led Zeppelin records 'Kashmir', a sweeping, orchestral rock epic built on Jimmy Page's relentless riff and Robert Plant's mythic lyrics conjuring vast deserts and ancient journeys. Anchored by John Bonham's thunderous, hypnotic drumming, the song becomes one of the most ambitious statements in rock history — a collision of Eastern tonality and Western power that the band themselves consider their greatest work.",
   key: 'A major',

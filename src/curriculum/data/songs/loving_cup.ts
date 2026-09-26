@@ -4,7 +4,7 @@ export const loving_cup: Song = {
   id: 'loving_cup',
   title: 'Loving Cup',
   artist: 'The Rolling Stones',
-  year: 1975,
+  year: 1972,
   historicalDescription:
     "The Rolling Stones release 'Loving Cup' as part of their landmark Exile on Main St. double album, a sprawling celebration of American roots music recorded in the basement of a rented French villa. The song captures the band at their most loose and soulful — gospel-drenched piano, ramshackle rhythm, and Mick Jagger's beseeching vocal painting a portrait of longing and excess. It stands as one of the great deep cuts in rock history, beloved by fans who prize the Stones' ragged, unpolished heart over their polished singles.",
   key: 'G major',

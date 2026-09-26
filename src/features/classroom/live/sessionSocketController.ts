@@ -259,12 +259,24 @@ export function createSessionSocketController(
   let closed = false;
 
   const applyIncoming = (msg: SessionSocketMessage): void => {
+    // Rule 2, defence in depth. The party restricts the IDENTIFIED presence
+    // stream to teacher sockets, but a client must not depend on the server
+    // getting that right: drop an identified presence body arriving on a
+    // student or projector socket rather than mirroring the roster into a
+    // store the projected board can read.
+    if (msg.type === 'presence' && role !== 'teacher') return;
+
     // Localstorage-mirror + response bag.
     applySocketMessageForUser(userId, sessionId, msg);
     // Local in-memory snapshot ref for PATCH merges.
     const next = applySessionSocketMessage(stateRef, msg);
     if (next) stateRef = next;
-    if (msg.type === 'response') onResponse(msg);
+    // Only IDENTIFIED responses fan out to the MSP recorder. A projector
+    // socket receives `stripForProjector`'d bodies with no `enrollmentId`, and
+    // recording those would attribute the whole class to one phantom student.
+    if (msg.type === 'response' && 'enrollmentId' in msg && msg.enrollmentId) {
+      onResponse(msg);
+    }
   };
 
   const start = async (): Promise<void> => {

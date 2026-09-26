@@ -500,9 +500,9 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
     id: 'evt-swing-nyc-1935',
     year: 1935,
     location: {
-      lat: 40.7128,
-      lng: -74.006,
-      city: 'New York City',
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
       country: 'US',
     },
     genre: ['Jazz', 'Swing'],
@@ -1204,7 +1204,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-jazz-coltrane-love-supreme-1965',
-    year: 1965,
+    year: 1964,
     location: {
       lat: 40.7128,
       lng: -74.006,
@@ -1229,7 +1229,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-jazz-wayne-shorter-speak-no-evil-1966',
-    year: 1966,
+    year: 1964,
     location: {
       lat: 40.7128,
       lng: -74.006,

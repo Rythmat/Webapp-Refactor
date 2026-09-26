@@ -4,7 +4,7 @@ export const beauty_and_the_beast: Song = {
   id: 'beauty_and_the_beast',
   title: 'Beauty And The Beast',
   artist: 'David Bowie',
-  year: 1978,
+  year: 1977,
   historicalDescription:
     "David Bowie releases 'Beauty and the Beast' as the opening track of 'Heroes', a record born from his time in divided Berlin. The song captures the fractured, art-rock energy of his celebrated Berlin Trilogy — a period of radical reinvention that reshapes what rock music can be. Its jagged rhythm and split vocal personality embody the duality running through Bowie's most experimental years.",
   key: 'A minor',

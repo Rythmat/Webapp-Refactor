@@ -4,7 +4,7 @@ export const i_got_a_woman: Song = {
   id: 'i_got_a_woman',
   title: 'I Got A Woman',
   artist: 'Ray Charles',
-  year: 2008,
+  year: 1954,
   historicalDescription:
     "Ray Charles records 'I Got A Woman', fusing the fervor of gospel music with the grit of rhythm and blues in a move that shocks church communities but electrifies audiences. The song becomes one of the first defining examples of soul music, proving that sacred feeling can ignite secular grooves. It later inspires everyone from Elvis Presley to Kanye West, who samples it decades on.",
   key: 'A major',

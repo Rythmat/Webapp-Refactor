@@ -51,5 +51,8 @@ export default defineConfig({
       // Left unset on purpose: the content loader treats a missing CDN URL as
       // "use the bundled .ts data", which is the behaviour tests should see.
     },
+    // Opt-in per file via `// @vitest-environment jsdom`; this only registers
+    // the matchers and the msw lifecycle for the files that ask for them.
+    setupFiles: ['./src/test/setup.ts'],
   },
 });

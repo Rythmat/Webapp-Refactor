@@ -9,12 +9,15 @@
  *
  * Data path: `buildStudentView(day, config)` is the ONLY source. The
  * `buildStudentView.test.ts` firewall test guarantees that no teacher-only
- * content ever reaches this file at any depth.
+ * content ever reaches this file at any depth, and `useSanitizedStudentView`
+ * is the read-path backstop: if a projection ever regresses, the offending key
+ * is stripped and reported rather than blanking the lesson mid-class.
  */
 import { Maximize2, Minimize2, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
+import { useCanEditClassroom } from '@/hooks/data';
 import { buildStudentView } from './buildStudentView';
 import { DEMO_DAY_ID, demoDay } from './fixtures/demoDay';
 import { useSessionSync } from './live/useSessionSync';
@@ -22,11 +25,18 @@ import { PHASES } from './phases';
 import { useLocalPlan } from './plan/useLocalPlan';
 import { Focus } from './presentation/Focus';
 import { SegmentedControl } from './presentation/SegmentedControl';
-import { slideToPresentContent } from './presentation/SlidePresentBody';
-import { projectDeck } from './publish/publishDay';
-import { slideAt } from './slides/deck';
-import { deckFromCells } from './slides/deckFromCells';
-import type { AgePreset, StudentLanguage, StudentViewConfig } from './types';
+import { SnapshotRepairBadge } from './publish/SnapshotRepairBadge';
+import { publishDay } from './publish/publishDay';
+import { useSanitizedStudentView } from './publish/useRuleOneReadGuard';
+import { useTeacherConfig } from './settings/useTeacherConfig';
+import { slideAt, slideInteractionIds } from './slides/deck';
+import { emptyDeck } from './slides/deckEdit';
+import type {
+  AgePreset,
+  Interaction,
+  StudentLanguage,
+  StudentViewConfig,
+} from './types';
 import './presentation.css';
 
 const LANGUAGE_OPTIONS: { value: StudentLanguage; label: string }[] = [
@@ -43,6 +53,7 @@ export const PresentationMode = () => {
   const cid = classroomId ?? '';
   const navigate = useNavigate();
   const { getDay } = useLocalPlan();
+  const canEdit = useCanEditClassroom(cid);
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('sessionId') ?? '';
   const { state: sessionState, sendNav } = useSessionSync(
@@ -63,8 +74,11 @@ export const PresentationMode = () => {
   }, [dayId, getDay]);
 
   const [language, setLanguage] = useState<StudentLanguage>('en');
-  // Age preset pinned to 'high' (the type-scale baseline); picker removed.
-  const agePreset: AgePreset = 'high';
+  // Per-section age preset. This used to be hard-coded 'high' while
+  // `agePresetDefault` sat in settings with ZERO readers — a picker teachers
+  // could set that changed nothing. It now resolves per classroom.
+  const { config: teacherConfig } = useTeacherConfig(cid);
+  const agePreset: AgePreset = teacherConfig.agePresetDefault;
   const [focusIndex, setFocusIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -74,21 +88,52 @@ export const PresentationMode = () => {
     [language, agePreset],
   );
 
-  const view = useMemo(() => buildStudentView(day, config), [day, config]);
+  const builtView = useMemo(() => buildStudentView(day, config), [day, config]);
+  // Rule 1, read path: strip rather than blank (see the module doc block).
+  const { view, stripped: repairedPaths } = useSanitizedStudentView(
+    builtView,
+    'presentation-mode',
+    { classroomId: cid },
+  );
 
   // Present renders the DECK (single source of truth), so "what you edit is
-  // what you present." A Day that carries a persisted deck uses it; a legacy
-  // deckless Day falls back to an ephemeral deck derived from its cells.
-  const presentDeck = useMemo(
-    () =>
-      view.deck && view.deck.slides.length > 0
-        ? view.deck
-        : projectDeck(deckFromCells(day)),
-    [view.deck, day],
-  );
+  // what you present." A Day that carries a persisted deck uses it; a deckless
+  // Day derives one.
+  //
+  // The fallback goes through `publishDay` — the SAME firewall the live
+  // surfaces publish through — rather than calling `deckFromCells` on the raw
+  // Day. It used to do the latter, which walked straight past the Rule 1 read
+  // guard two lines above and put whatever the guard had just stripped back
+  // onto a projected screen. `publishDay` whitelist-copies every field and
+  // derives the deck itself when the Day has none.
+  const presentDeck = useMemo(() => {
+    if (view.deck && view.deck.slides.length > 0) return view.deck;
+    return publishDay(day).deck ?? emptyDeck(day);
+  }, [view.deck, day]);
 
   const currentSlide =
     slideAt(presentDeck, focusIndex) ?? presentDeck.slides[0];
+
+  /**
+   * Presentation Mode has no live session, so there are no responses and no
+   * reveal — but an interaction slide still has to SHOW its question, or the
+   * whole slide is blank.
+   *
+   * These come from the sanitized `view`, not from the raw Day: the view's
+   * interactions are already whitelist-projected
+   * (`projectInteractionForStudent`), which is the same shape `publishDay`
+   * hands the live surfaces. Reading `day.cells` directly here would put a
+   * teacher-side object on a projected surface.
+   */
+  const currentSlideInteractions = useMemo(() => {
+    if (!currentSlide) return [];
+    const wanted = slideInteractionIds(currentSlide);
+    if (wanted.length === 0) return [];
+    const available = view.phases.flatMap((phase) => phase.interactions ?? []);
+    return wanted
+      .map((id) => available.find((i) => i.id === id))
+      .filter((i): i is Interaction => i !== undefined);
+  }, [view, currentSlide]);
 
   // Walk the deck slide-by-slide; derive the phase from the landed slide so a
   // live session's currentPhase stays in step (outgoing nav only).
@@ -100,9 +145,13 @@ export const PresentationMode = () => {
       );
       setFocusIndex(clamped);
       const phase = presentDeck.slides[clamped]?.phase ?? PHASES[0];
-      if (sessionId && sessionState) sendNav(phase);
+      // Rule: only someone who can edit this classroom may drive the class
+      // screen. PresentationMode sits OUTSIDE ClassroomDeepPageLayout, so it
+      // inherited no ownership guard — a viewer (or anyone with the URL) could
+      // navigate every connected student device.
+      if (sessionId && sessionState && canEdit) sendNav(phase);
     },
-    [presentDeck, sessionId, sessionState, sendNav],
+    [presentDeck, sessionId, sessionState, sendNav, canEdit],
   );
 
   const goPrevSlide = useCallback(
@@ -156,11 +205,13 @@ export const PresentationMode = () => {
         onToggleFullscreen={toggleFullscreen}
         onExit={exitToClassroom}
         dayLabel={day.label}
+        repairedPaths={repairedPaths}
       />
 
       {currentSlide && (
         <Focus
-          slide={slideToPresentContent(currentSlide)}
+          slide={currentSlide}
+          interactions={currentSlideInteractions}
           language={language}
           onExit={exitToClassroom}
           onPrev={goPrevSlide}
@@ -181,6 +232,8 @@ interface PresentationChromeProps {
   onToggleFullscreen: () => void;
   onExit: () => void;
   dayLabel: string;
+  /** Rule 1 read-path repairs; renders the amber badge when non-empty. */
+  repairedPaths: string[];
 }
 
 const PresentationChrome = ({
@@ -190,6 +243,7 @@ const PresentationChrome = ({
   onToggleFullscreen,
   onExit,
   dayLabel,
+  repairedPaths,
 }: PresentationChromeProps) => {
   return (
     <header
@@ -207,6 +261,7 @@ const PresentationChrome = ({
           Exit
         </button>
         <span className="text-sm text-white/60">{dayLabel}</span>
+        <SnapshotRepairBadge stripped={repairedPaths} />
       </div>
 
       <div className="flex items-center gap-4 text-white/80">

@@ -4,7 +4,7 @@ export const little_talks: Song = {
   id: 'little_talks',
   title: 'Little Talks',
   artist: 'Of Monsters and Men',
-  year: 2010,
+  year: 2011,
   historicalDescription:
     "Of Monsters and Men release 'Little Talks' in Iceland, a sweeping indie folk-rock anthem built on the interplay of two voices and a swelling brass-and-percussion arrangement. The song captures the emotional weight of loss and memory with an anthemic urgency that feels both intimate and arena-sized. It becomes the breakthrough that carries the Reykjavik band from local phenomenon to international stages.",
   key: 'B♭ minor',

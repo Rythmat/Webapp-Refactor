@@ -1,30 +1,20 @@
 import type { Feature, Position } from 'geojson';
 import { useEffect, useMemo, useState, type FC } from 'react';
-import { GEOJSON_URLS } from '@/components/atlas/data';
 import { getCountryColor } from '@/components/atlas/data/continentColors';
+import {
+  loadAdmin1UsCa,
+  loadCountries,
+} from '@/components/atlas/data/geoLoader';
 import './city-locator.css';
 
-// ── Lightweight geo loaders (module-cached, shared by every thumbnail) ──────
-// The Main Globe's useGeoData() also runs on its own route; these standalone
-// loaders keep the dashboard thumbnails independent. Countries (110m) is the
-// full-coverage base for every cap; the admin-1 states file only carries
-// subdivisions for a handful of large countries, so it's an overlay on top of
-// the country base (see CityPolygonThumb). Each is fetched once and reused.
-function makeFeatureLoader(url: string) {
-  let promise: Promise<Feature[]> | null = null;
-  return () => {
-    if (!promise) {
-      promise = fetch(url)
-        .then((r) => r.json())
-        .then((fc: { features?: Feature[] }) => fc.features ?? [])
-        .catch(() => []);
-    }
-    return promise;
-  };
-}
-
-const loadCountries = makeFeatureLoader(GEOJSON_URLS.countries);
-const loadStates = makeFeatureLoader(GEOJSON_URLS.admin1);
+// Countries (110m) is the full-coverage base for every cap; the admin-1 states
+// file only carries subdivisions for a handful of countries, so it's an overlay
+// on top of the country base (see CityPolygonThumb). Both come from the shared
+// module-level loader in atlas/data/geoLoader.ts, so the thumbnails reuse the
+// same download (and Cache Storage entry) as the Main Globe rather than issuing
+// their own for the same files.
+const loadStates = () => loadAdmin1UsCa().catch(() => []);
+const loadCountryFeatures = () => loadCountries().catch(() => []);
 
 function useFeatures(load: () => Promise<Feature[]>): Feature[] | null {
   const [features, setFeatures] = useState<Feature[] | null>(null);
@@ -42,7 +32,7 @@ function useFeatures(load: () => Promise<Feature[]>): Feature[] | null {
 
 /** The world countries GeoJSON features (null while loading). */
 export const useCountryFeatures = (): Feature[] | null =>
-  useFeatures(loadCountries);
+  useFeatures(loadCountryFeatures);
 
 /** The world states/provinces (admin-1) GeoJSON features (null while loading). */
 export const useStateFeatures = (): Feature[] | null => useFeatures(loadStates);
@@ -69,6 +59,7 @@ const stateColorOf = (feat: Feature): string =>
 
 const VB = 200; // square viewBox; the tile crops it (slice)
 const D2R = Math.PI / 180;
+const R2D = 180 / Math.PI;
 const OCEAN = '#0d1b2a';
 const SPACE = '#070b12';
 const CITY_ZOOM = 16; // city caps zoom past the region zooms (3–5) to the state
@@ -84,6 +75,66 @@ const hexPoints = (cx: number, cy: number, r: number): string => {
 interface Projected {
   d: string;
   color: string;
+}
+
+/** Degrees of slack on the cull, so a polygon edge never pops in at the rim. */
+const CULL_MARGIN_DEG = 5;
+
+type Box = { minLat: number; maxLat: number; minLng: number; maxLng: number };
+
+// Feature geometry is static, so each bbox is computed once and kept on a
+// WeakMap keyed by the feature itself (entries die with the GeoJSON).
+const boxCache = new WeakMap<Feature, Box>();
+
+function featureBox(feat: Feature): Box {
+  const cached = boxCache.get(feat);
+  if (cached) return cached;
+  const box: Box = {
+    minLat: 90,
+    maxLat: -90,
+    minLng: 180,
+    maxLng: -180,
+  };
+  const geom = feat.geometry;
+  if (geom && (geom.type === 'Polygon' || geom.type === 'MultiPolygon')) {
+    const polygons: Position[][][] =
+      geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+    for (const rings of polygons) {
+      for (const ring of rings) {
+        for (const [lng, lat] of ring) {
+          if (lat < box.minLat) box.minLat = lat;
+          if (lat > box.maxLat) box.maxLat = lat;
+          if (lng < box.minLng) box.minLng = lng;
+          if (lng > box.maxLng) box.maxLng = lng;
+        }
+      }
+    }
+  }
+  boxCache.set(feat, box);
+  return box;
+}
+
+/** Great-circle degrees from a point to the nearest point of a lat/lng box. */
+function angularDistanceToBox(lat: number, lng: number, box: Box): number {
+  const clampedLat = Math.min(box.maxLat, Math.max(box.minLat, lat));
+  // Longitude is periodic: measure to whichever edge is nearer the wrap.
+  let clampedLng = lng;
+  if (lng < box.minLng || lng > box.maxLng) {
+    const dMin = Math.abs(((lng - box.minLng + 540) % 360) - 180);
+    const dMax = Math.abs(((lng - box.maxLng + 540) % 360) - 180);
+    clampedLng = dMin < dMax ? box.minLng : box.maxLng;
+  }
+  const φ1 = lat * D2R;
+  const φ2 = clampedLat * D2R;
+  const Δ = (clampedLng - lng) * D2R;
+  const cos = Math.min(
+    1,
+    Math.max(
+      -1,
+      Math.sin(φ1) * Math.sin(φ2) + Math.cos(φ1) * Math.cos(φ2) * Math.cos(Δ),
+    ),
+  );
+  return Math.acos(cos) * R2D;
 }
 
 /** Project the world onto an orthographic globe centred on `center` and build
@@ -105,11 +156,13 @@ function buildPaths(
 
   const out: Projected[] = [];
 
-  const cosCentral = (lng: number, lat: number): number => {
-    const φ = lat * D2R;
-    const Δ = lng * D2R - λ0;
-    return sinφ0 * Math.sin(φ) + cosφ0 * Math.cos(φ) * Math.cos(Δ);
-  };
+  // Everything beyond this angular radius from the cap centre projects outside
+  // the square viewBox and can be skipped whole. At a city zoom that is ~13
+  // degrees, so the overwhelming majority of the world's polygons never need
+  // projecting at all — before this, every tile built a path for all ~180
+  // countries and the browser held tens of thousands of invisible <path> nodes.
+  const maxAngleDeg =
+    Math.asin(Math.min(1, ((VB / 2) * Math.SQRT2) / R)) * R2D + CULL_MARGIN_DEG;
 
   const projectRing = (ring: Position[]): string | null => {
     let d = '';
@@ -138,11 +191,14 @@ function buildPaths(
     const polygons: Position[][][] =
       geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
 
-    // Cheap O(1) cull: skip features whose first vertex sits well beyond the
-    // visible horizon — keeps projection fast across many thumbnails (the ring
-    // loop still culls edge geometry precisely).
-    const first = polygons[0]?.[0]?.[0];
-    if (first && cosCentral(first[0], first[1]) < -0.15) continue;
+    // Conservative bbox cull: if the closest point of the feature's bounding
+    // box is further than the visible radius, no vertex of it can be on screen.
+    // Features that straddle the antimeridian have a bbox spanning the globe,
+    // so they are never culled here — the per-vertex test below still handles
+    // them exactly.
+    if (angularDistanceToBox(lat0, lng0, featureBox(feat)) > maxAngleDeg) {
+      continue;
+    }
 
     let d = '';
     for (const rings of polygons) {

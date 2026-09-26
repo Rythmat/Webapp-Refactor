@@ -4,7 +4,7 @@ export const bad_fish: Song = {
   id: 'bad_fish',
   title: 'Bad Fish',
   artist: 'Sublime',
-  year: 2008,
+  year: 1992,
   historicalDescription:
     "Sublime's 'Bad Fish' captures the raw, confessional energy of the Long Beach ska-punk scene that the band helped define in the early 1990s. A brooding meditation on addiction and self-destruction, it stands apart from their sunnier reggae-tinged hits — revealing the darker undercurrent beneath Bradley Nowell's freewheeling persona. The song endures as one of the most emotionally honest moments in Sublime's catalog.",
   key: 'A major',

@@ -945,7 +945,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-ginblossoms-phoenix-1993',
-    year: 1993,
+    year: 1992,
     location: { lat: 33.4484, lng: -112.074, city: 'Phoenix', country: 'US' },
     genre: ['Alternative Rock', 'Jangle Pop', 'Power Pop'],
     title: 'Gin Blossoms and the Phoenix alt-rock scene',
@@ -1010,7 +1010,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-redrocks-denver-1971',
-    year: 1971,
+    year: 1968,
     location: { lat: 39.7392, lng: -104.9903, city: 'Denver', country: 'US' },
     genre: ['Rock', 'Folk Rock'],
     title: 'Red Rocks Amphitheatre becomes a legendary concert venue',
@@ -1309,7 +1309,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-wilma-missoula-2014',
-    year: 2014,
+    year: 2015,
     location: { lat: 46.8721, lng: -113.994, city: 'Missoula', country: 'US' },
     genre: ['Indie Rock', 'Folk', 'Americana'],
     title: 'The Wilma Theater anchors Missoula as a touring destination',
@@ -1622,7 +1622,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-gwar-richmond-1985',
-    year: 1985,
+    year: 1984,
     location: { lat: 37.5407, lng: -77.436, city: 'Richmond', country: 'US' },
     genre: ['Heavy Metal', 'Punk', 'Shock Rock'],
     title: "GWAR forms in Richmond's underground",
@@ -1721,7 +1721,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-raga-rock-mumbai-1965',
-    year: 1965,
+    year: 1966,
     location: { lat: 19.076, lng: 72.8777, city: 'Mumbai', country: 'India' },
     genre: ['Raga Rock', 'Indian Classical', 'Psychedelic Rock'],
     title: 'Ravi Shankar & George Harrison — Raga Meets Rock',
@@ -1802,7 +1802,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-arabic-indie-beirut-2005',
-    year: 2005,
+    year: 2008,
     location: {
       lat: 33.8938,
       lng: 35.5018,

@@ -1,121 +1,105 @@
 /**
- * `useLocalPlan` — local-first persistence for the teacher's plan.
+ * `useLocalPlan` — the React binding over the curriculum repository's Day
+ * operations.
  *
- * Per the fresh-build brief §10, v1 stores everything in localStorage under
- * `ma-teacher:plan:v1`. The teacher's Days live in the browser; nothing hits
- * the server until v2's Supabase schema ships. A `schemaVersion` field guards
- * against future migration.
- *
- * Small runtime footprint on purpose — a single JSON blob, one useState, and
- * a subscribe hook that keeps every mounted consumer in sync via a
- * `storage` event listener + a broadcast function for same-tab updates.
+ * Storage no longer lives here. Days sit behind
+ * `persistence/localCurriculumRepository`, which owns the key, the v1→v2
+ * migration and the IndexedDB mirror. This module is now a subscription plus a
+ * stable callback surface, so P10 can swap the adapter without touching any of
+ * the ~12 consumers.
  */
 import { useCallback, useEffect, useState } from 'react';
+import {
+  PLAN_KEY,
+  PLAN_SCHEMA_VERSION,
+  localCurriculumRepository as repo,
+} from '../persistence/localCurriculumRepository';
 import type { Day } from '../types';
 
-export const STORAGE_KEY = 'ma-teacher:plan:v1';
-export const SCHEMA_VERSION = 1;
+/**
+ * Re-exported for `settings/planBackup.ts` and tests. The KEY keeps its `:v1`
+ * namespace: in this repo `:vN` is a namespace and the schema version lives in
+ * the blob.
+ */
+export const STORAGE_KEY = PLAN_KEY;
+export const SCHEMA_VERSION = PLAN_SCHEMA_VERSION;
 
 export interface Plan {
   schemaVersion: number;
   days: Record<string, Day>;
 }
 
-const EMPTY_PLAN: Plan = { schemaVersion: SCHEMA_VERSION, days: {} };
-
-const isBrowser = typeof window !== 'undefined';
-
-const readPlan = (): Plan => {
-  if (!isBrowser) return EMPTY_PLAN;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return EMPTY_PLAN;
-    const parsed = JSON.parse(raw) as Plan;
-    if (parsed?.schemaVersion !== SCHEMA_VERSION) {
-      // Migration hook. For now, unknown versions reset to empty and preserve
-      // the raw string under a `.bak` key so a later migration can recover.
-      window.localStorage.setItem(`${STORAGE_KEY}.bak`, raw);
-      return EMPTY_PLAN;
-    }
-    return {
-      schemaVersion: SCHEMA_VERSION,
-      days: parsed.days ?? {},
-    };
-  } catch {
-    return EMPTY_PLAN;
-  }
-};
-
-const writePlan = (plan: Plan): void => {
-  if (!isBrowser) return;
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(plan));
-    // Broadcast to same-tab subscribers (the native `storage` event doesn't
-    // fire in the tab that wrote the change).
-    window.dispatchEvent(new Event(`${STORAGE_KEY}:changed`));
-  } catch {
-    // Quota / privacy mode — silently no-op. In-memory state stays consistent.
-  }
-};
-
 export interface UseLocalPlan {
   plan: Plan;
   getDay: (dayId: string) => Day | undefined;
   saveDay: (day: Day) => void;
   deleteDay: (dayId: string) => void;
-  /** Remove EVERY authored Day (e.g. "Reset to canonical template"). Published
-   *  snapshots + live sessions are a separate store and are unaffected. */
-  clearAllDays: () => void;
-  listDays: () => Day[];
+  /**
+   * Remove every authored Day IN ONE CLASSROOM (e.g. "Reset to canonical
+   * template"). Published snapshots + live sessions are a separate store and
+   * are unaffected.
+   *
+   * `classroomId` is REQUIRED. It used to wipe the global bucket, so a reset in
+   * one section deleted every other section's lessons. Unassigned Days are
+   * preserved too — the tray exists to rescue them, and a reset in an unrelated
+   * classroom must not be what finally destroys them.
+   */
+  clearAllDays: (classroomId: string) => void;
+  /** Days belonging to `classroomId`. Never returns another classroom's Days. */
+  listDays: (classroomId: string) => Day[];
+  /** Days with no classroom — surfaced in the Lessons tray, never auto-claimed. */
+  listUnassignedDays: () => Day[];
+  /**
+   * False while IndexedDB is still hydrating, when a synchronous read can
+   * report EMPTY for a store that is not. Surfaces must show "loading", not
+   * "no lessons yet" — telling a teacher their work is gone is the worst
+   * possible lie to tell during a hydration window.
+   */
+  isHydrated: boolean;
 }
 
-export const useLocalPlan = (): UseLocalPlan => {
-  const [plan, setPlan] = useState<Plan>(readPlan);
+/**
+ * @param classroomId  When given, `saveDay` STAMPS this classroom onto any Day
+ *   that does not already carry one. This is the single chokepoint that keeps
+ *   new Days scoped — putting the stamp in each of the ~6 creation sites would
+ *   mean the next new site silently creates an unassigned Day. Omit it on
+ *   read-only consumers.
+ */
+/**
+ * @param classroomId  When given, `saveDay` STAMPS this classroom onto any Day
+ *   that does not already carry one — the single chokepoint that keeps new Days
+ *   scoped. Omit it on read-only consumers.
+ */
+export const useLocalPlan = (classroomId?: string): UseLocalPlan => {
+  // A version counter, not the data: the repository is the source of truth and
+  // its reads are synchronous, so re-rendering is all this needs to do.
+  const [, bump] = useState(0);
 
-  // Subscribe to same-tab + cross-tab writes so any consumer stays in sync.
-  useEffect(() => {
-    if (!isBrowser) return;
-    const onChange = () => setPlan(readPlan());
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY) onChange();
-    };
-    window.addEventListener(`${STORAGE_KEY}:changed`, onChange);
-    window.addEventListener('storage', onStorage);
-    return () => {
-      window.removeEventListener(`${STORAGE_KEY}:changed`, onChange);
-      window.removeEventListener('storage', onStorage);
-    };
-  }, []);
+  useEffect(() => repo.subscribe(() => bump((n) => n + 1)), []);
 
-  const getDay = useCallback((dayId: string) => plan.days[dayId], [plan.days]);
+  const getDay = useCallback((dayId: string) => repo.getDay(dayId), []);
 
-  const saveDay = useCallback((day: Day) => {
-    const current = readPlan();
-    const next: Plan = {
-      ...current,
-      days: { ...current.days, [day.id]: day },
-    };
-    writePlan(next);
-    setPlan(next);
-  }, []);
+  const saveDay = useCallback(
+    (day: Day) => repo.saveDay(day, classroomId),
+    [classroomId],
+  );
 
-  const deleteDay = useCallback((dayId: string) => {
-    const current = readPlan();
-    if (!(dayId in current.days)) return;
-    const nextDays = { ...current.days };
-    delete nextDays[dayId];
-    const next: Plan = { ...current, days: nextDays };
-    writePlan(next);
-    setPlan(next);
-  }, []);
+  const deleteDay = useCallback((dayId: string) => repo.deleteDay(dayId), []);
 
-  const clearAllDays = useCallback(() => {
-    const next: Plan = { schemaVersion: SCHEMA_VERSION, days: {} };
-    writePlan(next);
-    setPlan(next);
-  }, []);
+  const clearAllDays = useCallback((cid: string) => repo.clearDays(cid), []);
 
-  const listDays = useCallback(() => Object.values(plan.days), [plan.days]);
+  const listDays = useCallback((cid: string) => repo.listDays(cid), []);
 
-  return { plan, getDay, saveDay, deleteDay, clearAllDays, listDays };
+  const listUnassignedDays = useCallback(() => repo.listUnassignedDays(), []);
+
+  return {
+    plan: { schemaVersion: SCHEMA_VERSION, days: {} },
+    getDay,
+    saveDay,
+    deleteDay,
+    clearAllDays,
+    listDays,
+    listUnassignedDays,
+    isHydrated: repo.isHydrated(),
+  };
 };

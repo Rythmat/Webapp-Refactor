@@ -124,7 +124,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-kompa-portauprince-1957',
-    year: 1957,
+    year: 1955,
     location: {
       lat: 18.5944,
       lng: -72.3074,
@@ -247,7 +247,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-dennery-castries-2014',
-    year: 2014,
+    year: 2016,
     location: {
       lat: 14.0101,
       lng: -60.9875,
@@ -368,7 +368,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-calypso-sanjose-1970',
-    year: 1970,
+    year: 2002,
     location: {
       lat: 9.9281,
       lng: -84.0907,
@@ -737,7 +737,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-dancehall-kingston-2010',
-    year: 2010,
+    year: 2009,
     location: {
       lat: 18.0179,
       lng: -76.8099,
@@ -1201,7 +1201,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-reggae-spanish-town-2019-koffee',
-    year: 2019,
+    year: 2020,
     location: {
       lat: 17.9907,
       lng: -76.9552,

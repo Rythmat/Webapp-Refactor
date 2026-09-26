@@ -7,18 +7,14 @@ import {
   interactionsForSlide,
   slideAt,
 } from '../../slides/deck';
+import { resolveElements } from '../../slides/migrateDeckV1';
+import { revealContentHeight } from '../../slides/slideGrid';
 import { ParticipationPulse } from '../../slides/viz/ParticipationPulse';
-import { RevealViz } from '../../slides/viz/RevealViz';
-import { fromProjectorView } from '../../slides/viz/buildVizAggregate';
-import type {
-  Interaction,
-  InteractionResponse,
-  InteractionResponsePayload,
-} from '../../types';
-import { buildProjectorView } from '../buildProjectorView';
+import type { Interaction, InteractionResponsePayload } from '../../types';
 import type { SessionState } from '../sessionsStore';
 import { ShowcaseProjectorFrame } from './ShowcaseProjectorFrame';
 import { TimerCountdown } from './TimerCountdown';
+import { buildRevealNode } from './revealNode';
 
 interface ProjectorDeckViewProps {
   snapshot: DaySnapshot;
@@ -71,35 +67,18 @@ export const ProjectorDeckView = ({
 
   const interactions = interactionsForSlide(snapshot, slide);
 
-  const revealSlot = (interaction: Interaction) => {
-    if (!state.sharedInteractionIds.includes(interaction.id)) return null;
-    const responses: InteractionResponse[] = [];
-    for (const [enrollmentId, bag] of Object.entries(responsesByEnrollment)) {
-      const payload = bag[interaction.id];
-      if (!payload) continue;
-      responses.push({
-        id: `proj-${enrollmentId}-${interaction.id}`,
-        interactionId: interaction.id,
-        enrollmentId,
-        sessionId,
-        payload,
-        createdAt: state.updatedAt,
-      });
-    }
-    const view = buildProjectorView(interaction, responses, sessionId);
-    if (!view.emit) return null;
-    const viz = fromProjectorView(interaction, view, 'both');
-    if (!viz) return null;
-    const revealHint = slide.kind === 'interaction' ? slide.reveal : undefined;
-    return (
-      <RevealViz
-        viz={viz}
-        reveal={revealHint}
-        size="projector"
-        language="both"
-      />
-    );
-  };
+  // One shared builder with Present — see `revealNode.tsx`. Duplicating this
+  // gating is how Present would end up showing identified responses.
+  const revealSlot = (interaction: Interaction) =>
+    buildRevealNode({
+      interaction,
+      responsesByEnrollment,
+      sessionId,
+      sharedInteractionIds: state.sharedInteractionIds,
+      updatedAt: state.updatedAt,
+      revealHint: slide.kind === 'interaction' ? slide.reveal : undefined,
+      availableHeight: revealContentHeight(resolveElements(slide)),
+    });
 
   const firstInteractionId = interactions[0]?.id;
   const statusChip = firstInteractionId ? (

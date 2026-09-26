@@ -5,7 +5,7 @@ import {
   getTour,
 } from '@/components/atlas/data';
 import type { ModuleProgress, TourProgress } from '@/components/atlas/types';
-import { sameCountry } from './country';
+import { matchCity } from './resolveEventRegion';
 
 /**
  * The set of city ids the globe should show while a guided sequence is active —
@@ -27,11 +27,9 @@ export function resolveFocusCities(
     for (const eventId of mod.eventIds) {
       const ev = MUSIC_HISTORY.find((e) => e.id === eventId);
       if (!ev) continue;
-      const cityLower = ev.location.city.toLowerCase();
-      const matches = CITIES.filter((c) => c.name.toLowerCase() === cityLower);
-      const city =
-        matches.find((c) => sameCountry(c.country, ev.location.country)) ??
-        matches[0];
+      // Same matcher the panels use, so a pathway step lights the city its
+      // event is actually in (Portland, Maine — not Portland, Oregon).
+      const city = matchCity(ev);
       if (city) ids.add(city.id);
     }
     return ids.size > 0 ? ids : null;

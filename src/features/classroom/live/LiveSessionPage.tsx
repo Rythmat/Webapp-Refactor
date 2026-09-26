@@ -7,6 +7,7 @@ import { useMe } from '@/hooks/data';
 import { useUpdateActivityProgress } from '@/hooks/data/progress/useUpdateActivityProgress';
 import { useEnrollments } from '../enrollments/useEnrollments';
 import { usePublishedDays } from '../publish/usePublishedDays';
+import { useSanitizedPublishedDay } from '../publish/useRuleOneReadGuard';
 import {
   clampSlideIndex,
   deckFromSnapshot,
@@ -19,6 +20,7 @@ import type {
   LocalizedText,
   StudentLanguage,
 } from '../types';
+import { ConnectionBadge } from './ConnectionBadge';
 import { LockScreen } from './LockScreen';
 import { InteractionInput } from './interactions';
 import { isSlideComplete } from './slideGating';
@@ -104,9 +106,15 @@ export const LiveSessionPage = () => {
       ? `${PROGRESS_STORAGE_PREFIX}:${sid}:${myEnrollment.id}`
       : null;
 
-  const publishedDay = state?.publishedDayId
+  const storedPublishedDay = state?.publishedDayId
     ? getPublishedDay(state.publishedDayId)
     : undefined;
+  // Rule 1, read path: strip rather than blank. Never block a live lesson.
+  const { day: publishedDay } = useSanitizedPublishedDay(
+    storedPublishedDay,
+    'live-session',
+    cid,
+  );
 
   const currentInteractions: Interaction[] = useMemo(() => {
     if (!state || !publishedDay) return [];
@@ -254,7 +262,12 @@ export const LiveSessionPage = () => {
     publishedDay.snapshot.deck.slides.length > 0
   ) {
     return (
-      <div className="mx-auto flex w-full max-w-[1000px] flex-col gap-6 px-4 py-4 text-white md:gap-8 md:px-10 md:py-8">
+      // Wider than the legacy phase board's 1000px reading column, and with
+      // less horizontal padding: the content here is a 16:9 canvas whose type
+      // size IS its rendered width. At 1000px minus 80px of padding the fit
+      // scale pinned at 0.72 on a laptop and 0.51 on an iPad, which put a
+      // question at 20px and a Submit button at 23px tall on a touch device.
+      <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-6 px-4 py-4 text-white md:gap-8 md:px-6 md:py-6">
         <header className="sticky top-0 z-10 -mx-4 flex flex-wrap items-center justify-between gap-3 bg-black/40 px-4 py-2 backdrop-blur md:mx-0 md:px-0">
           <Link
             to={ClassroomRoutes.home({ classroomId: cid })}
@@ -267,7 +280,7 @@ export const LiveSessionPage = () => {
             {state.timer && state.timer.slideId === pacedSlide?.id && (
               <TimerCountdown endsAt={state.timer.endsAt} />
             )}
-            <ConnectionPill status={connectionStatus} />
+            <ConnectionBadge status={connectionStatus} size="sm" />
             <SegmentedToggle
               label="Language"
               value={language}
@@ -316,7 +329,7 @@ export const LiveSessionPage = () => {
           Back to classroom
         </Link>
         <div className="flex items-center gap-2">
-          <ConnectionPill status={connectionStatus} />
+          <ConnectionBadge status={connectionStatus} size="sm" />
           <SegmentedToggle
             label="Language"
             value={language}
@@ -369,22 +382,6 @@ export const LiveSessionPage = () => {
     </div>
   );
 };
-
-const ConnectionPill = ({ status }: { status: string }) => (
-  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-2.5 py-0.5 text-xs text-white/60">
-    <span
-      className={
-        'h-1.5 w-1.5 rounded-full ' +
-        (status === 'connected'
-          ? 'bg-emerald-400'
-          : status === 'disconnected'
-            ? 'bg-white/40'
-            : 'bg-amber-400')
-      }
-    />
-    {status}
-  </span>
-);
 
 const LocalizedRender = ({
   text,

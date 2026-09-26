@@ -123,8 +123,13 @@ export const SlideStrip = ({
               {slide.title.en}
             </span>
             {active && (
+              // "On screen", not "Live": this marks which SLIDE the class is
+              // looking at, and the header already uses Live/Practice for
+              // whether the SESSION is real. Three different meanings of the
+              // same word in one view is how a teacher misreads a practice
+              // session as a working one.
               <span className="absolute -top-1.5 right-2 inline-flex items-center gap-1 rounded-full bg-emerald-400 px-1.5 text-[9px] font-medium uppercase text-black">
-                Live
+                On screen
               </span>
             )}
           </button>

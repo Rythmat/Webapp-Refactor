@@ -25,7 +25,7 @@ import { landingPages } from './features/landing';
 import { legalPages } from './features/legal';
 import { marketingPages } from './features/marketing';
 import { searchPages } from './features/search/routes';
-import { teacherPages } from './features/teacher/TeacherPages';
+import { officePages, teacherPages } from './features/teacher/TeacherPages';
 
 const routesArray = createBrowserRouter([
   landingPages(),
@@ -34,6 +34,7 @@ const routesArray = createBrowserRouter([
   adminPages(),
   classroomPages(),
   teacherPages(),
+  officePages(),
   legalPages(),
   studioPages(),
   gamesPages(),

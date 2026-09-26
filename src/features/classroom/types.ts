@@ -162,7 +162,9 @@ export interface InteractionResponse {
 
 /**
  * A Cell's teacher-only rationale. NEVER reaches the board.
- * Every field on this interface is a forbidden substring in the firewall test.
+ * Every field NAME on this interface is in `FORBIDDEN_KEYS` (publishDay.ts) and
+ * is rejected exactly, so the firewall catches a structural leak without ever
+ * inspecting student-facing content.
  */
 export interface CellRationale {
   assessment: LocalizedText | null;
@@ -217,6 +219,23 @@ export interface Cell {
 
 export interface Day {
   id: string;
+  /**
+   * The classroom this Day belongs to. Added in plan schema v2.
+   *
+   * Days used to live in ONE global bucket with no classroom id while annual
+   * plans were already per classroom, so a multi-section teacher had two ways
+   * to lose work: "Reset" in one classroom wiped every classroom's Days, and an
+   * orphan Day was silently adopted by whichever classroom rendered Lessons
+   * first. `null` means genuinely unassigned — those surface in the Lessons
+   * "not in a classroom" tray rather than being quietly claimed.
+   *
+   * Teacher-side routing metadata ONLY. It is deliberately NOT in
+   * `FORBIDDEN_KEYS`: `publishDay` builds its snapshot by explicit whitelist,
+   * so this field is structurally absent from student output already, and
+   * adding it to the blacklist would strip `PublishedDay.classroomId`, which is
+   * the publish idempotency key.
+   */
+  classroomId?: string | null;
   /** Human date (YYYY-MM-DD) or a teacher-authored label like "Day 1". */
   label: string;
   cells: DayCells;

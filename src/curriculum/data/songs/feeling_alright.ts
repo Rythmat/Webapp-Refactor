@@ -4,7 +4,7 @@ export const feeling_alright: Song = {
   id: 'feeling_alright',
   title: 'Feeling Alright',
   artist: 'Joe Cocker',
-  year: 1991,
+  year: 1969,
   historicalDescription:
     "Joe Cocker's raw, soulful interpretation of 'Feeling Alright' — originally written by Traffic's Dave Mason — becomes one of his signature performances, showcasing his unmistakable raspy voice and gospel-drenched delivery. Where the original was introspective, Cocker transforms it into a visceral, full-throated plea, cementing his reputation as one of rock's greatest interpretive singers.",
   key: 'C major',

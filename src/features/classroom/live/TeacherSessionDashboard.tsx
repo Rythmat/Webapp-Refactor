@@ -13,7 +13,9 @@ import { InteractionResponseDashboard } from '../assignments/InteractionResponse
 import { useEnrollments } from '../enrollments';
 import { useMspInboxEntries } from '../msp';
 import { PHASES } from '../phases';
+import { SnapshotRepairBadge } from '../publish/SnapshotRepairBadge';
 import { usePublishedDays } from '../publish/usePublishedDays';
+import { useSanitizedPublishedDay } from '../publish/useRuleOneReadGuard';
 import { SlideRenderer } from '../slides/SlideRenderer';
 import {
   deckFromSnapshot,
@@ -21,7 +23,11 @@ import {
   slideAt,
   slideInteractionIds,
 } from '../slides/deck';
+import { resolveElements } from '../slides/migrateDeckV1';
+import { revealContentHeight } from '../slides/slideGrid';
+import { ParticipationPulse } from '../slides/viz/ParticipationPulse';
 import type { Interaction } from '../types';
+import { ConnectionBadge } from './ConnectionBadge';
 import { CurriculumCoveragePanel } from './CurriculumCoveragePanel';
 import { PhaseNavigator } from './PhaseNavigator';
 import { RosterPanel } from './RosterPanel';
@@ -31,10 +37,13 @@ import { CurrentSlidePanel } from './slides/CurrentSlidePanel';
 import { MediaRemote } from './slides/MediaRemote';
 import { PairingPanel } from './slides/PairingPanel';
 import { ShowcasePanel } from './slides/ShowcasePanel';
+import { ShowcaseProjectorFrame } from './slides/ShowcaseProjectorFrame';
 import { SlideStrip } from './slides/SlideStrip';
 import { TimerControl } from './slides/TimerControl';
+import { buildRevealNode } from './slides/revealNode';
 import { useLiveResponses } from './useLiveResponses';
 import { useSessionPositions } from './useSessionPositions';
+import { useSessionPresence } from './useSessionPresence';
 import { useSessionSync } from './useSessionSync';
 
 export const TeacherSessionDashboard = () => {
@@ -48,6 +57,7 @@ export const TeacherSessionDashboard = () => {
 
   const {
     state,
+    connectionStatus,
     sendNav,
     sendLock,
     sendShare,
@@ -61,15 +71,20 @@ export const TeacherSessionDashboard = () => {
   const { aggregate, countResponses, responsesByEnrollment } =
     useLiveResponses(sid);
   const positions = useSessionPositions(sid);
+  const presence = useSessionPresence(sid);
   const { getPublishedDay } = usePublishedDays(cid);
   const { getEnrollment, active: activeEnrollments } = useEnrollments(cid);
 
   const [presenting, setPresenting] = useState(false);
   const [confirmingEnd, setConfirmingEnd] = useState(false);
 
-  const publishedDay = state?.publishedDayId
+  const storedPublishedDay = state?.publishedDayId
     ? getPublishedDay(state.publishedDayId)
     : undefined;
+  // Rule 1, read path: strip rather than blank, and tell the teacher — this is
+  // the one surface where the person who can re-publish the lesson is looking.
+  const { day: publishedDay, stripped: repairedPaths } =
+    useSanitizedPublishedDay(storedPublishedDay, 'teacher-dashboard', cid);
 
   const allInteractions: Interaction[] = useMemo(() => {
     if (!publishedDay) return [];
@@ -104,6 +119,89 @@ export const TeacherSessionDashboard = () => {
         : [],
     [snapshot, currentSlide],
   );
+
+  /**
+   * Everything Present injects — not just the reveal.
+   *
+   * Present used to receive ONE slot while the projector received four, so in a
+   * single-projector room the teacher featured a student's project and the
+   * class saw "Waiting for the teacher to feature a project…" for the rest of
+   * the lesson. Present IS the projected surface there; the slot sets have to
+   * match or the two screens disagree about what the class is looking at.
+   *
+   * `showcaseFrame` is the deliberate, teacher-approved share from
+   * `state.showcase` — never the raw offer stream, which `buildProjectorView`
+   * refuses at any depth.
+   */
+  /**
+   * The reveal SLOT Present injects.
+   *
+   * Built with the SAME anonymized gating as the projector (`buildRevealNode`),
+   * because in a single-screen classroom Present is what the class is looking
+   * at. Showing the teacher's identified view there would project every
+   * student's name onto the wall.
+   *
+   * It is a slot, not a prebuilt node: `SlideRenderer` decides which
+   * interactions may reveal on a projected surface (`interactionPolicy`), so
+   * this is never even CALLED for a check-in. It used to hand over the first
+   * shared interaction's node regardless of type, which put the gating in the
+   * caller — the copy most likely to drift from the projector's.
+   */
+  const presentRevealSlot = useMemo(() => {
+    if (!state || !currentSlide) return undefined;
+    const availableHeight = revealContentHeight(resolveElements(currentSlide));
+    return (interaction: Interaction) =>
+      buildRevealNode({
+        interaction,
+        responsesByEnrollment,
+        sessionId: sid,
+        sharedInteractionIds: state.sharedInteractionIds,
+        updatedAt: state.updatedAt,
+        revealHint:
+          currentSlide.kind === 'interaction' ? currentSlide.reveal : undefined,
+        availableHeight,
+      });
+  }, [state, currentSlide, responsesByEnrollment, sid]);
+
+  /** Response COUNTS only — never a payload (the chip is a pulse, not data). */
+  const countFor = useMemo(() => {
+    return (interactionId: string): number => {
+      let count = 0;
+      for (const bag of Object.values(responsesByEnrollment)) {
+        if (bag[interactionId]) count += 1;
+      }
+      return count;
+    };
+  }, [responsesByEnrollment]);
+
+  const presentSlots = useMemo(() => {
+    if (!currentSlide) return undefined;
+    const firstId = currentSlideInteractions[0]?.id;
+    return {
+      ...(presentRevealSlot ? { reveal: presentRevealSlot } : {}),
+      ...(firstId
+        ? {
+            statusChip: (
+              <ParticipationPulse
+                responded={countFor(firstId)}
+                language="both"
+              />
+            ),
+          }
+        : {}),
+      ...(currentSlide.kind === 'showcase' && state?.showcase
+        ? {
+            showcaseFrame: <ShowcaseProjectorFrame showcase={state.showcase} />,
+          }
+        : {}),
+    };
+  }, [
+    currentSlide,
+    currentSlideInteractions,
+    presentRevealSlot,
+    state?.showcase,
+    countFor,
+  ]);
 
   // App-route slides show live module progress instead of a response aggregate.
   // The inbox observer catches completions that arrive while a student's tab is
@@ -197,6 +295,7 @@ export const TeacherSessionDashboard = () => {
       <>
         <SessionPresentView
           currentSlide={currentSlide}
+          interactions={currentSlideInteractions}
           slideIndex={slideIndex}
           slideCount={deck.slides.length}
           dayLabel={snapshot?.label ?? ''}
@@ -206,6 +305,7 @@ export const TeacherSessionDashboard = () => {
           }}
           onExit={() => setPresenting(false)}
           onEnd={() => setConfirmingEnd(true)}
+          slots={presentSlots}
         />
         {endDialog}
       </>
@@ -223,8 +323,19 @@ export const TeacherSessionDashboard = () => {
           Back to Lessons
         </Link>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-emerald-400/30 bg-emerald-400/[0.08] px-3 py-1 text-xs text-emerald-200">
-            Live · {countResponses()} response(s)
+          {/* Session LIFECYCLE, not transport. A practice session is "not
+              ended", but calling it Live next to the amber Practice badge is
+              the contradiction the no-silent-mocks rule exists to prevent —
+              so the word and the green only appear on a real server session. */}
+          <span
+            className={
+              connectionStatus === 'practice'
+                ? 'rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-white/60'
+                : 'rounded-full border border-emerald-400/30 bg-emerald-400/[0.08] px-3 py-1 text-xs text-emerald-200'
+            }
+          >
+            {connectionStatus === 'practice' ? 'Practice' : 'Live'} ·{' '}
+            {countResponses()} response(s)
           </span>
           <RosterPanel
             classroomId={cid}
@@ -235,6 +346,7 @@ export const TeacherSessionDashboard = () => {
               state.mode === 'student_paced' ? positions : undefined
             }
             totalSlides={deck?.slides.length}
+            presenceByEnrollment={presence}
           />
           {deck && currentSlide && (
             <TimerControl
@@ -306,6 +418,9 @@ export const TeacherSessionDashboard = () => {
             <StopCircle className="h-3.5 w-3.5" />
             End
           </button>
+          {/* NO SILENT MOCKS: says plainly whether students can actually join. */}
+          <ConnectionBadge status={connectionStatus} size="sm" />
+          <SnapshotRepairBadge stripped={repairedPaths} />
         </div>
       </header>
 

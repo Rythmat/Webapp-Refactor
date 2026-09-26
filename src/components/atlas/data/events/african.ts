@@ -42,7 +42,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-afrobeat-lagos-1971',
-    year: 1971,
+    year: 1972,
     location: { lat: 6.5244, lng: 3.3792, city: 'Lagos', country: 'Nigeria' },
     genre: ['Afrobeat', 'Funk'],
     title: 'Fela Kuti opens the Afrika Shrine',
@@ -272,7 +272,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-kora-banjul-1970',
-    year: 1970,
+    year: 1973,
     location: { lat: 13.4549, lng: -16.579, city: 'Banjul', country: 'Gambia' },
     genre: ['Kora Music', 'Afro-Manding'],
     title: 'Alhaji Bai Konte carries kora mastery to the world',
@@ -726,7 +726,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-highlife-accra-1958',
-    year: 1958,
+    year: 1957,
     location: { lat: 5.6037, lng: -0.187, city: 'Accra', country: 'Ghana' },
     genre: ['Highlife', 'Jazz'],
     title: 'Highlife meets jazz at Ghana independence celebrations',
@@ -857,7 +857,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-burna-boy-lagos-2020',
-    year: 2020,
+    year: 2021,
     location: { lat: 6.5244, lng: 3.3792, city: 'Lagos', country: 'Nigeria' },
     genre: ['Afrobeats', 'Afro-Fusion'],
     title: 'Burna Boy wins Grammy, placing African pop on equal global footing',

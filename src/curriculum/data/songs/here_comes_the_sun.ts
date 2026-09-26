@@ -4,7 +4,7 @@ export const here_comes_the_sun: Song = {
   id: 'here_comes_the_sun',
   title: 'Here Comes The Sun',
   artist: 'The Beatles',
-  year: 2015,
+  year: 1969,
   historicalDescription:
     "George Harrison writes 'Here Comes The Sun' in the garden of Eric Clapton's house one morning, escaping the tension of Apple Corps business meetings — a rare moment of peace amid the Beatles' unraveling. The song becomes one of Harrison's most beloved compositions, a gentle acoustic anthem that proves he could match Lennon and McCartney as a songwriter. Its warmth and simplicity make it one of the most streamed Beatles songs of the 21st century.",
   key: 'A major',

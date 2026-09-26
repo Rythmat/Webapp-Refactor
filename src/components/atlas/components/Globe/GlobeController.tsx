@@ -16,30 +16,18 @@ function zoomToAltitude(zoom: number): number {
   return Math.max(0.3, 3.5 - zoom * 0.3);
 }
 
-// When influence arcs are shown, pull back to this altitude and spin gently so
-// the connections around the globe are visible.
-const ARCS_VIEW_ALTITUDE = 1.3;
-const ROTATE_DEG_PER_FRAME = 0.23; // ~26s per full rotation at 60fps
+/**
+ * Spin speed for OrbitControls' own auto-rotation: the angle per second is
+ * `2π/60 × speed`, so 2.3 is a little under 14°/s — roughly 26 seconds for a
+ * full turn, the same pace the globe used to drift at.
+ */
+const AUTO_ROTATE_SPEED = 2.3;
 
 export function GlobeController({ globeRef, ready }: Props) {
   const dispatch = useAppDispatch();
-  const {
-    selectedRegions,
-    searchFlyTarget,
-    pinnedEvent,
-    visibleArcDirections,
-    rotationPaused,
-  } = useAppState();
+  const { selectedRegions, searchFlyTarget, globeRotating } = useAppState();
   const prevLength = useRef(selectedRegions.length);
   const prevReady = useRef(false);
-  const rotateRaf = useRef<number | null>(null);
-  const prevShowingArcs = useRef(false);
-  // Read live inside the rAF spin loop so pausing takes effect without
-  // restarting the animation.
-  const pausedRef = useRef(rotationPaused);
-  useEffect(() => {
-    pausedRef.current = rotationPaused;
-  }, [rotationPaused]);
 
   // Fly to region when a new region is toggled on
   useEffect(() => {
@@ -82,63 +70,30 @@ export function GlobeController({ globeRef, ready }: Props) {
     dispatch({ type: 'CLEAR_FLY_TARGET' });
   }, [searchFlyTarget, ready, globeRef, dispatch]);
 
-  // When an "Influenced by"/"Influenced" section is opened (arcs become visible),
-  // zoom the camera out and gently auto-rotate so the connections are visible.
-  // Stops when the sections close or the pinned event is cleared.
+  /**
+   * Spin the globe, and only ever because the user asked for it.
+   *
+   * This used to start on its own: opening an "Influenced by" / "Influenced"
+   * section — which also happened when a video started playing — pulled the
+   * camera out to a fixed altitude and began rotating. The globe moving without
+   * being touched is disorienting, and it fought anyone reading a card, so both
+   * the automatic zoom and the automatic spin are gone. The control now lives
+   * in the corner of the globe page.
+   *
+   * Rotation is handed to OrbitControls rather than driven from a rAF loop:
+   * it already ticks every frame (three-render-objects calls `controls.update`),
+   * it is time-based, and it yields to a drag instead of fighting it.
+   */
   useEffect(() => {
-    const showingArcs = !!pinnedEvent && visibleArcDirections.size > 0;
-    // Only act on an on/off transition, so re-renders (e.g. opening a second
-    // section) don't cancel the running rotation. NB: no cleanup is returned —
-    // the rAF is managed imperatively and torn down on the off transition or on
-    // unmount (below), not on every re-render.
-    if (showingArcs === prevShowingArcs.current) return;
-    prevShowingArcs.current = showingArcs;
-
-    if (!showingArcs) {
-      if (rotateRaf.current != null) {
-        cancelAnimationFrame(rotateRaf.current);
-        rotateRaf.current = null;
-      }
-      return;
-    }
-    if (!globeRef.current || rotateRaf.current != null) return;
-
-    // Ease altitude out to the arcs view once, then keep spinning (preserving
-    // whatever altitude the user later sets).
-    let reachedZoom = false;
-    const spin = () => {
-      const globe = globeRef.current;
-      if (!globe) return;
-      if (pausedRef.current) {
-        // Held while the user paused rotation; resumes on unpause.
-        rotateRaf.current = requestAnimationFrame(spin);
-        return;
-      }
-      const pov = globe.pointOfView();
-      let altitude = pov.altitude;
-      if (!reachedZoom) {
-        altitude = pov.altitude + (ARCS_VIEW_ALTITUDE - pov.altitude) * 0.08;
-        if (Math.abs(altitude - ARCS_VIEW_ALTITUDE) < 0.02) {
-          altitude = ARCS_VIEW_ALTITUDE;
-          reachedZoom = true;
-        }
-      }
-      globe.pointOfView(
-        { lat: pov.lat, lng: pov.lng + ROTATE_DEG_PER_FRAME, altitude },
-        0,
-      );
-      rotateRaf.current = requestAnimationFrame(spin);
+    if (!ready) return;
+    const controls = globeRef.current?.controls();
+    if (!controls) return;
+    controls.autoRotateSpeed = AUTO_ROTATE_SPEED;
+    controls.autoRotate = globeRotating;
+    return () => {
+      controls.autoRotate = false;
     };
-    rotateRaf.current = requestAnimationFrame(spin);
-  }, [pinnedEvent, visibleArcDirections, globeRef]);
-
-  // Stop rotation if the controller unmounts.
-  useEffect(
-    () => () => {
-      if (rotateRaf.current != null) cancelAnimationFrame(rotateRaf.current);
-    },
-    [],
-  );
+  }, [globeRotating, ready, globeRef]);
 
   return null;
 }

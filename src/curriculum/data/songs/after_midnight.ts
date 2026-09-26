@@ -4,7 +4,7 @@ export const after_midnight: Song = {
   id: 'after_midnight',
   title: 'After Midnight',
   artist: 'Eric Clapton',
-  year: 1983,
+  year: 1970,
   historicalDescription:
     "Eric Clapton revisits J.J. Cale's 'After Midnight', a song he first made famous in 1970. The re-recording in 1983 captures Clapton's enduring love for Cale's laid-back Tulsa sound — a blues-rock groove that helped define his solo career and introduced Cale's songwriting genius to a global audience.",
   key: 'C minor',

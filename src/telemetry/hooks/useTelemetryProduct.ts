@@ -181,3 +181,30 @@ export function trackChallengeCompleted(
     // Silent failure
   }
 }
+
+/**
+ * A stored lesson snapshot carried teacher-only keys that were stripped before
+ * it reached a student surface. `strippedPaths` are dot-paths, never values —
+ * the whole point is that the offending CONTENT must not travel.
+ */
+export function trackSnapshotKeysStripped(
+  surface: string,
+  strippedPaths: string[],
+  attrs?: { classroomId?: string; publishedDayId?: string },
+): void {
+  try {
+    telemetryClient.track({
+      category: 'product',
+      eventName: ProductEvents.SNAPSHOT_KEYS_STRIPPED,
+      success: false,
+      attributesJson: {
+        surface,
+        strippedCount: strippedPaths.length,
+        strippedPaths,
+        ...(attrs ?? {}),
+      },
+    });
+  } catch {
+    // Silent failure
+  }
+}

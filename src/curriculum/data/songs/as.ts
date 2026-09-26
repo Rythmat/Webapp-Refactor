@@ -4,7 +4,7 @@ export const as: Song = {
   id: 'as',
   title: 'As',
   artist: 'Stevie Wonder',
-  year: 1977,
+  year: 1976,
   historicalDescription:
     "Stevie Wonder releases 'As' as part of his landmark double album 'Songs in the Key of Life', a sweeping declaration of unconditional love built on a churning funk groove and gospel-soaked joy. The song becomes one of Wonder's most beloved deep cuts — a near-eight-minute meditation that showcases his genius for fusing soul, funk, and spiritual euphoria into something timeless. Decades later it endures as a standard, covered and sampled across generations.",
   key: 'B major',

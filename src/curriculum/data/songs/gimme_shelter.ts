@@ -4,7 +4,7 @@ export const gimme_shelter: Song = {
   id: 'gimme_shelter',
   title: 'Gimme Shelter',
   artist: 'The Rolling Stones',
-  year: 1971,
+  year: 1969,
   historicalDescription:
     "'Gimme Shelter' opens Let It Bleed as one of the Rolling Stones' most haunting and powerful statements — a brooding vision of war, violence, and apocalypse that captures the dark end of the 1960s dream. Merry Clayton's stunning guest vocal, raw and ragged, transforms the track into something terrifying and transcendent. It becomes the defining sound of an era turning dangerous.",
   key: 'D♭ major',

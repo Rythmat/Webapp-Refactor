@@ -1,0 +1,125 @@
+[
+  {
+    "id": "evt-flamenco-seville-1922",
+    "city": "Granada",
+    "lat": 37.1773,
+    "lng": -3.5986
+  },
+  {
+    "id": "evt-omengat-ngerulmud-1995",
+    "city": "Koror",
+    "lat": 7.3419,
+    "lng": 134.4792
+  },
+  {
+    "id": "evt-blues-burbank-1989",
+    "city": "Los Angeles",
+    "lat": 34.0522,
+    "lng": -118.2437
+  },
+  {
+    "id": "evt-baile-funk-saopaulo-2004",
+    "city": "Rio de Janeiro",
+    "lat": -22.9068,
+    "lng": -43.1729
+  },
+  {
+    "id": "evt-media-london-1994-lionking",
+    "city": "Los Angeles",
+    "lat": 34.0522,
+    "lng": -118.2437,
+    "country": "US"
+  },
+  {
+    "id": "evt-media-la-2020-ffviiremake",
+    "city": "Tokyo",
+    "lat": 35.6762,
+    "lng": 139.6503,
+    "country": "Japan"
+  },
+  {
+    "id": "evt-shostakovich-moscow-1937",
+    "city": "St. Petersburg",
+    "lat": 59.9343,
+    "lng": 30.3351
+  },
+  {
+    "id": "evt-stockhausen-dusseldorf-1956",
+    "city": "Cologne",
+    "lat": 50.9375,
+    "lng": 6.9603
+  },
+  {
+    "id": "evt-hindustani-varanasi-1560",
+    "city": "Agra",
+    "lat": 27.1767,
+    "lng": 78.0081
+  },
+  {
+    "id": "evt-odissi-mumbai-1952",
+    "city": "Bhubaneswar",
+    "lat": 20.2961,
+    "lng": 85.8245
+  },
+  {
+    "id": "evt-gamelan-jakarta-900",
+    "city": "Yogyakarta",
+    "lat": -7.7956,
+    "lng": 110.3695
+  },
+  {
+    "id": "evt-klasik-kualalumpur-1400",
+    "city": "Malacca",
+    "lat": 2.1896,
+    "lng": 102.2501
+  },
+  {
+    "id": "evt-piphat-bangkok-1350",
+    "city": "Ayutthaya",
+    "lat": 14.3532,
+    "lng": 100.5689
+  },
+  {
+    "id": "evt-mahori-bangkok-1600",
+    "city": "Ayutthaya",
+    "lat": 14.3532,
+    "lng": 100.5689
+  },
+  {
+    "id": "evt-carnatic-chennai-1800",
+    "city": "Thanjavur",
+    "lat": 10.787,
+    "lng": 79.1378
+  },
+  {
+    "id": "evt-sea-dance-podgorica-2014",
+    "city": "Budva",
+    "lat": 42.2864,
+    "lng": 18.84
+  },
+  {
+    "id": "evt-swing-nyc-1935",
+    "city": "Los Angeles",
+    "lat": 34.0522,
+    "lng": -118.2437
+  },
+  {
+    "id": "evt-folkfestival-anchorage-1980",
+    "city": "Juneau",
+    "lat": 58.3019,
+    "lng": -134.4197
+  },
+  {
+    "id": "evt-rosalia-sanjuan-2018",
+    "city": "Barcelona",
+    "lat": 41.3874,
+    "lng": 2.1686,
+    "country": "Spain"
+  },
+  {
+    "id": "evt-rai-algiers-1990",
+    "city": "Oran",
+    "lat": 35.6969,
+    "lng": -0.6331
+  }
+]

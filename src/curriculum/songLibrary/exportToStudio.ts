@@ -3,7 +3,10 @@ import { CHORD_QUALITY_LIBRARY } from '@/curriculum/data/chordQualityLibrary';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { type ChordRegion, nextChordId } from '@/daw/store/prismSlice';
 import type { MidiClip } from '@/daw/store/tracksSlice';
-import { performedBars, writtenBarKeys } from './performance';
+// The Studio's own bar arithmetic, rather than a second copy of it here: the
+// timeline draws the barlines these ticks have to land on.
+import { ticksPerBar, ticksPerBeatUnit } from '@/daw/utils/timelineScale';
+import { performedBars, writtenBarKeys, writtenBarMeters } from './performance';
 import { parseSectionLabel } from './sectionNames';
 import { systemRowSizes } from './systems';
 
@@ -16,7 +19,6 @@ export interface StudioExportOptions {
 }
 
 /* ── Constants ───────────────────────────────────────────────────────── */
-const PPQ = 480; // pulses per quarter note — matches the DAW
 
 /* ── Chord name → MIDI resolution ────────────────────────────────────── */
 
@@ -146,10 +148,15 @@ function chordNameToMidi(chordName: string): number[] {
  * Convert a song's chord chart into ChordRegion[] with correct tick positions.
  * Each chord lands on its exact beat within its measure.
  *
- * PPQ = 480, so:
- * - 1 quarter note = 480 ticks
- * - 1 bar (4/4) = 1920 ticks
- * - Beat 1 = 0, Beat 2 = 480, Beat 3 = 960, Beat 4 = 1440
+ * A tick is a 480th of a QUARTER note, which is why a bar cannot be measured
+ * by its beat count alone: a 6/8 bar is six eighths, so three quarters, so
+ * 1440 ticks — not the 2880 that multiplying six beats by a quarter's worth of
+ * ticks gives. Every 6/8 song exported at twice its length until this read the
+ * denominator, and the timeline drew its barlines in the right place all along
+ * (`ticksPerBar` in daw/utils/timelineScale), so the chords sat across them.
+ *
+ * And because a bar can change metre mid-chart, the position of a bar is no
+ * longer its index times a constant. It is a running cursor.
  */
 export function exportSongToChordRegions(
   song: Song,
@@ -165,9 +172,6 @@ export function exportSongToChordRegions(
   /** Boxed section labels at the bar each performed section starts. */
   sectionMarks: Array<{ measureIdx: number; label: string }>;
 } {
-  const beatsPerBar = song.timeSignature[0];
-  const ticksPerBar = beatsPerBar * PPQ;
-
   const played: Song = opts.loopSection
     ? {
         ...song,
@@ -175,6 +179,7 @@ export function exportSongToChordRegions(
       }
     : song;
   const keys = writtenBarKeys(played);
+  const meters = writtenBarMeters(played);
 
   const regions: ChordRegion[] = [];
   const chordSeq: number[][] = [];
@@ -185,9 +190,17 @@ export function exportSongToChordRegions(
   const runs: Array<{ sectionIdx: number; measureIdx: number; bars: number }> =
     [];
   let barIndex = 0;
+  // Where this bar begins on the timeline. `barIndex` still counts bars, for
+  // the rest map and the section runs, but it stopped predicting tick
+  // position the moment a bar could carry its own metre.
+  let barStartTick = 0;
   let prevWritten = -1;
 
   for (const { sectionIdx, bar, writtenIdx } of performedBars(played)) {
+    const meter = meters[writtenIdx] ?? song.timeSignature ?? [4, 4];
+    const barTicks = ticksPerBar(meter[0], meter[1]);
+    const beatTicks = ticksPerBeatUnit(meter[1]);
+
     // A new run starts at a new section or wherever the roadmap jumps back.
     const run = runs[runs.length - 1];
     if (!run || run.sectionIdx !== sectionIdx || writtenIdx <= prevWritten)
@@ -199,21 +212,21 @@ export function exportSongToChordRegions(
 
     if (bar.restBars != null) {
       // Record the rest at the current barIndex, then advance by restBars;
-      // it takes one visual slot.
+      // it takes one visual slot but occupies its own bars of time.
       restMap[barIndex] = bar.restBars;
       barIndex += bar.restBars;
+      barStartTick += bar.restBars * barTicks;
       continue;
     }
 
-    const barStartTick = barIndex * ticksPerBar;
     const key = keys[writtenIdx];
 
     for (const hit of bar.chords) {
       if (!hit.chordName) continue;
 
-      const beatOffset = (hit.beat - 1) * PPQ; // beat 1→0, beat 3→960
-      const startTick = barStartTick + beatOffset;
-      const durationTicks = hit.duration * PPQ;
+      // A beat is the metre's own beat: an eighth in 6/8, a quarter in 4/4.
+      const startTick = barStartTick + (hit.beat - 1) * beatTicks;
+      const durationTicks = hit.duration * beatTicks;
       const endTick = startTick + durationTicks;
 
       const midi = chordNameToMidi(hit.chordName);
@@ -242,6 +255,7 @@ export function exportSongToChordRegions(
     }
 
     barIndex++;
+    barStartTick += barTicks;
   }
 
   // Systems of four (or the section's own row length) within each run, a

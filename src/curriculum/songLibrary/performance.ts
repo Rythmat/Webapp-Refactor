@@ -220,3 +220,57 @@ export function writtenBarKeys(song: Song): LocalKey[] {
     return current;
   });
 }
+
+/* ── Metre changes ───────────────────────────────────────────────────── */
+
+/** Beats and beat unit: `[5, 4]` is five quarters, `[6, 8]` six eighths. */
+export type Meter = [number, number];
+
+export const DEFAULT_METER: Meter = [4, 4];
+
+/**
+ * The metre each written bar is in, walking the chart from the song's own
+ * metre and switching at every `ChordBar.timeSignature`. Indexed like
+ * `writtenBars`, and read exactly as `writtenBarKeys` reads the key.
+ *
+ * Contusion is why this exists: two of its bars are 5/4 and the schema had
+ * nowhere to say so, so they were flattened on the way in and the damage came
+ * out as bar-count drift instead. 53 songs in the prop book do this.
+ */
+export function writtenBarMeters(song: Song): Meter[] {
+  let current: Meter = song.timeSignature ?? DEFAULT_METER;
+  return writtenBars(song).map(({ bar }) => {
+    if (bar.timeSignature) current = bar.timeSignature;
+    return current;
+  });
+}
+
+/**
+ * Quarter notes in one bar of this metre.
+ *
+ * A 6/8 bar is six eighths, which is three quarters and not six — the
+ * distinction every tick and every second in this library turns on. Ticks are
+ * counted per quarter (PPQ), so multiplying the beat count by PPQ gives a 6/8
+ * bar twice the length it has.
+ */
+export const barQuarters = ([beats, unit]: Meter): number =>
+  (beats * 4) / (unit || 4);
+
+/** Whether the metre changes anywhere in the song. */
+export const hasMeterChange = (song: Song): boolean =>
+  song.sections.some((section) =>
+    section.bars.some((bar) => !!bar.timeSignature),
+  );
+
+/** `writtenBarMeters` grouped by section and indexed like `section.bars`, the
+ *  shape both chart renderers want. */
+export function sectionMeters(song: Song): Meter[][] {
+  const flat = writtenBarMeters(song);
+  const out: Meter[][] = [];
+  let at = 0;
+  for (const section of song.sections) {
+    out.push(flat.slice(at, at + section.bars.length));
+    at += section.bars.length;
+  }
+  return out;
+}

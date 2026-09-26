@@ -23,7 +23,9 @@ import {
 } from '@/curriculum/songLibrary/systems';
 import {
   sectionBars,
+  sectionMeters,
   type LocalKey,
+  type Meter,
 } from '@/curriculum/songLibrary/performance';
 import { useUISound } from '@/hooks/useUISound';
 import {
@@ -633,6 +635,11 @@ const BarMarks: FC<{
     leftX += 20;
   }
   const words = [
+    // A metre change is a change of state like a key change, and reads in the
+    // same lane. Bars after it inherit it and say nothing.
+    bar.timeSignature
+      ? `${bar.timeSignature[0]}/${bar.timeSignature[1]}`
+      : null,
     bar.keyChange ? `Key: ${bar.keyChange.replace(/ major$/, '')}` : null,
     bar.cue ?? null,
   ].filter(Boolean);
@@ -749,8 +756,9 @@ const RoadmapBand: FC<{
 const SectionStaff: FC<{
   section: SongSection;
   sectionIdx: number;
-  /** The song's beats per bar, for the slashes and the beat grid. */
-  beatsPerBar: number;
+  /** The metre each bar of this section is in, for the slashes and the beat
+   *  grid. A mixed-metre chart draws each bar in its own. */
+  barMeters: Meter[];
   displayMode: DisplayMode;
   notation: ChordNotation;
   /** The key each bar of this section is written in. */
@@ -767,7 +775,7 @@ const SectionStaff: FC<{
 }> = ({
   section,
   sectionIdx,
-  beatsPerBar,
+  barMeters,
   displayMode,
   notation,
   barKeys,
@@ -1001,7 +1009,7 @@ const SectionStaff: FC<{
                     <StaffMeasure
                       bar={bar}
                       barIndex={globalBi}
-                      beatsPerBar={beatsPerBar}
+                      beatsPerBar={barMeters[globalBi]?.[0] ?? 4}
                       x={bi * barW}
                       width={barW}
                       displayMode={displayMode}
@@ -1063,8 +1071,9 @@ export const ChordChart: FC<ChordChartProps> = ({
       : pickedNotation;
   // A chart counts in its own metre: a 6/8 bar holds six, a 7/4 bar seven.
   // Drawing every bar with four slashes is what made the library's seventeen
-  // non-4/4 songs read wrong.
-  const beatsPerBar = song.timeSignature?.[0] || 4;
+  // non-4/4 songs read wrong. And a bar may change it mid-chart — Contusion
+  // has two 5/4 bars in a 4/4 song — so this is per bar, not per song.
+  const barMeters = useMemo(() => sectionMeters(song), [song]);
 
   // Systems used by the sections above each one, so a page is the same number
   // of staves whether or not a section boundary falls inside it.
@@ -1118,7 +1127,7 @@ export const ChordChart: FC<ChordChartProps> = ({
             key={section.id + '_' + si}
             section={section}
             sectionIdx={si}
-            beatsPerBar={beatsPerBar}
+            barMeters={barMeters[si] ?? []}
             systemOffset={systemOffsets[si]}
             systemsPerPage={systemsPerPage}
             displayMode={displayMode}

@@ -103,6 +103,15 @@ export interface ChordBar {
   /** The key changes at this bar, e.g. 'A♭ major'. Degrees from here on
    *  count from the new tonic. The song's own `key` stays the home key. */
   keyChange?: string;
+  /**
+   * The metre changes at this bar, e.g. `[5, 4]`. Bars from here on are read
+   * in it until another bar says otherwise; the song's own `timeSignature`
+   * stays the home metre, the way `key` stays the home key.
+   *
+   * Read it with `writtenBarMeters` — never off a single bar, since most bars
+   * in a mixed-metre song carry no mark and inherit the one before.
+   */
+  timeSignature?: [number, number];
 }
 
 export type RoadmapJump =

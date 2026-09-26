@@ -13,6 +13,10 @@
  * would over-weight the section's chords during progression matching.
  */
 
+import {
+  writtenBarMeters,
+  type Meter,
+} from '@/curriculum/songLibrary/performance';
 import type { Song, ChordHit } from '@/curriculum/types/songLibrary';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { LeadSheetRepeat, LeadSheetSection } from '@/daw/store/uiSlice';
@@ -106,15 +110,26 @@ export function songToUnison(
   options?: SongToUnisonOptions,
 ): UnisonDocument {
   const [tsNum, tsDen] = song.timeSignature;
-  const ticksPerMeasure = tsNum * PPQ;
-  const ticksPerBeat = PPQ;
+  // A tick is a 480th of a QUARTER, so a bar is its beat count times the
+  // length of its beat unit — a 6/8 bar is six eighths, 1440 ticks, not the
+  // 2880 that six quarters would be.
+  const meters = writtenBarMeters(song);
+  const beatTicks = (unit: number) => (PPQ * 4) / (unit || 4);
+  const barTicks = ([beats, unit]: Meter) => beats * beatTicks(unit);
 
   const chordRegions: ChordRegion[] = [];
   const sections: LeadSheetSection[] = [];
   const repeats: LeadSheetRepeat[] = [];
 
   let measureCursor = 0;
+  // A bar's position stopped being its index times a constant once a bar
+  // could carry its own metre, so the tick cursor runs alongside the measure
+  // count. A Unison document declares one metre for the whole rhythm block,
+  // so a mixed-metre chart still announces its home metre — the chords land
+  // in the right place regardless, which is what playback reads.
+  let tickCursor = 0;
   let chordIdx = 0;
+  let writtenIdx = 0;
 
   for (const section of song.sections) {
     const sectionStartMeasure = measureCursor;
@@ -125,19 +140,26 @@ export function songToUnison(
     });
 
     for (const bar of section.bars) {
-      const barStartTick = measureCursor * ticksPerMeasure;
+      const meter = meters[writtenIdx++] ?? [tsNum, tsDen];
+      const barStartTick = tickCursor;
       const barSpan = bar.restBars && bar.restBars > 0 ? bar.restBars : 1;
 
       // Only emit chord regions for non-rest bars.
       if (!bar.restBars || bar.restBars <= 0) {
         for (const chord of bar.chords) {
           chordRegions.push(
-            chordHitToRegion(chord, barStartTick, ticksPerBeat, chordIdx++),
+            chordHitToRegion(
+              chord,
+              barStartTick,
+              beatTicks(meter[1]),
+              chordIdx++,
+            ),
           );
         }
       }
 
       measureCursor += barSpan;
+      tickCursor += barSpan * barTicks(meter);
     }
 
     // section.repeatCount represents play count; >1 means "repeat this section".

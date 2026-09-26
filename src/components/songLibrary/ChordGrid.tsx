@@ -1,5 +1,9 @@
 import { useMemo, type CSSProperties, type FC } from 'react';
-import { sectionBars } from '@/curriculum/songLibrary/performance';
+import {
+  sectionBars,
+  sectionMeters,
+  type Meter,
+} from '@/curriculum/songLibrary/performance';
 import {
   opensPage,
   songSystemOffsets,
@@ -95,14 +99,17 @@ const THICK = '3px solid currentColor';
  * the song sets the type size for all of them.
  */
 export function tightestChordSlot(song: Song): number {
-  const beats = song.timeSignature?.[0] || 4;
+  const meters = sectionMeters(song);
   let tightest = 1;
-  for (const section of song.sections)
-    for (const bar of section.bars)
+  song.sections.forEach((section, si) =>
+    section.bars.forEach((bar, bi) => {
+      const beats = meters[si]?.[bi]?.[0] || song.timeSignature?.[0] || 4;
       bar.chords.forEach((hit, i) => {
         const next = bar.chords[i + 1]?.beat ?? beats + 1;
         tightest = Math.min(tightest, (next - hit.beat) / beats);
       });
+    }),
+  );
   // A bar of sixteenths would set the whole chart in six point; past a
   // quarter of a bar the answer is to let the symbols run close together.
   return Math.min(1, Math.max(tightest, 0.25));
@@ -144,6 +151,7 @@ const hasMarks = (bar: ChordBar): boolean =>
     bar.jump ||
     bar.cue ||
     bar.keyChange ||
+    bar.timeSignature ||
     bar.fermata ||
     bar.ending
   );
@@ -259,6 +267,8 @@ const BarMarks: FC<{ bar: ChordBar; size: string }> = ({ bar, size }) => {
   if (bar.segno) marks.push('𝄋');
   if (bar.coda) marks.push('𝄌');
   if (bar.fermata) marks.push('𝄐');
+  if (bar.timeSignature)
+    marks.push(`${bar.timeSignature[0]}/${bar.timeSignature[1]}`);
   if (bar.keyChange) marks.push(`Key: ${bar.keyChange}`);
   if (bar.cue) marks.push(bar.cue);
   if (bar.toCoda) marks.push('To Coda');
@@ -299,7 +309,9 @@ const GridSection: FC<{
   barsPerRow: number;
   systemOffset: number;
   systemsPerPage?: number;
-  beatsPerBar: number;
+  /** The metre each bar of this section is in, so a chord sits on its own
+   *  beat even where the chart changes metre partway through. */
+  barMeters: Meter[];
   type: ReturnType<typeof chartTypeScale>;
   barHeight: number;
   timeSignature?: [number, number];
@@ -313,7 +325,7 @@ const GridSection: FC<{
   barsPerRow,
   systemOffset,
   systemsPerPage,
-  beatsPerBar,
+  barMeters,
   type,
   barHeight,
   timeSignature,
@@ -387,7 +399,7 @@ const GridSection: FC<{
                   notation={notation}
                   context={contextOf(keys[row.from + bi])}
                   isLast={bi === row.bars.length - 1}
-                  beatsPerBar={beatsPerBar}
+                  beatsPerBar={barMeters[row.from + bi]?.[0] ?? 4}
                   size={type.chord}
                   barHeight={barHeight}
                   timeSignature={
@@ -446,6 +458,7 @@ export const ChordGrid: FC<ChordGridProps> = ({
   }, [song, barsPerRow]);
 
   const barHeight = hasSlashChord(song) ? SLASH_BAR_HEIGHT : BAR_HEIGHT;
+  const barMeters = useMemo(() => sectionMeters(song), [song]);
 
   return (
     // The container the `cqw` in the type scale is a percentage of: the chart
@@ -465,7 +478,7 @@ export const ChordGrid: FC<ChordGridProps> = ({
           barsPerRow={barsPerRow}
           systemOffset={systemOffsets[si]}
           systemsPerPage={systemsPerPage}
-          beatsPerBar={song.timeSignature?.[0] || 4}
+          barMeters={barMeters[si] ?? []}
           type={type}
           barHeight={barHeight}
           timeSignature={song.timeSignature}

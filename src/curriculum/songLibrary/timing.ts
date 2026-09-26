@@ -1,5 +1,10 @@
 import type { Song, ChordBar } from '@/curriculum/types/songLibrary';
-import { performedBars } from './performance';
+import {
+  DEFAULT_METER,
+  performedBars,
+  writtenBarMeters,
+  type Meter,
+} from './performance';
 
 export interface BeatGrid {
   /** Sorted absolute beat times in seconds (relative to YouTube t=0). */
@@ -13,8 +18,21 @@ export interface BeatGrid {
 
 /* ── Constant-tempo helpers (used when no BeatGrid is available) ─────── */
 
-export function barDurationSec(bar: ChordBar, song: Song): number {
-  const secPerBar = (song.timeSignature[0] * 60) / song.tempo;
+/**
+ * How long a bar lasts, in its own metre.
+ *
+ * `song.tempo` counts the metre's own beats — a 6/8 song at 220 is 220
+ * eighths a minute — so a bar is its beat count over the tempo, and a 5/4 bar
+ * in a 4/4 song is a quarter longer than its neighbours rather than the same.
+ * Pass the bar's metre when the chart has one; the song's is the fallback and
+ * the answer is unchanged for every chart that never changes metre.
+ */
+export function barDurationSec(
+  bar: ChordBar,
+  song: Song,
+  meter: Meter = song.timeSignature ?? DEFAULT_METER,
+): number {
+  const secPerBar = (meter[0] * 60) / song.tempo;
   return secPerBar * (bar.restBars ?? 1);
 }
 
@@ -22,9 +40,10 @@ export function getActiveBarIndex(
   song: Song,
   timeSec: number,
 ): { sectionIdx: number; barIdx: number } | null {
+  const meters = writtenBarMeters(song);
   let elapsed = 0;
-  for (const { sectionIdx, barIdx, bar } of performedBars(song)) {
-    const dur = barDurationSec(bar, song);
+  for (const { sectionIdx, barIdx, bar, writtenIdx } of performedBars(song)) {
+    const dur = barDurationSec(bar, song, meters[writtenIdx]);
     if (timeSec >= elapsed && timeSec < elapsed + dur)
       return { sectionIdx, barIdx };
     elapsed += dur;
@@ -38,11 +57,12 @@ export function getBarStartTime(
   sectionIdx: number,
   barIdx: number,
 ): number {
+  const meters = writtenBarMeters(song);
   let elapsed = 0;
   for (const played of performedBars(song)) {
     if (played.sectionIdx === sectionIdx && played.barIdx === barIdx)
       return elapsed;
-    elapsed += barDurationSec(played.bar, song);
+    elapsed += barDurationSec(played.bar, song, meters[played.writtenIdx]);
   }
   return elapsed;
 }
@@ -55,13 +75,14 @@ export function getSectionTimeRange(
   song: Song,
   sectionIdx: number,
 ): { start: number; end: number } {
+  const meters = writtenBarMeters(song);
   let elapsed = 0;
   let start: number | null = null;
   for (const played of performedBars(song)) {
     const inSection = played.sectionIdx === sectionIdx;
     if (inSection && start === null) start = elapsed;
     if (!inSection && start !== null) return { start, end: elapsed };
-    elapsed += barDurationSec(played.bar, song);
+    elapsed += barDurationSec(played.bar, song, meters[played.writtenIdx]);
   }
   return start === null ? { start: 0, end: 0 } : { start, end: elapsed };
 }
@@ -81,9 +102,21 @@ export function findBeatIndex(beats: number[], t: number): number {
   return lo;
 }
 
-/** Number of audio beats consumed by a single bar. */
-export function barAudioBeats(bar: ChordBar, beatsPerBar: number): number {
-  return beatsPerBar * (bar.restBars ?? 1);
+/**
+ * Number of audio beats consumed by a single bar.
+ *
+ * `beatsPerBar` comes from the detected grid, not from the chart, so a bar
+ * that changes metre is measured as a ratio against the song's home metre
+ * rather than in its own units: a 5/4 bar in a 4/4 song takes a quarter more
+ * of the grid than its neighbours. A chart that never changes metre gives a
+ * ratio of one and the answer is exactly what it always was.
+ */
+export function barAudioBeats(
+  bar: ChordBar,
+  beatsPerBar: number,
+  ratio = 1,
+): number {
+  return beatsPerBar * ratio * (bar.restBars ?? 1);
 }
 
 /** Walk the chart and return cumulative audio-beat offsets at each bar's start. */
@@ -102,9 +135,15 @@ function buildChartBeatMap(
     barStartChartBeat: number;
     barBeats: number;
   }> = [];
+  const meters = writtenBarMeters(song);
+  const home = (song.timeSignature ?? DEFAULT_METER)[0] || 4;
   let chartBeat = 0;
-  for (const { sectionIdx, barIdx, bar } of performedBars(song)) {
-    const barBeats = barAudioBeats(bar, beatsPerBar);
+  for (const { sectionIdx, barIdx, bar, writtenIdx } of performedBars(song)) {
+    const barBeats = barAudioBeats(
+      bar,
+      beatsPerBar,
+      (meters[writtenIdx]?.[0] ?? home) / home,
+    );
     map.push({ sectionIdx, barIdx, barStartChartBeat: chartBeat, barBeats });
     chartBeat += barBeats;
   }

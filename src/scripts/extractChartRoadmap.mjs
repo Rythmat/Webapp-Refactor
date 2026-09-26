@@ -26,6 +26,7 @@
  *   node src/scripts/extractChartRoadmap.mjs --json=/tmp/pdfFacts.json
  */
 
+/* global process */
 import fs from 'fs';
 import path from 'path';
 

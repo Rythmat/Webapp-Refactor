@@ -35,6 +35,11 @@ interface GlobeCdnProps {
   arcHeight?: number;
   /** Fires once each time the globe completes a full auto-rotation (2π). */
   onRotationComplete?: () => void;
+  /**
+   * Stops the render loop (e.g. an inactive tab). The loop also stops on its own
+   * while the canvas is scrolled offscreen, and resumes when visible again.
+   */
+  paused?: boolean;
 }
 
 const defaultMarkers: GlobeMarker[] = [
@@ -85,6 +90,7 @@ export function GlobeCdn({
   arcAnimationMs = 3500,
   arcHeight = 0.28,
   onRotationComplete,
+  paused = false,
 }: GlobeCdnProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const globeRef = useRef<ReturnType<typeof createGlobe> | null>(null);
@@ -93,6 +99,11 @@ export function GlobeCdn({
   const phiOffsetRef = useRef(0);
   const thetaOffsetRef = useRef(0);
   const isPausedRef = useRef(false);
+  // Render-loop halting: the `paused` prop or the canvas being offscreen.
+  const pausedPropRef = useRef(paused);
+  pausedPropRef.current = paused;
+  const offscreenRef = useRef(false);
+  const resumeLoopRef = useRef<(() => void) | null>(null);
 
   // Latest mapped data + tunables, read by the (deferred) init and rAF loop.
   const speedRef = useRef(speed);
@@ -156,6 +167,7 @@ export function GlobeCdn({
     let animationId: number;
     let phi = 0;
     let disposed = false;
+    let halted = false;
 
     async function init() {
       const width = canvas.offsetWidth;
@@ -195,6 +207,11 @@ export function GlobeCdn({
       });
 
       function animate(t: number) {
+        // Stop scheduling frames while paused/offscreen; resumeLoopRef restarts.
+        if (pausedPropRef.current || offscreenRef.current) {
+          halted = true;
+          return;
+        }
         // Auto-rotate unless the user is dragging the globe.
         if (!isPausedRef.current) {
           phi += speedRef.current;
@@ -226,9 +243,26 @@ export function GlobeCdn({
         });
         animationId = requestAnimationFrame(animate);
       }
+      resumeLoopRef.current = () => {
+        if (!halted || disposed) return;
+        halted = false;
+        // Restart the arc grow-in clock so arcs don't jump after a long pause.
+        if (arcAnimatingRef.current) arcAnimStartRef.current = null;
+        animationId = requestAnimationFrame(animate);
+      };
       animationId = requestAnimationFrame(animate);
       setTimeout(() => canvas && (canvas.style.opacity = '1'));
     }
+
+    // Halt the render loop while the canvas is offscreen.
+    const io =
+      typeof IntersectionObserver === 'undefined'
+        ? null
+        : new IntersectionObserver(([entry]) => {
+            offscreenRef.current = !entry.isIntersecting;
+            if (entry.isIntersecting) resumeLoopRef.current?.();
+          });
+    io?.observe(canvas);
 
     if (canvas.offsetWidth > 0) {
       init();
@@ -244,6 +278,8 @@ export function GlobeCdn({
 
     return () => {
       disposed = true;
+      io?.disconnect();
+      resumeLoopRef.current = null;
       if (animationId) cancelAnimationFrame(animationId);
       if (globeRef.current) {
         globeRef.current.destroy();
@@ -251,6 +287,10 @@ export function GlobeCdn({
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!paused) resumeLoopRef.current?.();
+  }, [paused]);
 
   // On data change: markers + arc altitude update immediately; arcs restart
   // their grow-in (which re-uploads them, baking in the new arcHeight).

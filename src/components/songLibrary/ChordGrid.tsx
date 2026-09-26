@@ -33,11 +33,17 @@ import {
  * Four bars still fit across a phone because the symbol is set compactly —
  * see ChordSymbolText — not because the bars are made wider.
  *
- * It is the same song, the same roadmap and the same symbols; what goes is the
- * staff and the slashes, which a player reading changes was not reading. It
- * emits the same page marks as ChordChart (`data-chart-system`,
- * `data-page-start`, `break-before`), so the stand pages it and the printer
- * breaks it exactly the same way.
+ * It is the same song and the same roadmap; what goes is the staff and the
+ * slashes, which a player reading changes was not reading. It emits the same
+ * page marks as ChordChart (`data-chart-system`, `data-page-start`,
+ * `break-before`), so the stand pages it and the printer breaks it exactly
+ * the same way.
+ *
+ * The chords are the same chords, written shorter: a jazz chart's symbols,
+ * where minor is a dash, major seventh a triangle, diminished a circle and
+ * half-diminished a slashed one. Both renderers ask chordLabel.ts what a
+ * chord is, so they cannot disagree about which chord it is — they differ
+ * only in how much room it takes to say so.
  */
 
 export interface ChordGridProps {
@@ -378,7 +384,13 @@ export const ChordGrid: FC<ChordGridProps> = ({
   const displayMode: DisplayMode =
     chartNotation === 'numbers' ? 'hybrid' : 'chordName';
   const picked = useChordNotation();
-  const notation: ChordNotation = displayMode === 'hybrid' ? 'hybrid' : picked;
+  // Letters here are written the way a jazz chart writes them — "A−7", not
+  // "Amin7". Four letters of "min7" beside the note letter is most of what
+  // makes a phone bar too narrow, and a dash is one. A reader who has picked
+  // Roman through the switcher keeps it; hybrid, which is the default and is
+  // the longest of the three, gives way to jazz in this format only.
+  const notation: ChordNotation =
+    displayMode === 'hybrid' ? 'hybrid' : picked === 'hybrid' ? 'jazz' : picked;
 
   const { sectionKeys } = useMemo(() => songKeyMap(song), [song]);
   const systemOffsets = useMemo(

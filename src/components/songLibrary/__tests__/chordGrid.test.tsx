@@ -93,21 +93,46 @@ describe('ChordGrid', () => {
     expect(pageStarts(html)).toEqual([4, 8]);
   });
 
-  it('calls every chord exactly what the staff chart calls it', () => {
-    const names = ['Cmaj7', 'F♯min7♭5', 'B♭7sus4', 'E♭/G', 'N.C.'];
+  it('writes the same chords the staff chart does, in a jazz chart hand', () => {
+    // Same chord, less room: a dash for minor, a triangle for a major
+    // seventh, a circle for diminished, a slashed one for half-diminished,
+    // a plus for augmented. This is what makes four bars fit across a phone.
+    const jazz: Record<string, string> = {
+      Amin7: 'A−7',
+      Cmaj7: 'CΔ7',
+      'D♯dim': 'D♯°',
+      'F♯dim7': 'F♯°7',
+      'F♯min7♭5': 'F♯ø7',
+      'B♭(♯5)': 'B♭+',
+      'B♭7sus4': 'B♭7sus4',
+      'E♭/G': 'E♭/G',
+      C: 'C',
+    };
     const s = song([
       section(
         'a',
         'Verse',
-        names.map((n) => bar(n)),
+        Object.keys(jazz).map((n) => bar(n)),
       ),
     ]);
     const staff = renderToStaticMarkup(<ChordChart song={s} />);
     const grid = renderToStaticMarkup(<ChordGrid song={s} />);
-    for (const name of names) {
-      expect(grid).toContain(name);
-      expect(staff).toContain(name);
+    for (const [written, shorthand] of Object.entries(jazz)) {
+      // The symbol is set in pieces, so the letters are matched one by one.
+      for (const piece of shorthand.split(/(?<=.)/))
+        expect(grid).toContain(piece);
+      // The staff has the room and keeps the chart's own spelling.
+      expect(staff).toContain(written);
     }
+    // A minor chord is never spelled out in the grid.
+    expect(grid).not.toContain('min7');
+  });
+
+  it('leaves a chord the shorthand cannot write exactly as written', () => {
+    const s = song([section('a', 'Verse', [bar('N.C.'), bar('F7(no 3)')])]);
+    const grid = renderToStaticMarkup(<ChordGrid song={s} />);
+    expect(grid).toContain('N.C.');
+    expect(grid).toContain('7(no 3)');
   });
 
   it('writes the roadmap a player has to see', () => {

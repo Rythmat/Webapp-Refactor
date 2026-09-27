@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { DashboardFooter } from '@/components/ClassroomLayout/dashboard/DashboardFooter';
+import { cn } from '@/components/utilities';
 import { MarketingNav } from '../marketing/components/MarketingNav';
+import { LANDING_FRAME } from './frame';
 import '@/components/ClassroomLayout/dashboard/dashboard.css';
 import './landing.css';
 
@@ -12,7 +14,7 @@ import './landing.css';
  * on top.
  *
  * Layout (Attio-style): one framed column with hairline rails holding the
- * page's sections, then the app's footer at the same width.
+ * nav bar and the page's sections, then the app's footer at the same width.
  */
 export const LandingShell = ({ children }: { children: ReactNode }) => {
   return (
@@ -27,17 +29,17 @@ export const LandingShell = ({ children }: { children: ReactNode }) => {
         Skip to content
       </a>
 
-      <MarketingNav fluid />
+      <MarketingNav framed />
 
       <main
         id="main"
-        className="mx-auto w-full max-w-[1392px] border-x border-white/[0.08]"
+        className={cn(LANDING_FRAME, 'border-x border-white/[0.08]')}
       >
         {children}
       </main>
 
       {/* Same footer as the app (Home / Settings), at the page's width. */}
-      <div className="mx-auto w-full max-w-[1392px] px-6 pb-10 md:px-10">
+      <div className={cn(LANDING_FRAME, 'px-6 pb-10 md:px-10')}>
         <DashboardFooter />
       </div>
     </div>

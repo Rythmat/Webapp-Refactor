@@ -12,8 +12,6 @@ export interface LandingModule {
   label: string;
   /** Same icon as the app sidebar (ClassroomSidebar). */
   icon: ReactNode;
-  /** Bento row cell. */
-  bento: { title: string; body: string };
   /** Two-tone statement: white lead + dimmed continuation. */
   statement: { lead: string; rest: string };
   /** Two feature cells under the demo (copy from the /features/* pages). */
@@ -28,10 +26,6 @@ export const LANDING_MODULES: LandingModule[] = [
     id: 'learn',
     label: 'Learn',
     icon: MODULE_ICONS.learn,
-    bento: {
-      title: 'Every key has a color.',
-      body: 'Lessons that make the circle of fifths something you can see.',
-    },
     statement: {
       lead: 'Every key has a color.',
       rest: 'Theory, technique and real songs you can see, hear and play — from beginner to fluent.',
@@ -52,10 +46,6 @@ export const LANDING_MODULES: LandingModule[] = [
     id: 'studio',
     label: 'Studio',
     icon: MODULE_ICONS.studio,
-    bento: {
-      title: 'A studio that knows theory.',
-      body: 'Pick a key and Prism suggests what comes next.',
-    },
     statement: {
       lead: 'A studio that knows theory.',
       rest: 'Pick a key center and Prism suggests what comes next — every chord colored by the key it comes from.',
@@ -76,10 +66,6 @@ export const LANDING_MODULES: LandingModule[] = [
     id: 'globe',
     label: 'Globe',
     icon: MODULE_ICONS.globe,
-    bento: {
-      title: 'Explore music history.',
-      body: 'Follow how styles of music travelled from city to city.',
-    },
     statement: {
       lead: 'Hear where music came from.',
       rest: 'Follow it city to city.',
@@ -99,10 +85,6 @@ export const LANDING_MODULES: LandingModule[] = [
     id: 'arcade',
     label: 'Arcade',
     icon: MODULE_ICONS.arcade,
-    bento: {
-      title: 'Train your ear through play.',
-      body: 'Build streaks and earn XP as your ear improves.',
-    },
     statement: {
       lead: 'Level up your ears and skills.',
       rest: 'Short, focused games for pitch, rhythm and harmony that feed your progress across Music Atlas.',
@@ -123,10 +105,6 @@ export const LANDING_MODULES: LandingModule[] = [
     id: 'teach',
     label: 'Teach',
     icon: MODULE_ICONS.teach,
-    bento: {
-      title: 'Teach music in real time.',
-      body: 'Your projector and every student device stay in sync.',
-    },
     statement: {
       lead: 'Teach music in real time.',
       rest: 'Your projector leads and every student device follows — with rosters, assignments and progress built in.',

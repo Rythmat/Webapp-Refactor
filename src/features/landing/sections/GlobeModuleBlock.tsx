@@ -1,13 +1,11 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
 import { lazy, Suspense, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import { cn } from '@/components/utilities';
 import { useNearViewport } from '../motion/useInView';
 import { SILENT_TOUR_AUDIO } from '../tour/scenes/sceneTypes';
 import { TOUR_BY_ID } from '../tour/tourSteps';
 import { useModuleTour } from '../tour/useModuleTour';
-import { FeatureCells } from './ModuleBlock';
+import { FeatureCells, SeeMoreLink } from './ModuleBlock';
 import { Statement } from './Statement';
 import type { LandingModule } from './modules';
 
@@ -48,13 +46,7 @@ export const GlobeModuleBlock = ({ module: m }: { module: LandingModule }) => {
             rest={m.statement.rest}
             className="mt-5"
           />
-          <Link
-            to={tab.href}
-            className="group mt-6 inline-flex w-fit items-center gap-1.5 rounded-md border border-white/15 px-3 py-1.5 text-sm text-white/80 transition-colors hover:border-white/30 hover:text-white"
-          >
-            See more
-            <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-          </Link>
+          <SeeMoreLink to={tab.href} className="mt-6" />
 
           <ol className="mt-auto flex flex-col gap-1 pt-16">
             {tab.steps.map((s, i) => {

@@ -5,8 +5,7 @@ import { FALLBACK_TIERS } from '@/features/settings/subscription/tiers';
  * Landing SEO copy. Must match the static tags in `index.html` (what no-JS
  * social scrapers read) — react-helmet only enhances them for JS crawlers.
  */
-export const LANDING_TITLE =
-  'Music Atlas — Understand music. Make music. Teach it.';
+export const LANDING_TITLE = 'Music Atlas';
 
 export const LANDING_DESCRIPTION =
   'Music Atlas pairs a real music-theory engine with a full browser studio — go from understanding harmony to making your first real track, right in your browser.';

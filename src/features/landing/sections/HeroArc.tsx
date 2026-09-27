@@ -4,27 +4,34 @@ import {
   useScroll,
   useTransform,
 } from 'framer-motion';
+import type { ReactNode } from 'react';
 import { KEY_CENTERS } from '../music';
 
 // Geometry (viewBox units): a huge circle whose crown sits just under the
 // title and whose sides meet the frame's bottom corners (Attio-style horizon).
+// R is sized so the sides reach the corners 28 units above the bottom, keeping
+// the band short enough that the next section shows on a laptop screen.
 const W = 1400;
-const H = 380;
-const R = 900;
+const H = 280;
+const R = 1126;
 const CX = W / 2;
 const CY = R + 8;
-
-const EASE = [0.2, 0.8, 0.2, 1] as const;
 
 /**
  * Hero horizon: a dark planet arc with a glowing rim and vertical light
  * streaks rising off it. CSS/SVG only (no canvas). The rim gradient runs
  * through the 12 key-center colors in circle-of-fifths order — the same
  * decorative rainbow as the app's rainbow border; it carries no key or chord
- * meaning. On load the rim reveals from the crown outward; on scroll the arc
- * rises slightly. Static under reduced motion.
+ * meaning. It is fully drawn from the first frame; on scroll the arc rises
+ * slightly (static under reduced motion). The section around it clips the
+ * rim and its bloom at the frame's edges.
+ *
+ * `children` sit in the planet's dark body, stacked over the arc in one grid
+ * cell (stretched to the arc's height) so they scroll with it. The cell grows
+ * past the arc when the children are taller, and the body shares the page
+ * color, so the overflow reads as more planet.
  */
-export const HeroArc = () => {
+export const HeroArc = ({ children }: { children?: ReactNode }) => {
   const reduce = useReducedMotion();
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 600], [0, -40]);
@@ -40,17 +47,26 @@ export const HeroArc = () => {
 
   return (
     <motion.div
-      aria-hidden
-      className="pointer-events-none relative w-full origin-bottom"
+      className="pointer-events-none relative grid w-full origin-bottom"
       style={reduce ? undefined : { y, scale }}
     >
       <svg
+        aria-hidden
         viewBox={`0 0 ${W} ${H}`}
-        className="block h-auto w-full overflow-visible"
+        className="col-start-1 row-start-1 block h-auto w-full self-start overflow-visible"
         preserveAspectRatio="xMidYMax meet"
       >
         <defs>
-          <linearGradient id="hero-rim" x1="0" y1="0" x2="1" y2="0">
+          {/* Spans the frame, not the circle (which runs far past both
+              sides), so the whole spectrum shows corner to corner. */}
+          <linearGradient
+            id="hero-rim"
+            gradientUnits="userSpaceOnUse"
+            x1={0}
+            y1={0}
+            x2={W}
+            y2={0}
+          >
             {stops}
           </linearGradient>
           <pattern
@@ -77,15 +93,6 @@ export const HeroArc = () => {
           <filter id="hero-glow" x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="22" />
           </filter>
-          <clipPath id="hero-reveal">
-            <motion.rect
-              y={-200}
-              height={H + 400}
-              initial={reduce ? false : { x: CX, width: 0 }}
-              animate={{ x: 0, width: W }}
-              transition={{ duration: 1.6, delay: 0.35, ease: EASE }}
-            />
-          </clipPath>
         </defs>
 
         {/* Light streaks rising off the horizon */}
@@ -97,35 +104,37 @@ export const HeroArc = () => {
           mask="url(#hero-streak-mask)"
         />
 
-        <g clipPath="url(#hero-reveal)">
-          {/* Soft colored bloom behind the rim */}
-          <circle
-            cx={CX}
-            cy={CY}
-            r={R}
-            fill="none"
-            stroke="url(#hero-rim)"
-            strokeWidth="46"
-            filter="url(#hero-glow)"
-            opacity="0.55"
-          />
-        </g>
+        {/* Soft colored bloom behind the rim */}
+        <circle
+          cx={CX}
+          cy={CY}
+          r={R}
+          fill="none"
+          stroke="url(#hero-rim)"
+          strokeWidth="46"
+          filter="url(#hero-glow)"
+          opacity="0.55"
+        />
 
         {/* Planet body */}
         <circle cx={CX} cy={CY} r={R} fill="#101012" />
 
         {/* Crisp rim */}
-        <g clipPath="url(#hero-reveal)">
-          <circle
-            cx={CX}
-            cy={CY}
-            r={R}
-            fill="none"
-            stroke="url(#hero-rim)"
-            strokeWidth="2"
-          />
-        </g>
+        <circle
+          cx={CX}
+          cy={CY}
+          r={R}
+          fill="none"
+          stroke="url(#hero-rim)"
+          strokeWidth="2"
+        />
       </svg>
+
+      {children && (
+        <div className="pointer-events-auto relative col-start-1 row-start-1">
+          {children}
+        </div>
+      )}
     </motion.div>
   );
 };

@@ -1,11 +1,32 @@
 import { ArrowRight } from 'lucide-react';
 import type { ComponentType, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { cn } from '@/components/utilities';
 import { ModuleDemo } from '../tour/ModuleDemo';
 import type { SceneProps } from '../tour/scenes/sceneTypes';
 import { TOUR_BY_ID, type TourScript } from '../tour/tourSteps';
 import { Statement } from './Statement';
 import type { LandingModule } from './modules';
+
+/** Outlined "See more →" link to a module's page (bento row + module blocks). */
+export const SeeMoreLink = ({
+  to,
+  className,
+}: {
+  to: string;
+  className?: string;
+}) => (
+  <Link
+    to={to}
+    className={cn(
+      'group inline-flex w-fit items-center gap-1.5 rounded-md border border-white/15 px-3 py-1.5 text-sm text-white/80 transition-colors hover:border-white/30 hover:text-white',
+      className,
+    )}
+  >
+    See more
+    <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+  </Link>
+);
 
 /** Two feature cells in a hairline grid (shared by every module block). */
 export const FeatureCells = ({
@@ -91,15 +112,7 @@ export const ModuleBlock = ({ module: m }: { module: LandingModule }) => {
     <DemoSection
       id={m.id}
       statement={m.statement}
-      aside={
-        <Link
-          to={tab.href}
-          className="group inline-flex w-fit items-center gap-1.5 rounded-md border border-white/15 px-3 py-1.5 text-sm text-white/80 transition-colors hover:border-white/30 hover:text-white"
-        >
-          See more
-          <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-        </Link>
-      }
+      aside={<SeeMoreLink to={tab.href} />}
       script={tab}
       Scene={m.Scene}
       features={m.features}

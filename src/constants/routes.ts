@@ -161,9 +161,10 @@ export const AdminRoutes = {
   /**
    * Content back office — list filtered to one kind (globe_event, song, …).
    */
-  contentKind: createRouteDefinition<{ kind: string }>('/content/:kind', {
-    prefix: adminPrefix,
-  }),
+  contentKind: createRouteDefinition<{ kind: string }, { q?: string }>(
+    '/content/:kind',
+    { prefix: adminPrefix },
+  ),
 
   /**
    * Content back office — editor for one item. `id` is 'new' when creating.
@@ -188,6 +189,12 @@ export const AdminRoutes = {
    * Publish pipeline — release history, publish, and rollback.
    */
   releases: createRouteDefinition('/releases', { prefix: adminPrefix }),
+
+  /**
+   * The Atlas's vocabularies — genres, instruments, and the globe tags nothing
+   * has placed yet. Read-only; these lists live in code.
+   */
+  vocabulary: createRouteDefinition('/vocabulary', { prefix: adminPrefix }),
 };
 
 /**
@@ -601,9 +608,12 @@ export const SongRoutes = {
   // The static segments must be declared — and registered — before the
   // `:songId` route, or it swallows them.
   setLists: createRouteDefinition('/setlists', { prefix: songsPrefix }),
-  setList: createRouteDefinition<{ setListId: string }>('/setlists/:setListId', {
-    prefix: songsPrefix,
-  }),
+  setList: createRouteDefinition<{ setListId: string }>(
+    '/setlists/:setListId',
+    {
+      prefix: songsPrefix,
+    },
+  ),
   setListPrint: createRouteDefinition<{ setListId: string }>(
     '/setlists/:setListId/print',
     { prefix: songsPrefix },

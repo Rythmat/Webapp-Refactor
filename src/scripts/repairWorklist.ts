@@ -122,8 +122,15 @@ export function repairRow(
   };
 }
 
-const editorHref = (songId: string) =>
-  AdminRoutes.contentItem({ kind: 'song', id: songId });
+/**
+ * Where to open a song in the back office.
+ *
+ * Not the item route: that wants the content item's own id, which is a
+ * database id nobody has to hand, and a song's id is its slug. The list page
+ * takes a search instead, so the link arrives with the song already found.
+ */
+const editorHref = (title: string) =>
+  AdminRoutes.contentKind({ kind: 'song' }, { q: title });
 
 const table = (rows: RepairRow[]) =>
   [
@@ -131,7 +138,7 @@ const table = (rows: RepairRow[]) =>
     '| ---- | ---- | ---- | -------- | ------------------- | ------ |',
     ...rows.map(
       (r) =>
-        `| ${r.title} — ${r.artist} | \`${editorHref(r.songId)}\` | ${r.bars} | ${r.sections} | ${r.faults.map((f) => f.what).join('; ')} |  |`,
+        `| ${r.title} — ${r.artist} | \`${editorHref(r.title)}\` | ${r.bars} | ${r.sections} | ${r.faults.map((f) => f.what).join('; ')} |  |`,
     ),
   ].join('\n');
 
@@ -150,8 +157,9 @@ Rebuilt rather than quoted: the tier figures in \`docs/chart-work-plan.md\`
 were computed before 2,986 bars and 498 sections came out of the corpus, and
 the list of songs behind them was never written down.
 
-**Where to do it.** Each row links the back-office editor,
-\`${editorHref('<song>')}\`. The bar inspector under the chart writes repeat
+**Where to do it.** Each row links the back-office song list with that song
+already searched for — the item route wants a content id, which is a database
+id and not the song's own. The bar inspector under the chart writes repeat
 barlines, endings, a segno, a coda, jumps, Fine, fermatas, cues, key changes
 and per-bar metre; ⌘Z undoes, shift-click selects a run, ⌘C/⌘V copies bars
 with their marks.

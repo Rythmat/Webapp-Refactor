@@ -10,13 +10,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/components/utilities';
+import { LANDING_FRAME } from '@/features/landing/frame';
 import { MagneticButton } from '@/features/landing/motion/MagneticButton';
-import {
-  LOGIN_HREF,
-  navLinks,
-  productLinks,
-  START_FREE_HREF,
-} from '../content/nav';
+import { featureLinks, navLinks, OPEN_APP_HREF } from '../content/nav';
 
 /** Nav link with an underline that grows in from the left on hover/focus. */
 const linkCls = cn(
@@ -28,19 +24,20 @@ const linkCls = cn(
 /**
  * Sticky marketing nav, shared by the landing (`/`) and every `/features/*`
  * page. Transparent over the hero, then a blurred glass bar once the window
- * scrolls (Linear-style). Logo + wordmark left; a Product mega-menu (module
- * pages; neutral white — color is reserved for the music color system), Blog &
- * For Teachers, Log in and
- * a magnetic "Start free" CTA right. Collapses to an animated drawer on mobile;
- * the Start free CTA stays visible.
+ * scrolls (Linear-style). Logo + wordmark left; a Features mega-menu (Home,
+ * module pages + Teachers; neutral white — color is reserved for the music
+ * color system), Blog and a magnetic "Open" CTA right. Collapses to an animated drawer
+ * on mobile; the Open CTA stays visible.
  *
- * `solid` forces the glass bar on regardless of scroll. `fluid` stretches the
- * row to the viewport's edge padding; the default centres it in `max-w-6xl`.
+ * `solid` forces the glass bar on regardless of scroll. `framed` fits the whole
+ * bar to the landing's framed column (`LANDING_FRAME`), rails included, so it
+ * never runs wider than the page. The default is a full-width bar with the row
+ * centred in `max-w-6xl`.
  */
 export const MarketingNav = ({
   solid = false,
-  fluid = false,
-}: { solid?: boolean; fluid?: boolean } = {}) => {
+  framed = false,
+}: { solid?: boolean; framed?: boolean } = {}) => {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const reduce = useReducedMotion();
@@ -68,16 +65,20 @@ export const MarketingNav = ({
     <header
       className={cn(
         'fixed inset-x-0 top-0 z-50 border-b transition-[background-color,border-color,backdrop-filter] duration-300',
+        framed && cn(LANDING_FRAME, 'border-x'),
         showSolid
           ? 'border-white/[0.06] bg-[#101012]/70 shadow-[inset_0_-1px_0_rgba(255,255,255,0.02)] backdrop-blur-xl backdrop-saturate-150'
           : 'border-transparent bg-transparent',
+        // Transparent, the page's own rails show through; the glass bar would
+        // blur them, so it draws its own.
+        framed && showSolid && 'border-x-white/[0.08]',
       )}
     >
       <nav
         aria-label="Main"
         className={cn(
           'flex h-16 w-full items-center justify-between gap-4',
-          fluid ? 'px-5 md:px-10' : 'mx-auto max-w-6xl px-5 sm:px-8',
+          framed ? 'px-5 md:px-10' : 'mx-auto max-w-6xl px-5 sm:px-8',
         )}
       >
         <Link
@@ -100,7 +101,7 @@ export const MarketingNav = ({
                 'group inline-flex items-center gap-1 outline-none data-[state=open]:text-white',
               )}
             >
-              Product
+              Features
               <ChevronDown className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -108,15 +109,15 @@ export const MarketingNav = ({
               sideOffset={14}
               className="grid w-[30rem] grid-cols-2 gap-1 rounded-2xl border-white/10 bg-[#141416]/90 p-2 text-white shadow-[0_24px_60px_-12px_rgba(0,0,0,0.7)] backdrop-blur-xl"
             >
-              {productLinks.map(({ href, label, description, Icon }) => (
+              {featureLinks.map(({ href, label, description, icon }) => (
                 <DropdownMenuItem
                   key={href}
                   asChild
                   className="cursor-pointer rounded-xl p-3 focus:bg-white/[0.06] focus:text-white"
                 >
                   <Link to={href} className="group/item flex items-start gap-3">
-                    <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/[0.06] text-white transition-transform duration-200 group-hover/item:scale-110 [&_svg]:size-[18px]">
-                      <Icon />
+                    <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/[0.06] text-white transition-transform duration-200 group-hover/item:scale-110">
+                      {icon}
                     </span>
                     <span>
                       <span className="block text-sm font-semibold">
@@ -136,29 +137,25 @@ export const MarketingNav = ({
               {l.label}
             </Link>
           ))}
-          <span aria-hidden className="h-5 w-px bg-white/10" />
-          <Link to={LOGIN_HREF} className={linkCls}>
-            Log in
-          </Link>
           <MagneticButton
-            to={START_FREE_HREF}
+            to={OPEN_APP_HREF}
             tone="light"
             size="sm"
             strength={4}
           >
-            Start free
+            Open
           </MagneticButton>
         </div>
 
         {/* Mobile */}
         <div className="flex items-center gap-2 md:hidden">
           <MagneticButton
-            to={START_FREE_HREF}
+            to={OPEN_APP_HREF}
             tone="light"
             size="sm"
             strength={0}
           >
-            Start free
+            Open
           </MagneticButton>
           <button
             type="button"
@@ -185,14 +182,14 @@ export const MarketingNav = ({
             className="overflow-hidden border-t border-white/10 md:hidden"
           >
             <ul className="flex max-h-[calc(100svh-4rem)] flex-col gap-1 overflow-y-auto px-5 py-4">
-              {productLinks.map(({ href, label, description, Icon }) => (
+              {featureLinks.map(({ href, label, description, icon }) => (
                 <li key={href}>
                   <Link
                     to={href}
                     className="flex items-center gap-3 rounded-xl px-2 py-3 text-white/85 hover:bg-white/5 hover:text-white"
                   >
-                    <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/[0.06] text-white [&_svg]:size-[18px]">
-                      <Icon />
+                    <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/[0.06] text-white">
+                      {icon}
                     </span>
                     <span>
                       <span className="block text-base font-medium">
@@ -217,14 +214,6 @@ export const MarketingNav = ({
                   </Link>
                 </li>
               ))}
-              <li className="mt-2">
-                <Link
-                  to={LOGIN_HREF}
-                  className="flex h-11 items-center justify-center rounded-full border border-white/15 text-base font-medium text-white hover:bg-white/10"
-                >
-                  Log in
-                </Link>
-              </li>
             </ul>
           </motion.div>
         )}

@@ -1,10 +1,13 @@
 import { cn } from '@/components/utilities';
 import { SpotlightCard } from '../motion/SpotlightCard';
+import { TOUR_BY_ID } from '../tour/tourSteps';
+import { SeeMoreLink } from './ModuleBlock';
 import { LANDING_MODULES } from './modules';
 
 /**
  * Five bento boxes under the hero horizon (Attio-style bordered row): Learn,
- * Studio, Globe, Arcade, Teach. Each cell jumps to its module's section.
+ * Studio, Globe, Arcade, Teach. Each cell names its module over a "See more"
+ * link to the module's page, flush with the label.
  * Neutral white UI — color on this page is reserved for the music color
  * system (key centers / chords) and the rainbow brand motif.
  */
@@ -15,11 +18,10 @@ export const ModuleBentoRow = () => {
       className="relative z-10 grid grid-cols-1 gap-px border-y border-white/[0.08] bg-white/[0.08] sm:grid-cols-2 lg:grid-cols-5"
     >
       {LANDING_MODULES.map((m, i) => (
-        <a
+        <div
           key={m.id}
-          href={`#${m.id}`}
           className={cn(
-            'group block bg-[#101012] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/60',
+            'group bg-[#101012]',
             // Odd count: the last cell spans the 2-col tablet row.
             i === LANDING_MODULES.length - 1 && 'sm:max-lg:col-span-2',
           )}
@@ -29,16 +31,11 @@ export const ModuleBentoRow = () => {
               {m.icon}
             </span>
             <span className="mt-auto pt-8 text-lg font-semibold text-white lg:pt-16">
-              {m.bento.title}
-            </span>
-            <span className="mt-1 text-[15px] leading-snug text-white/50">
-              {m.bento.body}
-            </span>
-            <span className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-white">
               {m.label}
             </span>
+            <SeeMoreLink to={TOUR_BY_ID[m.id].href} className="mt-4" />
           </SpotlightCard>
-        </a>
+        </div>
       ))}
     </nav>
   );

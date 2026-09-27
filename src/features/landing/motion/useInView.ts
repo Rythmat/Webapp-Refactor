@@ -19,7 +19,8 @@ export const useInView = (
       return;
     }
     const io = new IntersectionObserver(
-      ([entry]) => setInView(entry.isIntersecting),
+      // One callback can batch several entries for the element; the last is current.
+      (entries) => setInView(entries[entries.length - 1].isIntersecting),
       { rootMargin, threshold },
     );
     io.observe(el);

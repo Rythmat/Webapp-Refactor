@@ -28,7 +28,11 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -44,7 +48,11 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -65,6 +73,7 @@ export const never_gonna_give_you_up: Song = {
           chords: [
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
+          repeatStart: true,
         },
         {
           chords: [
@@ -97,8 +106,16 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -110,7 +127,11 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -126,7 +147,11 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -136,11 +161,44 @@ export const never_gonna_give_you_up: Song = {
           chords: [
             { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
+          repeatEnd: true,
         },
       ],
     },
     {
-      id: 'verse_2',
+      id: 'bridge',
+      label: 'Bridge',
+      bars: [
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
+      bars: [{ chords: [], restBars: 8 }],
+    },
+    {
+      id: 'verse_3',
       label: 'Verse 2',
       bars: [
         {
@@ -166,7 +224,7 @@ export const never_gonna_give_you_up: Song = {
       ],
     },
     {
-      id: 'pre_chorus_2',
+      id: 'pre_chorus_3',
       label: 'Pre-Chorus 2',
       bars: [
         {
@@ -179,12 +237,20 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
-      id: 'chorus_2',
+      id: 'chorus_3',
       label: 'Chorus 2',
       bars: [
         {
@@ -192,7 +258,11 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -208,113 +278,11 @@ export const never_gonna_give_you_up: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'interlude',
-      label: 'Interlude',
-      instrumental: true,
-      bars: [{ chords: [], restBars: 8 }],
-    },
-    {
-      id: 'verse_3',
-      label: 'Verse 3',
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'pre_chorus_3',
-      label: 'Pre-Chorus 3',
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus_3',
-      label: 'Chorus 3',
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },

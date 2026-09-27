@@ -26,6 +26,7 @@ export const making_flippy_floppy: Song = {
           chords: [
             { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
           ],
+          repeatStart: true,
         },
         {
           chords: [
@@ -46,7 +47,7 @@ export const making_flippy_floppy: Song = {
     },
     {
       id: 'chorus_1',
-      label: 'Chorus 1',
+      label: 'Chorus',
       bars: [
         {
           chords: [
@@ -61,104 +62,16 @@ export const making_flippy_floppy: Song = {
         {
           chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
         {
-          chords: [
-            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }],
+          repeatEnd: true,
+          repeatTimes: 3,
         },
-        {
-          chords: [
-            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus_2',
-      label: 'Chorus 2',
-      bars: [
-        {
-          chords: [
-            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_3',
-      label: 'Verse 3',
-      bars: [
-        {
-          chords: [
-            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus_3',
-      label: 'Chorus 3',
-      bars: [
-        {
-          chords: [
-            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭7 maj/1', chordName: 'F/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'verse_4',
-      label: 'Verse 4',
+      label: 'Verse 2',
       bars: [
         {
           chords: [

@@ -344,6 +344,252 @@ describe('a new set list', () => {
   });
 });
 
+/**
+ * The fingerprint exactly as it shipped: the key, the section labels and the
+ * chord names, and nothing else. Every set list stored before the fingerprint
+ * was widened holds a value from this function, so a chart that carries none of
+ * the newer fields has to keep hashing to what this returns — otherwise the
+ * widening itself announces a correction to every set at once.
+ */
+function legacyFingerprint(song: {
+  key: string;
+  sections: { label: string; bars: { chords: { chordName: string }[] }[] }[];
+}): string {
+  const text =
+    song.key +
+    '|' +
+    song.sections
+      .map(
+        (s) =>
+          s.label +
+          ':' +
+          s.bars
+            .map((b) => b.chords.map((c) => c.chordName).join(' '))
+            .join('|'),
+      )
+      .join('//');
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    hash = (hash * 31 + text.charCodeAt(i)) | 0;
+  }
+  return (hash >>> 0).toString(36);
+}
+
+describe('the chart fingerprint', () => {
+  /**
+   * A chart in the shape the library writes: 4/4, bars that divide evenly, and
+   * not a mark on it. The patches go in ahead of `label` and `chords` so a test
+   * cannot accidentally replace the music it is meant to be leaving alone.
+   */
+  const chart = (
+    opts: {
+      key?: string;
+      timeSignature?: number[];
+      section?: Record<string, unknown>;
+      bar?: Record<string, unknown>;
+      chords?: { chordName: string; beat?: number; duration?: number }[];
+    } = {},
+  ) => ({
+    key: opts.key ?? 'G major',
+    timeSignature: opts.timeSignature ?? [4, 4],
+    sections: [
+      {
+        ...opts.section,
+        label: 'Verse',
+        bars: [
+          { chords: [{ chordName: 'G', beat: 1, duration: 4 }] },
+          {
+            ...opts.bar,
+            chords: opts.chords ?? [
+              { chordName: 'C', beat: 1, duration: 2 },
+              { chordName: 'D', beat: 3, duration: 2 },
+            ],
+          },
+        ],
+      },
+    ],
+  });
+
+  const base = () => chartFingerprint(chart());
+
+  it('hashes the same chart the same way every time', () => {
+    expect(chartFingerprint(chart())).toBe(chartFingerprint(chart()));
+    const marks = { bar: { repeatEnd: true, ending: [1, 2], cue: 'Break' } };
+    expect(chartFingerprint(chart(marks))).toBe(chartFingerprint(chart(marks)));
+  });
+
+  it('leaves a chart carrying none of it hashing as it did before', () => {
+    // The value already stored in every set list that holds this chart.
+    expect(chartFingerprint(chart())).toBe(legacyFingerprint(chart()));
+    expect(chartFingerprint(chart())).toBe('1pk63ch');
+  });
+
+  it('was blind to all of it, which was the bug', () => {
+    const marked = chart({
+      section: { repeatCount: 4 },
+      bar: { repeatEnd: true, cue: 'Repeat and Fade' },
+    });
+    expect(legacyFingerprint(marked)).toBe(legacyFingerprint(chart()));
+    expect(chartFingerprint(marked)).not.toBe(base());
+  });
+
+  it('sees a corrected chord, and the key it is written in', () => {
+    expect(
+      chartFingerprint(
+        chart({
+          chords: [
+            { chordName: 'C', beat: 1, duration: 2 },
+            { chordName: 'D7', beat: 3, duration: 2 },
+          ],
+        }),
+      ),
+    ).not.toBe(base());
+    expect(chartFingerprint(chart({ key: 'A♭ major' }))).not.toBe(base());
+  });
+
+  it('sees every mark a bar can carry, and tells them apart', () => {
+    const marks: Record<string, unknown>[] = [
+      { repeatStart: true },
+      { repeatEnd: true },
+      { repeatTimes: 3 },
+      { ending: [1] },
+      { segno: true },
+      { coda: true },
+      { toCoda: true },
+      { jump: 'D.S. al Coda' },
+      { fine: true },
+      { cue: 'Piano Solo' },
+      { keyChange: 'A♭ major' },
+      { restBars: 4 },
+      { fermata: true },
+      // Not in the schema yet — read optionally, so it counts the day it lands.
+      { timeSignature: [3, 4] },
+    ];
+    const seen = new Set([base()]);
+    for (const bar of marks) {
+      const fingerprint = chartFingerprint(chart({ bar }));
+      expect(fingerprint, JSON.stringify(bar)).not.toBe(base());
+      seen.add(fingerprint);
+    }
+    expect(seen.size).toBe(marks.length + 1);
+  });
+
+  it('sees a repeat mark change, not just appear', () => {
+    const twice = chartFingerprint(chart({ bar: { repeatEnd: true } }));
+    const thrice = chartFingerprint(
+      chart({ bar: { repeatEnd: true, repeatTimes: 3 } }),
+    );
+    const ending = chartFingerprint(
+      chart({ bar: { repeatEnd: true, ending: [2] } }),
+    );
+    expect(new Set([twice, thrice, ending]).size).toBe(3);
+  });
+
+  it('sees a metre change, on the song and on the bar', () => {
+    expect(chartFingerprint(chart({ timeSignature: [3, 4] }))).not.toBe(base());
+    expect(chartFingerprint(chart({ timeSignature: [6, 8] }))).not.toBe(
+      chartFingerprint(chart({ timeSignature: [3, 4] })),
+    );
+    expect(
+      chartFingerprint(chart({ bar: { timeSignature: [2, 4] } })),
+    ).not.toBe(base());
+  });
+
+  it('sees a cue change', () => {
+    const one = chartFingerprint(chart({ bar: { cue: 'Break' } }));
+    const two = chartFingerprint(chart({ bar: { cue: 'Piano Solo' } }));
+    expect(one).not.toBe(two);
+    expect(one).not.toBe(base());
+  });
+
+  it('sees the marks on a section', () => {
+    const marks: Record<string, unknown>[] = [
+      { repeatCount: 4 },
+      { measuresPerRow: 2 },
+      { instrumental: true },
+      { instrumental: 'first-time' },
+    ];
+    const seen = new Set([base()]);
+    for (const section of marks) {
+      const fingerprint = chartFingerprint(chart({ section }));
+      expect(fingerprint, JSON.stringify(section)).not.toBe(base());
+      seen.add(fingerprint);
+    }
+    expect(seen.size).toBe(marks.length + 1);
+  });
+
+  it('sees rhythm the chord names cannot show', () => {
+    // The same two chords, the first held three beats instead of two.
+    expect(
+      chartFingerprint(
+        chart({
+          chords: [
+            { chordName: 'C', beat: 1, duration: 3 },
+            { chordName: 'D', beat: 4, duration: 1 },
+          ],
+        }),
+      ),
+    ).not.toBe(base());
+  });
+
+  it('treats an absent mark as though the field had never existed', () => {
+    for (const bar of [
+      {},
+      { fermata: false },
+      { fermata: undefined },
+      { restBars: 0 },
+      { cue: '' },
+      { ending: undefined },
+    ])
+      expect(chartFingerprint(chart({ bar })), JSON.stringify(bar)).toBe(
+        base(),
+      );
+
+    for (const section of [
+      { instrumental: false },
+      { repeatCount: undefined },
+      { measuresPerRow: undefined },
+    ])
+      expect(
+        chartFingerprint(chart({ section })),
+        JSON.stringify(section),
+      ).toBe(base());
+
+    // Writing down the metre the fingerprint already assumed, and the rhythm a
+    // bar of two chords already read as, both say nothing.
+    expect(chartFingerprint(chart({ timeSignature: [4, 4] }))).toBe(base());
+    expect(
+      chartFingerprint(
+        chart({ chords: [{ chordName: 'C' }, { chordName: 'D' }] }),
+      ),
+    ).toBe(base());
+  });
+
+  it('does not depend on the order the fields were authored in', () => {
+    const first = {
+      key: 'G major',
+      sections: [
+        {
+          label: 'Verse',
+          repeatCount: 2,
+          bars: [{ fermata: true, restBars: 2, chords: [] }],
+        },
+      ],
+    };
+    const second = {
+      key: 'G major',
+      sections: [
+        {
+          bars: [{ chords: [], restBars: 2, fermata: true }],
+          repeatCount: 2,
+          label: 'Verse',
+        },
+      ],
+    };
+    expect(chartFingerprint(first)).toBe(chartFingerprint(second));
+  });
+});
+
 describe('chart corrections', () => {
   const chart = (chordName: string) => ({
     key: 'G major',

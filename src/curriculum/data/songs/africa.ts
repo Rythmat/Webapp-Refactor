@@ -4,6 +4,7 @@ export const africa: Song = {
   id: 'africa',
   title: 'Africa',
   artist: 'Toto',
+  composer: 'David Paich and Jeff Porcaro',
   year: 1982,
   historicalDescription:
     "Toto releases 'Africa', a lush, atmospheric rock ballad that becomes one of the defining pop hits of 1982. Written by drummer Jeff Porcaro and keyboardist David Paich, the song's sweeping synths and layered vocals evoke a romanticized continent its writers had never visited — a creative leap that somehow resonates with millions. Decades later, it achieves a second life as an enduring internet cultural phenomenon.",
@@ -16,6 +17,34 @@ export const africa: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+
+  session: {
+    studio: 'Sunset Sound',
+    city: 'Los Angeles',
+    country: 'USA',
+    label: 'Columbia',
+    recordedYear: 1982,
+  },
+  credits: [
+    { name: 'Bobby Kimball', role: 'vocals', primary: true },
+    { name: 'David Paich', role: 'vocals', primary: true },
+    { name: 'David Paich', role: 'performer', instrument: 'synthesizer' },
+    { name: 'David Paich', role: 'performer', instrument: 'piano' },
+    { name: 'David Paich', role: 'songwriter' },
+    { name: 'Jeff Porcaro', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Jeff Porcaro', role: 'performer', instrument: 'cowbell' },
+    { name: 'Jeff Porcaro', role: 'performer', instrument: 'gong' },
+    { name: 'Jeff Porcaro', role: 'songwriter' },
+    {
+      name: 'Steve Lukather',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    { name: 'Steve Porcaro', role: 'performer', instrument: 'synthesizer' },
+    { name: 'David Hungate', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Greg Ladanyi', role: 'engineer' },
+    { name: 'Toto', role: 'producer', ensemble: true },
+  ],
 
   sections: [
     {

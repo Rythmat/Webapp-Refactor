@@ -18,8 +18,8 @@ import { chordNameToMidi } from '@/curriculum/songLibrary/chordParser';
 import { useChartNotation } from './chartNotationPreference';
 import {
   opensPage,
+  sectionRowSizes,
   songSystemOffsets,
-  systemRowSizes,
 } from '@/curriculum/songLibrary/systems';
 import {
   sectionBars,
@@ -794,7 +794,12 @@ const SectionStaff: FC<{
   const rows: ChordBar[][] = [];
   const rowStarts: number[] = [];
   let at = 0;
-  for (const size of systemRowSizes(bars.length, perRow)) {
+  // sectionRowSizes, not systemRowSizes: the same call songSystemOffsets makes
+  // to COUNT the systems has to be the one that LAYS THEM OUT, or a section
+  // with its own measuresPerRow is numbered one way and drawn another. The
+  // page marks are keyed on those numbers, so a page break then lands on a
+  // system that is never drawn and the printer runs two pages into one.
+  for (const size of sectionRowSizes(section)) {
     rowStarts.push(at);
     rows.push(bars.slice(at, at + size));
     at += size;

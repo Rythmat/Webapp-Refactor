@@ -42,6 +42,7 @@ export const thats_what_i_like: Song = {
           chords: [
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
+          repeatStart: true,
         },
         {
           chords: [
@@ -62,7 +63,7 @@ export const thats_what_i_like: Song = {
     },
     {
       id: 'chorus_1',
-      label: 'Chorus 1',
+      label: 'Chorus',
       bars: [
         {
           chords: [
@@ -84,65 +85,17 @@ export const thats_what_i_like: Song = {
             { degree: '6 dom7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
         {
           chords: [
-            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
           ],
+          repeatEnd: true,
         },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 dom7', chordName: 'A♭7sus', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus_2',
-      label: 'Chorus 2',
-      bars: [
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 dom7', chordName: 'B♭7sus', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 dom7', chordName: 'B♭7sus', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'verse_3',
-      label: 'Verse 3',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -186,7 +139,7 @@ export const thats_what_i_like: Song = {
     },
     {
       id: 'verse_4',
-      label: 'Verse 4',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -222,7 +175,7 @@ export const thats_what_i_like: Song = {
     },
     {
       id: 'verse_5',
-      label: 'Verse 5',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -337,7 +290,7 @@ export const thats_what_i_like: Song = {
     },
     {
       id: 'verse_6',
-      label: 'Verse 6',
+      label: 'Verse 5',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -355,7 +308,7 @@ export const thats_what_i_like: Song = {
     },
     {
       id: 'verse_7',
-      label: 'Verse 7',
+      label: 'Verse 6',
       bars: [
         {
           chords: [
@@ -382,7 +335,7 @@ export const thats_what_i_like: Song = {
     },
     {
       id: 'verse_8',
-      label: 'Verse 8',
+      label: 'Verse 7',
       bars: [
         {
           chords: [
@@ -418,7 +371,7 @@ export const thats_what_i_like: Song = {
     },
     {
       id: 'verse_9',
-      label: 'Verse 9',
+      label: 'Verse 8',
       bars: [
         {
           chords: [
@@ -454,7 +407,7 @@ export const thats_what_i_like: Song = {
     },
     {
       id: 'verse_10',
-      label: 'Verse 10',
+      label: 'Verse 9',
       bars: [
         {
           chords: [

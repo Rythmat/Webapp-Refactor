@@ -4,7 +4,8 @@ export const something: Song = {
   id: 'something',
   title: 'Something',
   artist: 'The Beatles',
-  year: 1964,
+  composer: 'George Harrison',
+  year: 1969,
   historicalDescription:
     "George Harrison's 'Something' appears on Abbey Road, becoming the first Harrison composition to lead a Beatles single. Frank Sinatra later calls it the greatest love song of the past fifty years — a remarkable vindication for the Beatle long overshadowed by Lennon and McCartney. It signals Harrison's full arrival as a songwriter of the highest order.",
   key: 'C major',
@@ -17,6 +18,32 @@ export const something: Song = {
   genreTags: ['rock'],
   techniques: [],
 
+  session: {
+    studio: 'Abbey Road Studios',
+    city: 'London',
+    country: 'UK',
+    label: 'Apple',
+    recordedYear: 1969,
+  },
+  credits: [
+    { name: 'George Harrison', role: 'vocals', primary: true },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    { name: 'John Lennon', role: 'performer', instrument: 'piano' },
+    { name: 'Paul McCartney', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Paul McCartney', role: 'vocals' },
+    { name: 'Ringo Starr', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Billy Preston', role: 'performer', instrument: 'hammond-organ' },
+    { name: 'George Martin', role: 'producer' },
+  ],
+  relatedRecordings: [
+    { artist: 'Frank Sinatra', year: 1970, relation: 'cover' },
+    { artist: 'Joe Cocker', year: 1969, relation: 'cover' },
+  ],
+
   sections: [
     {
       id: 'verse_1',
@@ -26,8 +53,12 @@ export const something: Song = {
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -40,8 +71,12 @@ export const something: Song = {
       id: 'chorus_1',
       label: 'Chorus 1',
       bars: [
-        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 maj', chordName: 'G', beat: 1, duration: 1 },
@@ -62,8 +97,12 @@ export const something: Song = {
             { degree: '6 min7/5', chordName: 'Amin7/G', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
@@ -129,8 +168,12 @@ export const something: Song = {
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -143,8 +186,12 @@ export const something: Song = {
       id: 'chorus_2',
       label: 'Chorus 2',
       bars: [
-        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '5 maj', chordName: 'G', beat: 1, duration: 1 },
@@ -165,8 +212,12 @@ export const something: Song = {
             { degree: '6 min7/5', chordName: 'Amin7/G', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },

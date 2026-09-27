@@ -33,7 +33,10 @@ export const whats_going_on: Song = {
       id: 'verse_1',
       label: 'Verse 1',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -78,64 +81,15 @@ export const whats_going_on: Song = {
             { degree: '2 min7/5', chordName: 'F♯min7/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+          repeatEnd: true,
         },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus_2',
-      label: 'Chorus 2',
-      bars: [
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7/5', chordName: 'F♯min7/B', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'verse_3',
-      label: 'Verse 3',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -161,7 +115,7 @@ export const whats_going_on: Song = {
     },
     {
       id: 'verse_4',
-      label: 'Verse 4',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -177,7 +131,7 @@ export const whats_going_on: Song = {
     },
     {
       id: 'verse_5',
-      label: 'Verse 5',
+      label: 'Verse 4',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -241,7 +195,7 @@ export const whats_going_on: Song = {
     },
     {
       id: 'verse_6',
-      label: 'Verse 6',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -271,7 +225,7 @@ export const whats_going_on: Song = {
     },
     {
       id: 'chorus_3',
-      label: 'Chorus 3',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -288,12 +242,14 @@ export const whats_going_on: Song = {
             { degree: '2 min7/5', chordName: 'F♯min7/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'verse_7',
-      label: 'Verse 7',
+      label: 'Verse 6',
       bars: [
         {
           chords: [
@@ -319,7 +275,7 @@ export const whats_going_on: Song = {
     },
     {
       id: 'verse_8',
-      label: 'Verse 8',
+      label: 'Verse 7',
       bars: [
         {
           chords: [
@@ -335,7 +291,7 @@ export const whats_going_on: Song = {
     },
     {
       id: 'verse_9',
-      label: 'Verse 9',
+      label: 'Verse 8',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {

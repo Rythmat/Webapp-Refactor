@@ -4,7 +4,8 @@ export const aint_no_mountain_high_enough: Song = {
   id: 'aint_no_mountain_high_enough',
   title: 'Ain’t No Mountain High Enough',
   artist: 'Marvin Gaye',
-  year: 2012,
+  composer: 'Nickolas Ashford and Valerie Simpson',
+  year: 1967,
   historicalDescription:
     "Marvin Gaye and Tammi Terrell release 'Ain't No Mountain High Enough' on Motown, a soaring declaration of devotion written by Nickolas Ashford and Valerie Simpson. Their electric vocal chemistry captures the joy and ambition of soul music at its peak, and the song becomes one of the defining duets of the 1960s — later reimagined as a #1 hit by Diana Ross in 1970.",
   key: 'D major',
@@ -16,6 +17,39 @@ export const aint_no_mountain_high_enough: Song = {
   difficulty: 3,
   genreTags: ['funk'],
   techniques: [],
+
+  session: {
+    studio: 'Hitsville U.S.A.',
+    city: 'Detroit',
+    country: 'USA',
+    label: 'Tamla',
+    recordedYear: 1966,
+  },
+  credits: [
+    { name: 'Marvin Gaye', role: 'vocals', primary: true },
+    { name: 'Tammi Terrell', role: 'vocals', primary: true },
+    { name: 'Nickolas Ashford', role: 'songwriter' },
+    { name: 'Valerie Simpson', role: 'songwriter' },
+    { name: 'Harvey Fuqua', role: 'producer' },
+    { name: 'Johnny Bristol', role: 'producer' },
+    { name: 'The Funk Brothers', role: 'performer', ensemble: true },
+    {
+      name: 'Detroit Symphony Orchestra',
+      role: 'performer',
+      instrument: 'string-section',
+      ensemble: true,
+    },
+  ],
+  relatedRecordings: [
+    { artist: 'Diana Ross', year: 1970, relation: 'cover' },
+    { artist: 'Inner Life', year: 1981, relation: 'cover' },
+    { artist: 'Boys Town Gang', year: 1981, relation: 'cover' },
+    { artist: 'Jimmy Barnes', year: 1992, relation: 'cover' },
+    { artist: 'Michael McDonald', year: 2003, relation: 'cover' },
+    { artist: 'Jimmy Somerville', year: 2004, relation: 'cover' },
+    { artist: 'Jennifer Hudson', year: 2021, relation: 'cover' },
+    { artist: 'Cascada', year: 2024, relation: 'cover' },
+  ],
 
   sections: [
     {
@@ -118,10 +152,14 @@ export const aint_no_mountain_high_enough: Song = {
           ],
         },
         {
-          chords: [{ degree: '2 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '2 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '2 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '2 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -231,10 +269,14 @@ export const aint_no_mountain_high_enough: Song = {
           ],
         },
         {
-          chords: [{ degree: '2 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '2 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '2 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '2 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -249,20 +291,23 @@ export const aint_no_mountain_high_enough: Song = {
       label: 'Bridge',
       bars: [
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
-            { degree: '3 dom7', chordName: 'F♯7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -271,10 +316,19 @@ export const aint_no_mountain_high_enough: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '3 dom7', chordName: 'F♯7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '6 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '6 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },

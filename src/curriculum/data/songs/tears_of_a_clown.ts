@@ -38,6 +38,7 @@ export const tears_of_a_clown: Song = {
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -88,7 +89,7 @@ export const tears_of_a_clown: Song = {
     },
     {
       id: 'chorus_1',
-      label: 'Chorus 1',
+      label: 'Chorus',
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -114,7 +115,7 @@ export const tears_of_a_clown: Song = {
     },
     {
       id: 'interlude_1',
-      label: 'Interlude 1',
+      label: 'Interlude',
       instrumental: true,
       bars: [
         {
@@ -122,105 +123,12 @@ export const tears_of_a_clown: Song = {
         },
         { chords: [] },
         { chords: [] },
-        { chords: [] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'C♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'C♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'C♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'C♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'chorus_2',
-      label: 'Chorus 2',
-      bars: [
-        {
-          chords: [{ degree: '5 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        { chords: [] },
-        {
-          chords: [
-            { degree: '3 maj/♯5', chordName: 'F/A', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        { chords: [] },
-      ],
-    },
-    {
-      id: 'interlude_2',
-      label: 'Interlude 2',
-      instrumental: true,
-      bars: [
-        {
-          chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
-        },
-        { chords: [] },
-        { chords: [] },
-        { chords: [] },
+        { chords: [], repeatEnd: true },
       ],
     },
     {
       id: 'verse_3',
-      label: 'Verse 3',
+      label: 'Verse 2',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],

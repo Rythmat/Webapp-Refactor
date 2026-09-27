@@ -13,13 +13,13 @@ import type {
 } from '@/curriculum/types/activity.v2';
 import {
   DetailCell,
+  IconButton,
   InlineNumber,
   InlineSelect,
   InlineTagList,
   InlineText,
   InlineTextarea,
 } from './Editable';
-import { IconButton } from './EditableChordChart';
 import {
   ACTIVITY_PRESETS,
   applyPreset,

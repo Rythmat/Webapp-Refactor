@@ -242,6 +242,7 @@ export const perfect: Song = {
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
         {
           chords: [
@@ -307,80 +308,7 @@ export const perfect: Song = {
             { degree: '1 maj', chordName: 'A♭', beat: 1, duration: 2 },
             { degree: '5 maj', chordName: 'E♭', beat: 3, duration: 2 },
           ],
-        },
-      ],
-    },
-    {
-      id: 'verse_7',
-      label: 'Verse 7',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '5 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'chorus_3',
-      label: 'Chorus 3',
-      bars: [
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'D♭', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'A♭', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'E♭', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'D♭', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'A♭', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'E♭', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'D♭', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'A♭', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'E♭', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'D♭', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'A♭', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'E♭', beat: 3, duration: 2 },
-          ],
+          repeatEnd: true,
         },
       ],
     },

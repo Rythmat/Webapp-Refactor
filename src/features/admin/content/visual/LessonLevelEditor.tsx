@@ -13,12 +13,12 @@ import type { ActivitySectionId } from '@/curriculum/types/activity';
 import type { ActivityStepV2 } from '@/curriculum/types/activity.v2';
 import {
   DetailCell,
+  IconButton,
   InlineNumber,
   InlineSelect,
   InlineTagList,
   InlineText,
 } from './Editable';
-import { IconButton } from './EditableChordChart';
 import { StepEditor } from './StepEditor';
 import { PRESET_BY_ID, presetForStep } from './activityPresets';
 

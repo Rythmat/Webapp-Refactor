@@ -431,3 +431,34 @@ export const DetailCell: FC<{
     <div className="text-sm text-white/80">{children}</div>
   </div>
 );
+
+/**
+ * A square icon control for the editors' hover and row toolbars.
+ *
+ * Always labelled, because the icon is the only visible content: the toolbars
+ * these sit in are dense enough that text would not fit, which makes
+ * `aria-label` the sole name a screen reader or a hover tooltip has to work
+ * with. `danger` tints destructive actions red on hover only, so a delete
+ * button does not shout while the row is merely being read.
+ */
+export const IconButton: FC<{
+  label: string;
+  onClick: () => void;
+  children: ReactNode;
+  danger?: boolean;
+  active?: boolean;
+  disabled?: boolean;
+}> = ({ label, onClick, children, danger, active, disabled }) => (
+  <button
+    type="button"
+    aria-label={label}
+    title={label}
+    disabled={disabled}
+    className={`rounded p-1 transition-colors disabled:opacity-20 ${
+      active ? 'bg-white/15 text-white' : 'text-white/40'
+    } ${danger ? 'hover:bg-red-500/15 hover:text-red-400' : 'hover:bg-white/10 hover:text-white'}`}
+    onClick={onClick}
+  >
+    {children}
+  </button>
+);

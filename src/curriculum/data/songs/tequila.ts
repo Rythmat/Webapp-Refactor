@@ -32,10 +32,13 @@ export const tequila: Song = {
     },
     {
       id: 'verse_1',
-      label: 'Verse 1',
+      label: 'Verse',
       instrumental: true,
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -43,7 +46,7 @@ export const tequila: Song = {
     },
     {
       id: 'chorus_1',
-      label: 'Chorus 1',
+      label: 'Chorus',
       instrumental: true,
       bars: [
         {
@@ -51,59 +54,32 @@ export const tequila: Song = {
             { degree: '1 dim7', chordName: 'F dim7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 dim7', chordName: 'F dim7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 dim7', chordName: 'F dim7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      instrumental: true,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus_2',
-      label: 'Chorus 2',
-      instrumental: true,
-      bars: [
         {
-          chords: [
-            { degree: '1 dim7', chordName: 'F dim7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 dim7', chordName: 'F dim7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '2 dom7', chordName: 'G7', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 dim7', chordName: 'F dim7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+          repeatEnd: true,
         },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
       ],
     },
     {

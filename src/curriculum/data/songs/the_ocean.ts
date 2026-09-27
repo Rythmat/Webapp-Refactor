@@ -25,6 +25,7 @@ export const the_ocean: Song = {
       bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
         { chords: [] },
         { chords: [] },
@@ -66,11 +67,12 @@ export const the_ocean: Song = {
             { degree: '5 maj', chordName: 'A', beat: 1, duration: 2 },
             { degree: '1 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
+          repeatEnd: true,
         },
       ],
     },
     {
-      id: 'verse_2',
+      id: 'verse_3',
       label: 'Verse 2',
       instrumental: true,
       bars: [
@@ -83,59 +85,8 @@ export const the_ocean: Song = {
       ],
     },
     {
-      id: 'chorus_2',
-      label: 'Chorus 2',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '5 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'G', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '5 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'G', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'verse_3',
-      label: 'Verse 3',
-      instrumental: true,
-      bars: [
-        {
-          chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
-        },
-        { chords: [] },
-        { chords: [] },
-        { chords: [] },
-      ],
-    },
-    {
       id: 'chorus_3',
-      label: 'Chorus 3',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -182,7 +133,7 @@ export const the_ocean: Song = {
     },
     {
       id: 'chorus_4',
-      label: 'Chorus 4',
+      label: 'Chorus 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -220,7 +171,7 @@ export const the_ocean: Song = {
     },
     {
       id: 'verse_4',
-      label: 'Verse 4',
+      label: 'Verse 3',
       instrumental: true,
       bars: [
         {
@@ -233,9 +184,12 @@ export const the_ocean: Song = {
     },
     {
       id: 'verse_5',
-      label: 'Verse 5',
+      label: 'Verse 4',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
         { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
@@ -247,45 +201,22 @@ export const the_ocean: Song = {
     },
     {
       id: 'verse_6',
-      label: 'Verse 6',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_7',
-      label: 'Verse 7',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_8',
-      label: 'Verse 8',
-      bars: [
-        { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }],
+          repeatEnd: true,
+        },
       ],
     },
     {
       id: 'verse_9',
-      label: 'Verse 9',
+      label: 'Verse 6',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'E', beat: 1, duration: 4 }] },

@@ -125,12 +125,13 @@ export const jump: Song = {
     },
     {
       id: 'chorus_1',
-      label: 'Chorus 1',
+      label: 'Chorus',
       bars: [
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
+          repeatStart: true,
         },
         {
           chords: [
@@ -212,98 +213,7 @@ export const jump: Song = {
           chords: [
             { degree: '5 maj/1', chordName: 'G/C', beat: 1, duration: 4 },
           ],
-        },
-      ],
-    },
-    {
-      id: 'chorus_2',
-      label: 'Chorus 2',
-      bars: [
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '1 maj/3', chordName: 'C/E', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'verse_4',
-      label: 'Verse 4',
-      bars: [
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/3', chordName: 'C/E', beat: 1, duration: 2 },
-            { degree: '2 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/3', chordName: 'C/E', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
-          ],
-        },
-        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_5',
-      label: 'Verse 5',
-      bars: [
-        {
-          chords: [
-            { degree: '5 maj/1', chordName: 'G/C', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '4 maj/1', chordName: 'F/C', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 maj/1', chordName: 'G/C', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '4 maj/1', chordName: 'F/C', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 maj/1', chordName: 'G/C', beat: 1, duration: 4 },
-          ],
+          repeatEnd: true,
         },
       ],
     },
@@ -351,13 +261,15 @@ export const jump: Song = {
     },
     {
       id: 'verse_6',
-      label: 'Verse 6',
+      label: 'Verse 4',
       bars: [
         {
           chords: [{ degree: '♭7 5', chordName: 'B♭5', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '6 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '6 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -375,7 +287,7 @@ export const jump: Song = {
     },
     {
       id: 'verse_7',
-      label: 'Verse 7',
+      label: 'Verse 5',
       bars: [
         {
           chords: [

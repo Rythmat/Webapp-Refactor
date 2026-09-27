@@ -124,7 +124,9 @@ export const paranoid_android: Song = {
         {
           chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '6 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
@@ -133,7 +135,9 @@ export const paranoid_android: Song = {
         {
           chords: [{ degree: '♭7 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '6 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -467,7 +471,12 @@ export const paranoid_android: Song = {
       id: 'verse_18',
       label: 'Verse 18',
       instrumental: true,
-      bars: [{ chords: [] }, { chords: [] }, { chords: [] }, { chords: [] }],
+      bars: [
+        { chords: [], repeatStart: true },
+        { chords: [] },
+        { chords: [] },
+        { chords: [] },
+      ],
     },
     {
       id: 'chorus_4',
@@ -514,60 +523,7 @@ export const paranoid_android: Song = {
             { degree: '♭3 maj', chordName: 'B♭', beat: 3, duration: 1 },
             { degree: '2 maj', chordName: 'A', beat: 4, duration: 1 },
           ],
-        },
-      ],
-    },
-    {
-      id: 'verse_21',
-      label: 'Verse 21',
-      instrumental: true,
-      bars: [{ chords: [] }, { chords: [] }, { chords: [] }, { chords: [] }],
-    },
-    {
-      id: 'chorus_5',
-      label: 'Chorus 5',
-      bars: [
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'verse_22',
-      label: 'Verse 22',
-      bars: [
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'verse_23',
-      label: 'Verse 23',
-      bars: [
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 1 },
-            { degree: '♭3 maj', chordName: 'B♭', beat: 2, duration: 1 },
-            { degree: '♭3 maj', chordName: 'B♭', beat: 3, duration: 1 },
-            { degree: '2 maj', chordName: 'A', beat: 4, duration: 1 },
-          ],
+          repeatEnd: true,
         },
       ],
     },

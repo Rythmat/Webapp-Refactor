@@ -3,8 +3,8 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const forever_young_dylan: Song = {
   id: 'forever_young_dylan',
   title: 'Forever Young',
-  artist: 'Rod Stewart',
-  year: 1988,
+  artist: 'Bob Dylan',
+  year: 1974,
   historicalDescription:
     "Rod Stewart releases 'Forever Young' in 1988, a tender ballad that marks a striking departure from his ragged rock and roll roots. Written as a blessing to his children, the song captures a softer, more reflective Stewart — and becomes one of his most enduring hits, bridging his classic rock legacy with the polished pop sensibilities of the late 1980s.",
   key: 'G major',

@@ -36,7 +36,11 @@ export const midnight_train_to_georgia: Song = {
             { degree: '4 maj/6', chordName: 'G♭/B♭', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -50,7 +54,11 @@ export const midnight_train_to_georgia: Song = {
             { degree: '4 maj/6', chordName: 'G♭/B♭', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -59,6 +67,7 @@ export const midnight_train_to_georgia: Song = {
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
         {
           chords: [
@@ -70,7 +79,11 @@ export const midnight_train_to_georgia: Song = {
             { degree: '4 maj/6', chordName: 'G♭/B♭', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -84,7 +97,11 @@ export const midnight_train_to_georgia: Song = {
             { degree: '4 maj/6', chordName: 'G♭/B♭', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -107,70 +124,14 @@ export const midnight_train_to_georgia: Song = {
         {
           chords: [{ degree: '2 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [] },
-        { chords: [] },
-        { chords: [] },
-      ],
-    },
-    {
-      id: 'verse_3',
-      label: 'Verse 3',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
         {
           chords: [
-            { degree: '3 min7', chordName: 'F min7', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [
-            { degree: '4 maj/6', chordName: 'G♭/B♭', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'F min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj/6', chordName: 'G♭/B♭', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_4',
-      label: 'Verse 4',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'F min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj/6', chordName: 'G♭/B♭', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '2 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         { chords: [] },
         { chords: [] },
-        { chords: [] },
+        { chords: [], repeatEnd: true },
       ],
     },
     {
@@ -190,7 +151,11 @@ export const midnight_train_to_georgia: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -204,12 +169,16 @@ export const midnight_train_to_georgia: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
       id: 'verse_5',
-      label: 'Verse 5',
+      label: 'Verse 3',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -227,7 +196,11 @@ export const midnight_train_to_georgia: Song = {
         {
           chords: [{ degree: '2 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [] },
         { chords: [] },
         { chords: [] },
@@ -235,7 +208,7 @@ export const midnight_train_to_georgia: Song = {
     },
     {
       id: 'verse_6',
-      label: 'Verse 6',
+      label: 'Verse 4',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -250,14 +223,22 @@ export const midnight_train_to_georgia: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [] },
-        { chords: [{ degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [] },
       ],
     },
@@ -269,7 +250,11 @@ export const midnight_train_to_georgia: Song = {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         { chords: [] },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [] },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -284,7 +269,11 @@ export const midnight_train_to_georgia: Song = {
             { degree: '4 maj/6', chordName: 'G♭/B♭', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -304,7 +293,11 @@ export const midnight_train_to_georgia: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -318,12 +311,16 @@ export const midnight_train_to_georgia: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
       id: 'verse_7',
-      label: 'Verse 7',
+      label: 'Verse 5',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -341,7 +338,11 @@ export const midnight_train_to_georgia: Song = {
         {
           chords: [{ degree: '2 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [] },
         { chords: [] },
         { chords: [] },
@@ -349,7 +350,7 @@ export const midnight_train_to_georgia: Song = {
     },
     {
       id: 'verse_8',
-      label: 'Verse 8',
+      label: 'Verse 6',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -364,26 +365,38 @@ export const midnight_train_to_georgia: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
         { chords: [] },
-        { chords: [{ degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [] },
       ],
     },
     {
       id: 'verse_9',
-      label: 'Verse 9',
+      label: 'Verse 7',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
         { chords: [] },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [] },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -398,7 +411,11 @@ export const midnight_train_to_georgia: Song = {
             { degree: '4 maj/6', chordName: 'G♭/B♭', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -418,7 +435,11 @@ export const midnight_train_to_georgia: Song = {
             { degree: '4 maj/6', chordName: 'G♭/B♭', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -432,7 +453,11 @@ export const midnight_train_to_georgia: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -452,7 +477,11 @@ export const midnight_train_to_georgia: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -466,7 +495,11 @@ export const midnight_train_to_georgia: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
   ],

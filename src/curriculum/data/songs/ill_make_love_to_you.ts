@@ -23,7 +23,10 @@ export const ill_make_love_to_you: Song = {
       id: 'verse_1',
       label: 'Verse 1',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
@@ -57,7 +60,7 @@ export const ill_make_love_to_you: Song = {
     },
     {
       id: 'chorus_1',
-      label: 'Chorus 1',
+      label: 'Chorus',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -80,72 +83,10 @@ export const ill_make_love_to_you: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
           chords: [
-            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
           ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 2 },
-            { degree: '5 dom7', chordName: 'A7sus', beat: 3, duration: 2 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭7 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '5 dom7', chordName: 'A7sus', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus_2',
-      label: 'Chorus 2',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/3', chordName: 'D/F♯', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/3', chordName: 'D/F♯', beat: 1, duration: 1 },
-            { degree: '♭3 dim7', chordName: 'Fdim7', beat: 2, duration: 1 },
-            { degree: '2 min7', chordName: 'Emin7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          repeatEnd: true,
         },
       ],
     },
@@ -222,7 +163,7 @@ export const ill_make_love_to_you: Song = {
     },
     {
       id: 'verse_3',
-      label: 'Verse 3',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -283,7 +224,9 @@ export const ill_make_love_to_you: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
   ],

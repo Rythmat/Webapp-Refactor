@@ -396,3 +396,56 @@ describe('ChordGrid spacing', () => {
     expect(hasSlashChord(late)).toBe(true);
   });
 });
+
+/**
+ * A repeat that is played more than twice has to say so.
+ *
+ * The collapse of the duplicated sections took the library from one chart
+ * carrying a `repeatTimes` to twenty-four, and the grid drew the dots without
+ * the count — a passage the player takes twice and ends early, which is the
+ * whole song wrong. The staff chart had always printed it.
+ */
+describe('ChordGrid repeat counts', () => {
+  const played = (times: number | undefined) =>
+    renderToStaticMarkup(
+      <ChordGrid
+        song={song([
+          section('a', 'Verse', [
+            { ...bar('C'), repeatStart: true },
+            {
+              ...bar('F'),
+              repeatEnd: true,
+              ...(times ? { repeatTimes: times } : {}),
+            },
+          ]),
+        ])}
+      />,
+    );
+
+  it('writes the count when a passage is played more than twice', () => {
+    expect(played(3)).toContain('3×');
+    expect(played(10)).toContain('10×');
+  });
+
+  it('says nothing for a plain repeat, which is played twice', () => {
+    expect(played(undefined)).not.toContain('×');
+    expect(played(2)).not.toContain('×');
+  });
+
+  it('says it in the same words the staff chart uses', () => {
+    const s = song([
+      section('a', 'Verse', [
+        { ...bar('C'), repeatStart: true },
+        { ...bar('F'), repeatEnd: true, repeatTimes: 4 },
+      ]),
+    ]);
+    const staff = renderToStaticMarkup(<ChordChart song={s} />);
+    expect(staff).toContain('4×');
+    expect(renderToStaticMarkup(<ChordGrid song={s} />)).toContain('4×');
+  });
+
+  it('writes Fine, which the collapse also put into the library', () => {
+    const s = song([section('a', 'Verse', [{ ...bar('C'), fine: true }])]);
+    expect(renderToStaticMarkup(<ChordGrid song={s} />)).toContain('Fine');
+  });
+});

@@ -153,6 +153,8 @@ const hasMarks = (bar: ChordBar): boolean =>
     bar.keyChange ||
     bar.timeSignature ||
     bar.fermata ||
+    bar.fine ||
+    (bar.repeatEnd && (bar.repeatTimes ?? 2) > 2) ||
     bar.ending
   );
 
@@ -273,6 +275,12 @@ const BarMarks: FC<{ bar: ChordBar; size: string }> = ({ bar, size }) => {
   if (bar.cue) marks.push(bar.cue);
   if (bar.toCoda) marks.push('To Coda');
   if (bar.jump) marks.push(bar.jump);
+  if (bar.fine) marks.push('Fine');
+  // How many times the passage is played. A repeat with no count is played
+  // twice and needs no saying; a ×3 that is not written is a passage the
+  // player takes twice and ends early, which is the whole song wrong.
+  if (bar.repeatEnd && (bar.repeatTimes ?? 2) > 2)
+    marks.push(`${bar.repeatTimes}×`);
   const volta = bar.ending?.length ? `${bar.ending.join(', ')}.` : null;
 
   return (

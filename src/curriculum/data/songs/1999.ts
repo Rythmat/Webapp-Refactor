@@ -14,7 +14,7 @@ export const _1999: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funk'],
+  genreTags: ['funk', 'pop'],
   techniques: [],
 
   sections: [
@@ -229,6 +229,7 @@ export const _1999: Song = {
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
             { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
           ],
+          repeatStart: true,
         },
         {
           chords: [
@@ -273,62 +274,7 @@ export const _1999: Song = {
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
             { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
           ],
-        },
-      ],
-    },
-    {
-      id: 'verse_3',
-      label: 'Verse 3',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus_3',
-      label: 'Chorus 3',
-      bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '2 min7/1', chordName: 'Gmin7/F', beat: 3, duration: 2 },
-          ],
+          repeatEnd: true,
         },
       ],
     },

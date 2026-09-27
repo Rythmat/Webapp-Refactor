@@ -172,6 +172,7 @@ export const just_dance: Song = {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
+          repeatStart: true,
         },
         {
           chords: [
@@ -241,92 +242,13 @@ export const just_dance: Song = {
         },
         {
           chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'verse_6',
-      label: 'Verse 6',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭3 maj', chordName: 'E', beat: 1, duration: 2 },
-            { degree: '♭7 maj', chordName: 'B', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus_3',
-      label: 'Chorus 3',
-      bars: [
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'verse_7',
-      label: 'Verse 7',
-      bars: [
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'A', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+          repeatEnd: true,
         },
       ],
     },
     {
       id: 'verse_8',
-      label: 'Verse 8',
+      label: 'Verse 6',
       bars: [
         {
           chords: [
@@ -438,7 +360,7 @@ export const just_dance: Song = {
     },
     {
       id: 'verse_9',
-      label: 'Verse 9',
+      label: 'Verse 7',
       bars: [
         {
           chords: [

@@ -5,7 +5,7 @@ export const nothing_compares_2_u: Song = {
   title: 'Nothing Compares 2 U',
   artist: "Sinead O'Connor",
   composer: 'Prince',
-  year: undefined,
+  year: 1990,
 
   historicalDescription:
     "Sinead O'Connor releases her devastating cover of Prince's 'Nothing Compares 2 U', transforming it into one of the most emotionally raw ballads of its era. Her shaved head and a single tear in the iconic music video become inseparable from the song itself — an image that defines a moment in pop culture. The track catapults O'Connor to global stardom and stands as a landmark of early 1990s music.",
@@ -18,6 +18,24 @@ export const nothing_compares_2_u: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+
+  session: {
+    studio: 'Britannia Row',
+    city: 'London',
+    country: 'UK',
+    label: 'Chrysalis',
+  },
+  credits: [
+    { name: "Sinead O'Connor", role: 'vocals', primary: true },
+    { name: "Sinead O'Connor", role: 'producer' },
+    { name: 'Nellee Hooper', role: 'producer' },
+    { name: 'Chris Birkett', role: 'engineer' },
+    { name: 'Prince', role: 'songwriter' },
+  ],
+  relatedRecordings: [
+    { artist: 'Prince', year: 1984, relation: 'original' },
+    { artist: 'The Family', year: 1985, relation: 'cover' },
+  ],
 
   sections: [
     {
@@ -71,8 +89,12 @@ export const nothing_compares_2_u: Song = {
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -241,8 +263,12 @@ export const nothing_compares_2_u: Song = {
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -353,8 +379,12 @@ export const nothing_compares_2_u: Song = {
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {

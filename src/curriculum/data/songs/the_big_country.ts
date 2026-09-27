@@ -34,10 +34,15 @@ export const the_big_country: Song = {
     },
     {
       id: 'pre_chorus_1',
-      label: 'Pre-Chorus 1',
+      label: 'Pre-Chorus',
       bars: [
-        { chords: [{ degree: '1 maj6', chordName: 'C6', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj6', chordName: 'C6', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj6', chordName: 'C6', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
+        {
+          chords: [{ degree: '1 maj6', chordName: 'C6', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
@@ -65,48 +70,15 @@ export const the_big_country: Song = {
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'pre_chorus_2',
-      label: 'Pre-Chorus 2',
-      bars: [
-        { chords: [{ degree: '1 maj6', chordName: 'C6', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj6', chordName: 'C6', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus_2',
-      label: 'Chorus 2',
-      bars: [
         {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }],
+          repeatEnd: true,
         },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'verse_3',
-      label: 'Verse 3',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
       id: 'chorus_3',
-      label: 'Chorus 3',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],

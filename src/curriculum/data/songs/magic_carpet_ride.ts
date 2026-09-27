@@ -28,6 +28,7 @@ export const magic_carpet_ride: Song = {
             { degree: '4 maj', chordName: 'C', beat: 2, duration: 1 },
             { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
+          repeatStart: true,
         },
         {
           chords: [
@@ -54,7 +55,7 @@ export const magic_carpet_ride: Song = {
     },
     {
       id: 'chorus_1',
-      label: 'Chorus 1',
+      label: 'Chorus',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -63,55 +64,10 @@ export const magic_carpet_ride: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
         {
-          chords: [
-            { degree: '5 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'C', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }],
+          repeatEnd: true,
         },
-        {
-          chords: [
-            { degree: '5 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'C', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'C', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'C', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus_2',
-      label: 'Chorus 2',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
     },
     {
@@ -142,7 +98,7 @@ export const magic_carpet_ride: Song = {
     },
     {
       id: 'verse_3',
-      label: 'Verse 3',
+      label: 'Verse 2',
       bars: [
         {
           chords: [

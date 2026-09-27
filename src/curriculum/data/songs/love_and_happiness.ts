@@ -28,15 +28,31 @@ export const love_and_happiness: Song = {
           ],
           fermata: true,
         },
-        { chords: [{ degree: '♭6 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭6 dom7', chordName: 'E7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭6 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭6 dom7', chordName: 'E7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
@@ -50,6 +66,7 @@ export const love_and_happiness: Song = {
       bars: [
         {
           chords: [{ degree: '♭3 maj', chordName: 'B', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
         {
           chords: [
@@ -113,15 +130,31 @@ export const love_and_happiness: Song = {
       id: 'verse_3',
       label: 'Verse 3',
       bars: [
-        { chords: [{ degree: '♭6 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭6 dom7', chordName: 'E7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭6 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭6 dom7', chordName: 'E7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
@@ -159,114 +192,14 @@ export const love_and_happiness: Song = {
       id: 'verse_4',
       label: 'Verse 4',
       bars: [
-        { chords: [{ degree: '♭6 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '♭6 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'verse_5',
-      label: 'Verse 5',
-      bars: [
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '♭3 dom7/♭2', chordName: 'B7/A', beat: 1, duration: 4 },
+            { degree: '♭6 dom7', chordName: 'E7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'verse_6',
-      label: 'Verse 6',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '♭5 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '4 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '♭3 maj', chordName: 'B', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭5 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '4 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '♭3 maj', chordName: 'B', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭5 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '4 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '♭3 maj', chordName: 'B', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'verse_7',
-      label: 'Verse 7',
-      bars: [
-        { chords: [{ degree: '♭6 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '♭6 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus_2',
-      label: 'Chorus 2',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -276,39 +209,25 @@ export const love_and_happiness: Song = {
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
+            { degree: '♭6 dom7', chordName: 'E7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
-        },
-      ],
-    },
-    {
-      id: 'verse_8',
-      label: 'Verse 8',
-      bars: [
-        { chords: [{ degree: '♭6 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '♭6 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D♯7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
+          repeatEnd: true,
         },
       ],
     },
     {
       id: 'chorus_3',
-      label: 'Chorus 3',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [

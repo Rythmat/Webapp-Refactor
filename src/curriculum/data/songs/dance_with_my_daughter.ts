@@ -32,6 +32,7 @@ export const dance_with_my_daughter: Song = {
           chords: [
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 6 },
           ],
+          repeatStart: true,
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
@@ -55,46 +56,15 @@ export const dance_with_my_daughter: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      bars: [
         {
-          chords: [
-            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 6 },
-          ],
+          chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }],
+          repeatEnd: true,
         },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },
-      ],
-    },
-    {
-      id: 'chorus_2',
-      label: 'Chorus 2',
-      bars: [
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 6 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 maj/7', chordName: 'D/F♯', beat: 1, duration: 6 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },
       ],
     },
     {
       id: 'verse_3',
-      label: 'Verse 3',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -126,7 +96,7 @@ export const dance_with_my_daughter: Song = {
     },
     {
       id: 'chorus_3',
-      label: 'Chorus 3',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 6 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 6 }] },

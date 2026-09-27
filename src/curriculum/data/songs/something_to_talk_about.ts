@@ -232,6 +232,7 @@ export const something_to_talk_about: Song = {
       bars: [
         {
           chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
         {
           chords: [{ degree: '♯6 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -268,51 +269,7 @@ export const something_to_talk_about: Song = {
         },
         {
           chords: [{ degree: '♯6 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'verse_7',
-      label: 'Verse 7',
-      bars: [
-        {
-          chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♯6 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♯1 maj', chordName: 'A', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♯5 maj', chordName: 'E', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '7 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♯1 maj', chordName: 'A', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'verse_8',
-      label: 'Verse 8',
-      bars: [
-        {
-          chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♯6 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♯6 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+          repeatEnd: true,
         },
       ],
     },

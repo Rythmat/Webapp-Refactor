@@ -33,24 +33,178 @@ export const uid = (prefix: string): string =>
 const clamp = (text: string, max: number) => text.slice(0, max).trim();
 
 /**
- * A short, stable fingerprint of a chart's music — its sections, bars and
- * chords. Two charts with the same chords fingerprint the same; a corrected
- * chord changes it. Cheap and good enough to answer "did this change?".
+ * Every mark on a bar that changes how the written chart is read, in a fixed
+ * order: the text a chart hashes must never depend on the order the fields
+ * happened to be authored in, which is what iterating the object would give.
+ *
+ * `timeSignature` is read like any other mark, so a bar that changes metre
+ * counts as a correction the same way a new repeat does.
  */
-export function chartFingerprint(song: {
+const BAR_MARKS = [
+  'timeSignature',
+  'repeatStart',
+  'repeatEnd',
+  'repeatTimes',
+  'ending',
+  'segno',
+  'coda',
+  'toCoda',
+  'jump',
+  'fine',
+  'cue',
+  'keyChange',
+  'restBars',
+  'fermata',
+] as const;
+
+/** The same, for a section: how many times it goes round, how it is laid out,
+ *  and whether it is played without vocals. */
+const SECTION_MARKS = [
+  'repeatCount',
+  'measuresPerRow',
+  'instrumental',
+] as const;
+
+type BarMark = (typeof BAR_MARKS)[number];
+type SectionMark = (typeof SECTION_MARKS)[number];
+
+interface FingerprintChord {
+  chordName: string;
+  beat?: number;
+  duration?: number;
+}
+
+/** Marks are read as `unknown` because this is deliberately looser than the
+ *  schema: a field the schema grows later still lands in the hash without
+ *  this file having to hear about it. */
+interface FingerprintBar extends Partial<Record<BarMark, unknown>> {
+  chords: readonly FingerprintChord[];
+}
+
+interface FingerprintSection extends Partial<Record<SectionMark, unknown>> {
+  label: string;
+  bars: readonly FingerprintBar[];
+}
+
+/** Everything the fingerprint reads, and nothing else — so a chart still being
+ *  built, like the Studio's, can be fingerprinted too. */
+export interface FingerprintChart {
   key: string;
-  sections: { label: string; bars: { chords: { chordName: string }[] }[] }[];
-}): string {
+  timeSignature?: readonly number[];
+  sections: readonly FingerprintSection[];
+}
+
+/**
+ * The marks a section or bar carries, as `{repeatEnd,ending1+2}`.
+ *
+ * A mark that is absent, `undefined` or off contributes nothing — not an empty
+ * slot — so a chart carrying no marks hashes as though the fields had never
+ * been added.
+ */
+function marksText<K extends string>(
+  source: Partial<Record<K, unknown>>,
+  keys: readonly K[],
+): string {
+  let marks = '';
+  for (const key of keys) {
+    const value = source[key];
+    if (!value) continue;
+    marks +=
+      (marks ? ',' : '') +
+      key +
+      (value === true
+        ? ''
+        : Array.isArray(value)
+          ? value.join('+')
+          : String(value));
+  }
+  return marks ? `{${marks}}` : '';
+}
+
+/** A metre as `[beats, unit]`, or nothing — read defensively, because a bar's
+ *  metre is not in the schema yet. */
+const meterOf = (value: unknown): readonly number[] | undefined =>
+  Array.isArray(value) && value.length === 2 && typeof value[0] === 'number'
+    ? (value as number[])
+    : undefined;
+
+/** 4/4 is the metre the fingerprint silently assumed when it could not read
+ *  one, so writing it down says nothing new. */
+const meterText = (meter: readonly number[] | undefined): string =>
+  !meter || (meter[0] === 4 && meter[1] === 4)
+    ? ''
+    : `@${meter[0]}/${meter[1]}`;
+
+/** Floats: a 6/8 bar of four chords divides into 1.5-beat steps. */
+const SAME_BEAT = 1e-6;
+
+/**
+ * When a chord lands and how long it holds, written only when that is not the
+ * plain even division of the bar.
+ *
+ * "These chords, in this order" — all the fingerprint could see before — already
+ * meant the even split, so a chart whose bars read that way keeps the
+ * fingerprint it was stored with. Re-barring a phrase, or giving a chord three
+ * beats and the next one, does not.
+ */
+function rhythmText(
+  chord: FingerprintChord,
+  index: number,
+  count: number,
+  beats: number,
+): string {
+  const step = beats / count;
+  const onBeat = 1 + index * step;
+  const beat = chord.beat ?? onBeat;
+  const duration = chord.duration ?? step;
+  return Math.abs(beat - onBeat) < SAME_BEAT &&
+    Math.abs(duration - step) < SAME_BEAT
+    ? ''
+    : `@${beat}+${duration}`;
+}
+
+/**
+ * A short, stable fingerprint of a chart as it is written: the key and metre,
+ * each section's label and marks, the chords, their rhythm, and every roadmap
+ * sign on a bar. Two charts that read the same fingerprint the same; a
+ * corrected chord, a re-barred phrase, a repeat that was missing, all change
+ * it. Cheap and good enough to answer "did this change?".
+ *
+ * This once read the key, the labels and the chord names and nothing else,
+ * which meant the whole roadmapping programme — repeats, endings and cues onto
+ * flat charts — would have been invisible to the one thing that tells a player
+ * on a stand that their chart was corrected.
+ *
+ * Widening it has to leave the plain case alone: a chart carrying none of this
+ * hashes exactly as it did before the fields existed, or shipping a better
+ * fingerprint would announce a correction to every set list at once. Every
+ * addition below is therefore empty when there is nothing to say.
+ */
+export function chartFingerprint(song: FingerprintChart): string {
+  const songMeter = meterOf(song.timeSignature);
+  const songBeats = Number(songMeter?.[0]) || 4;
   const text =
     song.key +
+    meterText(songMeter) +
     '|' +
     song.sections
       .map(
         (s) =>
           s.label +
+          marksText(s, SECTION_MARKS) +
           ':' +
           s.bars
-            .map((b) => b.chords.map((c) => c.chordName).join(' '))
+            .map((b) => {
+              const beats = Number(meterOf(b.timeSignature)?.[0]) || songBeats;
+              return (
+                b.chords
+                  .map(
+                    (c, i) =>
+                      c.chordName + rhythmText(c, i, b.chords.length, beats),
+                  )
+                  .join(' ') + marksText(b, BAR_MARKS)
+              );
+            })
             .join('|'),
       )
       .join('//');

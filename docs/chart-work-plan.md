@@ -167,36 +167,86 @@ is a DAW artifact. `toSetListChart.ts` is already half the bridge
 
 ## 5. Bugs found while surveying
 
-All four were found by reading, not by anyone hitting them.
+All five were found by reading, not by anyone hitting them. All five are now
+fixed.
 
-- **Seventeen non-4/4 songs rendered wrong.** `ChordChart` hard-coded four beats
-  a bar and never read `song.timeSignature`. Solsbury Hill (7/4) drew four
-  slashes; the ten 6/8 songs drew four for six. **Fixed.**
-- **`seedStudioFromSong` never set the Studio's metre**, so a 3/4 song opened in
-  the Studio in 4/4 with correctly-placed ticks. **Fixed.**
-- **`exportToStudio` doubles the length of every 6/8 song** — `beatsPerBar * PPQ`
-  gives a 6/8 bar 2880 ticks instead of 1440. _Open._
-- **`chartFingerprint` cannot see meter or layout changes**, so fixing Contusion's
-  metre would not trigger the stand's "this chart was corrected" offer. _Open._
-- **`systemRowSizes` folds trailing bars in unconditionally**, overriding an
-  author's explicit `measuresPerRow`. Any per-bar system break has to be checked
-  before it. _Open._
+- **Seventeen non-4/4 songs rendered wrong.** `ChordChart` hard-coded four
+  beats a bar. **Fixed.**
+- **`seedStudioFromSong` never set the Studio's metre.** **Fixed.**
+- **`exportToStudio` doubled the length of every 6/8 song.** A tick is a 480th
+  of a quarter, so a 6/8 bar is 1440 ticks and not the 2880 that six times a
+  quarter gives. The Studio's own timeline had it right all along, so the
+  export now asks it (`ticksPerBar` in `daw/utils/timelineScale`) instead of
+  keeping a second copy. **Fixed** — and two more metre-bound call sites the
+  original survey missed went with it: `timing.ts`, which drives the video
+  playhead on the song page, and `unison/converters/songToUnison.ts`.
+- **`chartFingerprint` could not see metre or layout.** It could not see any
+  roadmap mark either, so the whole programme below would have been invisible
+  to the stand's "this chart was corrected" offer. **Fixed**, and widened
+  carefully: a plain 4/4 chart whose bars divide evenly hashes to exactly the
+  text it always did, so the change does not announce a correction to every
+  set list at once. 472 of 640 charts do get a new fingerprint, because they
+  genuinely carry marks the hash was blind to.
+- **`systemRowSizes` overrode an author's explicit `measuresPerRow`.**
+  **Fixed.** The fold that tidies a stub row belongs to widths we chose, not
+  to one the author wrote down.
 
 ---
 
-## 6. Done so far
+## 6. What has been done
 
-- `src/lib/chartEditor/` — history, selection, clipboard, roadmap ops. 66 tests.
-- Per-bar metre honoured by `ChordChart`; `seedStudioFromSong` sets the metre.
-- This audit.
+**The model.**
 
-## 7. Next, in order
+- `ChordBar.timeSignature` — a running per-bar metre, read by
+  `writtenBarMeters` the way `writtenBarKeys` reads the key. 53 songs in the
+  prop book need it.
+- `ChordBar.systemBreak` and `ChordBar.systemRun` — where a line ends, and
+  which bars are one line. Planned by `lib/notation/systemPlan`, the same code
+  the Studio's score uses, rather than a second copy of it.
+- `src/lib/chartEditor/` — history, selection, clipboard, roadmap ops, as pure
+  values. Now with a host.
 
-1. `ChordBar.timeSignature` + `writtenBarMeters`, and the `exportToStudio` tick
-   cursor.
-2. Bar inspector in the back office, bound to `roadmapOps` — the thing that
-   unlocks roadmapping 610 charts.
-3. cmd-Z / cmd-C / cmd-V and multi-bar selection in `ChordChart`.
-4. Script T2's collapses and the 215 delete candidates, for review.
-5. Route `ChordChart` through `systemPlan.ts` for system breaks and
-   fit-into-system; delete the dead `SongVisualEditor`.
+**The editor.** An inspector bound to `roadmapOps`, a bar selection that runs
+across section boundaries, undo/redo, and copy/paste that carries a bar's
+roadmap with it. This is what unlocks roadmapping the flat charts: there had
+never been a way to enter a mark.
+
+**The corpus.**
+
+- The T2 collapses are run: 2,986 written bars and 498 sections gone from 149
+  songs, charts carrying a roadmap mark up from 30 to 176, and every chart
+  proved to play identically before and after.
+- The extra-bar candidates are counted and written up for review in
+  `docs/chart-extra-bar-review.md` — 256 across 155 songs, where this plan
+  guessed 215 across 151. Nothing changed, because deleting a bar changes what
+  is played.
+
+### What the collapse taught us
+
+This plan described the job as sections that duplicate an earlier section.
+Written that way it finds **nothing — not one song in 640**. The parser cut
+each chart into four- and eight-bar blocks and dealt the section names out in
+turn, so Get Lucky has the same eight bars under eight different names. The
+unit that actually repeats is a **span of adjacent differently-named
+sections**, and collapsing section by section would have kept one name and
+thrown seven away.
+
+---
+
+## 7. What is left
+
+1. **The review.** `docs/chart-source-review.md` (283 of 284 rows unanswered)
+   and `docs/chart-extra-bar-review.md`. Both need an ear, not a script.
+2. **T1 and T0** — 55 structurally broken songs and 46 stubs. ~101 songs, and
+   the only ones that genuinely cost half an hour each.
+3. **Modulation marks** — 94 modulations recorded in `docs/song-key-review.md`
+   with no mark on any bar.
+4. **`song.tempo` is ambiguous for 6/8.** The ten 6/8 songs run from 83 to
+   220, which cannot all mean the same unit: 220 is plainly eighth-notes and
+   83 plainly is not. The tick arithmetic is fixed either way, but the tempo
+   itself wants checking against the recordings.
+5. **Where the data actually ships.** Production reads the CDN bundle
+   compiled from the admin console's Postgres store; the repo's song files are
+   the fallback when the CDN is off. No script in this repo pushes one into
+   the other. Everything above lands in repo files — worth settling before the
+   next thirty hours of chart work.

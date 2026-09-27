@@ -32,10 +32,13 @@ import {
 } from '../songChart/chartOps';
 import { AdvancedFields } from './AdvancedFields';
 import { ArtistImageUpload } from './ArtistImageUpload';
+import { BarInspector } from './BarInspector';
 import { ChordEditorPopup } from './ChordEditorPopup';
+import { CreditsEditor } from './CreditsEditor';
 import { KeyPicker } from './KeyPicker';
 import { YouTubeField } from './YouTubeField';
 import { slugify } from './songDefaults';
+import { useChartEditing } from './useChartEditing';
 
 const TITLE_STYLE: React.CSSProperties = {
   fontFamily: "'Glacial Indifference', 'Fraunces', system-ui, sans-serif",
@@ -80,6 +83,10 @@ export const SongEditor = ({ body, onChange }: StructuredEditorProps) => {
 
   const sections = song.sections ?? [];
   const setSections = (next: typeof sections) => patch({ sections: next });
+  // Undo, the bar selection, the clipboard and the keys. The operations
+  // themselves live in lib/chartEditor and are shared with the Studio; this
+  // is only the part that has to own state.
+  const editing = useChartEditing(song, setSections);
   // The spelled tonic the chart's chords are written against, so auto-derived
   // degrees match the song-library convention (see songTonic).
   const tonic = songTonic(
@@ -304,18 +311,92 @@ export const SongEditor = ({ body, onChange }: StructuredEditorProps) => {
         </div>
       </header>
 
+      {/* ── Who made it, where, and who else has recorded it ── */}
+      <div className="min-w-0 px-6 pt-4 md:px-10">
+        <CreditsEditor song={song} onPatch={patch} />
+      </div>
+
       {/* ── Chord chart (direct-manipulation editor) ── */}
       <div className="min-w-0 px-6 pb-6 pt-4 md:px-10">
-        <p className="mb-3 text-xs text-muted-foreground">
-          Click a beat to add a chord · drag a chord to move it · +/− above a
-          bar to add or remove bars · click a chord to edit it.
-        </p>
-        <ChordChart
-          song={song}
-          onSelectChord={setSelection}
-          selection={selection}
-          editable={editable}
-        />
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <p className="text-xs text-muted-foreground">
+            Click a beat to add a chord · drag a chord to move it · click a
+            bar&apos;s staff to select it, shift-click for a run.
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              disabled={!editing.canUndo}
+              title={
+                editing.undoLabel
+                  ? `Undo ${editing.undoLabel}`
+                  : 'Nothing to undo'
+              }
+              onClick={editing.undo}
+              className="rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:border-white/35 disabled:opacity-30"
+            >
+              ⌘Z Undo
+            </button>
+            <button
+              type="button"
+              disabled={!editing.canRedo}
+              title={
+                editing.redoLabel
+                  ? `Redo ${editing.redoLabel}`
+                  : 'Nothing to redo'
+              }
+              onClick={editing.redo}
+              className="rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:border-white/35 disabled:opacity-30"
+            >
+              ⇧⌘Z Redo
+            </button>
+            <button
+              type="button"
+              disabled={editing.selectedBars.length === 0}
+              onClick={editing.copy}
+              title="Copy the selected bars, roadmap and all"
+              className="rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:border-white/35 disabled:opacity-30"
+            >
+              ⌘C
+            </button>
+            <button
+              type="button"
+              disabled={!editing.clipboard || editing.selectedBars.length === 0}
+              onClick={() => editing.paste()}
+              title={editing.pasteLabel ?? 'Nothing copied'}
+              className="rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:border-white/35 disabled:opacity-30"
+            >
+              ⌘V
+            </button>
+          </div>
+        </div>
+
+        {/* The keys belong to the chart, not to the window: a person typing
+            in a field upstairs is not addressing the bars. */}
+        <div
+          role="group"
+          aria-label="Chord chart"
+          tabIndex={-1}
+          onKeyDown={editing.onKeyDown}
+          className="outline-none"
+        >
+          <ChordChart
+            song={song}
+            onSelectChord={setSelection}
+            selection={selection}
+            editable={editable}
+            barSelection={editing.selection}
+            onPickBar={editing.pickBar}
+          />
+        </div>
+
+        <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.02] p-3">
+          <BarInspector
+            sections={sections}
+            refs={editing.selectedBars}
+            onChange={editing.apply}
+          />
+        </div>
 
         {selectedChord && selection && (
           <ChordEditorPopup

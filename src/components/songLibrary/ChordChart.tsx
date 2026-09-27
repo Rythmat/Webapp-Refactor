@@ -39,6 +39,11 @@ import {
   normalizeMode,
   type ChordRgb,
 } from './ChordDiagramCard';
+import type {
+  BarRef,
+  ChartSelection,
+  ClickMods,
+} from '@/lib/chartEditor/selection';
 import {
   chordAriaLabel,
   chordSymbol,
@@ -88,6 +93,14 @@ interface ChordChartProps {
   onSelectChord?: (loc: ChordChartLoc) => void;
   selection?: ChordChartLoc | null;
   editable?: ChordChartEditable;
+  /**
+   * The editor's bar selection, addressed by section and bar so it can run
+   * across a section boundary — a phrase does not stop being a phrase because
+   * the chart was cut into blocks there.
+   */
+  barSelection?: ChartSelection;
+  /** A click on a bar's staff, with the modifiers that were held. */
+  onPickBar?: (ref: BarRef, mods: ClickMods) => void;
   /**
    * Break the chart into pages of this many systems, for a music stand and
    * for print. The chart marks where each page begins — `data-page-start` for
@@ -141,6 +154,10 @@ export const StaffMeasure: FC<{
   onSelectChord?: (loc: ChordChartLoc) => void;
   selection?: ChordChartLoc | null;
   editable?: ChordChartEditable;
+  /** Highlighted as part of the editor's bar selection. */
+  barSelected?: boolean;
+  /** Clicking the staff picks the bar; clicking above it picks a chord. */
+  onPickBar?: (mods: { shift: boolean; toggle: boolean }) => void;
 }> = ({
   bar,
   barIndex,
@@ -159,6 +176,8 @@ export const StaffMeasure: FC<{
   onSelectChord,
   selection,
   editable,
+  barSelected,
+  onPickBar,
 }) => {
   const staffTop = CHORD_AREA_HEIGHT;
   const cellW = width / beatsPerBar;
@@ -187,6 +206,20 @@ export const StaffMeasure: FC<{
 
   return (
     <g transform={`translate(${x}, 0)`}>
+      {/* The editor's bar selection, washed behind the staff rather than
+          outlined around it: an outline reads as a barline. */}
+      {barSelected && (
+        <rect
+          x={0}
+          y={staffTop - 6}
+          width={width}
+          height={STAFF_HEIGHT + 12}
+          fill="#7ecfcf"
+          opacity={0.14}
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
+
       {/* Measure number */}
       <text x={2} y={10} fill="currentColor" fontSize={10} opacity={0.35}>
         {barIndex + 1}
@@ -386,6 +419,31 @@ export const StaffMeasure: FC<{
             />
           );
         })
+      )}
+
+      {/* Picking the bar. The staff is the target and the chord area above it
+          is not, so "click a beat to add a chord" keeps the space it had.
+          Transparent rather than unfilled, or it would not be hit at all. */}
+      {onPickBar && (
+        <rect
+          x={0}
+          y={staffTop - 6}
+          width={width}
+          height={STAFF_HEIGHT + 12}
+          fill="transparent"
+          style={{ cursor: 'pointer' }}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            onPickBar({
+              shift: e.shiftKey,
+              toggle: e.metaKey || e.ctrlKey,
+            });
+          }}
+        >
+          <title>
+            Bar {barIndex + 1} — click to select, shift-click for a run
+          </title>
+        </rect>
       )}
 
       {/* Left bar line (first measure gets thicker) */}
@@ -769,6 +827,12 @@ const SectionStaff: FC<{
   onSelectChord?: (loc: ChordChartLoc) => void;
   selection?: ChordChartLoc | null;
   editable?: ChordChartEditable;
+  /** Which bars of this section the editor has selected. */
+  selectedBars?: ReadonlySet<number>;
+  onPickBar?: (
+    barIdx: number,
+    mods: { shift: boolean; toggle: boolean },
+  ) => void;
   /** How many systems the sections above this one used. */
   systemOffset: number;
   systemsPerPage?: number;
@@ -785,6 +849,8 @@ const SectionStaff: FC<{
   onSelectChord,
   selection,
   editable,
+  selectedBars,
+  onPickBar,
   systemOffset,
   systemsPerPage,
 }) => {
@@ -1015,6 +1081,12 @@ const SectionStaff: FC<{
                       bar={bar}
                       barIndex={globalBi}
                       beatsPerBar={barMeters[globalBi]?.[0] ?? 4}
+                      barSelected={selectedBars?.has(globalBi)}
+                      onPickBar={
+                        onPickBar
+                          ? (mods) => onPickBar(globalBi, mods)
+                          : undefined
+                      }
                       x={bi * barW}
                       width={barW}
                       displayMode={displayMode}
@@ -1056,6 +1128,8 @@ export const ChordChart: FC<ChordChartProps> = ({
   onSelectChord,
   selection,
   editable,
+  barSelection,
+  onPickBar,
   systemsPerPage,
 }) => {
   // Letters or numbers, as the reader chose. The editor is pinned to the
@@ -1079,6 +1153,18 @@ export const ChordChart: FC<ChordChartProps> = ({
   // non-4/4 songs read wrong. And a bar may change it mid-chart — Contusion
   // has two 5/4 bars in a 4/4 song — so this is per bar, not per song.
   const barMeters = useMemo(() => sectionMeters(song), [song]);
+
+  // The selection arrives addressed by section and bar; each section wants
+  // the bars that are its own, as a set it can ask about per bar.
+  const selectedPerSection = useMemo(() => {
+    const out = new Map<number, Set<number>>();
+    if (barSelection?.kind !== 'bars') return out;
+    for (const ref of barSelection.refs) {
+      if (!out.has(ref.section)) out.set(ref.section, new Set());
+      out.get(ref.section)!.add(ref.bar);
+    }
+    return out;
+  }, [barSelection]);
 
   // Systems used by the sections above each one, so a page is the same number
   // of staves whether or not a section boundary falls inside it.
@@ -1133,6 +1219,13 @@ export const ChordChart: FC<ChordChartProps> = ({
             section={section}
             sectionIdx={si}
             barMeters={barMeters[si] ?? []}
+            selectedBars={selectedPerSection.get(si)}
+            onPickBar={
+              onPickBar
+                ? (barIdx, mods) =>
+                    onPickBar({ section: si, bar: barIdx }, mods)
+                : undefined
+            }
             systemOffset={systemOffsets[si]}
             systemsPerPage={systemsPerPage}
             displayMode={displayMode}

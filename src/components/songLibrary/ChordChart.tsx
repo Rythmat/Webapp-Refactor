@@ -119,6 +119,8 @@ export const CHORD_AREA_HEIGHT = 45;
 export const LINE_SPACING = STAFF_HEIGHT / 4;
 export const TOTAL_HEIGHT = CHORD_AREA_HEIGHT + STAFF_HEIGHT + 16;
 export const MEASURES_PER_ROW = 4;
+/** Room a time signature takes at the head of the bar it opens. */
+const METER_WIDTH = 22;
 
 /* ── Helpers ─────────────────────────────────────────────────────────── */
 
@@ -145,6 +147,8 @@ export const StaffMeasure: FC<{
    * way or a 3/4 bar is drawn as a 4/4 one.
    */
   beatsPerBar?: number;
+  /** Set only on the chart's very first bar: the metre a chart opens with. */
+  openingMeter?: Meter;
   /** This bar's segno/coda is drawn with the section marker, not in the bar. */
   signsInHeader?: boolean;
   hasRepeatStart?: boolean;
@@ -168,6 +172,7 @@ export const StaffMeasure: FC<{
   chordContext,
   isFirst,
   beatsPerBar = 4,
+  openingMeter,
   signsInHeader,
   hasRepeatStart,
   hasRepeatEnd,
@@ -180,7 +185,11 @@ export const StaffMeasure: FC<{
   onPickBar,
 }) => {
   const staffTop = CHORD_AREA_HEIGHT;
-  const cellW = width / beatsPerBar;
+  // A metre is engraved on the staff, stacked like a fraction, and the bars
+  // it opens start after it — the same room a printed chart gives it.
+  const meter = bar.timeSignature ?? openingMeter;
+  const inset = meter ? METER_WIDTH : 0;
+  const cellW = (width - inset) / beatsPerBar;
 
   const isMultiBarRest = bar.restBars != null && bar.restBars > 0;
 
@@ -198,7 +207,7 @@ export const StaffMeasure: FC<{
     pt.y = e.clientY;
     const ctm = svg.getScreenCTM();
     if (!ctm) return 1;
-    const local = pt.matrixTransform(ctm.inverse()).x - x;
+    const local = pt.matrixTransform(ctm.inverse()).x - x - inset;
     return Math.max(1, Math.min(beatsPerBar, Math.floor(local / cellW) + 1));
   };
 
@@ -215,7 +224,7 @@ export const StaffMeasure: FC<{
           width={width}
           height={STAFF_HEIGHT + 12}
           fill="#7ecfcf"
-          opacity={0.14}
+          opacity={0.12}
           style={{ pointerEvents: 'none' }}
         />
       )}
@@ -225,17 +234,20 @@ export const StaffMeasure: FC<{
         {barIndex + 1}
       </text>
 
-      {/* Click-an-empty-beat-to-add targets (editor only) */}
+      {/* Click-an-empty-beat-to-add targets (editor only).
+          They cover the STAFF as well as the chord space above it, because
+          the staff is where a beat visibly is — the slashes mark them — and
+          a target only in the empty space above reads as no target at all. */}
       {editable &&
         !isMultiBarRest &&
         Array.from({ length: beatsPerBar }, (_, c) =>
           occupied.has(c + 1) ? null : (
             <rect
               key={`add-${c}`}
-              x={c * cellW}
+              x={inset + c * cellW}
               y={16}
               width={cellW}
-              height={staffTop - 16}
+              height={staffTop + STAFF_HEIGHT - 16}
               fill="transparent"
               style={{ cursor: 'pointer' }}
               onClick={() =>
@@ -251,7 +263,7 @@ export const StaffMeasure: FC<{
       {!isMultiBarRest &&
         bar.chords.map((hit, i) => {
           const beatPos = hit.beat - 1;
-          const cx = (beatPos / beatsPerBar) * width + 4;
+          const cx = inset + (beatPos / beatsPerBar) * (width - inset) + 4;
           const symbol = notation
             ? chordSymbol(hit, notation, chordContext ?? {})
             : null;
@@ -342,6 +354,24 @@ export const StaffMeasure: FC<{
         </g>
       )}
 
+      {/* The metre, stacked on the staff as a chart engraves it: the
+          numerator across the upper two spaces, the denominator the lower. */}
+      {meter && (
+        <g
+          aria-label={`${meter[0]}/${meter[1]} time`}
+          fill="currentColor"
+          style={{ fontFamily: 'serif', fontWeight: 700 }}
+          textAnchor="middle"
+        >
+          <text x={inset / 2} y={staffTop + LINE_SPACING * 1.72} fontSize={26}>
+            {meter[0]}
+          </text>
+          <text x={inset / 2} y={staffTop + LINE_SPACING * 3.72} fontSize={26}>
+            {meter[1]}
+          </text>
+        </g>
+      )}
+
       {/* Staff lines (5) */}
       {Array.from({ length: 5 }, (_, i) => (
         <line
@@ -404,7 +434,7 @@ export const StaffMeasure: FC<{
       ) : (
         /* Beat slashes (4 per measure) — only for normal bars */
         Array.from({ length: beatsPerBar }, (_, beat) => {
-          const bx = (beat + 0.5) * (width / beatsPerBar);
+          const bx = inset + (beat + 0.5) * cellW;
           const cy = staffTop + STAFF_HEIGHT / 2;
           return (
             <line
@@ -421,29 +451,43 @@ export const StaffMeasure: FC<{
         })
       )}
 
-      {/* Picking the bar. The staff is the target and the chord area above it
-          is not, so "click a beat to add a chord" keeps the space it had.
-          Transparent rather than unfilled, or it would not be hit at all. */}
+      {/* Picking the bar, on its own rail under the staff. It used to be the
+          staff itself, which took the beats with it: a click where a slash is
+          is a click on a beat, and the editor answered by selecting the bar.
+          The rail is thin, it is always in the same place, and it competes
+          with nothing. */}
       {onPickBar && (
-        <rect
-          x={0}
-          y={staffTop - 6}
-          width={width}
-          height={STAFF_HEIGHT + 12}
-          fill="transparent"
-          style={{ cursor: 'pointer' }}
-          onPointerDown={(e) => {
-            e.stopPropagation();
-            onPickBar({
-              shift: e.shiftKey,
-              toggle: e.metaKey || e.ctrlKey,
-            });
-          }}
-        >
-          <title>
-            Bar {barIndex + 1} — click to select, shift-click for a run
-          </title>
-        </rect>
+        <>
+          <line
+            x1={1}
+            y1={staffTop + STAFF_HEIGHT + 7}
+            x2={width - 1}
+            y2={staffTop + STAFF_HEIGHT + 7}
+            stroke={barSelected ? '#7ecfcf' : 'currentColor'}
+            strokeWidth={barSelected ? 3 : 1}
+            opacity={barSelected ? 0.9 : 0.18}
+            style={{ pointerEvents: 'none' }}
+          />
+          <rect
+            x={0}
+            y={staffTop + STAFF_HEIGHT + 1}
+            width={width}
+            height={13}
+            fill="transparent"
+            style={{ cursor: 'pointer' }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              onPickBar({
+                shift: e.shiftKey,
+                toggle: e.metaKey || e.ctrlKey,
+              });
+            }}
+          >
+            <title>
+              Bar {barIndex + 1} — click to select, shift-click for a run
+            </title>
+          </rect>
+        </>
       )}
 
       {/* Left bar line (first measure gets thicker) */}
@@ -693,11 +737,7 @@ const BarMarks: FC<{
     leftX += 20;
   }
   const words = [
-    // A metre change is a change of state like a key change, and reads in the
-    // same lane. Bars after it inherit it and say nothing.
-    bar.timeSignature
-      ? `${bar.timeSignature[0]}/${bar.timeSignature[1]}`
-      : null,
+    // No metre here: it is engraved on the staff, where a chart puts it.
     bar.keyChange ? `Key: ${bar.keyChange.replace(/ major$/, '')}` : null,
     bar.cue ?? null,
   ].filter(Boolean);
@@ -827,6 +867,8 @@ const SectionStaff: FC<{
   onSelectChord?: (loc: ChordChartLoc) => void;
   selection?: ChordChartLoc | null;
   editable?: ChordChartEditable;
+  /** The chart's opening metre, passed only to the section that starts it. */
+  openingMeter?: Meter;
   /** Which bars of this section the editor has selected. */
   selectedBars?: ReadonlySet<number>;
   onPickBar?: (
@@ -840,6 +882,7 @@ const SectionStaff: FC<{
   section,
   sectionIdx,
   barMeters,
+  openingMeter,
   displayMode,
   notation,
   barKeys,
@@ -1100,6 +1143,7 @@ const SectionStaff: FC<{
                           : {}
                       }
                       isFirst={bi === 0 && ri === 0}
+                      openingMeter={globalBi === 0 ? openingMeter : undefined}
                       signsInHeader={globalBi === 0 && signsInHeader}
                       hasRepeatStart={!!bar.repeatStart}
                       hasRepeatEnd={!!bar.repeatEnd}
@@ -1219,6 +1263,7 @@ export const ChordChart: FC<ChordChartProps> = ({
             section={section}
             sectionIdx={si}
             barMeters={barMeters[si] ?? []}
+            openingMeter={si === 0 ? song.timeSignature : undefined}
             selectedBars={selectedPerSection.get(si)}
             onPickBar={
               onPickBar

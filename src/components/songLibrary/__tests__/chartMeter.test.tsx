@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import type { Song } from '@/curriculum/types/songLibrary';
+import type { ChordBar, Song } from '@/curriculum/types/songLibrary';
 import { ChordChart } from '../ChordChart';
 
 /**
@@ -98,5 +98,74 @@ describe('beats per bar', () => {
       expect(html).toContain('<svg');
       expect(beatMarks(html)).toBe(ts[0]);
     }
+  });
+});
+
+/**
+ * The metre belongs on the staff.
+ *
+ * It was written into the lane of italic words above the bar, beside a key
+ * change and a cue, which is where a chart says things ABOUT the music. A
+ * time signature is not a remark about the music; it is part of it, and it is
+ * engraved on the staff with the bar it opens starting after it.
+ */
+describe('the metre on the staff', () => {
+  const bar = (name: string): ChordBar => ({
+    chords: [{ degree: '1 maj', chordName: name, beat: 1, duration: 4 }],
+  });
+  const chart = (
+    sections: ChordBar[][],
+    timeSignature: [number, number] = [4, 4],
+  ): Song =>
+    ({
+      id: 't',
+      title: 'T',
+      artist: 'T',
+      key: 'C major',
+      keyRoot: 0,
+      mode: 'major',
+      tempo: 120,
+      timeSignature,
+      difficulty: 1,
+      genreTags: [],
+      techniques: [],
+      sections: sections.map((bars, i) => ({
+        id: `s${i}`,
+        label: 'Verse',
+        bars,
+      })),
+      audioSources: [],
+      artistImageSource: 'none',
+    }) as Song;
+
+  const meterAt = (html: string) =>
+    [...html.matchAll(/aria-label="(\d+)\/(\d+) time"/g)].map(
+      (m) => `${m[1]}/${m[2]}`,
+    );
+
+  it('opens the chart with the song metre, once', () => {
+    const s = chart([[bar('C'), bar('F')], [bar('G')]], [3, 4]);
+    // Once for the whole chart — not once per section.
+    expect(meterAt(renderToStaticMarkup(<ChordChart song={s} />))).toEqual([
+      '3/4',
+    ]);
+  });
+
+  it('engraves a change on the bar that carries it', () => {
+    const s = chart([
+      [bar('C'), { ...bar('F'), timeSignature: [5, 4] }, bar('G')],
+    ]);
+    expect(meterAt(renderToStaticMarkup(<ChordChart song={s} />))).toEqual([
+      '4/4',
+      '5/4',
+    ]);
+  });
+
+  it('no longer writes it among the words above the bar', () => {
+    const s = chart([[{ ...bar('C'), timeSignature: [7, 8] }]]);
+    const html = renderToStaticMarkup(<ChordChart song={s} />);
+    // The staff says it; the lane of remarks must not say it again.
+    expect(html).toContain('7/8 time');
+    expect(html).not.toContain('>7/8<');
   });
 });

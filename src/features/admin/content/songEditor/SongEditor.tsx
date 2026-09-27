@@ -47,6 +47,9 @@ const TITLE_STYLE: React.CSSProperties = {
   lineHeight: 1.1,
 };
 
+const TOOL =
+  'rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:border-white/35 disabled:opacity-30';
+
 const ACTION_ICONS = [
   { label: 'Open in Lesson', src: '/icons/learn-icon.svg' },
   { label: 'Open in Studio', src: '/icons/studio-icon.svg' },
@@ -318,57 +321,78 @@ export const SongEditor = ({ body, onChange }: StructuredEditorProps) => {
 
       {/* ── Chord chart (direct-manipulation editor) ── */}
       <div className="min-w-0 px-6 pb-6 pt-4 md:px-10">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <p className="text-xs text-muted-foreground">
-            Click a beat to add a chord · drag a chord to move it · click a
-            bar&apos;s staff to select it, shift-click for a run.
-          </p>
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              disabled={!editing.canUndo}
-              title={
-                editing.undoLabel
-                  ? `Undo ${editing.undoLabel}`
-                  : 'Nothing to undo'
-              }
-              onClick={editing.undo}
-              className="rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:border-white/35 disabled:opacity-30"
-            >
-              ⌘Z Undo
-            </button>
-            <button
-              type="button"
-              disabled={!editing.canRedo}
-              title={
-                editing.redoLabel
-                  ? `Redo ${editing.redoLabel}`
-                  : 'Nothing to redo'
-              }
-              onClick={editing.redo}
-              className="rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:border-white/35 disabled:opacity-30"
-            >
-              ⇧⌘Z Redo
-            </button>
-            <button
-              type="button"
-              disabled={editing.selectedBars.length === 0}
-              onClick={editing.copy}
-              title="Copy the selected bars, roadmap and all"
-              className="rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:border-white/35 disabled:opacity-30"
-            >
-              ⌘C
-            </button>
-            <button
-              type="button"
-              disabled={!editing.clipboard || editing.selectedBars.length === 0}
-              onClick={() => editing.paste()}
-              title={editing.pasteLabel ?? 'Nothing copied'}
-              className="rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:border-white/35 disabled:opacity-30"
-            >
-              ⌘V
-            </button>
+        {/* The tools stay put. They used to sit under the chart, which on a
+            128-bar song like Paranoid Android put them a screen and a half
+            below the bar you were editing — you had to scroll away from your
+            own selection to act on it. Sticky, so the chart scrolls under
+            them and the selection and the controls are never apart. */}
+        <div className="sticky top-0 z-20 -mx-6 mb-3 border-b border-white/10 bg-[#101012]/95 px-6 py-2 backdrop-blur md:-mx-10 md:px-10">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs text-muted-foreground">
+              Click a beat to add a chord · drag a chord to move it · click the
+              rail under a bar to select it, shift-click for a run
+            </p>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled={!editing.canUndo}
+                title={
+                  editing.undoLabel
+                    ? `Undo ${editing.undoLabel}`
+                    : 'Nothing to undo'
+                }
+                onClick={editing.undo}
+                className={TOOL}
+              >
+                ⌘Z Undo
+              </button>
+              <button
+                type="button"
+                disabled={!editing.canRedo}
+                title={
+                  editing.redoLabel
+                    ? `Redo ${editing.redoLabel}`
+                    : 'Nothing to redo'
+                }
+                onClick={editing.redo}
+                className={TOOL}
+              >
+                ⇧⌘Z Redo
+              </button>
+              <button
+                type="button"
+                disabled={editing.selectedBars.length === 0}
+                onClick={editing.copy}
+                title="Copy the selected bars, roadmap and all"
+                className={TOOL}
+              >
+                ⌘C
+              </button>
+              <button
+                type="button"
+                disabled={
+                  !editing.clipboard || editing.selectedBars.length === 0
+                }
+                onClick={() => editing.paste()}
+                title={editing.pasteLabel ?? 'Nothing copied'}
+                className={TOOL}
+              >
+                ⌘V
+              </button>
+            </div>
           </div>
+
+          {/* Only once bars are picked, so an unselected chart keeps its
+              room and the bar stays one line tall. */}
+          {editing.selectedBars.length > 0 && (
+            <div className="mt-2 border-t border-white/10 pt-2">
+              <BarInspector
+                sections={sections}
+                refs={editing.selectedBars}
+                onChange={editing.apply}
+              />
+            </div>
+          )}
         </div>
 
         {/* The keys belong to the chart, not to the window: a person typing
@@ -387,14 +411,6 @@ export const SongEditor = ({ body, onChange }: StructuredEditorProps) => {
             editable={editable}
             barSelection={editing.selection}
             onPickBar={editing.pickBar}
-          />
-        </div>
-
-        <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.02] p-3">
-          <BarInspector
-            sections={sections}
-            refs={editing.selectedBars}
-            onChange={editing.apply}
           />
         </div>
 

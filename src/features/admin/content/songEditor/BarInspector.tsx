@@ -88,19 +88,10 @@ export const BarInspector: FC<{
   ) => sharedValue(sections, refs, field);
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-baseline justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wide text-white/45">
-          {n === 1 ? 'Bar' : `${n} bars`}
-        </span>
-        <button
-          type="button"
-          className="text-[11px] text-white/35 hover:text-white/70"
-          onClick={() => onChange(clearRoadmap(sections, refs), 'Clear marks')}
-        >
-          Clear marks
-        </button>
-      </div>
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs">
+      <span className="font-semibold uppercase tracking-wide text-white/45">
+        {n === 1 ? `Bar` : `${n} bars`}
+      </span>
 
       <div className="flex flex-wrap gap-1">
         {FLAGS.map(({ flag, label, hint }) => (
@@ -119,8 +110,8 @@ export const BarInspector: FC<{
 
       {/* A volta covers the bars it is on, so this is a property of the
           selection and not of one bar. */}
-      <div className="flex flex-wrap items-center gap-1">
-        <span className="mr-1 text-[11px] text-white/35">Ending</span>
+      <div className="flex items-center gap-1">
+        <span className="text-white/35">Ending</span>
         {ENDINGS.map(({ passes, label }) => (
           <button
             key={label}
@@ -139,15 +130,13 @@ export const BarInspector: FC<{
         ))}
       </div>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] text-white/35">
-          Cue — &ldquo;Break&rdquo;, &ldquo;Solo&rdquo;, &ldquo;Repeat and
-          Fade&rdquo;. Never lyrics.
-        </span>
+      <label className="flex items-center gap-1">
+        <span className="text-white/35">Cue</span>
         <input
-          className={FIELD}
+          className={`${FIELD} w-28`}
           value={value('cue') ?? ''}
-          placeholder={n > 1 ? '—' : ''}
+          placeholder={n > 1 ? '—' : 'Break'}
+          title="A performance cue above the bar. Never lyrics."
           onChange={(e) =>
             onChange(
               setBarValue(sections, refs, 'cue', e.target.value),
@@ -157,102 +146,100 @@ export const BarInspector: FC<{
         />
       </label>
 
-      <div className="grid grid-cols-2 gap-2">
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] text-white/35">Key change</span>
-          <input
-            className={FIELD}
-            value={value('keyChange') ?? ''}
-            placeholder="A♭ major"
-            onChange={(e) =>
-              onChange(
-                setBarValue(sections, refs, 'keyChange', e.target.value),
-                'Set key change',
-              )
-            }
-          />
-        </label>
+      <label className="flex items-center gap-1">
+        <span className="text-white/35">Key</span>
+        <input
+          className={`${FIELD} w-24`}
+          value={value('keyChange') ?? ''}
+          placeholder="A♭ major"
+          onChange={(e) =>
+            onChange(
+              setBarValue(sections, refs, 'keyChange', e.target.value),
+              'Set key change',
+            )
+          }
+        />
+      </label>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] text-white/35">Metre</span>
-          <input
-            className={FIELD}
-            defaultValue={(
-              sharedValue(sections, refs, 'timeSignature') ?? []
-            ).join('/')}
-            placeholder="5/4"
-            onBlur={(e) => {
-              const [beats, unit] = e.target.value.split('/').map(Number);
-              onChange(
-                setBarValue(
-                  sections,
-                  refs,
-                  'timeSignature',
-                  beats > 0 && unit > 0 ? [beats, unit] : undefined,
-                ),
-                'Set metre',
-              );
-            }}
-          />
-        </label>
+      <label className="flex items-center gap-1">
+        <span className="text-white/35">Metre</span>
+        <input
+          key={refs.map((r) => `${r.section}.${r.bar}`).join()}
+          className={`${FIELD} w-14`}
+          defaultValue={(
+            sharedValue(sections, refs, 'timeSignature') ?? []
+          ).join('/')}
+          placeholder="5/4"
+          title="Written on the staff from this bar on, as a chart engraves it"
+          onBlur={(e) => {
+            const [beats, unit] = e.target.value.split('/').map(Number);
+            onChange(
+              setBarValue(
+                sections,
+                refs,
+                'timeSignature',
+                beats > 0 && unit > 0 ? [beats, unit] : undefined,
+              ),
+              'Set metre',
+            );
+          }}
+        />
+      </label>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] text-white/35">Jump</span>
-          <select
-            className={FIELD}
-            value={value('jump') ?? ''}
-            onChange={(e) =>
-              onChange(
-                setBarValue(
-                  sections,
-                  refs,
-                  'jump',
-                  (e.target.value || undefined) as RoadmapJump | undefined,
-                ),
-                'Set jump',
-              )
-            }
-          >
-            <option value="" className="bg-[#161618]">
-              —
+      <label className="flex items-center gap-1">
+        <span className="text-white/35">Jump</span>
+        <select
+          className={`${FIELD} w-28`}
+          value={value('jump') ?? ''}
+          onChange={(e) =>
+            onChange(
+              setBarValue(
+                sections,
+                refs,
+                'jump',
+                (e.target.value || undefined) as RoadmapJump | undefined,
+              ),
+              'Set jump',
+            )
+          }
+        >
+          <option value="" className="bg-[#161618]">
+            —
+          </option>
+          {JUMPS.map((j) => (
+            <option key={j} value={j} className="bg-[#161618]">
+              {j}
             </option>
-            {JUMPS.map((j) => (
-              <option key={j} value={j} className="bg-[#161618]">
-                {j}
-              </option>
-            ))}
-          </select>
-        </label>
+          ))}
+        </select>
+      </label>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-[11px] text-white/35">
-            Times played (a plain repeat is twice)
-          </span>
-          <input
-            className={FIELD}
-            type="number"
-            min={2}
-            max={20}
-            value={value('repeatTimes') ?? ''}
-            onChange={(e) =>
-              onChange(
-                setBarValue(
-                  sections,
-                  refs,
-                  'repeatTimes',
-                  e.target.value ? Number(e.target.value) : undefined,
-                ),
-                'Set repeat count',
-              )
-            }
-          />
-        </label>
-      </div>
+      <label className="flex items-center gap-1">
+        <span className="text-white/35">×</span>
+        <input
+          className={`${FIELD} w-12`}
+          type="number"
+          min={2}
+          max={20}
+          title="Times the passage is played. A plain repeat is twice."
+          value={value('repeatTimes') ?? ''}
+          onChange={(e) =>
+            onChange(
+              setBarValue(
+                sections,
+                refs,
+                'repeatTimes',
+                e.target.value ? Number(e.target.value) : undefined,
+              ),
+              'Set repeat count',
+            )
+          }
+        />
+      </label>
 
       {/* Layout, not roadmap — these change where the line ends, not how the
           chart is played, which is why Clear marks leaves them alone. */}
-      <div className="flex flex-wrap items-center gap-1 border-t border-white/10 pt-2">
-        <span className="mr-1 text-[11px] text-white/35">Layout</span>
+      <div className="flex items-center gap-1 border-l border-white/10 pl-3">
         <button
           type="button"
           title="This bar starts a new system"
@@ -260,7 +247,7 @@ export const BarInspector: FC<{
           className={`${PILL} ${flagState(sections, refs, 'systemBreak') ? ON : OFF}`}
           onClick={() => toggle('systemBreak', 'System break')}
         >
-          Break here
+          Break
         </button>
         <button
           type="button"
@@ -272,9 +259,17 @@ export const BarInspector: FC<{
             onChange(fitIntoSystem(sections, refs), 'Fit into system')
           }
         >
-          Fit into one system
+          Fit to line
         </button>
       </div>
+
+      <button
+        type="button"
+        className="ml-auto text-[11px] text-white/35 hover:text-white/70"
+        onClick={() => onChange(clearRoadmap(sections, refs), 'Clear marks')}
+      >
+        Clear marks
+      </button>
     </div>
   );
 };

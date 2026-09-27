@@ -191,6 +191,13 @@ export const AdminRoutes = {
   releases: createRouteDefinition('/releases', { prefix: adminPrefix }),
 
   /**
+   * Content back office — bring the repo's chord charts into the store. A
+   * one-off migration, not a routine: the store is the source of truth once
+   * it has run.
+   */
+  songImport: createRouteDefinition('/import-songs', { prefix: adminPrefix }),
+
+  /**
    * The Atlas's vocabularies — genres, instruments, and the globe tags nothing
    * has placed yet. Read-only; these lists live in code.
    */

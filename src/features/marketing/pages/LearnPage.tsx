@@ -1,4 +1,5 @@
 import { Unlock } from 'lucide-react';
+import { appHref } from '@/constants/hosts';
 import { AuthRoutes, LearnRoutes, MarketingRoutes } from '@/constants/routes';
 import { appIcon, MODULE_ICONS } from '@/features/landing/sections/moduleIcons';
 import { SongsScene } from '@/features/landing/tour/scenes/SongsScene';
@@ -20,8 +21,11 @@ const data: ProductPageData = {
     headline: 'A path from beginner to fluent.',
     subtext:
       'Lessons across theory, technique, style and real songs — with a guided path that always shows you what to practice next.',
-    primaryCta: { label: 'Start free', href: AuthRoutes.signIn() },
-    secondaryCta: { label: 'Browse lessons', href: LearnRoutes.root() },
+    primaryCta: { label: 'Start free', href: appHref(AuthRoutes.signIn()) },
+    secondaryCta: {
+      label: 'Browse lessons',
+      href: appHref(LearnRoutes.root()),
+    },
   },
   stats: [
     { value: '14', label: 'genres' },
@@ -128,8 +132,11 @@ const data: ProductPageData = {
   cta: {
     headline: 'Start learning today.',
     subtext: 'Free to begin — no experience needed.',
-    primaryCta: { label: 'Start free', href: AuthRoutes.signIn() },
-    secondaryCta: { label: 'Browse lessons', href: LearnRoutes.root() },
+    primaryCta: { label: 'Start free', href: appHref(AuthRoutes.signIn()) },
+    secondaryCta: {
+      label: 'Browse lessons',
+      href: appHref(LearnRoutes.root()),
+    },
   },
 };
 

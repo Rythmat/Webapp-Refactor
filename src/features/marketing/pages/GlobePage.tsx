@@ -6,6 +6,7 @@ import {
   Route,
   Globe as GlobeIcon,
 } from 'lucide-react';
+import { appHref } from '@/constants/hosts';
 import { AtlasRoutes, AuthRoutes, MarketingRoutes } from '@/constants/routes';
 import { MODULE_ICONS } from '@/features/landing/sections/moduleIcons';
 import { ProductPageTemplate } from '../ProductPageTemplate';
@@ -24,8 +25,11 @@ const data: ProductPageData = {
     headline: 'Explore the world of music.',
     subtext:
       'An interactive 3D globe of music history and geography — travel by place and era to discover how the music you love came to be.',
-    primaryCta: { label: 'Start free', href: AuthRoutes.signIn() },
-    secondaryCta: { label: 'Open the Globe', href: AtlasRoutes.root() },
+    primaryCta: { label: 'Start free', href: appHref(AuthRoutes.signIn()) },
+    secondaryCta: {
+      label: 'Open the Globe',
+      href: appHref(AtlasRoutes.root()),
+    },
   },
   featuresHeading: 'A living map of music',
   features: [
@@ -99,8 +103,11 @@ const data: ProductPageData = {
   cta: {
     headline: 'Start exploring today.',
     subtext: 'Free to explore — the whole world of music, one globe.',
-    primaryCta: { label: 'Start free', href: AuthRoutes.signIn() },
-    secondaryCta: { label: 'Open the Globe', href: AtlasRoutes.root() },
+    primaryCta: { label: 'Start free', href: appHref(AuthRoutes.signIn()) },
+    secondaryCta: {
+      label: 'Open the Globe',
+      href: appHref(AtlasRoutes.root()),
+    },
   },
 };
 

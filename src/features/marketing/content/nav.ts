@@ -4,6 +4,7 @@ import {
   GraduationCap,
   SlidersHorizontal,
 } from 'lucide-react';
+import { appHref } from '@/constants/hosts';
 import { AuthRoutes, MarketingRoutes } from '@/constants/routes';
 
 /** Module product pages surfaced in the nav "Product" menu. */
@@ -40,5 +41,5 @@ export const navLinks = [
   { label: 'For Teachers', href: MarketingRoutes.teachers() },
 ] as const;
 
-export const START_FREE_HREF = AuthRoutes.signIn();
-export const LOGIN_HREF = AuthRoutes.signIn();
+export const START_FREE_HREF = appHref(AuthRoutes.signIn());
+export const LOGIN_HREF = appHref(AuthRoutes.signIn());

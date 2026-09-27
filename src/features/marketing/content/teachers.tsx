@@ -6,11 +6,12 @@ import {
   Users,
   Wifi,
 } from 'lucide-react';
+import { appHref } from '@/constants/hosts';
 import { AuthRoutes, MarketingRoutes } from '@/constants/routes';
 import { MODULE_ICONS } from '@/features/landing/sections/moduleIcons';
 import type { ProductPageData } from './types';
 
-const TEACHERS_CONTACT = 'mailto:hello@music-atlas.io';
+const TEACHERS_CONTACT = 'mailto:info@musicatlas.io';
 
 /** For Teachers page data — also feeds the landing page's Teachers band. */
 export const teachersPageData: ProductPageData = {
@@ -26,7 +27,10 @@ export const teachersPageData: ProductPageData = {
     headline: 'Teach music in real time.',
     subtext:
       'Run live, synced lessons where your projector leads and every student device follows — with rosters, assignments and progress built in.',
-    primaryCta: { label: 'Set up your classroom', href: AuthRoutes.signIn() },
+    primaryCta: {
+      label: 'Set up your classroom',
+      href: appHref(AuthRoutes.signIn()),
+    },
     secondaryCta: { label: 'Book a demo', href: TEACHERS_CONTACT },
   },
   featuresHeading: 'A classroom that runs itself',
@@ -104,7 +108,10 @@ export const teachersPageData: ProductPageData = {
   cta: {
     headline: 'Bring Music Atlas to your classroom.',
     subtext: 'Start free, or book a demo for your school.',
-    primaryCta: { label: 'Set up your classroom', href: AuthRoutes.signIn() },
+    primaryCta: {
+      label: 'Set up your classroom',
+      href: appHref(AuthRoutes.signIn()),
+    },
     secondaryCta: { label: 'Book a demo', href: TEACHERS_CONTACT },
   },
 };

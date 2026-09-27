@@ -1,3 +1,4 @@
+import { LegalRoutes } from '@/constants/routes';
 import { APP_VERSION } from '@/constants/version';
 import { SettingsCard } from '../../SettingsCard';
 import { SettingsSectionHeader } from '../../SettingsSectionHeader';
@@ -48,21 +49,14 @@ export const AboutSection = () => {
           <button
             type="button"
             style={BTN_OUTLINE}
-            onClick={() =>
-              window.open(
-                'https://www.musicatlas.io/policies/privacy',
-                '_blank',
-              )
-            }
+            onClick={() => window.open(LegalRoutes.privacyPolicy(), '_blank')}
           >
             Privacy Policy
           </button>
           <button
             type="button"
             style={BTN_OUTLINE}
-            onClick={() =>
-              window.open('https://www.musicatlas.io/policies/terms', '_blank')
-            }
+            onClick={() => window.open(LegalRoutes.termsOfService(), '_blank')}
           >
             Terms and Conditions
           </button>

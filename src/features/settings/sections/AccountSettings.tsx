@@ -2,6 +2,7 @@
 /* eslint-disable tailwindcss/classnames-order */
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { LegalRoutes } from '@/constants/routes';
 import { useAuthActions } from '@/contexts/AuthContext';
 import { useMe } from '@/hooks/data';
 import { EditAccountModal } from '../EditAccountModal';
@@ -112,12 +113,7 @@ export const AccountSettings = () => {
             <button
               type="button"
               style={BTN_OUTLINE}
-              onClick={() =>
-                window.open(
-                  'https://www.musicatlas.io/policies/privacy',
-                  '_blank',
-                )
-              }
+              onClick={() => window.open(LegalRoutes.privacyPolicy(), '_blank')}
             >
               Privacy Policy
             </button>
@@ -125,10 +121,7 @@ export const AccountSettings = () => {
               type="button"
               style={BTN_OUTLINE}
               onClick={() =>
-                window.open(
-                  'https://www.musicatlas.io/policies/terms',
-                  '_blank',
-                )
+                window.open(LegalRoutes.termsOfService(), '_blank')
               }
             >
               Terms and Conditions

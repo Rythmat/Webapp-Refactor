@@ -1,47 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://music-atlas.io/</loc>
+    <loc>https://musicatlas.io/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://music-atlas.io/features/studio</loc>
+    <loc>https://musicatlas.io/features/studio</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://music-atlas.io/features/learn</loc>
+    <loc>https://musicatlas.io/features/learn</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://music-atlas.io/features/arcade</loc>
+    <loc>https://musicatlas.io/features/arcade</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://music-atlas.io/features/globe</loc>
+    <loc>https://musicatlas.io/features/globe</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://music-atlas.io/for-teachers</loc>
+    <loc>https://musicatlas.io/for-teachers</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://music-atlas.io/blog</loc>
+    <loc>https://musicatlas.io/blog</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://music-atlas.io/documents/privacy</loc>
+    <loc>https://musicatlas.io/documents/privacy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://music-atlas.io/documents/terms</loc>
+    <loc>https://musicatlas.io/documents/terms</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://musicatlas.io/documents/licensing</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

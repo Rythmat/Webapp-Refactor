@@ -77,4 +77,4 @@ Disallow: /curriculum
 Disallow: /user
 Disallow: /modal-sphere
 
-Sitemap: https://music-atlas.io/sitemap.xml
+Sitemap: https://musicatlas.io/sitemap.xml

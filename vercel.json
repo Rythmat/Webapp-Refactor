@@ -1,6 +1,47 @@
 {
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/[^.]+", "dest": "/", "status": 200 }
-  ]
+  "redirects": [
+    {
+      "source": "/policies/:doc(privacy|terms|licensing)",
+      "has": [{ "type": "host", "value": "(?:www\\.)?musicatlas\\.io" }],
+      "destination": "/documents/:doc",
+      "permanent": true
+    },
+    {
+      "source": "/:old(policies/change-log|change-log|newsroom|insights)",
+      "has": [{ "type": "host", "value": "(?:www\\.)?musicatlas\\.io" }],
+      "destination": "/blog",
+      "permanent": true
+    },
+    {
+      "source": "/insights/:slug*",
+      "has": [{ "type": "host", "value": "(?:www\\.)?musicatlas\\.io" }],
+      "destination": "/blog",
+      "permanent": true
+    },
+    {
+      "source": "/platforms/atlas",
+      "has": [{ "type": "host", "value": "(?:www\\.)?musicatlas\\.io" }],
+      "destination": "/features/globe",
+      "permanent": true
+    },
+    {
+      "source": "/platforms/:p(prism|oracle|plugin)",
+      "has": [{ "type": "host", "value": "(?:www\\.)?musicatlas\\.io" }],
+      "destination": "/features/studio",
+      "permanent": true
+    },
+    {
+      "source": "/:old(platforms|about|team|contact)",
+      "has": [{ "type": "host", "value": "(?:www\\.)?musicatlas\\.io" }],
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/:path((?!(?:features|for-teachers|blog|documents)(?:/|$))[^.]+)",
+      "has": [{ "type": "host", "value": "(?:www\\.)?musicatlas\\.io" }],
+      "destination": "https://app.musicatlas.io/:path",
+      "permanent": false
+    }
+  ],
+  "rewrites": [{ "source": "/:path([^.]*)", "destination": "/index.html" }]
 }

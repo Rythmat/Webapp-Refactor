@@ -6,6 +6,7 @@ import {
   SlidersHorizontal,
   Users,
 } from 'lucide-react';
+import { appHref } from '@/constants/hosts';
 import { AuthRoutes, MarketingRoutes, StudioRoutes } from '@/constants/routes';
 import { MODULE_ICONS } from '@/features/landing/sections/moduleIcons';
 import { ProductPageTemplate } from '../ProductPageTemplate';
@@ -24,8 +25,11 @@ const data: ProductPageData = {
     headline: 'A full music studio in your browser.',
     subtext:
       'Compose, produce, mix and master — no download, no setup. Music Atlas Studio runs in your browser and on the devices you already have.',
-    primaryCta: { label: 'Start free', href: AuthRoutes.signIn() },
-    secondaryCta: { label: 'Open the Studio', href: StudioRoutes.root() },
+    primaryCta: { label: 'Start free', href: appHref(AuthRoutes.signIn()) },
+    secondaryCta: {
+      label: 'Open the Studio',
+      href: appHref(StudioRoutes.root()),
+    },
   },
   featuresHeading: 'Everything you need to make a track',
   features: [
@@ -102,8 +106,11 @@ const data: ProductPageData = {
   cta: {
     headline: 'Make your first track today.',
     subtext: 'Free to start — no download required.',
-    primaryCta: { label: 'Start free', href: AuthRoutes.signIn() },
-    secondaryCta: { label: 'Open the Studio', href: StudioRoutes.root() },
+    primaryCta: { label: 'Start free', href: appHref(AuthRoutes.signIn()) },
+    secondaryCta: {
+      label: 'Open the Studio',
+      href: appHref(StudioRoutes.root()),
+    },
   },
 };
 

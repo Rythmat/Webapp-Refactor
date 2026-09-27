@@ -1,3 +1,4 @@
+import { SITE_ORIGIN } from '@/constants/hosts';
 import { FALLBACK_TIERS } from '@/features/settings/subscription/tiers';
 
 /**
@@ -10,7 +11,7 @@ export const LANDING_TITLE =
 export const LANDING_DESCRIPTION =
   'Music Atlas pairs a real music-theory engine with a full browser studio — go from understanding harmony to making your first real track, right in your browser.';
 
-export const LANDING_URL = 'https://music-atlas.io/';
+export const LANDING_URL = `${SITE_ORIGIN}/`;
 
 /** schema.org SoftwareApplication with the public plans as offers. */
 export const LANDING_JSON_LD = JSON.stringify({

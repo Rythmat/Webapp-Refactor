@@ -112,6 +112,25 @@ export interface ChordBar {
    * in a mixed-metre song carry no mark and inherit the one before.
    */
   timeSignature?: [number, number];
+
+  // ── Layout ──
+
+  /**
+   * This bar starts a new system, whatever the row width would otherwise say.
+   *
+   * Not a roadmap mark — it changes where the chart breaks lines, not how it
+   * is played — which is why `clearRoadmap` leaves it alone.
+   */
+  systemBreak?: boolean;
+  /**
+   * This bar starts a system of exactly this many bars: "fit these into one
+   * line", however many they are and whatever the row width says.
+   *
+   * A break cannot express this on its own. Two breaks around a six-bar
+   * phrase still give 4 + 2, because the line fills up and breaks itself
+   * halfway through — the run is what suspends that.
+   */
+  systemRun?: number;
 }
 
 export type RoadmapJump =

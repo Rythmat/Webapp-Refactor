@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import type { SongSection } from '@/curriculum/types/songLibrary';
 import {
   clearRoadmap,
+  fitIntoSystem,
   flagState,
+  isOwnSystem,
   setBarValue,
   setEnding,
   sharedValue,
@@ -155,5 +157,59 @@ describe('purity', () => {
     const sections = chart();
     const out = toggleBarFlag(sections, refs([0, 0]), 'repeatStart');
     expect(out[1]).toBe(sections[1]);
+  });
+});
+
+/**
+ * Where a line ends.
+ *
+ * A system break is not a roadmap mark — it changes how the chart is laid
+ * out, not how it is played — so it toggles like one but survives a clear.
+ */
+describe('system breaks', () => {
+  it('records the run as a length on its first bar', () => {
+    const out = fitIntoSystem(chart(), refs([0, 1], [0, 2]));
+    // Not a break at each end: the line would fill and break itself first.
+    expect(out[0].bars[1].systemRun).toBe(2);
+    expect(out[0].bars[0].systemRun).toBeUndefined();
+    expect(out[0].bars[2].systemRun).toBeUndefined();
+    expect(out[0].bars[3].systemRun).toBeUndefined();
+  });
+
+  it('measures the run from the first selected bar to the last', () => {
+    const out = fitIntoSystem(chart(), refs([0, 0], [0, 1], [0, 2], [0, 3]));
+    expect(out[0].bars[0].systemRun).toBe(4);
+  });
+
+  it('will not fit a selection that crosses a section', () => {
+    const out = fitIntoSystem(chart(), refs([0, 3], [1, 0]));
+    expect(out[0].bars[3].systemRun).toBeUndefined();
+    expect(out[1].bars[0].systemRun).toBeUndefined();
+  });
+
+  it('releases a run that is already its own system', () => {
+    const once = fitIntoSystem(chart(), refs([0, 1], [0, 2]));
+    expect(isOwnSystem(once, refs([0, 1], [0, 2]))).toBe(true);
+    const twice = fitIntoSystem(once, refs([0, 1], [0, 2]));
+    expect(twice[0].bars[1].systemRun).toBeUndefined();
+    expect(isOwnSystem(twice, refs([0, 1], [0, 2]))).toBe(false);
+  });
+
+  it('survives clearing the roadmap, which is about playing', () => {
+    let out = fitIntoSystem(chart(), refs([0, 1], [0, 2]));
+    out = toggleBarFlag(out, refs([0, 1]), 'segno');
+    out = toggleBarFlag(out, refs([0, 1]), 'systemBreak');
+    out = clearRoadmap(out, refs([0, 1]));
+    expect(out[0].bars[1].segno).toBeUndefined();
+    expect(out[0].bars[1].systemRun).toBe(2);
+    expect(out[0].bars[1].systemBreak).toBe(true);
+  });
+
+  it('is a metre the inspector can set like any other valued mark', () => {
+    const out = setBarValue(chart(), refs([0, 2]), 'timeSignature', [5, 4]);
+    expect(out[0].bars[2].timeSignature).toEqual([5, 4]);
+    expect(sharedValue(out, refs([0, 2]), 'timeSignature')).toEqual([5, 4]);
+    const cleared = setBarValue(out, refs([0, 2]), 'timeSignature', undefined);
+    expect(cleared[0].bars[2].timeSignature).toBeUndefined();
   });
 });

@@ -222,3 +222,69 @@ describe('counting and laying out agree', () => {
     expect(songSystemCount({ sections })).toBe(drawn);
   });
 });
+
+/**
+ * A break written on a bar.
+ *
+ * The one instruction that says where a line ends. It outranks the page
+ * default and the author's own row width, because nothing else in the schema
+ * can say "end the line here" — and a pair of them bracketing a phrase is how
+ * "fit these bars into one system" is written down.
+ */
+describe('system breaks on a bar', () => {
+  const broken = (count: number, at: number[]): SongSection => ({
+    id: 's',
+    label: 'Verse',
+    bars: Array.from({ length: count }, (_, i) => ({
+      chords: [],
+      ...(at.includes(i) ? { systemBreak: true } : {}),
+    })),
+  });
+
+  it('starts a new system where the break is', () => {
+    // Twelve bars would be 4+4+4; a break at bar 3 gives 3, then fours.
+    expect(sectionRowSizes(broken(12, [3]))).toEqual([3, 4, 4, 1]);
+  });
+
+  it('breaks again when the line fills, which is why a run exists', () => {
+    // Breaks at 2 and 7 do NOT hold bars 2..6 together: the line fills at
+    // four and breaks itself. This is the case systemRun is for.
+    expect(sectionRowSizes(broken(12, [2, 7]))).toEqual([2, 4, 1, 4, 1]);
+  });
+
+  it('holds a run together however long it is', () => {
+    const s: SongSection = {
+      id: 's',
+      label: 'Verse',
+      bars: Array.from({ length: 12 }, (_, i) => ({
+        chords: [],
+        ...(i === 2 ? { systemRun: 5 } : {}),
+      })),
+    };
+    expect(sectionRowSizes(s)).toEqual([2, 5, 4, 1]);
+  });
+
+  it('outranks the width the author asked for', () => {
+    const s = { ...broken(9, [2]), measuresPerRow: 3 };
+    expect(sectionRowSizes(s)).toEqual([2, 3, 3, 1]);
+  });
+
+  it('outranks the reader width too, so a phone breaks where told', () => {
+    // Two to a row, and an extra break at 3 that the filling row beats it to.
+    expect(sectionRowSizes(broken(8, [3]), 2)).toEqual([2, 1, 2, 2, 1]);
+  });
+
+  it('leaves a section with no break exactly as it was', () => {
+    expect(sectionRowSizes(broken(10, []))).toEqual([4, 6]);
+  });
+
+  it('ignores a break on the first bar, which starts a system anyway', () => {
+    expect(sectionRowSizes(broken(8, [0]))).toEqual([4, 4]);
+  });
+
+  it('still numbers every system the renderer draws', () => {
+    const sections = [broken(12, [3]), broken(8, [])];
+    expect(songSystemOffsets({ sections })).toEqual([0, 4]);
+    expect(songSystemCount({ sections })).toBe(6);
+  });
+});

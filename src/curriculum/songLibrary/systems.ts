@@ -1,4 +1,5 @@
 import type { SongSection } from '@/curriculum/types/songLibrary';
+import { NO_MARKS, planSystems } from '@/lib/notation/systemPlan';
 import { sectionBars } from './performance';
 
 /** Bars per system on a lead sheet. */
@@ -55,7 +56,32 @@ export function sectionRowSizes(
   section: SongSection,
   perRow?: number,
 ): number[] {
-  const barCount = sectionBars(section).length;
+  const bars = sectionBars(section);
+  const barCount = bars.length;
+
+  // A break written on a bar outranks every width, the author's and ours:
+  // it is the one instruction that says where a line ends and nothing else
+  // does. A run says the stronger thing — these exact bars are one system —
+  // which a pair of breaks cannot, because the line fills up and breaks
+  // itself before reaching the second one.
+  const breaks = new Set<number>();
+  const runs = new Map<number, number>();
+  bars.forEach((bar, i) => {
+    if (bar.systemBreak && i > 0) breaks.add(i);
+    if (bar.systemRun && bar.systemRun > 0) {
+      runs.set(i, bar.systemRun);
+      if (i > 0) breaks.add(i);
+      const after = i + bar.systemRun;
+      if (after > 0 && after < barCount) breaks.add(after);
+    }
+  });
+  if (breaks.size > 0 || runs.size > 0)
+    return planSystems(
+      barCount,
+      perRow ?? section.measuresPerRow ?? MEASURES_PER_SYSTEM,
+      { ...NO_MARKS, breaks, runs },
+    ).map((system) => system.measures.length);
+
   if (perRow !== undefined) return systemRowSizes(barCount, perRow);
   return section.measuresPerRow !== undefined
     ? authoredRowSizes(barCount, section.measuresPerRow)

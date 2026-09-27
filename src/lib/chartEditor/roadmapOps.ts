@@ -27,7 +27,9 @@ export type BarFlag =
   | 'coda'
   | 'toCoda'
   | 'fine'
-  | 'fermata';
+  | 'fermata'
+  /** Not played, but toggled the same way: this bar starts a system. */
+  | 'systemBreak';
 
 /** Marks that carry a value. */
 export interface BarValues {
@@ -36,6 +38,8 @@ export interface BarValues {
   jump: RoadmapJump;
   repeatTimes: number;
   restBars: number;
+  /** `[5, 4]`: the metre changes here and holds until another bar says so. */
+  timeSignature: [number, number];
 }
 
 const editBars = (
@@ -137,10 +141,60 @@ export function clearRoadmap(
   refs: readonly BarRef[],
 ): SongSection[] {
   if (refs.length === 0) return [...sections];
+  // A system break survives: it says where the line ends, not how the chart
+  // is played, and someone clearing a mangled roadmap did not ask to have
+  // their page relaid out as well.
   return editBars(sections, refs, (bar) => ({
     chords: bar.chords,
     ...(bar.restBars ? { restBars: bar.restBars } : {}),
+    ...(bar.systemBreak ? { systemBreak: true } : {}),
+    ...(bar.systemRun ? { systemRun: bar.systemRun } : {}),
   }));
+}
+
+/* ── Layout ──────────────────────────────────────────────────────────── */
+
+/**
+ * Make the selected bars one system, however many they are.
+ *
+ * Recorded as a length on the first bar rather than as a break at each end,
+ * because two breaks do not say this: the line fills at the default width and
+ * breaks itself before reaching the second one, so bracketing six bars gives
+ * four and two. A selection already set this way is released again, so the
+ * button is a toggle like every other mark here.
+ */
+export function fitIntoSystem(
+  sections: readonly SongSection[],
+  refs: readonly BarRef[],
+): SongSection[] {
+  if (refs.length === 0) return [...sections];
+  const first = refs[0];
+  const last = refs[refs.length - 1];
+  const length = last.bar - first.bar + 1;
+  if (length < 1 || last.section !== first.section) return [...sections];
+
+  const already = isOwnSystem(sections, refs);
+  return editBars(sections, [first], (bar) => {
+    const next: ChordBar = { ...bar };
+    if (already) delete next.systemRun;
+    else next.systemRun = length;
+    return next;
+  });
+}
+
+/** Whether the selection is already set as one system of its own. */
+export function isOwnSystem(
+  sections: readonly SongSection[],
+  refs: readonly BarRef[],
+): boolean {
+  if (refs.length === 0) return false;
+  const first = refs[0];
+  const last = refs[refs.length - 1];
+  if (last.section !== first.section) return false;
+  return (
+    sections[first.section]?.bars[first.bar]?.systemRun ===
+    last.bar - first.bar + 1
+  );
 }
 
 /** Whether every selected bar carries this mark — for a pressed-in button. */

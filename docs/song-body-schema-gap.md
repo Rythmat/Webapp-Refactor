@@ -6,6 +6,40 @@ more urgent, because it is blocking a migration that is already half done.
 
 ---
 
+## Two ways to take this, pick one
+
+The schema is written for you. It exists in the webapp repo in two forms and
+they are the same thing — one is the output of the other — so there is nothing
+to reconcile between them.
+
+**1. The file.** `src/scripts/apiContract/songBodySchema.ts` is a complete,
+standalone Zod schema for a song body: every type, every enum, `.strict()`
+objects, and the doc comments carried over from the TypeScript so it reads as
+documentation too. It imports nothing but `zod`. Copy it into
+`music-atlas-api`, point the song branch of the content validator at
+`songBodySchema`, and you are done. **Take this one if you want to be
+finished today.**
+
+**2. The generator.** `src/scripts/apiContract/generateSongSchema.ts` reads
+`src/curriculum/types/songLibrary.ts` and emits that file. It handles what
+that type file uses and refuses anything else rather than guessing. **Take
+this one if you would rather the schema could not drift again** — port it, or
+have CI pull the generated file across.
+
+A test in the webapp regenerates the file and fails if the committed copy has
+moved, so the next field added to `ChordBar` breaks a build here instead of
+three hundred songs on your side. It also runs all 640 charts through the
+schema, which is the check the old one would have failed.
+
+Verified before sending: the corpus validates, the schema rejects a typo'd
+key and a bad mode, and adding a field to the type really does turn the test
+red — I checked that last one by doing it.
+
+The table further down is what changed and why, if you want the reasoning
+rather than the file.
+
+---
+
 ## What happened
 
 The webapp now has an admin page at `/console/import-songs` that compares

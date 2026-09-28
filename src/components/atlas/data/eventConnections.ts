@@ -3107,14 +3107,6 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-marvin-gaye-detroit-1971', to: 'song-boogie_on_reggae_woman' },
   { from: 'evt-philly-soul-philadelphia-1972', to: 'song-boogie_shoes' },
   {
-    from: 'evt-phish-burlington-1983',
-    to: 'song-born_under_punches_the_heat_goes_on',
-  },
-  {
-    from: 'evt-pop-nyc-1983-cyndilauper',
-    to: 'song-born_under_punches_the_heat_goes_on',
-  },
-  {
     from: 'evt-pop-losangeles-1977-fleetwoodmac',
     to: 'song-born_under_punches_the_heat_goes_on',
   },
@@ -3194,8 +3186,6 @@ const EVENT_CONNECTIONS: EventConnection[] = [
     to: 'song-flash_light',
   },
   { from: 'evt-psychedelic-sf-1967', to: 'song-fly_like_an_eagle' },
-  { from: 'evt-pearl-jam-seattle-1991', to: 'song-footloose' },
-  { from: 'evt-jamband-nyc-1998-tab', to: 'song-footloose' },
   {
     from: 'evt-pop-london-1987-georgemichael',
     to: 'song-forever_young_stewart',
@@ -3208,7 +3198,6 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'evt-phish-burlington-1983', to: 'song-free_fallin' },
   { from: 'evt-funk-sf-1969-sly-stone-stand', to: 'song-free_ride' },
   { from: 'evt-funk-chicago-1970-rufus-chaka-khan', to: 'song-free_ride' },
-  { from: 'evt-media-la-2017-tiktok', to: 'song-fresh_eyes' },
   { from: 'evt-pop-losangeles-2015-justinbieber', to: 'song-fresh_eyes' },
   { from: 'evt-jamband-sf-1970-grateful-dead', to: 'song-friend_of_the_devil' },
   { from: 'evt-beatles-liverpool-1963', to: 'song-get_back' },
@@ -3341,7 +3330,6 @@ const EVENT_CONNECTIONS: EventConnection[] = [
     from: 'evt-jamband-burlington-1995-phish',
     to: 'song-lady_marmalade_aguilera',
   },
-  { from: 'evt-pop-london-1984-tinaturner', to: 'song-landslide' },
   { from: 'evt-pop-london-1973-eltonjohn', to: 'song-landslide' },
   { from: 'evt-folkfestival-anchorage-1980', to: 'song-late_in_the_evening' },
   { from: 'evt-weavers-nyc-1950', to: 'song-late_in_the_evening' },
@@ -3352,21 +3340,11 @@ const EVENT_CONNECTIONS: EventConnection[] = [
     from: 'evt-jazz-weather-report-heavy-weather-la-1977',
     to: 'song-le_freak',
   },
-  { from: 'evt-pop-newark-1985-whitneyhouston', to: 'song-lean_on_me' },
-  { from: 'evt-pop-minneapolis-1984-prince', to: 'song-lean_on_me' },
   {
     from: 'evt-hiphop-brooklyn-1996-lilkim',
     to: 'song-let_me_clear_my_throat',
   },
   { from: 'evt-hiphop-la-1991-cypresshill', to: 'song-let_me_clear_my_throat' },
-  {
-    from: 'evt-hiphop-portsmouth-1997-missyelliott',
-    to: 'song-let_the_music_take_your_mind',
-  },
-  {
-    from: 'evt-hiphop-atlanta-1998-outkast',
-    to: 'song-let_the_music_take_your_mind',
-  },
   { from: 'evt-media-london-1971-superstar', to: 'song-lets_dance' },
   { from: 'evt-pop-london-1973-eltonjohn', to: 'song-lets_dance' },
   {
@@ -3476,8 +3454,6 @@ const EVENT_CONNECTIONS: EventConnection[] = [
     to: 'song-semi_charmed_life',
   },
   { from: 'evt-funk-sf-1969-sly-stone-stand', to: 'song-semi_charmed_life' },
-  { from: 'evt-hiphop-portsmouth-1997-missyelliott', to: 'song-september' },
-  { from: 'evt-hiphop-atlanta-1998-outkast', to: 'song-september' },
   { from: 'evt-white-stripes-detroit-2003', to: 'song-seven_nation_army' },
   { from: 'evt-pop-nashville-2008-taylorswift', to: 'song-shake_it_off' },
   {
@@ -3685,10 +3661,6 @@ const EVENT_CONNECTIONS: EventConnection[] = [
   { from: 'song-seen_and_not_seen', to: 'song-the_great_curve' },
   { from: 'song-the_great_curve', to: 'song-the_overload' },
   { from: 'song-the_overload', to: 'song-houses_in_motion' },
-  {
-    from: 'song-houses_in_motion',
-    to: 'song-born_under_punches_the_heat_goes_on',
-  },
   {
     from: 'song-born_under_punches_the_heat_goes_on',
     to: 'song-making_flippy_floppy',

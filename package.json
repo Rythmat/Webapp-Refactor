@@ -168,6 +168,7 @@
     "partykit": "0.0.115",
     "pdf-parse": "2.4.5",
     "pdfjs-dist": "5.7.284",
+    "playwright-core": "1.63.0",
     "postcss": "8.4.39",
     "prettier": "3.5.3",
     "rollup-plugin-visualizer": "6.0.11",

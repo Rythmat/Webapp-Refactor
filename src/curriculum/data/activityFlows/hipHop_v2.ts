@@ -101,7 +101,7 @@ const stubParams = {
 };
 
 export const hipHopL1: ActivityFlowV2 = {
-  genre: 'hip hop',
+  genre: 'hip-hop',
   level: 1,
   version: 'v2',
   title: 'Hip Hop Level 1',
@@ -109,7 +109,7 @@ export const hipHopL1: ActivityFlowV2 = {
   sections: stubSections,
 };
 export const hipHopL2: ActivityFlowV2 = {
-  genre: 'hip hop',
+  genre: 'hip-hop',
   level: 2,
   version: 'v2',
   title: 'Hip Hop Level 2',
@@ -117,7 +117,7 @@ export const hipHopL2: ActivityFlowV2 = {
   sections: stubSections,
 };
 export const hipHopL3: ActivityFlowV2 = {
-  genre: 'hip hop',
+  genre: 'hip-hop',
   level: 3,
   version: 'v2',
   title: 'Hip Hop Level 3',

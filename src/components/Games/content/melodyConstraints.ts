@@ -53,6 +53,10 @@ export interface ChordToneContext {
    * lesson has one chord the whole way through: its own tonic.
    */
   tonicChord: ChordWindow[];
+  /** Scale steps in a 5th and in an octave, which the leap caps count in:
+   *  4 and 7 in a seven-note scale, 3 and 5 in a pentatonic. */
+  fifthSteps: number;
+  octaveSteps: number;
 }
 
 /**
@@ -89,12 +93,14 @@ const DIMINISHED_FIFTH_RESOLUTION = [-2];
 const FIFTH_STEPS = 4;
 const OCTAVE_STEPS = 7;
 
-/** How far any interval inside the phrase may leap, by level. */
-const INTERIOR_CAP: Record<MelodyLevel, number> = {
-  1: FIFTH_STEPS,
-  2: OCTAVE_STEPS,
-  3: Number.POSITIVE_INFINITY,
-};
+/** How far any interval inside the phrase may leap, by level, in the
+ *  lesson scale's own steps. */
+const interiorCap = (level: MelodyLevel, ctx: ChordToneContext): number =>
+  level === 1
+    ? ctx.fifthSteps
+    : level === 2
+      ? ctx.octaveSteps
+      : Number.POSITIVE_INFINITY;
 
 const pc = (midi: number) => ((midi % 12) + 12) % 12;
 
@@ -110,6 +116,7 @@ const pc = (midi: number) => ((midi % 12) + 12) % 12;
  */
 export function buildChordToneContext(
   scale: number[],
+  chordTones?: readonly number[],
 ): ChordToneContext | null {
   const clean = scale.filter(
     (n) => typeof n === 'number' && Number.isFinite(n),
@@ -126,19 +133,28 @@ export function buildChordToneContext(
     if (!degreeOfPc.has(pc(midi))) degreeOfPc.set(pc(midi), index);
   });
 
+  // The tonic triad as semitones above the tonic: stacked on every other
+  // degree in a seven-note scale, named outright for a pentatonic or blues
+  // scale, where every other degree is no triad at all.
+  const tonic = degreeRing[0];
+  const [, third, fifth] = chordTones ?? [
+    0,
+    degreeRing[2] - tonic,
+    degreeRing[4] - tonic,
+  ];
+  const heptatonic = degreeRing.length === 7;
+  const fifthDegree = degreeOfPc.get(pc(tonic + 7));
+
   return {
     degreeRing,
-    chordTonePcs: new Set(
-      [degreeRing[0], degreeRing[2], degreeRing[4]].map(pc),
-    ),
-    thirdPc: pc(degreeRing[2]),
+    chordTonePcs: new Set([tonic, tonic + third, tonic + fifth].map(pc)),
+    thirdPc: pc(tonic + third),
     degreeOfPc,
-    diminishedFifth: (degreeRing[4] - degreeRing[0] + 120) % 12 === 6,
-    heptatonic: degreeRing.length === 7,
-    tonicChord: singleChordWindow(
-      pc(degreeRing[0]),
-      (degreeRing[2] - degreeRing[0] + 120) % 12 === 4,
-    ),
+    diminishedFifth: (fifth + 120) % 12 === 6,
+    heptatonic,
+    tonicChord: singleChordWindow(pc(tonic), (third + 120) % 12 === 4),
+    fifthSteps: heptatonic ? FIFTH_STEPS : (fifthDegree ?? FIFTH_STEPS),
+    octaveSteps: heptatonic ? OCTAVE_STEPS : degreeRing.length,
   };
 }
 
@@ -317,14 +333,14 @@ export function respectsIntervalCap(
   level: MelodyLevel,
 ): boolean {
   if (seq.length < 2) return true;
-  const interior = INTERIOR_CAP[level];
+  const interior = interiorCap(level, ctx);
 
   for (let i = 1; i < seq.length; i += 1) {
     const steps = stepDistance(seq[i - 1], seq[i], ctx);
     if (steps === null) continue;
     const closing = i === seq.length - 1;
     // A valid cadence has already vetted the closing leap, including the 6th.
-    const cap = closing ? Math.max(interior, FIFTH_STEPS) : interior;
+    const cap = closing ? Math.max(interior, ctx.fifthSteps) : interior;
     if (steps > cap && !(closing && endsWithValidCadence(seq, ctx))) {
       return false;
     }
@@ -547,7 +563,7 @@ function fitJoin(
   level: MelodyLevel,
 ): number[] {
   if (tail.length === 0 || head.length === 0) return tail;
-  const cap = INTERIOR_CAP[level];
+  const cap = interiorCap(level, ctx);
   if (!Number.isFinite(cap)) return tail;
 
   const last = head[head.length - 1];
@@ -706,8 +722,10 @@ export function selectMelodyPhrases(
   pool: number[][],
   scale: number[],
   level: MelodyLevel = 1,
+  /** The tonic triad in semitones, for a scale that can't stack one. */
+  chordTones?: readonly number[],
 ): MelodyPhrases | null {
-  const ctx = buildChordToneContext(scale);
+  const ctx = buildChordToneContext(scale, chordTones);
   const draw = new ContourDraw(pool);
   if (draw.size === 0 || !ctx) return null;
 

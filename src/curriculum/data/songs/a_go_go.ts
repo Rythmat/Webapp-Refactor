@@ -21,7 +21,7 @@ export const a_go_go: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 5,
+      instrumental: true,
       bars: [
         { chords: [], restBars: 4 },
         {
@@ -29,20 +29,23 @@ export const a_go_go: Song = {
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 6,
-      repeatCount: 4,
+      id: 'verse_1',
+      label: 'Verse 1',
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -54,23 +57,28 @@ export const a_go_go: Song = {
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '4 dom7', chordName: 'E7', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'chorus',
       label: 'Chorus',
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -92,12 +100,6 @@ export const a_go_go: Song = {
             { degree: '♭6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
         {
           chords: [
             { degree: '♭6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
@@ -113,40 +115,6 @@ export const a_go_go: Song = {
             { degree: '♭6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [
-            { degree: '♭6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 7,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '♭6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
@@ -157,7 +125,7 @@ export const a_go_go: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -169,7 +137,34 @@ export const a_go_go: Song = {
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭6 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
+      instrumental: true,
+      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
@@ -180,11 +175,25 @@ export const a_go_go: Song = {
             { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=-PXOr681_VU' },
   ],

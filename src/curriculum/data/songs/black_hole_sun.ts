@@ -19,15 +19,14 @@ export const black_hole_sun: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 1,
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], fermata: true, restBars: 1 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 7,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -42,7 +41,11 @@ export const black_hole_sun: Song = {
         {
           chords: [{ degree: '♯5 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 maj', chordName: 'A♭', beat: 1, duration: 1 },
@@ -50,13 +53,6 @@ export const black_hole_sun: Song = {
             { degree: '♯1 maj', chordName: 'A', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      measuresPerRow: 8,
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -70,7 +66,11 @@ export const black_hole_sun: Song = {
         {
           chords: [{ degree: '♯5 maj', chordName: 'E', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 maj', chordName: 'A♭', beat: 1, duration: 1 },
@@ -82,44 +82,72 @@ export const black_hole_sun: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 8,
+      id: 'pre_chorus_1',
+      label: 'Pre-Chorus 1',
       bars: [
-        { chords: [{ degree: '♯5 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 7', chordName: 'A♭7', beat: 1, duration: 1 },
+            { degree: '♯5 dom7', chordName: 'E7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 1 },
             { degree: '1 maj/♭7', chordName: 'A♭/G♭', beat: 2, duration: 1 },
             { degree: '♯2 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '♯5 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♯5 dom7', chordName: 'E7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 7,
-      bars: [
-        { chords: [{ degree: '♯5 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 7', chordName: 'A♭7', beat: 1, duration: 1 },
+            { degree: '♯5 dom7', chordName: 'E7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 1 },
             { degree: '1 maj/♭7', chordName: 'A♭/G♭', beat: 2, duration: 1 },
             { degree: '♯2 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '♯5 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♯5 dom7', chordName: 'E7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -129,27 +157,41 @@ export const black_hole_sun: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 5,
+      id: 'pre_chorus_2',
+      label: 'Pre-Chorus 2',
       bars: [
-        { chords: [{ degree: '♯5 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 7', chordName: 'A♭7', beat: 1, duration: 1 },
+            { degree: '♯5 dom7', chordName: 'E7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 1 },
             { degree: '1 maj/♭7', chordName: 'A♭/G♭', beat: 2, duration: 1 },
             { degree: '♯2 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '♯5 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♯5 dom7', chordName: 'E7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
-      measuresPerRow: 6,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -157,41 +199,50 @@ export const black_hole_sun: Song = {
         {
           chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 6,
-      bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 6,
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
@@ -211,9 +262,8 @@ export const black_hole_sun: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
-      measuresPerRow: 6,
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -232,51 +282,74 @@ export const black_hole_sun: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
-      measuresPerRow: 5,
+      id: 'pre_chorus_3',
+      label: 'Pre-Chorus 3',
       bars: [
-        { chords: [{ degree: '♯5 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 7', chordName: 'A♭7', beat: 1, duration: 1 },
+            { degree: '♯5 dom7', chordName: 'E7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 1 },
             { degree: '1 maj/♭7', chordName: 'A♭/G♭', beat: 2, duration: 1 },
             { degree: '♯2 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '♯5 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_l',
-      label: 'Section L',
-      measuresPerRow: 7,
-      bars: [
+        {
+          chords: [
+            { degree: '♯5 dom7', chordName: 'E7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♯5 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 7', chordName: 'A♭7', beat: 1, duration: 1 },
+            { degree: '♯5 dom7', chordName: 'E7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 1 },
             { degree: '1 maj/♭7', chordName: 'A♭/G♭', beat: 2, duration: 1 },
             { degree: '♯2 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '♯5 7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♯5 dom7', chordName: 'E7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 6,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -284,40 +357,50 @@ export const black_hole_sun: Song = {
         {
           chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
-      id: 'section_n',
-      label: 'Section N',
-      measuresPerRow: 6,
-      bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♯2 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_o',
-      label: 'Section O',
+      id: 'outro',
+      label: 'Outro',
+      instrumental: true,
       bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
@@ -334,7 +417,6 @@ export const black_hole_sun: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=3mbBbFH9fAg' },
   ],

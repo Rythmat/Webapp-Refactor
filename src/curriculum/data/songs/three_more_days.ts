@@ -21,33 +21,55 @@ export const three_more_days: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 6,
+      instrumental: true,
       bars: [
         { chords: [], restBars: 2 },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '7 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -56,27 +78,28 @@ export const three_more_days: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 6,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
-            { degree: '6 7', chordName: 'D7', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'F7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'D7', beat: 1, duration: 2 },
+            { degree: '1 dom7', chordName: 'F7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '7 min7', chordName: 'Emin7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'D7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '7 min7', chordName: 'Emin7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'D7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -88,42 +111,69 @@ export const three_more_days: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'interlude_1',
+      label: 'Interlude 1',
+      instrumental: true,
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
-        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '7 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -132,27 +182,28 @@ export const three_more_days: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 6,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
-            { degree: '6 7', chordName: 'D7', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'F7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'D7', beat: 1, duration: 2 },
+            { degree: '1 dom7', chordName: 'F7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '7 min7', chordName: 'Emin7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'D7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '7 min7', chordName: 'Emin7', beat: 1, duration: 2 },
-            { degree: '6 7', chordName: 'D7', beat: 3, duration: 2 },
+            { degree: '6 dom7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -164,19 +215,32 @@ export const three_more_days: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
+      id: 'interlude_2',
+      label: 'Interlude 2',
+      instrumental: true,
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      repeatCount: 5,
+      id: 'bridge',
+      label: 'Bridge',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -189,17 +253,29 @@ export const three_more_days: Song = {
       ],
     },
     {
-      id: 'section_h_2',
-      label: 'Section H',
+      id: 'outro',
+      label: 'Outro',
+      instrumental: true,
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=d5Vi3q211vM' },
   ],

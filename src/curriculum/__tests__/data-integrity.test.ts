@@ -241,8 +241,11 @@ describe('Melody Contour Library', () => {
 // Chord Progression Library (lazy-loaded)
 // ---------------------------------------------------------------------------
 describe('Chord Progression Library', () => {
-  it('has 589 progressions', () => {
-    expect(CHORD_PROGRESSION_LIBRARY).toHaveLength(589);
+  // A floor, not an exact count: the library grows whenever the curated
+  // progressions are re-imported (589 at seed, 695 after the 2026-09-26
+  // import). Pinning the exact number only ever fails on good news.
+  it('holds the curated progressions', () => {
+    expect(CHORD_PROGRESSION_LIBRARY.length).toBeGreaterThanOrEqual(589);
   });
 
   it('vibes and styles are arrays (not raw CSV strings)', () => {

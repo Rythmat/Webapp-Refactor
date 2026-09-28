@@ -19,9 +19,9 @@ export const takin_it_to_the_streets: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 8,
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -108,10 +108,92 @@ export const takin_it_to_the_streets: Song = {
       ],
     },
     {
-      id: 'verse',
+      id: 'verse_1',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
+        {
+          chords: [
+            {
+              degree: '2 min7/5',
+              chordName: 'Dmin7b5/G',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+          repeatStart: true,
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/5',
+              chordName: 'Dmin7b5/G',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+          restBars: 2,
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/5',
+              chordName: 'Dmin7b5/G',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/5',
+              chordName: 'Dmin7b5/G',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/5',
+              chordName: 'Dmin7b5/G',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/5',
+              chordName: 'Dmin7b5/G',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+          restBars: 2,
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/5',
+              chordName: 'Dmin7b5/G',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
+        {
+          chords: [
+            {
+              degree: '2 min7/5',
+              chordName: 'Dmin7b5/G',
+              beat: 1,
+              duration: 4,
+            },
+          ],
+        },
         {
           chords: [
             {
@@ -197,152 +279,136 @@ export const takin_it_to_the_streets: Song = {
       ],
     },
     {
-      id: 'chorus',
+      id: 'pre_chorus_1',
+      label: 'Pre-Chorus',
+      bars: [
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'chorus_1',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-          restBars: 2,
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
+            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
+            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
-          restBars: 2,
         },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
+            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
+            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
           ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
+          ],
+          repeatEnd: true,
+          repeatTimes: 3,
         },
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 8,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 7', chordName: 'A♭7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 8,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      measuresPerRow: 8,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -358,30 +424,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -397,258 +440,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_e_2',
-      label: 'Section E',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-          restBars: 2,
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-          restBars: 2,
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-          restBars: 2,
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-          restBars: 2,
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_g_2',
-      label: 'Section G',
-      measuresPerRow: 8,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 7', chordName: 'A♭7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_k',
-      label: 'Section K',
-      measuresPerRow: 8,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -664,30 +456,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_m',
-      label: 'Section M',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -703,258 +472,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-          restBars: 2,
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-          restBars: 2,
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-          restBars: 2,
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-          restBars: 2,
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-        {
-          chords: [
-            {
-              degree: '2 min7/5',
-              chordName: 'Dmin7b5/G',
-              beat: 1,
-              duration: 4,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_k_2',
-      label: 'Section K',
-      measuresPerRow: 8,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 7', chordName: 'A♭7', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_q',
-      label: 'Section Q',
-      measuresPerRow: 8,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'G7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_l',
-      label: 'Section L',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -970,30 +488,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_s',
-      label: 'Section S',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -1009,30 +504,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_m_2',
-      label: 'Section M',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -1048,30 +520,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_u',
-      label: 'Section U',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -1087,30 +536,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_n',
-      label: 'Section N',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -1126,30 +552,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_w',
-      label: 'Section W',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -1165,30 +568,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_o',
-      label: 'Section O',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -1204,46 +584,7 @@ export const takin_it_to_the_streets: Song = {
         },
         {
           chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_y',
-      label: 'Section Y',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'C/G', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 7/3', chordName: 'C7/E', beat: 1, duration: 4 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -1260,7 +601,6 @@ export const takin_it_to_the_streets: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=gh6BfGdffQw' },
   ],

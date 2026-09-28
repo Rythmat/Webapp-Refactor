@@ -8,8 +8,16 @@ import {
   type FC,
   type ReactNode,
 } from 'react';
-import { Heart, LayoutGrid, List, Music } from 'lucide-react';
+import {
+  ArrowRight,
+  Heart,
+  LayoutGrid,
+  List,
+  ListMusic,
+  Music,
+} from 'lucide-react';
 import { useSearchParams, Link } from 'react-router-dom';
+import { SongRoutes } from '@/constants/routes';
 import { HexAvatarSVG } from '@/components/ui/HexAvatarSVG';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { getAllSongs } from '@/curriculum/data/songs';
@@ -118,7 +126,7 @@ const GENRE_OPTIONS = [
   { value: 'all', label: 'All Genres' },
   { value: 'pop', label: 'Pop' },
   { value: 'rock', label: 'Rock' },
-  { value: 'hip hop', label: 'Hip Hop' },
+  { value: 'hip-hop', label: 'Hip Hop' },
   { value: 'rnb', label: 'R&B' },
   { value: 'jazz', label: 'Jazz' },
   { value: 'blues', label: 'Blues' },
@@ -241,6 +249,27 @@ export const SongLibraryBody: FC<{
           className="flex items-center flex-wrap"
           style={{ gap: 10, marginBottom: 16 }}
         >
+          {/* The way into a player's own sets. It sits with the filters
+              because Set Lists belongs to Songs, but it is a link out rather
+              than a filter, so it wears its own colour and an arrow. */}
+          <Link
+            to={SongRoutes.setLists()}
+            aria-label="Open Set Lists"
+            className="inline-flex items-center rounded-md outline-none transition-colors hover:bg-[#7ecfcf]/15 focus-visible:ring-1 focus-visible:ring-white/40"
+            style={{
+              height: 32,
+              padding: '0 12px',
+              gap: 6,
+              background: 'rgba(126,207,207,0.08)',
+              border: '1px solid rgba(126,207,207,0.35)',
+              color: '#7ecfcf',
+              fontSize: 12,
+            }}
+          >
+            <ListMusic size={13} />
+            Set Lists
+            <ArrowRight size={12} />
+          </Link>
           <FilterDropdown
             label="Difficulty"
             value={filters.difficulty}
@@ -449,8 +478,14 @@ interface SongListRowProps {
 }
 
 const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
-  const { openInLesson, openInStudio, openInGlobe, toggleSaved, isSaved } =
-    useSongActions(song);
+  const {
+    openInLesson,
+    openInStudio,
+    openInGlobe,
+    toggleSaved,
+    isSaved,
+    studioPrompt,
+  } = useSongActions(song);
 
   return (
     <tr
@@ -566,6 +601,7 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
               height={LIST_LINK_ICON_SIZE}
             />
           </button>
+          {studioPrompt}
         </div>
       </td>
     </tr>

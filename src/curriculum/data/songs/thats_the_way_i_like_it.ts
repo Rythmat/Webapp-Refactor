@@ -42,12 +42,6 @@ export const thats_the_way_i_like_it: Song = {
             { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
         {
           chords: [
             { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -68,12 +62,6 @@ export const thats_the_way_i_like_it: Song = {
             { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
@@ -94,12 +82,6 @@ export const thats_the_way_i_like_it: Song = {
             { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
@@ -123,7 +105,6 @@ export const thats_the_way_i_like_it: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yupPvZF6oBw' },
   ],

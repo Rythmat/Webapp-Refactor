@@ -1,7 +1,7 @@
 import type { GenreProfile } from '../../types/genreProfile';
 
 export const jamBandProfile: GenreProfile = {
-  id: 'jam band',
+  id: 'jam-band',
   displayName: 'Jam Band',
   accentColor: '#6A1B9A', // NOTE
   tagline: '[NOTE]',

@@ -10,7 +10,7 @@
 const GENRE_TILE_IMAGES: Record<string, string> = {
   pop: '/learn-tiles/pop.svg',
   rock: '/learn-tiles/rock-hex.svg',
-  'hip hop': '/learn-tiles/hip-hop-hex.svg',
+  'hip-hop': '/learn-tiles/hip-hop-hex.svg',
   rnb: '/learn-tiles/r-and-b-hex.svg',
   jazz: '/learn-tiles/jazz-hex.svg',
   blues: '/learn-tiles/blues-hex.svg',

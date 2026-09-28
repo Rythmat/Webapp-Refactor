@@ -20,15 +20,15 @@ export const sweet_thing: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 3,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
             { degree: '1 maj', chordName: 'A', beat: 1, duration: 2 },
             { degree: '4 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
+          repeatStart: true,
         },
         {
           chords: [
@@ -51,7 +51,7 @@ export const sweet_thing: Song = {
       ],
     },
     {
-      id: 'chorus',
+      id: 'chorus_1',
       label: 'Chorus',
       bars: [
         {
@@ -67,58 +67,6 @@ export const sweet_thing: Song = {
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      measuresPerRow: 5,
-      bars: [
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
-            { degree: '6 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 3,
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'A', beat: 1, duration: 2 },
-            { degree: '4 maj', chordName: 'D', beat: 3, duration: 2 },
-          ],
-        },
       ],
     },
     {
@@ -138,32 +86,15 @@ export const sweet_thing: Song = {
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }],
+          repeatEnd: true,
+        },
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 5,
-      bars: [
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 2 },
-            { degree: '6 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_5',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -192,8 +123,8 @@ export const sweet_thing: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -219,12 +150,6 @@ export const sweet_thing: Song = {
             { degree: '♭5 maj', chordName: 'E♭', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
         {
           chords: [
             { degree: '♭2 maj', chordName: 'B♭', beat: 1, duration: 2 },
@@ -246,15 +171,14 @@ export const sweet_thing: Song = {
         {
           chords: [
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 1 },
-            { degree: '3 7', chordName: 'D♭7', beat: 2, duration: 1 },
+            { degree: '3 dom7', chordName: 'D♭7', beat: 2, duration: 1 },
             { degree: '♭3 min7', chordName: 'Cmin7', beat: 3, duration: 1 },
-            { degree: '2 7', chordName: 'B7', beat: 4, duration: 1 },
+            { degree: '2 dom7', chordName: 'B7', beat: 4, duration: 1 },
           ],
         },
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Y7dwufE72UE' },
   ],

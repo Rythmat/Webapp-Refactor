@@ -1,7 +1,13 @@
 import { format } from 'date-fns';
 import { AlertTriangle, Link2, Pencil, Plus, Search } from 'lucide-react';
 import { useState } from 'react';
-import { Link, NavLink, useNavigate, useParams } from 'react-router-dom';
+import {
+  Link,
+  NavLink,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -63,7 +69,22 @@ export const AdminContentListPage = () => {
   const { role } = useAuthContext();
   const isEditor = isContentEditor(role);
 
-  const [search, setSearch] = useState('');
+  // `?q=` so a list can be linked to, not only browsed to. The repair
+  // worklist points at a song by title, and the item route wants a content
+  // id nobody has to hand — a search the page arrives already holding is the
+  // only deep link there is.
+  const [query, setQuery] = useSearchParams();
+  const search = query.get('q') ?? '';
+  const setSearch = (next: string) =>
+    setQuery(
+      (prev) => {
+        const out = new URLSearchParams(prev);
+        if (next) out.set('q', next);
+        else out.delete('q');
+        return out;
+      },
+      { replace: true },
+    );
   const [status, setStatus] = useState<ContentStatus | 'all'>('all');
   const [newGenre, setNewGenre] = useState('');
 

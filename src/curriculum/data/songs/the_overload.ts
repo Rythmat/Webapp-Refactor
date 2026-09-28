@@ -19,9 +19,8 @@ export const the_overload: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 1,
+      id: 'verse',
+      label: 'Verse',
       bars: [
         {
           chords: [
@@ -29,12 +28,6 @@ export const the_overload: Song = {
           ],
           fermata: true,
         },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -58,7 +51,6 @@ export const the_overload: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=fNpc8jv7Awk' },
   ],

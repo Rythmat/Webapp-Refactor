@@ -7,9 +7,9 @@ export const black_man: Song = {
   year: 1976,
   historicalDescription:
     "Stevie Wonder releases 'Black Man' as part of his landmark double album 'Songs in the Key of Life' in 1976 — a sprawling, ambitious celebration of Black contributions to American history. The song calls out overlooked heroes by name, weaving funk grooves with a civics lesson, insisting that the American story belongs to everyone who built it. It stands as one of Wonder's most overtly political statements.",
-  key: 'F♯ major',
-  keyRoot: 66,
-  mode: 'major',
+  key: 'B♭ minor',
+  keyRoot: 70,
+  mode: 'minor',
   tempo: 110,
   timeSignature: [4, 4],
 
@@ -21,255 +21,101 @@ export const black_man: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 2,
+      instrumental: true,
       bars: [{ chords: [], restBars: 3 }, { chords: [] }],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 maj/1', chordName: 'E/G♭', beat: 1, duration: 4 },
+            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 maj/1', chordName: 'E/G♭', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 maj/1', chordName: 'E/G♭', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      repeatCount: 6,
-      bars: [
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 maj/1', chordName: 'E/G♭', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 2,
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'G♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '7 7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 maj/1', chordName: 'E/G♭', beat: 1, duration: 4 },
+            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      repeatCount: 7,
-      bars: [
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '♭6 dom7', chordName: 'G♭7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 maj/1', chordName: 'E/G♭', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      measuresPerRow: 2,
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'G♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '7 7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♯6 maj/1', chordName: 'E/G♭', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_k',
-      label: 'Section K',
-      repeatCount: 9,
-      bars: [
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♯6 maj/1', chordName: 'E/G♭', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_l',
-      label: 'Section L',
-      measuresPerRow: 2,
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'G♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '7 7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -280,212 +126,247 @@ export const black_man: Song = {
       bars: [
         {
           chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+          repeatStart: true,
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 maj/1', chordName: 'E/G♭', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 dom7', chordName: 'G♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
+          ],
+          repeatEnd: true,
         },
       ],
     },
     {
-      id: 'section_n',
-      label: 'Section N',
+      id: 'chorus_1',
+      label: 'Chorus',
       bars: [
         {
           chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 maj/1', chordName: 'E/G♭', beat: 1, duration: 4 },
+            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
-      measuresPerRow: 5,
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [
         { chords: [], restBars: 4 },
         {
           chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 1 },
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 2, duration: 1 },
-            { degree: '♯6 maj/1', chordName: 'E/G♭', beat: 3, duration: 1 },
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 4, duration: 1 },
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 1 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 2, duration: 1 },
+            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 3, duration: 1 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 4, duration: 1 },
           ],
         },
         {
           chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 1 },
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 2, duration: 1 },
-            { degree: '♯6 maj/1', chordName: 'E/G♭', beat: 3, duration: 1 },
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 4, duration: 1 },
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 1 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 2, duration: 1 },
+            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 3, duration: 1 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 4, duration: 1 },
           ],
         },
         {
           chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 1 },
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 2, duration: 1 },
-            { degree: '♯6 maj/1', chordName: 'E/G♭', beat: 3, duration: 1 },
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 4, duration: 1 },
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 1 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 2, duration: 1 },
+            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 3, duration: 1 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 4, duration: 1 },
           ],
         },
         {
           chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 1 },
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 2, duration: 1 },
-            { degree: '♯6 maj/1', chordName: 'E/G♭', beat: 3, duration: 1 },
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 4, duration: 1 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_f_2',
-      label: 'Section F',
-      bars: [
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♯6 maj/1', chordName: 'E/G♭', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 1 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 2, duration: 1 },
+            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 3, duration: 1 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 4, duration: 1 },
           ],
         },
       ],
     },
     {
-      id: 'section_q',
-      label: 'Section Q',
-      repeatCount: 7,
+      id: 'verse_4',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 maj/1', chordName: 'E/G♭', beat: 1, duration: 4 },
+            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 dom7', chordName: 'G♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
           ],
         },
       ],
     },
     {
-      id: 'section_r',
-      label: 'Section R',
-      measuresPerRow: 2,
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'G♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '7 7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 maj/1', chordName: 'E/G♭', beat: 1, duration: 4 },
+            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_t',
-      label: 'Section T',
-      bars: [
-        {
-          chords: [
-            { degree: '3 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '1 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '♯6 maj/1', chordName: 'E/G♭', beat: 1, duration: 4 },
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 maj/2', chordName: 'G♭/A♭', beat: 1, duration: 4 },
+            { degree: '♯4 maj/♭6', chordName: 'E/G♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 maj/♭7', chordName: 'G♭/A♭', beat: 1, duration: 4 },
           ],
         },
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=pEoE2UQXduA' },
   ],

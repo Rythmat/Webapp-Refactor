@@ -21,7 +21,7 @@ export const beauty_and_the_beast: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 5,
+      instrumental: true,
       bars: [
         { chords: [], restBars: 4 },
         {
@@ -43,59 +43,102 @@ export const beauty_and_the_beast: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭3 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭3 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭3 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭3 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭3 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭3 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭3 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭3 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
-        { chords: [{ degree: '♭3 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        { chords: [{ degree: '♭3 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 7', chordName: 'C7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'A7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 8,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -133,13 +176,6 @@ export const beauty_and_the_beast: Song = {
         {
           chords: [{ degree: '7 maj', chordName: 'G♯', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 6,
-      bars: [
         {
           chords: [
             { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -166,21 +202,16 @@ export const beauty_and_the_beast: Song = {
             { degree: '3 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      measuresPerRow: 6,
-      bars: [
         {
-          chords: [{ degree: '6 7', chordName: 'F♯7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '6 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
             { degree: '5 maj/7', chordName: 'E/G♯', beat: 1, duration: 1 },
             { degree: '1 min7', chordName: 'Amin7', beat: 2, duration: 1 },
-            { degree: '6 7/♯1', chordName: 'F♯7/A♯', beat: 3, duration: 1 },
+            { degree: '6 dom7/♯1', chordName: 'F♯7/A♯', beat: 3, duration: 1 },
             { degree: '1 maj', chordName: 'A', beat: 4, duration: 1 },
           ],
         },
@@ -194,15 +225,16 @@ export const beauty_and_the_beast: Song = {
             { degree: '5 maj/2', chordName: 'E/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭3 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 7', chordName: 'C7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
-      measuresPerRow: 8,
-      bars: [
+        {
+          chords: [
+            { degree: '♭3 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭3 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -243,17 +275,10 @@ export const beauty_and_the_beast: Song = {
             { degree: '1 maj/2', chordName: 'A/B', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_g_2',
-      label: 'Section G',
-      measuresPerRow: 8,
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '5 7/4', chordName: 'E7/D', beat: 1, duration: 4 },
+            { degree: '5 dom7/4', chordName: 'E7/D', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
@@ -273,22 +298,17 @@ export const beauty_and_the_beast: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 7', chordName: 'F♯7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '6 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
             { degree: '5 maj/7', chordName: 'E/G♯', beat: 1, duration: 1 },
             { degree: '1 min7', chordName: 'Amin7', beat: 2, duration: 1 },
-            { degree: '6 7/♯1', chordName: 'F♯7/A♯', beat: 3, duration: 2 },
+            { degree: '6 dom7/♯1', chordName: 'F♯7/A♯', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_l',
-      label: 'Section L',
-      measuresPerRow: 8,
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -301,8 +321,16 @@ export const beauty_and_the_beast: Song = {
             { degree: '5 maj/2', chordName: 'E/B', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭3 7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭3 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭3 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -316,7 +344,6 @@ export const beauty_and_the_beast: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ZJNL8vVGlAM' },
   ],

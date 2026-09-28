@@ -7,9 +7,9 @@ export const dont_stop_til_you_get_enough: Song = {
   year: 1979,
   historicalDescription:
     "Michael Jackson releases 'Don't Stop 'Til You Get Enough' in 1979, his first solo single on Epic Records and the lead track from Off the Wall. Written and produced by Jackson himself, it announces his arrival as a fully formed adult artist — no longer the child star of the Jackson 5, but a commanding creative force blending disco, funk, and pop into something undeniably his own.",
-  key: 'B minor',
+  key: 'B mixolydian',
   keyRoot: 71,
-  mode: 'minor',
+  mode: 'mixolydian',
   tempo: 120,
   timeSignature: [4, 4],
 
@@ -41,7 +41,6 @@ export const dont_stop_til_you_get_enough: Song = {
     {
       id: 'chorus',
       label: 'Chorus',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [

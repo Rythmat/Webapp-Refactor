@@ -5,6 +5,7 @@ import type { FilterOption } from '@/components/songLibrary/FilterDropdown';
 export type ModeFamily =
   | 'all'
   | 'diatonic'
+  | 'pentatonic-blues'
   | 'relative'
   | 'parallel'
   | 'harmonic-minor'
@@ -17,6 +18,7 @@ export type TheorySort = 'brightness' | 'alphabetical';
 export const MODE_FAMILY_OPTIONS: FilterOption<ModeFamily>[] = [
   { value: 'all', label: 'All Families' },
   { value: 'diatonic', label: 'Diatonic' },
+  { value: 'pentatonic-blues', label: 'Pentatonic/Blues' },
   { value: 'relative', label: 'Relative' },
   { value: 'parallel', label: 'Parallel' },
   { value: 'harmonic-minor', label: 'Harmonic Minor' },
@@ -64,7 +66,7 @@ export type CoursesGenre =
   | 'all'
   | 'pop'
   | 'rock'
-  | 'hip hop'
+  | 'hip-hop'
   | 'rnb'
   | 'jazz'
   | 'blues'
@@ -85,7 +87,7 @@ export const COURSES_GENRE_OPTIONS: FilterOption<CoursesGenre>[] = [
   { value: 'all', label: 'All Genres' },
   { value: 'pop', label: 'Pop' },
   { value: 'rock', label: 'Rock' },
-  { value: 'hip hop', label: 'Hip Hop' },
+  { value: 'hip-hop', label: 'Hip Hop' },
   { value: 'rnb', label: 'R&B' },
   { value: 'jazz', label: 'Jazz' },
   { value: 'blues', label: 'Blues' },

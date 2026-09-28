@@ -7,8 +7,8 @@ export const run_around: Song = {
   year: 1994,
   historicalDescription:
     "Blues Traveler releases 'Run-Around' in 1994, a blues-rock anthem built around John Popper's virtuosic harmonica work and a deceptively catchy melody. The song becomes a massive radio hit, introducing a generation to the band's jam-band roots and proving that guitar-driven blues rock with genuine instrumental chops can still conquer mainstream airwaves.",
-  key: 'D major',
-  keyRoot: 62,
+  key: 'G major',
+  keyRoot: 67,
   mode: 'major',
   tempo: 152,
   timeSignature: [4, 4],
@@ -24,26 +24,26 @@ export const run_around: Song = {
       bars: [
         {
           chords: [
-            { degree: '4 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '♭7 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'D7', beat: 3, duration: 2 },
+            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '4 maj', chordName: 'G', beat: 1, duration: 2 },
-            { degree: '♭7 maj', chordName: 'C', beat: 3, duration: 2 },
+            { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },
+            { degree: '4 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
-            { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '1 7', chordName: 'D7', beat: 3, duration: 2 },
+            { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
       ],

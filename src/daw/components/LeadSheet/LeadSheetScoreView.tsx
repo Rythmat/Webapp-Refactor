@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { NOTES } from '@prism/engine';
 import { StaffView, type ScorePart } from '@/components/notation/StaffView';
 import { useStore } from '@/daw/store';
-import { TICKS_PER_MEASURE, regionToMeasures } from '@/daw/midi/leadSheetUtils';
+import { regionToMeasures } from '@/daw/midi/leadSheetUtils';
+import { ticksPerBar } from '@/daw/utils/timelineScale';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import type { Track } from '@/daw/store/tracksSlice';
 import { NoteEditorBar } from '../Score/NoteEditorBar';
@@ -54,11 +55,14 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
     () => [numerator, denominator],
     [numerator, denominator],
   );
+  // Bars are the project's own, so a 3/4 score is cut into 1440-tick bars
+  // rather than the 1920 a 4/4 default would impose.
+  const ticksPerMeasure = ticksPerBar(numerator, denominator);
 
   // The sheet is as long as the chart is: chords can run past the melody.
   const measureCount = useMemo(
-    () => Math.max(1, regionToMeasures(chordRegions).length),
-    [chordRegions],
+    () => Math.max(1, regionToMeasures(chordRegions, ticksPerMeasure).length),
+    [chordRegions, ticksPerMeasure],
   );
 
   const slashSet = useMemo(() => new Set(slashNotes), [slashNotes]);
@@ -110,11 +114,17 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
       .filter((region): region is NonNullable<typeof region> => !!region);
     if (chords.length > 0) {
       return Math.floor(
-        Math.min(...chords.map((c) => c.startTick)) / TICKS_PER_MEASURE,
+        Math.min(...chords.map((c) => c.startTick)) / ticksPerMeasure,
       );
     }
     return null;
-  }, [selection.cells, selection.barline, selection.chords, chordRegions]);
+  }, [
+    selection.cells,
+    selection.barline,
+    selection.chords,
+    chordRegions,
+    ticksPerMeasure,
+  ]);
 
   return (
     <div

@@ -19,9 +19,8 @@ export const wonderwall: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 8,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -33,7 +32,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -51,7 +50,43 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -62,9 +97,8 @@ export const wonderwall: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 8,
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -76,50 +110,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'A', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -132,7 +123,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -144,9 +135,8 @@ export const wonderwall: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 8,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -158,7 +148,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -176,7 +166,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -187,16 +177,15 @@ export const wonderwall: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 8,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -210,7 +199,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -222,8 +211,8 @@ export const wonderwall: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
@@ -246,9 +235,8 @@ export const wonderwall: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
-      measuresPerRow: 9,
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
@@ -286,9 +274,8 @@ export const wonderwall: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 8,
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -300,7 +287,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -318,7 +305,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -329,16 +316,15 @@ export const wonderwall: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
-      measuresPerRow: 8,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -352,7 +338,7 @@ export const wonderwall: Song = {
         },
         {
           chords: [
-            { degree: '♭7 7', chordName: 'E7sus', beat: 1, duration: 4 },
+            { degree: '♭7 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -364,8 +350,8 @@ export const wonderwall: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
@@ -388,10 +374,8 @@ export const wonderwall: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 8,
-      repeatCount: 8,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '♭6 maj', chordName: 'D', beat: 1, duration: 4 }],
@@ -429,7 +413,6 @@ export const wonderwall: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=bx1Bh8ZvH84' },
   ],

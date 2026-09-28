@@ -7,7 +7,7 @@ export const we_found_love: Song = {
   year: 2011,
   historicalDescription:
     "Rihanna and producer Calvin Harris release 'We Found Love', a euphoric dance-pop anthem that becomes one of the best-selling singles of all time. Its pulsing four-on-the-floor beat and Rihanna's soaring vocal hook capture the peak of EDM's crossover into mainstream pop, cementing the era when festival culture and Top 40 radio fully collide.",
-  key: 'E♭ minor',
+  key: 'D♯ minor',
   keyRoot: 63,
   mode: 'minor',
   tempo: 128,
@@ -19,22 +19,17 @@ export const we_found_love: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 1,
-      bars: [{ chords: [], restBars: 4 }],
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
+      bars: [
+        { chords: [], restBars: 4 },
+        { chords: [], restBars: 8 },
+      ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 1,
-      bars: [{ chords: [], restBars: 8 }],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 6,
-      repeatCount: 4,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -72,8 +67,8 @@ export const we_found_love: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -95,12 +90,6 @@ export const we_found_love: Song = {
             { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
@@ -126,8 +115,6 @@ export const we_found_love: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
-      repeatCount: 8,
       bars: [
         {
           chords: [
@@ -165,9 +152,8 @@ export const we_found_love: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
-      repeatCount: 3,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -192,9 +178,8 @@ export const we_found_love: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 6,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -232,9 +217,29 @@ export const we_found_love: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
@@ -258,36 +263,8 @@ export const we_found_love: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 6,
-      repeatCount: 4,
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -325,7 +302,6 @@ export const we_found_love: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=tg00YEETFzg' },
   ],

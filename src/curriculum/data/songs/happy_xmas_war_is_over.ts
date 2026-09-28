@@ -19,9 +19,8 @@ export const happy_xmas_war_is_over: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 8,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
@@ -42,9 +41,8 @@ export const happy_xmas_war_is_over: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 8,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
@@ -67,7 +65,6 @@ export const happy_xmas_war_is_over: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 6 }],
@@ -86,13 +83,14 @@ export const happy_xmas_war_is_over: Song = {
           chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 6 }],
         },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 6 }],
+        },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
@@ -113,9 +111,8 @@ export const happy_xmas_war_is_over: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 8,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
@@ -136,9 +133,8 @@ export const happy_xmas_war_is_over: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 8,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 6 }] },
@@ -159,7 +155,6 @@ export const happy_xmas_war_is_over: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8gWHlHWIaRQ' },
   ],

@@ -21,7 +21,6 @@ export const cruise: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 9,
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],

@@ -130,6 +130,8 @@ function defaultGmProgram(
       return 33; // Electric Bass (finger)
     case 'electric-piano':
       return 4;
+    case 'bass-electric':
+      return 33; // Electric Bass (finger)
     default:
       return 0; // Acoustic Grand Piano
   }

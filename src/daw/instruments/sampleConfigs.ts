@@ -52,6 +52,36 @@ export const ELECTRIC_PIANO_CONFIG: SamplerConfig = {
   },
 };
 
+// ── Electric Bass ───────────────────────────────────────────────────────
+// The same local samples the genre lessons' backing bass plays through
+// (useBackingTrack.ts). Studio used to reach for soundfont GM 33 for a bass
+// guitar, which is a different instrument to the ear — a Practice Track handed
+// over from a lesson has to keep sounding like the lesson did.
+
+export const BASS_ELECTRIC_CONFIG: SamplerConfig = {
+  name: 'Electric Bass',
+  baseUrl: '/samples/bass-electric/',
+  sampleMap: {
+    'C#1': 'Cs1.mp3',
+    E1: 'E1.mp3',
+    G1: 'G1.mp3',
+    'A#1': 'As1.mp3',
+    'C#2': 'Cs2.mp3',
+    E2: 'E2.mp3',
+    G2: 'G2.mp3',
+    'A#2': 'As2.mp3',
+    'C#3': 'Cs3.mp3',
+    E3: 'E3.mp3',
+    G3: 'G3.mp3',
+    'A#3': 'As3.mp3',
+    'C#4': 'Cs4.mp3',
+    E4: 'E4.mp3',
+    G4: 'G4.mp3',
+    'A#4': 'As4.mp3',
+    'C#5': 'Cs5.mp3',
+  },
+};
+
 // ── Cello ───────────────────────────────────────────────────────────────
 
 export const CELLO_CONFIG: SamplerConfig = {

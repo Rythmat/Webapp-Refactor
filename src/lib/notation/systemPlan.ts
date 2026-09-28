@@ -177,3 +177,62 @@ export function isOneSystem(
       system.measures.every((measure, i) => measure === sorted[i]),
   );
 }
+
+/**
+ * Deal bars out by how much room they need, breaking to a new system whenever
+ * the next one will not fit — the way a line of text wraps, and the way a
+ * copyist fills a line.
+ *
+ * A fixed bars-a-line count cannot do this job. How many bars fit depends on
+ * what is written in them and on how wide the view is, and guessing wrong runs
+ * the music off the edge of a container that does not scroll, where it is not
+ * merely awkward to reach but gone. It also gives a reader the habit sheet
+ * music depends on: play to the end of the line, drop down, start again at the
+ * left.
+ *
+ * `widths` is what each bar needs at the current scale, indexed by bar. The
+ * first system carries the clef, key and time signature, so it has less room
+ * for bars than the ones below it. Marks still force a break where they fall.
+ *
+ * Every system keeps at least one bar. A bar too wide for any window overflows
+ * on its own line rather than wrapping forever.
+ */
+export function packSystems(
+  bars: readonly number[],
+  widths: readonly number[],
+  available: number,
+  headerFirst: number,
+  headerRest: number,
+  marks: SystemMarks = NO_MARKS,
+  fallbackWidth = 90,
+): PlannedSystem[] {
+  const systems: PlannedSystem[] = [];
+  let current: number[] = [];
+  let used = 0;
+
+  const flush = () => {
+    if (current.length === 0) return;
+    systems.push({
+      measures: current,
+      startsPage: marks.pageBreaks.has(current[0]),
+    });
+    current = [];
+    used = 0;
+  };
+
+  for (const index of bars) {
+    const width = widths[index] ?? fallbackWidth;
+    const header = systems.length === 0 ? headerFirst : headerRest;
+    const forced =
+      current.length > 0 &&
+      (marks.breaks.has(index) ||
+        marks.pageBreaks.has(index) ||
+        marks.runs.has(index));
+    const overflows = current.length > 0 && header + used + width > available;
+    if (forced || overflows) flush();
+    current.push(index);
+    used += width;
+  }
+  flush();
+  return systems;
+}

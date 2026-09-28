@@ -47,6 +47,21 @@ const SongDetailPage = lazy(() =>
     default: m.SongDetailPage,
   })),
 );
+const SetListsIndexPage = lazy(() =>
+  import('@/features/setlists/pages/SetListsIndexPage').then((m) => ({
+    default: m.SetListsIndexPage,
+  })),
+);
+const SetListWorkspace = lazy(() =>
+  import('@/features/setlists/pages/SetListWorkspace').then((m) => ({
+    default: m.SetListWorkspace,
+  })),
+);
+const SetListPrintPage = lazy(() =>
+  import('@/features/setlists/print/SetListPrintPage').then((m) => ({
+    default: m.SetListPrintPage,
+  })),
+);
 import { PrismModeSlug } from '@/hooks/data';
 import { ModeOverview } from '@/components/learn/ModeOverview';
 import { RelativeModesOverview } from '@/components/learn/RelativeModesOverview';
@@ -658,6 +673,30 @@ export const songsPages = () => {
       {
         index: true,
         element: <Navigate to={LearnRoutes.root()} replace />,
+      },
+      {
+        path: 'setlists',
+        element: (
+          <ContentGate needs={['songs']}>
+            <SetListsIndexPage />
+          </ContentGate>
+        ),
+      },
+      {
+        path: 'setlists/:setListId/print',
+        element: (
+          <ContentGate needs={['songs']}>
+            <SetListPrintPage />
+          </ContentGate>
+        ),
+      },
+      {
+        path: 'setlists/:setListId',
+        element: (
+          <ContentGate needs={['songs']}>
+            <SetListWorkspace />
+          </ContentGate>
+        ),
       },
       {
         path: ':songId',

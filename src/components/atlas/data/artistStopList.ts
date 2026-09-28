@@ -1,4 +1,13 @@
 /**
+ * ⚠️ RETIRED — nothing imports this any more.
+ *
+ * These are the names the old artist derivation mistook for people. It guessed
+ * who existed from title patterns, so every false positive had to be listed
+ * here by hand. `artistRegistry.ts` now states who exists, so there is nothing
+ * left to subtract. Kept as the record of what that heuristic got wrong.
+ *
+ * Original note follows.
+ *
  * Names the artist extractor finds that are not artists.
  *
  * `artists.ts` reads the capitalized phrase that opens an event title and keeps

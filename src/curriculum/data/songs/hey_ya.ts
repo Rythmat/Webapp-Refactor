@@ -7,42 +7,41 @@ export const hey_ya: Song = {
   year: 2003,
   historicalDescription:
     "Outkast's Andre 3000 releases 'Hey Ya!' in 2003, a song so genre-defying it collapses the walls between hip hop, funk, pop, and rock into a single irresistible burst of energy. Despite its relentlessly upbeat sound, the lyrics wrestle with relationship disillusionment — a contradiction that makes it one of the most deceptively complex pop songs of its era. It becomes a cultural flashpoint, cementing Outkast's status as the most adventurous act in hip hop.",
-  key: 'E minor',
-  keyRoot: 64,
-  mode: 'minor',
+  key: 'G major',
+  keyRoot: 67,
+  mode: 'major',
   tempo: 162,
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip hop'],
+  genreTags: ['hip-hop'],
   techniques: [],
 
   sections: [
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 6,
       bars: [
         {
-          chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
       ],

@@ -2,6 +2,7 @@ import { type FC } from 'react';
 import { KEY_COLORS, KEYS, type ColorIndex } from '@prism/engine';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
+import { wedgeColorRgb } from '@/lib/keyWheelColors';
 
 /**
  * Circle of Fifths SVG, used as a small key-center badge across the app.
@@ -229,22 +230,28 @@ export const KeyCenterBadge: FC<KeyCenterBadgeProps> = ({
 export function getKeyColor(
   song: Pick<Song, 'keyRoot' | 'mode'>,
 ): [number, number, number] {
-  const pitch = ((song.keyRoot % 12) + 12) % 12;
-  const isMinor = song.mode === 'minor' || song.mode === 'aeolian';
-  const idx = (
-    isMinor
-      ? SEMI_TO_IDX[(pitch - AEOLIAN_OFFSET + 12) % 12]
-      : SEMI_TO_IDX[pitch]
-  ) as ColorIndex;
-  const [r, g, b] = KEY_COLORS[idx];
-  return [r, g, b];
+  // Every mode through the one rule the key wheel draws with, so the dot
+  // beside a song title always matches the wedge the wheel highlights. This
+  // used to treat anything that wasn't minor as major, which mis-coloured
+  // every Mixolydian and Dorian chart.
+  return wedgeColorRgb(
+    ((song.keyRoot % 12) + 12) % 12,
+    normalizeSongMode(song.mode),
+  );
+}
+
+/** Song modes are named for musicians ('major'); the wheel speaks in modes. */
+export function normalizeSongMode(mode: Song['mode']): string {
+  if (mode === 'major') return 'ionian';
+  if (mode === 'minor') return 'aeolian';
+  return mode;
 }
 
 /** Display label for a canonical genre slug. */
 export const GENRE_DISPLAY_LABELS: Record<string, string> = {
   pop: 'Pop',
   rock: 'Rock',
-  'hip hop': 'Hip Hop',
+  'hip-hop': 'Hip Hop',
   rnb: 'R&B',
   jazz: 'Jazz',
   blues: 'Blues',

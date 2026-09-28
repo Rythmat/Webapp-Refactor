@@ -1,7 +1,7 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
 import { useState, useEffect, useRef, useMemo, type FC } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Gauge, Clock, Signal } from 'lucide-react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import { ChevronLeft, Gauge, Clock, Signal, Star } from 'lucide-react';
 import {
   getKeyColor,
   prettyGenre,
@@ -10,15 +10,26 @@ import { HexAvatarSVG } from '@/components/ui/HexAvatarSVG';
 import { defaultAvatarConfig } from '@/lib/avatarHexGrid';
 import { GenreBadge } from '@/components/atlas/components/UI/GenreBadge';
 import { getSong } from '@/curriculum/data/songs';
+import { LearnRoutes } from '@/constants/routes';
 import { ChordChart } from './ChordChart';
+import { TransposeKeyButton } from './TransposeKeyButton';
+import { useChartNotation } from './chartNotationPreference';
+import { SegmentedControl } from '@/features/classroom/presentation/SegmentedControl';
+import { SaveVersionDialog } from '@/features/setlists/SaveVersionDialog';
+import { useSetListFavorite } from '@/features/setlists/useSetLists';
+import { transposeSong } from '@/curriculum/songLibrary/transpose';
 import {
   getSectionTimeRange,
   getSectionTimeRangeFromBeats,
 } from '@/curriculum/songLibrary/timing';
 import { useBeatGrid } from '@/curriculum/songLibrary/useBeatGrid';
 import { useSongActions } from '@/features/songs/useSongActions';
+import { SongCredits } from './SongCredits';
 import { useViewedSongsStore } from '@/features/songs/useViewedSongsStore';
 import type { Song } from '@/curriculum/types/songLibrary';
+
+/** The song list: Learn's Songs tab. */
+const SONG_LIST_ROUTE = LearnRoutes.root(undefined, { tab: 'Songs' });
 
 /** Extract YouTube video ID from a URL or URI */
 function extractYouTubeId(uri: string): string | null {
@@ -44,6 +55,17 @@ export const SongDetailPage: FC = () => {
   const ytSource = song?.audioSources.find((s) => s.provider === 'youtube');
   const videoId = ytSource?.uri ? extractYouTubeId(ytSource.uri) : null;
   const startOffset = ytSource?.startOffsetSec ?? 0;
+
+  // Transposition is a view of the published chart, not an edit of it: the
+  // chart, the key line and the Studio hand-off all read `displaySong`, while
+  // the recording, the beat grid and the song's id stay with the original.
+  const [semitones, setSemitones] = useState(0);
+  const [savingVersion, setSavingVersion] = useState(false);
+  useEffect(() => setSemitones(0), [songId]);
+  const displaySong = useMemo(
+    () => (song ? transposeSong(song, semitones) : null),
+    [song, semitones],
+  );
 
   // Lazy-load beat grid sidecar for this song (null until loaded or absent).
   const beatGrid = useBeatGrid(song?.id);
@@ -151,7 +173,7 @@ export const SongDetailPage: FC = () => {
     );
   }
 
-  const [kr, kg, kb] = getKeyColor(song);
+  const [kr, kg, kb] = getKeyColor(displaySong ?? song);
   const [ts0, ts1] = song.timeSignature;
   const genreLabel = prettyGenre(song.genreTags[0]);
 
@@ -172,14 +194,23 @@ export const SongDetailPage: FC = () => {
         />
 
         <div className="relative z-10 flex items-stretch gap-4 md:gap-5 h-36 md:h-40">
-          {/* Back */}
-          <button
-            onClick={() => navigate('/songs')}
-            aria-label="Back to Song Library"
-            className="w-9 h-9 flex flex-shrink-0 self-start items-center justify-center rounded-full hover:bg-white/5 transition-colors text-white/50 hover:text-white"
-          >
-            <ChevronLeft size={20} />
-          </button>
+          {/* Back to the song list — the Songs tab of Learn, which is where
+              the list actually lives ('/songs' itself only holds this page). */}
+          <div className="flex flex-shrink-0 flex-col items-center self-start">
+            <Link
+              to={SONG_LIST_ROUTE}
+              className="text-xs font-medium text-white/50 transition-colors hover:text-white hover:underline"
+            >
+              Songs
+            </Link>
+            <button
+              onClick={() => navigate(SONG_LIST_ROUTE)}
+              aria-label="Back to Song Library"
+              className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/5 transition-colors text-white/50 hover:text-white"
+            >
+              <ChevronLeft size={20} />
+            </button>
+          </div>
 
           {/* Artwork anchor — fills the header height */}
           <SongArtwork song={song} />
@@ -203,21 +234,25 @@ export const SongDetailPage: FC = () => {
               {song.year ? (
                 <span className="text-white/35"> · {song.year}</span>
               ) : null}
+              {song.composer ? (
+                <span className="text-white/35">
+                  {' '}
+                  · Written by {song.composer}
+                </span>
+              ) : null}
             </p>
+
+            <SongCredits song={song} />
 
             {/* Metadata stat row */}
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm">
-              <span className="inline-flex items-center gap-1.5">
-                <span
-                  aria-hidden
-                  className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
-                  style={{
-                    background: `rgb(${kr},${kg},${kb})`,
-                    boxShadow: `0 0 6px rgba(${kr},${kg},${kb},0.6)`,
-                  }}
-                />
-                <span className="text-white/90">Key of {song.key}</span>
-              </span>
+              <TransposeKeyButton
+                song={song}
+                displaySong={displaySong ?? song}
+                semitones={semitones}
+                onChange={setSemitones}
+                color={[kr, kg, kb]}
+              />
               <StatDivider />
               <span className="inline-flex items-center gap-1.5 text-white/50">
                 <Gauge size={15} />
@@ -247,7 +282,23 @@ export const SongDetailPage: FC = () => {
 
             {/* Action icons — placed below the metadata row */}
             <div className="flex items-center gap-2 pt-1">
-              <SongActionPills song={song} />
+              <div className="flex flex-wrap items-center gap-2">
+                <SongActionPills song={displaySong ?? song} />
+                <FavoriteStar songId={song.id} />
+                <ChartNotationSwitch />
+                <button
+                  type="button"
+                  onClick={() => setSavingVersion(true)}
+                  className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                    semitones === 0
+                      ? 'border-white/15 text-white/70 hover:border-white/30'
+                      : 'border-[#7ecfcf] bg-[#7ecfcf]/10 text-[#7ecfcf]'
+                  }`}
+                  title="Save this version to a set list"
+                >
+                  Save version
+                </button>
+              </div>
             </div>
           </div>
 
@@ -267,13 +318,23 @@ export const SongDetailPage: FC = () => {
         </div>
       </header>
 
+      <SaveVersionDialog
+        open={savingVersion}
+        onOpenChange={setSavingVersion}
+        song={song}
+        semitones={semitones}
+      />
+
       {/* ── Chord Chart (scrollable) ── */}
       <div
         className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden custom-scrollbar px-6 md:px-10 pb-4 pt-4"
         style={{ background: '#101012' }}
       >
         <ChordChart
-          song={song}
+          // Remount on a key change: the chart holds the chord whose diagram
+          // is open, and that chord belongs to the copy it came from.
+          key={semitones}
+          song={displaySong ?? song}
           loopSection={loopSection}
           onToggleLoop={(si) => setLoopSection(loopSection === si ? null : si)}
         />
@@ -282,8 +343,53 @@ export const SongDetailPage: FC = () => {
   );
 };
 
+/** Letter chord symbols, or the hybrid numbers, for the chart below. */
+const ChartNotationSwitch: FC = () => {
+  const [notation, setNotation] = useChartNotation();
+  return (
+    <SegmentedControl
+      label="Chord symbols"
+      value={notation}
+      onChange={setNotation}
+      options={[
+        { value: 'letters', label: 'B♭maj7' },
+        { value: 'numbers', label: '4 maj7' },
+      ]}
+    />
+  );
+};
+
+/** The star, as in a music app: adds the song to My Favorites as well as
+ *  whatever set lists it already sits in. */
+const FavoriteStar: FC<{ songId: string }> = ({ songId }) => {
+  const { isFavorite, toggleFavorite, canFavorite } =
+    useSetListFavorite(songId);
+  return (
+    <button
+      type="button"
+      onClick={toggleFavorite}
+      disabled={!canFavorite}
+      aria-pressed={isFavorite}
+      aria-label={
+        isFavorite ? 'Remove from My Favorites' : 'Add to My Favorites'
+      }
+      title={isFavorite ? 'In My Favorites' : 'Add to My Favorites'}
+      className="rounded-full p-1.5 transition-colors disabled:opacity-40"
+    >
+      <Star
+        size={18}
+        className={
+          isFavorite ? 'text-[#7ecfcf]' : 'text-white/40 hover:text-white'
+        }
+        fill={isFavorite ? 'currentColor' : 'none'}
+      />
+    </button>
+  );
+};
+
 const SongActionPills: FC<{ song: Song }> = ({ song }) => {
-  const { openInLesson, openInStudio, openInGlobe } = useSongActions(song);
+  const { openInLesson, openInStudio, openInGlobe, studioPrompt } =
+    useSongActions(song);
   const pills: { label: string; iconSrc: string; onClick: () => void }[] = [
     {
       label: 'Open in Lesson',
@@ -315,6 +421,7 @@ const SongActionPills: FC<{ song: Song }> = ({ song }) => {
           <img src={iconSrc} alt="" draggable={false} width={28} height={28} />
         </button>
       ))}
+      {studioPrompt}
     </>
   );
 };

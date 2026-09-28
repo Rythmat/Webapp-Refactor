@@ -7,9 +7,9 @@ export const god_only_knows: Song = {
   year: 1966,
   historicalDescription:
     "The Beach Boys release 'God Only Knows' as part of the landmark Pet Sounds album, a song so architecturally ambitious that Paul McCartney calls it the greatest song ever written. Brian Wilson layers orchestral instruments, unusual harmonies, and a tone of aching vulnerability that pushes pop music far beyond the surf and sunshine sound the band is known for. It changes what a pop song is allowed to feel like.",
-  key: 'E minor',
+  key: 'E major',
   keyRoot: 64,
-  mode: 'minor',
+  mode: 'major',
   tempo: 115,
   timeSignature: [4, 4],
 
@@ -19,9 +19,9 @@ export const god_only_knows: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 3,
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [
         { chords: [], restBars: 3 },
         {
@@ -33,8 +33,8 @@ export const god_only_knows: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -57,8 +57,8 @@ export const god_only_knows: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -80,12 +80,6 @@ export const god_only_knows: Song = {
             { degree: '5 maj/4', chordName: 'B/A', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
         {
           chords: [
             { degree: '1 maj/5', chordName: 'E/B', beat: 1, duration: 4 },
@@ -109,8 +103,8 @@ export const god_only_knows: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -133,8 +127,8 @@ export const god_only_knows: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -156,12 +150,6 @@ export const god_only_knows: Song = {
             { degree: '5 maj/4', chordName: 'B/A', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
         {
           chords: [
             { degree: '1 maj/5', chordName: 'E/B', beat: 1, duration: 4 },
@@ -185,9 +173,9 @@ export const god_only_knows: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 3,
+      id: 'bridge',
+      label: 'Bridge',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -200,12 +188,6 @@ export const god_only_knows: Song = {
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
         {
           chords: [
             { degree: '4 maj/1', chordName: 'A/E', beat: 1, duration: 1 },
@@ -241,8 +223,9 @@ export const god_only_knows: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [
         {
           chords: [
@@ -265,12 +248,6 @@ export const god_only_knows: Song = {
             { degree: '1 maj/♭7', chordName: 'E/D', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_k',
-      label: 'Section K',
-      bars: [
         {
           chords: [
             { degree: '4 maj/1', chordName: 'A/E', beat: 1, duration: 4 },
@@ -291,13 +268,6 @@ export const god_only_knows: Song = {
             { degree: '7 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_l',
-      label: 'Section L',
-      measuresPerRow: 3,
-      bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
@@ -314,8 +284,8 @@ export const god_only_knows: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'chorus_3',
+      label: 'Chorus 3',
       bars: [
         {
           chords: [
@@ -337,12 +307,6 @@ export const god_only_knows: Song = {
             { degree: '5 maj/4', chordName: 'B/A', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_n',
-      label: 'Section N',
-      bars: [
         {
           chords: [
             { degree: '1 maj/5', chordName: 'E/B', beat: 1, duration: 4 },
@@ -366,8 +330,8 @@ export const god_only_knows: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -388,7 +352,6 @@ export const god_only_knows: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=NADx3-qRxek' },
   ],

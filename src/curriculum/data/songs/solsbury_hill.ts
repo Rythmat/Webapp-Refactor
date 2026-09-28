@@ -21,7 +21,6 @@ export const solsbury_hill: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },
@@ -29,10 +28,13 @@ export const solsbury_hill: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }],
+          repeatStart: true,
+        },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },
         {
           chords: [
@@ -47,54 +49,14 @@ export const solsbury_hill: Song = {
       ],
     },
     {
-      id: 'chorus',
+      id: 'chorus_1',
       label: 'Chorus',
-      measuresPerRow: 3,
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 7 }] },
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 7 }] },
         {
           chords: [
             { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 7 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'F♯', beat: 3, duration: 5 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 1 },
-            { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'F♯7', beat: 3, duration: 5 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 7 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 7 },
           ],
         },
       ],
@@ -102,20 +64,6 @@ export const solsbury_hill: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 3,
-      bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 7 }] },
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 7 }] },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 7 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
       bars: [
         {
           chords: [
@@ -127,68 +75,18 @@ export const solsbury_hill: Song = {
           chords: [
             { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 1 },
             { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'F♯7', beat: 3, duration: 5 },
+            { degree: '5 dom7', chordName: 'F♯7', beat: 3, duration: 5 },
           ],
         },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },
         {
-          chords: [
-            { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 7 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }],
+          repeatEnd: true,
+          repeatTimes: 3,
         },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 7 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 3,
-      bars: [
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 7 }] },
-        { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 7 }] },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 7 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
-      bars: [
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'F♯', beat: 3, duration: 5 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 1 },
-            { degree: '2 min7', chordName: 'C♯min7', beat: 2, duration: 1 },
-            { degree: '5 7', chordName: 'F♯7', beat: 3, duration: 5 },
-          ],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },
-        { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 7 }] },
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_OO2PuGz-H8' },
   ],

@@ -17,7 +17,18 @@ export interface ChordProgressionEntry {
   /** Parsed from comma-separated string, normalized to lowercase */
   styles: string[];
   artist: string;
+  /** The reference as the source sheets wrote it: 'Dreams- Fleetwood Mac'. */
   song: string;
+  /**
+   * `song` resolved to real song ids — the edge into the song graph.
+   *
+   * Only ever set from an EXACT title match (after stripping parenthesised
+   * artists, a trailing '- Artist' and section words). Fuzzy matching was
+   * tried and rejected: prefix matching linked Leonard Cohen's 'Hallelujah' to
+   * Ray Charles's 'Hallelujah I Love Her So'. A wrong edge is worse than a
+   * missing one, so the rest are left for a human in the progression editor.
+   */
+  songIds?: string[];
 }
 
 const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
@@ -34,6 +45,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 2,
     progression: '1 major7 - 1 dominant7#5 - b2 major7 - b3 major7',
@@ -47,6 +59,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 3,
     progression: '1 major7 - 1 dominant7#5 - b2 major7 - 5 dominant7#5',
@@ -60,6 +73,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 4,
     progression: '1 major7 - 1 dominant7#5 - b2 major7 - b6 major7',
@@ -73,6 +87,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 5,
     progression: '1 major7 - 1 dominant7#5 - b2 major7 - b5 major7',
@@ -86,6 +101,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 6,
     progression: '1 major7 - 1 dominant7#5 - 4 minor7 - b7 dominant7',
@@ -99,6 +115,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 7,
     progression: '1 major7 - 1 dominant7#5 - 4 minor7 - 5 dominant7',
@@ -112,6 +129,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 8,
     progression:
@@ -132,6 +150,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 9,
     progression: '1 major7 - 1 dominant7#5 - 4 minor7 - b2 major7',
@@ -145,6 +164,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 10,
     progression: '1 major7 - 1 dominant7#5 - 4 minor7 - b2 dominant7',
@@ -158,6 +178,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 11,
     progression: '1 major7 - 1 dominant7#5 - 4 minor6 - 1 major/3 - 6 minor7',
@@ -171,11 +192,12 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 12,
-    progression: '1 major7 - 1 dominant7#5 - 4 minor6',
-    chords: ['1 major7', '1 dominant7#5', '4 minor6', 'b7dominant7#11'],
-    chordCount: 3,
+    progression: '1 major7 - 1 dominant7#5 - 4 minor6 - b7 dominant7#11',
+    chords: ['1 major7', '1 dominant7#5', '4 minor6', 'b7 dominant7#11'],
+    chordCount: 4,
     startingChord: '1 major7',
     startingDegree: '1',
     complexity: '7th',
@@ -184,6 +206,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 13,
     progression:
@@ -204,6 +227,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 14,
     progression: '1 major7 - 1 dominant7 - 4 major7 - 4 minor6',
@@ -213,10 +237,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['cool', 'emotional', 'sophisticated', 'fun'],
-    styles: ['jazz', 'r&b', 'funk', 'rock', 'reggae', 'jam band'],
+    styles: ['jazz', 'r&b', 'funk', 'rock', 'reggae', 'jam-band'],
     artist: '',
     song: '',
   },
+
   {
     id: 15,
     progression: '1 major7 - 1 dominant7 - 4 major7 - 5 dominant7sus4',
@@ -234,11 +259,12 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
       'rock',
       'reggae',
       'blues',
-      'jam band',
+      'jam-band',
     ],
     artist: '',
     song: '',
   },
+
   {
     id: 16,
     progression:
@@ -259,6 +285,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 17,
     progression: '1 major7 - 1 dominant7 - 4 major7 - b6 major7 - b7 major',
@@ -268,10 +295,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['cool', 'emotional', 'sophisticated', 'fun'],
-    styles: ['jazz', 'r&b', 'funk', 'rock', 'reggae', 'jam band'],
+    styles: ['jazz', 'r&b', 'funk', 'rock', 'reggae', 'jam-band'],
     artist: '',
     song: '',
   },
+
   {
     id: 18,
     progression:
@@ -292,6 +320,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 19,
     progression:
@@ -312,6 +341,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 20,
     progression: '1 major7 - 1 dominant7 - 4 dominant7 - 5 dominant7sus4',
@@ -321,10 +351,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['cool', 'sophisticated', 'fun', 'happy'],
-    styles: ['jazz', 'r&b', 'neo-soul', 'funk', 'reggae', 'blues', 'jam band'],
+    styles: ['jazz', 'r&b', 'neo-soul', 'funk', 'reggae', 'blues', 'jam-band'],
     artist: '',
     song: '',
   },
+
   {
     id: 21,
     progression: '1 major7 - 1 dominant7 - 4 dominant7 - b7 dominant7',
@@ -334,10 +365,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['cool', 'sophisticated', 'fun'],
-    styles: ['jazz', 'r&b', 'funk', 'reggae', 'blues', 'jam band'],
+    styles: ['jazz', 'r&b', 'funk', 'reggae', 'blues', 'jam-band'],
     artist: '',
     song: '',
   },
+
   {
     id: 22,
     progression:
@@ -358,6 +390,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 23,
     progression: '1 major7 - 1 dominant7 - 6 minor7 - 4 major7',
@@ -371,6 +404,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 24,
     progression: '1 major7 - 1 dominant7 - 6 minor7 - 4 minor6/b3 - 1 major/5',
@@ -384,6 +418,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 25,
     progression: '1 major7 - 1 dominant7 - 6 minor7 - b6 major7',
@@ -393,10 +428,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['cool', 'emotional', 'sophisticated'],
-    styles: ['jazz', 'r&b', 'funk', 'latin', 'hip hop'],
+    styles: ['jazz', 'r&b', 'funk', 'latin', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 26,
     progression: '1 major7 - 1 dominant7 - 6 minor7 - b7 major7',
@@ -410,6 +446,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 27,
     progression: '1 major7 - #1 diminished7 - 2 minor7',
@@ -423,6 +460,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 28,
     progression:
@@ -443,6 +481,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 29,
     progression: '1 major7 - #1 diminished7 - 2 minor7 - 5 dominant7',
@@ -456,6 +495,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 30,
     progression: '1 major7 - #1 diminished7 - 2 minor7 - b2 dominant7',
@@ -469,6 +509,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 31,
     progression:
@@ -490,6 +531,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 32,
     progression: '1 major7 - b2 major7 - 1 major7 - b7 major7',
@@ -503,6 +545,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 33,
     progression: '1 major7 - b2 major7 - 1 major7 - b2 major7',
@@ -516,6 +559,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 34,
     progression: '1 major7 - b2 major7 - 2 minor7',
@@ -529,6 +573,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 35,
     progression: '1 major7 - b2 major7 - b3 major7 - 2 minor7',
@@ -542,6 +587,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 36,
     progression: '1 major7 - b2 major7 - b3 major7 - b6 major7',
@@ -555,6 +601,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 37,
     progression: '1 major7 - b2 major7 - b3 major7 - 4 major7',
@@ -568,6 +615,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 38,
     progression: '1 major7 - b2 major7 - b3 major7 - 5 dominant7sus4',
@@ -581,6 +629,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 39,
     progression: '1 major7 - b2 major7 - b6 major7 - 5 dominant7sus4',
@@ -602,6 +651,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 40,
     progression: '1 major7 - b2 major7 - b6 major7 - b7 major7',
@@ -615,6 +665,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 41,
     progression: '1 major7 - b2 major7 - b7 major7 - 5 dominant7sus4',
@@ -628,6 +679,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 42,
     progression: '1 major7 - b2 major7 - b7 major7 - 4 major7',
@@ -641,6 +693,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 43,
     progression: '1 major7 - b2 dominant7 - 1 major7 - b7 major7',
@@ -654,6 +707,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 44,
     progression: '1 major7 - b2 dominant7 - 1 major7 - b2 dominant7#11',
@@ -667,6 +721,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 45,
     progression: '1 major7 - b2 dominant7 - 2 minor7',
@@ -680,6 +735,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 46,
     progression: '1 major7 - b2 dominant7 - 2 dominant7',
@@ -693,6 +749,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 47,
     progression: '1 major7 - 2 dominant7 - b2 major7',
@@ -706,6 +763,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 48,
     progression: '1 major7 - 2 dominant7 - 2 minor7 - b2 dominant7#11',
@@ -719,6 +777,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 49,
     progression: '1 major7 - 2 dominant7 - 2 minor7 - 5 dominant7',
@@ -732,6 +791,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 50,
     progression: '1 major7 - 2 dominant7 - b3 major7 - 4 major7',
@@ -745,6 +805,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 51,
     progression: '1 major7 - 2 dominant7 - b3 major7 - b2 major7',
@@ -758,6 +819,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 52,
     progression: '1 major7 - 2 dominant7 - b3 major7 - 5 dominant7sus4',
@@ -771,6 +833,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 53,
     progression: '1 major7 - 2 dominant7 - b3 major7 - b7 major7',
@@ -784,6 +847,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 54,
     progression: '1 major7 - 2 dominant7 - 4 major7 - b2 major7',
@@ -797,6 +861,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 55,
     progression: '1 major7 - 2 dominant7 - 4 major7 - b3 major7',
@@ -810,6 +875,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 56,
     progression: '1 major7 - 2 dominant7 - 4 major7 - 4 minor6',
@@ -823,6 +889,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 57,
     progression: '1 major7 - 2 dominant7 - 4 major7 - 5 dominant7sus4',
@@ -836,6 +903,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 58,
     progression: '1 major7 - 2 dominant7 - 5 dominant7sus4 - 1 major7',
@@ -849,6 +917,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 59,
     progression: '1 major7 - 2 dominant7 - 5 dominant7sus4 - 6 minor7',
@@ -862,6 +931,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 60,
     progression:
@@ -882,6 +952,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 61,
     progression: '1 major7 - 2 minor7 - b2 major7 - b3 major7',
@@ -895,6 +966,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 62,
     progression: '1 major7 - 2 minor7 - b2 major7 - 5 dominant7sus4',
@@ -908,6 +980,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 63,
     progression: '1 major7 - 2 minor7 - b2 major7 - b6 major7',
@@ -917,10 +990,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['intriguing', 'dark', 'emotional'],
-    styles: ['jazz', 'r&b', 'hip hop'],
+    styles: ['jazz', 'r&b', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 64,
     progression:
@@ -942,6 +1016,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 65,
     progression:
@@ -959,10 +1034,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['cool', 'intriguing', 'emotional', 'sophisticated'],
-    styles: ['jazz', 'r&b', 'gospel', 'latin', 'hip hop'],
+    styles: ['jazz', 'r&b', 'gospel', 'latin', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 66,
     progression: '1 major7 - 2 minor7 - #2 diminished7 - 3 minor7 - 4 major7',
@@ -976,6 +1052,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 67,
     progression: '1 major7 - 2 minor7 - b3 major7 - b2 major7',
@@ -989,6 +1066,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 68,
     progression: '1 major7 - 2 minor7 - b3 major7 - 4 minor6',
@@ -1002,6 +1080,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 69,
     progression: '1 major7 - 2 minor7 - b3 major7 - 4 major7',
@@ -1015,6 +1094,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 70,
     progression: '1 major7 - 2 minor7 - b3 major7 - 5 dominant7sus4',
@@ -1028,6 +1108,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 71,
     progression: '1 major7 - 2 minor7 - 3 minor7 - b3 major7 - b2 major7',
@@ -1041,6 +1122,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 72,
     progression: '1 major7 - 2 minor7 - 3 minor7 - b3 diminished7 - 2 minor7',
@@ -1054,6 +1136,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 73,
     progression: '1 major7 - 2 minor7 - 3 minor7 - 4 major7',
@@ -1067,6 +1150,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 74,
     progression: '1 major7 - 2 minor7 - 3 minor7 - 4 minor6',
@@ -1080,6 +1164,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 75,
     progression: '1 major7 - 2 minor7 - 3 minor7 - 4 minor7 - b7 dominant7#11',
@@ -1093,6 +1178,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 76,
     progression: '1 major7 - 2 minor7 - 3 minor7 - 5 dominant7sus4',
@@ -1106,6 +1192,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 77,
     progression: '1 major7 - 2 minor7 - 3 minor7 - b7 major7',
@@ -1119,6 +1206,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 78,
     progression: '1 major7 - 2 minor7 - 3 dominant7#5 - b2 major7',
@@ -1132,6 +1220,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 79,
     progression: '1 major7 - 2 minor7 - 3 dominant7#5 - b3 major7',
@@ -1145,6 +1234,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 80,
     progression: '1 major7 - 2 minor7 - 3 dominant7#5 - 4 major7',
@@ -1158,6 +1248,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 81,
     progression:
@@ -1178,6 +1269,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 82,
     progression:
@@ -1199,6 +1291,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 83,
     progression: '1 major7 - 2 minor7 - 3 dominant7#5 - 4 minor6',
@@ -1212,6 +1305,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 84,
     progression:
@@ -1232,6 +1326,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 85,
     progression: '1 major7 - 2 minor7 - 3 dominant7#5 - 6 minor7',
@@ -1245,6 +1340,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 86,
     progression:
@@ -1266,6 +1362,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 87,
     progression:
@@ -1287,6 +1384,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 88,
     progression: '1 major7 - 2 minor7 - 4 major7 - b2 major7',
@@ -1300,6 +1398,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 89,
     progression: '1 major7 - 2 minor7 - 4 major7 - 2 minor7b5 - 5 dominant7#5',
@@ -1313,6 +1412,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 90,
     progression: '1 major7 - 2 minor7 - 4 major7 - b3 major7',
@@ -1326,6 +1426,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 91,
     progression: '1 major7 - 2 minor7 - 4 major7 - 3 dominant7#5 - 6 minor7',
@@ -1339,6 +1440,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 92,
     progression: '1 major7 - 2 minor7 - 4 major7 - b6 major7',
@@ -1348,10 +1450,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['emotional'],
-    styles: ['jazz', 'r&b', 'hip hop'],
+    styles: ['jazz', 'r&b', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 93,
     progression: '1 major7 - 2 minor7 - 4 major7 - 4 minor6',
@@ -1365,6 +1468,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 94,
     progression: '1 major7 - 2 minor7 - 4 major7 - 5 dominant7sus4',
@@ -1378,6 +1482,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 95,
     progression: '1 major7 - 2 minor7 - 4 major7 - 6 minor7',
@@ -1391,6 +1496,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 96,
     progression: '1 major7 - 2 minor7 - 4 major7 - b7 dominant7#11',
@@ -1404,6 +1510,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 97,
     progression: '1 major7 - 2 minor7 - b6 major7 - b2 major7',
@@ -1413,10 +1520,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['intriguing', 'dark', 'emotional'],
-    styles: ['jazz', 'r&b', 'hip hop'],
+    styles: ['jazz', 'r&b', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 98,
     progression: '1 major7 - 2 minor7 - b6 major7 - b3 major7',
@@ -1426,10 +1534,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['emotional'],
-    styles: ['jazz', 'r&b', 'hip hop'],
+    styles: ['jazz', 'r&b', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 99,
     progression: '1 major7 - 2 minor7 - b6 major7 - 4 major7',
@@ -1439,10 +1548,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['emotional'],
-    styles: ['jazz', 'r&b', 'hip hop'],
+    styles: ['jazz', 'r&b', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 100,
     progression: '1 major7 - 2 minor7 - b6 major7 - 4 minor6',
@@ -1452,10 +1562,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['emotional'],
-    styles: ['jazz', 'r&b', 'hip hop'],
+    styles: ['jazz', 'r&b', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 101,
     progression: '1 major7 - 2 minor7 - b6 major7 - 5 dominant7sus4',
@@ -1465,10 +1576,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['cool', 'emotional', 'sophisticated', 'fun', 'happy'],
-    styles: ['jazz', 'r&b', 'neo-soul', 'latin', 'hip hop'],
+    styles: ['jazz', 'r&b', 'neo-soul', 'latin', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 102,
     progression: '1 major7 - 2 minor7 - b6 major7 - b7 major7',
@@ -1478,10 +1590,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['emotional'],
-    styles: ['jazz', 'r&b', 'hip hop'],
+    styles: ['jazz', 'r&b', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 103,
     progression: '1 major7 - 2 minor7 - b7 major7 - b6 major7',
@@ -1491,10 +1604,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['emotional'],
-    styles: ['jazz', 'r&b', 'hip hop'],
+    styles: ['jazz', 'r&b', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 104,
     progression: '1 major7 - 2 minor7 - b7 major7 - b3 major7',
@@ -1508,6 +1622,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 105,
     progression: '1 major7 - 2 minor7 - b7 major7 - 4 major7',
@@ -1521,6 +1636,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 106,
     progression: '1 major7 - 2 minor7 - b7 major7 - 5 dominant7sus4',
@@ -1534,6 +1650,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 107,
     progression: '1 major7 - 6 minor7 - b7 major7',
@@ -1547,6 +1664,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 108,
     progression: '1 major7 - 2 minor7b5 - b2 major7#11 - b6 major7',
@@ -1556,10 +1674,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: 'extended',
     vibes: ['intriguing', 'dark', 'emotional', 'sophisticated', 'dreamy'],
-    styles: ['jazz', 'r&b', 'hip hop'],
+    styles: ['jazz', 'r&b', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 109,
     progression: '1 major7 - 2 minor7b5 - b2 major7#11 - 1 major7',
@@ -1573,6 +1692,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 110,
     progression: '1 major7 - 2 minor7b5 - 3 dominant7#5 - b3 major7',
@@ -1586,6 +1706,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 111,
     progression: '1 major7 - 2 minor7b5 - 3 dominant7#5 - 4 major7',
@@ -1599,6 +1720,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 112,
     progression: '1 major7 - 2 minor7b5 - 3 dominant7#5 - 4 minor6',
@@ -1612,6 +1734,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 113,
     progression: '1 major7 - 2 minor7b5 - 3 dominant7#5 - 6 minor7',
@@ -1625,6 +1748,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 114,
     progression:
@@ -1645,6 +1769,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 115,
     progression: '1 major7 - 2 minor7b5 - b3 major7 - b2 major7',
@@ -1658,6 +1783,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 116,
     progression: '1 major7 - 2 minor7b5 - b3 major7 - 4 major7',
@@ -1671,6 +1797,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 117,
     progression: '1 major7 - 2 minor7b5 - b3 major7 - 5 dominant7sus4',
@@ -1684,6 +1811,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 118,
     progression: '1 major7 - 2 minor7b5 - b3 major7 - b6 major7',
@@ -1693,10 +1821,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['emotional'],
-    styles: ['jazz', 'r&b', 'hip hop'],
+    styles: ['jazz', 'r&b', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 119,
     progression: '1 major7 - 2 minor7b5 - 4 major7 - b2 major7',
@@ -1710,6 +1839,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 120,
     progression: '1 major7 - 2 minor7b5 - 4 major7 - 4 minor6/5',
@@ -1723,6 +1853,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 121,
     progression: '1 major7 - 2 minor7b5 - 4 major7 - b7 dominant7',
@@ -1736,6 +1867,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 122,
     progression: '1 major7 - 2 minor7b5 - 5 dominant7b9 - 1 major7',
@@ -1749,6 +1881,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 123,
     progression:
@@ -1777,6 +1910,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 124,
     progression: '1 major7 - b3 major7 - b2 major7 - 5 dominant7sus4',
@@ -1790,6 +1924,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 125,
     progression: '1 major7 - b3 major7 - 2 major7 - b2 major7',
@@ -1803,6 +1938,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 126,
     progression: '1 major7 - b3 major7 - 2 dominant7 - b2 major7',
@@ -1816,6 +1952,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 127,
     progression: '1 major7 - b3 major7 - 2 dominant7 - 5 dominant7sus4',
@@ -1829,6 +1966,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 128,
     progression: '1 major7 - b3 major7 - 2 dominant7 - 4 minor6 - 1 major/3',
@@ -1842,6 +1980,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 129,
     progression: '1 major7 - b3 major7 - 2 minor7 - b2 major7',
@@ -1855,6 +1994,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 130,
     progression: '1 major7 - b3 major7 - 2 minor7 - 5 dominant7sus4',
@@ -1868,6 +2008,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 131,
     progression: '1 major7 - b3 major7 - 2 minor7 - 3 minor7',
@@ -1881,6 +2022,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 132,
     progression:
@@ -1898,10 +2040,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['emotional', 'hypnotic'],
-    styles: ['jazz', 'r&b', 'hip hop'],
+    styles: ['jazz', 'r&b', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 133,
     progression: '1 major7 - b3 major7 - 4 major7 - b2 major7',
@@ -1915,6 +2058,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 134,
     progression: '1 major7 - b3 major7 - 4 major7 - 5 dominant7sus4',
@@ -1928,6 +2072,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 135,
     progression: '1 major7 - b3 major7 - 4 major7 - b6 major7',
@@ -1937,10 +2082,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['emotional'],
-    styles: ['jazz', 'hip hop'],
+    styles: ['jazz', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 136,
     progression: '1 major7 - b3 major7 - b6 major7 - b2 major7',
@@ -1950,10 +2096,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['intriguing', 'dark', 'emotional'],
-    styles: ['jazz', 'hip hop'],
+    styles: ['jazz', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 137,
     progression: '1 major7 - b3 major7 - b6 major7 - b2 dominant7#11',
@@ -1967,6 +2114,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 138,
     progression: '1 major7 - b3 major7 - b6 major7 - 5 dominant7sus4',
@@ -1980,6 +2128,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 139,
     progression: '1 major7 - b3 major7 - b6 major7 - b7 major',
@@ -1989,10 +2138,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['emotional'],
-    styles: ['jazz', 'hip hop'],
+    styles: ['jazz', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 140,
     progression: '1 major7 - b3 diminished7 - 2 minor7 - 5 dominant7',
@@ -2006,6 +2156,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 141,
     progression: '1 major7 - b3 diminished7 - 2 minor7 - b2 dominant7#11',
@@ -2019,6 +2170,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 142,
     progression: '1 major7 - b3 diminished7 - 2 minor7 - b2 major7',
@@ -2032,6 +2184,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 143,
     progression: '1 major7 - 3 minor7 - b3 major7 - b2 major7',
@@ -2045,6 +2198,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 144,
     progression: '1 major7 - 3 minor7 - b3 major7 - b6 major7',
@@ -2054,10 +2208,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['emotional'],
-    styles: ['jazz', 'r&b', 'hip hop'],
+    styles: ['jazz', 'r&b', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 145,
     progression: '1 major7 - 3 minor7 - b3 major7 - b7 major7',
@@ -2071,6 +2226,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 146,
     progression: '1 major7 - 3 minor7 - 4 major7 - b2 major7',
@@ -2084,6 +2240,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 147,
     progression: '1 major7 - 3 minor7 - 4 major7 - b3 major7',
@@ -2097,6 +2254,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 148,
     progression: '1 major7 - 3 minor7 - 4 major7 - 3 dominant7#5',
@@ -2110,6 +2268,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 149,
     progression: '1 major7 - 3 minor7 - 4 major7 - 5 dominant7sus4',
@@ -2123,6 +2282,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 150,
     progression: '1 major7 - 3 minor7 - 4 minor6 - 5 dominant7sus4',
@@ -2136,6 +2296,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 151,
     progression: '1 major7 - 3 minor7 - 4 minor6 - b2 major7',
@@ -2149,6 +2310,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 152,
     progression: '1 major7 - 3 minor7 - 4 minor6 - b2 major7',
@@ -2162,6 +2324,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 153,
     progression: '1 major7 - 3 minor7 - 6 minor7 - 4 major7 - 4 minormajor7',
@@ -2175,6 +2338,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: 'Heather- Conan Gray',
     song: '',
   },
+
   {
     id: 154,
     progression: '1 major7 - 3 dominant7#5 - b3 major7 - b2 major7',
@@ -2188,6 +2352,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 155,
     progression:
@@ -2208,6 +2373,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 156,
     progression:
@@ -2228,6 +2394,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 157,
     progression: '1 major7 - 3 dominant7#5 - b3 major7 - b6 major7 - b2 major7',
@@ -2247,6 +2414,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 158,
     progression:
@@ -2267,6 +2435,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 159,
     progression:
@@ -2287,6 +2456,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 160,
     progression:
@@ -2307,6 +2477,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 161,
     progression: '1 major7 - 3 dominant7#5 - 4 major7 - b2 major7',
@@ -2320,6 +2491,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 162,
     progression: '1 major7 - 3 dominant7#5 - 4 major7 - 5 dominant7sus4',
@@ -2333,6 +2505,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 163,
     progression: '1 major7 - 3 dominant7#5 - 4 major7 - b6 major7',
@@ -2346,6 +2519,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 164,
     progression: '1 major7 - 3 dominant7#5 - 4 major7 - 6 dominant7 - 2 minor7',
@@ -2365,6 +2539,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 165,
     progression: '1 major7 - 3 dominant7#5 - 4 minor7 - b3 major7',
@@ -2378,6 +2553,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 166,
     progression: '1 major7 - 3 dominant7#5 - 4 minor7 - 5 dominant7sus4',
@@ -2391,6 +2567,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 167,
     progression: '1 major7 - 3 dominant7#5 - 4 minor7 - 5 minor7 - b6 major7',
@@ -2400,10 +2577,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['cool', 'sexy', 'emotional', 'sophisticated'],
-    styles: ['jazz', 'r&b', 'neo-soul', 'latin', 'hip hop'],
+    styles: ['jazz', 'r&b', 'neo-soul', 'latin', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 168,
     progression: '1 major7 - 3 dominant7#5 - 4 minor7 - b7 dominant7sus4',
@@ -2417,6 +2595,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 169,
     progression: '1 major7 - 3 dominant7#5 - 4 minor7 - b7 dominant7#11',
@@ -2430,6 +2609,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 170,
     progression: '1 major7 - 3 dominant7#5 - 6 minor7 - 4 major7',
@@ -2443,6 +2623,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 171,
     progression:
@@ -2463,6 +2644,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 172,
     progression:
@@ -2483,6 +2665,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 173,
     progression: '1 major7 - 3 dominant7#5 - 6 minor7 - 5 dominant7sus4',
@@ -2496,6 +2679,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 174,
     progression: '1 major7 - 3 dominant7#5 - 6 minor7 - b7 dominant7',
@@ -2509,6 +2693,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 175,
     progression:
@@ -2529,6 +2714,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 176,
     progression: '1 major7 - 4 minor6 - 3 minor7 - 2 minor7',
@@ -2542,6 +2728,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 177,
     progression: '1 major7 - 4 minor6 - 3 minor7 - b3 major7',
@@ -2555,6 +2742,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 178,
     progression: '1 major7 - 4 minor6 - 3 minor7 - 4 major7',
@@ -2568,6 +2756,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 179,
     progression:
@@ -2589,6 +2778,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 180,
     progression:
@@ -2606,10 +2796,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['cool', 'emotional', 'sophisticated', 'fun', 'happy', 'hypnotic'],
-    styles: ['jazz', 'r&b', 'neo-soul', 'latin', 'hip hop'],
+    styles: ['jazz', 'r&b', 'neo-soul', 'latin', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 181,
     progression: '1 major7 - 4 minor6 - 3 minor7 - 6 dominant7 - 2 minor7',
@@ -2623,6 +2814,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 182,
     progression: '1 major7 - 4 minor6 - 3 minor7 - 6 dominant7 - b6 major7',
@@ -2632,10 +2824,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['cool', 'emotional', 'sophisticated'],
-    styles: ['jazz', 'r&b', 'latin', 'hip hop'],
+    styles: ['jazz', 'r&b', 'latin', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 183,
     progression: '1 major7 - 4 minor6 - b3 major7 - b2 major7',
@@ -2649,6 +2842,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 184,
     progression: '1 major7 - 4 minor6 - b3 major7 - 2 minor7',
@@ -2662,6 +2856,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 185,
     progression: '1 major7 - 4 minor6 - b3 major7 - 5 dominant7sus4',
@@ -2675,6 +2870,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 186,
     progression: '1 major7 - 4 minor6 - b3 major7 - b6 major7',
@@ -2684,10 +2880,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['emotional'],
-    styles: ['jazz', 'hip hop', 'electronic'],
+    styles: ['jazz', 'hip-hop', 'electronic'],
     artist: '',
     song: '',
   },
+
   {
     id: 187,
     progression: '1 major7 - 4 minor6 - b3 major7 - b7 major7',
@@ -2701,6 +2898,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 188,
     progression: '1 major7 - 4 minor6 - b6 major7 - b2 major7',
@@ -2710,10 +2908,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['intriguing', 'dark', 'emotional'],
-    styles: ['jazz', 'hip hop', 'electronic'],
+    styles: ['jazz', 'hip-hop', 'electronic'],
     artist: '',
     song: '',
   },
+
   {
     id: 189,
     progression: '1 major7 - 4 minor6 - b6 major7 - 5 dominant7sus4',
@@ -2723,10 +2922,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['cool', 'emotional', 'sophisticated', 'fun', 'happy'],
-    styles: ['jazz', 'r&b', 'neo-soul', 'hip hop'],
+    styles: ['jazz', 'r&b', 'neo-soul', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 190,
     progression: '1 major7 - 4 minor6 - b6 major7 - 5 dominant7#5',
@@ -2736,10 +2936,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['cool', 'sexy', 'emotional', 'sophisticated'],
-    styles: ['jazz', 'r&b', 'neo-soul', 'hip hop'],
+    styles: ['jazz', 'r&b', 'neo-soul', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 191,
     progression: '1 major7 - 4 minor6 - b6 major7 - b7 dominant7sus4',
@@ -2749,10 +2950,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['cool', 'emotional', 'sophisticated', 'fun', 'happy'],
-    styles: ['jazz', 'r&b', 'neo-soul', 'hip hop'],
+    styles: ['jazz', 'r&b', 'neo-soul', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 192,
     progression: '1 major7 - 4 minor7 - b7 dominant7sus4 - 1 major7',
@@ -2766,6 +2968,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 193,
     progression: '1 major7 - 4 minor7 - b7 dominant7sus4 - b3 major7',
@@ -2779,6 +2982,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 194,
     progression: '1 major7 - 4 minor7 - b7 dominant7#11 - 1 major7',
@@ -2792,6 +2996,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 195,
     progression: '1 major7 - 4 minor7 - b7 dominant7#11 - 6 minor7',
@@ -2805,6 +3010,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 196,
     progression: '1 major7 - 4 dominant7sus4 - 5 dominant7sus4',
@@ -2818,6 +3024,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 197,
     progression:
@@ -2846,6 +3053,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: 'Do I Do- Stevie Wonder',
     song: '',
   },
+
   {
     id: 198,
     progression:
@@ -2866,6 +3074,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: 'Love on Top (Beyonce)',
     song: '',
   },
+
   {
     id: 199,
     progression: '1 major7 - b5 dominant7b5 - 4 major7 - 5 dominant7sus4',
@@ -2879,6 +3088,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: 'Love on Top (Beyonce)',
     song: '',
   },
+
   {
     id: 200,
     progression: '1 major - b5 dominant7b5 - 4 major7 - b7 dominant7',
@@ -2892,6 +3102,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: 'Smile (Kirk Franklin)',
     song: '',
   },
+
   {
     id: 201,
     progression: '1 major7 - 4 major7 - 3 minor7 - 2 minor7',
@@ -2905,6 +3116,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 202,
     progression: '1 major7 - 4 major7 - 3 minor7 - b3 major7',
@@ -2918,6 +3130,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 203,
     progression: '1 major7 - 4 major7 - 3 minor7 - 4 major7',
@@ -2931,6 +3144,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 204,
     progression:
@@ -2952,6 +3166,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 205,
     progression:
@@ -2969,10 +3184,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['cool', 'emotional', 'sophisticated', 'fun', 'happy', 'hypnotic'],
-    styles: ['jazz', 'r&b', 'neo-soul', 'latin', 'hip hop'],
+    styles: ['jazz', 'r&b', 'neo-soul', 'latin', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 206,
     progression: '1 major7 - 4 major7 - 3 minor7 - 6 dominant7 - 2 minor7',
@@ -2986,6 +3202,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 207,
     progression: '1 major7 - 4 major7 - 3 minor7 - 6 dominant7 - b6 major7',
@@ -2995,10 +3212,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['cool', 'emotional', 'sophisticated', 'hypnotic'],
-    styles: ['jazz', 'r&b', 'latin', 'hip hop'],
+    styles: ['jazz', 'r&b', 'latin', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 208,
     progression: '1 major7 - 4 major7 - 3 dominant7#5 - b3 major7 - b2 major7',
@@ -3012,6 +3230,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 209,
     progression:
@@ -3033,6 +3252,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 210,
     progression:
@@ -3054,6 +3274,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 211,
     progression:
@@ -3075,6 +3296,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 212,
     progression: '1 major7 - 4 major7 - 3 dominant7#5 - 4 major7 - b2 major7',
@@ -3088,6 +3310,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 213,
     progression:
@@ -3108,6 +3331,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 214,
     progression: '1 major7 - 4 major7 - 3 dominant7#5 - 4 major7 - b6 major7',
@@ -3121,6 +3345,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 215,
     progression:
@@ -3142,6 +3367,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 216,
     progression: '1 major7 - 4 major7 - 3 dominant7#5 - 6 minor7 - 4 major7',
@@ -3155,6 +3381,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 217,
     progression:
@@ -3176,6 +3403,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 218,
     progression:
@@ -3197,6 +3425,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 219,
     progression:
@@ -3217,6 +3446,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 220,
     progression:
@@ -3237,6 +3467,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 221,
     progression:
@@ -3258,6 +3489,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 222,
     progression: '1 major7 - 4 major7 - b6 major7 - b2 major7',
@@ -3267,10 +3499,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['intriguing', 'dark', 'emotional'],
-    styles: ['jazz', 'hip hop'],
+    styles: ['jazz', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 223,
     progression: '1 major7 - 4 major7 - b6 major7 - 5 dominant7sus4',
@@ -3284,6 +3517,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 224,
     progression: '1 major7 - 4 major7 - b6 major7 - 5 dominant7#5',
@@ -3297,6 +3531,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 225,
     progression: '1 major7 - 4 major7 - b6 major7 - b7 dominant7sus4',
@@ -3310,6 +3545,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 226,
     progression:
@@ -3330,6 +3566,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 227,
     progression: '1 major7 - 4 major7 - 6 minor7 - 2 dominant7 - b2 major7',
@@ -3343,6 +3580,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 228,
     progression: '1 major7 - 4 major7 - 6 minor7 - 4 major7',
@@ -3356,6 +3594,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 229,
     progression: '1 major7 - 4 major7 - 6 minor7 - 4 minor6/b3 - 1 major/5',
@@ -3369,6 +3608,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 230,
     progression: '1 major7 - 4 major7 - 6 minor7 - 5 dominant7sus4',
@@ -3382,6 +3622,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 231,
     progression: '1 major7 - 4 major7 - 6 minor7 - b7 dominant7',
@@ -3395,6 +3636,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 232,
     progression: '1 major7 - 4 major7 - b7 dominant7sus4 - 1 major7',
@@ -3408,6 +3650,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 233,
     progression: '1 major7 - 4 major7 - b7 dominant7sus4 - b3 major7',
@@ -3421,6 +3664,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 234,
     progression: '1 major7 - 4 major7 - b7 dominant7#11 - 1 major7',
@@ -3434,6 +3678,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 235,
     progression: '1 major7 - 4 major7 - b7 dominant7#11 - 6 minor7',
@@ -3447,6 +3692,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 236,
     progression: '1 major7 - 5 minor7 - 4 major7 - b6 major7',
@@ -3456,10 +3702,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['emotional'],
-    styles: ['jazz', 'r&b', 'hip hop'],
+    styles: ['jazz', 'r&b', 'hip-hop'],
     artist: 'Best Part- Daniel Caesar',
     song: '',
   },
+
   {
     id: 237,
     progression: '1 major7 - 5 dominant7 - 1 major7',
@@ -3473,6 +3720,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 238,
     progression: '1 major7 - 5 dominant7 - b2 dominant7 - 1 major7',
@@ -3486,6 +3734,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 239,
     progression: '1 major7 - 5 dominant7 - #5 diminished7 - 6 minor7',
@@ -3499,6 +3748,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 240,
     progression: '1 major7 - 5 dominant7 - 6 minor7 - 3 minor7 - 4 major7',
@@ -3512,6 +3762,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 241,
     progression:
@@ -3532,6 +3783,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 242,
     progression: '1 major7 - 5 dominant7 - 6 minor7 - 4 minor6/b3 - 1 major7/5',
@@ -3551,6 +3803,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 243,
     progression: '1 major7 - 5 dominant7 - 5 dominant7 - 1 major7',
@@ -3564,6 +3817,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 244,
     progression: '1 major7 - 5 dominant7sus4 - 1 major7',
@@ -3577,6 +3831,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 245,
     progression: '1 major7 - 5 dominant7sus4 - b2 dominant7#11 - 1 major7',
@@ -3590,6 +3845,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 246,
     progression: '1 major7 - 5 dominant7sus4 - 5 dominant7 - 1 major7',
@@ -3603,6 +3859,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 247,
     progression: '1 major7 - 5 dominant7sus4 - 5 dominant7 - b2 dominant7',
@@ -3616,6 +3873,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 248,
     progression:
@@ -3636,6 +3894,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 249,
     progression: '1 major7 - 5 dominant7sus4 - 4 major7 - 1 major7',
@@ -3649,6 +3908,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 250,
     progression: '1 major7 - 5 dominant7sus4 - 4 major7 - 3 minor7',
@@ -3662,6 +3922,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 251,
     progression: '1 major7 - 5 dominant7sus4 - 4 major7 - b7 major7',
@@ -3675,6 +3936,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 252,
     progression: '1 major7 - 5 dominant7sus4 - 4 major7 - b7 dominant7#11',
@@ -3688,6 +3950,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 253,
     progression:
@@ -3708,6 +3971,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 254,
     progression: '1 major7 - 5 dominant7sus4 - 4 minor6 - 1 major7',
@@ -3721,6 +3985,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 255,
     progression: '1 major7 - 5 dominant7sus4 - 4 minor6 - 3 minor7',
@@ -3734,6 +3999,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 256,
     progression: '1 major7 - 5 dominant7sus4 - 4 minor6 - 1 major/3 - 6 minor7',
@@ -3753,6 +4019,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 257,
     progression:
@@ -3773,6 +4040,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 258,
     progression: '1 major7 - 5 dominant7sus4 - 5 dominant7#5 - 1 major7',
@@ -3786,6 +4054,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 259,
     progression: '1 major7 - 5 dominant7sus4 - 5 dominant7#5 - b2 dominant7',
@@ -3799,6 +4068,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 260,
     progression: '1 major7 - 5 dominant7sus4 - 5 dominant7#5 - b6 major7',
@@ -3812,6 +4082,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 261,
     progression: '1 major7 - 5 dominant7sus4 - #5 diminished7 - 6 minor7',
@@ -3825,6 +4096,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 262,
     progression: '1 major7 - 5 dominant7sus4 - b6 major7 - b2 major7',
@@ -3846,6 +4118,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 263,
     progression: '1 major7 - 5 dominant7sus4 - b6 major7 - b2 dominant7#11',
@@ -3867,6 +4140,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 264,
     progression: '1 major7 - 5 dominant7sus4 - b6 major7 - 5 dominant7sus4',
@@ -3880,6 +4154,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 265,
     progression:
@@ -3900,6 +4175,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 266,
     progression: '1 major7 - 5 dominant7sus4 - b7 dominant7#11 - 1 major7',
@@ -3913,6 +4189,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 267,
     progression: '1 major7 - b6 major7 - b2 major7',
@@ -3922,10 +4199,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['intriguing', 'dark', 'emotional'],
-    styles: ['jazz', 'hip hop'],
+    styles: ['jazz', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 268,
     progression: '1 major7 - b6 major7 - b2 dominant7#11',
@@ -3939,6 +4217,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 269,
     progression: '1 major7 - b6 major7 - 5 dominant7sus4',
@@ -3952,6 +4231,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 270,
     progression: '1 major7 - b6 major7 - 5 dominant7#5',
@@ -3965,6 +4245,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 271,
     progression: '1 major7 - b6 major7 - b7 dominant7sus4 - 1 major7',
@@ -3978,6 +4259,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 272,
     progression: '1 major7 - b6 major7 - b7 dominant7sus4 - b3 major7',
@@ -3991,6 +4273,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 273,
     progression: '1 major7 - 6 minor7 - 2 dominant7 - 5 dominant7sus4',
@@ -4004,6 +4287,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 274,
     progression: '1 major7 - 6 minor7 - 2 dominant7 - b2 major7',
@@ -4017,6 +4301,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 275,
     progression: '1 major7 - 6 minor7 - 4 major7',
@@ -4030,6 +4315,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 276,
     progression: '1 major7 - 6 minor7 - 4 major7 - 6 minor',
@@ -4043,6 +4329,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: "Can't Stop the Feeling- JT",
     song: '',
   },
+
   {
     id: 277,
     progression: '1 major7 - 6 minor7 - 4 minor6/b3 - 1 major/5',
@@ -4056,6 +4343,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 278,
     progression: '1 major7 - 6 minor7 - b5 minor7b5 - 4 minor6',
@@ -4069,6 +4357,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 279,
     progression: '1 major7 - 6 minor7 - b5 minor7b5 - 5 dominant7sus4',
@@ -4082,6 +4371,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 280,
     progression: '1 major7 - 6 minor7 - 5 dominant7sus4',
@@ -4095,6 +4385,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 281,
     progression: '1 major7 - 6 minor7 - b7 dominant7',
@@ -4108,6 +4399,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 282,
     progression: '1 major7 - b7 major7 - b3 major7',
@@ -4121,6 +4413,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 283,
     progression: '1 major7 - b7 major7 - 4 major7',
@@ -4134,6 +4427,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 284,
     progression: '1 major7 - b7 major7 - b6 major7 - 5 dominant7sus4',
@@ -4147,6 +4441,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 285,
     progression: '1 major7 - b7 major7 - 6 minor7 - 2 dominant7 - b2 major7',
@@ -4160,6 +4455,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 286,
     progression:
@@ -4180,6 +4476,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 287,
     progression: '1 major7 - b7 major7 - 6 minor7 - 4 minor6/b6 - 1 major/5',
@@ -4193,6 +4490,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 288,
     progression:
@@ -4217,10 +4515,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
       'happy',
       'hypnotic',
     ],
-    styles: ['jazz', 'r&b', 'neo-soul', 'latin', 'hip hop'],
+    styles: ['jazz', 'r&b', 'neo-soul', 'latin', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 289,
     progression: '1 major7 - b7 major7 - 6 minor7 - b6 dominant7#5 - 1 major/5',
@@ -4236,10 +4535,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['cool', 'sexy', 'emotional', 'sophisticated'],
-    styles: ['jazz', 'r&b', 'neo-soul', 'latin', 'hip hop'],
+    styles: ['jazz', 'r&b', 'neo-soul', 'latin', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 290,
     progression: '1 major7 - b7 major7 - 7 major7 - 1 major7',
@@ -4253,6 +4553,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 291,
     progression: '1 major7 - b7 dominant7 - b3 major7',
@@ -4266,6 +4567,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 292,
     progression: '1 major7 - b7 dominant7 - b6 dominant7 - 5 dominant7',
@@ -4279,6 +4581,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 293,
     progression: '1 major7 - b7 dominant7 - b6 dominant7 - 5 dominant7#5',
@@ -4292,6 +4595,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 294,
     progression: '1 major7 - b7 dominant7 - 6 dominant7 - 2 minor7',
@@ -4305,6 +4609,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 295,
     progression:
@@ -4326,6 +4631,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 296,
     progression:
@@ -4346,6 +4652,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 297,
     progression:
@@ -4366,6 +4673,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 298,
     progression:
@@ -4386,6 +4694,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 299,
     progression: '1 major7 - b7 dominant7 - 7 dominant7#5 - 1 major7',
@@ -4399,6 +4708,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 300,
     progression: '1 dominant7 - 1 dominant7 - 1 dominant7 - 1 dominant7',
@@ -4408,10 +4718,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: [],
-    styles: ['blues', 'jam band'],
+    styles: ['blues', 'jam-band'],
     artist: '',
     song: 'Signed Sealed Delivered intro',
   },
+
   {
     id: 301,
     progression: '1 dominant7 - 2 dominant7 - 4 major - 1 dominant7',
@@ -4421,10 +4732,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['fun'],
-    styles: ['funk', 'rock', 'reggae', 'blues', 'african', 'jam band'],
+    styles: ['funk', 'rock', 'reggae', 'blues', 'african', 'jam-band'],
     artist: '',
     song: 'Fortunate Son',
   },
+
   {
     id: 302,
     progression: '1 dominant7 - 4 major',
@@ -4434,10 +4746,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['fun'],
-    styles: ['funk', 'rock', 'reggae', 'blues', 'african', 'jam band'],
+    styles: ['funk', 'rock', 'reggae', 'blues', 'african', 'jam-band'],
     artist: '',
     song: 'Lively Up Yourself (Bob Marley)',
   },
+
   {
     id: 303,
     progression:
@@ -4454,10 +4767,12 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['fun'],
-    styles: ['funk', 'reggae', 'jam band'],
+    styles: ['funk', 'reggae', 'jam-band'],
     artist: '',
     song: 'Boogie on Reggae Woman (Stevie Wonder)',
+    songIds: ['boogie_on_reggae_woman'],
   },
+
   {
     id: 304,
     progression: '1 dominant7 - 4 dominant7',
@@ -4467,10 +4782,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['fun'],
-    styles: ['funk', 'reggae', 'blues', 'african', 'jam band'],
+    styles: ['funk', 'reggae', 'blues', 'african', 'jam-band'],
     artist: '',
     song: 'Lively Up Yourself (Bob Marley)',
   },
+
   {
     id: 305,
     progression:
@@ -4487,10 +4803,12 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: ['fun'],
-    styles: ['funk', 'reggae', 'jam band'],
+    styles: ['funk', 'reggae', 'jam-band'],
     artist: '',
     song: 'Boogie on Reggae Woman (Stevie Wonder)',
+    songIds: ['boogie_on_reggae_woman'],
   },
+
   {
     id: 306,
     progression: '1 dominant7 - b7 dominant7',
@@ -4500,10 +4818,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '1',
     complexity: '7th',
     vibes: [],
-    styles: ['blues', 'jam band'],
+    styles: ['blues', 'jam-band'],
     artist: '',
     song: 'Killer Joe (Benny Golson)',
   },
+
   {
     id: 307,
     progression: '2 minor7 - 1 major7 - 2 minor7 - 1 major7',
@@ -4517,6 +4836,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 308,
     progression: '2 minor7 - b2 major7 - 1 major7 - 6 dominant7#5',
@@ -4530,6 +4850,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 309,
     progression: '2 minor7 - 2 minor7b5 - 1 major7 - 6 dominant7#5',
@@ -4543,6 +4864,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 310,
     progression: '2 minor7 - 2 minor7b5 - 5 dominant7 - 1 major7',
@@ -4556,6 +4878,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 311,
     progression: '2 minor7 - b3 major7 - b2 major7 - 1 major7',
@@ -4569,6 +4892,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 312,
     progression: '2 minor7 - b3 major7 - 2 dominant7 - b2 major7',
@@ -4582,6 +4906,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 313,
     progression: '2 minor7 - b3 major7 - 2 dominant7 - 5 dominant7sus4',
@@ -4595,6 +4920,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 314,
     progression: '2 minor7 - b3 major7 - b6 major7 - b2 major7',
@@ -4604,10 +4930,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '2',
     complexity: '7th',
     vibes: ['intriguing', 'dark', 'melancholic'],
-    styles: ['jazz', 'r&b', 'hip hop', 'electronic'],
+    styles: ['jazz', 'r&b', 'hip-hop', 'electronic'],
     artist: '',
     song: '',
   },
+
   {
     id: 315,
     progression:
@@ -4624,10 +4951,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '2',
     complexity: '7th',
     vibes: ['cool', 'sophisticated', 'melancholic'],
-    styles: ['jazz', 'r&b', 'neo-soul', 'latin', 'hip hop'],
+    styles: ['jazz', 'r&b', 'neo-soul', 'latin', 'hip-hop'],
     artist: '',
     song: "Life's a Bitch- Radiant Children",
   },
+
   {
     id: 316,
     progression: '2 minor7 - 3 minor7 - 1 major7 - 6 minor7 - 3 minor7',
@@ -4641,6 +4969,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 317,
     progression: '2 minor7 - 3 minor7 - b3 major7 - b7 major7',
@@ -4654,6 +4983,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'Red Room- Haitus Kaiyote',
   },
+
   {
     id: 318,
     progression: '2 minor7 - 3 minor7 - 4 major7 - 1 major7',
@@ -4667,6 +4997,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 319,
     progression: '2 minor7 - 3 minor7 - 4 major7 - 3 minor7',
@@ -4680,6 +5011,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 320,
     progression: '2 minor7 - 3 minor7 - 6 minor7 - 4 major7 - 3 minor7',
@@ -4693,6 +5025,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 321,
     progression:
@@ -4714,6 +5047,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 322,
     progression: '2 minor7 - 3 minor7 - 4 major7 - 4 minor6 - 3 minor7',
@@ -4727,6 +5061,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 323,
     progression: '2 minor7 - 3 minor7 - 4 major7 - 4 minor6 - 1 major/3',
@@ -4740,6 +5075,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 324,
     progression: '2 minor7 - 3 minor7 - 4 major7 - #4 minor7b5 - 1 major/5',
@@ -4753,6 +5089,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 325,
     progression:
@@ -4773,6 +5110,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 326,
     progression: '2 minor7 - 3 minor7 - 4 major7 - b2 major7',
@@ -4786,6 +5124,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 327,
     progression: '2 minor7 - 3 minor7 - 4 major7 - b6 major7',
@@ -4795,10 +5134,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '2',
     complexity: '7th',
     vibes: ['melancholic'],
-    styles: ['jazz', 'r&b', 'hip hop', 'electronic'],
+    styles: ['jazz', 'r&b', 'hip-hop', 'electronic'],
     artist: '',
     song: '',
   },
+
   {
     id: 328,
     progression: '2 minor7 - 3 minor7 - 4 major7 - 6 dominant7sus4',
@@ -4812,6 +5152,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 329,
     progression: '2 minor7 - 3 minor7 - 4 major7 - 6 dominant7#5',
@@ -4825,6 +5166,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 330,
     progression: '2 minor7 - 3 minor7 - 4 minor7 - b6 major7',
@@ -4834,10 +5176,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '2',
     complexity: '7th',
     vibes: ['melancholic'],
-    styles: ['jazz', 'r&b', 'hip hop', 'electronic'],
+    styles: ['jazz', 'r&b', 'hip-hop', 'electronic'],
     artist: '',
     song: '',
   },
+
   {
     id: 331,
     progression: '2 minor7 - 3 minor7 - 4 minor7 - 5 dominant7sus4',
@@ -4851,6 +5194,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 332,
     progression: '2 minor7 - 3 minor7 - 4 minor7 - b7 dominant7sus4',
@@ -4864,6 +5208,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 333,
     progression: '2 minor7 - 3 minor7 - 4 minor7 - b7 dominant7#11',
@@ -4877,6 +5222,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 334,
     progression: '2 minor7 - 3 minor7 - 5 dominant7sus4',
@@ -4890,6 +5236,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 335,
     progression: '2 minor7 - 3 minor7 - 6 minor7',
@@ -4903,6 +5250,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 336,
     progression:
@@ -4924,6 +5272,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 337,
     progression: '2 minor7 - 4 major7 - 5 dominant7sus4',
@@ -4937,6 +5286,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 338,
     progression: '2 minor7 - 4 major7 - 6 minor7',
@@ -4950,6 +5300,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 339,
     progression: '2 minor7 - 4 minor6 - 1 major7',
@@ -4963,6 +5314,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 340,
     progression: '2 minor7 - 4 minor6 - 1 major/3',
@@ -4976,6 +5328,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 341,
     progression: '2 minor7 - 4 minor6 - 5 dominant7sus4',
@@ -4989,6 +5342,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 342,
     progression: '2 minor7 - 4 minor6 - b6 major7',
@@ -4998,10 +5352,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '2',
     complexity: '7th',
     vibes: ['melancholic'],
-    styles: ['jazz', 'r&b', 'hip hop'],
+    styles: ['jazz', 'r&b', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 343,
     progression: '2 minor7 - 4 minor6 - b7 dominant7sus4',
@@ -5015,6 +5370,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 344,
     progression: '2 minor7 - 5 dominant7sus4 - 1 major7',
@@ -5028,6 +5384,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 345,
     progression: '2 minor7 - 5 dominant7sus4 - 3 minor7 - 6 dominant7sus4',
@@ -5041,6 +5398,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 346,
     progression: '2 minor7 - 5 dominant7 - 1 major7',
@@ -5054,6 +5412,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 347,
     progression: '2 minor7 - 5 dominant7 - 3 minor7 - 4 major7',
@@ -5067,6 +5426,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 348,
     progression: '2 minor7 - 5 dominant7 - 3 minor7 - 6 minor7',
@@ -5080,6 +5440,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 349,
     progression: '2 minor7 - 5 dominant7 - 3 minor7 - 6 dominant7#5',
@@ -5093,6 +5454,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 350,
     progression: '2 minor7 - 5 major7 - 4 major7 - 1 major7 - b7 major7',
@@ -5106,6 +5468,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'Josie Steely-Dan (verse)',
   },
+
   {
     id: 351,
     progression: '2 minor7 - b6 dominant7 - 5 dominant7sus4',
@@ -5115,10 +5478,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '2',
     complexity: '7th',
     vibes: ['cool', 'sophisticated', 'melancholic'],
-    styles: ['jazz', 'r&b', 'neo-soul', 'hip hop'],
+    styles: ['jazz', 'r&b', 'neo-soul', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 352,
     progression: '2 minor7 - b6 dominant7 - 5 dominant7#5',
@@ -5128,10 +5492,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '2',
     complexity: '7th',
     vibes: ['cool', 'sexy', 'sophisticated', 'melancholic'],
-    styles: ['jazz', 'r&b', 'neo-soul', 'hip hop'],
+    styles: ['jazz', 'r&b', 'neo-soul', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 353,
     progression: '2 minor7 - 6 minor7',
@@ -5145,6 +5510,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 354,
     progression: '2 minor7 - b7 major7',
@@ -5158,6 +5524,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 355,
     progression: '2 minor7 - 7 minor7b5 - b7 major7 - b3 dominant7',
@@ -5171,6 +5538,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'Red Room- Hiatus Kaiyote',
   },
+
   {
     id: 356,
     progression: '3 minor7 - 1 major7 - 2 minor7 - 5 dominant7sus4',
@@ -5184,6 +5552,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 357,
     progression: '3 minor7 - 1 major7 - 4 major7 - 2 minor7',
@@ -5197,6 +5566,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 358,
     progression: '3 minor7 - 1 major7 - 4 major7 - 5 dominant7sus4',
@@ -5210,6 +5580,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 359,
     progression: '3 minor7 - 2 minor7 - 3 minor7 - 2 minor7',
@@ -5223,6 +5594,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'I KNOW? Travis Scott',
   },
+
   {
     id: 360,
     progression: '3 minor7 - 2 minor7 - 1 major7',
@@ -5236,6 +5608,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 361,
     progression: '3 minor7 - 2 minor7 - 4 major7',
@@ -5249,6 +5622,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 362,
     progression: '3 minor7 - 2 minor7 - 5 dominant7',
@@ -5262,6 +5636,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 363,
     progression: '3 minor7 - 2 minor7 - 5 dominant7sus4 - 5 dominant7',
@@ -5275,6 +5650,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 364,
     progression: '3 minor7 - b3 diminished7 - 2 minor7 - 5 dominant7',
@@ -5288,6 +5664,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 365,
     progression: '3 minor7 - b3 diminished7 - 2 minor7 - 5 dominant7sus4',
@@ -5301,6 +5678,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 366,
     progression: '3 minor7 - b3 major7 - b6 major7 - b2 major7 - 1 major7',
@@ -5310,10 +5688,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '3',
     complexity: '7th',
     vibes: ['intriguing', 'dark', 'emotional', 'melancholic'],
-    styles: ['jazz', 'r&b', 'hip hop'],
+    styles: ['jazz', 'r&b', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 367,
     progression: '3 minor7 - b3 major7 - 2 minor7 - b2 major7 - 1 major7',
@@ -5327,6 +5706,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 368,
     progression: '3 minor7 - 3 dominant7#5 - 4 major7',
@@ -5340,6 +5720,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 369,
     progression: '3 minor7 - 3 dominant7#5 - 6 minor7',
@@ -5353,6 +5734,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 370,
     progression: '3 minor7 - 4 major7 - #4 minor7b5 - 5 dominant7sus4',
@@ -5366,6 +5748,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 371,
     progression: '3 minor7 - 4 major7 - #4 minor7b5 - 4 minor6',
@@ -5379,6 +5762,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 372,
     progression:
@@ -5400,6 +5784,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 373,
     progression: '3 minor7 - 4 major7 - 6 minor7 - 5 dominant7sus4',
@@ -5413,6 +5798,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 374,
     progression: '3 minor7 - 4 major7 - 4 minor6 - 1 major7',
@@ -5426,6 +5812,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 375,
     progression: '3 minor7 - 4 minor6 - 1 major7',
@@ -5439,6 +5826,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 376,
     progression: '3 minor7 - 4 minor7 - b7 dominant7sus4 - 1 major7',
@@ -5452,6 +5840,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 377,
     progression: '3 minor7 - 5 dominant7sus4 - 1 major7',
@@ -5465,6 +5854,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 378,
     progression: '3 minor7 - 5 dominant7sus4 - 6 minor7',
@@ -5478,6 +5868,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 379,
     progression: '3 minor7 - 6 minor7 - 2 minor7 - 5 dominant7sus4',
@@ -5491,6 +5882,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 380,
     progression: '3 minor7 - 6 dominant7sus4 - 2 minor7 - 5 dominant7sus4',
@@ -5504,6 +5896,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 381,
     progression: '3 minor7 - 6 dominant7#5 - 2 minor7 - 5 dominant7sus4',
@@ -5517,6 +5910,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 382,
     progression: '3 minor7 - 6 dominant7 - 2 minor7 - 5 dominant7',
@@ -5530,6 +5924,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 383,
     progression: '4 major7 - 1 major7',
@@ -5543,6 +5938,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 384,
     progression: '4 major7 - 2 minor7 - 3 minor7 - 6 minor7',
@@ -5556,6 +5952,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: "Ain't No Mountain",
   },
+
   {
     id: 385,
     progression:
@@ -5577,6 +5974,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 386,
     progression: '4 major7 - 2 minor7 - 5 major - 1 major7',
@@ -5590,6 +5988,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'As it Was- Harry Styles',
   },
+
   {
     id: 387,
     progression: '4 major7 - 2 minor7 - 6 minor7 - 1 major7',
@@ -5603,6 +6002,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'Sweater Weather- The Neighbourhood',
   },
+
   {
     id: 388,
     progression: '4 major7 - 3 minor7 - 1 major7 - 2 minor7 - 3 minor7',
@@ -5616,6 +6016,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: "Can't Get Enough Of Your Love (Al Green)",
   },
+
   {
     id: 389,
     progression: '4 major7 - 3 minor7 - 2 minor7 - 5 dominant7',
@@ -5629,6 +6030,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 390,
     progression: '4 major7 - 3 minor7 - 2 minor7 - 5 dominant7sus4',
@@ -5642,6 +6044,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 391,
     progression: '4 major7 - 3 minor7 - 2 minor7 - 1 dominant7 - 4 major7',
@@ -5651,10 +6054,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '4',
     complexity: '7th',
     vibes: ['cool', 'sophisticated', 'fun', 'hypnotic'],
-    styles: ['jazz', 'r&b', 'funk', 'rock', 'latin', 'reggae', 'jam band'],
+    styles: ['jazz', 'r&b', 'funk', 'rock', 'latin', 'reggae', 'jam-band'],
     artist: '',
     song: 'Biggest Part of Me- Ambrosia',
   },
+
   {
     id: 392,
     progression:
@@ -5676,6 +6080,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'Slide- Calvin Harris',
   },
+
   {
     id: 393,
     progression: '4 major7 - 3 minor7 - 2 minor7 - 3 minor7',
@@ -5689,6 +6094,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'Earfquake- Tyler, The Creator',
   },
+
   {
     id: 394,
     progression:
@@ -5710,6 +6116,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 395,
     progression: '4 major7 - 3 dominant7#5 - 6 minor7 - b6 major7',
@@ -5719,10 +6126,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '4',
     complexity: '7th',
     vibes: ['cool', 'sexy', 'sophisticated'],
-    styles: ['jazz', 'r&b', 'neo-soul', 'latin', 'hip hop'],
+    styles: ['jazz', 'r&b', 'neo-soul', 'latin', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 396,
     progression: '4 major7 - 3 dominant7#5 - b6 major7 - 1 major7',
@@ -5736,6 +6144,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 397,
     progression:
@@ -5756,6 +6165,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'Got To Be Real- Cheryl Lynn',
   },
+
   {
     id: 398,
     progression: '4 major7 - 4 minor6 - 1 major7',
@@ -5769,6 +6179,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 399,
     progression: '4 major7 - 4 minor6 - b7 dominant7 - 1 major7',
@@ -5782,6 +6193,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 400,
     progression: '4 major7 - 4 minor6 - 3 minor7 - 6 minor7',
@@ -5795,6 +6207,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 401,
     progression:
@@ -5815,6 +6228,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 402,
     progression: '4 major7 - #4 minor7b5 - 5 major - #5 diminished7 - 6 minor7',
@@ -5834,6 +6248,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 403,
     progression: '4 major7 - #4 minor7b5 - 5 dominant7 - 1 major7',
@@ -5847,6 +6262,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 404,
     progression:
@@ -5867,6 +6283,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 405,
     progression: '4 major7 - 5 dominant7sus4',
@@ -5880,6 +6297,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 406,
     progression: '4 major7 - 5 dominant7 - 1 major7 - 6 minor7',
@@ -5893,6 +6311,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'Say It- Maggie Rogers',
   },
+
   {
     id: 407,
     progression:
@@ -5914,6 +6333,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 408,
     progression:
@@ -5935,6 +6355,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 409,
     progression:
@@ -5955,7 +6376,9 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b'],
     artist: '',
     song: 'Dreams- Fleetwood Mac',
+    songIds: ['dreams'],
   },
+
   {
     id: 410,
     progression: '4 major7 - 5 major - 6 minor7 - 5 major/7',
@@ -5969,6 +6392,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'Over- Robert Glasper/ Yebba',
   },
+
   {
     id: 411,
     progression: '5 dominant7 - 1 major7 - 3 minor7 - 6 minor7',
@@ -5982,6 +6406,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 412,
     progression: '5 dominant7 - 1 major7 - 2 minor7 - 4 major7',
@@ -5995,6 +6420,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 413,
     progression: '5 dominant7 - b2 dominant7 - 1 major7 - 3 minor7',
@@ -6008,6 +6434,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 414,
     progression: '5 dominant7 - b2 dominant7 - 1 major7 - 3 dominant7',
@@ -6021,6 +6448,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 415,
     progression: '5 dominant7 - b2 dominant7 - 1 major7 - b6 major7',
@@ -6034,6 +6462,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 416,
     progression: '5 dominant7 - 3 minor7 - 4 major7 - 1 dominant7',
@@ -6043,10 +6472,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '5',
     complexity: '7th',
     vibes: ['cool', 'sophisticated', 'fun'],
-    styles: ['jazz', 'r&b', 'funk', 'rock', 'latin', 'reggae', 'jam band'],
+    styles: ['jazz', 'r&b', 'funk', 'rock', 'latin', 'reggae', 'jam-band'],
     artist: '',
     song: '',
   },
+
   {
     id: 417,
     progression: '5 dominant7 - b5 minor7b5 - 4 major7 - 4 minor6',
@@ -6060,6 +6490,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 418,
     progression: '5 dominant7 - b5 minor7b5 - 4 major7 - 1 major7',
@@ -6073,6 +6504,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 419,
     progression: '5 dominant7 - b5 minor7b5 - 4 major7 - 3 minor7',
@@ -6086,6 +6518,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 420,
     progression: '5 dominant7 - #4 minor7b5 - 7 dominant7#5 - 3 minor7',
@@ -6099,6 +6532,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 421,
     progression: '5 dominant7 - b5 dominant7b5 - 4 major7 - 4 minor6',
@@ -6112,6 +6546,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 422,
     progression: '5 dominant7 - b5 dominant7b5 - 4 major7 - 1 major7',
@@ -6125,6 +6560,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 423,
     progression: '5 dominant7 - b5 dominant7b5 - 4 major7 - 3 minor7',
@@ -6138,6 +6574,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 424,
     progression: '5 dominant7 - b5 dominant7b5 - 4 major7 - b7 dominant7',
@@ -6151,6 +6588,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 425,
     progression: '5 dominant7 - 4 major7 - 3 minor7 - 6 minor7',
@@ -6164,6 +6602,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 426,
     progression: '5 dominant7 - 4 major7 - 3 minor7 - 2 minor7',
@@ -6177,6 +6616,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 427,
     progression: '5 dominant7 - 4 dominant7 - 1 dominant7 - 1 dominant7',
@@ -6186,10 +6626,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '5',
     complexity: '7th',
     vibes: ['fun'],
-    styles: ['funk', 'reggae', 'blues', 'jam band'],
+    styles: ['funk', 'reggae', 'blues', 'jam-band'],
     artist: '',
     song: 'Blues turnaround',
   },
+
   {
     id: 428,
     progression:
@@ -6207,10 +6648,12 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '5',
     complexity: '7th',
     vibes: [],
-    styles: ['rock', 'pop', 'jam band'],
+    styles: ['rock', 'pop', 'jam-band'],
     artist: '',
     song: 'Only the Good Die Young',
+    songIds: ['only_the_good_die_young'],
   },
+
   {
     id: 429,
     progression: '5 dominant7 - #5 diminished7 - 6 minor7 - 4 major7',
@@ -6224,6 +6667,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 430,
     progression:
@@ -6244,6 +6688,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 431,
     progression: '5 dominant7 - 6 minor7 - 4 major7 - 1 major7',
@@ -6257,6 +6702,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 432,
     progression: '5 dominant7 - 6 dominant7 - 2 minor7 - 4 minor6',
@@ -6269,7 +6715,9 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz'],
     artist: '',
     song: 'I wish (Pre Chorus)- Stevie Wonder',
+    songIds: ['i_wish'],
   },
+
   {
     id: 433,
     progression: '5 dominant7 - 6 dominant7 - 2 minor7 - 5 dominant7#5',
@@ -6283,6 +6731,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '2nd half^',
   },
+
   {
     id: 434,
     progression: '5 dominant7 - b6 major7 - b2 major7 - 1 major7',
@@ -6296,6 +6745,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 435,
     progression: '5 dominant7 - b6 major7 - b7 major7 - 1 major7',
@@ -6309,6 +6759,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 436,
     progression: '5 dominant7 - b6 dominant7 - b2 major7 - 1 major7',
@@ -6322,6 +6773,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 437,
     progression: '5 dominant7 - b6 dominant7 - b2 dominant7 - 1 major7',
@@ -6335,6 +6787,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 438,
     progression: '5 dominant7 - b7 dominant7 - 1 dominant7 - 1 dominant7',
@@ -6344,10 +6797,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '5',
     complexity: '7th',
     vibes: [],
-    styles: ['blues', 'jam band'],
+    styles: ['blues', 'jam-band'],
     artist: '',
     song: '',
   },
+
   {
     id: 439,
     progression:
@@ -6364,10 +6818,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '5',
     complexity: '7th',
     vibes: ['cool', 'sophisticated', 'fun'],
-    styles: ['jazz', 'r&b', 'funk', 'rock', 'reggae', 'jam band'],
+    styles: ['jazz', 'r&b', 'funk', 'rock', 'reggae', 'jam-band'],
     artist: '',
     song: '',
   },
+
   {
     id: 440,
     progression: '6 minor7 - 1 major7 - 4 major7 - 5 dominant7',
@@ -6381,6 +6836,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 441,
     progression: '6 minor7 - 1 major7 - 4 major7 - 3 dominant7#5',
@@ -6394,6 +6850,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 442,
     progression: '6 minor7 - 1 major7 - 4 major7 - b3 major7',
@@ -6407,6 +6864,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 443,
     progression: '6 minor7 - 1 major7 - 4 major7 - 4 minor6',
@@ -6420,6 +6878,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 444,
     progression: '6 minor7 - 1 major7 - 2 minor 7 - 5 dominant7',
@@ -6433,6 +6892,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 445,
     progression:
@@ -6457,11 +6917,12 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
       'rock',
       'latin',
       'reggae',
-      'jam band',
+      'jam-band',
     ],
     artist: '',
     song: 'Juice Lizzo',
   },
+
   {
     id: 446,
     progression: '6 minor7 - 2 minor7 - 3 minor - 4 major7 - 2 minor7',
@@ -6475,6 +6936,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: "Feel's Like Summer- Childish Gambino",
   },
+
   {
     id: 447,
     progression: '6 minor7 - 2 minor7 - 5 dominant7#5 - 1 major7',
@@ -6488,6 +6950,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 448,
     progression: '6 minor7 - 2 minor7 - 5 dominant7 - 3 minor7 - 4 major7',
@@ -6501,6 +6964,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 449,
     progression: '6 minor7 - 2 minor7 - 5 dominant7 - 1 major7',
@@ -6514,6 +6978,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'Fly Me To The Moon',
   },
+
   {
     id: 450,
     progression: '6 minor7 - 2 dominant7 - 1 dominant7 - 4 major7 - b3 major7',
@@ -6523,10 +6988,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '6',
     complexity: '7th',
     vibes: ['cool', 'sophisticated', 'fun', 'hypnotic'],
-    styles: ['jazz', 'r&b', 'funk', 'rock', 'latin', 'reggae', 'jam band'],
+    styles: ['jazz', 'r&b', 'funk', 'rock', 'latin', 'reggae', 'jam-band'],
     artist: '',
     song: 'The Bird- Anderson .Paak',
   },
+
   {
     id: 451,
     progression:
@@ -6544,10 +7010,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '6',
     complexity: '7th',
     vibes: ['cool', 'sophisticated', 'fun', 'happy', 'hypnotic'],
-    styles: ['jazz', 'r&b', 'funk', 'rock', 'latin', 'reggae', 'jam band'],
+    styles: ['jazz', 'r&b', 'funk', 'rock', 'latin', 'reggae', 'jam-band'],
     artist: '',
     song: 'The Bird (bridge)- Anderson .Paak',
   },
+
   {
     id: 452,
     progression: '6 minor7 - 2 dominant7 - 5 dominant7sus4 - 1 major',
@@ -6561,6 +7028,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: "Saturday in the Park (Chicago), Isn't She Lovely (Stevie Wonder), Daughters (John Mayer), Blackbird (Beatles)",
   },
+
   {
     id: 453,
     progression: '6 minor7 - 2 dominant7 - 4 major7 - 1 major',
@@ -6574,6 +7042,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 454,
     progression: '6 minor7 - 2 dominant7 - 4 major7 - 3 minor7',
@@ -6587,6 +7056,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 455,
     progression:
@@ -6607,6 +7077,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 456,
     progression: '6 minor7 - 3 minor7 - 4 major7 - 1 major7',
@@ -6620,6 +7091,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 457,
     progression: '6 minor7 - 3 minor7 - 4 major7 - 5 dominant7sus4',
@@ -6633,6 +7105,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 458,
     progression:
@@ -6653,6 +7126,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 459,
     progression: '6 minor7 - 3 dominant7#5 - 4 major7 - 1 major7',
@@ -6666,6 +7140,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 460,
     progression: '6 minor7 - 3 dominant7#5 - 2 minor7 - 5 dominant7sus4',
@@ -6679,6 +7154,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 461,
     progression: '6 minor7 - 3 dominant7#5 - 1 major7 - 2 maj',
@@ -6692,6 +7168,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 462,
     progression: '6 minor7 - 4 major7 - 2 minor 7 - 5 dominant7',
@@ -6705,6 +7182,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 463,
     progression: '6 minor7 - 4 major7 - 5 dominant7 - 1 major7',
@@ -6718,6 +7196,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 464,
     progression: '6 minor7 - 4 major7 - 3 minor7 - 2 minor7',
@@ -6731,6 +7210,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 465,
     progression: '6 minor7 - 4 minor6/b3 - 5 dominant7sus4 - 1 major7',
@@ -6751,6 +7231,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 466,
     progression: '6 minor7 - b5 minor7b5 - 4 minor6 - 1 major7',
@@ -6764,6 +7245,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 467,
     progression: '6 minor7 - 5 minor7 - 1 dominant7 - 4 major7 - b7 dominant7',
@@ -6773,10 +7255,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '6',
     complexity: '7th',
     vibes: ['cool', 'sophisticated', 'fun', 'melancholic', 'hypnotic'],
-    styles: ['jazz', 'r&b', 'funk', 'rock', 'latin', 'reggae', 'jam band'],
+    styles: ['jazz', 'r&b', 'funk', 'rock', 'latin', 'reggae', 'jam-band'],
     artist: '',
     song: '',
   },
+
   {
     id: 468,
     progression: '6 minor7 - 5 minor7 - 1 dominant7 - 4 major7 - 3 dominant7#5',
@@ -6800,11 +7283,12 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
       'rock',
       'latin',
       'reggae',
-      'jam band',
+      'jam-band',
     ],
     artist: '',
     song: '',
   },
+
   {
     id: 469,
     progression: '6 minor7 - b6 major7 - 5 dominant7sus4 - 1 major7',
@@ -6821,10 +7305,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
       'happy',
       'melancholic',
     ],
-    styles: ['jazz', 'r&b', 'neo-soul', 'latin', 'hip hop'],
+    styles: ['jazz', 'r&b', 'neo-soul', 'latin', 'hip-hop'],
     artist: '',
     song: '',
   },
+
   {
     id: 470,
     progression: '6 minor7 - b6 dominant7 - 5 minor7 - 1 dominant7 - 4 major7',
@@ -6840,13 +7325,14 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
       'funk',
       'rock',
       'latin',
-      'hip hop',
+      'hip-hop',
       'reggae',
-      'jam band',
+      'jam-band',
     ],
     artist: '',
     song: '',
   },
+
   {
     id: 471,
     progression: '6 minor7 - b7 major7 - 1 major7 - 3 minor7',
@@ -6860,6 +7346,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 472,
     progression: '6 minor7 - b7 major7 - 1 major7 - 3 dominant7#5',
@@ -6873,6 +7360,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 473,
     progression: '#5 diminished7 - 6 minor - 2 minor7 - 1 major/3 - 5 major',
@@ -6886,6 +7374,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'Shed a Little Light (James Taylor)',
   },
+
   {
     id: 474,
     progression: '2 minor - 1 major - 5 major - 6 minor',
@@ -6899,6 +7388,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 475,
     progression: '2 minor - 1 major - 5 major - 4 major',
@@ -6912,6 +7402,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 476,
     progression: '2 minor - 1 major - 4 major - 3 major - 6 minor',
@@ -6925,6 +7416,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 477,
     progression: '2 minor - 1 major - 3 minor - 4 major',
@@ -6938,6 +7430,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 478,
     progression: '2 minor - 1 major - 6 minor - 5 major',
@@ -6951,6 +7444,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 479,
     progression: '2 minor - 1 major - 4 major - 5 major',
@@ -6964,6 +7458,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 480,
     progression: '2 minor - 1 major - #5 diminished - 6 minor',
@@ -6977,6 +7472,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 481,
     progression: '2 minor - 1 major - 5 major - 4 major',
@@ -6990,6 +7486,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 482,
     progression: '2 minor - 1 major - 3 major - 4 major',
@@ -7003,18 +7500,19 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 483,
-    progression: '2 minor - 4 major - 5 major - 6 minor - 5 major',
+    progression: '2 minor - 1 major/3 - 4 major - 5 major - 6 minor - 5 major',
     chords: [
       '2 minor',
-      '1major/ 3',
+      '1 major/3',
       '4 major',
       '5 major',
       '6 minor',
       '5 major',
     ],
-    chordCount: 5,
+    chordCount: 6,
     startingChord: '2 minor',
     startingDegree: '2',
     complexity: 'triad',
@@ -7023,6 +7521,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'Glory (bridge) John Legend',
   },
+
   {
     id: 484,
     progression: '2 minor - 3 minor - 4 major - #5 diminished',
@@ -7036,6 +7535,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 485,
     progression: '2 minor - 3 minor - 4 major - 4 minor',
@@ -7049,6 +7549,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 486,
     progression: '2 minor - 3 minor - 4 major - 2 minor',
@@ -7062,6 +7563,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 487,
     progression: '2 minor - 3 minor - 5 major - 1 major',
@@ -7075,6 +7577,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 488,
     progression: '2 minor - 3 minor - 5 major - 6 minor',
@@ -7088,6 +7591,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 489,
     progression: '2 minor - 3 minor - 6 minor - 5 major',
@@ -7101,6 +7605,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 490,
     progression: '2 minor - 3 minor - 4 major - 5 major',
@@ -7114,6 +7619,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 491,
     progression: '2 minor - 3 minor - 4 major - 5 sus4',
@@ -7127,6 +7633,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 492,
     progression: '2 minor - 3 minor - 4 major - 3 major - 6 minor',
@@ -7140,6 +7647,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 493,
     progression: '2 minor - 3 minor - 4 major - #5 diminished - 6 minor',
@@ -7153,6 +7661,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 494,
     progression: '2 minor - 3 minor - 4 major - 4 minor',
@@ -7166,6 +7675,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 495,
     progression: '2 minor - 3 minor - 4 major - 2 minor',
@@ -7179,6 +7689,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 496,
     progression: '2 minor - 3 minor - 5 major - 1 major',
@@ -7192,6 +7703,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 497,
     progression: '2 minor - 3 minor - 5 major - 6 minor',
@@ -7205,6 +7717,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 498,
     progression: '2 minor - 3 minor - 6 minor - 5 major',
@@ -7218,6 +7731,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 499,
     progression: '2 minor - 3 minor - 6 minor - 4 major',
@@ -7231,6 +7745,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 500,
     progression: '2 minor - 3 minor - 6 minor - 1 major/5',
@@ -7244,6 +7759,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 501,
     progression: '2 minor - 1 major/3 - 4 major - 5 major',
@@ -7257,6 +7773,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 502,
     progression: '2 minor - 1 major/3 - 4 major - 5 sus4',
@@ -7270,6 +7787,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 503,
     progression: '2 minor - 1 major/3 - 4 major - 4 minor',
@@ -7283,6 +7801,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 504,
     progression: '2 minor - 1 major/3 - 4 minor - 1 major',
@@ -7296,6 +7815,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 505,
     progression: '2 minor - 1 major/3 - 4 major - #4 diminished - 1 major/5',
@@ -7309,6 +7829,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 506,
     progression: '2 minor - 4 major - 1 major - 6 minor',
@@ -7322,6 +7843,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 507,
     progression: '2 minor - 4 major - 6 minor - 5 major',
@@ -7335,6 +7857,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'Get Luck- Daft Punk',
   },
+
   {
     id: 508,
     progression: '2 minor - 5 major - 1 major - 4 major',
@@ -7348,6 +7871,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 509,
     progression: '2 minor - 5 major - 1 major - 6 minor',
@@ -7361,6 +7885,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 510,
     progression: '2 minor - 5 major - 1 major - 6 major',
@@ -7374,6 +7899,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 511,
     progression: '2 minor - 5 major - 1 major - 3 major',
@@ -7387,6 +7913,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'New Light- John Mayer',
   },
+
   {
     id: 512,
     progression: '2 minor - 5 major - 1 major - b2 diminished',
@@ -7400,6 +7927,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'Kill Bill- SZA',
   },
+
   {
     id: 513,
     progression: '2 minor - 5 major - 3 minor - 6 minor',
@@ -7413,6 +7941,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 514,
     progression: '2 minor - 5 major - 1 major - 1 major',
@@ -7426,6 +7955,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 515,
     progression: '2 minor - 5 major - 1 major - 6 major',
@@ -7439,6 +7969,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 516,
     progression: '2 minor - 5 major - 3 minor - 4 major',
@@ -7452,6 +7983,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 517,
     progression: '2 minor - 5 major - 3 major - 4 major',
@@ -7465,6 +7997,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 518,
     progression: '2 minor - 5 major - 3 major - 6 minor',
@@ -7478,6 +8011,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 519,
     progression: '2 minor - 5 major - #5 diminished - 6 minor',
@@ -7491,6 +8025,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 520,
     progression: '2 minor - 5 major - 6 minor - 4 major',
@@ -7504,6 +8039,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 521,
     progression: '2 minor - 6 minor - 4 major - 5 major',
@@ -7517,6 +8053,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 522,
     progression: '2 minor - 6 minor - 4 major - 5 sus4',
@@ -7530,6 +8067,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 523,
     progression: '2 minor - 6 minor - 3 minor - 4 major',
@@ -7543,6 +8081,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 524,
     progression: '2 minor - 6 minor - 3 major - 4 major',
@@ -7556,6 +8095,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 525,
     progression: '2 minor - 6 minor - 4 major - 4 minor',
@@ -7569,6 +8109,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 526,
     progression: '2 minor - 6 minor - 4 major - 3 minor',
@@ -7582,6 +8123,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 527,
     progression: '2 minor - 6 minor - 5 major - 1 major',
@@ -7595,6 +8137,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 528,
     progression: '2 minor - 6 minor - 5 major - 4 major',
@@ -7608,6 +8151,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'The Way It Is (Bruce Hornsby), Changes (Tupac)',
   },
+
   {
     id: 529,
     progression: '2 minor - 6 minor - 5 major - 1 major/3',
@@ -7621,6 +8165,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 530,
     progression: '2 minor - 6 minor - 5 sus4 - 5 major',
@@ -7634,6 +8179,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 531,
     progression: '2 minor - 6 minor - 1 major - 5 major',
@@ -7647,6 +8193,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 532,
     progression: '2 minor - 6 minor - 1 major - 4 major',
@@ -7660,6 +8207,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 533,
     progression: '2 minor - 6 minor - 2 minor - b6 major - b7 major - 1 major',
@@ -7676,10 +8224,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '2',
     complexity: 'triad',
     vibes: ['emotional', 'melancholic', 'triumphant'],
-    styles: ['pop', 'rock', 'hip hop', 'electronic'],
+    styles: ['pop', 'rock', 'hip-hop', 'electronic'],
     artist: '',
     song: 'happy birthday (bridge)- Stevie Wonder',
   },
+
   {
     id: 534,
     progression: '3 minor - 1 major - 2 minor - 4 major',
@@ -7693,6 +8242,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 535,
     progression: '3 minor - 1 major - 5 major - 1 major',
@@ -7706,6 +8256,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 536,
     progression: '3 minor - 1 major - 4 major',
@@ -7719,6 +8270,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 537,
     progression: '3 minor - 2 minor - 4 major',
@@ -7732,6 +8284,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 538,
     progression: '3 minor - 2 minor - 1 major',
@@ -7745,6 +8298,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 539,
     progression: '3 minor - 2 minor - 5 major',
@@ -7758,6 +8312,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 540,
     progression: '3 minor - 2 minor - 6 minor',
@@ -7771,6 +8326,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 541,
     progression: '3 minor - 2 minor - 6 minor - 5 major',
@@ -7784,6 +8340,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 542,
     progression: '3 minor - 4 major - 1 major - 1 major',
@@ -7796,7 +8353,9 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop', 'folk', 'african'],
     artist: '',
     song: 'Into the Mystic- (bridge) Van Morrison 1',
+    songIds: ['into_the_mystic'],
   },
+
   {
     id: 543,
     progression: '3 minor - 4 major - 5 major - 5 dominant7',
@@ -7809,7 +8368,9 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop', 'folk', 'rock', 'african'],
     artist: '',
     song: 'Into the Mystic- (bridge) Van Morrison 2',
+    songIds: ['into_the_mystic'],
   },
+
   {
     id: 544,
     progression: '3 minor - 4 major - 6 minor',
@@ -7823,6 +8384,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 545,
     progression: '3 minor - 4 major - 6 minor - 5 major',
@@ -7836,6 +8398,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 546,
     progression: '3 minor - 4 major - 5 major - 6 minor',
@@ -7849,6 +8412,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 547,
     progression: '3 minor - 4 major - 2 minor - 5 major',
@@ -7862,6 +8426,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 548,
     progression: '3 minor - 4 major - 1 major - 5 major',
@@ -7875,6 +8440,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 549,
     progression: '3 minor - 4 major - 1 major - 4 major',
@@ -7888,6 +8454,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 550,
     progression: '3 minor - 4 major - 1 major - 2 minor',
@@ -7901,19 +8468,22 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 551,
     progression: '3 major/#5 - 6 minor - 4 minor7 - #5 diminished7',
     chords: ['3 major/#5', '6 minor', '4 minor7', '#5 diminished7'],
     chordCount: 4,
-    startingChord: '3 major',
+    startingChord: '3 major/#5',
     startingDegree: '3',
     complexity: '7th',
     vibes: ['intriguing', 'sophisticated'],
     styles: ['jazz', 'gospel'],
     artist: '',
     song: 'This Love (Maroon 5)',
+    songIds: ['this_love'],
   },
+
   {
     id: 552,
     progression: '4 major - 1 major - 5 major - 6 minor',
@@ -7927,6 +8497,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 553,
     progression: '4 major - 1 major - 5 major - 3 minor',
@@ -7940,6 +8511,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 554,
     progression: '4 major - 1 major - 3 minor - 4 major',
@@ -7953,6 +8525,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 555,
     progression: '4 major - 1 major - 3 minor - 6 minor',
@@ -7966,6 +8539,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 556,
     progression: '4 major - 1 major - 3 major - 4 major',
@@ -7979,6 +8553,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 557,
     progression: '4 major - 1 major - 3 major - 6 minor',
@@ -7992,6 +8567,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 558,
     progression: '4 major - 1 major - 2 minor - 5 major',
@@ -8005,6 +8581,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 559,
     progression: '4 major - 1 major - 2 minor - 3 minor',
@@ -8018,6 +8595,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 560,
     progression: '4 major - 2 minor - 5 major',
@@ -8031,6 +8609,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 561,
     progression: '4 major - 2 minor - 3 minor',
@@ -8044,6 +8623,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 562,
     progression: '4 major - 3 minor - 4 major - 5 major',
@@ -8057,6 +8637,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 563,
     progression: '4 major - 3 minor - 6 minor',
@@ -8070,6 +8651,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 564,
     progression: '4 major - 3 major - 6 minor',
@@ -8083,6 +8665,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 565,
     progression: '4 major - 3 minor - 2 minor - 5 major',
@@ -8096,6 +8679,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 566,
     progression: '4 major - 4 minor - 1 major',
@@ -8109,6 +8693,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 567,
     progression: '4 major - 4 minor - 1 major/3',
@@ -8122,6 +8707,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 568,
     progression: '4 major - #4 diminished - 5 major - #5 diminished - 6 minor',
@@ -8135,6 +8721,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 569,
     progression: '4 major - 5 major - 6 minor',
@@ -8148,6 +8735,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 570,
     progression: '4 major - 5 major - 3 minor',
@@ -8161,6 +8749,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 571,
     progression: '4 major7 - 5 major - 3 minor7 - 4 major',
@@ -8174,6 +8763,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'We Belong Together (Mariah Carey)',
   },
+
   {
     id: 572,
     progression: '4 major - 5 major - 3 minor - 6 minor',
@@ -8187,6 +8777,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 573,
     progression: '4 major - 6 minor - 3 minor - 4 major',
@@ -8200,6 +8791,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 574,
     progression: '4 major - 6 minor - 5 major',
@@ -8213,6 +8805,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 575,
     progression: '5 major - 1 major - 4 major',
@@ -8226,6 +8819,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 576,
     progression: '5 major - 4 major - 1 major - 4 major',
@@ -8239,6 +8833,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 577,
     progression: '5 major - 4 major - 1 major - 6 minor',
@@ -8252,6 +8847,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 578,
     progression: '5 major - #5 diminished - 6 minor',
@@ -8265,6 +8861,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'Hallelujah',
   },
+
   {
     id: 579,
     progression: '5 major - 6 minor - 4 major',
@@ -8278,6 +8875,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 580,
     progression: '5 major - 6 minor - 3 minor - 4 major',
@@ -8291,6 +8889,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 581,
     progression: '6 minor - 1 major - 4 major - 2 minor',
@@ -8304,6 +8903,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'Goodie Bag-Still Woozy',
   },
+
   {
     id: 582,
     progression: '6 minor - 2 minor - 6 minor',
@@ -8313,10 +8913,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '6',
     complexity: 'triad',
     vibes: [],
-    styles: ['pop', 'hip hop', 'electronic'],
+    styles: ['pop', 'hip-hop', 'electronic'],
     artist: '',
     song: "Hustlin'- Rick Ross",
   },
+
   {
     id: 583,
     progression: '6 minor - 2 minor - 5 major - 1 major',
@@ -8330,6 +8931,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'flowers- Miley Cyrus',
   },
+
   {
     id: 584,
     progression: '6 minor - 2 minor - 5 major - 1 major - 5 major',
@@ -8343,11 +8945,12 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'flowers- Miley Cyrus',
   },
+
   {
     id: 585,
-    progression: '6 minor - 3 major',
-    chords: ['6 minor', '2minor', '3 major'],
-    chordCount: 2,
+    progression: '6 minor - 2 minor - 3 major',
+    chords: ['6 minor', '2 minor', '3 major'],
+    chordCount: 3,
     startingChord: '6 minor',
     startingDegree: '6',
     complexity: 'triad',
@@ -8356,6 +8959,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: 'flowers- Miley Cyrus',
   },
+
   {
     id: 586,
     progression: '6 minor - 3 major/3 - 1 major/5 - 2 major',
@@ -8369,6 +8973,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 587,
     progression: '6 minor - 3 sus4 - 3 minor',
@@ -8378,10 +8983,11 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     startingDegree: '6',
     complexity: 'triad',
     vibes: [],
-    styles: ['pop', 'hip hop', 'electronic'],
+    styles: ['pop', 'hip-hop', 'electronic'],
     artist: '',
     song: 'Still Dre- Dr. Dre',
   },
+
   {
     id: 588,
     progression: '6 minor - 3 sus4 - 3 major',
@@ -8395,6 +9001,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     artist: '',
     song: '',
   },
+
   {
     id: 589,
     progression: '6 minor - 4 major - 1 major/3 - 4 major - 5 major',
@@ -8407,6 +9014,1526 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['pop', 'folk', 'reggae', 'african'],
     artist: '',
     song: 'Glory- John Legend',
+  },
+
+  {
+    id: 590,
+    progression: '1 major - #1 diminished - 2 minor - 5 major',
+    chords: ['1 major', '#1 diminished', '2 minor', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: 'I Got Rhythm',
+  },
+
+  {
+    id: 591,
+    progression: '1 major - #1 diminished - 2 minor - 5 sus4',
+    chords: ['1 major', '#1 diminished', '2 minor', '5 sus4'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 592,
+    progression: '1 major - #1 diminished - 2 minor - 4 major',
+    chords: ['1 major', '#1 diminished', '2 minor', '4 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 593,
+    progression: '1 major - #1 diminished - 2 minor - 6 minor',
+    chords: ['1 major', '#1 diminished', '2 minor', '6 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 594,
+    progression: '1 major - #1 diminished - 2 minor - 1 major/3 - 4 major',
+    chords: ['1 major', '#1 diminished', '2 minor', '1 major/3', '4 major'],
+    chordCount: 5,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 595,
+    progression: '1 major - 2 minor - 3 minor - 4 major',
+    chords: ['1 major', '2 minor', '3 minor', '4 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 596,
+    progression: '1 major - 2 minor - 3 minor - 5 major',
+    chords: ['1 major', '2 minor', '3 minor', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 597,
+    progression: '1 major - 2 minor - 3 minor - 5 sus4 - 5 major',
+    chords: ['1 major', '2 minor', '3 minor', '5 sus4', '5 major'],
+    chordCount: 5,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 598,
+    progression: '1 major - 2 minor - 3 minor - 6 minor',
+    chords: ['1 major', '2 minor', '3 minor', '6 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 599,
+    progression: '1 major - 2 minor - 3 minor - b3 diminished - 2 minor',
+    chords: ['1 major', '2 minor', '3 minor', 'b3 diminished', '2 minor'],
+    chordCount: 5,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 600,
+    progression: '1 major - 2 minor - 4 major - 4 minor',
+    chords: ['1 major', '2 minor', '4 major', '4 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 601,
+    progression: '1 major - 2 minor - 4 major - 5 major',
+    chords: ['1 major', '2 minor', '4 major', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 602,
+    progression: '1 major - 2 minor - 4 major - 5 sus4',
+    chords: ['1 major', '2 minor', '4 major', '5 sus4'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 603,
+    progression: '1 major - 2 minor - 4 major - 6 minor',
+    chords: ['1 major', '2 minor', '4 major', '6 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 604,
+    progression: '1 major - 2 minor - 4 major - 3 major - 6 minor',
+    chords: ['1 major', '2 minor', '4 major', '3 major', '6 minor'],
+    chordCount: 5,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 605,
+    progression: '1 major - 2 minor - 4 major - 1 major/3',
+    chords: ['1 major', '2 minor', '4 major', '1 major/3'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 606,
+    progression: '1 major - 2 minor - 5 major - 1 major',
+    chords: ['1 major', '2 minor', '5 major', '1 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 607,
+    progression: '1 major - 2 minor - 5 major - 6 minor',
+    chords: ['1 major', '2 minor', '5 major', '6 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 608,
+    progression: '1 major - 2 minor - 6 minor - 5 major',
+    chords: ['1 major', '2 minor', '6 minor', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 609,
+    progression: '1 major - 2 minor - 6 minor - 4 major',
+    chords: ['1 major', '2 minor', '6 minor', '4 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 610,
+    progression: '1 major - 2 minor - 6 minor - 5 sus4',
+    chords: ['1 major', '2 minor', '6 minor', '5 sus4'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 611,
+    progression: '1 major - 2 minor - #2 diminished - 3 minor',
+    chords: ['1 major', '2 minor', '#2 diminished', '3 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 612,
+    progression: '1 major - 2 minor - 2 minor - 1 major',
+    chords: ['1 major', '2 minor', '2 minor', '1 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 613,
+    progression: '1 major - 2 minor - #2 diminished - 1 major/3 - 4 major',
+    chords: ['1 major', '2 minor', '#2 diminished', '1 major/3', '4 major'],
+    chordCount: 5,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 614,
+    progression: '1 major - 2 minor - 3 major - 4 major',
+    chords: ['1 major', '2 minor', '3 major', '4 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 615,
+    progression: '1 major - 2 minor - 3 major - 6 minor',
+    chords: ['1 major', '2 minor', '3 major', '6 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 616,
+    progression: '1 major - 2 minor - 6 minor - 5 major - 6 minor - 5 major',
+    chords: ['1 major', '2 minor', '6 minor', '5 major', '6 minor', '5 major'],
+    chordCount: 6,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: 'Stay- Rihanna',
+  },
+
+  {
+    id: 617,
+    progression: '1 major - 2 major - 4 major - 5 major',
+    chords: ['1 major', '2 major', '4 major', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 618,
+    progression: '1 major - 2 major - 4 major - 1 major',
+    chords: ['1 major', '2 major', '4 major', '1 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 619,
+    progression: '1 major - 2 major - 4 major - 6 minor',
+    chords: ['1 major', '2 major', '4 major', '6 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 620,
+    progression: '1 major - 2 major - 5 major - 1 major',
+    chords: ['1 major', '2 major', '5 major', '1 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 621,
+    progression: '1 major - 2 major - 5 major - 6 minor',
+    chords: ['1 major', '2 major', '5 major', '6 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 622,
+    progression: '1 major - 2 major - 5 sus4 - 1 major',
+    chords: ['1 major', '2 major', '5 sus4', '1 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 623,
+    progression: '1 major - 2 major - 5 sus4 - 6 minor',
+    chords: ['1 major', '2 major', '5 sus4', '6 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 624,
+    progression: '1 major - 2 major - 5 sus4 - 5 major',
+    chords: ['1 major', '2 major', '5 sus4', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 625,
+    progression: '1 major - 3 minor - 2 minor - 4 major',
+    chords: ['1 major', '3 minor', '2 minor', '4 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 626,
+    progression: '1 major - 3 minor - 2 minor - 5 major',
+    chords: ['1 major', '3 minor', '2 minor', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 627,
+    progression: '1 major - 3 minor - 4 major - 4 minor',
+    chords: ['1 major', '3 minor', '4 major', '4 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 628,
+    progression: '1 major - 3 minor - 4 major - 5 major',
+    chords: ['1 major', '3 minor', '4 major', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 629,
+    progression: '1 major - 3 minor - 4 major - 5 sus4',
+    chords: ['1 major', '3 minor', '4 major', '5 sus4'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 630,
+    progression: '1 major - 3 minor - 4 major - 1 major/5',
+    chords: ['1 major', '3 minor', '4 major', '1 major/5'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 631,
+    progression: '1 major - 3 minor - 4 major - 6 minor',
+    chords: ['1 major', '3 minor', '4 major', '6 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 632,
+    progression: '1 major - 3 minor - 5 major - 4 major',
+    chords: ['1 major', '3 minor', '5 major', '4 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 633,
+    progression: '1 major - 3 minor - 5 sus4 - 5 major',
+    chords: ['1 major', '3 minor', '5 sus4', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 634,
+    progression: '1 major - 3 minor - 6 minor - 4 major',
+    chords: ['1 major', '3 minor', '6 minor', '4 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 635,
+    progression: '1 major - 3 minor - 6 minor - 5 major',
+    chords: ['1 major', '3 minor', '6 minor', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 636,
+    progression: '1 major - 3 minor - b7 major - 4 major - 1 major',
+    chords: ['1 major', '3 minor', 'b7 major', '4 major', '1 major'],
+    chordCount: 5,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: '7th',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: 'Still Rock n Roll (Billy Joel)',
+  },
+
+  {
+    id: 637,
+    progression: '1 major - 3 major - 6 minor - 4 major',
+    chords: ['1 major', '3 major', '6 minor', '4 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 638,
+    progression: '1 major - 3 major - 6 minor - 5 major',
+    chords: ['1 major', '3 major', '6 minor', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 639,
+    progression: '1 major - 3 major - 4 major - 4 minor',
+    chords: ['1 major', '3 major', '4 major', '4 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: 'Creep (Radiohead)',
+    songIds: ['creep'],
+  },
+
+  {
+    id: 640,
+    progression: '1 major - 3 major - 4 major - 5 major',
+    chords: ['1 major', '3 major', '4 major', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 641,
+    progression: '1 major - 3 major - 4 major - 5 sus4',
+    chords: ['1 major', '3 major', '4 major', '5 sus4'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 642,
+    progression: '1 major - 4 major/1 - 1 major',
+    chords: ['1 major', '4 major/1', '1 major'],
+    chordCount: 3,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: 'Lean on Me',
+    songIds: ['lean_on_me'],
+  },
+
+  {
+    id: 643,
+    progression: '1 major - 4 major - 5 major - 6 minor',
+    chords: ['1 major', '4 major', '5 major', '6 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: 'Anti-Hero- Taylor Swift',
+  },
+
+  {
+    id: 644,
+    progression: '1 major - 4 major - 5 major - 6 major',
+    chords: ['1 major', '4 major', '5 major', '6 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: 'Hey Ya! Outkast',
+  },
+
+  {
+    id: 645,
+    progression: '1 major - 4 major - 2 minor - 5 major',
+    chords: ['1 major', '4 major', '2 minor', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 646,
+    progression: '1 major - 4 major - 2 minor - 4 major',
+    chords: ['1 major', '4 major', '2 minor', '4 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 647,
+    progression: '1 major - 4 major - 3 minor - 2 minor',
+    chords: ['1 major', '4 major', '3 minor', '2 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 648,
+    progression: '1 major - 4 major - 3 minor - 5 major',
+    chords: ['1 major', '4 major', '3 minor', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 649,
+    progression: '1 major - 4 major - 5 major - 4 major',
+    chords: ['1 major', '4 major', '5 major', '4 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 650,
+    progression: '1 major - 4 major - 6 minor - 5 major',
+    chords: ['1 major', '4 major', '6 minor', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 651,
+    progression: '1 major - 4 major - 6 minor - 3 minor',
+    chords: ['1 major', '4 major', '6 minor', '3 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 652,
+    progression: '1 major - 4 major - 4 minor - 1 major/3',
+    chords: ['1 major', '4 major', '4 minor', '1 major/3'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 653,
+    progression: '1 major - 4 major - 1 major/3 - 2 minor',
+    chords: ['1 major', '4 major', '1 major/3', '2 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 654,
+    progression: '1 major - 4 major - 1 major/3 - 5 major',
+    chords: ['1 major', '4 major', '1 major/3', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 655,
+    progression: '1 major - 4 major - 1 major/3 - 6 minor',
+    chords: ['1 major', '4 major', '1 major/3', '6 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 656,
+    progression: '1 major - 4 major - 3 major - 6 minor',
+    chords: ['1 major', '4 major', '3 major', '6 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 657,
+    progression: '1 major - 4 major - #5 diminished - 6 minor',
+    chords: ['1 major', '4 major', '#5 diminished', '6 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 658,
+    progression: '1 major - 5 major - 4 major - 5 major',
+    chords: ['1 major', '5 major', '4 major', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 659,
+    progression: '1 major - 5 major - 4 major - 4 minor',
+    chords: ['1 major', '5 major', '4 major', '4 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 660,
+    progression: '1 major - 5 major - 4 major - 3 major - 6 minor',
+    chords: ['1 major', '5 major', '4 major', '3 major', '6 minor'],
+    chordCount: 5,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 661,
+    progression: '1 major - 5 major - 4 major - #5 diminished - 6 minor',
+    chords: ['1 major', '5 major', '4 major', '#5 diminished', '6 minor'],
+    chordCount: 5,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 662,
+    progression: '1 major - 5 major - 6 minor - 4 major',
+    chords: ['1 major', '5 major', '6 minor', '4 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 663,
+    progression: '1 major - 5 major - 6 minor - 5 major',
+    chords: ['1 major', '5 major', '6 minor', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 664,
+    progression: '1 major - 5 major - 3 minor - 4 major',
+    chords: ['1 major', '5 major', '3 minor', '4 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 665,
+    progression: '1 major - 5 major - 2 minor - 5 major',
+    chords: ['1 major', '5 major', '2 minor', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 666,
+    progression: '1 major - 5 major - 2 minor - 4 major',
+    chords: ['1 major', '5 major', '2 minor', '4 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: 'Just Like Heaven (The Cure)',
+  },
+
+  {
+    id: 667,
+    progression: '1 major - 5 major - 3 minor - 6 minor',
+    chords: ['1 major', '5 major', '3 minor', '6 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 668,
+    progression: '1 major - 5 major - #5 diminished - 6 minor',
+    chords: ['1 major', '5 major', '#5 diminished', '6 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 669,
+    progression: '1 major - 5 major - 3 major - 6 minor',
+    chords: ['1 major', '5 major', '3 major', '6 minor'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 670,
+    progression: '1 major - 5 major - 3 major - 4 major',
+    chords: ['1 major', '5 major', '3 major', '4 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 671,
+    progression: '1 major - 6 minor - 2 minor - 5 major',
+    chords: ['1 major', '6 minor', '2 minor', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 672,
+    progression: '1 major - 6 minor - 4 major - 5 major',
+    chords: ['1 major', '6 minor', '4 major', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 673,
+    progression: '1 major - 6 minor - 3 minor - 5 major',
+    chords: ['1 major', '6 minor', '3 minor', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 674,
+    progression: '1 major - 6 minor - 3 minor - 4 major',
+    chords: ['1 major', '6 minor', '3 minor', '4 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 675,
+    progression: '1 major - 6 minor - 3 major - 4 major',
+    chords: ['1 major', '6 minor', '3 major', '4 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 676,
+    progression: '1 major - 6 major - 2 minor - 5 major',
+    chords: ['1 major', '6 major', '2 minor', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 677,
+    progression: '1 major - 6 major - 2 minor - 1 major/3 - 4 major',
+    chords: ['1 major', '6 major', '2 minor', '1 major/3', '4 major'],
+    chordCount: 5,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 678,
+    progression: '1 major - b7 major - 4 major - 1 major',
+    chords: ['1 major', 'b7 major', '4 major', '1 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: '7th',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 679,
+    progression: '1 major - b7 major - 6 minor - 5 major',
+    chords: ['1 major', 'b7 major', '6 minor', '5 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: '7th',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: 'happy birthday- Stevie Wonder',
+  },
+
+  {
+    id: 680,
+    progression: '1 major - 1 major/6 - 1 major/4 - 1 major',
+    chords: ['1 major', '1 major/6', '1 major/4', '1 major'],
+    chordCount: 4,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: "Can't Stop the Feeling (Justin Timberlake)",
+  },
+
+  {
+    id: 681,
+    progression: '1 major - b7 major - 6 minor7',
+    chords: ['1 major', 'b7 major', '6 minor7'],
+    chordCount: 3,
+    startingChord: '1 major',
+    startingDegree: '1',
+    complexity: '7th',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: 'Tell Me Something Good (Stevie Wonder)',
+    songIds: ['tell_me_something_good'],
+  },
+
+  {
+    id: 684,
+    progression: '3 dominant7 - 4 major7 - 5 dominant7 - 6 minor7',
+    chords: ['3 dominant7', '4 major7', '5 dominant7', '6 minor7'],
+    chordCount: 4,
+    startingChord: '3 dominant7',
+    startingDegree: '3',
+    complexity: '7th',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 685,
+    progression: '3 dominant7 - 4 major7 - 5 dominant7 - 1 major7',
+    chords: ['3 dominant7', '4 major7', '5 dominant7', '1 major7'],
+    chordCount: 4,
+    startingChord: '3 dominant7',
+    startingDegree: '3',
+    complexity: '7th',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 686,
+    progression:
+      '3 dominant7 - 4 major7 - 5 dominant7 - #5 diminished7 - 6 minor',
+    chords: [
+      '3 dominant7',
+      '4 major7',
+      '5 dominant7',
+      '#5 diminished7',
+      '6 minor',
+    ],
+    chordCount: 5,
+    startingChord: '3 dominant7',
+    startingDegree: '3',
+    complexity: '7th',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 687,
+    progression: '3 dominant7 - 6 minor - 4 major - 5 major - 1 major',
+    chords: ['3 dominant7', '6 minor', '4 major', '5 major', '1 major'],
+    chordCount: 5,
+    startingChord: '3 dominant7',
+    startingDegree: '3',
+    complexity: '7th',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: 'Yesterday bridge (Paul McCartney)',
+  },
+
+  {
+    id: 688,
+    progression: '3 dominant7#5 - 6 minor7 - 3 dominant7#5 - 6 minor7',
+    chords: ['3 dominant7#5', '6 minor7', '3 dominant7#5', '6 minor7'],
+    chordCount: 4,
+    startingChord: '3 dominant7#5',
+    startingDegree: '3',
+    complexity: '7th',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: 'On and On (Erykah Badhu)',
+  },
+
+  {
+    id: 689,
+    progression:
+      '3 dominant7 - 6 dominant7#5 - 2 minor7 - 5 dominant7 - 1 major7',
+    chords: [
+      '3 dominant7',
+      '6 dominant7#5',
+      '2 minor7',
+      '5 dominant7',
+      '1 major7',
+    ],
+    chordCount: 5,
+    startingChord: '3 dominant7',
+    startingDegree: '3',
+    complexity: '7th',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 690,
+    progression: '3 dominant7 - 4 major7 - 4 minor6 - 1 major7',
+    chords: ['3 dominant7', '4 major7', '4 minor6', '1 major7'],
+    chordCount: 4,
+    startingChord: '3 dominant7',
+    startingDegree: '3',
+    complexity: '7th',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 691,
+    progression: '3 dominant7 - 4 major7 - #4 diminished7 - 1 major/5',
+    chords: ['3 dominant7', '4 major7', '#4 diminished7', '1 major/5'],
+    chordCount: 4,
+    startingChord: '3 dominant7',
+    startingDegree: '3',
+    complexity: '7th',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 693,
+    progression:
+      '5 dominant7 - 4 dominant7 - 1 major - 1 major - 2 dominant7 - 2 dominant7 - 4 major',
+    chords: [
+      '5 dominant7',
+      '4 dominant7',
+      '1 major',
+      '1 major',
+      '2 dominant7',
+      '2 dominant7',
+      '4 major',
+    ],
+    chordCount: 7,
+    startingChord: '5 dominant7',
+    startingDegree: '5',
+    complexity: '7th',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: 'Only the Good Die Young',
+    songIds: ['only_the_good_die_young'],
+  },
+
+  {
+    id: 694,
+    progression: '5 major - 1 major/3 - 4 major',
+    chords: ['5 major', '1 major/3', '4 major'],
+    chordCount: 3,
+    startingChord: '5 major',
+    startingDegree: '5',
+    complexity: 'triad',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 695,
+    progression: '5 major - 5 major/7 - 1 major',
+    chords: ['5 major', '5 major/7', '1 major'],
+    chordCount: 3,
+    startingChord: '5 major',
+    startingDegree: '5',
+    complexity: '7th',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: '',
+  },
+
+  {
+    id: 696,
+    progression:
+      '6 minor7 - 2 dominant7 - 1 dominant7 - 4 major7 - 1 major/3 - 2 minor7 - 5 dominant7sus4',
+    chords: [
+      '6 minor7',
+      '2 dominant7',
+      '1 dominant7',
+      '4 major7',
+      '1 major/3',
+      '2 minor7',
+      '5 dominant7sus4',
+    ],
+    chordCount: 7,
+    startingChord: '6 minor7',
+    startingDegree: '6',
+    complexity: '7th',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: 'The Bird (bridge)- Anderson .Paak',
+  },
+
+  {
+    id: 697,
+    progression: 'b7 major - 4 major - 1 major',
+    chords: ['b7 major', '4 major', '1 major'],
+    chordCount: 3,
+    startingChord: 'b7 major',
+    startingDegree: 'b7',
+    complexity: '7th',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: 'Every classic rock song ever',
+  },
+
+  {
+    id: 698,
+    progression: 'b7 major - 2 minor - 1 major',
+    chords: ['b7 major', '2 minor', '1 major'],
+    chordCount: 3,
+    startingChord: 'b7 major',
+    startingDegree: 'b7',
+    complexity: '7th',
+    vibes: [],
+    styles: [],
+    artist: '',
+    song: 'When Doves Cry (Prince)',
   },
 ];
 

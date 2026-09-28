@@ -19,9 +19,8 @@ export const broken_halos: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 6,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -56,13 +55,6 @@ export const broken_halos: Song = {
             { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 6,
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -101,7 +93,6 @@ export const broken_halos: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 5,
       bars: [
         {
           chords: [
@@ -125,8 +116,40 @@ export const broken_halos: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       bars: [
+        {
+          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'D♭', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'D♭', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'D♭', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -163,48 +186,8 @@ export const broken_halos: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 6,
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'D♭', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'D♭', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'D♭', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'A♭', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -234,7 +217,6 @@ export const broken_halos: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=sI0TeFf6uD8' },
   ],

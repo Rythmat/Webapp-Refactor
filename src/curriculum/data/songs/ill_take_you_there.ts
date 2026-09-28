@@ -19,29 +19,23 @@ export const ill_take_you_there: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
       id: 'verse',
       label: 'Verse',
       bars: [
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -49,7 +43,6 @@ export const ill_take_you_there: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IhHBr7nMMio' },
   ],

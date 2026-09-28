@@ -44,7 +44,14 @@ describe('songDemoChart', () => {
     expect(chart).toHaveLength(1);
     expect(chart[0].perRow).toBe(4);
     expect(chart[0].bars[3]).toEqual([]);
-    expect(songDemoChart(creep)[1].perRow).toBe(5);
+    // Creep is one section now — its verse and chorus were written as two
+    // with a five-bar row, and the chart folded them into a single nine-bar
+    // verse. A section that sets no width reads four to a row.
+    const creepChart = songDemoChart(creep);
+    expect(creepChart).toHaveLength(1);
+    expect(creepChart[0].label).toBe('Verse');
+    expect(creepChart[0].perRow).toBe(4);
+    expect(creepChart[0].bars).toHaveLength(9);
   });
 
   it('voices chords inside the demo keys, root in the bass', () => {

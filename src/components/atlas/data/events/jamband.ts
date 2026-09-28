@@ -17,7 +17,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
     tags: [
       'phish',
       'uvm',
-      'jam band',
+      'jam-band',
       'nectars',
       'trey anastasio',
       'improvisation',
@@ -142,7 +142,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'tweezer',
       'improvisation',
       'burlington',
-      'jam band',
+      'jam-band',
     ],
     videoId: '-Ck7yd1nMbQ',
   },

@@ -22,6 +22,11 @@ interface SettingsState {
   highContrast: boolean;
   noteStreaks: boolean;
 
+  /** Practice Track keyboard: show the scale-degree row over the lit keys. */
+  practiceShowDegrees: boolean;
+  /** Practice Track keyboard: show the note-name row over the lit keys. */
+  practiceShowNoteNames: boolean;
+
   // MIDI
   midiDeviceId: string;
   hitSensitivity: number;
@@ -36,6 +41,8 @@ interface SettingsState {
   setAutoPreview: (enabled: boolean) => void;
   setHighContrast: (enabled: boolean) => void;
   setNoteStreaks: (enabled: boolean) => void;
+  setPracticeShowDegrees: (enabled: boolean) => void;
+  setPracticeShowNoteNames: (enabled: boolean) => void;
   setMidiDeviceId: (id: string) => void;
   setHitSensitivity: (sensitivity: number) => void;
   setMidiMapping: (mapping: MidiMapping | null) => void;
@@ -55,6 +62,8 @@ export const useSettingsStore = create<SettingsState>()(
       autoPreview: true,
       highContrast: false,
       noteStreaks: true,
+      practiceShowDegrees: true,
+      practiceShowNoteNames: true,
 
       // MIDI defaults
       midiDeviceId: '',
@@ -70,6 +79,10 @@ export const useSettingsStore = create<SettingsState>()(
       setAutoPreview: (enabled) => set({ autoPreview: enabled }),
       setHighContrast: (enabled) => set({ highContrast: enabled }),
       setNoteStreaks: (enabled) => set({ noteStreaks: enabled }),
+      setPracticeShowDegrees: (enabled) =>
+        set({ practiceShowDegrees: enabled }),
+      setPracticeShowNoteNames: (enabled) =>
+        set({ practiceShowNoteNames: enabled }),
       setMidiDeviceId: (id) => set({ midiDeviceId: id }),
       setHitSensitivity: (sensitivity) => set({ hitSensitivity: sensitivity }),
       setMidiMapping: (mapping) => set({ midiMapping: mapping }),

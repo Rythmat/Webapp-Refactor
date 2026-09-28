@@ -76,6 +76,14 @@ export const PRESETS: Preset[] = [
 
   // Electric Basses
   {
+    // The sampled bass guitar the Learn lessons play, as against the GM
+    // soundfont one below it — same instrument, a real recording of it.
+    id: 'bass-guitar',
+    name: 'Bass Guitar',
+    category: 'Electric Basses',
+    instrumentType: 'bass-electric',
+  },
+  {
     id: 'electric-bass',
     name: 'Electric Bass',
     category: 'Electric Basses',

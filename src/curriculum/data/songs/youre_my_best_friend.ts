@@ -19,15 +19,11 @@ export const youre_my_best_friend: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 1,
-      bars: [{ chords: [], restBars: 4 }],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [
+        { chords: [], restBars: 4 },
         {
           chords: [
             { degree: '2 min7/1', chordName: 'Dmin7/C', beat: 1, duration: 4 },
@@ -43,9 +39,8 @@ export const youre_my_best_friend: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
-      measuresPerRow: 6,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -72,9 +67,8 @@ export const youre_my_best_friend: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
-      measuresPerRow: 5,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -100,9 +94,8 @@ export const youre_my_best_friend: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 6,
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -124,9 +117,8 @@ export const youre_my_best_friend: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 7,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -153,9 +145,8 @@ export const youre_my_best_friend: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 6,
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -182,13 +173,6 @@ export const youre_my_best_friend: Song = {
         },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 7,
-      bars: [
         {
           chords: [
             { degree: '2 min7/1', chordName: 'Dmin7/C', beat: 1, duration: 4 },
@@ -212,16 +196,15 @@ export const youre_my_best_friend: Song = {
         },
         {
           chords: [
-            { degree: '1 7/♭7', chordName: 'C7/B♭', beat: 1, duration: 4 },
+            { degree: '1 dom7/♭7', chordName: 'C7/B♭', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
-      measuresPerRow: 6,
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -229,31 +212,21 @@ export const youre_my_best_friend: Song = {
           ],
         },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
-      measuresPerRow: 3,
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      measuresPerRow: 3,
-      bars: [
         {
           chords: [
             { degree: '2 min7/1', chordName: 'Dmin7/C', beat: 1, duration: 4 },
@@ -265,13 +238,6 @@ export const youre_my_best_friend: Song = {
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_l',
-      label: 'Section L',
-      measuresPerRow: 2,
-      bars: [
         {
           chords: [
             { degree: '2 min7/1', chordName: 'Dmin7/C', beat: 1, duration: 4 },
@@ -285,9 +251,8 @@ export const youre_my_best_friend: Song = {
       ],
     },
     {
-      id: 'section_m',
-      label: 'Section M',
-      measuresPerRow: 5,
+      id: 'pre_chorus',
+      label: 'Pre-Chorus',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -305,9 +270,8 @@ export const youre_my_best_friend: Song = {
       ],
     },
     {
-      id: 'section_n',
-      label: 'Section N',
-      measuresPerRow: 5,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -333,9 +297,8 @@ export const youre_my_best_friend: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 6,
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [
@@ -357,9 +320,8 @@ export const youre_my_best_friend: Song = {
       ],
     },
     {
-      id: 'section_p',
-      label: 'Section P',
-      measuresPerRow: 7,
+      id: 'verse_7',
+      label: 'Verse 7',
       bars: [
         {
           chords: [
@@ -386,8 +348,8 @@ export const youre_my_best_friend: Song = {
       ],
     },
     {
-      id: 'section_q',
-      label: 'Section Q',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -410,12 +372,6 @@ export const youre_my_best_friend: Song = {
             { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_r',
-      label: 'Section R',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -428,13 +384,6 @@ export const youre_my_best_friend: Song = {
             { degree: '2 min7/1', chordName: 'Dmin7/C', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_f_2',
-      label: 'Section F',
-      measuresPerRow: 7,
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -448,7 +397,7 @@ export const youre_my_best_friend: Song = {
         },
         {
           chords: [
-            { degree: '1 7/♭7', chordName: 'C7/B♭', beat: 1, duration: 4 },
+            { degree: '1 dom7/♭7', chordName: 'C7/B♭', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -465,26 +414,23 @@ export const youre_my_best_friend: Song = {
       ],
     },
     {
-      id: 'section_t',
-      label: 'Section T',
-      measuresPerRow: 6,
+      id: 'verse_8',
+      label: 'Verse 8',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g_2',
-      label: 'Section G',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -493,12 +439,6 @@ export const youre_my_best_friend: Song = {
             { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_v',
-      label: 'Section V',
-      bars: [
         {
           chords: [
             { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -514,9 +454,8 @@ export const youre_my_best_friend: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 6,
+      id: 'verse_9',
+      label: 'Verse 9',
       bars: [
         {
           chords: [
@@ -543,8 +482,8 @@ export const youre_my_best_friend: Song = {
       ],
     },
     {
-      id: 'section_x',
-      label: 'Section X',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -569,7 +508,6 @@ export const youre_my_best_friend: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=HaZpZQG2z10' },
   ],

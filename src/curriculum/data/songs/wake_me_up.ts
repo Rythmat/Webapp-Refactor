@@ -19,22 +19,20 @@ export const wake_me_up: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 1,
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 1,
+      id: 'chorus_1',
+      label: 'Chorus 1',
+      instrumental: true,
       bars: [{ chords: [], restBars: 16 }],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 6,
-      repeatCount: 4,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -53,21 +51,20 @@ export const wake_me_up: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 1,
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [{ chords: [], restBars: 12 }],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
-      repeatCount: 4,
       bars: [
         {
           chords: [
             { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
+          repeatStart: true,
         },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -81,43 +78,14 @@ export const wake_me_up: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 1,
-      bars: [{ chords: [], restBars: 16 }],
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      instrumental: true,
+      bars: [{ chords: [], restBars: 16, repeatEnd: true }],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 6,
-      repeatCount: 4,
-      bars: [
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 1,
-      bars: [{ chords: [], restBars: 16 }],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 6,
+      id: 'verse_4',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -136,7 +104,6 @@ export const wake_me_up: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IcrbM1l_BoI' },
   ],

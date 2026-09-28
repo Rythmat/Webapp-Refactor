@@ -20,153 +20,131 @@ export const brother_soul: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
-      bars: [
-        {
-          chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
       id: 'verse',
       label: 'Verse',
       bars: [
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'G7(♯9)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'G7(♯9)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
-            { degree: '4 7', chordName: 'G7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '4 7', chordName: 'G7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 7', chordName: 'G7', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 8,
-      bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
@@ -186,9 +164,8 @@ export const brother_soul: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 8,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
@@ -205,7 +182,6 @@ export const brother_soul: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2fRrb0h_HjU' },
   ],

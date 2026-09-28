@@ -1,6 +1,7 @@
 import {
   X,
   ChevronDown,
+  FileMusic,
   ChevronRight,
   Calendar,
   MapPin,
@@ -9,6 +10,7 @@ import {
   GripVertical,
 } from 'lucide-react';
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   ArtistChips,
   TitleWithArtists,
@@ -25,6 +27,36 @@ import type { AtlasArtist } from '@/components/atlas/data/artists';
 import { useAtlasNavigate } from '@/components/atlas/navigation/useAtlasNavigate';
 import type { HistoricalEvent } from '@/components/atlas/types';
 import { getEventsForLocation } from '@/components/atlas/utils/getEventsForLocation';
+import { SongRoutes } from '@/constants/routes';
+
+/**
+ * Back to the chart this event was made from.
+ *
+ * The song library's globe icon goes one way; this is the return trip. A song
+ * event's id IS `song-<songId>`, so the link needs no lookup — which matters,
+ * because the atlas route only hydrates globe events. Reading the song library
+ * here to confirm the chart exists would mean pulling a 3.3MB bundle to decide
+ * whether to draw an icon; `songEventLinks.test.ts` guards the mapping instead.
+ */
+const LeadSheetButton = ({ event }: { event: HistoricalEvent }) => {
+  const navigate = useNavigate();
+  if (!event.id.startsWith('song-')) return null;
+  const songId = event.id.slice('song-'.length);
+  return (
+    <button
+      aria-label="Open the lead sheet"
+      title="Open the lead sheet"
+      className="rounded text-white/40 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
+      onClick={(e) => {
+        // The card's own click handler expands the row; this leaves the globe.
+        e.stopPropagation();
+        navigate(SongRoutes.song({ songId }));
+      }}
+    >
+      <FileMusic className="size-3.5" />
+    </button>
+  );
+};
 
 function EventList({
   events,
@@ -115,6 +147,7 @@ function EventList({
                   />
                 </h4>
                 <div className="flex shrink-0 items-center gap-1.5">
+                  <LeadSheetButton event={event} />
                   <button
                     aria-label={focused ? 'Shrink' : 'Enlarge'}
                     title={focused ? 'Shrink' : 'Enlarge'}

@@ -19,9 +19,8 @@ export const magic_carpet_ride: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 4,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -29,6 +28,7 @@ export const magic_carpet_ride: Song = {
             { degree: '4 maj', chordName: 'C', beat: 2, duration: 1 },
             { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
           ],
+          repeatStart: true,
         },
         {
           chords: [
@@ -54,9 +54,8 @@ export const magic_carpet_ride: Song = {
       ],
     },
     {
-      id: 'chorus',
+      id: 'chorus_1',
       label: 'Chorus',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -65,88 +64,41 @@ export const magic_carpet_ride: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }],
+          repeatEnd: true,
+        },
       ],
     },
     {
       id: 'bridge',
       label: 'Bridge',
-      repeatCount: 4,
       bars: [
         {
           chords: [
-            { degree: '5 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'C', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'C', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'C', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [
-            { degree: '5 maj', chordName: 'D', beat: 1, duration: 1 },
-            { degree: '4 maj', chordName: 'C', beat: 2, duration: 1 },
-            { degree: '1 maj', chordName: 'G', beat: 3, duration: 2 },
+            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
       ],
     },
     {
-      id: 'verse_2',
+      id: 'verse_3',
       label: 'Verse 2',
-      measuresPerRow: 6,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
       bars: [
         {
           chords: [
@@ -179,7 +131,6 @@ export const magic_carpet_ride: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=HPE9a_epmWw' },
   ],

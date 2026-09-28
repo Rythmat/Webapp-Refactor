@@ -21,7 +21,6 @@ export const auld_lang_syne: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -34,9 +33,8 @@ export const auld_lang_syne: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
-      measuresPerRow: 8,
+      id: 'chorus',
+      label: 'Chorus',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
@@ -50,7 +48,7 @@ export const auld_lang_syne: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'G7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'G7', beat: 1, duration: 2 },
             { degree: '1 maj', chordName: 'C', beat: 3, duration: 2 },
           ],
         },
@@ -59,7 +57,6 @@ export const auld_lang_syne: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=yRk_vbg9sWA' },
   ],

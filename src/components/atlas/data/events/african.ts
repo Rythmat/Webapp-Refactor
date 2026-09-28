@@ -1547,7 +1547,7 @@ export const AFRICAN_EVENTS: HistoricalEvent[] = [
       'afrobeats',
       'lagos',
       'atlanta',
-      'hip hop',
+      'hip-hop',
       'nigerian pop',
       'dmw',
     ],

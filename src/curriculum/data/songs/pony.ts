@@ -7,14 +7,14 @@ export const pony: Song = {
   year: 1996,
   historicalDescription:
     "Ginuwine releases 'Pony' in 1996, a slow-burning R&B seduction built on a spare, hypnotic beat produced by Timbaland. The track announces a new era of new jack swing's evolution into something more minimal and sensual, cementing both Ginuwine and Timbaland as defining voices of late-90s R&B. Its iconic opening riff becomes one of the most recognizable moments in the genre.",
-  key: 'D♭ minor',
+  key: 'C♯ minor',
   keyRoot: 61,
   mode: 'minor',
   tempo: 71,
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip hop'],
+  genreTags: ['hip-hop'],
   techniques: [],
 
   sections: [

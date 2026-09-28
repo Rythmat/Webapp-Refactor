@@ -20,15 +20,14 @@ export const sing_a_song: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 1,
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 1 }],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 6,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -37,7 +36,9 @@ export const sing_a_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -46,14 +47,32 @@ export const sing_a_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
-      measuresPerRow: 5,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -62,27 +81,9 @@ export const sing_a_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 7', chordName: 'D7sus', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 6,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
           chords: [
-            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -91,23 +92,9 @@ export const sing_a_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 6,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
           chords: [
-            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -116,23 +103,9 @@ export const sing_a_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 6,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
           chords: [
-            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -141,23 +114,9 @@ export const sing_a_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 6,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
           chords: [
-            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -166,14 +125,26 @@ export const sing_a_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 6,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -182,7 +153,9 @@ export const sing_a_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -191,14 +164,54 @@ export const sing_a_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
-      measuresPerRow: 5,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -207,18 +220,43 @@ export const sing_a_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '4 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
+        },
+        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
-      measuresPerRow: 6,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -227,7 +265,9 @@ export const sing_a_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -236,43 +276,9 @@ export const sing_a_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_k',
-      label: 'Section K',
-      measuresPerRow: 5,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
           chords: [
-            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 7', chordName: 'D7sus', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 6,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -281,23 +287,9 @@ export const sing_a_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_g_2',
-      label: 'Section G',
-      measuresPerRow: 6,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        {
           chords: [
-            { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
           ],
-        },
-        {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -306,15 +298,10 @@ export const sing_a_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
-      ],
-    },
-    {
-      id: 'section_n',
-      label: 'Section N',
-      measuresPerRow: 5,
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -322,19 +309,22 @@ export const sing_a_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '4 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '4 dom7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
           fermata: true,
         },
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 6,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -343,7 +333,9 @@ export const sing_a_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -352,12 +344,13 @@ export const sing_a_song: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=X4dsPZmeTys' },
   ],

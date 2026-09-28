@@ -94,6 +94,7 @@ export type InstrumentType =
   | 'oracle-synth'
   | 'piano-sampler'
   | 'electric-piano'
+  | 'bass-electric'
   | 'cello'
   | 'organ'
   | 'tonewheel-organ'

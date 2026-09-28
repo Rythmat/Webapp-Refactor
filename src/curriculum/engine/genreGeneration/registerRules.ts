@@ -3,13 +3,22 @@
  *
  * One rule, stated once, applied everywhere student-facing notes are produced:
  *
- *   1. If the lowest note in a chord is above C5, the whole chord shifts down
- *      an octave.
- *   2. If the highest note in a bass line (or a single bass note) is above C4,
+ *   1. If the lowest note in a chord is above C5, the chord shifts down an
+ *      octave.
+ *   2. If the highest note in a hand's chords is above C6, that hand's chords
+ *      shift down an octave.
+ *   3. If the highest note in a bass line (or a single bass note) is above C4,
  *      the line (or note) shifts down an octave.
  *
- * Both shifts repeat until the note set is in range, so a chord sitting two
+ * Every shift repeats until the note set is in range, so a chord sitting two
  * octaves too high lands in register rather than merely getting closer.
+ *
+ * WHY A CHORD NEEDS BOTH A FLOOR AND A CEILING
+ * Rule 1 asks where a chord STARTS, and it lets a figure through as soon as one
+ * note is low enough — which is how Pop L3 D1.1 shipped an octave high. Its
+ * first chord bottoms out on Bb4, inside the limit, while the rest of the step
+ * climbs to F6, where nobody comps. Rule 2 asks how far the same figure
+ * REACHES, so a part has to be in register at both ends to be left alone.
  *
  * WHAT MOVES TOGETHER
  * A chord figure moves as one unit for the whole step — never per simultaneity.
@@ -19,6 +28,13 @@
  * leading. The lowest note of the entire figure decides, and everything moves
  * with it. The same holds for a bass line: the highest note decides, and the
  * whole line moves.
+ *
+ * Rule 2 is the one exception, and only for a step whose two hands are BOTH
+ * comping: there it is the hand that reaches too high that drops, not both. A
+ * left hand holding the middle of the texture has no business following a right
+ * hand down out of the whistle register — and that pairing, common in jazz, is
+ * the only place the two groupings differ. Everywhere else a step's chords are
+ * one hand's work and the unit is the same either way.
  *
  * WHAT COUNTS AS WHAT
  * Roles come from `instrument_config` when a step declares one, and from the
@@ -32,6 +48,9 @@ import type { InstrumentConfig } from '../../types/activity.v2';
 
 /** C5. A chord whose lowest note is ABOVE this is too high. */
 export const CHORD_REGISTER_CEILING = 72;
+
+/** C6. A chord reaching ABOVE this is too high, wherever it starts. */
+export const CHORD_REGISTER_TOP = 84;
 
 /** C4. A bass note ABOVE this is too high. */
 export const BASS_REGISTER_CEILING = 60;
@@ -69,6 +88,18 @@ export function chordOctaveShift(midis: readonly number[]): number {
   const lowest = Math.min(...midis);
   let shift = 0;
   while (lowest + shift > CHORD_REGISTER_CEILING) shift -= 12;
+  return shift;
+}
+
+/**
+ * Semitones to move a chord so its highest note is no higher than C6.
+ * Always 0 or a negative multiple of 12.
+ */
+export function chordCeilingShift(midis: readonly number[]): number {
+  if (midis.length === 0) return 0;
+  const highest = Math.max(...midis);
+  let shift = 0;
+  while (highest + shift > CHORD_REGISTER_TOP) shift -= 12;
   return shift;
 }
 
@@ -114,6 +145,23 @@ export function classifyNote(
   return 'other';
 }
 
+/** Which hand a note belongs to, with one bucket for the untagged. */
+export type HandKey = 'lh' | 'rh' | 'none';
+
+const handKeyOf = (note: RegisterNote): HandKey => note.hand ?? 'none';
+
+export interface RegisterShifts {
+  /** Rule 1: the whole chord figure, from its lowest note. */
+  chord: number;
+  /** Rule 3: the whole bass line, from its highest note. */
+  bass: number;
+  /**
+   * Rule 2: a further drop for one hand's chords, from that hand's highest
+   * note, on top of `chord`. Hands with nothing to move are absent.
+   */
+  ceiling: Partial<Record<HandKey, number>>;
+}
+
 /**
  * The shift each role needs for one step's notes, or 0 where nothing moves.
  * Exported so the data migration and the runtime pass agree by construction.
@@ -121,24 +169,88 @@ export function classifyNote(
 export function registerShiftsFor(
   notes: readonly RegisterNote[],
   ctx: RegisterContext,
-): { chord: number; bass: number } {
-  const chordMidis: number[] = [];
+): RegisterShifts {
+  const chords: RegisterNote[] = [];
   const bassMidis: number[] = [];
 
   for (const note of notes) {
     const role = classifyNote(note, ctx);
-    if (role === 'chord') chordMidis.push(note.midi);
+    if (role === 'chord') chords.push(note);
     else if (role === 'bass') bassMidis.push(note.midi);
   }
 
+  const chord = chordOctaveShift(chords.map((n) => n.midi));
   return {
-    chord: chordOctaveShift(chordMidis),
+    chord,
     bass: bassOctaveShift(bassMidis),
+    ceiling: ceilingShifts(chords, chord, notes, ctx),
   };
 }
 
 /**
- * Apply both rules to one step's notes.
+ * Rule 2, hand by hand: how much further each hand's chords must drop to get
+ * under C6, measured where rule 1 has already left them.
+ *
+ * THE GUARD
+ * When the other hand is playing UNDERNEATH — a bass, or the lower half of a
+ * two-hand comp — the drop is refused if it would carry these chords below it.
+ * Fixing a part that sits too high by crossing it under the hand holding the
+ * bottom of the texture is not a fix; better to leave the step as authored and
+ * let it be caught by ear. A hand playing above, such as a melody, is no
+ * obstacle: dropping away from it is the whole point, and the hand-crossing
+ * rule below has the last word there. Ranges, not simultaneities — the hands
+ * share a keyboard for the whole step.
+ */
+function ceilingShifts(
+  chords: readonly RegisterNote[],
+  chordShift: number,
+  all: readonly RegisterNote[],
+  ctx: RegisterContext,
+): Partial<Record<HandKey, number>> {
+  const shifts: Partial<Record<HandKey, number>> = {};
+  const byHand = new Map<HandKey, number[]>();
+  for (const note of chords) {
+    const key = handKeyOf(note);
+    const at = byHand.get(key) ?? [];
+    at.push(note.midi + chordShift);
+    byHand.set(key, at);
+  }
+
+  for (const [hand, midis] of byHand) {
+    const shift = chordCeilingShift(midis);
+    if (shift === 0) continue;
+    const bottom = Math.min(...midis);
+    const otherTop = topOfOtherHand(all, hand, chordShift, ctx);
+    const underneath = otherTop !== null && otherTop < bottom;
+    if (underneath && bottom + shift < otherTop) continue;
+    shifts[hand] = shift;
+  }
+  return shifts;
+}
+
+/** The highest note the other hand plays once rules 1 and 3 have been applied. */
+function topOfOtherHand(
+  all: readonly RegisterNote[],
+  hand: HandKey,
+  chordShift: number,
+  ctx: RegisterContext,
+): number | null {
+  const bassShift = bassOctaveShift(
+    all.filter((n) => classifyNote(n, ctx) === 'bass').map((note) => note.midi),
+  );
+  const others = all
+    .filter((note) => handKeyOf(note) !== hand)
+    .map((note) => {
+      const role = classifyNote(note, ctx);
+      if (role === 'chord') return note.midi + chordShift;
+      if (role === 'bass') return note.midi + bassShift;
+      return note.midi;
+    });
+  return others.length === 0 ? null : Math.max(...others);
+}
+
+/**
+ * Apply every rule to one step's notes.
  *
  * Returns the same array instance when nothing moves, so callers can treat an
  * unchanged step as untouched.
@@ -148,18 +260,23 @@ export function applyRegisterRules<T extends RegisterNote>(
   ctx: RegisterContext,
 ): readonly T[] {
   const shifts = registerShiftsFor(notes, ctx);
-  const placed = notes.map((note) => {
+  const shiftFor = (note: RegisterNote): number => {
     const role = classifyNote(note, ctx);
-    const shift =
-      role === 'chord' ? shifts.chord : role === 'bass' ? shifts.bass : 0;
+    if (role === 'bass') return shifts.bass;
+    if (role !== 'chord') return 0;
+    return shifts.chord + (shifts.ceiling[handKeyOf(note)] ?? 0);
+  };
+  const placed = notes.map((note) => {
+    const shift = shiftFor(note);
     return shift === 0 ? note : { ...note, midi: note.midi + shift };
   });
+  const moved = notes.some((note) => shiftFor(note) !== 0);
 
   // Hands are separated after the register rules, so the decision is made on
   // where the notes actually ended up rather than where they were authored.
   const hand = handCrossingShift(placed, ctx);
   if (hand === 0) {
-    return shifts.chord === 0 && shifts.bass === 0 ? notes : placed;
+    return moved ? placed : notes;
   }
 
   return placed.map((note) =>

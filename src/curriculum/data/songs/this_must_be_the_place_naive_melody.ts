@@ -22,7 +22,6 @@ export const this_must_be_the_place_naive_melody: Song = {
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [

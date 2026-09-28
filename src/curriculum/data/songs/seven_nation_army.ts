@@ -19,14 +19,14 @@ export const seven_nation_army: Song = {
 
   sections: [
     {
-      id: 'verse',
+      id: 'verse_1',
       label: 'Verse',
-      repeatCount: 6,
       bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
+          repeatStart: true,
         },
         {
           chords: [
@@ -46,166 +46,22 @@ export const seven_nation_army: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
-        { chords: [{ degree: '♭3 5', chordName: 'G5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 5', chordName: 'G5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 5', chordName: 'A5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 5', chordName: 'A5', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
+      id: 'chorus_1',
       label: 'Chorus',
       bars: [
+        { chords: [{ degree: '♭3 5', chordName: 'G5', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '♭3 5', chordName: 'G5', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '4 5', chordName: 'A5', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '4 5', chordName: 'A5', beat: 1, duration: 4 }],
+          repeatEnd: true,
+          repeatTimes: 5,
         },
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        { chords: [{ degree: '♭3 5', chordName: 'G5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 5', chordName: 'G5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 5', chordName: 'A5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 5', chordName: 'A5', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 6,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        { chords: [{ degree: '♭3 5', chordName: 'G5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 5', chordName: 'G5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 5', chordName: 'A5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 5', chordName: 'A5', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'verse_2',
-      label: 'Verse 2',
-      repeatCount: 4,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
-        { chords: [{ degree: '♭3 5', chordName: 'G5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 5', chordName: 'G5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 5', chordName: 'A5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 5', chordName: 'A5', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      repeatCount: 6,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
-      bars: [
-        { chords: [{ degree: '♭3 5', chordName: 'G5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 5', chordName: 'G5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 5', chordName: 'A5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 5', chordName: 'A5', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f_2',
-      label: 'Section F',
-      measuresPerRow: 5,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -231,7 +87,6 @@ export const seven_nation_army: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=0J2QdDbelmY' },
   ],

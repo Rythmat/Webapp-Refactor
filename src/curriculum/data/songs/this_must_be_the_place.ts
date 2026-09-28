@@ -20,8 +20,8 @@ export const this_must_be_the_place: Song = {
 
   sections: [
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse',
+      label: 'Verse',
       bars: [
         {
           chords: [
@@ -51,7 +51,6 @@ export const this_must_be_the_place: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Fb2q141rMNE' },
   ],

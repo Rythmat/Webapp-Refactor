@@ -3,6 +3,7 @@ import type { InstrumentConfig } from '../../../types/activity.v2';
 import {
   applyRegisterRules,
   bassOctaveShift,
+  chordCeilingShift,
   chordOctaveShift,
   classifyNote,
   handCrossingShift,
@@ -100,12 +101,13 @@ describe('applyRegisterRules', () => {
   });
 
   it('keeps a progression intact when only some of its chords sit high', () => {
-    // Lowest chord is in range, so nothing moves and the voice leading survives.
+    // Lowest chord is in range and nothing reaches past C6, so nothing moves
+    // and the voice leading survives.
     const notes = [
       { midi: 70, onset: 0, duration: 1900 },
       { midi: 74, onset: 0, duration: 1900 },
       { midi: 79, onset: 1920, duration: 1900 },
-      { midi: 86, onset: 1920, duration: 1900 },
+      { midi: 82, onset: 1920, duration: 1900 },
     ];
     expect(applyRegisterRules(notes, { section: 'B' })).toBe(notes);
   });
@@ -266,5 +268,170 @@ describe('applyRegisterRules with crossed hands', () => {
     expect(out.filter((n) => n.hand === 'rh').map((n) => n.midi)).toEqual([
       79, 76,
     ]);
+  });
+});
+
+describe('chordCeilingShift', () => {
+  it('leaves a chord whose highest note is exactly C6 alone', () => {
+    // The rule is "above C6", so C6 itself is in range.
+    expect(chordCeilingShift([72, 76, 79, 84])).toBe(0);
+  });
+
+  it('shifts a chord reaching above C6 down an octave', () => {
+    expect(chordCeilingShift([75, 79, 82, 86])).toBe(-12);
+  });
+
+  it('repeats the shift until the chord is in range', () => {
+    expect(chordCeilingShift([96, 100])).toBe(-24);
+  });
+
+  it('ignores how low the chord starts', () => {
+    // Rule 1 has nothing to say about this chord; rule 2 does.
+    expect(chordCeilingShift([60, 88])).toBe(-12);
+  });
+
+  it('returns no shift for an empty set', () => {
+    expect(chordCeilingShift([])).toBe(0);
+  });
+});
+
+describe('a chord too high at the top rather than the bottom', () => {
+  /**
+   * Pop L3 D1.1 as authored: LH root bass under RH voicings of
+   * Bb–Ebmaj7–Gm7–F7. The first chord bottoms out on Bb4, inside rule 1's
+   * limit, which let the whole figure through an octave high — the bug this
+   * rule exists to catch. The step climbs to F6.
+   */
+  const popL3D11 = [
+    ...[46].map((midi) => ({ midi, onset: 0, hand: 'lh' as const })),
+    ...[70, 74, 77].map((midi) => ({ midi, onset: 0, hand: 'rh' as const })),
+    ...[51].map((midi) => ({ midi, onset: 1920, hand: 'lh' as const })),
+    ...[75, 79, 82, 86].map((midi) => ({
+      midi,
+      onset: 1920,
+      hand: 'rh' as const,
+    })),
+    ...[55].map((midi) => ({ midi, onset: 3840, hand: 'lh' as const })),
+    ...[79, 82, 86, 89].map((midi) => ({
+      midi,
+      onset: 3840,
+      hand: 'rh' as const,
+    })),
+    ...[53].map((midi) => ({ midi, onset: 5760, hand: 'lh' as const })),
+    ...[77, 81, 84, 87].map((midi) => ({
+      midi,
+      onset: 5760,
+      hand: 'rh' as const,
+    })),
+  ];
+
+  const played = (notes: readonly { midi: number; hand?: string }[]) => ({
+    rh: notes.filter((n) => n.hand === 'rh').map((n) => n.midi),
+    lh: notes.filter((n) => n.hand === 'lh').map((n) => n.midi),
+  });
+
+  it('drops the whole chord part an octave, bass untouched', () => {
+    const out = played(
+      applyRegisterRules(popL3D11, {
+        section: 'D',
+        instrument_config: lhBassRhChords,
+      }),
+    );
+    expect(out.rh).toEqual([
+      58, 62, 65, 63, 67, 70, 74, 67, 70, 74, 77, 65, 69, 72, 75,
+    ]);
+    // The bass was already in range and has no business following the chords.
+    expect(out.lh).toEqual([46, 51, 55, 53]);
+  });
+
+  it('leaves the voicings and the voice leading as they were written', () => {
+    const out = applyRegisterRules(popL3D11, {
+      section: 'D',
+      instrument_config: lhBassRhChords,
+    });
+    // Every chord moved by the same octave: the shapes are intact, and no
+    // octave break opened up in the middle of the progression.
+    for (const [i, note] of out.entries()) {
+      const shift = note.midi - popL3D11[i].midi;
+      expect(shift).toBe(note.hand === 'rh' ? -12 : 0);
+    }
+  });
+
+  it('lands the chords above the bass, where they were written', () => {
+    const out = played(
+      applyRegisterRules(popL3D11, {
+        section: 'D',
+        instrument_config: lhBassRhChords,
+      }),
+    );
+    expect(Math.min(...out.rh)).toBeGreaterThan(Math.max(...out.lh));
+  });
+});
+
+describe('two hands comping, one of them too high', () => {
+  const twoHandChords: InstrumentConfig = {
+    instrument: 'piano',
+    hand_config: 'two_hand_comping',
+    lh_role: 'chords',
+    rh_role: 'chords',
+    style_ref: 'l3a',
+  };
+
+  const step = (lhMidis: number[], rhMidis: number[]) => [
+    ...lhMidis.map((midi) => ({ midi, onset: 0, hand: 'lh' as const })),
+    ...rhMidis.map((midi) => ({ midi, onset: 0, hand: 'rh' as const })),
+  ];
+
+  it('drops only the hand that reaches too high', () => {
+    // The jazz case: LH holding the middle, RH up past C6. The LH is where the
+    // texture sits and must not follow the RH down.
+    const out = applyRegisterRules(step([55, 59, 62], [81, 86, 89]), {
+      section: 'D',
+      instrument_config: twoHandChords,
+    });
+    expect(midis(out)).toEqual([55, 59, 62, 69, 74, 77]);
+  });
+
+  it('refuses a drop that would cross under the other hand', () => {
+    // Dropping the RH would put it at 67–73, below the LH's top at 74. The
+    // step stays as authored rather than turning inside out.
+    const notes = step([67, 70, 74], [79, 83, 85]);
+    expect(
+      applyRegisterRules(notes, {
+        section: 'D',
+        instrument_config: twoHandChords,
+      }),
+    ).toBe(notes);
+  });
+
+  it('still moves both hands together when rule 1 catches the figure', () => {
+    // Nothing is above C6 here; the whole comp is simply too high, and rule 1
+    // moves it as one unit, hands and all.
+    const out = applyRegisterRules(step([74, 77], [79, 83]), {
+      section: 'D',
+      instrument_config: twoHandChords,
+    });
+    expect(midis(out)).toEqual([62, 65, 67, 71]);
+  });
+});
+
+describe('the ceiling and the melody', () => {
+  it('never lifts or drops a melody, however high it sits', () => {
+    const notes = [88, 91, 93].map((midi, i) => ({
+      midi,
+      onset: i * 480,
+      hand: 'rh' as const,
+    }));
+    const ctx: RegisterContext = {
+      section: 'A',
+      instrument_config: {
+        instrument: 'piano',
+        hand_config: 'lh_bass_rh_melody',
+        lh_role: 'bass',
+        rh_role: 'melody',
+        style_ref: 'l3a',
+      },
+    };
+    expect(applyRegisterRules(notes, ctx)).toBe(notes);
   });
 });

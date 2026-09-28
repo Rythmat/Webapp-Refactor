@@ -19,9 +19,8 @@ export const youve_got_a_friend_king: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 8,
+      id: 'intro',
+      label: 'Intro',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -48,21 +47,20 @@ export const youve_got_a_friend_king: Song = {
         {
           chords: [
             { degree: '7 min7', chordName: 'Gmin7b5', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'C7b9', beat: 3, duration: 2 },
+            { degree: '3 dom7', chordName: 'C7b9', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '7 min7', chordName: 'Gmin7b5', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'C7b9', beat: 3, duration: 2 },
+            { degree: '3 dom7', chordName: 'C7b9', beat: 3, duration: 2 },
           ],
         },
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 10,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -75,15 +73,19 @@ export const youve_got_a_friend_king: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 7', chordName: 'C7b9', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '3 dom7', chordName: 'C7b9', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '3 7', chordName: 'C7b9', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '3 dom7', chordName: 'C7b9', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
             { degree: '6 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '3 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -96,7 +98,11 @@ export const youve_got_a_friend_king: Song = {
             { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -106,9 +112,8 @@ export const youve_got_a_friend_king: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 10,
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -121,15 +126,19 @@ export const youve_got_a_friend_king: Song = {
           ],
         },
         {
-          chords: [{ degree: '3 7', chordName: 'C7b9', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '3 dom7', chordName: 'C7b9', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '3 7', chordName: 'C7b9', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '3 dom7', chordName: 'C7b9', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
             { degree: '6 min7', chordName: 'Fmin7', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '3 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -150,13 +159,16 @@ export const youve_got_a_friend_king: Song = {
         {
           chords: [{ degree: '5 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 14,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -164,8 +176,16 @@ export const youve_got_a_friend_king: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -187,15 +207,26 @@ export const youve_got_a_friend_king: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
-      measuresPerRow: 9,
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -223,7 +254,7 @@ export const youve_got_a_friend_king: Song = {
             { degree: '4 maj', chordName: 'D♭', beat: 1, duration: 1 },
             { degree: '3 min7', chordName: 'Cmin7', beat: 2, duration: 1 },
             { degree: '2 min7', chordName: 'B♭min7', beat: 3, duration: 1 },
-            { degree: '5 7', chordName: 'E♭7', beat: 4, duration: 1 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 4, duration: 1 },
           ],
         },
         {
@@ -232,15 +263,14 @@ export const youve_got_a_friend_king: Song = {
         {
           chords: [
             { degree: '7 min7', chordName: 'Gmin7b5', beat: 1, duration: 2 },
-            { degree: '3 7', chordName: 'C7b9', beat: 3, duration: 2 },
+            { degree: '3 dom7', chordName: 'C7b9', beat: 3, duration: 2 },
           ],
         },
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 12,
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [{ degree: '♭7 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -279,13 +309,16 @@ export const youve_got_a_friend_king: Song = {
         {
           chords: [{ degree: '5 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 14,
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -293,8 +326,16 @@ export const youve_got_a_friend_king: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '1 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '4 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -316,15 +357,26 @@ export const youve_got_a_friend_king: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 7,
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -352,17 +404,9 @@ export const youve_got_a_friend_king: Song = {
             { degree: '4 maj', chordName: 'D♭', beat: 1, duration: 1 },
             { degree: '3 min7', chordName: 'Cmin7', beat: 2, duration: 1 },
             { degree: '2 min7', chordName: 'B♭min7', beat: 3, duration: 1 },
-            { degree: '5 7', chordName: 'E♭7', beat: 4, duration: 1 },
+            { degree: '5 dom7', chordName: 'E♭7', beat: 4, duration: 1 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 8,
-      repeatCount: 3,
-      bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
@@ -397,7 +441,6 @@ export const youve_got_a_friend_king: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2ZI3kLrHK80' },
   ],

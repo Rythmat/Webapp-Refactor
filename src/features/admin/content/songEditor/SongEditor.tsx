@@ -23,7 +23,6 @@ import {
   addChordAt,
   addSection,
   insertBar,
-  MAX_BARS_PER_ROW,
   moveSection,
   removeBar,
   removeChord,
@@ -33,10 +32,13 @@ import {
 } from '../songChart/chartOps';
 import { AdvancedFields } from './AdvancedFields';
 import { ArtistImageUpload } from './ArtistImageUpload';
+import { BarInspector } from './BarInspector';
 import { ChordEditorPopup } from './ChordEditorPopup';
+import { CreditsEditor } from './CreditsEditor';
 import { KeyPicker } from './KeyPicker';
 import { YouTubeField } from './YouTubeField';
 import { slugify } from './songDefaults';
+import { useChartEditing } from './useChartEditing';
 
 const TITLE_STYLE: React.CSSProperties = {
   fontFamily: "'Glacial Indifference', 'Fraunces', system-ui, sans-serif",
@@ -44,6 +46,9 @@ const TITLE_STYLE: React.CSSProperties = {
   fontWeight: 600,
   lineHeight: 1.1,
 };
+
+const TOOL =
+  'rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:border-white/35 disabled:opacity-30';
 
 const ACTION_ICONS = [
   { label: 'Open in Lesson', src: '/icons/learn-icon.svg' },
@@ -81,6 +86,10 @@ export const SongEditor = ({ body, onChange }: StructuredEditorProps) => {
 
   const sections = song.sections ?? [];
   const setSections = (next: typeof sections) => patch({ sections: next });
+  // Undo, the bar selection, the clipboard and the keys. The operations
+  // themselves live in lib/chartEditor and are shared with the Studio; this
+  // is only the part that has to own state.
+  const editing = useChartEditing(song, setSections);
   // The spelled tonic the chart's chords are written against, so auto-derived
   // degrees match the song-library convention (see songTonic).
   const tonic = songTonic(
@@ -101,16 +110,6 @@ export const SongEditor = ({ body, onChange }: StructuredEditorProps) => {
     patch({ genreTags: value.trim() ? [value.trim(), ...rest] : rest });
   };
 
-  // Grow a row to fit its bars (capped), so the editor and the published chart
-  // render identically. Authored per-section, so existing songs are untouched.
-  const fitRow = (secs: typeof sections, si: number) =>
-    updateSection(secs, si, {
-      measuresPerRow: Math.max(
-        1,
-        Math.min(MAX_BARS_PER_ROW, secs[si].bars.length),
-      ),
-    });
-
   // Direct-manipulation callbacks for the editable chart.
   const editable: ChordChartEditable = {
     onAddChordAtBeat: (si, bi, beat) => {
@@ -127,11 +126,10 @@ export const SongEditor = ({ body, onChange }: StructuredEditorProps) => {
           beat: toBeat,
         }),
       ),
-    onInsertBar: (si, atIdx) =>
-      setSections(fitRow(insertBar(sections, si, atIdx), si)),
+    onInsertBar: (si, atIdx) => setSections(insertBar(sections, si, atIdx)),
     onRemoveBar: (si, bi) => {
       const next = removeBar(sections, si, bi);
-      setSections(next[si] ? fitRow(next, si) : next);
+      setSections(next);
       if (selection?.sectionIdx === si && selection.barIdx === bi)
         setSelection(null);
     },
@@ -316,18 +314,105 @@ export const SongEditor = ({ body, onChange }: StructuredEditorProps) => {
         </div>
       </header>
 
+      {/* ── Who made it, where, and who else has recorded it ── */}
+      <div className="min-w-0 px-6 pt-4 md:px-10">
+        <CreditsEditor song={song} onPatch={patch} />
+      </div>
+
       {/* ── Chord chart (direct-manipulation editor) ── */}
       <div className="min-w-0 px-6 pb-6 pt-4 md:px-10">
-        <p className="mb-3 text-xs text-muted-foreground">
-          Click a beat to add a chord · drag a chord to move it · +/− above a
-          bar to add or remove bars · click a chord to edit it.
-        </p>
-        <ChordChart
-          song={song}
-          onSelectChord={setSelection}
-          selection={selection}
-          editable={editable}
-        />
+        {/* The tools stay put. They used to sit under the chart, which on a
+            128-bar song like Paranoid Android put them a screen and a half
+            below the bar you were editing — you had to scroll away from your
+            own selection to act on it. Sticky, so the chart scrolls under
+            them and the selection and the controls are never apart. */}
+        <div className="sticky top-0 z-20 -mx-6 mb-3 border-b border-white/10 bg-[#101012]/95 px-6 py-2 backdrop-blur md:-mx-10 md:px-10">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs text-muted-foreground">
+              Click a beat to add a chord · drag a chord to move it · click the
+              rail under a bar to select it, shift-click for a run
+            </p>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled={!editing.canUndo}
+                title={
+                  editing.undoLabel
+                    ? `Undo ${editing.undoLabel}`
+                    : 'Nothing to undo'
+                }
+                onClick={editing.undo}
+                className={TOOL}
+              >
+                ⌘Z Undo
+              </button>
+              <button
+                type="button"
+                disabled={!editing.canRedo}
+                title={
+                  editing.redoLabel
+                    ? `Redo ${editing.redoLabel}`
+                    : 'Nothing to redo'
+                }
+                onClick={editing.redo}
+                className={TOOL}
+              >
+                ⇧⌘Z Redo
+              </button>
+              <button
+                type="button"
+                disabled={editing.selectedBars.length === 0}
+                onClick={editing.copy}
+                title="Copy the selected bars, roadmap and all"
+                className={TOOL}
+              >
+                ⌘C
+              </button>
+              <button
+                type="button"
+                disabled={
+                  !editing.clipboard || editing.selectedBars.length === 0
+                }
+                onClick={() => editing.paste()}
+                title={editing.pasteLabel ?? 'Nothing copied'}
+                className={TOOL}
+              >
+                ⌘V
+              </button>
+            </div>
+          </div>
+
+          {/* Only once bars are picked, so an unselected chart keeps its
+              room and the bar stays one line tall. */}
+          {editing.selectedBars.length > 0 && (
+            <div className="mt-2 border-t border-white/10 pt-2">
+              <BarInspector
+                sections={sections}
+                refs={editing.selectedBars}
+                onChange={editing.apply}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* The keys belong to the chart, not to the window: a person typing
+            in a field upstairs is not addressing the bars. */}
+        <div
+          role="group"
+          aria-label="Chord chart"
+          tabIndex={-1}
+          onKeyDown={editing.onKeyDown}
+          className="outline-none"
+        >
+          <ChordChart
+            song={song}
+            onSelectChord={setSelection}
+            selection={selection}
+            editable={editable}
+            barSelection={editing.selection}
+            onPickBar={editing.pickBar}
+          />
+        </div>
 
         {selectedChord && selection && (
           <ChordEditorPopup

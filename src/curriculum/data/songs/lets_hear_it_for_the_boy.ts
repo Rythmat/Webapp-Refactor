@@ -19,51 +19,37 @@ export const lets_hear_it_for_the_boy: Song = {
 
   sections: [
     {
-      id: 'bridge',
-      label: 'Bridge',
-      repeatCount: 5,
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '6 min7', chordName: 'Amin7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '6 min7', chordName: 'Amin7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
       id: 'verse_1',
-      label: 'Verse',
-      measuresPerRow: 2,
+      label: 'Verse 1',
       bars: [
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
+            { degree: '6 min7', chordName: 'Amin7', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'G', beat: 3, duration: 2 },
+          ],
+        },
         {
           chords: [{ degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [
             { degree: '2 maj', chordName: 'D', beat: 1, duration: 2 },
@@ -78,13 +64,6 @@ export const lets_hear_it_for_the_boy: Song = {
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus_1',
-      label: 'Chorus',
-      measuresPerRow: 5,
-      bars: [
         {
           chords: [
             { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 2 },
@@ -110,7 +89,6 @@ export const lets_hear_it_for_the_boy: Song = {
     {
       id: 'verse_2',
       label: 'Verse 2',
-      repeatCount: 4,
       bars: [
         {
           chords: [
@@ -136,9 +114,8 @@ export const lets_hear_it_for_the_boy: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 2,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -150,8 +127,8 @@ export const lets_hear_it_for_the_boy: Song = {
       ],
     },
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -169,9 +146,8 @@ export const lets_hear_it_for_the_boy: Song = {
       ],
     },
     {
-      id: 'outro',
-      label: 'Outro',
-      measuresPerRow: 5,
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -195,9 +171,8 @@ export const lets_hear_it_for_the_boy: Song = {
       ],
     },
     {
-      id: 'section_9',
-      label: 'Section I',
-      repeatCount: 3,
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -223,9 +198,8 @@ export const lets_hear_it_for_the_boy: Song = {
       ],
     },
     {
-      id: 'section_10',
-      label: 'Section J',
-      measuresPerRow: 2,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -237,8 +211,8 @@ export const lets_hear_it_for_the_boy: Song = {
       ],
     },
     {
-      id: 'section_11',
-      label: 'Section K',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -256,8 +230,8 @@ export const lets_hear_it_for_the_boy: Song = {
       ],
     },
     {
-      id: 'section_12',
-      label: 'Section L',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -273,12 +247,6 @@ export const lets_hear_it_for_the_boy: Song = {
             { degree: '7 min7', chordName: 'Bmin7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_13',
-      label: 'Section M',
-      bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -290,7 +258,6 @@ export const lets_hear_it_for_the_boy: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=gI7YHZVc7mM' },
   ],

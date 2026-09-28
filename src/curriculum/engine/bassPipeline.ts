@@ -20,6 +20,7 @@ import {
   type BassRhythmEntry,
 } from '../data/bassPatterns';
 import type { GenreCurriculumEntry } from '../types/curriculum';
+import { bassFifthMidi } from './genreGeneration/bassFifthRule';
 import type { MidiNoteEvent } from './melodyPipeline';
 import type { VoicedProgressionChord } from './progressionPipeline';
 
@@ -95,6 +96,7 @@ export function generateCurriculumBass(
       // Full pattern: contour degrees + rhythm timing
       const chordEvents = applyBassPattern(
         bassRoot,
+        chord.chordRoot,
         contour,
         rhythm,
         chord.onset,
@@ -113,9 +115,8 @@ export function generateCurriculumBass(
       const noteCount = contour.contour.length;
       const ticksPerNote = Math.floor(chord.duration / noteCount);
       contour.contour.forEach((degree, i) => {
-        const semitones = BASS_DEGREE_MAP[degree] ?? 0;
         events.push({
-          note: bassRoot + semitones,
+          note: degreeToNote(degree, bassRoot, chord.chordRoot),
           onset: chord.onset + i * ticksPerNote,
           duration: ticksPerNote,
         });
@@ -131,11 +132,39 @@ export function generateCurriculumBass(
 // ---------------------------------------------------------------------------
 
 /**
+ * A contour degree as a MIDI note.
+ *
+ * Degrees are measured from the note the bass is playing — except the 5, which
+ * is the chord's fifth even when the bass is on some other chord tone. See
+ * bassFifthRule.ts. Today `lh` is always the root an octave down, so the two
+ * readings agree; this is what keeps them agreeing if a voicing is ever
+ * inverted. This path has no quality information to hand, so the fifth is taken
+ * as perfect, which is what it has always assumed.
+ */
+function degreeToNote(
+  degree: string,
+  bassRoot: number,
+  chordRoot: number,
+): number {
+  if (degree === '5' || degree === 'P5') {
+    return bassFifthMidi(
+      { rootPc: chordRoot, fifth: 7 },
+      bassRoot,
+      // This pipeline places its own register; the bass-line ceiling in the
+      // rule belongs to the genre engine.
+      Number.POSITIVE_INFINITY,
+    );
+  }
+  return bassRoot + (BASS_DEGREE_MAP[degree] ?? 0);
+}
+
+/**
  * Apply a bass contour + rhythm pattern over a single chord.
  * Pairs contour degrees with rhythm timing events.
  */
 function applyBassPattern(
   bassRoot: number,
+  chordRoot: number,
   contour: BassContourEntry,
   rhythm: BassRhythmEntry,
   chordOnset: number,
@@ -146,9 +175,8 @@ function applyBassPattern(
 
   const events: MidiNoteEvent[] = [];
   for (let i = 0; i < len; i++) {
-    const semitones = BASS_DEGREE_MAP[degrees[i]] ?? 0;
     events.push({
-      note: bassRoot + semitones,
+      note: degreeToNote(degrees[i], bassRoot, chordRoot),
       onset: chordOnset + timings[i][0],
       duration: timings[i][1],
     });

@@ -19,15 +19,11 @@ export const high_and_dry: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 1,
-      bars: [{ chords: [], restBars: 2 }],
-    },
-    {
       id: 'verse',
       label: 'Verse',
+      instrumental: true,
       bars: [
+        { chords: [], restBars: 2 },
         {
           chords: [
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -39,7 +35,6 @@ export const high_and_dry: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=7qFfFVSerQo' },
   ],

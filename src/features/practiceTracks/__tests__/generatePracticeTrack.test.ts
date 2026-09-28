@@ -5,34 +5,36 @@ import { generatePracticeTrack } from '../generatePracticeTrack';
 // rootMidi is always 60 + root, so root=0 keeps expected note math simple (C).
 const ROOT_C = 0;
 
+// Chord voicings sit an octave under the practice melody (hands-crossing
+// rule, registerRules.ts), so a C-rooted progression starts on C3.
 describe('generatePracticeTrack chord progressions', () => {
   it('builds the Ionian Level 1 I-IV-V-I progression in C', async () => {
     const result = await generatePracticeTrack('ionian', ROOT_C, 'melody', 1);
     const midis = result.chordRegions.map((r) => r.midis);
     expect(midis).toEqual([
-      [60, 64, 67], // 1 major (C)
-      [65, 69, 72], // 4 major (F)
-      [67, 71, 74], // 5 major (G)
-      [60, 64, 67], // 1 major (C)
+      [48, 52, 55], // 1 major (C)
+      [53, 57, 60], // 4 major (F)
+      [55, 59, 62], // 5 major (G)
+      [48, 52, 55], // 1 major (C)
     ]);
   });
 
   it("builds Dorian's flat-7 major chord (bVII) a whole step below the tonic", async () => {
     const result = await generatePracticeTrack('dorian', ROOT_C, 'melody', 1);
     // Bar index 2 is "b7maj" — in C Dorian that's a Bb major triad.
-    expect(result.chordRegions[2].midis).toEqual([70, 74, 77]);
+    expect(result.chordRegions[2].midis).toEqual([58, 62, 65]);
   });
 
   it('builds the Ionian Level 2 sus4 chord with no 3rd', async () => {
     const result = await generatePracticeTrack('ionian', ROOT_C, 'melody', 2);
     // Bar index 2 is "5maj(sus4)" — G sus4: root, 4th, 5th, no 3rd.
-    expect(result.chordRegions[2].midis).toEqual([67, 72, 74]);
+    expect(result.chordRegions[2].midis).toEqual([55, 60, 62]);
   });
 
   it('plays the slash-chord bass note (not the chord root) for Lydian Level 2', async () => {
     const result = await generatePracticeTrack('lydian', ROOT_C, 'melody', 2);
     // Bar 0 is "2maj/1": chord voicing is a D major triad, bass plays C (tonic).
-    expect(result.chordRegions[0].midis).toEqual([62, 66, 69]);
+    expect(result.chordRegions[0].midis).toEqual([50, 54, 57]);
     const bassRoot = result.bassClip.events[0];
     expect(bassRoot.note).toBe(60 - 24 + 0); // tonic, 2 octaves below rootMidi
   });
@@ -117,18 +119,32 @@ describe('generatePracticeTrack melody', () => {
       expect(repeat.map((e) => e.startTick - PHRASE)).toEqual(
         phrase.map((e) => e.startTick),
       );
-      // Pitches repeat too, except where the chords underneath differ and the
-      // major-chord rule had to move a note — the 4 over a major chord must
-      // reach its 3, and the repeat sits over a different bar. Every such
-      // difference lands on that bar's major 3.
+      // Pitches repeat too, except where the major-chord rule had to move a
+      // note. The phrase and its repeat sit over different bars, so a 4 that has
+      // to reach its 3 can need moving on one side and not the other — and
+      // either side can be the one that moves. Over Level 1's all-major
+      // I-IV-V-I it is the phrase that moves and the repeat that stays; over
+      // Level 3, whose first two bars are minor 7ths, it is the other way
+      // round. So the note that differs is the major 3 of whichever bar it sits
+      // in, on one side or the other. (That no note is left breaching the rule
+      // is asserted on its own, over every mode and level, further down.)
+      const majorThirdOfItsBar = (note: number, tick: number): boolean => {
+        const region = result.chordRegions.find(
+          (r) => tick >= r.startTick && tick < r.endTick,
+        );
+        const midis = region?.midis;
+        if (!midis) return false;
+        const root = Math.min(...midis);
+        return (((note - root) % 12) + 12) % 12 === 4;
+      };
       repeat.slice(0, -1).forEach((event, i) => {
         if (event.note === phrase[i].note) return;
-        const region = result.chordRegions.find(
-          (r) => event.startTick >= r.startTick && event.startTick < r.endTick,
-        );
-        expect(region?.midis).toBeDefined();
-        const root = Math.min(...(region!.midis as number[]));
-        expect((((event.note - root) % 12) as number) + 12).toBe((4 % 12) + 12);
+        expect({
+          level,
+          moved:
+            majorThirdOfItsBar(event.note, event.startTick) ||
+            majorThirdOfItsBar(phrase[i].note, phrase[i].startTick),
+        }).toMatchObject({ moved: true });
       });
       // The phrase spans both bars, not just bar 1.
       expect(phrase.some((e) => e.startTick >= BAR)).toBe(true);

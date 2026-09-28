@@ -21,118 +21,90 @@ export const raspberry_jam: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 10,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
         {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 12,
-      bars: [
-        {
-          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
-        },
-        {
-          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
-        },
-        {
-          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
-        },
-        {
-          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
       ],
     },
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 12,
       bars: [
         {
           chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
@@ -147,72 +119,42 @@ export const raspberry_jam: Song = {
           chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
         },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
+          ],
         },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
         },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
+          ],
         },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
         },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
+          ],
         },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
         },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
+          ],
         },
         {
-          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
         },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 10,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
@@ -226,56 +168,6 @@ export const raspberry_jam: Song = {
         {
           chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
         },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 8,
-      bars: [
         {
           chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
         },
@@ -303,46 +195,54 @@ export const raspberry_jam: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 10,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
-      measuresPerRow: 8,
+      id: 'pre_chorus',
+      label: 'Pre-Chorus',
       bars: [
         {
           chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
@@ -361,81 +261,249 @@ export const raspberry_jam: Song = {
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
-      measuresPerRow: 10,
+      id: 'chorus',
+      label: 'Chorus',
       bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
         {
-          chords: [
-            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
-          ],
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
       ],
     },
     {
-      id: 'section_l',
-      label: 'Section L',
-      measuresPerRow: 9,
+      id: 'verse_4',
+      label: 'Verse 4',
+      bars: [
+        {
+          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+        },
+      ],
+    },
+    {
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'C7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
+      ],
+    },
+    {
+      id: 'verse_6',
+      label: 'Verse 6',
+      bars: [
+        {
+          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [{ degree: '♭2 maj', chordName: 'A♭', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
+      ],
+    },
+    {
+      id: 'verse_7',
+      label: 'Verse 7',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
+      ],
+    },
+    {
+      id: 'outro',
+      label: 'Outro',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 3 },
@@ -445,7 +513,6 @@ export const raspberry_jam: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=es50vEmmKqo' },
   ],

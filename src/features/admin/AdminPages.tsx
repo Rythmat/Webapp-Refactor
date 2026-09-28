@@ -98,6 +98,18 @@ const AdminLessonCoursePage = lazy(() =>
   ),
 );
 
+const AdminVocabularyPage = lazy(() =>
+  import('./content/AdminVocabularyPage').then(({ AdminVocabularyPage }) => ({
+    default: AdminVocabularyPage,
+  })),
+);
+
+const AdminSongImportPage = lazy(() =>
+  import('./content/songImport/AdminSongImportPage').then(
+    ({ AdminSongImportPage }) => ({ default: AdminSongImportPage }),
+  ),
+);
+
 const AdminReleasesPage = lazy(() =>
   import('./content/AdminReleasesPage').then(({ AdminReleasesPage }) => ({
     default: AdminReleasesPage,
@@ -215,6 +227,10 @@ export const adminPages = () => {
         element: <AdminContentEditPage />,
       },
       {
+        path: AdminRoutes.vocabulary.definition,
+        element: <AdminVocabularyPage />,
+      },
+      {
         path: AdminRoutes.lessonCourse.definition,
         element: <AdminLessonCoursePage />,
       },
@@ -223,6 +239,15 @@ export const adminPages = () => {
         element: (
           <AdminOnly>
             <AdminReleasesPage />
+          </AdminOnly>
+        ),
+      },
+      {
+        // Admin only: it overwrites six hundred songs in the authoring store.
+        path: AdminRoutes.songImport.definition,
+        element: (
+          <AdminOnly>
+            <AdminSongImportPage />
           </AdminOnly>
         ),
       },

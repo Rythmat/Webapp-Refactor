@@ -19,9 +19,29 @@ export const jesus_children: Song = {
 
   sections: [
     {
-      id: 'intro',
-      label: 'Intro',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -45,35 +65,8 @@ export const jesus_children: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 8,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -98,13 +91,13 @@ export const jesus_children: Song = {
         {
           chords: [
             { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '♭3 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭3 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -117,13 +110,6 @@ export const jesus_children: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 8,
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -147,13 +133,13 @@ export const jesus_children: Song = {
         {
           chords: [
             { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '♭3 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭3 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -171,7 +157,6 @@ export const jesus_children: Song = {
     {
       id: 'bridge',
       label: 'Bridge',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -186,13 +171,13 @@ export const jesus_children: Song = {
         {
           chords: [
             { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '♭3 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭3 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -208,13 +193,13 @@ export const jesus_children: Song = {
         {
           chords: [
             { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '♭3 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭3 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
       ],
@@ -227,6 +212,7 @@ export const jesus_children: Song = {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
+          repeatStart: true,
         },
         {
           chords: [
@@ -236,20 +222,20 @@ export const jesus_children: Song = {
         {
           chords: [
             { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '♭3 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭3 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -270,68 +256,13 @@ export const jesus_children: Song = {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
+          repeatEnd: true,
         },
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '♭3 7', chordName: 'C7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      repeatCount: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 8,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -356,13 +287,13 @@ export const jesus_children: Song = {
         {
           chords: [
             { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 2 },
-            { degree: '♭3 7', chordName: 'C7', beat: 3, duration: 2 },
+            { degree: '♭3 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [
             { degree: '♭6 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'E7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -378,10 +309,8 @@ export const jesus_children: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
-      measuresPerRow: 6,
-      repeatCount: 6,
+      id: 'verse_6',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -398,16 +327,22 @@ export const jesus_children: Song = {
             { degree: '♭7 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭3 7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭3 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '♭6 maj', chordName: 'F', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'verse_7',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -429,12 +364,6 @@ export const jesus_children: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_m',
-      label: 'Section M',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -458,7 +387,6 @@ export const jesus_children: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=ebZdRmYId_c' },
   ],

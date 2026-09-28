@@ -179,11 +179,19 @@ export const studioProjectsApi = {
       body: meta,
     }),
 
-  remove: (token: string, id: string) =>
-    request<{ id: string; deletedAt: Date }>(projectsPath(`/${id}`), {
-      token,
-      method: 'DELETE',
-    }),
+  remove: async (token: string, id: string) => {
+    const result = await request<{ id: string; deletedAt: Date }>(
+      projectsPath(`/${id}`),
+      { token, method: 'DELETE' },
+    );
+    // Any set list carrying a page printed from this project keeps the page —
+    // that is the promise — but the link to a project that no longer exists
+    // is cut, so the Studio stops offering to update it.
+    window.dispatchEvent(
+      new CustomEvent('ma-studio-project-deleted', { detail: { id } }),
+    );
+    return result;
+  },
 
   /**
    * Eagerly delete any `pending` AudioAsset rows + their bucket objects for
@@ -301,6 +309,13 @@ export async function saveCurrentProjectToCloud(
   if (useStore.getState().isCollabActive) {
     useStore.getState()._markSessionSaved();
   }
+
+  // A saved project is the moment to ask whether the set lists carrying this
+  // lead sheet should get the new version (see SetListUpdatePrompt). Fired
+  // here so every save path — File menu, Save As, cmd-S, leave prompt — asks.
+  window.dispatchEvent(
+    new CustomEvent('ma-studio-project-saved', { detail: { projectId } }),
+  );
 
   // Any clip still missing an assetId here is one whose audio bytes are no
   // longer in memory (e.g. recorded before this build, or an upload that kept

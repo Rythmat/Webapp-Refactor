@@ -19,39 +19,40 @@ export const like_a_prayer: Song = {
 
   sections: [
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 1,
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 13 }],
     },
     {
-      id: 'chorus',
+      id: 'verse_1',
+      label: 'Verse 1',
+      bars: [
+        {
+          chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
+        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 maj/3', chordName: 'F/A', beat: 1, duration: 4 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'chorus_1',
       label: 'Chorus',
-      measuresPerRow: 5,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 maj/3', chordName: 'F/A', beat: 1, duration: 4 },
-          ],
-        },
-      ],
+      instrumental: true,
+      bars: [{ chords: [], restBars: 16, repeatEnd: true }],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 1,
-      bars: [{ chords: [], restBars: 16 }],
-    },
-    {
-      id: 'verse_2',
+      id: 'verse_3',
       label: 'Verse 2',
-      measuresPerRow: 5,
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -67,34 +68,8 @@ export const like_a_prayer: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 1,
-      bars: [{ chords: [], restBars: 16 }],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 5,
-      repeatCount: 4,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 maj/3', chordName: 'F/A', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 5,
+      id: 'verse_4',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -107,7 +82,9 @@ export const like_a_prayer: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '6 dom7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -115,42 +92,40 @@ export const like_a_prayer: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '6 dom7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 5,
-      bars: [
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '6 7', chordName: 'D7sus', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '6 7', chordName: 'D7sus', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      measuresPerRow: 7,
+      id: 'verse_5',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -182,10 +157,8 @@ export const like_a_prayer: Song = {
       ],
     },
     {
-      id: 'section_i_2',
-      label: 'Section I',
-      measuresPerRow: 5,
-      repeatCount: 4,
+      id: 'verse_6',
+      label: 'Verse 5',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -201,9 +174,8 @@ export const like_a_prayer: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
-      measuresPerRow: 5,
+      id: 'verse_7',
+      label: 'Verse 6',
       bars: [
         {
           chords: [
@@ -216,7 +188,9 @@ export const like_a_prayer: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '6 dom7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -224,14 +198,15 @@ export const like_a_prayer: Song = {
           ],
         },
         {
-          chords: [{ degree: '6 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '6 dom7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
     {
-      id: 'section_l',
-      label: 'Section L',
-      measuresPerRow: 7,
+      id: 'verse_8',
+      label: 'Verse 7',
       bars: [
         {
           chords: [
@@ -263,7 +238,6 @@ export const like_a_prayer: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=79fzeNUqQbQ' },
   ],

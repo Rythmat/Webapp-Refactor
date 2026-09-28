@@ -1,4 +1,5 @@
 import { ALL_MODES } from '@/daw/prism-engine/data/modes';
+import { getScaleLesson } from '@/lib/learn/scaleLessons';
 
 // Build lookup: lowercase ALL_MODES key → intervals (and → the key itself)
 const FALLBACK_MAP = new Map<string, number[]>();
@@ -30,6 +31,10 @@ const SLUG_ALIASES: Record<string, string> = {
 /** Look up mode intervals locally when the API is unavailable. */
 export function getLocalModeSteps(slug: string): number[] | undefined {
   const lower = slug.toLowerCase();
+  // The pentatonic and blues scales aren't modes of a seven-note parent, so
+  // they live with their own lessons rather than in ALL_MODES.
+  const scale = getScaleLesson(lower);
+  if (scale) return scale.steps;
   return FALLBACK_MAP.get(lower) ?? FALLBACK_MAP.get(SLUG_ALIASES[lower] ?? '');
 }
 

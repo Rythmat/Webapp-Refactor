@@ -55,6 +55,7 @@ interface LeadSheetStaffProps {
   onSelectItem?: (item: LeadSheetItem, event: React.MouseEvent) => void;
   onInsertChordAt?: (tick: number) => void;
   beatsPerMeasure?: number;
+  ticksPerBeat?: number;
   autoEditRegionId?: string | null;
   /** Bars in the whole piece, so the last one can own the closing barline. */
   measureCount?: number;
@@ -89,12 +90,15 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
   onSelectItem,
   onInsertChordAt,
   beatsPerMeasure,
+  ticksPerBeat,
   autoEditRegionId,
   measureCount,
 }: LeadSheetStaffProps) {
   const defaultWidth = measures.length * MEASURE_WIDTH;
+  // A five- or six-bar system (a second ending folded in) is full too, and
+  // narrows its bars to the same page width; the staff height never changes.
   const isFull =
-    measures.length === (fullSystemCount ?? DEFAULT_FULL_SYSTEM_COUNT);
+    measures.length >= (fullSystemCount ?? DEFAULT_FULL_SYSTEM_COUNT);
 
   // A full system fills the container — stretching when there is room, and
   // squeezing when there is not. It used to hold its natural width and let the
@@ -148,6 +152,7 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
             onSelectItem={onSelectItem}
             onInsertChordAt={onInsertChordAt}
             beatsPerMeasure={beatsPerMeasure}
+            ticksPerBeat={ticksPerBeat}
             autoEditRegionId={autoEditRegionId}
             isSystemStart={i === 0}
             isLastMeasure={

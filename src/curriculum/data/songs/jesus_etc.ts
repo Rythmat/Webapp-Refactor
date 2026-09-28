@@ -45,9 +45,8 @@ export const jesus_etc: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 7,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -77,9 +76,8 @@ export const jesus_etc: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 8,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
@@ -108,54 +106,52 @@ export const jesus_etc: Song = {
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 6,
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 1 },
-            { degree: '5 maj/7', chordName: 'C/E', beat: 2, duration: 1 },
-            { degree: '6 min7', chordName: 'Dmin7', beat: 3, duration: 1 },
-            { degree: '3 maj/♯5', chordName: 'A/C♯', beat: 4, duration: 1 },
-          ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 1 },
-            { degree: '5 maj/7', chordName: 'C/E', beat: 2, duration: 1 },
-            { degree: '6 min7', chordName: 'Dmin7', beat: 3, duration: 1 },
-            { degree: '3 maj/♯5', chordName: 'A/C♯', beat: 4, duration: 1 },
-          ],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
-            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
-          ],
         },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
-      measuresPerRow: 7,
+      bars: [
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 1 },
+            { degree: '5 maj/7', chordName: 'C/E', beat: 2, duration: 1 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 3, duration: 1 },
+            { degree: '3 maj/♯5', chordName: 'A/C♯', beat: 4, duration: 1 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 1 },
+            { degree: '5 maj/7', chordName: 'C/E', beat: 2, duration: 1 },
+            { degree: '6 min7', chordName: 'Dmin7', beat: 3, duration: 1 },
+            { degree: '3 maj/♯5', chordName: 'A/C♯', beat: 4, duration: 1 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
+            { degree: '5 maj', chordName: 'C', beat: 3, duration: 2 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -191,9 +187,8 @@ export const jesus_etc: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 7,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -223,9 +218,8 @@ export const jesus_etc: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 8,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [
@@ -258,9 +252,8 @@ export const jesus_etc: Song = {
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 6,
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -299,9 +292,8 @@ export const jesus_etc: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
-      measuresPerRow: 7,
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
@@ -334,13 +326,6 @@ export const jesus_etc: Song = {
             { degree: '5 maj/7', chordName: 'C/E', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
-      measuresPerRow: 8,
-      bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
@@ -375,7 +360,6 @@ export const jesus_etc: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=v4_O4Sj-XTs' },
   ],

@@ -21,12 +21,12 @@ export const sweet_child_o_mine: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 1,
+      instrumental: true,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
@@ -43,118 +43,8 @@ export const sweet_child_o_mine: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 5,
-      bars: [
-        { chords: [] },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
-        {
-          chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -174,11 +64,31 @@ export const sweet_child_o_mine: Song = {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
+        { chords: [] },
         {
-          chords: [{ degree: '5 maj', chordName: 'G♯', beat: 1, duration: 4 }],
+          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
+      bars: [
+        {
+          chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+          repeatStart: true,
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
         },
         {
           chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
@@ -189,8 +99,45 @@ export const sweet_child_o_mine: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      bars: [
+        {
+          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+          repeatEnd: true,
+        },
+      ],
+    },
+    {
+      id: 'verse_5',
+      label: 'Verse 4',
+      bars: [
+        {
+          chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+        },
+      ],
+    },
+    {
+      id: 'verse_6',
+      label: 'Verse 5',
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'G♯', beat: 1, duration: 4 }],
@@ -204,12 +151,23 @@ export const sweet_child_o_mine: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
+        {
+          chords: [{ degree: '5 maj', chordName: 'G♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
-      measuresPerRow: 5,
+      id: 'verse_7',
+      label: 'Verse 6',
       bars: [
         { chords: [] },
         {
@@ -227,8 +185,8 @@ export const sweet_child_o_mine: Song = {
       ],
     },
     {
-      id: 'section_m',
-      label: 'Section M',
+      id: 'verse_8',
+      label: 'Verse 7',
       bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'F♯', beat: 1, duration: 4 }],
@@ -245,9 +203,8 @@ export const sweet_child_o_mine: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 5,
+      id: 'verse_9',
+      label: 'Verse 8',
       bars: [
         { chords: [] },
         {
@@ -265,8 +222,8 @@ export const sweet_child_o_mine: Song = {
       ],
     },
     {
-      id: 'section_o',
-      label: 'Section O',
+      id: 'verse_10',
+      label: 'Verse 9',
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'G♯', beat: 1, duration: 4 }],
@@ -283,10 +240,8 @@ export const sweet_child_o_mine: Song = {
       ],
     },
     {
-      id: 'section_g_2',
-      label: 'Section G',
-      measuresPerRow: 6,
-      repeatCount: 4,
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         { chords: [] },
         {
@@ -304,14 +259,6 @@ export const sweet_child_o_mine: Song = {
         {
           chords: [{ degree: '5 maj', chordName: 'G♯', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 6,
-      repeatCount: 10,
-      bars: [
         { chords: [] },
         {
           chords: [{ degree: '2 maj', chordName: 'D♯', beat: 1, duration: 4 }],
@@ -331,12 +278,6 @@ export const sweet_child_o_mine: Song = {
             { degree: '4 maj', chordName: 'F♯', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_i_2',
-      label: 'Section I',
-      bars: [
         {
           chords: [{ degree: '2 maj', chordName: 'D♯', beat: 1, duration: 4 }],
         },
@@ -359,8 +300,8 @@ export const sweet_child_o_mine: Song = {
       ],
     },
     {
-      id: 'section_s',
-      label: 'Section S',
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '2 maj', chordName: 'D♯', beat: 1, duration: 4 }],
@@ -382,7 +323,6 @@ export const sweet_child_o_mine: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=1w7OgIMMRc4' },
   ],

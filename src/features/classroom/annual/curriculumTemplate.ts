@@ -12,7 +12,8 @@
  *     Used to surface a `/songs/<id>` link inside the Connect prompt.
  *   - `globeEventIds` — id(s) from `MUSIC_HISTORY` in `/src/components/atlas/
  *     data/events/`. Rendered as `module: 'globe'` LaunchTile(s) on the
- *     Connect cell — clicking one deep-links into `/atlas?event=<id>`.
+ *     Connect cell — clicking one deep-links into `/atlas/globe?event=<id>`
+ *     (the `/atlas` index is the Globe Dashboard and ignores `?event=`).
  *
  * Themes are referenced by `themeId` — the Unit page resolves them at render
  * time through `useThemeBank().byId(...)`. Genre and location units use

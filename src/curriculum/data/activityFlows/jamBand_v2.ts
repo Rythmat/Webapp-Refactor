@@ -101,7 +101,7 @@ const stubParams = {
 };
 
 export const jamBandL1: ActivityFlowV2 = {
-  genre: 'jam band',
+  genre: 'jam-band',
   level: 1,
   version: 'v2',
   title: 'Jam Band Level 1',
@@ -109,7 +109,7 @@ export const jamBandL1: ActivityFlowV2 = {
   sections: stubSections,
 };
 export const jamBandL2: ActivityFlowV2 = {
-  genre: 'jam band',
+  genre: 'jam-band',
   level: 2,
   version: 'v2',
   title: 'Jam Band Level 2',
@@ -117,7 +117,7 @@ export const jamBandL2: ActivityFlowV2 = {
   sections: stubSections,
 };
 export const jamBandL3: ActivityFlowV2 = {
-  genre: 'jam band',
+  genre: 'jam-band',
   level: 3,
   version: 'v2',
   title: 'Jam Band Level 3',

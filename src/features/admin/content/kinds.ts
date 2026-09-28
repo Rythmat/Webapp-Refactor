@@ -184,6 +184,8 @@ export const CONTENT_KINDS: Record<ContentKind, KindSpec> = {
     FullEditor: SongEditor,
     makeDefault: () => makeEmptySong() as unknown as Record<string, unknown>,
     jsonLabel: 'Audio sources, time signature and cross-references',
+    // credits/session/relatedRecordings are edited in SongEditor's credits
+    // panel, so they stay out of the JSON pane.
   },
 
   activity_flow: {

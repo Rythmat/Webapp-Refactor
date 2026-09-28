@@ -2,6 +2,7 @@ import {
   Activity,
   CircleHelp,
   CloudUpload,
+  DatabaseBackup,
   FileText,
   Ratio,
   Shield,
@@ -85,6 +86,14 @@ export const Sidebar = ({
             isCollapsed={isCollapsed}
             label="Publishing"
             to={AdminRoutes.releases()}
+          />
+          {/* A one-off migration, but an unreachable page is a page nobody
+              runs — and this one decides whether the store is current. */}
+          <SidebarMainNavItem
+            icon={DatabaseBackup}
+            isCollapsed={isCollapsed}
+            label="Import songs"
+            to={AdminRoutes.songImport()}
           />
         </ul>
       );

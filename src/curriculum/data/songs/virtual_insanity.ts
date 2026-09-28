@@ -21,167 +21,40 @@ export const virtual_insanity: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 2,
+      instrumental: true,
       bars: [{ chords: [], restBars: 3 }, { chords: [] }],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Cmin7b5', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '5 7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Cmin7b5', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '5 7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 8,
-      bars: [
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭7 7', chordName: 'D♭7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Cmin7b5', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '5 7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 8,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        {
-          chords: [{ degree: '♭7 7', chordName: 'D♭7', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Cmin7b5', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '5 7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '5 7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
-          ],
-        },
-      ],
     },
     {
       id: 'bridge',
       label: 'Bridge',
       bars: [
         {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Cmin7b5', beat: 1, duration: 4 },
+          ],
+        },
+        {
           chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 dim7', chordName: 'Ddim7', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -191,22 +64,68 @@ export const virtual_insanity: Song = {
         },
         {
           chords: [
-            { degree: '4 min7', chordName: 'A♭min7', beat: 1, duration: 2 },
-            { degree: '5 min7', chordName: 'B♭min7', beat: 3, duration: 2 },
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Cmin7b5', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'D♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Cmin7b5', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
         {
           chords: [
-            { degree: '7 dim7', chordName: 'Ddim7', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -216,8 +135,43 @@ export const virtual_insanity: Song = {
         },
         {
           chords: [
-            { degree: '4 min7', chordName: 'A♭min7', beat: 1, duration: 2 },
-            { degree: '5 min7', chordName: 'B♭min7', beat: 3, duration: 2 },
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'D♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Cmin7b5', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
           ],
         },
       ],
@@ -227,24 +181,67 @@ export const virtual_insanity: Song = {
       label: 'Verse 2',
       bars: [
         {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '7 dim7', chordName: 'Ddim7', beat: 1, duration: 4 },
+          ],
+        },
+        {
           chords: [
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭7 7', chordName: 'D♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '4 min7', chordName: 'A♭min7', beat: 1, duration: 2 },
+            { degree: '5 min7', chordName: 'B♭min7', beat: 3, duration: 2 },
+          ],
         },
         {
-          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '7 dim7', chordName: 'Ddim7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'A♭min7', beat: 1, duration: 2 },
+            { degree: '5 min7', chordName: 'B♭min7', beat: 3, duration: 2 },
+          ],
         },
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
-      repeatCount: 4,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'D♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Cmin7b5', beat: 1, duration: 4 },
@@ -255,7 +252,7 @@ export const virtual_insanity: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -264,9 +261,28 @@ export const virtual_insanity: Song = {
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '7 dim7', chordName: 'Ddim7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'A♭min7', beat: 1, duration: 2 },
+            { degree: '5 min7', chordName: 'B♭min7', beat: 3, duration: 2 },
+          ],
+        },
         {
           chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
@@ -289,41 +305,34 @@ export const virtual_insanity: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
-      repeatCount: 4,
-      bars: [
-        {
-          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '7 dim7', chordName: 'Ddim7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'A♭min7', beat: 1, duration: 2 },
-            { degree: '5 min7', chordName: 'B♭min7', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 1,
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [{ chords: [], restBars: 35 }],
     },
     {
-      id: 'section_g_2',
-      label: 'Section G',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '7 dim7', chordName: 'Ddim7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'A♭min7', beat: 1, duration: 2 },
+            { degree: '5 min7', chordName: 'B♭min7', beat: 3, duration: 2 },
+          ],
+        },
         {
           chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
@@ -346,35 +355,8 @@ export const virtual_insanity: Song = {
       ],
     },
     {
-      id: 'section_n',
-      label: 'Section N',
-      repeatCount: 6,
-      bars: [
-        {
-          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '7 dim7', chordName: 'Ddim7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'A♭min7', beat: 1, duration: 2 },
-            { degree: '5 min7', chordName: 'B♭min7', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      measuresPerRow: 8,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
@@ -408,14 +390,13 @@ export const virtual_insanity: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'B♭7(♯5)', beat: 1, duration: 4 },
           ],
           fermata: true,
         },
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=OeTFAiYbR9o' },
   ],

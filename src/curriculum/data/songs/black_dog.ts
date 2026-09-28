@@ -19,15 +19,10 @@ export const black_dog: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 1,
-      bars: [{ chords: [], restBars: 4 }],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
+      id: 'intro',
+      label: 'Intro',
       bars: [
+        { chords: [], restBars: 4 },
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
         },
@@ -43,8 +38,9 @@ export const black_dog: Song = {
       ],
     },
     {
-      id: 'section_c',
-      label: 'Section C',
+      id: 'interlude_1',
+      label: 'Interlude 1',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
@@ -53,8 +49,8 @@ export const black_dog: Song = {
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
@@ -68,12 +64,6 @@ export const black_dog: Song = {
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
         },
@@ -86,13 +76,6 @@ export const black_dog: Song = {
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 5,
-      bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
         },
@@ -111,8 +94,9 @@ export const black_dog: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'chorus_1',
+      label: 'Chorus 1',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
@@ -123,12 +107,6 @@ export const black_dog: Song = {
           ],
         },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
@@ -154,9 +132,14 @@ export const black_dog: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'interlude_2',
+      label: 'Interlude 2',
+      instrumental: true,
       bars: [
+        { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
@@ -164,19 +147,9 @@ export const black_dog: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
-      bars: [
-        { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e_2',
-      label: 'Section E',
-      repeatCount: 4,
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
@@ -192,12 +165,6 @@ export const black_dog: Song = {
             { degree: '4 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_m',
-      label: 'Section M',
-      bars: [
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
@@ -205,8 +172,8 @@ export const black_dog: Song = {
       ],
     },
     {
-      id: 'section_f_2',
-      label: 'Section F',
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
@@ -220,22 +187,10 @@ export const black_dog: Song = {
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_o',
-      label: 'Section O',
-      bars: [
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
         },
@@ -248,12 +203,6 @@ export const black_dog: Song = {
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_q',
-      label: 'Section Q',
-      bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
         },
@@ -266,13 +215,6 @@ export const black_dog: Song = {
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_r',
-      label: 'Section R',
-      measuresPerRow: 5,
-      bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
         },
@@ -291,8 +233,9 @@ export const black_dog: Song = {
       ],
     },
     {
-      id: 'section_h_2',
-      label: 'Section H',
+      id: 'chorus_3',
+      label: 'Chorus 3',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
@@ -303,12 +246,6 @@ export const black_dog: Song = {
           ],
         },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_t',
-      label: 'Section T',
-      bars: [
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
@@ -316,8 +253,8 @@ export const black_dog: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
@@ -331,12 +268,10 @@ export const black_dog: Song = {
         {
           chords: [{ degree: 'n.c.', chordName: 'N.C.', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_v',
-      label: 'Section V',
-      bars: [
+        { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
+        { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
@@ -344,18 +279,9 @@ export const black_dog: Song = {
       ],
     },
     {
-      id: 'section_w',
-      label: 'Section W',
-      bars: [
-        { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_j_2',
-      label: 'Section J',
+      id: 'outro',
+      label: 'Outro',
+      instrumental: true,
       bars: [
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 5', chordName: 'A5', beat: 1, duration: 4 }] },
@@ -374,7 +300,6 @@ export const black_dog: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=2KPEHohJMuw' },
   ],

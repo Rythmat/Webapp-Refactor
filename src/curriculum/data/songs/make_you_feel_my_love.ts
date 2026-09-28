@@ -19,11 +19,12 @@ export const make_you_feel_my_love: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
         {
           chords: [
@@ -39,96 +40,10 @@ export const make_you_feel_my_love: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
-      bars: [
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '2 7', chordName: 'C7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '5 maj/7', chordName: 'F/A', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '2 7', chordName: 'C7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F7', beat: 3, duration: 2 },
-          ],
-        },
-        {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'chorus',
+      id: 'chorus_1',
       label: 'Chorus',
       bars: [
         {
-          chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '5 maj/7', chordName: 'F/A', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♭7 maj', chordName: 'A♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
-        },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
-        {
           chords: [
             { degree: '4 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
@@ -138,12 +53,14 @@ export const make_you_feel_my_love: Song = {
         },
         {
           chords: [
-            { degree: '2 7', chordName: 'C7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F7', beat: 3, duration: 2 },
+            { degree: '2 dom7', chordName: 'C7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'F7', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
+          repeatEnd: true,
+          repeatTimes: 3,
         },
       ],
     },
@@ -159,19 +76,13 @@ export const make_you_feel_my_love: Song = {
         },
         {
           chords: [
-            { degree: '3 7/♯5', chordName: 'D7/F♯', beat: 1, duration: 2 },
+            { degree: '3 dom7/♯5', chordName: 'D7/F♯', beat: 1, duration: 2 },
             { degree: '4 maj/6', chordName: 'E♭/G', beat: 3, duration: 2 },
           ],
         },
         {
           chords: [{ degree: '1 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
         {
           chords: [{ degree: '4 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
@@ -183,7 +94,7 @@ export const make_you_feel_my_love: Song = {
       ],
     },
     {
-      id: 'verse_2',
+      id: 'verse_4',
       label: 'Verse 2',
       bars: [
         {
@@ -203,9 +114,8 @@ export const make_you_feel_my_love: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
-      measuresPerRow: 6,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -217,8 +127,8 @@ export const make_you_feel_my_love: Song = {
         },
         {
           chords: [
-            { degree: '2 7', chordName: 'C7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F7', beat: 3, duration: 2 },
+            { degree: '2 dom7', chordName: 'C7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'F7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -226,8 +136,8 @@ export const make_you_feel_my_love: Song = {
         },
         {
           chords: [
-            { degree: '2 7', chordName: 'C7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'F7', beat: 3, duration: 2 },
+            { degree: '2 dom7', chordName: 'C7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'F7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -237,7 +147,6 @@ export const make_you_feel_my_love: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=0put0_a--Ng' },
   ],

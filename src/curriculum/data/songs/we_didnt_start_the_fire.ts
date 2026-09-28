@@ -19,8 +19,8 @@ export const we_didnt_start_the_fire: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -41,8 +41,8 @@ export const we_didnt_start_the_fire: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
+      id: 'pre_chorus_1',
+      label: 'Pre-Chorus 1',
       bars: [
         {
           chords: [
@@ -63,46 +63,13 @@ export const we_didnt_start_the_fire: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
-          chords: [
-            { degree: '1 maj/5', chordName: 'G/D', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }],
+          repeatStart: true,
         },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'G/D', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -131,12 +98,15 @@ export const we_didnt_start_the_fire: Song = {
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }],
+          repeatEnd: true,
+        },
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
+      id: 'pre_chorus_2',
+      label: 'Pre-Chorus 2',
       bars: [
         {
           chords: [
@@ -157,9 +127,8 @@ export const we_didnt_start_the_fire: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      repeatCount: 4,
+      id: 'chorus_3',
+      label: 'Chorus 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -172,8 +141,8 @@ export const we_didnt_start_the_fire: Song = {
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_4',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
@@ -194,8 +163,8 @@ export const we_didnt_start_the_fire: Song = {
       ],
     },
     {
-      id: 'section_j',
-      label: 'Section J',
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -217,12 +186,6 @@ export const we_didnt_start_the_fire: Song = {
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_g_2',
-      label: 'Section G',
-      bars: [
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -235,20 +198,13 @@ export const we_didnt_start_the_fire: Song = {
           ],
         },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_l',
-      label: 'Section L',
-      measuresPerRow: 2,
-      bars: [
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'section_h',
-      label: 'Section H',
+      id: 'chorus_4',
+      label: 'Chorus 3',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -261,13 +217,14 @@ export const we_didnt_start_the_fire: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'verse_5',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
             { degree: '1 maj/5', chordName: 'G/D', beat: 1, duration: 4 },
           ],
+          repeatStart: true,
         },
         {
           chords: [
@@ -283,8 +240,8 @@ export const we_didnt_start_the_fire: Song = {
       ],
     },
     {
-      id: 'section_o',
-      label: 'Section O',
+      id: 'pre_chorus_3',
+      label: 'Pre-Chorus 3',
       bars: [
         {
           chords: [
@@ -305,9 +262,8 @@ export const we_didnt_start_the_fire: Song = {
       ],
     },
     {
-      id: 'section_j_2',
-      label: 'Section J',
-      repeatCount: 3,
+      id: 'chorus_5',
+      label: 'Chorus 4',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -316,12 +272,15 @@ export const we_didnt_start_the_fire: Song = {
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }],
+          repeatEnd: true,
+        },
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
+      id: 'verse_7',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -342,67 +301,8 @@ export const we_didnt_start_the_fire: Song = {
       ],
     },
     {
-      id: 'section_r',
-      label: 'Section R',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'G/D', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'G/D', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/3', chordName: 'G/B', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_l_2',
-      label: 'Section L',
-      repeatCount: 4,
-      bars: [
-        { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_m',
-      label: 'Section M',
-      bars: [
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'G/D', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'G/D', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_u',
-      label: 'Section U',
+      id: 'verse_8',
+      label: 'Verse 6',
       bars: [
         {
           chords: [
@@ -423,7 +323,6 @@ export const we_didnt_start_the_fire: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=eFTLKWw542g' },
   ],

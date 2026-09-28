@@ -14,20 +14,18 @@ export const golden: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip hop'],
+  genreTags: ['hip-hop'],
   techniques: [],
 
   sections: [
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 1,
       bars: [{ chords: [], restBars: 8 }],
     },
     {
       id: 'verse',
       label: 'Verse',
-      measuresPerRow: 8,
       bars: [
         {
           chords: [
@@ -42,7 +40,7 @@ export const golden: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'B♭7sus', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'B♭7sus', beat: 1, duration: 4 },
           ],
         },
         {

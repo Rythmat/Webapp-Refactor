@@ -7,7 +7,7 @@ export const oh_you_pretty_things: Song = {
   year: 1971,
   historicalDescription:
     "David Bowie releases 'Oh! You Pretty Things' in 1971, a piano-driven anthem heralding the arrival of a new generation — 'Homo Superior' — rising to replace the old world. The song captures Bowie at a visionary turning point, bridging his acoustic folk roots toward the glam rock personas he is about to unleash. It signals that pop music can carry grand, unsettling ideas about evolution, identity, and the future.",
-  key: 'F♯ major',
+  key: 'G♭ major',
   keyRoot: 66,
   mode: 'major',
   tempo: 78,
@@ -19,9 +19,8 @@ export const oh_you_pretty_things: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 8,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -45,9 +44,8 @@ export const oh_you_pretty_things: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
-      measuresPerRow: 8,
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -84,9 +82,8 @@ export const oh_you_pretty_things: Song = {
       ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 8,
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -96,7 +93,7 @@ export const oh_you_pretty_things: Song = {
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
+            { degree: '6 dom7', chordName: 'E♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -119,9 +116,8 @@ export const oh_you_pretty_things: Song = {
       ],
     },
     {
-      id: 'section_d',
-      label: 'Section D',
-      measuresPerRow: 8,
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -131,7 +127,7 @@ export const oh_you_pretty_things: Song = {
         },
         {
           chords: [
-            { degree: '3 7/♯5', chordName: 'B♭7/D', beat: 1, duration: 4 },
+            { degree: '3 dom7/♯5', chordName: 'B♭7/D', beat: 1, duration: 4 },
           ],
         },
         {
@@ -147,20 +143,17 @@ export const oh_you_pretty_things: Song = {
         },
         {
           chords: [
-            { degree: '2 7/6', chordName: 'A♭7/E♭', beat: 1, duration: 4 },
+            { degree: '2 dom7/6', chordName: 'A♭7/E♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [{ degree: '5 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 8,
-      bars: [
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'D♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -186,15 +179,16 @@ export const oh_you_pretty_things: Song = {
           ],
         },
         {
-          chords: [{ degree: '7 7', chordName: 'F7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '7 dom7', chordName: 'F7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
-      measuresPerRow: 8,
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -204,7 +198,7 @@ export const oh_you_pretty_things: Song = {
         },
         {
           chords: [
-            { degree: '6 7', chordName: 'E♭7sus', beat: 1, duration: 4 },
+            { degree: '6 dom7', chordName: 'E♭7sus', beat: 1, duration: 4 },
           ],
         },
         {
@@ -227,9 +221,8 @@ export const oh_you_pretty_things: Song = {
       ],
     },
     {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 9,
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -239,7 +232,7 @@ export const oh_you_pretty_things: Song = {
         },
         {
           chords: [
-            { degree: '3 7/♯5', chordName: 'B♭7/D', beat: 1, duration: 4 },
+            { degree: '3 dom7/♯5', chordName: 'B♭7/D', beat: 1, duration: 4 },
           ],
         },
         {
@@ -255,22 +248,49 @@ export const oh_you_pretty_things: Song = {
         },
         {
           chords: [
-            { degree: '2 7/6', chordName: 'A♭7/E♭', beat: 1, duration: 4 },
+            { degree: '2 dom7/6', chordName: 'A♭7/E♭', beat: 1, duration: 4 },
           ],
         },
         {
           chords: [{ degree: '5 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 7', chordName: 'D♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'D♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '3 min7/7', chordName: 'B♭min7/F', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 maj/5', chordName: 'G♭/D♭', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 6,
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
@@ -290,36 +310,9 @@ export const oh_you_pretty_things: Song = {
             { degree: '1 maj/5', chordName: 'G♭/D♭', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
+          chords: [{ degree: '4 dom7', chordName: 'B7', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_i',
-      label: 'Section I',
-      measuresPerRow: 11,
-      bars: [
-        {
-          chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
-        },
-        {
-          chords: [
-            { degree: '3 min7/7', chordName: 'B♭min7/F', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '6 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 maj/5', chordName: 'G♭/D♭', beat: 1, duration: 4 },
-          ],
-        },
-        { chords: [{ degree: '4 7', chordName: 'B7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
@@ -337,9 +330,8 @@ export const oh_you_pretty_things: Song = {
       ],
     },
     {
-      id: 'verse_2',
-      label: 'Verse 2',
-      measuresPerRow: 8,
+      id: 'verse_6',
+      label: 'Verse 6',
       bars: [
         { chords: [{ degree: '7 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
@@ -363,9 +355,8 @@ export const oh_you_pretty_things: Song = {
       ],
     },
     {
-      id: 'section_k',
-      label: 'Section K',
-      measuresPerRow: 8,
+      id: 'chorus_2',
+      label: 'Chorus 2',
       bars: [
         {
           chords: [{ degree: '5 maj', chordName: 'D♭', beat: 1, duration: 4 }],
@@ -402,9 +393,8 @@ export const oh_you_pretty_things: Song = {
       ],
     },
     {
-      id: 'section_l',
-      label: 'Section L',
-      measuresPerRow: 8,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [{ degree: '♯4 maj', chordName: 'C', beat: 1, duration: 4 }],
@@ -430,7 +420,6 @@ export const oh_you_pretty_things: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=IBgU0tiLy2s' },
   ],

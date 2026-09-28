@@ -1,24 +1,27 @@
 import type { HistoricalEvent } from '@/components/atlas/types';
 import { contentGeneration, MUSIC_HISTORY } from '@/content/contentStore';
-import { ARTIST_STOP_LIST } from './artistStopList';
-import { CITIES } from './cities';
+import { ARTIST_REGISTRY } from './artistRegistry';
 
 /**
  * The globe's artist index.
  *
  * No event carries an `artist` field — artists live as lowercase entries in
- * `tags`, mixed in with genres, places, labels, and themes. So the index is
- * derived, from the two places the dataset states an artist unambiguously:
+ * `tags`, mixed in with genres, places, labels and themes. This module used to
+ * infer the artist SET from that: take the phrase after the em dash on a song
+ * event, take the leading capitalised run of a hand-authored title when its own
+ * tags confirmed it, then subtract every name that collided with a place, a
+ * genre or the hand-maintained stop list.
  *
- *  1. Song-derived events title themselves `Work — Artist`, which gives ~360
- *     canonical names with their real casing, for free.
- *  2. Hand-authored events open their title with the subject — "Wes Montgomery
- *     records The Incredible Jazz Guitar" — so the leading capitalized phrase
- *     is the artist, and requiring the curator to ALSO have tagged that phrase
- *     is what separates an artist from a movement or a city.
+ * It no longer guesses who exists. {@link ARTIST_REGISTRY} says, and this
+ * module only works out WHERE each registered artist appears — which still has
+ * to be derived, because it changes whenever an event does. The switch was
+ * verified to produce a byte-identical index: 881 artists, same event counts.
  *
- * Everything the second rule still gets wrong (record labels, festivals,
- * platforms) is listed in {@link ARTIST_STOP_LIST}.
+ * What that bought: an artist is now a record with a stable slug that a song
+ * credit or a graph edge can point at, a wrong one is fixed by editing a line
+ * instead of growing a stop list, and `artistStopList.ts` has nothing left to
+ * stop. A registry name that collides with a place or genre would reintroduce
+ * the old ambiguity, so a guard test asserts none does.
  *
  * Rebuilt whenever the CDN content re-hydrates, for the reason spelled out in
  * contentStore.ts: a module-scope snapshot would capture an empty dataset and
@@ -46,13 +49,20 @@ export interface AtlasArtist {
  * still unequal, and the bug this normalization exists to prevent.
  */
 export function normalizeArtistName(name: string): string {
-  return name
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/['’ʼ`]/g, '')
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
+  return (
+    name
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/['’ʼ`]/g, '')
+      // '&' and 'and' are the same word and the dataset uses both: the song
+      // library writes 'Hall & Oates' and 'Earth, Wind & Fire' where the globe's
+      // event titles write 'Hall and Oates' and 'Earth, Wind and Fire'. Folding
+      // one into the other is what stops those becoming two different artists.
+      .replace(/&/g, ' and ')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim()
+  );
 }
 
 export function artistSlug(name: string): string {
@@ -116,86 +126,78 @@ const BY_SLUG = new Map<string, AtlasArtist>();
 const NAME_TO_SLUG = new Map<string, string>();
 let builtGeneration = -1;
 
-/** Place names must never become artists ("Chicago" the city, not the band). */
-function buildPlaceVocabulary(): Set<string> {
-  const places = new Set<string>();
-  for (const city of CITIES) {
-    places.add(normalizeArtistName(city.name));
-    places.add(normalizeArtistName(city.country));
-    if (city.subdivision) places.add(normalizeArtistName(city.subdivision));
-  }
-  for (const event of MUSIC_HISTORY) {
-    places.add(normalizeArtistName(event.location.city));
-    places.add(normalizeArtistName(event.location.country));
-  }
-  return places;
+function attach(map: Map<string, AtlasArtist>, slug: string, eventId: string) {
+  const artist = map.get(slug);
+  if (artist && !artist.eventIds.includes(eventId))
+    artist.eventIds.push(eventId);
 }
 
-function buildGenreVocabulary(): Set<string> {
-  const genres = new Set<string>();
-  for (const event of MUSIC_HISTORY) {
-    for (const genre of event.genre) genres.add(normalizeArtistName(genre));
-  }
-  return genres;
-}
-
-function record(name: string, eventId: string): void {
-  const slug = artistSlug(name);
-  if (!slug) return;
-  const existing = BY_SLUG.get(slug);
-  if (existing) {
-    if (!existing.eventIds.includes(eventId)) existing.eventIds.push(eventId);
-    return;
-  }
-  BY_SLUG.set(slug, { name, slug, eventIds: [eventId] });
-  NAME_TO_SLUG.set(normalizeArtistName(name), slug);
-}
-
+/**
+ * Fill the index.
+ *
+ * The REGISTRY decides who exists; events only decide where they appear. That
+ * is the whole change from the old three-pass discovery: a name is no longer
+ * promoted to an artist because it opened a title and survived three exclusion
+ * vocabularies, so "Chicago" needs no special case and the stop list has
+ * nothing left to stop. What is still derived is the event list, because that
+ * changes whenever an event does.
+ *
+ * An artist with no events is kept out of the index — they are a real entity
+ * the graph can reference, but there is nothing for the globe to show.
+ */
 function ensureIndex(): void {
   if (builtGeneration === contentGeneration) return;
   builtGeneration = contentGeneration;
   BY_SLUG.clear();
   NAME_TO_SLUG.clear();
 
-  const places = buildPlaceVocabulary();
-  const genres = buildGenreVocabulary();
-  const stopped = new Set(ARTIST_STOP_LIST.map(normalizeArtistName));
-  const excluded = (key: string) =>
-    !key || stopped.has(key) || places.has(key) || genres.has(key);
+  const candidates = new Map<string, AtlasArtist>();
+  for (const entry of ARTIST_REGISTRY) {
+    candidates.set(entry.slug, {
+      name: entry.name,
+      slug: entry.slug,
+      eventIds: [],
+    });
+    NAME_TO_SLUG.set(normalizeArtistName(entry.name), entry.slug);
+    for (const alias of entry.aliases ?? []) {
+      NAME_TO_SLUG.set(normalizeArtistName(alias), entry.slug);
+    }
+  }
+  const lookup = (name: string) => NAME_TO_SLUG.get(normalizeArtistName(name));
 
-  // Pass 1 — song-derived events state the artist after an em dash.
+  // Pass 1 — song events state the artist after an em dash.
   for (const event of MUSIC_HISTORY) {
     if (!event.id.startsWith('song-')) continue;
     const parts = event.title.split(' — ');
     if (parts.length < 2) continue;
-    const name = parts[parts.length - 1].trim();
-    if (!name || excluded(normalizeArtistName(name))) continue;
-    record(name, event.id);
+    const slug = lookup(parts[parts.length - 1].trim());
+    if (slug) attach(candidates, slug, event.id);
   }
 
-  // Pass 2 — the subject of a hand-authored title, confirmed by its tags.
+  // Pass 2 — the subject of a hand-authored title, confirmed by its own tags.
+  // The tag check stays: a registered name appearing in a title it is only
+  // mentioned in should not become that event's subject.
   for (const event of MUSIC_HISTORY) {
     if (event.id.startsWith('song-')) continue;
     const tagKeys = new Set(event.tags.map(normalizeArtistName));
     for (const name of leadingNames(event.title)) {
       const key = normalizeArtistName(name);
-      if (excluded(key) || !tagKeys.has(key)) continue;
-      record(name, event.id);
+      const slug = NAME_TO_SLUG.get(key);
+      if (slug && tagKeys.has(key)) attach(candidates, slug, event.id);
     }
   }
 
-  // Pass 3 — attribute every other event that tags a now-known artist, so
-  // Wes Montgomery's chip appears on the Indianapolis event that mentions him
-  // even though his name does not open its title.
+  // Pass 3 — any event that tags a known artist, so Wes Montgomery's chip
+  // appears on the Indianapolis event that mentions him without opening on him.
   for (const event of MUSIC_HISTORY) {
     for (const tag of event.tags) {
-      const slug = NAME_TO_SLUG.get(normalizeArtistName(tag));
-      if (!slug) continue;
-      const artist = BY_SLUG.get(slug);
-      if (artist && !artist.eventIds.includes(event.id)) {
-        artist.eventIds.push(event.id);
-      }
+      const slug = lookup(tag);
+      if (slug) attach(candidates, slug, event.id);
     }
+  }
+
+  for (const artist of candidates.values()) {
+    if (artist.eventIds.length > 0) BY_SLUG.set(artist.slug, artist);
   }
 
   // Chronological, so an artist panel reads as a career.

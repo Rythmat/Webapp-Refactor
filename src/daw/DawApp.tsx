@@ -8,6 +8,7 @@ import { PianoRollModal } from '@/daw/components/PianoRoll/PianoRollModal';
 import { ChordAnalysisPrompt } from '@/daw/components/Library/ChordAnalysisPrompt';
 import { PitchEditorModal } from '@/daw/components/PitchEditor/PitchEditorModal';
 import { LeadSheetView } from '@/daw/components/LeadSheet/LeadSheetView';
+import { SetListUpdatePrompt } from '@/daw/components/LeadSheet/SendToSetList';
 import { ScoreView } from '@/daw/components/Score/ScoreView';
 import { PracticeTrackView } from '@/daw/components/Practice/PracticeTrackView';
 import { StudioView } from '@/daw/components/Studio/StudioView';
@@ -54,11 +55,18 @@ import { deriveChordRegionsFromSession } from '@/daw/store/prismSlice';
 import { getSong } from '@/curriculum/data/songs';
 import { seedStudioFromSong } from '@/features/songs/seedStudioFromSong';
 import { seedStudioFromPracticeTrack } from '@/features/practiceTracks/seedStudioFromPracticeTrack';
+import {
+  practiceSessionFor,
+  resolvePracticeTrack,
+} from '@/features/practiceTracks/genre/openGenrePracticeTrack';
+import { seedStudioFromGenrePracticeTrack } from '@/features/practiceTracks/genre/seedStudioFromGenrePracticeTrack';
+import type { ActivitySectionId } from '@/curriculum/types/activity';
 import { urlParamToSemitone } from '@/lib/musicKeyUrl';
 import type {
-  DiatonicMode,
   PracticeLevel,
+  PracticeMode,
 } from '@/features/practiceTracks/generatePracticeTrack';
+import { isScaleLesson } from '@/lib/learn/scaleLessons';
 import { isDiatonicMode } from '@prism/engine';
 import { showError } from '@/util/toast';
 
@@ -108,6 +116,16 @@ function DawAppInner() {
     // editor route (`/studio/editor`) — `/studio` is now the Studio Dashboard.
     const clearQuery = () =>
       window.history.replaceState({}, '', StudioRoutes.editor.definition);
+
+    // The caller seeded the store before navigating here — a Song page's "Open
+    // in Studio", which carries the reader's transposition and so cannot be
+    // re-seeded from an id below. Consume the boot without restoring anything:
+    // the default path would put the last autosaved session over the song.
+    if (params.get('seeded') === '1') {
+      bootedRef.current = true;
+      clearQuery();
+      return;
+    }
 
     if (projectParam) {
       // Opening a cloud project needs a token; wait for it to resolve rather
@@ -200,6 +218,51 @@ function DawAppInner() {
       return;
     }
 
+    // Graduated from a genre activity flow's section (Learn > a genre level)
+    // into its Practice Track: the section's own groove looped, with the part
+    // that section taught left empty for the student to play.
+    //
+    // The clips normally arrive through the module hand-off box rather than
+    // being rebuilt from these parameters — the genre backing engine is not
+    // reproducible, so rebuilding would put the student over a different
+    // performance from the one they just heard. `resolvePracticeTrack` takes the
+    // handed-over track when there is one and rebuilds only for a cold deep link.
+    const practiceGenreParam = params.get('practiceGenre');
+    const practiceSectionParam = params.get('practiceSection');
+    if (practiceGenreParam) {
+      bootedRef.current = true;
+      clearLocalSession();
+      resetSessionToEmpty();
+      const genreLevel = Number(params.get('practiceLevel'));
+      const section = (practiceSectionParam ?? 'A') as ActivitySectionId;
+      void (async () => {
+        try {
+          const resolved = await resolvePracticeTrack(
+            practiceGenreParam,
+            Number.isFinite(genreLevel) && genreLevel > 0 ? genreLevel : 1,
+            ['A', 'B', 'C', 'D'].includes(section) ? section : 'A',
+          );
+          if (!resolved) {
+            showError('That practice track could not be found.');
+            return;
+          }
+          seedStudioFromGenrePracticeTrack(resolved.track, resolved.genreLabel);
+          const store = useStore.getState();
+          store.setPracticeSession(
+            practiceSessionFor(
+              resolved.track,
+              resolved.genreLabel,
+              resolved.returnTo,
+            ),
+          );
+          store.setCurrentView('practice');
+        } finally {
+          clearQuery();
+        }
+      })();
+      return;
+    }
+
     // Graduated from a Theory mode/lesson (Learn > Theory) into a pre-seeded
     // Practice Track: generated chords/bass/beat plus one open track (melody
     // or chords, whichever the student didn't just practice) for them to fill
@@ -211,7 +274,10 @@ function DawAppInner() {
       bootedRef.current = true;
       clearLocalSession();
       resetSessionToEmpty();
-      if (isDiatonicMode(practiceModeParam)) {
+      if (
+        isDiatonicMode(practiceModeParam) ||
+        isScaleLesson(practiceModeParam)
+      ) {
         // `practiceRoot` is a letter-based key param (e.g. "d", "dsharp"),
         // written by `keyLabelToUrlParam` — decode it back to a 0-11
         // semitone-from-C the same way `LessonContainer` resolves `key`.
@@ -230,7 +296,7 @@ function DawAppInner() {
         void (async () => {
           try {
             await seedStudioFromPracticeTrack(
-              practiceModeParam as DiatonicMode,
+              practiceModeParam as PracticeMode,
               root,
               openTrack,
               level,
@@ -239,6 +305,7 @@ function DawAppInner() {
             // one click away and shares the same project.
             const store = useStore.getState();
             store.setPracticeSession({
+              kind: 'theory',
               mode: practiceModeParam,
               rootParam: params.get('practiceRoot') ?? 'c',
               level,
@@ -445,6 +512,7 @@ function DawAppInner() {
         </div>
       )}
       <ChordAnalysisPrompt />
+      <SetListUpdatePrompt />
       <SettingsModal />
       <PrismSuggestionModal />
       <RecordingLimitModal />

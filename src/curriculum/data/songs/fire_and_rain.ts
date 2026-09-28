@@ -19,9 +19,9 @@ export const fire_and_rain: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 1,
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
       bars: [{ chords: [], restBars: 4 }],
     },
     {
@@ -47,12 +47,6 @@ export const fire_and_rain: Song = {
           ],
         },
         { chords: [] },
-      ],
-    },
-    {
-      id: 'section_c',
-      label: 'Section C',
-      bars: [
         {
           chords: [
             { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
@@ -96,12 +90,6 @@ export const fire_and_rain: Song = {
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
         {
           chords: [
             { degree: '4 maj', chordName: 'F', beat: 1, duration: 1 },
@@ -116,32 +104,40 @@ export const fire_and_rain: Song = {
             { degree: '♭7 maj', chordName: 'B♭', beat: 1, duration: 1 },
             { degree: '4 maj/6', chordName: 'F/A', beat: 2, duration: 1 },
             { degree: '5 min7', chordName: 'Gmin7', beat: 3, duration: 1 },
-            { degree: '1 7', chordName: 'C7sus', beat: 4, duration: 1 },
+            { degree: '1 dom7', chordName: 'C7sus', beat: 4, duration: 1 },
           ],
         },
         { chords: [] },
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [
         {
-          chords: [{ degree: '1 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=_1nKGVDhQ60' },
   ],

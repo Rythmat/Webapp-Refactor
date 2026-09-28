@@ -21,8 +21,33 @@ export const motownphilly: Song = {
     {
       id: 'intro',
       label: 'Intro',
-      measuresPerRow: 5,
+      instrumental: true,
       bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -51,41 +76,8 @@ export const motownphilly: Song = {
       ],
     },
     {
-      id: 'section_b',
-      label: 'Section B',
-      measuresPerRow: 5,
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      repeatCount: 4,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -105,21 +97,23 @@ export const motownphilly: Song = {
         {
           chords: [
             { degree: '♭6 dim7', chordName: 'B♭dim7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
       ],
     },
     {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'chorus_1',
+      label: 'Chorus 1',
       bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
@@ -130,61 +124,24 @@ export const motownphilly: Song = {
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_e',
-      label: 'Section E',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '♭7 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '5 7/7', chordName: 'A7/C♯', beat: 3, duration: 2 },
+            { degree: '5 dom7/7', chordName: 'A7/C♯', beat: 3, duration: 2 },
           ],
         },
       ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      bars: [
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [
-            { degree: '♭6 dim7', chordName: 'B♭dim7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'A7', beat: 3, duration: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'section_g',
-      label: 'Section G',
-      measuresPerRow: 2,
-      bars: [{ chords: [] }, { chords: [], restBars: 4 }],
     },
     {
       id: 'verse_2',
@@ -208,21 +165,55 @@ export const motownphilly: Song = {
         {
           chords: [
             { degree: '♭6 dim7', chordName: 'B♭dim7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
       ],
     },
     {
-      id: 'section_e_2',
-      label: 'Section E',
+      id: 'interlude',
+      label: 'Interlude',
+      bars: [{ chords: [] }, { chords: [], restBars: 4 }],
+    },
+    {
+      id: 'verse_3',
+      label: 'Verse 3',
       bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 dim7', chordName: 'B♭dim7', beat: 1, duration: 2 },
+            { degree: '5 dom7', chordName: 'A7', beat: 3, duration: 2 },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'chorus_2',
+      label: 'Chorus 2',
+      bars: [
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
@@ -233,32 +224,28 @@ export const motownphilly: Song = {
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_j',
-      label: 'Section J',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭6 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '♭7 maj', chordName: 'C', beat: 1, duration: 2 },
-            { degree: '5 7/7', chordName: 'A7/C♯', beat: 3, duration: 2 },
+            { degree: '5 dom7/7', chordName: 'A7/C♯', beat: 3, duration: 2 },
           ],
         },
       ],
     },
     {
-      id: 'section_f',
-      label: 'Section F',
+      id: 'verse_4',
+      label: 'Verse 4',
       bars: [
         {
           chords: [
@@ -278,15 +265,14 @@ export const motownphilly: Song = {
         {
           chords: [
             { degree: '♭6 dim7', chordName: 'B♭dim7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
       ],
     },
     {
-      id: 'section_g_2',
-      label: 'Section G',
-      measuresPerRow: 8,
+      id: 'bridge',
+      label: 'Bridge',
       bars: [
         {
           chords: [
@@ -328,12 +314,6 @@ export const motownphilly: Song = {
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-      ],
-    },
-    {
-      id: 'section_h',
-      label: 'Section H',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -357,8 +337,8 @@ export const motownphilly: Song = {
       ],
     },
     {
-      id: 'section_i',
-      label: 'Section I',
+      id: 'verse_5',
+      label: 'Verse 5',
       bars: [
         {
           chords: [
@@ -378,15 +358,14 @@ export const motownphilly: Song = {
         {
           chords: [
             { degree: '♭6 dim7', chordName: 'B♭dim7', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'A7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'A7', beat: 3, duration: 2 },
           ],
         },
       ],
     },
     {
-      id: 'section_j_2',
-      label: 'Section J',
-      measuresPerRow: 5,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -416,7 +395,6 @@ export const motownphilly: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=Rciee-oQLoI' },
   ],

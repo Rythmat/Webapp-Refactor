@@ -19,20 +19,17 @@ export const the_chain: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 1,
-      bars: [{ chords: [], restBars: 8 }],
+      id: 'intro',
+      label: 'Intro',
+      instrumental: true,
+      bars: [
+        { chords: [], restBars: 8 },
+        { chords: [], restBars: 8 },
+      ],
     },
     {
-      id: 'verse',
-      label: 'Verse',
-      measuresPerRow: 1,
-      bars: [{ chords: [], restBars: 8 }],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -58,15 +55,14 @@ export const the_chain: Song = {
       ],
     },
     {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 1,
+      id: 'interlude',
+      label: 'Interlude',
+      instrumental: true,
       bars: [{ chords: [], restBars: 16 }],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
-      repeatCount: 3,
       bars: [
         {
           chords: [
@@ -92,9 +88,8 @@ export const the_chain: Song = {
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
-      measuresPerRow: 2,
+      id: 'outro',
+      label: 'Outro',
       bars: [
         {
           chords: [
@@ -107,12 +102,6 @@ export const the_chain: Song = {
           ],
           restBars: 4,
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      bars: [
         {
           chords: [
             { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -140,7 +129,6 @@ export const the_chain: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=kBYHwH1Vb-c' },
   ],

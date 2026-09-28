@@ -44,7 +44,7 @@ describe('contentRefs — every builder round-trips through the resolver', () =>
     expect(
       resolveActivityRefHref('learn', curriculumRef('JAZZ', 2, 'B')),
     ).not.toBeNull();
-    // R&B → slug 'rnb', 'HIP HOP' → slug 'hip hop'
+    // R&B → slug 'rnb', 'HIP HOP' → slug 'hip-hop'
     expect(
       resolveActivityRefHref('learn', curriculumRef('R&B', 1)),
     ).not.toBeNull();

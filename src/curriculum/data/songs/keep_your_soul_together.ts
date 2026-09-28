@@ -19,9 +19,8 @@ export const keep_your_soul_together: Song = {
 
   sections: [
     {
-      id: 'section_a',
-      label: 'Section A',
-      measuresPerRow: 1,
+      id: 'verse_1',
+      label: 'Verse 1',
       bars: [
         {
           chords: [
@@ -29,12 +28,6 @@ export const keep_your_soul_together: Song = {
           ],
           fermata: true,
         },
-      ],
-    },
-    {
-      id: 'verse',
-      label: 'Verse',
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
@@ -58,33 +51,27 @@ export const keep_your_soul_together: Song = {
         {
           chords: [
             { degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'G7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'G7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'chorus',
-      label: 'Chorus',
-      bars: [
         {
           chords: [
             { degree: '4 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭7 7', chordName: 'B♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
         },
-        { chords: [{ degree: '6 7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭6 7', chordName: 'A♭7', beat: 1, duration: 4 }],
+          chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }],
         },
-      ],
-    },
-    {
-      id: 'section_d',
-      label: 'Section D',
-      bars: [
+        {
+          chords: [
+            { degree: '♭6 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7b5', beat: 1, duration: 4 },
@@ -92,7 +79,7 @@ export const keep_your_soul_together: Song = {
         },
         {
           chords: [
-            { degree: '5 7', chordName: 'G7(♯9)', beat: 1, duration: 4 },
+            { degree: '5 dom7', chordName: 'G7(♯9)', beat: 1, duration: 4 },
           ],
         },
         {
@@ -104,14 +91,14 @@ export const keep_your_soul_together: Song = {
         {
           chords: [
             { degree: '♭3 maj', chordName: 'E♭', beat: 1, duration: 2 },
-            { degree: '1 7/3', chordName: 'C7/E', beat: 3, duration: 2 },
+            { degree: '1 dom7/3', chordName: 'C7/E', beat: 3, duration: 2 },
           ],
         },
       ],
     },
     {
-      id: 'section_e',
-      label: 'Section E',
+      id: 'verse_2',
+      label: 'Verse 2',
       bars: [
         {
           chords: [
@@ -121,7 +108,7 @@ export const keep_your_soul_together: Song = {
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 2 },
-            { degree: '2 7', chordName: 'D7', beat: 3, duration: 2 },
+            { degree: '2 dom7', chordName: 'D7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -130,22 +117,19 @@ export const keep_your_soul_together: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭3 7', chordName: 'E♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭3 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
         },
-      ],
-    },
-    {
-      id: 'section_f',
-      label: 'Section F',
-      measuresPerRow: 5,
-      bars: [
         {
           chords: [
             { degree: '♭2 min7', chordName: 'D♭min7', beat: 1, duration: 4 },
           ],
         },
         {
-          chords: [{ degree: '♭5 7', chordName: 'G♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭5 dom7', chordName: 'G♭7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -153,21 +137,16 @@ export const keep_your_soul_together: Song = {
           ],
         },
         {
-          chords: [{ degree: '2 7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '2 dom7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
-            { degree: '7 7', chordName: 'B7sus', beat: 1, duration: 2 },
+            { degree: '7 dom7', chordName: 'B7sus', beat: 1, duration: 2 },
             { degree: '♭2 dim7', chordName: 'D♭dim7', beat: 3, duration: 2 },
           ],
         },
-      ],
-    },
-    {
-      id: 'bridge',
-      label: 'Bridge',
-      measuresPerRow: 5,
-      bars: [
         {
           chords: [
             { degree: '1 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
@@ -191,7 +170,7 @@ export const keep_your_soul_together: Song = {
         {
           chords: [
             { degree: '♭6 maj', chordName: 'A♭', beat: 1, duration: 2 },
-            { degree: '5 7', chordName: 'G7', beat: 3, duration: 2 },
+            { degree: '5 dom7', chordName: 'G7', beat: 3, duration: 2 },
           ],
         },
         {
@@ -203,7 +182,6 @@ export const keep_your_soul_together: Song = {
       ],
     },
   ],
-
   audioSources: [
     { provider: 'youtube', uri: 'https://youtube.com/watch?v=8mgtk460AhI' },
   ],

@@ -1,12 +1,13 @@
 import { useCallback, useSyncExternalStore } from 'react';
 
 // ── Piano roll / notation view preference ──────────────────────────────────
-// Device-level, like the chord notation switcher. Learn and Studio remember
-// their own choice: Studio's notation view is read-only, so turning notation
-// on for lessons shouldn't take away the note editor.
+// Device-level, like the chord notation switcher. Learn, Studio and the song
+// library each remember their own choice: Studio's notation view is read-only,
+// so turning notation on for lessons shouldn't take away the note editor, and
+// the chord popup in Songs is a different question again.
 
 export type RollView = 'roll' | 'notation';
-export type RollViewScope = 'learn' | 'studio';
+export type RollViewScope = 'learn' | 'studio' | 'songs';
 
 const KEY_PREFIX = 'musicAtlas:rollView:';
 const EVENT = 'roll-view-pref-change';

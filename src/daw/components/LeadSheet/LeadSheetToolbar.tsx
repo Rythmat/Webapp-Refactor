@@ -22,6 +22,7 @@ import {
 } from '@/daw/utils/chordRegionNotation';
 import { useChordNotation } from '@/lib/chordNotation';
 import { pickMelodyTrack } from './leadSheetMelody';
+import { SendToSetListButton } from './SendToSetList';
 
 interface LeadSheetToolbarProps {
   selectedMeasureIdx: number | null;
@@ -347,6 +348,8 @@ export const LeadSheetToolbar = memo(function LeadSheetToolbar({
         <Printer size={13} strokeWidth={2} />
         PDF
       </button>
+
+      <SendToSetListButton className={btnClass} style={btnStyle} />
     </div>
   );
 });

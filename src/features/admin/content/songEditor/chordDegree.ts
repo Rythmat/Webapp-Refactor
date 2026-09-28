@@ -14,10 +14,12 @@ import { noteName, pitchClass } from './songDefaults';
  * Hybrid Number System degree derivation for the song editor. The quality
  * token is a port of `computeDegree` from `src/scripts/parseSongPdfs.mjs`, the
  * generator behind the shipped song library, so auto-populated labels match
- * the existing chords (notably: a bare dominant is `7`, e.g. `5 7`, NOT
- * `dom7`). The degree number itself follows `hybridDegree` — counted from the
- * tonic's major scale — which the generator originally got wrong for minor
- * keys (it numbered from natural minor).
+ * the existing chords. Every quality token is a three-letter abbreviation —
+ * `maj`, `min`, `dom`, `dim`, `aug` — so a bare dominant is `dom7` (`5 dom7`),
+ * never `7`; that is a defining feature of the hybrid symbology. The degree
+ * number itself follows `hybridDegree` — counted from the tonic's major scale
+ * — which the generator originally got wrong for minor keys (it numbered from
+ * natural minor).
  */
 
 // Comprehensive chord regex (root · quality · extension · alterations · bass).
@@ -44,12 +46,14 @@ function extractChordQuality(chordName: string): string {
 
   if (extension) {
     if (q === 'maj' && quality === 'maj') return `maj${extension}`;
-    if (q === 'maj' && quality === '') return extension; // bare 7/9/11/13 = dominant
+    // A bare extension is a dominant, except a bare 6, which is a major 6th.
+    if (q === 'maj' && quality === '')
+      return extension === '6' ? 'maj6' : `dom${extension}`;
     if (q === 'min') return `min${extension}`;
     if (q === 'dim') return `dim${extension}`;
     if (q === 'aug') return `aug${extension}`;
     if (q === 'sus') return `sus${extension}`;
-    if (q === 'dom') return extension; // inside `if (extension)`, so always set
+    if (q === 'dom') return `dom${extension}`; // inside `if (extension)`
     if (q === 'add') return `add${extension}`;
     return `${q}${extension}`;
   }
@@ -68,7 +72,7 @@ function extractChordQuality(chordName: string): string {
  * '♯1'). `tonic` is the song's spelled tonic (see `songTonic`, which follows
  * the chart's own spelling); without it the tonic is spelled from `keyRoot`.
  * @example degreeFromChord('B♭', 60, 'major') // → '♭7 maj'
- * @example degreeFromChord('G7', 60, 'major')  // → '5 7'
+ * @example degreeFromChord('G7', 60, 'major')  // → '5 dom7'
  * @example degreeFromChord('C/E', 60, 'major') // → '1 maj/3'
  */
 export function degreeFromChord(

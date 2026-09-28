@@ -56,18 +56,18 @@ describe('flowStore', () => {
   it(
     'resolves a genre by any of its spellings',
     async () => {
-      // The data says 'hip hop', the old loaders said 'hipHop', URLs say
-      // 'hip hop'. All three must land on the same lesson, and the flow keeps
+      // The data says 'hip-hop', the old loaders said 'hipHop', URLs say
+      // 'hip-hop'. All three must land on the same lesson, and the flow keeps
       // its own display spelling — only the lookup key is canonicalised.
-      for (const spelling of ['hip hop', 'hipHop', 'hip-hop', 'HIP HOP']) {
+      for (const spelling of ['hip-hop', 'hipHop', 'hip-hop', 'HIP HOP']) {
         const flow = await getActivityFlow(spelling, 1);
         expect(flow, `"${spelling}" should resolve`).not.toBeNull();
-        expect(flow?.genre).toBe('hip hop');
+        expect(flow?.genre).toBe('hip-hop');
       }
 
       expect((await getActivityFlow('neo-soul', 1))?.genre).toBe('neo-soul');
       expect((await getActivityFlow('neoSoul', 1))?.genre).toBe('neo-soul');
-      expect((await getActivityFlow('jamBand', 1))?.genre).toBe('jam band');
+      expect((await getActivityFlow('jamBand', 1))?.genre).toBe('jam-band');
     },
     HYDRATION_TIMEOUT,
   );
@@ -75,10 +75,10 @@ describe('flowStore', () => {
   it('canonicalises every spelling to one key', () => {
     // The API's activityFlowSlug applies the identical rule, so this is the
     // contract between the published body.id and this store.
-    expect(flowKey('hip hop', 1)).toBe('hiphop-l1');
+    expect(flowKey('hip-hop', 1)).toBe('hiphop-l1');
     expect(flowKey('hipHop', 1)).toBe('hiphop-l1');
     expect(flowKey('neo-soul', 2)).toBe('neosoul-l2');
-    expect(flowKey('jam band', 3)).toBe('jamband-l3');
+    expect(flowKey('jam-band', 3)).toBe('jamband-l3');
   });
 
   it(

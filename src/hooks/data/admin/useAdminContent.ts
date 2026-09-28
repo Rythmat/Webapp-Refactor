@@ -123,6 +123,17 @@ export interface ValidationProblem {
   detail: string;
 }
 
+/**
+ * The same authed fetch the hooks use, for the one caller that cannot be a
+ * hook: the song importer walks six hundred items and React has no way to
+ * call `useContentItem` in a loop.
+ */
+export const contentRequest = <T = unknown>(
+  path: string,
+  token: string,
+  options?: RequestInit,
+): Promise<T> => fetchWithAuth<T>(contentPath(path), token, options);
+
 function contentPath(path: string) {
   const apiBase = Env.get('VITE_MUSIC_ATLAS_API_URL', { nullable: true }) ?? '';
   return `${apiBase}/api/admin/content${path}`;

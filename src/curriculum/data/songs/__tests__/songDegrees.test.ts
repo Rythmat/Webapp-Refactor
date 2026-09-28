@@ -6,12 +6,17 @@ import {
   spelledPitchClass,
   splitDegreeLabel,
 } from '@/curriculum/songLibrary/hybridDegree';
-import type { Song } from '@/curriculum/types/songLibrary';
+import {
+  writtenBarKeys,
+  writtenBars,
+} from '@/curriculum/songLibrary/performance';
+import type { ChordHit, Song } from '@/curriculum/types/songLibrary';
 
 /**
  * Every song chord's hybrid degree label must match its letter symbol and the
  * song's key: degrees count from the MAJOR scale of the tonic in every mode
- * (A minor: G → '♭7 maj', E7 → '5 7'), accidentals follow the root's letter.
+ * (A minor: G → '♭7 maj', E7 → '5 dom7'), accidentals follow the root's letter.
+ * Quality tokens are three-letter abbreviations: maj, min, dom, dim, aug.
  *
  * Globs the song files directly (not bundled.ts) so charts that are not in the
  * bundle yet are checked too.
@@ -64,32 +69,41 @@ describe('song library degree labels', () => {
   it('numbers every chord from the major scale of the tonic', () => {
     const mismatches: string[] = [];
     for (const song of songs) {
-      const hits = hitsOf(song);
-      const tonic = songTonic(
-        song.key,
-        hits.map((hit) => hit.chordName),
-      );
-      if (!tonic) {
-        mismatches.push(`${song.id}: unparseable key '${song.key}'`);
-        continue;
-      }
-      for (const hit of hits) {
-        if (isNoChord(hit.chordName)) continue;
-        if (ALLOWED_GARBLED.has(`${song.id}|${hit.chordName}`)) continue;
-        const expected = expectedDegreeNumbers(hit.chordName, tonic);
-        const stored = splitDegreeLabel(hit.degree);
-        if (
-          !expected ||
-          !stored ||
-          expected.root !== stored.root ||
-          expected.bass !== stored.bass
-        ) {
-          const want = expected
-            ? `${expected.root}${expected.bass ? `/${expected.bass}` : ''}`
-            : '?';
-          mismatches.push(
-            `${song.id} (${song.key}): ${hit.chordName} [${hit.degree}] expected ${want}`,
-          );
+      // Chords after a key change count from the new tonic.
+      const keys = writtenBarKeys(song);
+      const byKey = new Map<string, ChordHit[]>();
+      writtenBars(song).forEach(({ bar }, i) => {
+        const hits = byKey.get(keys[i].key) ?? [];
+        hits.push(...bar.chords);
+        byKey.set(keys[i].key, hits);
+      });
+      for (const [key, hits] of byKey) {
+        const tonic = songTonic(
+          key,
+          hits.map((hit) => hit.chordName),
+        );
+        if (!tonic) {
+          mismatches.push(`${song.id}: unparseable key '${key}'`);
+          continue;
+        }
+        for (const hit of hits) {
+          if (isNoChord(hit.chordName)) continue;
+          if (ALLOWED_GARBLED.has(`${song.id}|${hit.chordName}`)) continue;
+          const expected = expectedDegreeNumbers(hit.chordName, tonic);
+          const stored = splitDegreeLabel(hit.degree);
+          if (
+            !expected ||
+            !stored ||
+            expected.root !== stored.root ||
+            expected.bass !== stored.bass
+          ) {
+            const want = expected
+              ? `${expected.root}${expected.bass ? `/${expected.bass}` : ''}`
+              : '?';
+            mismatches.push(
+              `${song.id} (${key}): ${hit.chordName} [${hit.degree}] expected ${want}`,
+            );
+          }
         }
       }
     }

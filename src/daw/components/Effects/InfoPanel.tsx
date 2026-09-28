@@ -25,6 +25,12 @@ const INSTRUMENT_ART: Record<
     label: 'Electric Piano',
     description: 'Sample-based electric piano with velocity response',
   },
+  'bass-electric': {
+    src: '/daw-assets/artwork/hexagons-synth.svg',
+    alt: 'Electric Bass hexagon artwork',
+    label: 'Electric Bass',
+    description: 'Sampled electric bass guitar, fingered',
+  },
   cello: {
     src: '/daw-assets/artwork/hexagons-synth.svg',
     alt: 'Cello hexagon artwork',

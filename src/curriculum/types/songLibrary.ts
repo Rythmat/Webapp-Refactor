@@ -71,22 +71,96 @@ export interface ChordBar {
   /** If set, this bar represents a multi-bar rest. Renders as a thick
    *  horizontal block with the number above. `chords` should be empty. */
   restBars?: number;
+
+  // ── Roadmap ──
+  // How the written chart is read. `performedBars` in songLibrary/performance
+  // turns these into the order the song is played, which playback, timing and
+  // the Studio export all follow.
+
+  /** A start-repeat barline opens this bar. */
+  repeatStart?: boolean;
+  /** An end-repeat barline closes this bar. */
+  repeatEnd?: boolean;
+  /** Times the repeated passage is played in all. Defaults to the highest
+   *  ending number in the passage, or 2. */
+  repeatTimes?: number;
+  /** Volta bracket over this bar: the passes that play it (`[1]`, `[2]`,
+   *  `[1, 2]`). Neighbouring bars with the same passes share one bracket. */
+  ending?: number[];
+  /** The segno a D.S. jumps back to. */
+  segno?: boolean;
+  /** The coda sign: where "To Coda" lands on the pass after an al Coda jump. */
+  coda?: boolean;
+  /** "To Coda" at the end of this bar, taken on the pass after the jump. */
+  toCoda?: boolean;
+  /** Jump written at the end of this bar. */
+  jump?: RoadmapJump;
+  /** Fine: the song ends here on the pass after an al Fine jump. */
+  fine?: boolean;
+  /** Performance cue above the bar: 'Riff', 'Drum Fill', 'Piano Solo',
+   *  'Break', 'Repeat and Fade'. Never lyrics. */
+  cue?: string;
+  /** The key changes at this bar, e.g. 'A♭ major'. Degrees from here on
+   *  count from the new tonic. The song's own `key` stays the home key. */
+  keyChange?: string;
+  /**
+   * The metre changes at this bar, e.g. `[5, 4]`. Bars from here on are read
+   * in it until another bar says otherwise; the song's own `timeSignature`
+   * stays the home metre, the way `key` stays the home key.
+   *
+   * Read it with `writtenBarMeters` — never off a single bar, since most bars
+   * in a mixed-metre song carry no mark and inherit the one before.
+   */
+  timeSignature?: [number, number];
+
+  // ── Layout ──
+
+  /**
+   * This bar starts a new system, whatever the row width would otherwise say.
+   *
+   * Not a roadmap mark — it changes where the chart breaks lines, not how it
+   * is played — which is why `clearRoadmap` leaves it alone.
+   */
+  systemBreak?: boolean;
+  /**
+   * This bar starts a system of exactly this many bars: "fit these into one
+   * line", however many they are and whatever the row width says.
+   *
+   * A break cannot express this on its own. Two breaks around a six-bar
+   * phrase still give 4 + 2, because the line fills up and breaks itself
+   * halfway through — the run is what suspends that.
+   */
+  systemRun?: number;
 }
+
+export type RoadmapJump =
+  | 'D.C.'
+  | 'D.S.'
+  | 'D.C. al Coda'
+  | 'D.S. al Coda'
+  | 'D.C. al Fine'
+  | 'D.S. al Fine';
 
 /* ── Section-level types ────────────────────────────────────────────── */
 
 export interface SongSection {
   /** Unique section identifier: 'verse_1', 'chorus_1', 'bridge' */
   id: string;
-  /** Display label: 'Verse 1', 'Chorus', 'Bridge' */
+  /** Display label, one of SECTION_NAMES with an optional number: 'Verse',
+   *  'Verse 2', 'Pre-Chorus', 'Chorus'. Never a rehearsal letter. */
   label: string;
+  /** Played without vocals: a small "Instrumental" beside the label.
+   *  'first-time' when only the first pass is instrumental (a D.S. back to a
+   *  verse that is sung the second time). */
+  instrumental?: boolean | 'first-time';
   /** Ordered bars in this section. */
   bars: ChordBar[];
   /** How many times to repeat. Defaults to 1 if omitted. */
   repeatCount?: number;
   /** Pedagogical note shown to student. NEVER lyrics. */
   notes?: string;
-  /** Override measures per row for this section. Defaults to 4. */
+  /** Override measures per row for this section. Defaults to 4; leave unset
+   *  unless a phrase genuinely reads better another way. */
   measuresPerRow?: number;
 }
 
@@ -145,6 +219,81 @@ export interface AudioSource {
   startOffsetSec?: number;
 }
 
+/* ── Recording credits ──────────────────────────────────────────────── */
+
+/**
+ * What someone did on the recording.
+ *
+ * `performer` is the only role that carries an `instrument`; the rest are the
+ * jobs a session credit names without one. Songwriters appear here AND in the
+ * song's `composer` line — `composer` is the sentence a reader sees ("Written
+ * by Ashford & Simpson"), these are the entities the constellation walks.
+ */
+export type CreditRole =
+  | 'performer'
+  | 'vocals'
+  | 'producer'
+  | 'engineer'
+  | 'arranger'
+  | 'conductor'
+  | 'songwriter';
+
+/**
+ * One name on the recording.
+ *
+ * An ensemble is a credit like any other: session records routinely name the
+ * group and not its players ("The Funk Brothers", "Detroit Symphony
+ * Orchestra"), and inventing a roster to fill the gap would be worse than
+ * saying what the label said.
+ */
+export interface Credit {
+  /** Display name: 'James Jamerson', 'The Funk Brothers'. */
+  name: string;
+  role: CreditRole;
+  /** A `SESSION_INSTRUMENTS` id. Only meaningful for `performer`. */
+  instrument?: string;
+  /** True when the name is a group rather than one person. */
+  ensemble?: boolean;
+  /** A billed artist on the record, not a sideman. `Song.artist` is the
+   *  display line ("Marvin Gaye"); this marks everyone the label actually
+   *  credited, which is how a duet gets both names into the constellation. */
+  primary?: boolean;
+  /** Globe artist slug, when this name exists in the Globe's artist index. */
+  artistGlobeId?: string;
+  /** Set when this could not be pinned to a reliable source — renders muted
+   *  and is excluded from the constellation until someone confirms it. */
+  unverified?: boolean;
+}
+
+/**
+ * Where, when and for whom the recording was made.
+ *
+ * This is what "Motown in Detroit" actually decomposes into: a label, a studio
+ * and a city, each of which is its own pill and its own point on the globe.
+ */
+export interface RecordingSession {
+  /** Studio: 'Hitsville U.S.A.', 'Van Gelder Studio', 'Abbey Road'. */
+  studio?: string;
+  city?: string;
+  country?: string;
+  /** Issuing label: 'Motown', 'Blue Note', 'Stax', 'Daptone'. */
+  label?: string;
+  /** Recording year, when it differs from the release `year`. */
+  recordedYear?: number;
+  unverified?: boolean;
+}
+
+/** Another recording this one is tied to — a cover, an original, a sample. */
+export interface RelatedRecording {
+  /** This library's song id, when that recording is charted here too. */
+  songId?: string;
+  artist: string;
+  year?: number;
+  relation: 'original' | 'cover' | 'sample' | 'interpolation' | 'collaboration';
+  artistGlobeId?: string;
+  unverified?: boolean;
+}
+
 /* ── Song (top-level) ───────────────────────────────────────────────── */
 
 export interface Song {
@@ -152,6 +301,9 @@ export interface Song {
   id: string;
   title: string;
   artist: string;
+  /** Songwriter credit when it isn't the performing artist ('Prince' for
+   *  Sinéad O'Connor's Nothing Compares 2 U). */
+  composer?: string;
   year?: number;
 
   // ── Musical metadata ──
@@ -172,6 +324,14 @@ export interface Song {
    *  by enrichSongDescriptions.mjs and round-tripped through this file so
    *  buildGlobeData.mjs can pick it up on regeneration. */
   historicalDescription?: string;
+
+  // ── Recording ──
+  /** Everyone credited on this recording, players and non-players alike. */
+  credits?: Credit[];
+  /** Where it was cut, and on whose label. */
+  session?: RecordingSession;
+  /** Other recordings of this song, and records this one is tied to. */
+  relatedRecordings?: RelatedRecording[];
 
   // ── Content cross-references ──
   /** Explicit overrides; resolver fills in the rest from metadata. */

@@ -5,7 +5,14 @@
  * with the existing system. Everything else is ours.
  */
 
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import {
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from 'react';
 import { useNavigate } from 'react-router';
 import * as Tone from 'tone';
 import { startTone } from '@/audio/core/toneBridge';
@@ -21,10 +28,16 @@ import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import DualStaffPianoRoll from '@/curriculum/components/DualStaffPianoRoll';
 import GenrePianoRoll from '@/curriculum/components/GenrePianoRoll';
 import {
+  currentEventForMidi,
+  nextEventForMidi,
+} from '@/curriculum/engine/noteGate';
+import {
   lessonChordSymbols,
   placeLessonChords,
 } from '@/curriculum/notation/lessonChordSymbols';
 import { useMspModuleCompletion } from '@/features/classroom/msp';
+import { sectionHasContent } from '@/features/practiceTracks/genre/buildGenrePracticeTrack';
+import { openGenrePracticeTrack } from '@/features/practiceTracks/genre/openGenrePracticeTrack';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import { playGuideNote } from '@/learn/audio/practiceGuide';
@@ -163,6 +176,25 @@ function chordSymbolForDisplay(
     : formatted;
 }
 
+/**
+ * What a section's Practice Track offers, in the student's terms. Named per
+ * section rather than generically because what you get is genuinely different:
+ * the Melody track hands you a scale to improvise on, the Bass track hands you
+ * the changes and gets out of the way.
+ */
+function practiceOfferBlurb(section: ActivitySectionId): string {
+  switch (section) {
+    case 'A':
+      return 'Take the groove into a Practice Track and improvise your own melodies over it — the scale lit up on the keyboard, and the take recorded if you want it.';
+    case 'B':
+      return 'Take the groove into a Practice Track and play the chords over bass and drums, at your own tempo, for as long as you like.';
+    case 'C':
+      return 'Take the groove into a Practice Track and build your own bass lines under the chords and drums.';
+    default:
+      return 'Take the groove into a Practice Track and play the whole part on a Rhodes over bass and drums.';
+  }
+}
+
 // ── Inner component (needs LearnInputProvider wrapper) ────────────────────────
 
 function GenreLessonContainerV2Inner({
@@ -185,6 +217,14 @@ function GenreLessonContainerV2Inner({
     displayName ?? genre.charAt(0).toUpperCase() + genre.slice(1);
 
   // ── State ────────────────────────────────────────────────────────────────
+  /**
+   * The section whose Practice Track is being offered, right after its last
+   * activity. Null the rest of the time — the offer is a step in the flow, not
+   * a modal that can be opened.
+   */
+  const [practiceOffer, setPracticeOffer] = useState<ActivitySectionId | null>(
+    null,
+  );
   const [activeSection, setActiveSection] = useState<ActivitySectionId>(
     initialSection ?? 'A',
   );
@@ -241,6 +281,14 @@ function GenreLessonContainerV2Inner({
   const isPerforming = activityState === 'performance';
   const isPracticing = activityState === 'practice';
   const isActive = isPerforming || isPracticing;
+  /** The section after this one, for the offer's "continue" button. */
+  const nextSectionName = useMemo(() => {
+    const idx = flow.sections.findIndex((s) => s.id === activeSection);
+    return idx >= 0 && idx < flow.sections.length - 1
+      ? flow.sections[idx + 1].name
+      : null;
+  }, [flow.sections, activeSection]);
+
   // True when the current step has an engine-generated backing track (drums/bass/chords).
   // Used to suppress the metronome in Play Now mode — the drum track provides the pulse.
   const hasBackingParts =
@@ -447,45 +495,51 @@ function GenreLessonContainerV2Inner({
   const startOctave = Math.floor(noteRange.min / 12) - 1;
   const endOctave = Math.floor(noteRange.max / 12) - 1;
 
-  // Piano roll container height
-  const PIANO_ROLL_HEIGHT = 400;
-  // rowHeight is the TOTAL height passed to PianoRoll — it divides internally by lane count
-  // Subtract ~40px for timeline header and padding
-  const rowHeight = PIANO_ROLL_HEIGHT - 40;
-
-  // Static piano roll height for dual stave — computed once on mount at 90% of available space.
-  // Not reactive to resize: avoids layout thrashing and prevents the preview modal from
-  // covering the keyboard demo during playback.
+  // Piano roll height — MEASURED, not estimated.
   //
-  // The 1.5x multiplier is deliberate, not decorative: DualStaffPianoRoll scales its lane
-  // height up to TARGET_LANE_HEIGHT (18px) and no further — below that ceiling, note rows
-  // are cramped and hard to read; at or above it, they're not. Without the multiplier, a
-  // typical two-hand chord+melody step (~30 chromatic lanes across both staves) lands
-  // around 12px/lane. 1.5x lands it at exactly 18px/lane — legible, not oversized. The
-  // container scrolls (Main content area is overflow-y: auto), so on shorter viewports this
-  // trades some scrolling for a piano roll that's actually usable, which is the right trade.
-  const pianoRollMaxHeight = useMemo(() => {
-    const HEADER = 82; // breadcrumb + title + step counter
-    const SECTION_TABS = 48; // A/B/C/D tabs row
-    const STEP_NAV = 38; // dot progress nav row
-    const TEMPO_BAR = 44; // always reserve even when hidden (IT-only bar)
-    const SECTION_PADDING = 16; // 8px top + 8px bottom of piano section container
-    const KEYBOARD = 128; // 120px keyboard + 8px margin-top
-    const PRACTICE_CONTROLS = 64; // Back / Demo / Perform bar
-    const overhead =
-      HEADER +
-      SECTION_TABS +
-      STEP_NAV +
-      TEMPO_BAR +
-      SECTION_PADDING +
-      KEYBOARD +
-      PRACTICE_CONTROLS;
-    const base = Math.max(
-      200,
-      Math.floor((window.innerHeight - overhead) * 0.9),
-    );
-    return Math.floor(base * 1.5);
-  }, []); // empty deps — computed once at mount
+  // This used to subtract a tally of hardcoded chrome heights from
+  // `window.innerHeight` once at mount, then multiply by 1.5 so lanes reached
+  // 18px. That overflowed the viewport on purpose and pushed the keyboard off
+  // the bottom of the screen, which is the one thing a player always needs to
+  // see. Three smaller faults came with it: `window.innerHeight` ignores the
+  // TopRail and shell padding above us, the tally reserved 44px for a tempo bar
+  // that only exists on in-time steps, and the empty dependency array meant
+  // resizing the window changed nothing.
+  //
+  // Now the roll is a flex child that takes whatever is left once the pinned
+  // header, tabs, keyboard and controls have taken theirs, and a ResizeObserver
+  // reports what that actually came to. DualStaffPianoRoll fits its lanes into
+  // that height, compressing to MIN_LANE_HEIGHT and no further; if the lanes
+  // will not fit even then, the roll scrolls inside its own box rather than
+  // pushing the page. So the keyboard stays put at every window size.
+  const rollViewportRef = useRef<HTMLDivElement>(null);
+  const [pianoRollMaxHeight, setPianoRollMaxHeight] = useState(360);
+
+  // useLayoutEffect, not useEffect: the first measurement has to land before
+  // paint, or the roll renders one frame at the placeholder height and visibly
+  // jumps. Client-only app, so there is no SSR warning to worry about.
+  useLayoutEffect(() => {
+    const el = rollViewportRef.current;
+    if (!el) return;
+    // Round to whole pixels: sub-pixel jitter would otherwise re-run the lane
+    // maths on every fractional layout change.
+    const measure = (h: number) =>
+      setPianoRollMaxHeight((prev) => {
+        const next = Math.max(200, Math.round(h));
+        return next === prev ? prev : next;
+      });
+    measure(el.getBoundingClientRect().height);
+    const ro = new ResizeObserver(([entry]) => {
+      measure(entry.contentRect.height);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // rowHeight is the TOTAL height handed to a single-stave PianoRoll — it
+  // divides internally by lane count. 40px goes to the timeline header, so the
+  // single-stave roll fills the same measured box the dual-stave one does.
+  const rowHeight = Math.max(160, pianoRollMaxHeight - 40);
 
   // Keyboard highlights
   const keyboardPlayingNotes: PlaybackEvent[] = useMemo(
@@ -522,21 +576,12 @@ function GenreLessonContainerV2Inner({
   // Track by EVENT INDEX, not MIDI number — so repeated pitches are sequential
   const noteHoldStartRef = useRef<Map<number, number>>(new Map()); // midi → wall-clock ms
   const completedEventIdsRef = useRef<Set<string>>(new Set()); // event.id
-  // The next expected event index for each MIDI pitch
-  const nextEventForMidiRef = useRef<Map<number, number>>(new Map()); // midi → pianoRollEvents index
+  // Which written note each held key is currently answering: midi → event.id.
+  // Claimed on note-on, credited or dropped on note-off. Without this a
+  // sustained note reads as "still outstanding" and pins the free-time gate at
+  // its own onset, so the other hand's next note is refused until you let go.
+  const heldEventIdsRef = useRef<Map<number, string>>(new Map());
   const [holdTick, setHoldTick] = useState(0);
-
-  // Build a sequential map: for each MIDI, which event indices use that pitch (in order)
-  const midiToEventIndices = useMemo(() => {
-    const map = new Map<number, number[]>();
-    pianoRollEvents.forEach((event, idx) => {
-      const midi = event.midi ?? 0;
-      const list = map.get(midi) ?? [];
-      list.push(idx);
-      map.set(midi, list);
-    });
-    return map;
-  }, [pianoRollEvents]);
 
   // Animation loop — runs at ~60fps while any note is held
   useEffect(() => {
@@ -552,49 +597,23 @@ function GenreLessonContainerV2Inner({
     return () => cancelAnimationFrame(rafId);
   }, [activityState, activeMidis.length]);
 
-  // Get the current target event for a MIDI pitch (next uncompleted one).
-  // OOT: enforces sequential order — only events at the earliest uncompleted
-  // onset are eligible, so you can't skip ahead by playing a later note.
+  // Which written note a pressed key is answering. Free-time steps go through
+  // the onset gate, which skips notes currently under a finger so a sustained
+  // left hand cannot block the right; in-time steps take the next uncompleted
+  // occurrence, because the playhead already enforces order. See noteGate.ts.
   const getCurrentEventForMidi = useCallback(
     (
       midi: number,
-    ): { event: (typeof pianoRollEvents)[0]; index: number } | null => {
-      const indices = midiToEventIndices.get(midi);
-      if (!indices) return null;
-
-      if (!isIT) {
-        // Find the minimum onset among all uncompleted events (the current onset group)
-        let minOnset = Infinity;
-        for (const ev of pianoRollEvents) {
-          if (!completedEventIdsRef.current.has(ev.id)) {
-            const onset = ev.startTicks;
-            if (onset < minOnset) minOnset = onset;
-          }
-        }
-        if (minOnset === Infinity) return null;
-        // Only match events belonging to that onset group
-        for (const idx of indices) {
-          const ev = pianoRollEvents[idx];
-          if (
-            !completedEventIdsRef.current.has(ev.id) &&
-            ev.startTicks === minOnset
-          ) {
-            return { event: ev, index: idx };
-          }
-        }
-        return null;
-      }
-
-      // IT: original behavior — next uncompleted event for this pitch
-      for (const idx of indices) {
-        const ev = pianoRollEvents[idx];
-        if (!completedEventIdsRef.current.has(ev.id)) {
-          return { event: ev, index: idx };
-        }
-      }
-      return null;
-    },
-    [midiToEventIndices, pianoRollEvents, isIT],
+    ): { event: (typeof pianoRollEvents)[0]; index: number } | null =>
+      isIT
+        ? nextEventForMidi(pianoRollEvents, midi, completedEventIdsRef.current)
+        : currentEventForMidi(
+            pianoRollEvents,
+            midi,
+            completedEventIdsRef.current,
+            new Set(heldEventIdsRef.current.values()),
+          ),
+    [pianoRollEvents, isIT],
   );
 
   // Track note-on start times
@@ -602,34 +621,47 @@ function GenreLessonContainerV2Inner({
     for (const midi of activeMidis) {
       if (!noteHoldStartRef.current.has(midi)) {
         noteHoldStartRef.current.set(midi, performance.now());
+        // Claim the note this key is answering at the moment it goes down.
+        // Claiming here rather than on release is the whole fix: a claimed
+        // note is in progress, so it steps out of the gate's way and the
+        // other hand can carry on over the top of it.
+        const claimed = getCurrentEventForMidi(midi);
+        if (claimed) heldEventIdsRef.current.set(midi, claimed.event.id);
       }
     }
-    // On note-off, check if held long enough for the NEXT uncompleted event
+    // On note-off, credit the note this key claimed — not whatever the gate
+    // happens to point at now, which may have moved on underneath it.
     let didComplete = false;
     for (const [midi] of noteHoldStartRef.current) {
       if (!activeMidis.includes(midi)) {
         const startMs = noteHoldStartRef.current.get(midi)!;
         const elapsedMs = performance.now() - startMs;
-        const target = getCurrentEventForMidi(midi);
-        if (target) {
+        const claimedId = heldEventIdsRef.current.get(midi);
+        const event = claimedId
+          ? pianoRollEvents.find((e) => e.id === claimedId)
+          : getCurrentEventForMidi(midi)?.event;
+        if (event) {
           const msPerTick = (60 / 100 / 480) * 1000;
-          const requiredMs = target.event.durationTicks * msPerTick;
+          const requiredMs = event.durationTicks * msPerTick;
           if (elapsedMs >= requiredMs * 0.8) {
-            completedEventIdsRef.current.add(target.event.id);
+            completedEventIdsRef.current.add(event.id);
             didComplete = true;
           }
         }
         noteHoldStartRef.current.delete(midi);
+        // Dropped whether or not it earned credit: a finger lifted too early
+        // leaves the note outstanding again rather than half-done.
+        heldEventIdsRef.current.delete(midi);
       }
     }
     if (didComplete) setHoldTick((t) => t + 1);
-  }, [activeMidis, getCurrentEventForMidi]);
+  }, [activeMidis, getCurrentEventForMidi, pianoRollEvents]);
 
   // Reset hold tracking on step change
   useEffect(() => {
     noteHoldStartRef.current.clear();
     completedEventIdsRef.current.clear();
-    nextEventForMidiRef.current.clear();
+    heldEventIdsRef.current.clear();
   }, [stepIndex, activeSection]);
 
   // Compute noteHoldMeta with real-time progress — per event, not per MIDI
@@ -650,10 +682,12 @@ function GenreLessonContainerV2Inner({
       const midi = event.midi ?? 0;
       const isCompleted = completedEventIdsRef.current.has(event.id);
 
-      // Only highlight the NEXT uncompleted event for this MIDI pitch
+      // A note under a finger is the one it claimed on the way down. It has
+      // left the gate by design, so ask the claim rather than the gate —
+      // otherwise the ring would drop off the note being held.
+      const isHeld = heldEventIdsRef.current.get(midi) === event.id;
       const currentTarget = getCurrentEventForMidi(midi);
-      const isCurrentTarget = currentTarget?.event.id === event.id;
-      const isHeld = activeMidis.includes(midi) && isCurrentTarget;
+      const isCurrentTarget = isHeld || currentTarget?.event.id === event.id;
 
       let holdProgress = 0;
       if (isCompleted) {
@@ -1061,6 +1095,52 @@ function GenreLessonContainerV2Inner({
   // reports, and less any extra set in Settings ▸ Audio for Bluetooth
   // headphones). It can't drift from the backing track, metronome or practice
   // guide, and scoring follows what the student hears.
+  /** On to the next section, or nowhere if this was the last one. */
+  const advanceSection = useCallback(() => {
+    const currentSectionIdx = flow.sections.findIndex(
+      (s) => s.id === activeSection,
+    );
+    if (currentSectionIdx >= flow.sections.length - 1) return;
+    setActiveSection(flow.sections[currentSectionIdx + 1].id);
+    setStepIndex(0);
+    setActivityState('preview');
+    setUserNotes([]);
+    setLastResult(null);
+    setActiveMidis([]);
+  }, [activeSection, flow, setActivityState]);
+
+  /**
+   * Into a section's Practice Track. Everything sounding here has to stop first:
+   * the Studio drives its own transport, and a lesson backing left running would
+   * play straight over it.
+   */
+  const enterPracticeTrack = useCallback(
+    (sectionId: ActivitySectionId) => {
+      stopDemo();
+      stopBacking();
+      stopTransport();
+      Tone.getTransport().cancel();
+      stopTickCounter();
+      const url = openGenrePracticeTrack(flow, sectionId, {
+        genreLabel: genreDisplayName,
+        returnTo: `${CurriculumRoutes.genreLevel({ genre, level: String(level) })}?section=${sectionId}`,
+        bpm: tempo,
+      });
+      if (url) navigate(url);
+    },
+    [
+      flow,
+      genre,
+      genreDisplayName,
+      level,
+      navigate,
+      stopBacking,
+      stopDemo,
+      stopTickCounter,
+      tempo,
+    ],
+  );
+
   const handleNext = useCallback(() => {
     stopTickCounter();
     if (stepIndex < currentSection.steps.length - 1) {
@@ -1079,20 +1159,18 @@ function GenreLessonContainerV2Inner({
       );
       // Classroom app-route completion (no-op unless launched from a slide).
       reportCompletion();
-      // Move to next section if available
-      const currentSectionIdx = flow.sections.findIndex(
-        (s) => s.id === activeSection,
-      );
-      if (currentSectionIdx < flow.sections.length - 1) {
-        setActiveSection(flow.sections[currentSectionIdx + 1].id);
-        setStepIndex(0);
-        setActivityState('preview');
-        setUserNotes([]);
-        setLastResult(null);
-        setActiveMidis([]);
+      // The section's own Practice Track, offered before moving on: the groove
+      // they have been playing over, with their part of it left to them. The
+      // offer replaces the silent auto-advance, so `advanceSection` below is
+      // what actually moves on, once they have answered it.
+      if (sectionHasContent(currentSection)) {
+        setPracticeOffer(activeSection);
+        return;
       }
+      advanceSection();
     }
   }, [
+    advanceSection,
     stepIndex,
     currentSection,
     activeSection,
@@ -1478,25 +1556,25 @@ function GenreLessonContainerV2Inner({
         color: '#eee',
       }}
     >
-      {/* Header */}
+      {/* Header — breadcrumb and level/step share one line so the vertical
+          budget goes to the piano roll and keyboard instead of chrome. */}
       <div
         style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '12px 16px',
+          flexShrink: 0,
+          padding: '8px 16px',
           borderBottom: '1px solid #333',
         }}
       >
-        <div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              marginBottom: '6px',
-            }}
-          >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '4px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <button
               type="button"
               onClick={() => navigate('/learn')}
@@ -1543,10 +1621,30 @@ function GenreLessonContainerV2Inner({
               {genreDisplayName}
             </button>
           </div>
-          <div style={{ fontSize: '14px', color: '#888', marginBottom: '2px' }}>
-            {currentStep.subsection}
+          <div
+            style={{
+              fontSize: '12px',
+              color: '#888',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+            }}
+          >
+            {flow.genre} Level {flow.level} · Step {stepIndex + 1} of{' '}
+            {currentSection.steps.length}
           </div>
-          <div style={{ fontSize: '18px', fontWeight: 600 }}>
+        </div>
+        <div style={{ fontSize: '13px', color: '#888' }}>
+          {currentStep.subsection}
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'baseline',
+            gap: '12px',
+            flexWrap: 'wrap',
+          }}
+        >
+          <div style={{ fontSize: '17px', fontWeight: 600 }}>
             {currentStep.activity}
           </div>
           {resolvedStep.chordSymbols &&
@@ -1555,7 +1653,6 @@ function GenreLessonContainerV2Inner({
                 style={{
                   fontSize: '14px',
                   color: keyColor,
-                  marginTop: '2px',
                   fontWeight: 600,
                 }}
               >
@@ -1567,76 +1664,137 @@ function GenreLessonContainerV2Inner({
               </div>
             )}
         </div>
-        <div style={{ textAlign: 'right', fontSize: '13px', color: '#888' }}>
-          <div>
-            {flow.genre} Level {flow.level}
-          </div>
-          <div>
-            Step {stepIndex + 1} of {currentSection.steps.length}
-          </div>
-        </div>
       </div>
 
-      {/* Section tabs — from flow data, not hardcoded */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '8px',
-          padding: '8px 16px',
-          borderBottom: '1px solid #333',
-        }}
-      >
-        {flow.sections.map((section) => {
-          const isSectionActive = section.id === activeSection;
-          const sectionProg = getSectionProgress(section.id);
-          return (
-            <button
-              key={section.id}
-              onClick={() => handleSectionChange(section.id)}
-              style={{
-                padding: '6px 14px',
-                border: isSectionActive
-                  ? '2px solid #4a9eff'
-                  : '1px solid #555',
-                borderRadius: '8px',
-                background: isSectionActive ? '#1a3a5c' : '#222',
-                color: isSectionActive ? '#4a9eff' : '#aaa',
-                cursor: 'pointer',
-                fontSize: '13px',
-                fontWeight: isSectionActive ? 600 : 400,
-              }}
-            >
-              {section.id} {section.name}
-              {sectionProg.percentage > 0 && sectionProg.percentage < 100 && (
-                <span
-                  style={{ fontSize: '11px', marginLeft: '6px', opacity: 0.7 }}
-                >
-                  {sectionProg.percentage}%
-                </span>
-              )}
-              {sectionProg.percentage === 100 && (
-                <span style={{ marginLeft: '6px', fontSize: '12px' }}>
-                  &#10003;
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Step navigation — clickable dots + arrows */}
+      {/* Section tabs (from flow data, not hardcoded) and step navigation
+          share one row — two full-width rows of chrome bought nothing that
+          one does not, and the keyboard needs the pixels. */}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '4px',
+          justifyContent: 'space-between',
+          gap: '12px',
           padding: '6px 16px',
+          borderBottom: '1px solid #333',
+          flexShrink: 0,
         }}
       >
-        {/* Previous arrow */}
-        <button
-          onClick={() => {
-            if (stepIndex > 0) {
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {flow.sections.map((section) => {
+            const isSectionActive = section.id === activeSection;
+            const sectionProg = getSectionProgress(section.id);
+            return (
+              <button
+                key={section.id}
+                onClick={() => handleSectionChange(section.id)}
+                style={{
+                  padding: '6px 14px',
+                  border: isSectionActive
+                    ? '2px solid #4a9eff'
+                    : '1px solid #555',
+                  borderRadius: '8px',
+                  background: isSectionActive ? '#1a3a5c' : '#222',
+                  color: isSectionActive ? '#4a9eff' : '#aaa',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  fontWeight: isSectionActive ? 600 : 400,
+                }}
+              >
+                {section.id} {section.name}
+                {sectionProg.percentage > 0 && sectionProg.percentage < 100 && (
+                  <span
+                    style={{
+                      fontSize: '11px',
+                      marginLeft: '6px',
+                      opacity: 0.7,
+                    }}
+                  >
+                    {sectionProg.percentage}%
+                  </span>
+                )}
+                {sectionProg.percentage === 100 && (
+                  <span style={{ marginLeft: '6px', fontSize: '12px' }}>
+                    &#10003;
+                  </span>
+                )}
+              </button>
+            );
+          })}
+          {/* The active section's Practice Track, always reachable once that
+              section has content — so a student who moved on can come back to
+              it, not only catch it on the way past. */}
+          {sectionHasContent(currentSection) && (
+            <button
+              onClick={() => enterPracticeTrack(activeSection)}
+              title={`Play over the ${currentSection.name} groove`}
+              style={{
+                padding: '6px 14px',
+                border: '1px solid #7ecfcf',
+                borderRadius: '8px',
+                background: 'rgba(126,207,207,0.12)',
+                color: '#7ecfcf',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: 600,
+              }}
+            >
+              &#9834; Practice Track
+            </button>
+          )}
+        </div>
+
+        {/* Step navigation — clickable dots + arrows */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            flexShrink: 0,
+          }}
+        >
+          {/* Previous arrow */}
+          <button
+            onClick={() => {
+              if (stepIndex > 0) {
+                stopDemo();
+                stopBacking();
+                stopTransport();
+                Tone.getTransport().cancel();
+                if (itTimerRef.current) {
+                  clearTimeout(itTimerRef.current);
+                  itTimerRef.current = null;
+                }
+                stopTickCounter();
+                setStepIndex((i) => i - 1);
+                setActivityState('preview');
+                setUserNotes([]);
+                setLastResult(null);
+                setActiveMidis([]);
+              }
+            }}
+            disabled={stepIndex === 0}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: stepIndex === 0 ? '#333' : '#888',
+              fontSize: '18px',
+              cursor: stepIndex === 0 ? 'default' : 'pointer',
+              padding: '0 4px',
+            }}
+          >
+            ‹
+          </button>
+
+          {/* Clickable progress dots */}
+          {currentSection.steps.map((step, i) => {
+            const stepTag = (step as ActivityStepV2).tag;
+            const result = progress.completedSteps[stepTag];
+            const isPassed = result?.score.passed ?? false;
+            const isAttempted = !!result;
+            const isCurrent = i === stepIndex;
+
+            const handleDotClick = () => {
               stopDemo();
               stopBacking();
               stopTransport();
@@ -1646,147 +1804,111 @@ function GenreLessonContainerV2Inner({
                 itTimerRef.current = null;
               }
               stopTickCounter();
-              setStepIndex((i) => i - 1);
+              setStepIndex(i);
               setActivityState('preview');
               setUserNotes([]);
               setLastResult(null);
               setActiveMidis([]);
+            };
+
+            if (isPassed) {
+              return (
+                <button
+                  key={i}
+                  onClick={handleDotClick}
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    borderRadius: '50%',
+                    border: `1.5px solid ${keyColor}`,
+                    background: `${keyColor}22`,
+                    color: keyColor,
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 0,
+                    flexShrink: 0,
+                    lineHeight: 1,
+                  }}
+                  title={`${(step as ActivityStepV2).activity} ✓ Passed`}
+                >
+                  ✓
+                </button>
+              );
             }
-          }}
-          disabled={stepIndex === 0}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: stepIndex === 0 ? '#333' : '#888',
-            fontSize: '18px',
-            cursor: stepIndex === 0 ? 'default' : 'pointer',
-            padding: '0 4px',
-          }}
-        >
-          ‹
-        </button>
 
-        {/* Clickable progress dots */}
-        {currentSection.steps.map((step, i) => {
-          const stepTag = (step as ActivityStepV2).tag;
-          const result = progress.completedSteps[stepTag];
-          const isPassed = result?.score.passed ?? false;
-          const isAttempted = !!result;
-          const isCurrent = i === stepIndex;
-
-          const handleDotClick = () => {
-            stopDemo();
-            stopBacking();
-            stopTransport();
-            Tone.getTransport().cancel();
-            if (itTimerRef.current) {
-              clearTimeout(itTimerRef.current);
-              itTimerRef.current = null;
-            }
-            stopTickCounter();
-            setStepIndex(i);
-            setActivityState('preview');
-            setUserNotes([]);
-            setLastResult(null);
-            setActiveMidis([]);
-          };
-
-          if (isPassed) {
             return (
               <button
                 key={i}
                 onClick={handleDotClick}
                 style={{
-                  width: '16px',
-                  height: '16px',
-                  borderRadius: '50%',
-                  border: `1.5px solid ${keyColor}`,
-                  background: `${keyColor}22`,
-                  color: keyColor,
-                  fontSize: '10px',
-                  fontWeight: 700,
+                  width: isCurrent ? '24px' : '10px',
+                  height: '10px',
+                  borderRadius: '5px',
+                  border: 'none',
                   cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: 0,
+                  transition: 'all 0.2s',
+                  backgroundColor: isAttempted
+                    ? '#555'
+                    : isCurrent
+                      ? '#fff'
+                      : '#333',
                   flexShrink: 0,
-                  lineHeight: 1,
+                  padding: 0,
                 }}
-                title={`${(step as ActivityStepV2).activity} ✓ Passed`}
-              >
-                ✓
-              </button>
+                title={`${(step as ActivityStepV2).activity}${isAttempted ? ' — attempted' : ''}`}
+              />
             );
-          }
+          })}
 
-          return (
-            <button
-              key={i}
-              onClick={handleDotClick}
-              style={{
-                width: isCurrent ? '24px' : '10px',
-                height: '10px',
-                borderRadius: '5px',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                backgroundColor: isAttempted
-                  ? '#555'
-                  : isCurrent
-                    ? '#fff'
-                    : '#333',
-                flexShrink: 0,
-                padding: 0,
-              }}
-              title={`${(step as ActivityStepV2).activity}${isAttempted ? ' — attempted' : ''}`}
-            />
-          );
-        })}
+          <span style={{ color: '#666', fontSize: '12px', marginLeft: '6px' }}>
+            {stepIndex + 1}/{currentSection.steps.length}
+          </span>
 
-        <span style={{ color: '#666', fontSize: '12px', marginLeft: '6px' }}>
-          {stepIndex + 1}/{currentSection.steps.length}
-        </span>
-
-        {/* Next arrow */}
-        <button
-          onClick={() => {
-            if (stepIndex < currentSection.steps.length - 1) {
-              stopDemo();
-              stopBacking();
-              stopTransport();
-              Tone.getTransport().cancel();
-              if (itTimerRef.current) {
-                clearTimeout(itTimerRef.current);
-                itTimerRef.current = null;
+          {/* Next arrow */}
+          <button
+            onClick={() => {
+              if (stepIndex < currentSection.steps.length - 1) {
+                stopDemo();
+                stopBacking();
+                stopTransport();
+                Tone.getTransport().cancel();
+                if (itTimerRef.current) {
+                  clearTimeout(itTimerRef.current);
+                  itTimerRef.current = null;
+                }
+                stopTickCounter();
+                setStepIndex((i) => i + 1);
+                setActivityState('preview');
+                setUserNotes([]);
+                setLastResult(null);
+                setActiveMidis([]);
               }
-              stopTickCounter();
-              setStepIndex((i) => i + 1);
-              setActivityState('preview');
-              setUserNotes([]);
-              setLastResult(null);
-              setActiveMidis([]);
-            }
-          }}
-          disabled={stepIndex === currentSection.steps.length - 1}
-          style={{
-            background: 'none',
-            border: 'none',
-            color:
-              stepIndex === currentSection.steps.length - 1 ? '#333' : '#888',
-            fontSize: '18px',
-            cursor:
-              stepIndex === currentSection.steps.length - 1
-                ? 'default'
-                : 'pointer',
-            padding: '0 4px',
-          }}
-        >
-          ›
-        </button>
+            }}
+            disabled={stepIndex === currentSection.steps.length - 1}
+            style={{
+              background: 'none',
+              border: 'none',
+              color:
+                stepIndex === currentSection.steps.length - 1 ? '#333' : '#888',
+              fontSize: '18px',
+              cursor:
+                stepIndex === currentSection.steps.length - 1
+                  ? 'default'
+                  : 'pointer',
+              padding: '0 4px',
+            }}
+          >
+            ›
+          </button>
+        </div>
       </div>
 
-      {/* Tempo control — visible for IT activities */}
+      {/* Tempo control — visible for IT activities. Only in-time steps pay for
+          this row now; out-of-time steps used to reserve its height anyway. */}
       {isIT && (
         <div
           style={{
@@ -1796,6 +1918,7 @@ function GenreLessonContainerV2Inner({
             padding: '6px 16px',
             background: 'rgba(255,255,255,0.03)',
             borderBottom: '1px solid #333',
+            flexShrink: 0,
           }}
         >
           <span style={{ fontSize: '14px', color: '#888' }}>&#9833;=</span>
@@ -1847,24 +1970,29 @@ function GenreLessonContainerV2Inner({
         </div>
       )}
 
-      {/* Main content area */}
+      {/* Main content area — a bounded column. `minHeight: 0` is what lets the
+          roll shrink instead of shoving the keyboard off the bottom: without
+          it a flex child refuses to go below its content size. */}
       <div
         style={{
           flex: 1,
+          minHeight: 0,
           padding: '8px 16px',
           position: 'relative',
           display: 'flex',
           flexDirection: 'column',
         }}
       >
-        {/* Piano Roll — fixed height for single stave; viewport-fitted for dual stave */}
+        {/* Piano Roll — takes the space the pinned rows leave. When even the
+            floor lane height will not fit, this box scrolls; the page does not. */}
         <div
+          ref={rollViewportRef}
           style={{
-            height: isDualStaff ? pianoRollMaxHeight : PIANO_ROLL_HEIGHT,
-            minHeight: '200px',
+            flex: 1,
+            minHeight: 0,
             position: 'relative',
-            flexShrink: 0,
-            overflow: 'hidden',
+            overflowX: 'hidden',
+            overflowY: 'auto',
           }}
         >
           {isDualStaff ? (
@@ -1989,15 +2117,16 @@ function GenreLessonContainerV2Inner({
           <LessonVolumeDial />
         </div>
 
-        {/* Practice mode controls — below keyboard */}
+        {/* Practice mode controls — below keyboard, pinned alongside it so
+            appearing mid-practice steals from the roll, never from the keys. */}
         {isPracticing && (
           <div
             style={{
               display: 'flex',
               gap: '12px',
               justifyContent: 'center',
-              padding: '12px 0',
-              marginTop: '8px',
+              padding: '8px 0',
+              flexShrink: 0,
             }}
           >
             <button
@@ -2052,10 +2181,13 @@ function GenreLessonContainerV2Inner({
           <div
             style={{
               position: 'absolute',
-              top: 0,
+              // 8px down and exactly as tall as the measured roll box, so the
+              // overlay tracks the roll at any window size and still stops
+              // short of the keyboard.
+              top: '8px',
               left: 0,
               right: 0,
-              height: `${isDualStaff ? pianoRollMaxHeight : PIANO_ROLL_HEIGHT}px`,
+              height: `${pianoRollMaxHeight}px`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -2154,6 +2286,95 @@ function GenreLessonContainerV2Inner({
                   }}
                 >
                   {instrumentsLoading ? 'Loading instruments...' : 'Play Now'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Section complete — the Practice Track offer, before moving on. */}
+        {practiceOffer && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'rgba(17,17,17,0.92)',
+              zIndex: 45,
+            }}
+          >
+            <div
+              style={{
+                maxWidth: '520px',
+                width: '100%',
+                padding: '32px',
+                borderRadius: '16px',
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid #7ecfcf',
+                textAlign: 'center',
+              }}
+            >
+              <h2 style={{ fontSize: '26px', fontWeight: 600 }}>
+                {currentSection.name} complete!
+              </h2>
+              <p
+                style={{
+                  fontSize: '14px',
+                  color: '#aaa',
+                  margin: '10px 0 24px',
+                  lineHeight: 1.5,
+                }}
+              >
+                {practiceOfferBlurb(currentSection.id)}
+              </p>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '12px',
+                  justifyContent: 'center',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <button
+                  onClick={() => {
+                    const section = practiceOffer;
+                    setPracticeOffer(null);
+                    enterPracticeTrack(section);
+                  }}
+                  style={{
+                    padding: '10px 24px',
+                    borderRadius: '24px',
+                    border: 'none',
+                    background: '#7ecfcf',
+                    color: '#191919',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Enter Practice Track
+                </button>
+                <button
+                  onClick={() => {
+                    setPracticeOffer(null);
+                    advanceSection();
+                  }}
+                  style={{
+                    padding: '10px 24px',
+                    borderRadius: '24px',
+                    border: '1px solid #555',
+                    background: 'transparent',
+                    color: '#eee',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {nextSectionName
+                    ? `Continue to ${nextSectionName}`
+                    : 'Finish the level'}
                 </button>
               </div>
             </div>

@@ -79,6 +79,8 @@ function instrumentLabel(instrument: string): string {
       return 'Keys';
     case 'electric-piano':
       return 'E.Piano';
+    case 'bass-electric':
+      return 'E.Bass';
     case 'cello':
       return 'Cello';
     case 'organ':

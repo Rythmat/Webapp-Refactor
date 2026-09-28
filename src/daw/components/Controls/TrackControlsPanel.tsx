@@ -23,6 +23,8 @@ function instrumentTitle(instrument: string): string {
       return 'Piano Sampler';
     case 'electric-piano':
       return 'Electric Piano';
+    case 'bass-electric':
+      return 'Electric Bass';
     case 'cello':
       return 'Cello';
     case 'organ':
@@ -51,6 +53,7 @@ const POP_OUT_BUTTON_INSTRUMENTS = new Set([
   'oracle-synth',
   'piano-sampler',
   'electric-piano',
+  'bass-electric',
   'cello',
   'organ',
   'tonewheel-organ',
@@ -132,6 +135,7 @@ function renderView(track: { id: string; instrument: string }) {
   switch (track.instrument) {
     case 'piano-sampler':
     case 'electric-piano':
+    case 'bass-electric':
     case 'cello':
     case 'organ':
       return <KeyboardView trackId={track.id} />;

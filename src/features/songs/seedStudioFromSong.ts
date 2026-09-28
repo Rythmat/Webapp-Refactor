@@ -4,6 +4,7 @@ import {
 } from '@/curriculum/songLibrary/exportToStudio';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { useStore } from '@/daw/store';
+import { resetUndoHistory } from '@/daw/store/undoMiddleware';
 
 /**
  * Seed the DAW store from a song's chart: project metadata, key/mode/tempo,
@@ -18,7 +19,17 @@ export const seedStudioFromSong = (song: Song): void => {
   store.setProjectName(song.title);
   store.setComposerName(song.artist);
   store.setRootNote(song.keyRoot % 12);
-  store.setMode(song.mode === 'major' ? 'ionian' : song.mode);
+  // The library writes 'major'/'minor' where the Studio names the mode itself.
+  // 'minor' left unmapped is not one of the Studio's MODES, so the key line
+  // reads "C minor", the track colour falls back, and every degree derived from
+  // the mode is computed against a mode that does not exist.
+  store.setMode(
+    song.mode === 'major'
+      ? 'ionian'
+      : song.mode === 'minor'
+        ? 'aeolian'
+        : song.mode,
+  );
   store.setBpm(song.tempo);
   // Without this the Studio opens every song in 4/4, so a 3/4 or 7/4 chart
   // gets four-beat bars drawn over correctly-placed ticks.
@@ -44,4 +55,10 @@ export const seedStudioFromSong = (song: Song): void => {
     store.setLoopRange(0, clip.durationTicks ?? 7680);
   }
   store.setCurrentView('arrange');
+  // Seeding is not something the player did, so it is not something they can
+  // undo — and, because undo history is how we tell an edited session from an
+  // untouched one, a song left on the baseline is a song nobody has to be
+  // warned about losing. Auto-capture debounces by 300ms, so this also cancels
+  // the capture the writes above have already queued.
+  resetUndoHistory();
 };

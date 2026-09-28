@@ -3705,7 +3705,7 @@ const funkL2SectionD: ActivitySectionV2 = {
       direction:
         'Level 3 capstone part 2: the turnaround. ' +
         'LH walks the 1-5-8 bass pattern. ' +
-        'RH plays Ab13 (F#-C-F), G7alt (F-Ab-Eb), Cm9 (Eb-Bb-D). ' +
+        'RH plays Ab13 (F#-C-F), G7alt (F-B-Eb), Cm9 (Eb-Bb-D). ' +
         'Three chords — each one a half-step closer to home.',
       assessment: 'pitch_order_timing',
       tag: 'funk:performance_ab13_g7alt_cm9_playon_l3_it | funk',
@@ -3732,13 +3732,13 @@ const funkL2SectionD: ActivitySectionV2 = {
         { midi: 54, onset: 0, duration: 480, hand: 'rh' }, // F#3 (b7 of Ab)
         { midi: 60, onset: 0, duration: 480, hand: 'rh' }, // C4  (3rd of Ab)
         { midi: 65, onset: 0, duration: 480, hand: 'rh' }, // F4  (13th of Ab)
-        // Bar 2 — G7alt | LH: G2-D3-G3 (1-5-8) | RH: F3-Ab3-Eb4 (b7-b9-b13)
+        // Bar 2 — G7alt | LH: G2-D3-G3 (1-5-8) | RH: F3-B3-Eb4 (b7-3-b13)
         { midi: 43, onset: 1920, duration: 480, hand: 'lh' }, // G2
         { midi: 50, onset: 2400, duration: 480, hand: 'lh' }, // D3
         { midi: 55, onset: 2880, duration: 480, hand: 'lh' }, // G3
         { midi: 50, onset: 3360, duration: 480, hand: 'lh' }, // D3 step back
         { midi: 53, onset: 1920, duration: 480, hand: 'rh' }, // F3  (b7 of G)
-        { midi: 56, onset: 1920, duration: 480, hand: 'rh' }, // Ab3 (b9 of G)
+        { midi: 59, onset: 1920, duration: 480, hand: 'rh' }, // B3  (3rd of G)
         { midi: 63, onset: 1920, duration: 480, hand: 'rh' }, // Eb4 (b13 of G)
         // Bar 3 — Cm9 | LH: C2-G2-C3 (1-5-8) | RH: Eb3-Bb3-D4 (b3-b7-9) hold
         { midi: 36, onset: 3840, duration: 480, hand: 'lh' }, // C2
@@ -3826,13 +3826,13 @@ const funkL2SectionD: ActivitySectionV2 = {
         { midi: 54, onset: 3840, duration: 480, hand: 'rh' }, // F#3
         { midi: 60, onset: 3840, duration: 480, hand: 'rh' }, // C4
         { midi: 65, onset: 3840, duration: 480, hand: 'rh' }, // F4
-        // Bar 4 — G7alt | LH 1-5-8 G | RH [F3-Ab3-Eb4] (b7-b9-b13)
+        // Bar 4 — G7alt | LH 1-5-8 G | RH [F3-B3-Eb4] (b7-3-b13)
         { midi: 43, onset: 5760, duration: 480, hand: 'lh' },
         { midi: 50, onset: 6240, duration: 480, hand: 'lh' },
         { midi: 55, onset: 6720, duration: 480, hand: 'lh' },
         { midi: 50, onset: 7200, duration: 480, hand: 'lh' },
         { midi: 53, onset: 5760, duration: 480, hand: 'rh' }, // F3
-        { midi: 56, onset: 5760, duration: 480, hand: 'rh' }, // Ab3
+        { midi: 59, onset: 5760, duration: 480, hand: 'rh' }, // B3
         { midi: 63, onset: 5760, duration: 480, hand: 'rh' }, // Eb4
         // Bar 5 — Cm9 resolution | LH octave pop C | RH Cm9 whole-note hold
         { midi: 36, onset: 7680, duration: 480, hand: 'lh' },

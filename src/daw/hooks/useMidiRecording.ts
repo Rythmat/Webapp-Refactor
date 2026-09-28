@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import * as Tone from 'tone';
 import { useStore } from '@/daw/store';
 import { MidiRecorder } from '@/daw/audio/MidiRecorder';
+import { buildRecordedClip } from '@/daw/audio/recordedClip';
 
 // ── useMidiRecording ────────────────────────────────────────────────────
 // Manages the MIDI recording lifecycle:
@@ -14,9 +15,19 @@ export function useMidiRecording() {
   const tracks = useStore((s) => s.tracks);
   const addMidiClip = useStore((s) => s.addMidiClip);
   const recorderRef = useRef(new MidiRecorder());
+  // Tick the take punched in at. It becomes the clip's front, so a player who
+  // comes in late keeps that rest instead of having it trimmed away.
+  const punchInTickRef = useRef(0);
 
   useEffect(() => {
     if (isRecording) {
+      // This effect re-runs whenever `tracks` changes (a fader move, an audio
+      // take landing). Guard against that: a second startRecording() would drop
+      // the take in progress and re-anchor it to wherever the playhead is now.
+      if (recorderRef.current.isRecording()) return;
+      // Anchor to the playhead at punch-in — the same tick the audio recorder
+      // uses (usePlaybackEngine), so a simultaneous audio + MIDI take lines up.
+      punchInTickRef.current = useStore.getState().position;
       recorderRef.current.startRecording();
     } else if (recorderRef.current.isRecording()) {
       const { notes, ccEvents } = recorderRef.current.stopRecording();
@@ -26,34 +37,12 @@ export function useMidiRecording() {
           (t) => t.recordArmed && t.type === 'midi',
         );
         if (armedTrack) {
-          // Recorded events carry ABSOLUTE transport ticks, so the silence
-          // between pressing record and the first note is baked into them.
-          // Every other clip source stores clip-relative events with
-          // clip.startTick as the timeline position (playback re-adds
-          // clip.startTick). Match that convention: rebase so the earliest note
-          // is at tick 0 (dropping the leading delay) and place the clip at the
-          // start. The clip's startTick now solely determines when it plays, so
-          // the delay no longer persists and moving the clip repositions
-          // playback to wherever its front is placed.
-          // NB: completedNotes is ordered by note-OFF, so notes[0] isn't
-          // necessarily the earliest — take the true minimum startTick.
-          const earliestTick = notes.reduce(
-            (min, n) => Math.min(min, n.startTick),
-            Infinity,
-          );
-          const rebasedNotes = notes.map((n) => ({
-            ...n,
-            startTick: n.startTick - earliestTick,
-          }));
-          const rebasedCC = ccEvents.map((c) => ({
-            ...c,
-            tick: Math.max(0, c.tick - earliestTick),
-          }));
+          // Anchored to punch-in, so a take that came in after the downbeat
+          // keeps that rest at the front of the clip instead of sliding up to
+          // it. See buildRecordedClip.
           addMidiClip(armedTrack.id, {
             id: crypto.randomUUID(),
-            startTick: 0,
-            events: rebasedNotes,
-            ccEvents: rebasedCC.length > 0 ? rebasedCC : undefined,
+            ...buildRecordedClip(notes, ccEvents, punchInTickRef.current),
           });
         }
       }
@@ -75,9 +64,15 @@ export function useMidiRecording() {
           Math.round(Tone.getTransport().ticks),
         );
         if (snapshot.length > 0) {
+          // Same anchor the committed clip gets, so the overlay shows the take
+          // where it will land — including the rest before the first note.
           useStore
             .getState()
-            .setLiveRecording(armedTrack.id, snapshot, snapshot[0].startTick);
+            .setLiveRecording(
+              armedTrack.id,
+              snapshot,
+              Math.min(punchInTickRef.current, snapshot[0].startTick),
+            );
         }
         lastUpdate = now;
       }

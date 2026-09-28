@@ -1,11 +1,7 @@
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import { useStore } from '@/daw/store';
-import {
-  regionToMeasures,
-  PPQ,
-  BEATS_PER_MEASURE,
-  TICKS_PER_MEASURE,
-} from '@/daw/midi/leadSheetUtils';
+import { regionToMeasures } from '@/daw/midi/leadSheetUtils';
+import { ticksPerBar, ticksPerBeatUnit } from '@/daw/utils/timelineScale';
 import { NOTES } from '@prism/engine';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { useMe } from '@/hooks/data/auth/useMe';
@@ -75,6 +71,14 @@ function LeadSheetChartView() {
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
   const bpm = useStore((s) => s.bpm);
+  // The chart is drawn in the project's metre, not in 4/4. A beat is the
+  // metre's own beat — an eighth in 6/8 — so neither the bar nor the beat can
+  // be a constant: a 3/4 song laid out in 1920-tick bars puts its second bar a
+  // beat into its first, and every bar after that drifts further.
+  const beatsPerMeasure = useStore((s) => s.timeSignatureNumerator);
+  const beatUnit = useStore((s) => s.timeSignatureDenominator);
+  const ticksPerBeat = ticksPerBeatUnit(beatUnit);
+  const ticksPerMeasure = ticksPerBar(beatsPerMeasure, beatUnit);
   const chordFormat = useStore((s) => s.leadSheetChordFormat);
   const selectedChordIdx = useStore((s) => s.leadSheetSelectedChordIdx);
   const setSelectedChordIdx = useStore((s) => s.setLeadSheetSelectedChordIdx);
@@ -157,8 +161,8 @@ function LeadSheetChartView() {
 
   // Build measures from chord regions
   const rawMeasures = useMemo(
-    () => regionToMeasures(chordRegions),
-    [chordRegions],
+    () => regionToMeasures(chordRegions, ticksPerMeasure),
+    [chordRegions, ticksPerMeasure],
   );
 
   // Filter out ghost measures consumed by multi-bar rests.
@@ -221,7 +225,7 @@ function LeadSheetChartView() {
   const playheadSystemIdx = useMemo(() => {
     if (!isPlaying && position === 0) return -1;
     if (systems.length === 0) return -1;
-    const measureIdx = Math.floor(position / 1920);
+    const measureIdx = Math.floor(position / ticksPerMeasure);
     // Find which system contains this measure
     for (let si = 0; si < systems.length; si++) {
       const sys = systems[si];
@@ -260,9 +264,8 @@ function LeadSheetChartView() {
   }, [rootNote, mode]);
 
   // ── Selection, copy and paste ───────────────────────────────────────────
-  // The sheet is laid out in 4/4 throughout (`regionToMeasures` and the
-  // playhead maths both assume it), so selection counts bars the same way
-  // rather than half-migrating to the project's time signature.
+  // Bars and beats here are the project's, the same ones `regionToMeasures`
+  // cut the sheet into and the playhead maths below read.
   const measureCount = measures.length;
   const [selectedKeys, setSelectedKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
@@ -278,7 +281,7 @@ function LeadSheetChartView() {
 
   const rangeContext: RangeContext = useMemo(
     () => ({
-      beatsPerMeasure: BEATS_PER_MEASURE,
+      beatsPerMeasure: beatsPerMeasure,
       chordOrder: [...chordRegions]
         .sort((a, b) => a.startTick - b.startTick)
         .map((r) => r.id),
@@ -317,7 +320,7 @@ function LeadSheetChartView() {
       // Determine which measure this chord is in
       const region = chordRegions.find((r) => r.id === regionId);
       if (region) {
-        setSelectedMeasureIdx(Math.floor(region.startTick / TICKS_PER_MEASURE));
+        setSelectedMeasureIdx(Math.floor(region.startTick / ticksPerMeasure));
       }
     },
     [setSelectedChordIdx, chordRegions],
@@ -356,7 +359,7 @@ function LeadSheetChartView() {
   const insertChordAt = useCallback(
     (tick: number) => {
       setSelectedChordIdx(null);
-      setSelectedMeasureIdx(Math.floor(tick / TICKS_PER_MEASURE));
+      setSelectedMeasureIdx(Math.floor(tick / ticksPerMeasure));
       const before = new Set(
         useStore.getState().chordRegions.map((region) => region.id),
       );
@@ -397,7 +400,7 @@ function LeadSheetChartView() {
         const tick = tickOfChord(regionId);
         return tick === undefined
           ? undefined
-          : Math.floor(tick / TICKS_PER_MEASURE);
+          : Math.floor(tick / ticksPerMeasure);
       },
       () => undefined,
     );
@@ -408,14 +411,14 @@ function LeadSheetChartView() {
     let spanTicks: number;
     if (kind === 'beat') {
       const beats = itemsOfKind(selectedKeys, 'beat').map(
-        (b) => b.measureIndex * BEATS_PER_MEASURE + b.beat,
+        (b) => b.measureIndex * beatsPerMeasure + b.beat,
       );
-      startTick = Math.min(...beats) * PPQ;
-      spanTicks = (Math.max(...beats) - Math.min(...beats) + 1) * PPQ;
+      startTick = Math.min(...beats) * ticksPerBeat;
+      spanTicks = (Math.max(...beats) - Math.min(...beats) + 1) * ticksPerBeat;
     } else {
-      startTick = touched[0] * TICKS_PER_MEASURE;
+      startTick = touched[0] * ticksPerMeasure;
       spanTicks =
-        (touched[touched.length - 1] - touched[0] + 1) * TICKS_PER_MEASURE;
+        (touched[touched.length - 1] - touched[0] + 1) * ticksPerMeasure;
     }
     const endTick = startTick + spanTicks;
 
@@ -523,25 +526,25 @@ function LeadSheetChartView() {
     let targetMeasure: number | null = null;
     if (kind === 'beat') {
       const beats = itemsOfKind(selectedKeys, 'beat').map(
-        (b) => b.measureIndex * BEATS_PER_MEASURE + b.beat,
+        (b) => b.measureIndex * beatsPerMeasure + b.beat,
       );
       const first = Math.min(...beats);
-      targetTick = first * PPQ;
-      targetMeasure = Math.floor(first / BEATS_PER_MEASURE);
+      targetTick = first * ticksPerBeat;
+      targetMeasure = Math.floor(first / beatsPerMeasure);
     } else if (kind === 'measure' || kind === 'barline') {
       const items = itemsOfKind(
         selectedKeys,
         kind === 'measure' ? 'measure' : 'barline',
       );
       targetMeasure = Math.min(...items.map((i) => i.measureIndex));
-      targetTick = targetMeasure * TICKS_PER_MEASURE;
+      targetTick = targetMeasure * ticksPerMeasure;
     } else if (kind === 'chord') {
       const ticks = itemsOfKind(selectedKeys, 'chord')
         .map((c) => tickOfChord(c.regionId))
         .filter((tick): tick is number => tick !== undefined);
       if (ticks.length === 0) return;
       targetTick = Math.min(...ticks);
-      targetMeasure = Math.floor(targetTick / TICKS_PER_MEASURE);
+      targetMeasure = Math.floor(targetTick / ticksPerMeasure);
     }
     if (targetTick === null || targetMeasure === null) return;
 
@@ -570,7 +573,7 @@ function LeadSheetChartView() {
         const tick = tickOfChord(regionId);
         return tick === undefined
           ? undefined
-          : Math.floor(tick / TICKS_PER_MEASURE);
+          : Math.floor(tick / ticksPerMeasure);
       },
       () => undefined,
     );
@@ -663,13 +666,13 @@ function LeadSheetChartView() {
               (a, b) => a.measureIndex - b.measureIndex || a.beat - b.beat,
             )[0];
             insertChordAt(
-              first.measureIndex * TICKS_PER_MEASURE + first.beat * PPQ,
+              first.measureIndex * ticksPerMeasure + first.beat * ticksPerBeat,
             );
           } else if (measuresPicked.length > 0) {
             const first = Math.min(
               ...measuresPicked.map((m) => m.measureIndex),
             );
-            insertChordAt(first * TICKS_PER_MEASURE);
+            insertChordAt(first * ticksPerMeasure);
           }
         }
         return;
@@ -714,17 +717,18 @@ function LeadSheetChartView() {
         const beats =
           kind === 'beat'
             ? itemsOfKind(selectedKeys, 'beat').map(
-                (b) => b.measureIndex * BEATS_PER_MEASURE + b.beat,
+                (b) => b.measureIndex * beatsPerMeasure + b.beat,
               )
             : itemsOfKind(selectedKeys, 'measure').flatMap((m) =>
                 Array.from(
-                  { length: BEATS_PER_MEASURE },
-                  (_, i) => m.measureIndex * BEATS_PER_MEASURE + i,
+                  { length: beatsPerMeasure },
+                  (_, i) => m.measureIndex * beatsPerMeasure + i,
                 ),
               );
         if (beats.length === 0) return;
-        const from = Math.min(...beats) * PPQ;
-        const span = (Math.max(...beats) - Math.min(...beats) + 1) * PPQ;
+        const from = Math.min(...beats) * ticksPerBeat;
+        const span =
+          (Math.max(...beats) - Math.min(...beats) + 1) * ticksPerBeat;
         setChordRegions(
           pasteChords(chordRegions, { ...empty, spanTicks: span }, from),
           true,
@@ -794,10 +798,10 @@ function LeadSheetChartView() {
         measureWidth,
       };
       // Show initial tether at current position (centered on slash)
-      const mIdx = Math.floor(region.startTick / 1920);
-      const localTick = region.startTick % 1920;
-      const beat = localTick / PPQ;
-      const lx = (beat + 0.5) * (measureWidth / 4);
+      const mIdx = Math.floor(region.startTick / ticksPerMeasure);
+      const localTick = region.startTick % ticksPerMeasure;
+      const beat = localTick / ticksPerBeat;
+      const lx = (beat + 0.5) * (measureWidth / beatsPerMeasure);
       setDragVisual({
         regionId,
         snappedTick: region.startTick,
@@ -814,13 +818,16 @@ function LeadSheetChartView() {
       const drag = chordDragRef.current;
       if (!drag) return;
       const deltaPx = e.clientX - drag.startClientX;
-      const deltaTicks = (deltaPx / drag.measureWidth) * 4 * PPQ;
+      const deltaTicks = (deltaPx / drag.measureWidth) * ticksPerMeasure;
       const rawTick = drag.originTick + deltaTicks;
-      const snapped = Math.max(0, Math.round(rawTick / PPQ) * PPQ);
-      const mIdx = Math.floor(snapped / 1920);
-      const localTick = snapped % 1920;
-      const beat = localTick / PPQ;
-      const lx = (beat + 0.5) * (drag.measureWidth / 4);
+      const snapped = Math.max(
+        0,
+        Math.round(rawTick / ticksPerBeat) * ticksPerBeat,
+      );
+      const mIdx = Math.floor(snapped / ticksPerMeasure);
+      const localTick = snapped % ticksPerMeasure;
+      const beat = localTick / ticksPerBeat;
+      const lx = (beat + 0.5) * (drag.measureWidth / beatsPerMeasure);
       setDragVisual({
         regionId: drag.regionId,
         snappedTick: snapped,
@@ -943,9 +950,9 @@ function LeadSheetChartView() {
             // Compute playhead x for this system
             let playheadX: number | undefined;
             if (sysIdx === playheadSystemIdx) {
-              const measureIdx = Math.floor(position / 1920);
+              const measureIdx = Math.floor(position / ticksPerMeasure);
               const measureInSystem = measureIdx - system.startIndex;
-              const ticksInMeasure = position % 1920;
+              const ticksInMeasure = position % ticksPerMeasure;
               const rowSize = system.rowSize;
               const isFull = system.measures.length === rowSize;
               const defaultW = system.measures.length * 200;
@@ -954,7 +961,8 @@ function LeadSheetChartView() {
                   ? contentWidth
                   : defaultW;
               const mw = svgW / system.measures.length;
-              playheadX = measureInSystem * mw + (ticksInMeasure / 1920) * mw;
+              playheadX =
+                measureInSystem * mw + (ticksInMeasure / ticksPerMeasure) * mw;
             }
             return (
               <div key={system.startIndex} className="leadsheet-system mb-6">
@@ -982,7 +990,8 @@ function LeadSheetChartView() {
                   selectedKeys={selectedKeys}
                   onSelectItem={handleSelectItem}
                   onInsertChordAt={insertChordAt}
-                  beatsPerMeasure={BEATS_PER_MEASURE}
+                  beatsPerMeasure={beatsPerMeasure}
+                  ticksPerBeat={ticksPerBeat}
                   autoEditRegionId={autoEditRegionId}
                 />
               </div>

@@ -3,11 +3,38 @@ import type { LessonChordSymbol } from './lessonChordSymbols';
 
 /**
  * Lead-sheet type: the same 16px bold serif Studio's lead sheet draws, so a
- * chord looks the same wherever the student reads it. StaffView reserves 28px
- * of headroom above each system (SYSTEM_TOP), and the baseline sits inside it.
+ * chord looks the same wherever the student reads it.
  */
 const CHORD_FONT_SIZE = 16;
-const CHORD_OFFSET = 24;
+/** Clear air between the bottom of a symbol and the ink it stands over. */
+const CHORD_GAP = 6;
+/** Ledger lines and the notehead's own outline reach past its centre. */
+const NOTE_CLEARANCE = 3;
+
+/** The top edge to draw a symbol at, in the same scaled px the layout reports. */
+export function chordSymbolTop(
+  /** The measure box's `y`: the top of the stave's SPACE, not its first line. */
+  boxY: number,
+  /** Scaled distance from that `y` down to the top staff line. */
+  topLineDrop: number,
+  /** Notehead centres in this bar, and each one's half-space, scaled. */
+  notes: ReadonlyArray<{ y: number; space: number }>,
+  scale: number,
+): number {
+  const staffTop = boxY + topLineDrop;
+  // A note above the top line pushes the symbol up; one below it never pulls
+  // the symbol down onto the staff, because `staffTop` is the other bound.
+  const highestNote = notes.length
+    ? Math.min(...notes.map((n) => n.y - n.space - NOTE_CLEARANCE * scale))
+    : Infinity;
+  // `top` sets the element's top edge and the line box is one font size tall,
+  // so lift it by its own height to leave the gap below its baseline.
+  return (
+    Math.min(staffTop, highestNote) -
+    CHORD_GAP * scale -
+    CHORD_FONT_SIZE * scale
+  );
+}
 
 interface ChordSymbolOverlayProps {
   symbols: readonly LessonChordSymbol[];
@@ -29,6 +56,13 @@ interface ChordSymbolOverlayProps {
  *
  * A symbol whose tick falls outside every drawn measure is skipped rather than
  * clamped: better absent than sitting over the wrong bar.
+ *
+ * SITS ON THE STAFF IT NAMES
+ * Vertically a symbol rides just above its own staff, or above the highest
+ * notehead in its bar when the music climbs over the top line. It used to hang
+ * from the top of the system's reserved headroom instead, which put it most of
+ * a stave clear of the music it names — and, once systems began to wrap, left
+ * it floating among the ledger lines of the system above.
  */
 export function ChordSymbolOverlay({
   symbols,
@@ -60,15 +94,27 @@ export function ChordSymbolOverlay({
           ? Math.min(...anchors.map((n) => n.x))
           : box.x + ((symbol.startTick - box.startTick) / span) * box.width;
 
+        const inBar = layout.notes.filter(
+          (n) =>
+            n.partIndex === box.partIndex &&
+            n.measureIndex === box.measureIndex,
+        );
+        const fontSize = CHORD_FONT_SIZE * layout.scale;
+
         return (
           <span
             key={symbol.id}
             className="absolute whitespace-nowrap"
             style={{
               left,
-              top: box.y - CHORD_OFFSET * layout.scale,
+              top: chordSymbolTop(
+                box.y,
+                layout.topLineDrop,
+                inBar,
+                layout.scale,
+              ),
               fontFamily: 'serif',
-              fontSize: `${CHORD_FONT_SIZE * layout.scale}px`,
+              fontSize: `${fontSize}px`,
               fontWeight: 700,
               lineHeight: 1,
               // The staff's own ink, as on a lead sheet — the chords are read,

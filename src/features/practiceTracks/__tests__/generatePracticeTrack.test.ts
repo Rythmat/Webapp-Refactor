@@ -119,18 +119,32 @@ describe('generatePracticeTrack melody', () => {
       expect(repeat.map((e) => e.startTick - PHRASE)).toEqual(
         phrase.map((e) => e.startTick),
       );
-      // Pitches repeat too, except where the chords underneath differ and the
-      // major-chord rule had to move a note — the 4 over a major chord must
-      // reach its 3, and the repeat sits over a different bar. Every such
-      // difference lands on that bar's major 3.
+      // Pitches repeat too, except where the major-chord rule had to move a
+      // note. The phrase and its repeat sit over different bars, so a 4 that has
+      // to reach its 3 can need moving on one side and not the other — and
+      // either side can be the one that moves. Over Level 1's all-major
+      // I-IV-V-I it is the phrase that moves and the repeat that stays; over
+      // Level 3, whose first two bars are minor 7ths, it is the other way
+      // round. So the note that differs is the major 3 of whichever bar it sits
+      // in, on one side or the other. (That no note is left breaching the rule
+      // is asserted on its own, over every mode and level, further down.)
+      const majorThirdOfItsBar = (note: number, tick: number): boolean => {
+        const region = result.chordRegions.find(
+          (r) => tick >= r.startTick && tick < r.endTick,
+        );
+        const midis = region?.midis;
+        if (!midis) return false;
+        const root = Math.min(...midis);
+        return (((note - root) % 12) + 12) % 12 === 4;
+      };
       repeat.slice(0, -1).forEach((event, i) => {
         if (event.note === phrase[i].note) return;
-        const region = result.chordRegions.find(
-          (r) => event.startTick >= r.startTick && event.startTick < r.endTick,
-        );
-        expect(region?.midis).toBeDefined();
-        const root = Math.min(...(region!.midis as number[]));
-        expect((((event.note - root) % 12) as number) + 12).toBe((4 % 12) + 12);
+        expect({
+          level,
+          moved:
+            majorThirdOfItsBar(event.note, event.startTick) ||
+            majorThirdOfItsBar(phrase[i].note, phrase[i].startTick),
+        }).toMatchObject({ moved: true });
       });
       // The phrase spans both bars, not just bar 1.
       expect(phrase.some((e) => e.startTick >= BAR)).toBe(true);

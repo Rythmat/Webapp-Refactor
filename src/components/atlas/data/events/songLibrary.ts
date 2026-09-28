@@ -17,7 +17,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Brooklyn',
       country: 'US',
     },
-    genre: ['Straight Eighth Funky Soul'],
+    genre: ['Funk', 'R&B'],
     title: '100 Days, 100 Nights — Sharon Jones and The Dap-Kings',
     description:
       "Sharon Jones and The Dap-Kings release '100 Days, 100 Nights', a scorching soul declaration that sounds like it was pulled straight from a 1960s Stax session. At a time when digital production dominates, the Dap-Kings' all-analog approach and Jones's raw, commanding voice make the track a rallying cry for the soul revival movement. Brooklyn's Daptone Records becomes the unlikely home of the most authentic funk and soul sound of the 2000s.",
@@ -38,7 +38,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Ann Arbor',
       country: 'US',
     },
-    genre: ['Straight Eighth Funk'],
+    genre: ['Funk'],
     title: '1612 — Vulfpeck',
     description:
       "Vulfpeck releases '1612', a lean, groove-locked track that distills their philosophy of minimal funk to its essence. Recorded with deliberate low-fi warmth, the Ann Arbor collective builds a devoted following by stripping away excess and letting pocket and feel do all the talking — a quiet rebellion against overproduced modern music.",
@@ -54,7 +54,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Minneapolis',
       country: 'US',
     },
-    genre: ['Straight Eighth Funk'],
+    genre: ['Funk', 'Pop'],
     title: '1999 — Prince',
     description:
       "Prince releases '1999' as the title track of his double album, a dystopian party anthem set against the shadow of nuclear anxiety and Cold War dread. Rather than despair, Prince responds with defiance — dancing until the end of the world. The Minneapolis sound he pioneered here, blending funk, rock, and synthesizers, reshapes pop music for the decade ahead.",
@@ -86,7 +86,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: '50 Ways To Leave Your Lover — Paul Simon',
     description:
       "Paul Simon releases '50 Ways To Leave Your Lover' in 1975, built around one of the most distinctive drum grooves in pop history. The song becomes Simon's first solo number-one hit, its playful rhyming catalogue of escape routes masking a deeper meditation on the end of relationships. It cements his reputation as a songwriter who can wrap emotional complexity in deceptively light, infectious pop.",
@@ -102,7 +102,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Funky Soul Jazz'],
+    genre: ['Funk', 'Jazz', 'R&B'],
     title: 'A Go Go — John Scofield',
     description:
       "John Scofield releases 'A Go Go' in 1998, a record that cements his reputation as the master of funky soul-jazz guitar. Collaborating with the Medeski Martin & Wood trio, Scofield blurs the line between jazz improvisation and deep groove, drawing in fans of both avant-garde jazz and funk. The album becomes a touchstone for a generation of guitarists seeking to fuse intellectual harmonic depth with raw rhythmic feel.",
@@ -134,7 +134,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Philadelphia',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'A Thousand Years — Christina Perri',
     description:
       "Christina Perri releases 'A Thousand Years' as part of The Twilight Saga: Breaking Dawn soundtrack, turning a declaration of eternal love into a global phenomenon. The song transcends its film origins, becoming one of the most streamed love songs of the decade and a staple at weddings worldwide — a rare pop ballad that genuinely crosses over from teen fantasy into timeless romance.",
@@ -150,7 +150,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Across The Universe — The Beatles',
     description:
       "John Lennon's meditative 'Across The Universe' finally receives its definitive release on 'Let It Be... Naked' after a troubled history — first recorded in 1968, then buried on charity compilations and later over-produced by Phil Spector. The song's mantra-inspired lyrics, drawn from Lennon's immersion in Transcendental Meditation, stand among his most poetic writing and endure as one of the Beatles' most quietly radical compositions.",
@@ -166,7 +166,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Straight Eighth Rock'],
+    genre: ['Rock'],
     title: 'Africa — Toto',
     description:
       "Toto releases 'Africa', a lush, atmospheric rock ballad that becomes one of the defining pop hits of 1982. Written by drummer Jeff Porcaro and keyboardist David Paich, the song's sweeping synths and layered vocals evoke a romanticized continent its writers had never visited — a creative leap that somehow resonates with millions. Decades later, it achieves a second life as an enduring internet cultural phenomenon.",
@@ -182,7 +182,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Blues Rock'],
+    genre: ['Rock'],
     title: 'After Midnight — Eric Clapton',
     description:
       "Eric Clapton revisits J.J. Cale's 'After Midnight', a song he first made famous in 1970. The re-recording in 1983 captures Clapton's enduring love for Cale's laid-back Tulsa sound — a blues-rock groove that helped define his solo career and introduced Cale's songwriting genius to a global audience.",
@@ -219,7 +219,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Franklin',
       country: 'US',
     },
-    genre: ['Straight Eighth Rock'],
+    genre: ['Rock'],
     title: 'Ain’t It Fun — Paramore',
     description:
       "Paramore releases 'Ain't It Fun' from their self-titled fourth album, marking a bold departure from their post-hardcore roots into pop rock and funk-tinged territory. The song becomes one of their biggest commercial breakthroughs, earning the band a Grammy for Best Rock Song — proof that reinvention can expand an audience rather than alienate it.",
@@ -235,7 +235,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'St. Louis',
       country: 'US',
     },
-    genre: ['Funky Jazz Soul'],
+    genre: ['Funk', 'Jazz', 'R&B'],
     title: 'Ain’t It Funky Now — Grant Green',
     description:
       "Grant Green's 'Ain't It Funky Now' captures the guitarist's signature blend of jazz precision and deep soul groove, sitting comfortably in the tradition of organ-combo funk that Green championed throughout his career. Though released posthumously in 2005, the track embodies the raw, street-level funk aesthetic that made Green a beloved figure in soul-jazz circles and a cornerstone of hip-hop sampling culture.",
@@ -272,7 +272,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Pittsburgh',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: "Ain't No Other Man — Christina Aguilera",
     description:
       "Christina Aguilera releases 'Ain't No Other Man' as the lead single from her Back to Basics album, a bold throwback to 1920s jazz and swing wrapped in modern production. The song signals Aguilera's artistic ambitions beyond pop stardom, showcasing her powerhouse vocals against big-band brass and vintage soul — and earns her a Grammy for Best Female Pop Vocal Performance.",
@@ -293,7 +293,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Slab Fork',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Ain’t No Sunshine — Bill Withers',
     description:
       "Bill Withers releases 'Ain't No Sunshine' in 1971, a raw, aching meditation on loneliness that strips soul music down to its barest emotional core. The repeated 'I know, I know, I know' — a placeholder Withers never replaced — becomes one of the most iconic moments in American popular music. The song wins a Grammy and launches one of the most distinctive voices of the decade.",
@@ -325,7 +325,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Funky Motown'],
+    genre: ['Funk', 'R&B'],
     title: 'Ain’t Too Proud To Beg — Temptations',
     description:
       "The Temptations release 'Ain't Too Proud To Beg' on Motown, a raw, pleading showcase for David Ruffin's gritty lead vocals that sets it apart from the group's smoother earlier work. The track becomes one of their signature hits, capturing the tension between heartbreak and dignity that defines the golden era of soul. It cements the Temptations as Motown's most dynamic vocal group.",
@@ -373,7 +373,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Nantucket',
       country: 'US',
     },
-    genre: ['Straight Eighth Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'All About That Bass — Meghan Trainor',
     description:
       "Meghan Trainor bursts onto the pop scene with 'All About That Bass', a body-positive anthem wrapped in a retro doo-wop and pop package. The song's buoyant celebration of curves and self-acceptance strikes a cultural nerve, igniting mainstream conversations about body image at a moment when social media is reshaping beauty standards for a generation.",
@@ -394,7 +394,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Straight Eighth Funk'],
+    genre: ['Funk'],
     title: 'All Day Sucker — Stevie Wonder',
     description:
       "Stevie Wonder records 'All Day Sucker' during his legendary creative peak, embedding it in the sprawling double album 'Songs in the Key of Life'. The track showcases his mastery of funk — tight, percussive, and groove-driven — arriving at a moment when Wonder is untouchable, redefining what a Black pop auteur can achieve in the studio.",
@@ -415,7 +415,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Kennett',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'All I Wanna Do — Sheryl Crow',
     description:
       "Sheryl Crow releases 'All I Wanna Do', a sun-drenched, conversational slice of Los Angeles life that captures the aimless pleasure of a Tuesday afternoon at a Santa Monica bar. The song's loose, almost spoken delivery and wry humor set it apart from the polished pop of the era, earning Crow a Grammy for Record of the Year and announcing her as a defining voice of mid-90s pop rock.",
@@ -431,7 +431,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Rock Shuffle'],
+    genre: ['Rock'],
     title: 'All My Loving — The Beatles',
     description:
       "The Beatles open their landmark Ed Sullivan Show appearance with 'All My Loving', instantly captivating 73 million American viewers and igniting Beatlemania across the United States. Written by Paul McCartney on a tour bus and originally released on 'With the Beatles', the song becomes a symbol of the British Invasion — the moment British rock and roll conquers America and reshapes pop music forever.",
@@ -447,7 +447,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Tuskegee',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'All Night Long — Lionel Richie',
     description:
       "Lionel Richie releases 'All Night Long (All Night)' in 1983, a euphoric Caribbean-tinged pop anthem that becomes one of the defining party songs of the decade. Its irresistible groove and chant-along chorus propel it to the top of charts worldwide, cementing Richie's transformation from Commodores frontman to solo superstar. The song's joyful energy reaches its peak when he performs it to close the 1984 Los Angeles Olympics closing ceremony.",
@@ -463,7 +463,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Springfield',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'All Of Me — John Legend',
     description:
       "John Legend releases 'All Of Me', a deeply personal piano-driven ballad written for his wife Chrissy Teigen. The song becomes a global phenomenon, topping charts across multiple countries and cementing Legend's place as the defining romantic voice of his era — a rare crossover between R&B intimacy and mainstream pop universality.",
@@ -479,7 +479,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Diego',
       country: 'US',
     },
-    genre: ['Punk Rock'],
+    genre: ['Rock'],
     title: 'All The Small Things — Blink 182',
     description:
       "Blink-182 releases 'All The Small Things', a melodic punk anthem that catapults the San Diego trio from cult skate-punk act to mainstream superstars. Its relentless hooks and tongue-in-cheek MTV video — spoofing boy band culture — make it inescapable, cementing pop-punk as a defining sound of late-90s American youth.",
@@ -495,7 +495,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Always Be My Baby — Mariah Carey',
     description:
       "Mariah Carey releases 'Always Be My Baby', a silky pop ballad that becomes one of her signature hits and her eleventh number-one single on the Billboard Hot 100 — cementing her status as the dominant chart force of the 1990s. With its breezy melody and Carey's effortless vocal runs, the song captures the peak of her commercial reign, a period when no artist matches her ability to blend pop accessibility with R&B soul.",
@@ -511,7 +511,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Gainesville',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'American Girl — Tom Petty',
     description:
       "Tom Petty and the Heartbreakers release 'American Girl', a jangly, Byrds-influenced rocker that announces the arrival of a new voice in American rock. Built on chiming guitars and an irresistible hook, the song captures a restless, highway-bound longing that resonates deeply with a generation. It becomes one of rock's most enduring anthems and a cornerstone of Petty's legacy.",
@@ -527,7 +527,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'And I Love Her — The Beatles',
     description:
       "The Beatles record 'And I Love Her' during the sessions for A Hard Day's Night, showcasing a softer, more intimate side of the band. Paul McCartney's tender ballad — built around acoustic guitars and a sparse arrangement — proves the Fab Four are far more than a teenage phenomenon. It signals that their songwriting ambitions stretch well beyond the hysteria of Beatlemania.",
@@ -559,7 +559,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Chicago',
       country: 'US',
     },
-    genre: ['Country Folk'],
+    genre: ['Folk'],
     title: 'Angel From Montgomery — John Prine',
     description:
       "John Prine writes 'Angel From Montgomery' in 1971, giving voice to a middle-aged woman trapped in a loveless life — a radical act of empathy from a 24-year-old former mailman from Illinois. The song becomes one of the most covered and cherished compositions in American folk and country, a quiet masterpiece that cements Prine's reputation as a storyteller of uncommon depth. Bonnie Raitt's celebrated cover later carries it to a generation who make it their own.",
@@ -567,7 +567,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: 'U6cagWYTGCY',
   },
   {
-    id: 'song-another_day',
+    id: 'song-another_day_lidell',
     year: 1971,
     location: {
       lat: 53.41,
@@ -575,7 +575,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Pop'],
+    genre: ['Funk'],
     title: 'Another Day — Paul McCartney',
     description:
       "Paul McCartney releases 'Another Day' in 1971, his first solo single following the Beatles' bitter dissolution. A gentle, melancholic portrait of urban loneliness — a working woman trapped in routine — it signals McCartney's instinct for melodic storytelling outside the Fab Four. The song reaches the top five on both sides of the Atlantic, affirming his solo commercial footing.",
@@ -591,7 +591,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Calypso'],
+    genre: ['Latin'],
     title: 'Another Star — Stevie Wonder',
     description:
       "Stevie Wonder closes his landmark album 'Songs in the Key of Life' with 'Another Star', a jubilant calypso-driven celebration that showcases his effortless command of Afro-Caribbean rhythms. At a moment when Wonder is widely regarded as the most ambitious artist in popular music, the track captures his joy in exploring the full breadth of Black musical tradition — from rhythm and blues to samba and beyond.",
@@ -607,7 +607,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Charlottesville',
       country: 'US',
     },
-    genre: ['Jam Rock'],
+    genre: ['Jam Band'],
     title: 'Ants Marching — Dave Matthews Band',
     description:
       "Dave Matthews Band releases 'Ants Marching' from their major-label debut, capturing the jam rock energy that had already made them legends of the college circuit. The song's intricate violin lines and Matthews' percussive acoustic guitar style bring a sound rooted in Charlottesville, Virginia's live music scene to a national audience — proving that improvisational, genre-blending rock can thrive on mainstream radio.",
@@ -628,7 +628,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Timmins',
       country: 'CA',
     },
-    genre: ['Country Pop'],
+    genre: ['Folk', 'Pop'],
     title: 'Any Man of Mine — Shania Twain',
     description:
       "'Any Man of Mine' becomes one of the defining singles from Shania Twain's breakthrough album 'The Woman in Me', asserting a bold, playful female confidence that feels fresh in 1995 country radio. Twain's crossover appeal — blending country twang with pop hooks — helps shatter genre boundaries and positions her as one of the biggest-selling artists of the decade. Her unapologetic attitude reshapes what a country woman's voice could sound like.",
@@ -660,7 +660,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'At Last — Etta James',
     description:
       "Etta James records 'At Last' in 1960, transforming a 1941 Glenn Miller big band number into an intimate, aching soul ballad. Her voice — raw, powerful, and deeply emotive — strips away the orchestral pageantry and makes the song feel utterly personal. It becomes one of the most enduring vocal performances in American popular music.",
@@ -676,7 +676,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Folk Song'],
+    genre: ['Folk'],
     title: 'Auld Lang Syne — Traditional',
     description:
       "Few songs cross as many borders as 'Auld Lang Syne', a Scottish folk melody built on Robert Burns' 1788 poem about remembering old friends. By the 1990s it is the universal soundtrack of New Year's Eve, sung in ballrooms, living rooms, and public squares across the world — a rare piece of music that belongs to everyone and no one at once.",
@@ -692,7 +692,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Kentwood',
       country: 'US',
     },
-    genre: ['Rock Pop'],
+    genre: ['Pop', 'Rock'],
     title: 'Baby One More Time — Britney Spears',
     description:
       "Britney Spears releases '...Baby One More Time', announcing a new era of teen pop with a hook that lodges itself permanently in the cultural memory. Shot as a high-schooler in a provocative video that MTV can't stop playing, the Louisiana teenager becomes a global phenomenon almost overnight — and pop music pivots sharply toward a new, youth-driven commercial force.",
@@ -708,7 +708,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Long Beach',
       country: 'US',
     },
-    genre: ['Ska Rock'],
+    genre: ['Reggae', 'Rock'],
     title: 'Bad Fish — Sublime',
     description:
       "Sublime's 'Bad Fish' captures the raw, confessional energy of the Long Beach ska-punk scene that the band helped define in the early 1990s. A brooding meditation on addiction and self-destruction, it stands apart from their sunnier reggae-tinged hits — revealing the darker undercurrent beneath Bradley Nowell's freewheeling persona. The song endures as one of the most emotionally honest moments in Sublime's catalog.",
@@ -724,7 +724,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'El Cerrito',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Bad Moon Rising — CCR',
     description:
       "Creedence Clearwater Revival releases 'Bad Moon Rising', a deceptively bright, uptempo rocker wrapped around a dark omen of disaster. Written by John Fogerty and drawn from a scene in the 1941 film 'The Devil and Daniel Webster', it captures the dread and uncertainty of late-1960s America — Vietnam, social upheaval, and a nation on edge. It becomes one of CCR's signature songs and a rock standard.",
@@ -740,7 +740,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Disney'],
+    genre: ['Pop'],
     title: 'Bare Necessities — Jungle Book',
     description:
       "'The Bare Necessities' is performed in Disney's animated film The Jungle Book, with voice actor Phil Harris bringing the lovable bear Baloo to life. Written by Terry Gilkyson, the shuffling, jazz-inflected number becomes one of Disney's most beloved songs — a carefree anthem about simple pleasures that earns an Academy Award nomination and outlives the film itself.",
@@ -756,7 +756,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Beast Of Burden — The Rolling Stones',
     description:
       "The Rolling Stones release 'Beast Of Burden' from their album Some Girls, a loose, soulful groove that marks a creative resurgence for the band. Written in the aftermath of Keith Richards' drug troubles and Mick Jagger's personal upheavals, the song's tender vulnerability stands in contrast to the Stones' hard-edged reputation — proving they could seduce as easily as they could swagger.",
@@ -772,7 +772,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Beautiful — Carole King',
     description:
       "Carole King opens her landmark album 'Tapestry' with 'Beautiful', a quiet affirmation of self-worth that sets the emotional tone for one of the best-selling albums in history. In 1971, King steps out from behind the songwriting desk — where she had crafted hits for others for over a decade — and plants her own voice at the center of popular music. The song's gentle confidence resonates with a generation searching for exactly that.",
@@ -804,7 +804,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Clinton',
       country: 'US',
     },
-    genre: ['Country Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Beers Ago — Toby Keith',
     description:
       "Toby Keith releases 'Beers Ago', a nostalgic country-rock anthem that taps into the timeless theme of small-town summer memories. The song fits squarely within Keith's signature blend of heartland storytelling and radio-friendly production, keeping him a fixture on country charts well into the 2010s.",
@@ -836,7 +836,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Portland',
       country: 'US',
     },
-    genre: ['Acoustic Rock'],
+    genre: ['Rock'],
     title: 'Between The Bars — Elliott Smith',
     description:
       "Elliott Smith releases 'Between The Bars' on his album 'Either/Or', a hushed, intimate portrait of addiction and longing that showcases his gift for confessional songwriting. The song's delicate fingerpicked guitar and close-mic'd vocals create an almost unbearable closeness — as if Smith is whispering directly into the listener's ear. It becomes one of his most beloved songs, later reaching wider audiences through its placement in Gus Van Sant's film 'Good Will Hunting'.",
@@ -852,7 +852,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Fort Worth',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Beyond — Leon Bridges',
     description:
       "Leon Bridges releases 'Beyond', a tender pop ballad that marks a softer, more vulnerable side of the Fort Worth singer-songwriter. Where his debut announced a retro-soul revivalist, this song signals his evolution into a more expansive, contemporary sound — intimate and unhurried, built around emotional directness rather than stylistic homage.",
@@ -868,7 +868,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Gary',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Billie Jean — Michael Jackson',
     description:
       "Michael Jackson releases 'Billie Jean' from the album Thriller, and it becomes one of the defining pop records of the 1980s. Its pulsing bassline and paranoid energy mark a new standard for pop production, while Jackson's performance of the song on Motown 25 — debuting the moonwalk — cements his status as the King of Pop.",
@@ -884,7 +884,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Birthday — Beatles',
     description:
       "The Beatles record 'Birthday' during the marathon White Album sessions, with John Lennon and Paul McCartney reportedly writing it on the spot in the studio. A raw, stomping rock and roll burst, it stands out on the double album as a deliberate throwback — pure fun amid the experimental sprawl. Its driving riff and call-and-response vocals make it one of the band's most unguarded moments.",
@@ -900,7 +900,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Straight Eighth Classic Rock'],
+    genre: ['Rock'],
     title: 'Black Dog — Led Zeppelin',
     description:
       "Led Zeppelin releases 'Black Dog' on their landmark fourth album, an untitled record often called 'Led Zeppelin IV.' The track's jagged, stop-start guitar riff — traded between Robert Plant's raw vocal calls and Jimmy Page's thunderous response — becomes one of the defining moments of hard rock. It crystallizes Zeppelin's power and unpredictability at the peak of their creative force.",
@@ -953,7 +953,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Gary',
       country: 'US',
     },
-    genre: ['Straight Eighth Pop'],
+    genre: ['Pop'],
     title: 'Black Or White — Michael Jackson',
     description:
       "Michael Jackson releases 'Black Or White' in 1991, a hard-hitting anthem for racial harmony that opens with Slash's blistering guitar riff and explodes into a global smash. Its music video premieres simultaneously across Fox, BET, and MTV to an audience of hundreds of millions — one of the most-watched video debuts in history. The song signals Jackson at the height of his cultural reach, speaking directly to a world grappling with race.",
@@ -969,7 +969,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Blackbird — The Beatles',
     description:
       "Paul McCartney records 'Blackbird' as a spare, fingerpicked acoustic guitar piece for the Beatles' sprawling White Album. Written against the backdrop of the American civil rights movement, the song's call to 'take these broken wings and learn to fly' resonates far beyond its intimate arrangement — a quiet protest wrapped in folk simplicity.",
@@ -1001,7 +1001,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Nashville',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Blank Space — Taylor Swift',
     description:
       "Taylor Swift releases 'Blank Space', a razor-sharp satire of her own media-constructed image as a serial dater. Rather than deflect the tabloid narrative, she weaponizes it — playing the villainous romantic with gleeful self-awareness. The song becomes one of the defining pop moments of 2014, cementing Swift's transition from country sweetheart to global pop architect.",
@@ -1017,7 +1017,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Blurred Lines — Robin Thicke',
     description:
       "Robin Thicke's 'Blurred Lines' dominates the summer of 2013, becoming one of the best-selling singles of the year worldwide. Its groove-driven sound draws direct comparisons to Marvin Gaye's 1977 classic 'Got to Give It Up', sparking a landmark copyright lawsuit that reshapes how the music industry thinks about the line between inspiration and infringement.",
@@ -1073,7 +1073,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: 'Ia0zeuZMJbo',
   },
   {
-    id: 'song-born_under_punches',
+    id: 'song-born_under_punches_the_heat_goes_on',
     year: 1980,
     location: {
       lat: 40.71,
@@ -1081,7 +1081,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['New Wave', 'Art Rock'],
+    genre: ['Rock'],
     title: 'Born Under Punches — Talking Heads',
     description:
       "Talking Heads open 'Remain in Light' with 'Born Under Punches (The Heat Goes On)', a relentless collision of funk, African polyrhythm, and David Byrne's fractured, fevered vocals. Produced with Brian Eno, the album marks the band's full embrace of the layered, groove-driven approach they call 'painting with sound.' It redefines what a rock band can do with rhythm and becomes one of the most influential records of the new wave era.",
@@ -1119,7 +1119,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Nashville',
       country: 'US',
     },
-    genre: ['Country Pop'],
+    genre: ['Folk', 'Pop'],
     title: 'Broken Halos — Chris Stapleton',
     description:
       "Chris Stapleton releases 'Broken Halos' from his album 'From A Room: Volume 1', a spare, aching meditation on loss and faith that cuts against the grain of polished Nashville pop. Written with Mike Henderson, the song showcases Stapleton's raw, blues-soaked voice and cements his reputation as the conscience of modern country — proof that authenticity can still break through.",
@@ -1135,7 +1135,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Funky Soul'],
+    genre: ['Funk', 'R&B'],
     title: 'Brother Soul — Lou Donaldson/Soulive',
     description:
       'Lou Donaldson, the alto saxophone legend known for fusing hard bop with soul and funk, finds a natural partner in Soulive — the Brooklyn organ trio who carry that same greasy, groove-forward tradition into the 21st century. Their collaboration bridges two generations of jazz-rooted funk, honoring the Blue Note soul-jazz sound while keeping it alive for a new audience.',
@@ -1151,7 +1151,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Belfast',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Brown Eyed Girl — Van Morrison',
     description:
       "Van Morrison records 'Brown Eyed Girl' in 1967, a sun-drenched burst of joy that becomes one of his most enduring and beloved songs. Its irresistible guitar riff and nostalgic lyrics about youthful romance capture something universal, crossing generational lines to remain a radio staple for decades. The song marks a pivotal moment as Morrison transitions from his raw R&B roots toward the melodic, soulful songwriting that will define his legendary solo career.",
@@ -1167,7 +1167,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Build Me Up Buttercup — The Foundations',
     description:
       "The Foundations release 'Build Me Up Buttercup', a hook-driven pop gem that becomes one of the most recognizable songs of the late 1960s. The London-based multiracial group captures the buoyant energy of the era with its irresistible call-and-response chorus and punchy brass arrangements. Decades later, the song remains a staple of film soundtracks and pop culture, its melody as infectious as ever.",
@@ -1183,7 +1183,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Gary',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'Burn This Disco Out — Michael Jackson',
     description:
       "Michael Jackson closes his landmark Off the Wall album with 'Burn This Disco Out', a sleek, funk-driven anthem that captures the last burning embers of disco at its peak. Produced by Quincy Jones, the track showcases Jackson's effortless command of rhythm and groove — proof that at just 21, he is already something far beyond a child star.",
@@ -1199,7 +1199,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Burning Down The House — The Talking Heads',
     description:
       "Talking Heads release 'Burning Down The House' in 1983, the lead single from their album 'Speaking in Tongues'. Driven by a funk-locked groove and David Byrne's jittery, unpredictable energy, the song becomes their first Top 10 hit — a breakthrough that brings their art-rock experimentalism into the mainstream. It captures a band at the peak of their powers, fusing new wave, funk, and postpunk into something utterly their own.",
@@ -1236,7 +1236,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Cake By The Ocean — DNCE',
     description:
       "DNCE, the band fronted by Joe Jonas, releases 'Cake By The Ocean' as their debut single in 2015. The euphoric pop-rock track becomes a sleeper hit, building momentum over months until it dominates radio and playlists worldwide — signaling a broader shift toward funk-inflected, carefree pop that defines mid-2010s mainstream radio.",
@@ -1252,7 +1252,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Santa Barbara',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'California Gurls — Katy Perry',
     description:
       "Katy Perry releases 'California Gurls' featuring Snoop Dogg, a sun-drenched pop anthem that captures the peak of California's cultural mythology. The track dominates radio in the summer of 2010, cementing Perry's status as a defining pop force of the era and sparking a friendly rivalry with Katy's label-mate's 'California Girls' legacy stretching back to the Beach Boys.",
@@ -1268,7 +1268,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Chicago',
       country: 'US',
     },
-    genre: ['Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'California Stars — Wilco',
     description:
       "Wilco records 'California Stars' for the Mermaid Avenue project, setting an unrecorded Woody Guthrie lyric to music alongside Billy Bragg. The collaboration bridges the gap between Guthrie's Depression-era folk tradition and the alt-country sound Wilco is forging in 1990s Chicago — a reminder that American roots music is a living, breathing inheritance.",
@@ -1321,7 +1321,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Can’t Buy Me Love — The Beatles',
     description:
       "The Beatles release 'Can't Buy Me Love' in 1964, and it becomes a global phenomenon — advance orders alone make it one of the fastest-selling singles in history. With its driving rhythm and McCartney's exuberant lead vocal, the song captures the full force of Beatlemania at its peak, cementing the band's dominance on both sides of the Atlantic.",
@@ -1337,7 +1337,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Toronto',
       country: 'CA',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: "Can't Feel My Face — The Weekend",
     description:
       "The Weeknd releases 'Can't Feel My Face', a sleek pop anthem that marks his breakthrough into mainstream radio. Produced with Max Martin, the track wraps a dark narrative about destructive obsession in an irresistibly upbeat, Michael Jackson-influenced groove — demonstrating that Abel Tesfaye can conquer pop without abandoning his signature unease.",
@@ -1353,7 +1353,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Memphis',
       country: 'US',
     },
-    genre: ['Ballad'],
+    genre: ['Pop'],
     title: 'Can’t Help Falling In Love — Elvis Presley',
     description:
       "Elvis Presley releases 'Can't Help Falling In Love' in 1961, a tender ballad built on the melody of the 18th-century French song 'Plaisir d'amour.' Far from the hip-shaking rebel of his early Sun Records days, Elvis reveals a softer, more romantic side — and the song becomes one of the most enduring love songs in popular music history.",
@@ -1385,7 +1385,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Memphis',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Can’t Stop The Feeling — Justin Timberlake',
     description:
       "Justin Timberlake releases 'Can't Stop The Feeling' in 2016 as the lead single from the Trolls soundtrack, a euphoric blast of funk-pop sunshine that becomes one of the year's defining feel-good anthems. Its irresistible groove bridges the gap between 70s disco, R&B, and mainstream pop, earning Timberlake his first Billboard Hot 100 number one as a solo artist. The song demonstrates his enduring ability to bottle pure, uncomplicated joy into a three-minute hit.",
@@ -1398,7 +1398,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: 'ru0K8uYEZWw',
   },
   {
-    id: 'song-cant_take_my_eyes_off_you',
+    id: 'song-cant_take_my_eyes_off_you_valli',
     year: 1998,
     location: {
       lat: 40.74,
@@ -1406,7 +1406,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Newark',
       country: 'US',
     },
-    genre: ['Hip Hop', 'Neo Soul'],
+    genre: ['Pop', 'Rock'],
     title: 'Can’t Take My Eyes Off You — Lauryn Hill',
     description:
       "Lauryn Hill reimagines Frankie Valli's 1967 pop classic as a spare, acoustic neo-soul meditation, stripping away the orchestral bombast to reveal raw emotional intimacy. Released amid the phenomenon of 'The Miseducation of Lauryn Hill', it showcases her ability to inhabit a song completely — blending hip-hop sensibility with classic soul reverence in a way that defines the late 1990s neo-soul movement.",
@@ -1444,7 +1444,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Belfast',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Caravan — Van Morrison',
     description:
       "Van Morrison releases 'Caravan' as part of his landmark album Moondance, capturing a sound that defies easy categorization — part rock, part jazz, part Celtic soul. The song's hypnotic groove and Morrison's ecstatic vocal delivery cement his reputation as one of rock's most spiritually charged performers. It becomes a defining moment in his catalog, later introduced to a massive new audience when he performs it at The Last Waltz in 1976.",
@@ -1508,7 +1508,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'Chain of Fools — Aretha Franklin',
     description:
       "Aretha Franklin records 'Chain of Fools' in 1967, delivering a raw, commanding vocal performance that cements her reign as the Queen of Soul. The track's churning groove and call-and-response structure draw deep from gospel and R&B roots, becoming one of the defining hits of her landmark breakthrough year — the same year she released 'Respect.' Together, these recordings transform American popular music.",
@@ -1524,7 +1524,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Chains — The Beatles',
     description:
       "The Beatles record 'Chains', a Gerry Goffin and Carole King composition, for their debut album 'Please Please Me'. One of the few tracks on the album sung by George Harrison, it captures the Fab Four in their earliest phase — hungry, tight, and still channeling the American girl-group sound they grew up idolizing. The cover choice reveals just how deeply Brill Building pop shaped the Beatles before they began writing the world's soundtrack themselves.",
@@ -1540,7 +1540,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Blues Rock'],
+    genre: ['Rock'],
     title: 'Change The World — Eric Clapton',
     description:
       "Eric Clapton releases 'Change The World' in 1996, a warm, understated blues-pop ballad that reaches audiences far beyond his rock and blues roots. Originally recorded for the Phenomenon soundtrack, the song wins three Grammy Awards including Record of the Year — a late-career triumph that introduces Clapton's soulful restraint to a new generation of listeners.",
@@ -1572,7 +1572,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Atlanta',
       country: 'US',
     },
-    genre: ['Country Pop'],
+    genre: ['Folk', 'Pop'],
     title: 'Chicken Fried — Zac Brown Band',
     description:
       "Zac Brown Band releases 'Chicken Fried', a warm celebration of Southern simple pleasures — cold beer, blue jeans, and love of country — that resonates far beyond Georgia. The song becomes a breakout hit, introducing the band's easy blend of country, folk, and Southern rock to a national audience and launching one of the most beloved acts in modern country music.",
@@ -1657,7 +1657,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Augusta',
       country: 'US',
     },
-    genre: ['Straight Eighth Funk'],
+    genre: ['Funk'],
     title: 'Cold Sweat — James Brown',
     description:
       "James Brown releases 'Cold Sweat', stripping soul music down to its rhythmic bones and birthing a new grammar for funk. The groove locks into a relentless, hypnotic pulse where the one-beat reigns supreme — a blueprint that will define Black popular music for decades. Hip hop producers, from the 1970s to the present day, return to this record again and again.",
@@ -1673,7 +1673,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'Come And Get Your Love — Redbone (Pat Vegas)',
     description:
       "Redbone, the pioneering Native American rock band led by brothers Pat and Lolly Vegas, releases 'Come And Get Your Love' — a sun-drenched, irresistibly funky pop anthem that becomes one of the defining grooves of 1974. The song breaks the band into mainstream consciousness and stands as a rare moment of Indigenous visibility at the top of the charts. Decades later, its jubilant hook finds a new generation through its placement in 'Guardians of the Galaxy.'",
@@ -1694,7 +1694,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Pop Waltz'],
+    genre: ['Pop'],
     title: 'Come Away With Me — Norah Jones',
     description:
       "Norah Jones releases 'Come Away With Me', the title track of her debut album, introducing a hushed blend of jazz, country, and pop that feels entirely out of step with the era — and becomes a phenomenon because of it. The album sweeps the 2003 Grammy Awards, winning eight trophies including Album of the Year, and Jones becomes one of the best-selling artists of the decade. Her intimate, unhurried style proves there is a vast audience hungry for something quiet.",
@@ -1710,7 +1710,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Come Together — The Beatles',
     description:
       "The Beatles record 'Come Together' in 1969, with John Lennon's swampy, hypnotic groove anchoring one of the band's final creative statements. Originally written as a campaign song for Timothy Leary, it becomes something stranger and more enduring — a portrait of fractured unity from a band on the verge of collapse. It opens Abbey Road and closes an era.",
@@ -1726,7 +1726,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Fort Worth',
       country: 'US',
     },
-    genre: ['Soul'],
+    genre: ['R&B'],
     title: 'Coming Home — Leon Bridges',
     description:
       "Leon Bridges releases 'Coming Home', a debut single that stuns listeners with its uncanny evocation of early 1960s soul — the kind of sound Sam Cooke made timeless. Emerging from Fort Worth, Texas, Bridges channels a bygone era so convincingly that the song feels like a rediscovered artifact rather than something brand new, reigniting appetite for classic soul in a modern landscape.",
@@ -1742,7 +1742,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Funk Fusion'],
+    genre: ['Funk', 'Rock'],
     title: 'Contusion — Stevie Wonder',
     description:
       "Stevie Wonder releases 'Contusion' as part of his landmark double album 'Songs in the Key of Life' — a rare instrumental showcase that lets his jazz-fusion instincts run wild. The track bristles with technical ferocity, demonstrating Wonder's mastery across multiple instruments and his deep fluency in funk and jazz at the height of his creative peak.",
@@ -1758,7 +1758,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'Cosmic Girl — Jamiroquai',
     description:
       "Jamiroquai releases 'Cosmic Girl', a sleek fusion of funk, acid jazz, and pop that becomes one of the defining tracks of mid-90s British cool. Built on rubbery bass lines and Jay Kay's effortless falsetto, it captures the moment when London's acid jazz scene crosses into the mainstream. The song cements Jamiroquai's reputation as heirs to the Parliament-Funkadelic throne — retrofuturist groove merchants for a new generation.",
@@ -1774,7 +1774,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Kingston',
       country: 'JM',
     },
-    genre: ['Funky Reggae'],
+    genre: ['Funk', 'Reggae'],
     title: 'Could You Be Loved — Bob Marley',
     description:
       "Bob Marley releases 'Could You Be Loved' in 1980, one of his most danceable tracks — blending reggae with a driving funk rhythm that pushes the genre toward the dancefloor without losing its Rastafari soul. The song becomes one of his final singles before his death in 1981, cementing his legacy as an artist who could move bodies and minds in the same breath.",
@@ -1790,7 +1790,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Colorado Springs',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Counting Stars — One Republic',
     description:
       "OneRepublic releases 'Counting Stars', a pop-rock anthem that becomes one of the defining radio hits of 2013. Driven by a brooding verse that erupts into an anthemic chorus, the song captures a restless hunger for meaning over money — a sentiment that resonates globally and propels the band to their biggest commercial breakthrough.",
@@ -1806,7 +1806,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Atlanta',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'Crazy — Gnarls Barkley',
     description:
       "Gnarls Barkley — the duo of CeeLo Green and producer Danger Mouse — release 'Crazy', a genre-defying fusion of soul, pop, and psychedelic funk that becomes a global phenomenon. It makes history as the first song to reach #1 in the UK based on downloads alone, before physical copies even hit shelves. The track's haunting hook and CeeLo's soaring vocals redefine what a pop hit can sound like in the 2000s.",
@@ -1838,7 +1838,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Belfast',
       country: 'GB',
     },
-    genre: ['Classic Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Crazy Love — Van Morrison',
     description:
       "Van Morrison releases 'Crazy Love' as part of his landmark album Moondance, a tender declaration of devotion that showcases his gift for blending soul, gospel, and pop into something intimate and timeless. Where his earlier Astral Weeks leaned into jazz abstraction, 'Crazy Love' is luminous and direct — a love song so pure it feels like a hymn. It becomes one of his most enduring recordings.",
@@ -1870,7 +1870,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Crocodile Rock — Elton John',
     description:
       "Elton John releases 'Crocodile Rock' in 1972, a jubilant burst of nostalgia that becomes his first US number one single. The song pays loving homage to the rock and roll of the 1950s and early 60s — Buddy Holly, Eddie Cochran, and the dances of a vanished youth — while planting Elton firmly at the center of glam-era pop stardom.",
@@ -1902,7 +1902,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Nashville',
       country: 'US',
     },
-    genre: ['Country Pop'],
+    genre: ['Folk', 'Pop'],
     title: 'Cruise — Florida Georgia Line',
     description:
       "Florida Georgia Line's 'Cruise' becomes a cultural flashpoint for the bro-country movement sweeping Nashville in the early 2010s. Its sun-soaked blend of country twang and hip-hop influenced production captures the sound of Southern youth on a summer night — and its massive crossover success forces country radio to reckon with a new generation's tastes.",
@@ -1918,7 +1918,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'Cruisin’ — Smokey Robinson',
     description:
       "Smokey Robinson releases 'Cruisin'' in 1979, a languid, sensual groove that marks one of his greatest solo triumphs after years as the architect of Motown's sound. Its unhurried intimacy captures a late-70s mood of quiet confidence — proving that Robinson's impossibly tender falsetto and gift for romantic songwriting remain undiminished.",
@@ -1950,7 +1950,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Witham',
       country: 'GB',
     },
-    genre: ['Jazzy Pop'],
+    genre: ['Jazz', 'Pop'],
     title: 'Dance With Me Tonight — Olly Murs',
     description:
       "Olly Murs releases 'Dance With Me Tonight' in 2011, a buoyant throwback to big band jazz and swing wrapped in a modern pop production. The track showcases Murs' knack for infectious, feel-good songwriting and becomes one of his signature hits, cementing his place in the UK pop landscape as an artist unafraid to reach back into the past for inspiration.",
@@ -1966,7 +1966,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Toronto',
       country: 'CA',
     },
-    genre: ['Country Pop'],
+    genre: ['Folk', 'Pop'],
     title: 'Dance With My Daughter — Jason Blaine',
     description:
       "Jason Blaine releases 'Dance With My Daughter', a country-pop ode to fatherhood that resonates deeply with Canadian country audiences. The song captures the tender, milestone moments between a father and child — a theme that cuts through genre lines and connects with listeners far beyond the country-pop scene.",
@@ -1982,7 +1982,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'Dancing In The Street — Martha and The Vandellas',
     description:
       "Martha and the Vandellas release 'Dancing In The Street', a euphoric call to celebration that transcends its Motown origins to become an anthem of collective joy. Recorded during the height of the Civil Rights Movement, the song's open invitation to the streets carries an undercurrent of social urgency that radio programmers and listeners alike feel immediately. It becomes one of the defining records of 1964, cementing Martha Reeves as one of Motown's most electrifying voices.",
@@ -2003,7 +2003,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Stockholm',
       country: 'SE',
     },
-    genre: ['Disco'],
+    genre: ['Funk'],
     title: 'Dancing Queen — ABBA',
     description:
       "ABBA releases 'Dancing Queen' in 1976, and it becomes the Swedish quartet's only US number one — a glittering pinnacle of Euro-disco that captures the euphoria of the dancefloor with effortless precision. Its cascading piano intro and soaring vocals by Agnetha Fältskog and Frida Lyngstad turn a simple Friday-night fantasy into a timeless anthem, bridging pop and disco across continents.",
@@ -2019,7 +2019,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Day Tripper — The Beatles',
     description:
       "The Beatles release 'Day Tripper' as a double A-side single alongside 'We Can Work It Out' in 1965, showcasing the band's expanding creative ambitions. The song's instantly recognizable guitar riff — one of the most imitated in rock history — signals a harder, more electric edge as the group moves away from their early pop sound toward the psychedelic experimentation that will define their later work.",
@@ -2035,7 +2035,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Belfast',
       country: 'GB',
     },
-    genre: ['Classic Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Days Like This — Van Morrison',
     description:
       "Van Morrison releases 'Days Like This' in 1995, a warm and unhurried meditation on contentment that stands apart from the anxious pulse of mid-90s rock. Its gentle optimism and Morrison's soulful delivery capture a maturity rare in pop — the simple joy of things going right. The song becomes one of his most beloved later-career anthems.",
@@ -2051,7 +2051,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock Pop'],
+    genre: ['Pop', 'Rock'],
     title: 'Dear Prudence — The Beatles',
     description:
       "The Beatles record 'Dear Prudence' during their landmark sessions in Rishikesh, India, where John Lennon writes the song for Mia Farrow's sister Prudence, who has retreated into intense meditation. The fingerpicking guitar pattern — taught to Lennon by Donovan during their transcendental meditation retreat — gives the song its hypnotic, cascading feel, capturing the band's immersion in Eastern spirituality at a turning point in their career.",
@@ -2067,7 +2067,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Newark',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'December 1963, Oh What A Night — The Four Seasons',
     description:
       "Originally recorded in 1975, 'December 1963 (Oh What A Night)' by The Four Seasons enjoys a remarkable second life when it surges back onto charts worldwide in 2008, driven by its infectious groove and nostalgic warmth. Few songs from the classic pop era cross so effortlessly into dance floors decades later, cementing Frankie Valli and the group's legacy across generations.",
@@ -2088,7 +2088,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Juan',
       country: 'PR',
     },
-    genre: ['Latin Pop'],
+    genre: ['Latin', 'Pop'],
     title: 'Despacito — Luis Fonsi',
     description:
       "Luis Fonsi releases 'Despacito', a sun-drenched Latin pop track that becomes one of the most-streamed songs in history and ignites a global wave of reggaeton and Latin urban music. Its crossover appeal — amplified by a remix featuring Justin Bieber — breaks language barriers and proves that Spanish-language pop can dominate mainstream charts worldwide.",
@@ -2104,7 +2104,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Nashville',
       country: 'US',
     },
-    genre: ['Country Pop'],
+    genre: ['Folk', 'Pop'],
     title: 'Die A Happy Man — Thomas Rhett',
     description:
       "Thomas Rhett releases 'Die A Happy Man', a tender love song that becomes one of country pop's defining romantic ballads of the mid-2010s. Its smooth blend of traditional country sentiment with pop production captures the sound of a genre in transition, earning Rhett widespread crossover appeal and cementing his place as one of Nashville's rising stars.",
@@ -2136,7 +2136,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Indie Rock'],
+    genre: ['Rock'],
     title: 'Dog Days Are Over — Florence and the Machine',
     description:
       "Florence and the Machine release 'Dog Days Are Over' to international audiences, Florence Welch's soaring vocals and explosive orchestral percussion announcing an entirely new kind of indie rock. The song becomes an anthem of cathartic release, propelling the British band from cult darlings to global stars and establishing Welch as one of the most distinctive voices of her generation.",
@@ -2157,7 +2157,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Domino — Jessie J',
     description:
       "Jessie J releases 'Domino' in 2011, a euphoric pop-rock anthem that showcases her powerhouse vocals and knack for crafting radio-ready hooks. The song becomes one of her biggest international hits, cementing her place in the early 2010s pop landscape alongside a wave of British artists crossing over to global audiences.",
@@ -2173,7 +2173,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Jazzy Pop'],
+    genre: ['Jazz', 'Pop'],
     title: 'Don’t Know Why — Norah Jones',
     description:
       "'Don't Know Why' becomes the signature song of Norah Jones's debut album 'Come Away with Me', introducing a hushed, intimate blend of jazz, country, and pop that catches the music world off guard. The song wins three Grammy Awards and helps the album become one of the best-selling debuts of the decade, proving that understated sophistication has a massive audience.",
@@ -2189,7 +2189,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Boston',
       country: 'US',
     },
-    genre: ['Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Don’t Let Me Be Lonely Tonight — James Taylor',
     description:
       "James Taylor releases 'Don't Let Me Be Lonely Tonight' in 1972, a quietly devastating ballad that captures the tender vulnerability at the heart of the singer-songwriter movement. Where his earlier hit 'Fire and Rain' announced a confessional new voice, this song deepens that intimacy — spare, searching, and achingly honest. It cements Taylor as one of the defining artists of the early 1970s soft-rock moment.",
@@ -2210,7 +2210,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'Don’t Start Now — Dua Lipa',
     description:
       "Dua Lipa releases 'Don't Start Now', a sleek disco-funk anthem that anchors her 'Future Nostalgia' era and signals a bold artistic reinvention. Channeling the groove of 1970s dancefloors through a contemporary pop lens, the song becomes one of the defining hits of 2019-2020 — proving that disco's DNA is very much alive in mainstream pop.",
@@ -2226,7 +2226,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Francisco',
       country: 'US',
     },
-    genre: ['Rock', 'Pop'],
+    genre: ['Pop', 'Rock'],
     title: "Don't Stop Believin' — Journey",
     description:
       "Journey releases 'Don't Stop Believin'' from their album Escape, anchoring the anthem in the working-class romanticism of small-town dreamers heading to the city. Steve Perry's soaring vocals and Jonathan Cain's opening piano riff become the defining sound of arena rock — massive, earnest, and impossible to ignore. Decades later, the song resurges through film, television, and stadiums, cementing its place as one of the best-selling digital singles in history.",
@@ -2242,7 +2242,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Don’t Stop Me Now — Queen',
     description:
       "Queen releases 'Don't Stop Me Now', a euphoric rocket-ride powered by Freddie Mercury's piano and operatic vocals. The song captures Mercury at his most uninhibited — a pure celebration of hedonism and velocity that becomes one of rock's great feel-good anthems. Decades later, science confirms what listeners already knew: it is one of the happiest songs ever recorded.",
@@ -2258,7 +2258,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Gary',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'Don’t Stop ‘Til You Get Enough — Michael Jackson',
     description:
       "Michael Jackson releases 'Don't Stop 'Til You Get Enough' in 1979, his first solo single on Epic Records and the lead track from Off the Wall. Written and produced by Jackson himself, it announces his arrival as a fully formed adult artist — no longer the child star of the Jackson 5, but a commanding creative force blending disco, funk, and pop into something undeniably his own.",
@@ -2300,7 +2300,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Glasgow',
       country: 'GB',
     },
-    genre: ['Classic Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Don’t You Forget About Me — Simple Minds',
     description:
       "Simple Minds release 'Don't You Forget About Me', recorded specifically for the soundtrack of John Hughes' The Breakfast Club. The song becomes inseparable from the film's iconic final scene — Judd Nelson's fist punching the air — and captures the emotional restlessness of 1980s American teenage life through the lens of a Scottish new wave band. It becomes one of the defining anthems of the decade.",
@@ -2321,7 +2321,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Latin Funk'],
+    genre: ['Funk', 'Latin'],
     title: 'Don’t You Worry ‘Bout A Thing — Stevie Wonder',
     description:
       "Stevie Wonder releases 'Don't You Worry 'Bout A Thing' from his landmark Innervisions album, weaving Afro-Latin rhythms and cascading piano into a joyful reassurance. The track showcases Wonder at the height of his creative powers — blending funk, soul, and Latin influences into a sound that feels both worldly and deeply personal. It becomes one of his most beloved and enduring performances.",
@@ -2358,7 +2358,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Melbourne',
       country: 'AU',
     },
-    genre: ['Classic Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Down Under — Men at Work',
     description:
       "Men at Work release 'Down Under', a jubilant anthem that captures Australia's larrikin spirit and sends it around the world. With its flute riff, reggae-tinged groove, and lyrics packed with Vegemite and wandering travelers, the song becomes a defining piece of national identity — the sound of Australia announcing itself to the globe.",
@@ -2374,7 +2374,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Dreams — Fleetwood Mac',
     description:
       "Fleetwood Mac releases 'Dreams' from their landmark album Rumours, the only song on that record written solely by Stevie Nicks. Recorded amid the romantic collapse of multiple band members, it becomes the group's sole US number one single — a haunting meditation on heartbreak wrapped in deceptively smooth California rock.",
@@ -2390,7 +2390,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Nashville',
       country: 'US',
     },
-    genre: ['Country Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Drink In My Hand — Eric Church',
     description:
       "Eric Church releases 'Drink In My Hand' in 2011, a rowdy anthem that captures his outlaw country spirit and blue-collar swagger. The song becomes a fan favorite that defines the hard-partying, guitar-driven edge Church brings to mainstream Nashville — part country, part rock, entirely his own.",
@@ -2406,7 +2406,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Dynamite — Taio Cruz',
     description:
       "Taio Cruz releases 'Dynamite' in 2010, a relentless pop anthem built for stadiums and dancefloors alike. With its fist-pumping chorus and euphoric energy, the track becomes a global smash, cementing Cruz as one of the defining pop voices of the early 2010s and capturing the era's appetite for anthemic, feel-good crossover hits.",
@@ -2422,7 +2422,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Classic Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Earth Angel — The Penguins',
     description:
       "'Earth Angel' by The Penguins becomes one of the defining doo-wop recordings of the 1950s, capturing the sweet, yearning sound of young Black vocal groups from Los Angeles. It crosses over to the pop charts in early 1955, marking a pivotal moment when rhythm and blues breaks into mainstream American radio — and hearts — on a massive scale.",
@@ -2438,7 +2438,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Tuskegee',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Easy — The Commodores',
     description:
       "The Commodores release 'Easy', a slow-burning soul ballad that reveals a softer side of the Motown-signed funk outfit. Written by Lionel Richie, the song's quiet, confessional tone stands in contrast to the band's harder dance tracks — and becomes one of the defining moments of 1970s soft soul, foreshadowing Richie's massively successful solo career.",
@@ -2454,7 +2454,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Slow Swing'],
+    genre: ['Jazz'],
     title: 'Easy Goin’ Evening (My Mama’s Call) — Stevie Wonder',
     description:
       "Stevie Wonder releases 'Easy Goin' Evening (My Mama's Call)' as part of his landmark run of 1970s albums, a period widely regarded as one of the greatest creative streaks in pop music history. The track's slow swing feel reflects Wonder's deep roots in jazz and gospel, weaving a tender homage to maternal love into his expansive sonic vision. It stands as a quiet, intimate moment within one of the most ambitious bodies of work of its era.",
@@ -2475,7 +2475,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'Ebony Eyes — Stevie Wonder',
     description:
       "Stevie Wonder releases 'Ebony Eyes' in 1976, deep in his celebrated run of classic albums that redefined what soul and pop music could be. A smooth, funky groove showcasing his mastery of melody and arrangement, the track reflects the rich creative peak of a period in which Wonder almost single-handedly elevates Black pop to new artistic heights.",
@@ -2491,7 +2491,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Eight Days A Week — The Beatles',
     description:
       "The Beatles release 'Eight Days A Week' in 1965, a bright, propulsive pop song that showcases the band at the height of Beatlemania. Its fade-in opening — a studio first for a major pop single — reflects the group's growing experimental ambition. The song becomes a number one hit in the United States, cementing their dominance of the global charts.",
@@ -2507,7 +2507,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Denton',
       country: 'US',
     },
-    genre: ['Country'],
+    genre: ['Folk'],
     title: 'Even If It Breaks Your Heart — Eli Young Band',
     description:
       "Eli Young Band's 'Even If It Breaks Your Heart' becomes a breakthrough hit for the Texas country group in 2012, capturing the bittersweet determination of chasing a dream at any cost. The song earns the band a CMA Award for Single of the Year, bringing their road-worn, heartland sound to a mainstream country audience and cementing their place among country music's rising acts.",
@@ -2528,7 +2528,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Eventually — Carole King',
     description:
       "Carole King records 'Eventually' in 1970, a quiet but searching pop ballad that previews the introspective songwriter's turn toward performing her own material. Coming just before the landmark release of Tapestry, it captures King in transition — stepping out from behind the Brill Building hit machine and into her own voice as an artist.",
@@ -2544,7 +2544,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Chicago',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'Every Little Thing — Chaka Khan',
     description:
       "Chaka Khan releases 'Every Little Thing' in 1996, drawing on her decades of soul and R&B mastery to navigate the shifting landscape of mid-90s funky pop. The track showcases the vocal power and emotional depth that have defined her career since her Rufus days — a reminder that few voices in popular music can match her range and authority.",
@@ -2560,7 +2560,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Bath',
       country: 'GB',
     },
-    genre: ['Classic Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Everybody Wants To Rule The World — Tears For Fears',
     description:
       "Tears For Fears release 'Everybody Wants To Rule The World', a sleek, anthemic meditation on power and ambition that becomes one of the defining songs of the mid-1980s. Its irresistible blend of new wave polish and arena-rock sweep captures the mood of a decade obsessed with wealth, politics, and control. The song tops charts on both sides of the Atlantic, cementing the British duo as global pop icons.",
@@ -2613,7 +2613,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Wasilla',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Feel It Still — Portugal The Man',
     description:
       "Portugal. The Man releases 'Feel It Still', a swaggering pop-rock anthem built on a looping, vintage groove that catches fire across radio and streaming platforms. The Alaska-rooted band's biggest commercial breakthrough turns an indie act known for prolific underground output into a mainstream household name — proof that counterculture energy and pop instinct can coexist.",
@@ -2629,7 +2629,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Hip Hop', ' Funky'],
+    genre: ['Funk', 'Hip Hop'],
     title: 'Feel Like Makin’ Love — D’Angelo',
     description:
       "D'Angelo releases his slow-burning cover of Roberta Flack's classic, remaking it as a hazy, neo-soul groove that signals the full arrival of his landmark album 'Voodoo'. Where Flack's original was lush and orchestral, D'Angelo strips it to something raw and hypnotic — anchoring a movement that reconnects hip-hop's generation to the organic feel of classic soul and funk.",
@@ -2651,7 +2651,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Sheffield',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Feeling Alright — Joe Cocker',
     description:
       "Joe Cocker's raw, soulful interpretation of 'Feeling Alright' — originally written by Traffic's Dave Mason — becomes one of his signature performances, showcasing his unmistakable raspy voice and gospel-drenched delivery. Where the original was introspective, Cocker transforms it into a visceral, full-throated plea, cementing his reputation as one of rock's greatest interpretive singers.",
@@ -2667,7 +2667,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Seattle',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Fire — Jimmy Hendrix',
     description:
       "Jimi Hendrix unleashes 'Fire' as a raw, high-voltage showcase of his guitar pyrotechnics and magnetic stage presence. First appearing on 'Are You Experienced' in 1967, the track distills the explosive energy of Hendrix's live performances into a concise burst of psychedelic rock. It cements his reputation as the most electrifying guitarist of his generation.",
@@ -2683,7 +2683,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Boston',
       country: 'US',
     },
-    genre: ['Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Fire And Rain — James Taylor',
     description:
       "James Taylor releases 'Fire and Rain', a deeply personal account of loss, addiction, and survival that becomes one of the defining songs of the singer-songwriter movement. Its spare acoustic intimacy cuts through the bombast of late-60s rock, helping establish a quieter, more confessional mode of songwriting that shapes the entire decade to come.",
@@ -2715,7 +2715,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Santa Barbara',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Firework — Katy Perry',
     description:
       "Katy Perry releases 'Firework', an anthemic pop-rock ballad that becomes one of the defining empowerment songs of its era. With its soaring chorus and message of self-worth, it resonates with millions of listeners worldwide — cementing Perry's status as one of pop's biggest voices at the height of her commercial dominance in the early 2010s.",
@@ -2763,7 +2763,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Staunton',
       country: 'US',
     },
-    genre: ['Country'],
+    genre: ['Folk'],
     title: 'Flowers On The Wall — The Statler Brothers',
     description:
       "The Statler Brothers score a crossover hit with 'Flowers On The Wall', a wry, novelty-tinged country song about lonely idleness that catches mainstream America off guard. Its catchy, almost pop sensibility earns the group a Grammy and introduces a harmony-driven, storytelling style that sets them apart from Nashville's mainstream. The song becomes a signature of country music's expanding reach in the mid-1960s.",
@@ -2784,7 +2784,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Francisco',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Fly Like An Eagle — Steve Miller Band',
     description:
       "Steve Miller Band releases 'Fly Like an Eagle' in 1976, a hypnotic, synth-driven track that captures the psychedelic edge of classic rock while reaching far beyond the album-oriented radio crowd. Its dreamlike groove and socially conscious lyrics about poverty and time mark a creative peak for Miller, helping the album of the same name become one of the best-selling records of the year.",
@@ -2805,7 +2805,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Seattle',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Footloose — Kenny Loggins / Nathan East',
     description:
       "Kenny Loggins records 'Footloose', the explosive title track for the 1984 film of the same name. The song becomes an anthem for teenage rebellion and freedom, topping the charts and cementing Loggins as the king of the movie soundtrack — a role he'd already claimed with 'Danger Zone' and 'I'm Alright'. It captures the irresistible energy of mid-80s pop-rock at its most joyful.",
@@ -2818,7 +2818,28 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: 'ltrMfT4Qz5Y',
   },
   {
-    id: 'song-forever_young',
+    id: 'song-forever_young_dylan',
+    year: 1974,
+    location: {
+      lat: 34.05,
+      lng: -118.24,
+      city: 'Los Angeles',
+      country: 'US',
+    },
+    genre: ['Rock'],
+    title: 'Forever Young \u2014 Bob Dylan',
+    description:
+      "Bob Dylan cuts 'Forever Young' with The Band at Village Recorder in West Los Angeles, the hardest song on Planet Waves to pin down \u2014 he returns to it across four sessions and finally keeps two takes, one slow and one fast, placing both on the record. Written as a blessing for his son, it becomes the most covered song of his mid-career, and the tenderest thing in a catalogue better known for its bite.",
+    tags: [
+      'bob dylan',
+      'forever young',
+      'folk rock',
+      'los angeles',
+      'the band',
+    ],
+  },
+  {
+    id: 'song-forever_young_stewart',
     year: 1988,
     location: {
       lat: 51.51,
@@ -2826,7 +2847,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Funk', 'Latin'],
+    genre: ['Pop', 'Rock'],
     title: 'Forever Young — Rod Stewart',
     description:
       "Rod Stewart releases 'Forever Young' in 1988, a heartfelt anthem addressed to his young son that captures the tender side of a rock star known for swagger and excess. The song becomes one of Stewart's most enduring ballads, resonating across generations as a parental blessing and a meditation on time — and later finding new life as a staple of graduations and emotional montages worldwide.",
@@ -2842,7 +2863,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Atlanta',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Forget You — CeeLo Green',
     description:
       "CeeLo Green releases 'Forget You' in 2010, a gleaming, Motown-flavored pop-soul anthem that becomes a viral sensation before it even officially hits radio. Its radio-friendly title masks a sharper original, and the song's irresistible retro bounce — equal parts revenge fantasy and feel-good chorus — makes it inescapable, earning CeeLo a Grammy for Best Urban/R&B Performance.",
@@ -2858,7 +2879,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Bridgetown',
       country: 'BB',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'FourFiveSeconds — Rihanna, Kanye West and Paul McCartney',
     description:
       "Rihanna, Kanye West, and Paul McCartney release 'FourFiveSeconds', a stark, stripped-back pop-rock collaboration that stuns listeners with its raw simplicity. Three of music's biggest names — spanning rock royalty, hip hop, and R&B — strip away production excess to deliver something deeply human. The unlikely pairing signals a new era of genre-defying superstar collaborations.",
@@ -2879,7 +2900,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Gainesville',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Free Fallin’ — Tom Petty',
     description:
       "Tom Petty releases 'Free Fallin'' as the lead single from his debut solo album 'Full Moon Fever', a sun-drenched love letter to Los Angeles and the San Fernando Valley. Co-written with Jeff Lynne, the song's effortless, open-hearted sound becomes one of Petty's most beloved anthems — a defining moment of late-1980s American rock that cements his status as a storyteller of everyday life.",
@@ -2895,7 +2916,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Beaumont',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Free Ride — Edgar Winter Group',
     description:
       "The Edgar Winter Group releases 'Free Ride', a hard-driving classic rock anthem that becomes one of the defining radio hits of 1973. Written by Dan Hartman, the song's infectious guitar riff and soaring vocals capture the freewheeling spirit of early-seventies rock, cementing Edgar Winter's place alongside the era's great American rock acts.",
@@ -2911,7 +2932,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Fresh Eyes — Andy Grammar',
     description:
       "Andy Grammer releases 'Fresh Eyes', a warm pop-rock anthem about rediscovering love for someone familiar. The song captures a universal emotional moment — seeing a partner as if for the first time — and becomes one of Grammer's most celebrated tracks, finding its way into weddings and romantic playlists worldwide.",
@@ -2927,7 +2948,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Francisco',
       country: 'US',
     },
-    genre: ['Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Friend of the Devil — Grateful Dead',
     description:
       "The Grateful Dead's 'Friend of the Devil' becomes a touchstone of the American folk rock tradition, weaving a rambling outlaw narrative over acoustic guitar that feels rooted in old mountain ballads and Delta blues mythology. Originally appearing on American Beauty, the song captures the Dead at their most intimate — swapping the psychedelic sprawl of their live shows for campfire storytelling. It endures as one of the band's most beloved compositions, a staple of their improvisational live sets for decades.",
@@ -2948,7 +2969,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Tulsa',
       country: 'US',
     },
-    genre: ['Country Pop'],
+    genre: ['Folk', 'Pop'],
     title: 'Friends In Low Places — Garth Brooks',
     description:
       "Garth Brooks releases 'Friends In Low Places' in 1990, and it becomes an instant anthem for working-class America — a defiant, good-humored kiss-off delivered in a honky-tonk drawl. The song rockets to number one on the Billboard Hot Country Singles chart and helps Brooks explode country music's commercial ceiling, blending traditional country grit with arena-ready appeal. It remains one of the best-selling and most-sung country songs of all time.",
@@ -2964,7 +2985,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Cleveland',
       country: 'US',
     },
-    genre: ['Funk Rock'],
+    genre: ['Funk', 'Rock'],
     title: 'Funk #49 — The James Gang',
     description:
       "The James Gang release 'Funk #49', a hard-driving groove built around Joe Walsh's razor-sharp guitar riff and one of rock's most recognizable drum breaks. The track captures the raw, stripped-down energy of early 1970s funk rock, bridging the gap between blues-soaked rock and the rhythmic swagger that would define the decade. Walsh's guitar work here foreshadows his later stardom with the Eagles.",
@@ -2980,7 +3001,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Brisbane',
       country: 'AU',
     },
-    genre: ['Indie Rock'],
+    genre: ['Rock'],
     title: 'Geronimo — Sheppard',
     description:
       "Brisbane siblings George and Amy Sheppard release 'Geronimo', a euphoric indie-pop anthem built on soaring harmonies and an irresistible sing-along chorus. The song becomes a breakthrough moment for Australian indie music, climbing charts across Europe, North America, and Australia and introducing the world to a band with an instinct for melody that transcends borders.",
@@ -2996,7 +3017,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Get Back — The Beatles',
     description:
       "The Beatles record 'Get Back' during the fractious Let It Be sessions, a deliberate return to their rock and roll roots stripped of studio embellishment. The song captures the band at a crossroads — tensions are high, but the raw, live energy is undeniable. It becomes one of their final singles before the group dissolves.",
@@ -3044,7 +3065,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Paris',
       country: 'FR',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'Get Lucky — Daft Punk',
     description:
       "Daft Punk releases 'Get Lucky', a shimmering collaboration with Pharrell Williams and Nile Rodgers that resurrects the warmth of 1970s funk disco for a new generation. The track becomes a global anthem, proving that live instrumentation and analog soul still have a place in an era dominated by digital production. It signals a broader cultural hunger for funk's feel-good groove.",
@@ -3097,7 +3118,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Gimme Shelter — Rolling Stones',
     description:
       "'Gimme Shelter' opens Let It Bleed as one of the Rolling Stones' most haunting and powerful statements — a brooding vision of war, violence, and apocalypse that captures the dark end of the 1960s dream. Merry Clayton's stunning guest vocal, raw and ragged, transforms the track into something terrifying and transcendent. It becomes the defining sound of an era turning dangerous.",
@@ -3113,7 +3134,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Nashville',
       country: 'US',
     },
-    genre: ['Country Ballad'],
+    genre: ['Folk'],
     title: 'Girl Crush — Little Big Town',
     description:
       "'Girl Crush' becomes one of the most controversial and celebrated country songs of 2015, as radio stations receive complaints from listeners who misread its jealousy narrative as a same-sex love song. The backlash triggers a surge of downloads that shoots it to #1, exposing a fault line in country music's evolving audience. Little Big Town's smoldering ballad ultimately wins the Grammy for Best Country Song.",
@@ -3161,7 +3182,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Cleveland',
       country: 'US',
     },
-    genre: ['Bluesy Pop'],
+    genre: ['Blues', 'Pop'],
     title: 'Give Me One Reason — Tracy Chapman',
     description:
       "Tracy Chapman releases 'Give Me One Reason', a slow-burning blues-rooted track that stands apart from the mid-90s pop landscape. Written and performed with raw simplicity, it earns her a Grammy for Best Rock Song — a striking vindication for an artist who had always worn her blues influences openly. The song proves that authenticity can still cut through in an era of overproduction.",
@@ -3177,7 +3198,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Go Your Own Way — Fleetwood Mac',
     description:
       "Lindsey Buckingham writes 'Go Your Own Way' amid the romantic collapse at the heart of Fleetwood Mac — his breakup with Stevie Nicks unfolding in real time as the band records what will become Rumours. The song's driving guitars and raw emotional confrontation capture a band somehow turning private devastation into public triumph, making Rumours one of the best-selling albums in history.",
@@ -3193,7 +3214,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Hawthorne',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'God Only Knows — The Beach Boys',
     description:
       "The Beach Boys release 'God Only Knows' as part of the landmark Pet Sounds album, a song so architecturally ambitious that Paul McCartney calls it the greatest song ever written. Brian Wilson layers orchestral instruments, unusual harmonies, and a tone of aching vulnerability that pushes pop music far beyond the surf and sunshine sound the band is known for. It changes what a pop song is allowed to feel like.",
@@ -3257,7 +3278,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Nashville',
       country: 'US',
     },
-    genre: ['Country Pop'],
+    genre: ['Folk', 'Pop'],
     title: 'Gone Country — Alan Jackson',
     description:
       "Alan Jackson releases 'Gone Country', a sharp-eyed satire of outsiders flocking to Nashville to cash in on the early-90s country boom. While the song winks at the opportunists, Jackson himself stands as a guardian of traditional country values — a voice rooted in Georgia that never chased the crossover trend. The track captures a pivotal cultural tension as country music explodes into mainstream America.",
@@ -3273,7 +3294,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Disco'],
+    genre: ['Funk'],
     title: 'Good Times — Chic',
     description:
       "Chic releases 'Good Times', a sleek disco anthem built on one of the most influential bass lines ever recorded. Nile Rodgers and Bernard Edwards craft a groove so irresistible that it is soon sampled by the Sugarhill Gang in 'Rapper's Delight', becoming a direct bridge between disco and the emerging world of hip hop — a moment where two eras touch.",
@@ -3305,7 +3326,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'Graceland — Paul Simon',
     description:
       "Paul Simon travels to South Africa and records 'Graceland' with Black South African musicians, weaving mbaqanga rhythms and township sounds into American pop songwriting. Released amid controversy over cultural exchange during apartheid, the album becomes a landmark of world music crossover — introducing millions of Western listeners to the joyful, buoyant sound of Soweto.",
@@ -3321,7 +3342,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Albany',
       country: 'US',
     },
-    genre: ['Classic Jazz Pop'],
+    genre: ['Jazz', 'Pop'],
     title: 'Hallelujah I Love Her So — Ray Charles',
     description:
       "Ray Charles records 'Hallelujah I Love Her So' in 1956, fusing the fervor of gospel with the earthiness of rhythm and blues in a way that scandalizes purists and electrifies listeners. The song captures Charles at the center of his own revolution — the moment he proves that sacred feeling and secular love are the same irresistible force. It becomes one of his signature early recordings, cementing the blueprint for soul music.",
@@ -3342,7 +3363,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'HandClap — Fitz and the Tantrums',
     description:
       "Fitz and the Tantrums release 'HandClap', a propulsive pop-rock anthem that marks a bold shift toward mainstream radio appeal for the Los Angeles indie soul band. Built on an irresistible handclap groove, the song becomes their biggest commercial breakthrough — proving that earnest, hook-driven pop can still carry emotional weight.",
@@ -3358,7 +3379,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Virginia Beach',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Happy — Pharrell Williams',
     description:
       "Pharrell Williams releases 'Happy', a buoyant, clap-driven anthem written for the animated film Despicable Me 2. The song becomes a global phenomenon, inspiring thousands of fan-made videos from cities around the world — a rare moment where pure, unironic joy cuts through every cultural barrier and dominates charts across continents.",
@@ -3374,7 +3395,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Happy Xmas (War Is Over) — John Lennon',
     description:
       "John Lennon and Yoko Ono's anti-war anthem 'Happy Xmas (War Is Over)' returns to the charts, its message undimmed by time. Originally recorded in 1971 as a protest against the Vietnam War, the song's choral grandeur and simple, devastating refrain — 'War is over, if you want it' — transform it into a perennial holiday standard that doubles as a political rallying cry.",
@@ -3390,7 +3411,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Hard Rock Cafe — Carole King / Rob Galloway',
     description:
       "Carole King co-writes 'Hard Rock Cafe' with Rob Galloway, a driving rock track that marks a shift in her sound from the intimate singer-songwriter confessions of 'Tapestry' toward a harder-edged style. The song reflects the mid-1970s moment when many soft rock artists experimented with more muscular arrangements, testing the boundaries of their established identities.",
@@ -3427,7 +3448,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Toronto',
       country: 'CA',
     },
-    genre: ['Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Harvest Moon — Neil Young',
     description:
       "Neil Young releases 'Harvest Moon' in 1992, a tender sequel to his landmark 1972 album 'Harvest'. Where that record captured a restless young artist, this one finds Young in a reflective mood — writing a love song to his wife that doubles as a meditation on enduring relationships and the passage of time. It becomes one of his most beloved later-career recordings.",
@@ -3459,7 +3480,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Miami',
       country: 'US',
     },
-    genre: ['Latin Pop'],
+    genre: ['Latin', 'Pop'],
     title: 'Havana — Camila Cabello',
     description:
       "Camila Cabello releases 'Havana' in 2017, announcing herself as a solo force after leaving Fifth Harmony. The song fuses Latin pop with trap rhythms and a nostalgic Cuban soul, becoming a global phenomenon that signals a wider mainstream embrace of Latin sounds — arriving just as the genre is poised to take over pop radio worldwide.",
@@ -3507,7 +3528,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'El Cerrito',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Have You Ever Seen The Rain? — Creedence Clearwater Revival',
     description:
       "Creedence Clearwater Revival record 'Have You Ever Seen The Rain?' during one of the most turbulent periods in American history, as the Vietnam War divides the nation. Written by John Fogerty as a reflection on turmoil within the band itself, the song transcends its origins — becoming an enduring anthem of bittersweet resilience that resonates across generations.",
@@ -3528,7 +3549,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Burnaby',
       country: 'CA',
     },
-    genre: ['Jazzy Pop'],
+    genre: ['Jazz', 'Pop'],
     title: "Haven't Met You Yet — Michael Buble",
     description:
       "Michael Bublé releases 'Haven't Met You Yet' as the lead single from his album Crazy Love, a buoyant jazz-pop declaration of romantic optimism that becomes one of his signature songs. Its big-band swing and Bublé's effortless crooning cement his place as the heir to the great American songbook tradition — but with a mainstream pop appeal that fills arenas worldwide.",
@@ -3560,7 +3581,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Austin',
       country: 'US',
     },
-    genre: ['Classic Country'],
+    genre: ['Folk'],
     title: 'Hello Walls — Willie Nelson',
     description:
       "Willie Nelson writes and records 'Hello Walls,' a quietly devastating portrait of loneliness that becomes a major country hit. The song's conversational intimacy — a man talking to his empty room — signals Nelson's gift for plainspoken emotional depth. It establishes him as a songwriter of rare originality in Nashville, years before his outlaw reinvention.",
@@ -3576,7 +3597,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Here Comes The Sun — The Beatles',
     description:
       "George Harrison writes 'Here Comes The Sun' in the garden of Eric Clapton's house one morning, escaping the tension of Apple Corps business meetings — a rare moment of peace amid the Beatles' unraveling. The song becomes one of Harrison's most beloved compositions, a gentle acoustic anthem that proves he could match Lennon and McCartney as a songwriter. Its warmth and simplicity make it one of the most streamed Beatles songs of the 21st century.",
@@ -3608,7 +3629,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Hey Jude — Paul McCartney',
     description:
       "Paul McCartney writes 'Hey Jude' in 1968 as a message of comfort to John Lennon's son Julian during his parents' divorce. Released as a single, it becomes one of the best-selling singles of all time, its nearly seven-minute runtime — anchored by a hypnotic 'na na na' coda — shattering conventions about how long a pop song could be.",
@@ -3640,7 +3661,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Francisco',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Hey, Soul Sister — Train',
     description:
       "Train releases 'Hey, Soul Sister', a breezy pop-rock anthem built around an ukulele riff that cuts against the grain of polished radio production. The song becomes a massive global hit, reviving the band's commercial fortunes and sparking a wave of ukulele-driven pop that echoes across the early 2010s. Its irresistible lightness makes it one of the best-selling singles of its era.",
@@ -3704,7 +3725,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Hit Me With Your Best Shot — Pat Benatar',
     description:
       "Pat Benatar releases 'Hit Me With Your Best Shot' in 1980, and it becomes one of the defining anthems of the early MTV era. Her powerful, classically trained voice fused with hard rock guitars establishes Benatar as one of rock's first dominant female frontwomen — challenging the male-dominated landscape of classic rock and paving the way for generations of women in the genre.",
@@ -3725,7 +3746,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Albany',
       country: 'US',
     },
-    genre: ['Swing'],
+    genre: ['Jazz'],
     title: 'Hit The Road Jack — Ray Charles',
     description:
       "Ray Charles records 'Hit The Road Jack', a swinging call-and-response dismissal written by Percy Mayfield, and takes it to #1. The track showcases Charles at the height of his powers — his gospel-drenched vocals trading blows with the Raelettes in a battle of the sexes that feels both playful and devastating. It becomes one of the defining hits of his career.",
@@ -3741,7 +3762,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Denver',
       country: 'US',
     },
-    genre: ['Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Ho Hey — The Lumineers',
     description:
       "The Lumineers release 'Ho Hey' out of Denver, Colorado, a stomping folk-rock anthem built on handclaps, acoustic guitar, and a call-and-response chant that feels ancient and immediate at once. The song becomes a word-of-mouth sensation, helping ignite a wider hunger for roots-flavored, communal folk rock — clearing the path for a wave of artists who trade electric polish for wooden warmth.",
@@ -3773,7 +3794,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Home — Edward Sharpe and the Magnetic Zeros',
     description:
       "Edward Sharpe and the Magnetic Zeros release 'Home', a ramshackle, joyful folk-rock anthem built around the chemistry of Alex Ebert and Jade Castrinos. The song captures a communal, back-to-the-land spirit at odds with an era of economic anxiety — its handclaps, whistles, and sing-along simplicity feel like campfire music beamed into the mainstream. It becomes a defining song of the late-2000s folk revival.",
@@ -3794,7 +3815,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Home Again — Carole King',
     description:
       "Carole King performs 'Home Again' at the Platinum Jubilee Concert outside Buckingham Palace, bringing her signature warm piano-driven sound to a global audience of millions. The moment echoes the intimacy of her landmark 1971 album Tapestry — a rare live appearance from one of popular music's most enduring songwriters, whose influence spans generations of artists from James Taylor to Taylor Swift.",
@@ -3810,7 +3831,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Atlanta',
       country: 'US',
     },
-    genre: ['Country Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Homegrown — Zac Brown Band',
     description:
       "Zac Brown Band releases 'Homegrown' in 2015, a sun-drenched country rock anthem celebrating the simple pleasures of rural life. The Atlanta-based band continues their tradition of blending Southern rock grit with mainstream country appeal, cementing their reputation as one of the genre's most consistent crossover acts of the era.",
@@ -3826,7 +3847,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Honky Tonk Women — The Rolling Stones',
     description:
       "The Rolling Stones release 'Honky Tonk Women' in 1969, a swaggering country-tinged rock single that opens with one of the most recognizable cowbell-and-guitar riffs in rock history. Arriving amid the band's transition following Brian Jones's death, it marks the arrival of Mick Taylor and a rawer, more confident Stones — reaching number one on both sides of the Atlantic and cementing their status as the world's greatest rock and roll band.",
@@ -3842,7 +3863,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Santa Barbara',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Hot N Cold — Katy Perry',
     description:
       "Katy Perry releases 'Hot N Cold' as the second single from her breakthrough album 'One of the Boys', cementing her arrival as a pop force to be reckoned with. The song's punchy, gender-battle lyrics and relentlessly hooky chorus make it a global hit, pushing Perry into the top tier of late-2000s pop — a moment when bubbly, guitar-driven pop-rock dominates the charts.",
@@ -3895,7 +3916,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Boston',
       country: 'US',
     },
-    genre: ['Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'How Sweet It Is (To Be Loved By You) — James Taylor',
     description:
       "James Taylor releases his gentle folk-rock cover of Marvin Gaye's 1964 Motown classic, transforming the song's soulful exuberance into something warm and intimate. Where Gaye's original crackled with Detroit energy, Taylor strips it back to acoustic warmth, reflecting the softer singer-songwriter sensibility that dominates mid-70s radio. The cover becomes one of his signature recordings, bridging soul and folk for a generation.",
@@ -3916,7 +3937,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Concord',
       country: 'US',
     },
-    genre: ['Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'I And Love And You — The Avett Brothers',
     description:
       "The Avett Brothers release 'I And Love And You' as the title track of their major-label debut, a sparse piano-driven meditation on love, loss, and leaving that signals a new chapter for the North Carolina folk-rock outfit. Produced by Rick Rubin, the album marks their breakthrough to a wider audience without sacrificing the raw emotional honesty that built their devoted following.",
@@ -3932,7 +3953,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Lowestoft',
       country: 'GB',
     },
-    genre: ['Glam Rock'],
+    genre: ['Rock'],
     title: 'I Believe In A Thing Called Love — The Darkness',
     description:
       "The Darkness release 'I Believe In A Thing Called Love', a shameless, falsetto-drenched love letter to 1970s glam rock and arena rock excess. At a time when post-grunge earnestness dominates rock radio, the Suffolk band's bombastic guitars and Justin Hawkins' soaring screams feel both ridiculous and completely genuine — and the world loves them for it. The song becomes a global hit, briefly making glam rock cool again.",
@@ -3953,7 +3974,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Philadelphia',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'I Can’t Go For That (No Can Do) — Hall And Oates',
     description:
       "Hall & Oates release 'I Can't Go For That (No Can Do)', a sleek fusion of blue-eyed soul, R&B, and early synthesizer-driven pop that becomes one of their signature songs. Its cool, minimal groove crosses over to top the Billboard Hot 100 and the R&B charts simultaneously — a rare feat that cements Daryl Hall and John Oates as the best-selling duo in pop history.",
@@ -3974,7 +3995,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Gary',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'I Can’t Help It — Michael Jackson',
     description:
       "Originally recorded for Michael Jackson's 1979 landmark album 'Off the Wall', 'I Can't Help It' is a silky, Stevie Wonder-penned ballad that showcases Jackson's extraordinary vocal tenderness. The 2018 release surfaces the track for a new generation, a reminder that beneath the spectacle of Jackson's later career lay an artist of rare emotional intimacy — one shaped as much by soul and wonder as by pop ambition.",
@@ -3990,7 +4011,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Motown'],
+    genre: ['R&B'],
     title: 'I Can’t Help Myself (Sugar Pie, Honey Bunch) — The Four Tops',
     description:
       "The Four Tops release 'I Can't Help Myself (Sugar Pie, Honey Bunch)', a propulsive Motown anthem that shoots to #1 and becomes one of the label's signature sounds. Levi Stubbs' raw, urgent lead vocal — desperate and joyful at once — sets the Four Tops apart from their Motown peers. The song cements Detroit's grip on popular music in 1965.",
@@ -4011,7 +4032,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Francisco',
       country: 'US',
     },
-    genre: ['Indie Pop'],
+    genre: ['Pop'],
     title: 'I Choose You — Sara Bareilles',
     description:
       "Sara Bareilles releases 'I Choose You', a tender wedding anthem that strips away indie pop artifice in favor of raw romantic declaration. Written for close friends on the occasion of their marriage, the song resonates far beyond its origins — becoming a staple at real weddings and a quiet reminder that Bareilles excels not just at breakup anthems but at unguarded joy.",
@@ -4027,7 +4048,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Minneapolis',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'I Feel For You — Prince',
     description:
       "Prince writes and records 'I Feel For You', a sleek funk-pop gem that will take on a life far beyond its author. Chaka Khan's 1984 cover — featuring a Stevie Wonder harmonica intro and a Melle Mel rap — becomes a landmark crossover hit, carrying Prince's songwriting genius from Minneapolis to the global pop mainstream.",
@@ -4043,7 +4064,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'I Feel The Earth Move — Carole King',
     description:
       "Carole King releases 'I Feel The Earth Move' as part of her landmark album Tapestry, recorded in Los Angeles in 1971. The song's infectious piano-driven groove and raw emotional energy help establish King as one of the defining voices of the singer-songwriter movement — proving that the woman behind so many hits for other artists could command the spotlight herself.",
@@ -4059,7 +4080,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Albany',
       country: 'US',
     },
-    genre: ['Jazzy Pop'],
+    genre: ['Jazz', 'Pop'],
     title: 'I Got A Woman — Ray Charles',
     description:
       "Ray Charles records 'I Got A Woman', fusing the fervor of gospel music with the grit of rhythm and blues in a move that shocks church communities but electrifies audiences. The song becomes one of the first defining examples of soul music, proving that sacred feeling can ignite secular grooves. It later inspires everyone from Elvis Presley to Kanye West, who samples it decades on.",
@@ -4091,7 +4112,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'I Gotta Feeling — Black Eyed Peas',
     description:
       "The Black Eyed Peas release 'I Gotta Feeling' in 2009, and it becomes an anthem for a generation of celebrants. The track's euphoric, hands-in-the-air energy captures the optimistic spirit of the late 2000s club scene — spending a record-breaking 14 weeks at number one on the Billboard Hot 100 and embedding itself into the soundtrack of graduations, weddings, and New Year's countdowns worldwide.",
@@ -4107,7 +4128,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Washington',
       country: 'US',
     },
-    genre: ['Motown'],
+    genre: ['R&B'],
     title: 'I Heard It Through The Grapevine — Marvin Gaye',
     description:
       "Marvin Gaye releases 'I Heard It Through The Grapevine' in 1968, a song Motown had shelved for over a year despite earlier versions by Gladys Knight and Smokey Robinson. Its brooding, hypnotic groove marks a turning point — darker and more emotionally raw than the polished Motown formula — and it becomes one of the best-selling singles in the label's history.",
@@ -4128,7 +4149,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Nashville',
       country: 'US',
     },
-    genre: ['Country'],
+    genre: ['Folk'],
     title: 'I Hope You Dance — Leann Womack',
     description:
       "Lee Ann Womack releases 'I Hope You Dance', an inspirational country ballad that becomes one of the defining songs of early 2000s country music. Its message of resilience and seizing life's opportunities resonates far beyond country radio, crossing over to mainstream audiences and earning Womack a Grammy for Best Country Song. The song becomes an anthem played at graduations, weddings, and milestone moments across America.",
@@ -4144,7 +4165,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Santa Barbara',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'I Kissed A Girl — Katy Perry',
     description:
       "Katy Perry's debut single 'I Kissed A Girl' explodes onto radio in 2008, becoming a defining pop-culture flashpoint of the era. Its playful provocation and irresistible hook catapult Perry from relative obscurity to global stardom, sparking widespread debate about representation and pop music's power to push boundaries — while dominating summer playlists worldwide.",
@@ -4160,7 +4181,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'I Love Rock ‘N’ Roll — Joan Jett & The Blackhearts',
     description:
       "Joan Jett & The Blackhearts release 'I Love Rock 'N' Roll', a stomping declaration of pure rock devotion that becomes one of the defining anthems of the early 1980s. Originally recorded by The Arrows in 1975, Jett's ferocious reinvention makes it entirely her own — spending seven weeks at #1 and cementing her status as one of rock's most unapologetic voices.",
@@ -4181,7 +4202,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Nashville',
       country: 'US',
     },
-    genre: ['Country'],
+    genre: ['Folk'],
     title: 'I Loved Her First — Heartland',
     description:
       "Heartland releases 'I Loved Her First' in 2006, a country ballad that becomes a wedding staple from the perspective of a father watching his daughter marry. The song captures a deeply personal emotional milestone rarely centered in country music — the quiet grief and pride of a parent letting go — and resonates with listeners far beyond the charts.",
@@ -4213,7 +4234,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'I Should Have Known Better — The Beatles',
     description:
       "The Beatles release 'I Should Have Known Better' as part of their landmark debut film and soundtrack A Hard Day's Night, capturing the band at the peak of Beatlemania in 1964. John Lennon's harmonica drives the track with irresistible urgency, embodying the group's ability to make pure joy feel effortless. It cements the Beatles as not just a pop phenomenon but a cultural force reshaping music on both sides of the Atlantic.",
@@ -4234,7 +4255,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'I Think We’re Alone Now — Tiffany',
     description:
       "Tiffany releases her cover of Tommy James and the Shondells' 1967 hit, turning it into a defining moment of late-80s teen pop. Promoted through a pioneering shopping mall tour, the song rockets to #1, proving that pop stardom can be built from food courts as much as concert halls. It becomes an anthem of adolescent longing for an entire generation.",
@@ -4250,7 +4271,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Newark',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'I Wanna Dance With Somebody (Who Loves Me) — Whitney Houston',
     description:
       "Whitney Houston releases 'I Wanna Dance With Somebody (Who Loves Me)' in 1987, and its euphoric energy becomes an instant anthem of the decade. The song showcases Houston's extraordinary vocal range and marks her commercial peak, cementing her status as the defining pop voice of the era — joyful, powerful, and impossible to ignore.",
@@ -4271,7 +4292,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Gary',
       country: 'US',
     },
-    genre: ['Motown'],
+    genre: ['R&B'],
     title: 'I Want You Back — The Jackson 5',
     description:
       "The Jackson 5 burst onto the national stage with 'I Want You Back', a irresistible Motown debut featuring the electrifying vocals of eleven-year-old Michael Jackson. The song announces a new era for Berry Gordy's label, blending classic soul with a youthful energy that captivates a generation. It becomes one of the defining sounds of late 1960s pop.",
@@ -4287,7 +4308,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'I Will — The Beatles',
     description:
       "The Beatles record 'I Will' during the sprawling White Album sessions in 1968, with Paul McCartney delivering one of his most intimate and tender vocal performances. Stripped of the orchestration and studio experimentation surrounding it, the song stands as a quiet counterpoint to the chaos of that era — a simple, enduring love song that showcases McCartney's gift for melody at its most unadorned.",
@@ -4303,7 +4324,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Bellingham',
       country: 'US',
     },
-    genre: ['Indie Rock'],
+    genre: ['Rock'],
     title: 'I Will Follow You Into The Dark — Death Cab For Cutie',
     description:
       "Death Cab for Cutie releases 'I Will Follow You Into The Dark' as a single from their major-label debut album Plans. The spare, acoustic song — just Ben Gibbard's fingerpicked guitar and voice — becomes one of the defining love songs of the indie rock generation, proving that emotional directness and quiet restraint can cut deeper than any stadium anthem.",
@@ -4324,7 +4345,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Newark',
       country: 'US',
     },
-    genre: ['Disco'],
+    genre: ['Funk'],
     title: 'I Will Survive — Gloria Gaynor',
     description:
       "Gloria Gaynor releases 'I Will Survive', a disco anthem that transforms personal heartbreak into a universal declaration of resilience. Originally released as a B-side, the song is flipped by popular demand and becomes one of the defining records of the disco era — and far beyond it. Its message of empowerment resonates across generations, making it a staple at everything from dancefloors to protest marches.",
@@ -4372,7 +4393,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'If I Ain’t Got You — Alicia Keys',
     description:
       "Alicia Keys releases 'If I Ain't Got You', a piano-driven soul ballad that becomes one of the defining love songs of the 2000s. Anchored by her commanding voice and sparse arrangement, the song strips back the era's polished pop production to something raw and timeless — a bold statement that real love matters more than fame or fortune.",
@@ -4388,7 +4409,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Pop Ballad Slow Rubato'],
+    genre: ['Pop'],
     title: 'If It’s Magic — Stevie Wonder',
     description:
       "Stevie Wonder releases 'If It's Magic' on Songs in the Key of Life, a rare moment of stillness in an album overflowing with ambition. Built around Minnie Riperton's guest harp, the song strips back Wonder's vast sonic palette to something fragile and intimate — a quiet meditation on love's mystery. It stands as one of the most tender pieces in his catalog.",
@@ -4446,7 +4467,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Gary',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'I’ll Be There — Michael Jackson',
     description:
       "Michael Jackson performs 'I'll Be There', the landmark ballad that first showcased his extraordinary emotional range as a child prodigy with The Jackson 5. Departing from the group's uptempo Motown hits, the song proves that Jackson can command a slow, tender melody with the maturity of a seasoned adult performer — a quiet signal of the solo superstardom to come.",
@@ -4462,7 +4483,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Philadelphia',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'I’ll Make Love To You — Boyz 2 Men',
     description:
       "Boyz II Men release 'I'll Make Love To You', a silky R&B ballad that becomes one of the best-selling singles of all time. The track holds the number one spot on the Billboard Hot 100 for 14 consecutive weeks, cementing the Philadelphia quartet's dominance of 1990s slow-jam culture and setting a commercial benchmark few acts would ever match.",
@@ -4478,7 +4499,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Chicago',
       country: 'US',
     },
-    genre: ['Motown'],
+    genre: ['R&B'],
     title: 'I’ll Take You There — The Staple Singers',
     description:
       "The Staple Singers release 'I'll Take You There', a gospel-rooted anthem built on a hypnotic bass groove and Mavis Staples' commanding vocal lead. The song reaches #1 and becomes one of the defining moments of early 1970s soul — a rare recording that carries the moral weight of the Civil Rights movement into the mainstream with pure joy rather than protest.",
@@ -4494,7 +4515,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'I’m A Believer — The Monkees',
     description:
       "The Monkees release 'I'm A Believer', written by Neil Diamond, and it becomes one of the best-selling singles of 1966. The song captures the buoyant optimism of mid-sixties pop at its peak, propelling the TV-born band beyond their manufactured origins and proving they could deliver genuine hits. It remains one of the best-selling singles of the decade.",
@@ -4510,7 +4531,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'I’m Comin’ Out — Diana Ross',
     description:
       "Diana Ross releases 'I'm Comin' Out', a funky anthem that becomes an accidental double anthem — written as a nod to drag queens performing as Ross in New York clubs, it crosses over into the mainstream as a jubilant declaration of self-expression. Nile Rodgers and Bernard Edwards of Chic craft its irresistible groove, cementing the song as one of the defining pop moments of the disco era's twilight.",
@@ -4526,7 +4547,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Edinburgh',
       country: 'GB',
     },
-    genre: ['Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'I’m Gonna Be (500 Miles) — The Proclaimers',
     description:
       "The Proclaimers — Scottish twins Craig and Charlie Reid — release 'I'm Gonna Be (500 Miles)', a relentlessly upbeat folk-rock anthem built on pure, unironic devotion. Its stomping rhythm and thick Edinburgh accents make it an unlikely global earworm, breaking through at a time when British pop is dominated by glossy production. Decades on, it remains one of the most instantly recognizable declarations of loyalty in popular music.",
@@ -4547,7 +4568,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'I’m Into Something Good — Herman’s Hermits',
     description:
       "Herman's Hermits release 'I'm Into Something Good' in 1964, riding the crest of the British Invasion that The Beatles had kicked open just months earlier. The bright, breezy pop track becomes a transatlantic hit, cementing the Manchester group as one of the era's most commercially potent exports and proving that Beatlemania has opened American ears to an entire generation of British acts.",
@@ -4568,7 +4589,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Leavenworth',
       country: 'US',
     },
-    genre: ['Blues Rock'],
+    genre: ['Rock'],
     title: 'I’m The Only One — Melissa Etheridge',
     description:
       "Melissa Etheridge releases 'I'm The Only One', a raw, guitar-driven blues-rock anthem that becomes one of her signature songs. Its unguarded emotional intensity and Etheridge's powerful vocal delivery bring her to mainstream stardom, cementing her place as one of rock's most compelling voices of the 1990s.",
@@ -4589,7 +4610,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Diego',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'I’m Yours — Jason Mraz',
     description:
       "Jason Mraz releases 'I'm Yours' in 2008, a breezy, ukulele-driven pop song that captures a carefree, sun-soaked optimism. The track becomes a slow-burning phenomenon, spending a record-breaking 76 weeks on the Billboard Hot 100 and introducing a generation to the mellow, acoustic warmth of his singer-songwriter style.",
@@ -4605,7 +4626,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'In Love With A Girl — Gavin DeGraw',
     description:
       "Gavin DeGraw releases 'In Love With A Girl', a soulful pop-rock declaration that showcases his raspy, gospel-tinged voice against a driving rhythm. The track becomes one of his signature songs, reinforcing his reputation as a heartfelt singer-songwriter in an era increasingly dominated by polished pop production.",
@@ -4621,7 +4642,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'In My Life — The Beatles',
     description:
       "'In My Life' stands as one of The Beatles' most beloved compositions, a tender meditation on memory and mortality that marks a turning point in John Lennon's songwriting. Where earlier Beatles songs chased love and excitement, this track turns inward — personal, literary, and deeply human. It influences generations of songwriters to treat pop music as a space for genuine reflection.",
@@ -4637,7 +4658,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'In Spite Of All The Danger — The Beatles',
     description:
       "'In Spite Of All The Danger' is the earliest known Beatles recording, cut in 1958 at a Liverpool studio when the group were still teenagers calling themselves The Quarrymen. Though recorded decades before its 1994 release on 'Anthology 1', the song offers a rare glimpse into the raw, skiffle-influenced roots of the band that would change popular music forever.",
@@ -4658,7 +4679,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'In The Midnight Hour — Wilson Pickett',
     description:
       "Wilson Pickett records 'In The Midnight Hour' in 1965, delivering one of the defining vocal performances of the soul era. Co-written with Steve Cropper and recorded at Stax Studios in Memphis, the song crystallizes the raw, churchy intensity of Southern soul and becomes an instant standard — covered endlessly and echoing through decades of R&B and rock.",
@@ -4674,7 +4695,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Diego',
       country: 'US',
     },
-    genre: ['Alternative Rock'],
+    genre: ['Rock'],
     title: 'Interstate Love Song — Stone Temple Pilots',
     description:
       "Stone Temple Pilots release 'Interstate Love Song' in 1994, a deceptively melodic anthem that masks frontman Scott Weiland's struggles with addiction beneath a breezy, acoustic-driven groove. The song becomes one of the defining hits of the alternative rock era, proving that grunge-adjacent bands could craft radio-ready hooks without sacrificing raw edge.",
@@ -4695,7 +4716,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Belfast',
       country: 'GB',
     },
-    genre: ['Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Into The Mystic — Van Morrison',
     description:
       "Van Morrison's 'Into The Mystic' endures as one of his most beloved compositions — a soulful, fog-drenched meditation on transcendence and homecoming that blurs the line between the sacred and the earthly. Originally released on his landmark 1970 album 'Moondance', the song's imagery of souls and the sea cements Morrison's reputation as rock's great mystic poet, influencing generations of singer-songwriters drawn to spiritual yearning.",
@@ -4727,7 +4748,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: "Isn't She Lovely — Stevie Wonder",
     description:
       "Stevie Wonder releases 'Isn't She Lovely' on the landmark double album 'Songs in the Key of Life', a joyful celebration written for his newborn daughter Aisha. The song's infectious harmonica melody and euphoric groove capture Wonder at the peak of his creative powers — a period widely regarded as one of the most extraordinary runs in pop music history.",
@@ -4775,7 +4796,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Kingston',
       country: 'JM',
     },
-    genre: ['Reggae Fusion'],
+    genre: ['Reggae'],
     title: 'It Wasn’t Me — Shaggy',
     description:
       "Shaggy releases 'It Wasn't Me', a reggae-fusion track built on deadpan denial and infectious Caribbean rhythm. The song becomes one of the defining pop hits of the early 2000s, blending dancehall attitude with mainstream radio accessibility and cementing Shaggy as one of reggae fusion's biggest crossover stars.",
@@ -4791,7 +4812,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Pontypridd',
       country: 'GB',
     },
-    genre: ['Lounge Rock'],
+    genre: ['Rock'],
     title: "It's Not Unusual — Tom Jones",
     description:
       "Tom Jones unleashes 'It's Not Unusual' on British audiences in 1965, his debut single announcing a powerhouse voice that refuses to be contained by any single genre. The brassy, swinging track blurs the line between pop, soul, and lounge — catapulting the Welsh coal miner's son to international stardom and establishing him as one of the most distinctive male vocalists of his generation.",
@@ -4807,7 +4828,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'It’s Too Late — Carole King',
     description:
       "Carole King releases 'It's Too Late' as part of her landmark album Tapestry, a candid meditation on the quiet unraveling of a relationship. The song becomes a defining moment of the singer-songwriter movement, proving that intimate, piano-driven confessionals can dominate pop culture — it spends five weeks at #1. King's honest, conversational voice reshapes what a woman's voice in popular music can say.",
@@ -4839,7 +4860,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Seymour',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Jack & Diane — John Cougar Mellencamp',
     description:
       "John Cougar Mellencamp releases 'Jack & Diane', a sun-drenched snapshot of American teenage life in the heartland. The song's irresistible chorus and plainspoken storytelling strike a nerve across the country, becoming an anthem for ordinary youth growing up far from the coasts. It cements Mellencamp as the voice of working-class Middle America.",
@@ -4855,7 +4876,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Sydney',
       country: 'AU',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Jessie’s Girl — Rick Springfield',
     description:
       "Rick Springfield releases 'Jessie's Girl', a hook-driven rock anthem fueled by jealousy and longing that becomes one of the defining pop-rock singles of the early 1980s. The song reaches #1 on the Billboard Hot 100 and earns Springfield a Grammy for Best Male Rock Vocal Performance — proof that arena rock and radio-ready songwriting can coexist perfectly.",
@@ -4871,7 +4892,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Funky Jazz'],
+    genre: ['Funk', 'Jazz'],
     title: 'Jesus Children — Soulive',
     description:
       "Soulive, the Hammond organ-driven trio from New York, records 'Jesus Children' as part of their early catalog, channeling the spirit of classic soul-jazz into a new generation. Their approach — rooted in the organ trio tradition of Jimmy Smith and Larry Young but filtered through hip hop rhythms and funk grooves — helps ignite a late-1990s neo-soul jazz revival on the East Coast jam band scene.",
@@ -4903,7 +4924,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'St. Louis',
       country: 'US',
     },
-    genre: ['Blues Rock'],
+    genre: ['Rock'],
     title: 'Johnny B. Goode — Chuck Berry',
     description:
       "Chuck Berry records 'Johnny B. Goode' in 1958, distilling rock and roll down to its purest essence — a country boy with a guitar, dreaming of fame. The song's opening riff becomes one of the most recognizable in music history, directly shaping the hands of every guitarist who follows, from Keith Richards to Jimi Hendrix. It is rock and roll's own origin myth, written in real time.",
@@ -4919,7 +4940,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Sevierville',
       country: 'US',
     },
-    genre: ['Country'],
+    genre: ['Folk'],
     title: 'Jolene — Dolly Parton',
     description:
       "Dolly Parton releases 'Jolene', a pleading country ballad built around one of the most memorable opening riffs in the genre's history. The song — in which Parton begs a flame-haired beauty not to steal her man — becomes a crossover phenomenon, transcending country audiences and entering the broader pop consciousness. Decades later, it remains one of the most covered songs ever written.",
@@ -4935,7 +4956,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Joy Inside My Tears — Stevie Wonder',
     description:
       "Stevie Wonder releases 'Joy Inside My Tears' as the closing track of Songs in the Key of Life, his sweeping double album that arrives in 1976 as a landmark of Black American music. The song distills the album's emotional core — grief and gratitude held in the same breath — and helps cement Wonder's place as one of the most complete artist-composers of his generation.",
@@ -4951,7 +4972,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'Juice — Lizzo',
     description:
       "Lizzo releases 'Juice', a strutting, self-love anthem that channels the spirit of 1970s funk and 1980s pop into something boldly modern. The Minneapolis-raised artist's unapologetic confidence and genre-blending charisma announce her as a singular voice — one that will soon carry her to mainstream stardom and ignite a cultural conversation around body positivity and self-worth.",
@@ -4967,7 +4988,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Pasadena',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Jump — Van Halen',
     description:
       "Van Halen releases 'Jump' in 1983, a bold departure built on Eddie Van Halen's layered synthesizer riff rather than his signature guitar pyrotechnics. The gamble pays off spectacularly — the song becomes the band's only number one hit, proving that one of hard rock's greatest acts can conquer pop radio without sacrificing their identity.",
@@ -4999,7 +5020,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Blues Jazz'],
+    genre: ['Blues', 'Jazz'],
     title: 'Jump, Jive An’ Wail — Brian Setzer',
     description:
       "Brian Setzer releases 'Jump, Jive An' Wail', a supercharged cover of Louis Prima's 1956 jump blues classic, propelling swing music back into mainstream American culture. At the height of the late-'90s swing revival, Setzer and his Orchestra become its most visible ambassadors — proving that big band brass and rockabilly attitude could ignite a new generation of dancers.",
@@ -5031,7 +5052,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Anaheim',
       country: 'US',
     },
-    genre: ['Alternative Rock'],
+    genre: ['Rock'],
     title: 'Just A Girl — No Doubt',
     description:
       "No Doubt releases 'Just A Girl', a sharp, punk-tinged anthem capturing Gwen Stefani's frustration with the limitations placed on young women. Bursting out of the Anaheim ska-punk scene, the song catapults the band to mainstream success and becomes a defining feminist rallying cry of 1990s alternative rock.",
@@ -5047,7 +5068,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Glam Pop'],
+    genre: ['Pop'],
     title: 'Just Dance — Lady Gaga',
     description:
       "Lady Gaga releases 'Just Dance', her debut single, unleashing a glittery, club-ready anthem that announces a bold new presence in pop music. The song becomes a slow-burning global hit, climbing charts across the world and signaling the arrival of an artist who will reshape pop spectacle, fashion, and performance for the next decade.",
@@ -5079,7 +5100,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Duluth',
       country: 'US',
     },
-    genre: ['Folk Ballad'],
+    genre: ['Folk'],
     title: 'Just Like A Woman — Bob Dylan',
     description:
       "Bob Dylan releases 'Just Like a Woman' in 1966, a song that captures his transition from protest folk to a more personal, poetic style. With its tender melody and cryptic imagery, it becomes one of his most debated and celebrated compositions — a portrait of vulnerability wrapped in ambiguity that defines the emotional depth of his mid-60s golden period.",
@@ -5095,7 +5116,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Motown'],
+    genre: ['R&B'],
     title: 'Just My Imagination (Running Away With Me) — The Temptations',
     description:
       "The Temptations release 'Just My Imagination (Running Away With Me)', a tender, aching ballad that marks the group's return to classic Motown romanticism after their psychedelic soul era. Written by Norman Whitfield and Barrett Strong, it becomes the group's last #1 hit with lead vocalist Eddie Kendricks — a bittersweet farewell to an era of Motown elegance.",
@@ -5116,7 +5137,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Oakland',
       country: 'US',
     },
-    genre: ['Funky Soul'],
+    genre: ['Funk', 'R&B'],
     title: 'Just One Kiss — Raphael Saadiq',
     description:
       "Raphael Saadiq releases 'Just One Kiss' as part of his celebrated return to classic soul, channeling the spirit of Motown and 1960s R&B with meticulous period authenticity. The track showcases his gift for making vintage sound feel urgent and alive, reinforcing his reputation as one of soul music's most devoted and skilled revivalists of the 2000s.",
@@ -5132,7 +5153,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Slab Fork',
       country: 'US',
     },
-    genre: ['Funky Soul'],
+    genre: ['Funk', 'R&B'],
     title: 'Just The Two Of Us — Bill Withers',
     description:
       "Bill Withers and Grover Washington Jr. release 'Just the Two of Us' in 1981, a warm, intimate blend of soul and smooth jazz that becomes an instant classic. The song's gentle groove and Withers' unassuming tenderness give it an enduring appeal — it is later sampled by Will Smith in 1998, introducing it to an entirely new generation.",
@@ -5164,7 +5185,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Kashmir — Led Zeppelin',
     description:
       "Led Zeppelin records 'Kashmir', a sweeping, orchestral rock epic built on Jimmy Page's relentless riff and Robert Plant's mythic lyrics conjuring vast deserts and ancient journeys. Anchored by John Bonham's thunderous, hypnotic drumming, the song becomes one of the most ambitious statements in rock history — a collision of Eastern tonality and Western power that the band themselves consider their greatest work.",
@@ -5180,7 +5201,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Indianapolis',
       country: 'US',
     },
-    genre: ['Funky Jazz'],
+    genre: ['Funk', 'Jazz'],
     title: 'Keep Your Soul Together — Freddie Hubbard',
     description:
       "Freddie Hubbard records 'Keep Your Soul Together' in 1973, capturing the moment jazz fully embraces funk and soul without apology. The track rides a loose, rolling groove that reflects the era's hunger for music that moves the body as much as the mind — a sound rooted in the hard bop tradition but reaching toward something earthier and more communal.",
@@ -5193,7 +5214,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: '8mgtk460AhI',
   },
   {
-    id: 'song-killing_me_softly',
+    id: 'song-killing_me_softly_flack',
     year: 1996,
     location: {
       lat: 40.75,
@@ -5201,7 +5222,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'South Orange',
       country: 'US',
     },
-    genre: ['Hip Hop'],
+    genre: ['Funk', 'R&B'],
     title: 'Killing Me Softly — The Fugees',
     description:
       "The Fugees release their reimagining of Roberta Flack's 1973 classic 'Killing Me Softly', transforming it into a hip-hop soul landmark. Lauryn Hill's stunning vocals carry the track to global audiences, while Wyclef Jean's production bridges R&B nostalgia with 1990s hip-hop — introducing the Fugees to millions beyond the underground and cementing their album 'The Score' as one of the decade's defining records.",
@@ -5217,7 +5238,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Minneapolis',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Kiss — Prince',
     description:
       "Prince releases 'Kiss' in 1986, a radical strip-down to almost nothing — a skeletal guitar riff, a drum machine, and a falsetto that defies every convention of what a pop hit should sound like. It reaches #1 on the Billboard Hot 100, proving that Prince can seduce a generation with restraint as easily as with excess. Few songs in the decade feel as confidently, defiantly minimal.",
@@ -5233,7 +5254,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Kiss From A Rose — Seal',
     description:
       "Seal releases 'Kiss From A Rose', a baroque-tinged pop ballad unlike almost anything else on the radio in 1994. Its unusual structure, soaring vocal performance, and haunting orchestration set it apart — but it is the song's placement on the Batman Forever soundtrack in 1995 that transforms it into a global phenomenon, sweeping the Grammy Awards and cementing Seal as one of the defining voices of the decade.",
@@ -5249,7 +5270,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Austin',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Kiss Me — Sixpence None The Richer',
     description:
       "Sixpence None The Richer releases 'Kiss Me', a delicate, whimsical pop rock song that breaks the band out of the Christian music world and into mainstream radio in 1998. Its airy charm lands it in films and TV shows — most memorably 'She's All That' and 'Dawson's Creek' — cementing it as a defining soundtrack to late-90s teenage romance.",
@@ -5265,7 +5286,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Philadelphia',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Kiss On My List — Hall and Oates',
     description:
       "Hall and Oates release 'Kiss On My List', a sleek pop-rock single that rides the duo's signature blue-eyed soul sound to the top of the charts. The song becomes one of their defining early-80s hits, cementing Daryl Hall and John Oates as the best-selling duo in music history and helping establish the polished, radio-ready sound of the new decade.",
@@ -5281,7 +5302,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Knocks Me Off My Feet — Stevie Wonder',
     description:
       "Stevie Wonder releases 'Knocks Me Off My Feet' as part of his landmark double album 'Songs in the Key of Life' — a sweeping artistic statement that cements his place as one of the greatest songwriters of his era. The tender ballad showcases Wonder's gift for translating raw emotion into melody, capturing an intimacy that cuts through the album's ambitious scope. It stands as a quiet gem in a record widely regarded as one of the greatest albums ever made.",
@@ -5297,7 +5318,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Paris',
       country: 'FR',
     },
-    genre: ['Traditional Ballad'],
+    genre: ['Pop'],
     title: 'La Vie En Rose — Edith Piaf',
     description:
       "Edith Piaf releases 'La Vie En Rose', a tender waltz-inflected ballad that becomes her signature song and one of the most recognizable French melodies ever recorded. Written by Piaf herself, it distills the romantic spirit of postwar Paris into three minutes of longing and resilience. The song transforms her into an international icon, carrying the sound of France to the world.",
@@ -5305,7 +5326,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: 'qPU8mENUBXk',
   },
   {
-    id: 'song-lady_marmalade',
+    id: 'song-lady_marmalade_aguilera',
     year: 2001,
     location: {
       lat: 40.31,
@@ -5313,7 +5334,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Doylestown',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'Lady Marmalade — Christina, Aguilera, Lil’ Kim, Mya, Pink',
     description:
       "Christina Aguilera, Lil' Kim, Mya, and Pink unite for 'Lady Marmalade', a reimagining of LaBelle's 1975 funk classic recorded for the Moulin Rouge! soundtrack. The unlikely collision of pop, hip hop, and R&B powerhouses becomes a cultural flashpoint — proving that genre boundaries are negotiable when the right voices are in the room.",
@@ -5334,7 +5355,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Landslide — Fleetwood Mac',
     description:
       "Stevie Nicks writes 'Landslide' as a deeply personal meditation on change, fear, and self-reflection — capturing a pivotal moment of uncertainty in her life and career. Its fingerpicked acoustic guitar and confessional lyrics resonate far beyond Fleetwood Mac's catalog, becoming one of rock's most enduring songs about growing older and letting go. Decades after its original release, the song continues to find new generations of listeners.",
@@ -5350,7 +5371,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Late In The Evening — Paul Simon',
     description:
       "Paul Simon releases 'Late In The Evening' in 1980, a jubilant burst of Latin-tinged rhythms and autobiographical storytelling drawn from his New York upbringing. The track becomes one of his biggest solo hits, showcasing his ability to weave worldly grooves into pop songwriting years before 'Graceland' made that ambition famous. It captures Simon at the peak of his restless musical curiosity.",
@@ -5366,7 +5387,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Rock', 'Blues'],
+    genre: ['Blues', 'Rock'],
     title: 'Lay Down Sally — Eric Clapton',
     description:
       "Eric Clapton releases 'Lay Down Sally' in 1977, a sun-warmed shuffle that marks a turning point in his career — trading the tortured blues of his earlier years for a relaxed, country-tinged ease. Written with Marcy Levy and George Terry, the song reflects Clapton's deep immersion in the laid-back sounds of American roots music and becomes one of his biggest commercial hits.",
@@ -5382,7 +5403,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Disco', 'Funk'],
+    genre: ['Funk'],
     title: 'Le Freak — Chic',
     description:
       "Chic releases 'Le Freak' in 1978, and it becomes one of the best-selling singles in the history of Atlantic Records. Nile Rodgers and Bernard Edwards craft a groove so tight and infectious it defines the peak of disco's commercial dominance — a moment when the dancefloor is the center of the cultural universe.",
@@ -5398,7 +5419,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Slab Fork',
       country: 'US',
     },
-    genre: ['Soul', 'R And B'],
+    genre: ['R&B'],
     title: 'Lean On Me — Bill Withers',
     description:
       "Bill Withers re-releases 'Lean On Me' as the world rediscovers its message of communal strength and solidarity. Originally recorded in 1972, the song's simple gospel-rooted piano figure and unadorned vocals had already made it a soul classic — but its placement in the 1988 film 'Lean on Me' brings it back to the charts and a new generation. Few songs so effortlessly capture the idea that human beings need each other.",
@@ -5430,7 +5451,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Jersey City',
       country: 'US',
     },
-    genre: ['Funk', 'Disco'],
+    genre: ['Funk'],
     title: 'Let The Music Take Your Mind — Kool And The Gang',
     description:
       "Kool And The Gang release 'Let The Music Take Your Mind', an early statement of the raw, horn-driven funk sound that will define the group's identity. Rooted in the streets of Jersey City, the band builds a groove-first philosophy — before the glossy pop crossovers of the 1980s, this is Kool And The Gang at their most instinctive and alive.",
@@ -5452,7 +5473,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Art Rock', 'Glam Rock'],
+    genre: ['Rock'],
     title: 'Let’s Dance — David Bowie',
     description:
       "David Bowie releases 'Let's Dance', a sleek pivot from his art rock and glam rock roots toward a polished, funk-inflected sound that dominates radio and earns him his biggest commercial audience yet. The track signals a new era — Bowie the shape-shifter once again reinventing himself, trading the fractured avant-garde for the dancefloor.",
@@ -5468,7 +5489,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Washington',
       country: 'US',
     },
-    genre: ['Soul', 'R And B'],
+    genre: ['R&B'],
     title: 'Let’s Get It On — Marvin Gaye',
     description:
       "Marvin Gaye's 'Let's Get It On' becomes one of the most celebrated expressions of sensuality in soul music history. Released at the height of his creative freedom, the song pushes the boundaries of what R&B can say openly about desire and intimacy — transforming the love song into something unapologetically carnal and deeply human.",
@@ -5500,7 +5521,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Chicago',
       country: 'US',
     },
-    genre: ['Funk', 'Soul'],
+    genre: ['Funk', 'R&B'],
     title: 'Let’s Groove — Earth, Wind, And Fire',
     description:
       "Earth, Wind & Fire release 'Let's Groove', a sleek fusion of funk, soul, and synthesizer-driven disco that captures the sound of a genre in transition. As the early 1980s pull pop music toward electronic production, Maurice White and the band ride the wave without losing their rhythmic soul. The song becomes one of their signature hits, cementing their legacy as architects of sophisticated Black pop.",
@@ -5538,7 +5559,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Memphis',
       country: 'US',
     },
-    genre: ['Soul', 'R And B'],
+    genre: ['R&B'],
     title: 'Let’s Stay Together — Al Green',
     description:
       "Al Green records 'Let's Stay Together' in Memphis, delivering one of the most tender and emotionally devastating vocal performances in soul history. The song reaches #1 on the Billboard Hot 100, making Green the defining voice of early 1970s Southern soul — a sensual, spiritual counterpoint to the harder funk sounds emerging from other corners of Black music.",
@@ -5554,7 +5575,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['New Wave', 'Art Rock'],
+    genre: ['Rock'],
     title: 'Life During Wartime — The Talking Heads',
     description:
       "Talking Heads release 'Life During Wartime' from their landmark album 'Fear of Music', capturing a paranoid urban America through David Byrne's anxious, breathless delivery. The song blends new wave's angular energy with a driving funk pulse, conjuring a world of safe houses and guerrilla tactics from a New York art-rock band at the peak of their powers. It becomes one of the defining tracks of the CBGB generation's restless, cerebral edge.",
@@ -5608,7 +5629,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Classic Pop'],
+    genre: ['Pop'],
     title: 'Like A Prayer — Madonna',
     description:
       "Madonna releases 'Like A Prayer' in 1989, a bold fusion of pop and gospel that becomes one of the defining songs of her career. Its accompanying video — featuring burning crosses, a Black saint, and stigmata — ignites a global controversy and a Pepsi sponsorship pulled almost immediately. The song cements Madonna not just as a pop star, but as a cultural provocateur.",
@@ -5624,7 +5645,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Jose',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Listen To The Music — The Doobie Brothers',
     description:
       "The Doobie Brothers release 'Listen To The Music' in 1972, a sun-drenched anthem that distills the easy California rock sound into one irresistible groove. Born from the San Jose bar scene, the song becomes their breakthrough hit and a defining statement of the early 1970s West Coast rock spirit — feel-good, guitar-driven, and built to last.",
@@ -5661,7 +5682,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Indie Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Little Lion Man — Mumford & Sons',
     description:
       "Mumford & Sons release 'Little Lion Man' as their debut single, introducing a sound that fuses banjo-driven folk with arena-rock intensity and confessional lyricism. The track becomes a rallying cry for a new wave of British indie folk, helping ignite a global resurgence of acoustic, roots-influenced music in the early 2010s.",
@@ -5677,7 +5698,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Reykjavik',
       country: 'IS',
     },
-    genre: ['Indie Rock'],
+    genre: ['Rock'],
     title: 'Little Talks — Of Monsters and Men',
     description:
       "Of Monsters and Men release 'Little Talks' in Iceland, a sweeping indie folk-rock anthem built on the interplay of two voices and a swelling brass-and-percussion arrangement. The song captures the emotional weight of loss and memory with an anthemic urgency that feels both intimate and arena-sized. It becomes the breakthrough that carries the Reykjavik band from local phenomenon to international stages.",
@@ -5693,7 +5714,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Juan',
       country: 'PR',
     },
-    genre: ['Latin Pop'],
+    genre: ['Latin', 'Pop'],
     title: 'Livin’ La Vida Loca — Ricky Martin',
     description:
       "Ricky Martin releases 'Livin' La Vida Loca' in 1999, igniting a Latin pop explosion that sends shockwaves through mainstream American music. The song's feverish energy and bilingual swagger make it an unstoppable crossover hit, arriving at a moment when Latin artists are pushing to the center of pop culture — opening doors for Jennifer Lopez, Marc Anthony, and Enrique Iglesias.",
@@ -5709,7 +5730,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Sayreville',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Livin’ On A Prayer — Jon Bon Jovi',
     description:
       "Bon Jovi releases 'Livin' On A Prayer', a working-class anthem built around the story of Tommy and Gina struggling to make ends meet. The song becomes one of the defining rock hits of the 1980s, cementing Bon Jovi's place at the top of the arena rock world and capturing the blue-collar spirit of a generation.",
@@ -5741,7 +5762,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Honolulu',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Locked Out Of Heaven — Bruno Mars',
     description:
       "Bruno Mars releases 'Locked Out Of Heaven' in 2012, channeling the energy of 1980s new wave and the raw electricity of The Police into a sleek pop-rock anthem. The track becomes one of the defining hits of the year, showcasing Mars's genre-hopping ambition and cementing his status as one of pop's most versatile performers.",
@@ -5757,7 +5778,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Akron',
       country: 'US',
     },
-    genre: ['Alternative Rock'],
+    genre: ['Rock'],
     title: 'Lonely Boy — The Black Keys',
     description:
       "The Black Keys release 'Lonely Boy' as the lead single from their album 'El Camino', a raw and driving anthem that distills their Akron, Ohio blues-rock DNA into an irresistible mainstream moment. The song's relentless groove and its viral music video — featuring a lone man dancing outside a motel — make it one of the defining rock tracks of 2011, earning the duo their first Grammy for Best Rock Performance.",
@@ -5773,7 +5794,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Jose',
       country: 'US',
     },
-    genre: ['Country Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Long Train Running — Doobie Brothers',
     description:
       "The Doobie Brothers re-release 'Long Train Runnin'' as the classic rock era gives way to a new wave of nostalgia for 1970s sounds. Originally a funk-driven rock staple from their 1973 album 'The Captain and Me', the song's relentless groove and hypnotic guitar riff have kept it a radio fixture for over a decade — a reminder that the Doobies' San Francisco Bay Area swagger never really left.",
@@ -5789,7 +5810,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Look What I Found — Lady Gaga',
     description:
       "Lady Gaga contributes 'Look What I Found' to the soundtrack of 'A Star Is Born', the 2018 film in which she also stars alongside Bradley Cooper. The pop-rock track showcases Gaga's range beyond her electronic dance roots, reinforcing the film's narrative of an artist discovering her voice. The soundtrack becomes one of the most celebrated musical achievements of her career.",
@@ -5805,7 +5826,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Memphis',
       country: 'US',
     },
-    genre: ['Soul'],
+    genre: ['R&B'],
     title: 'Love And Happiness — Al Green',
     description:
       "Al Green's 'Love And Happiness' stands as one of the defining monuments of Southern soul, recorded at the height of his creative partnership with producer Willie Mitchell in Memphis. The track captures the raw, spiritual tension at the heart of Green's genius — the push and pull between earthly desire and divine devotion. Decades after its release, it remains a cornerstone of soul music, endlessly sampled and covered.",
@@ -5837,7 +5858,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Gary',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Love Never Felt So Good — Michael Jackson and Justin Timberlake',
     description:
       "A posthumous Michael Jackson recording featuring Justin Timberlake, 'Love Never Felt So Good' surfaces decades after its original demo was laid down, reminding the world of Jackson's effortless pop instinct. The collaboration bridges generations, pairing Jackson's timeless groove with Timberlake's modern vocal presence — a bittersweet reminder of what the King of Pop left behind.",
@@ -5858,7 +5879,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Bridgetown',
       country: 'BB',
     },
-    genre: ['Hip Hop Soul'],
+    genre: ['Hip Hop', 'R&B'],
     title: 'Love On The Brain — Rhianna',
     description:
       "Rihanna releases 'Love On The Brain', a raw, gospel-drenched soul ballad that stuns listeners expecting club anthems. Channeling the fervor of 1960s soul singers, she delivers one of the most vocally demanding performances of her career — a sharp departure that reveals the full range of her artistry and silences doubters who questioned her vocal depth.",
@@ -5890,7 +5911,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Dallas',
       country: 'US',
     },
-    genre: ['Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Love The One You’re With — Stephen Stills',
     description:
       "Stephen Stills releases 'Love The One You're With' as his debut solo single in 1970, capturing the free-spirited idealism — and its complications — of the post-Woodstock era. The song's gospel-tinged chorus and rolling acoustic groove make it an instant classic, bridging the communal spirit of Crosby, Stills, Nash & Young with a looser, more personal folk-rock sensibility.",
@@ -5922,7 +5943,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Nashville',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Lover — Taylor Swift',
     description:
       "Taylor Swift releases 'Lover' as the lead single and title track of her seventh studio album, a breezy, romantic pop-rock declaration that signals a deliberate tonal shift away from the dark, reputation era. Soft and unguarded, the song marks Swift's return to vulnerability and joy, becoming an anthem of uncomplicated love in a cultural moment hungry for sincerity.",
@@ -5938,7 +5959,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Love’s In Need Of Love Today — Stevie Wonder',
     description:
       "Stevie Wonder opens his landmark double album 'Songs in the Key of Life' with this gentle but urgent plea for compassion. Released at the height of his creative peak, the song sets the moral tone for an album that redefines what popular music can say about the human condition — and cements Wonder as one of the most important voices of the 1970s.",
@@ -5975,7 +5996,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Loving Cup — The Rolling Stones',
     description:
       "The Rolling Stones release 'Loving Cup' as part of their landmark Exile on Main St. double album, a sprawling celebration of American roots music recorded in the basement of a rented French villa. The song captures the band at their most loose and soulful — gospel-drenched piano, ramshackle rhythm, and Mick Jagger's beseeching vocal painting a portrait of longing and excess. It stands as one of the great deep cuts in rock history, beloved by fans who prize the Stones' ragged, unpolished heart over their polished singles.",
@@ -6023,7 +6044,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Diego',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Lucky — Jason Mraz',
     description:
       "Jason Mraz releases 'Lucky', a sun-warmed duet that becomes one of his most beloved songs. Its breezy, acoustic pop charm and theme of long-distance love resonate with listeners worldwide, cementing Mraz's reputation as a songwriter who finds warmth and sincerity in everyday emotion.",
@@ -6039,7 +6060,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Bath',
       country: 'GB',
     },
-    genre: ['Synth Pop'],
+    genre: ['Electronic', 'Pop'],
     title: 'Mad World — Tears For Fears',
     description:
       "Tears For Fears release 'Mad World' as their debut single, a haunting synth-pop meditation on alienation and despair that belies its danceable pulse. Written by Roland Orzabal as a teenager, the song captures the anxious mood of early 1980s Britain and launches the duo into the vanguard of the new wave movement. It later gains a second life through Gary Jules' stripped-down cover in 2003.",
@@ -6055,7 +6076,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Magic Carpet Ride — Steppenwolf',
     description:
       "Steppenwolf releases 'Magic Carpet Ride' in 1968, a hypnotic blast of psychedelic hard rock that captures the freewheeling spirit of the late-60s counterculture. Built on a churning, repetitive riff and frontman John Kay's raw vocals, it becomes an anthem of the era — evoking open highways, altered states, and a generation's hunger for liberation.",
@@ -6071,7 +6092,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Make You Feel My Love — Adele',
     description:
       "Adele releases her cover of Bob Dylan's 'Make You Feel My Love' on her debut album '19', introducing her voice to the world with devastating emotional clarity. The performance transforms Dylan's quiet 1997 composition into a showcase of raw vulnerability, announcing a once-in-a-generation talent capable of making an old song feel like a confession.",
@@ -6103,7 +6124,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Timmins',
       country: 'CA',
     },
-    genre: ['Country Pop'],
+    genre: ['Folk', 'Pop'],
     title: 'Man, I Feel Like A Woman — Shania Twain',
     description:
       "Shania Twain releases 'Man! I Feel Like a Woman!' in 1998, a defiant anthem of female liberation that blurs the line between country and pop. Co-written with her producer Robert John 'Mutt' Lange, the song becomes one of the defining hits of the Come On Over era — cementing Twain as the best-selling female country artist of all time and reshaping Nashville's relationship with mainstream pop radio.",
@@ -6124,7 +6145,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Nashville',
       country: 'US',
     },
-    genre: ['Bluegrass'],
+    genre: ['Folk'],
     title: 'Man Of Constant Sorrow — The Soggy Bottom Boys',
     description:
       "The Soggy Bottom Boys — the fictional band from the Coen Brothers' film 'O Brother, Where Art Thou?' — bring 'Man of Constant Sorrow' to a new generation. The soundtrack, produced by T Bone Burnett, becomes a surprise cultural phenomenon, sparking a mainstream revival of American roots, folk, and bluegrass music that few saw coming.",
@@ -6145,7 +6166,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Philadelphia',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Maneater — Hall and Oates',
     description:
       "Hall & Oates release 'Maneater', a sleek, menacing portrait of urban temptation that becomes one of the defining hits of early MTV-era pop. The song's driving groove and Daryl Hall's cool vocal delivery capture the sharp-edged glamour of early 1980s New York — hungry, seductive, and impossible to look away from. It tops the Billboard Hot 100 and cements the duo as the best-selling act of the decade.",
@@ -6161,7 +6182,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Francisco',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Marry Me — Train',
     description:
       "Train releases 'Marry Me', a sweeping pop ballad that becomes one of the defining wedding songs of its era. Written by frontman Pat Monahan, its delicate acoustic guitar and earnest romanticism cut through a pop landscape dominated by electronic production — a reminder that vulnerability still sells. The song revives Train's commercial momentum and cements their reputation as architects of adult contemporary radio.",
@@ -6177,7 +6198,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Honolulu',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Marry You — Bruno Mars',
     description:
       "Bruno Mars releases 'Marry You' as part of his debut album era, capturing a carefree, spontaneous vision of romance that resonates far beyond radio play. The song becomes a cultural staple at weddings and flash mobs worldwide, cementing Mars as a hitmaker with an instinct for timeless, feel-good pop.",
@@ -6193,7 +6214,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Gainesville',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Mary Jane’s Last Dance — Tom Petty and The Heartbreakers',
     description:
       "Tom Petty and The Heartbreakers release 'Mary Jane's Last Dance' as part of their greatest hits collection, giving the band one of their signature late-career moments. The hypnotic, minor-key groove and Petty's deadpan storytelling capture a distinctly American restlessness — part heartland rock, part something darker and harder to name. Its music video, featuring Kim Basinger, becomes one of the most memorable of the era.",
@@ -6214,7 +6235,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Me And Julio Down By The Schoolyard — Paul Simon',
     description:
       "Paul Simon releases 'Me and Julio Down by the Schoolyard', a breezy, acoustic-driven tale of youthful mischief that showcases his gift for storytelling without ever explaining what the crime actually was. The deliberate mystery — Simon later said even he didn't know — becomes part of the song's charm. It captures the carefree, street-corner spirit of early 1970s New York and cements Simon's reputation as a solo artist after the breakup of Simon & Garfunkel.",
@@ -6251,7 +6272,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Nefyn',
       country: 'GB',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Mercy — Duffy',
     description:
       "Welsh singer Duffy records 'Mercy', a retro-soul anthem that channels the spirit of 1960s Motown and Stax into a contemporary pop package. The song becomes a global smash, topping charts across Europe and introducing Duffy's powerhouse voice to the world — proving that vintage soul still has an irresistible pull on modern audiences.",
@@ -6267,7 +6288,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Atlanta',
       country: 'US',
     },
-    genre: ['Classic Motown'],
+    genre: ['R&B'],
     title: 'Midnight Train To Georgia — Gladys Night And The Pips',
     description:
       "Gladys Knight and the Pips release 'Midnight Train to Georgia', a soulful story of love and sacrifice that becomes one of the defining recordings of 1970s R&B. Knight's powerhouse vocal — aching with conviction — and the Pips' silky counterpoint elevate a tale of leaving Los Angeles behind into something universally human. The song wins the Grammy for Best R&B Song and cements the group's legacy.",
@@ -6288,7 +6309,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Miss You — The Rolling Stones',
     description:
       "The Rolling Stones release 'Miss You', their unlikely plunge into disco-inflected funk that becomes a massive hit in 1978. Mick Jagger, a regular at Studio 54, channels the energy of New York's nightclub scene into a Rolling Stones record — and it works. The track proves the world's greatest rock and roll band can own a dance floor without abandoning their swagger.",
@@ -6320,7 +6341,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Mony Mony — Billy Idol',
     description:
       "Billy Idol releases his hard-driving cover of Tommy James and the Shondells' 1968 hit 'Mony Mony', transforming the garage rock original into a sleek, arena-ready anthem. The live version's crowd-participation ritual — audiences shouting improvised obscenities between lines — becomes a staple of 1980s concert culture. It reaches #1 in the US, proving Idol's ability to bridge classic rock nostalgia with new wave swagger.",
@@ -6336,7 +6357,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Belfast',
       country: 'GB',
     },
-    genre: ['Jazzy Pop'],
+    genre: ['Jazz', 'Pop'],
     title: 'Moondance — Van Morrison',
     description:
       "Van Morrison releases 'Moondance' as part of his landmark album of the same name, weaving jazz, soul, and Celtic mysticism into something entirely his own. The song captures Morrison at his most romantically transcendent — swinging and sensuous, it becomes one of his most enduring signatures and a touchstone for the emerging singer-songwriter era of the early 1970s.",
@@ -6384,7 +6405,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Moves Like Jagger — Maroon 5',
     description:
       "Maroon 5 releases 'Moves Like Jagger' in 2011, a sleek pop-rock track that becomes one of the defining radio hits of the early 2010s. The song's confident swagger and minimalist groove mark a decisive shift in Maroon 5's sound — from funk-inflected rock toward mainstream pop dominance. The Mick Jagger namecheck captures a broader cultural moment of rock mythology being absorbed into polished, radio-ready pop.",
@@ -6432,7 +6453,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Motown'],
+    genre: ['R&B'],
     title: 'My Cherie Amour — Stevie Wonder',
     description:
       "Stevie Wonder releases 'My Cherie Amour', a song he originally wrote as a teenager at Motown — a tender ballad inspired by a schoolgirl crush that sat unreleased for years before finding its moment. Its lush orchestration and Wonder's aching vocal performance make it one of the definitive expressions of longing in the Motown catalog. The song becomes a pop standard, cementing Wonder's transition from child prodigy to enduring romantic artist.",
@@ -6448,7 +6469,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Motown'],
+    genre: ['R&B'],
     title: 'My Girl — The Temptations',
     description:
       "The Temptations record 'My Girl' in 1964, with David Ruffin's warm, soaring lead vocal riding one of the most recognizable guitar intros in pop history. Written by Smokey Robinson and Ronald White, the song becomes the group's first number one hit and a defining moment for the Motown sound — sweet, polished soul that crosses every cultural boundary.",
@@ -6464,7 +6485,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Nashville',
       country: 'US',
     },
-    genre: ['Country Pop Ballad'],
+    genre: ['Folk', 'Pop'],
     title: 'My Little Girl — Tim Mcgraw',
     description:
       "Tim McGraw releases 'My Little Girl' in 2006, a tender country-pop ballad that captures the emotional bond between a father and daughter. Featured in the film 'Flicka', the song resonates deeply with parents across America, cementing McGraw's reputation for crafting heartfelt narratives that blur the line between country tradition and mainstream pop sentiment.",
@@ -6496,7 +6517,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Indie Pop'],
+    genre: ['Pop'],
     title: 'My Type — Saint Motel',
     description:
       "Saint Motel releases 'My Type', a sun-drenched indie pop track that becomes a slow-burning word-of-mouth hit. Built on an irresistibly catchy groove, the Los Angeles band captures the breezy, romantic energy of the early 2010s indie pop scene — eventually crossing into mainstream ears through film, TV, and commercial placements that introduce the band to audiences far beyond the indie circuit.",
@@ -6512,7 +6533,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Newton-le-Willows',
       country: 'GB',
     },
-    genre: ['Synth Pop'],
+    genre: ['Electronic', 'Pop'],
     title: 'Never Gonna Give You Up — Rick Astley',
     description:
       "Rick Astley releases 'Never Gonna Give You Up', a polished synth-pop anthem that shoots to #1 in the UK and the US, launching the then-21-year-old from Newton-le-Willows into global stardom. Produced by Stock Aitken Waterman, it becomes the defining sound of late-80s British pop — glossy, euphoric, and inescapable. Decades later, the song is reborn as 'Rickrolling', one of the internet's most enduring pranks.",
@@ -6549,7 +6570,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Soul R&B'],
+    genre: ['R&B'],
     title:
       'Ngiculela – Es Una Historia – I Am Singing — Stevie Wonder / Nathan Watts',
     description:
@@ -6579,7 +6600,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: 'BTruv-lVoLk',
   },
   {
-    id: 'song-no_diggity',
+    id: 'song-no_diggity_blackstreet',
     year: 2012,
     location: {
       lat: -37.81,
@@ -6587,7 +6608,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Melbourne',
       country: 'AU',
     },
-    genre: ['R And B'],
+    genre: ['Hip Hop'],
     title: 'No Diggity — Chet Faker',
     description:
       "Australian artist Chet Faker releases a haunting solo cover of Blackstreet's 1996 classic 'No Diggity', stripping the track down to brooding piano and his deep, smoky vocals. The recording circulates widely online, transforming a hip hop radio staple into something sparse and melancholic — and introducing Chet Faker to a global audience hungry for soulful, left-field R&B.",
@@ -6603,7 +6624,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'No Easy Way Down — Dusty Springfield',
     description:
       "Dusty Springfield records 'No Easy Way Down' for her landmark album Dusty in Memphis, capturing a raw emotional vulnerability that sets her apart from her contemporaries. Written by Gerry Goffin and Carole King, the song showcases Dusty's ability to inhabit heartbreak with a depth that bridges pop, soul, and gospel. The Memphis sessions cement her reputation as one of the greatest white soul singers of her era.",
@@ -6619,7 +6640,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Atlanta',
       country: 'US',
     },
-    genre: ['Hip Hop R&B'],
+    genre: ['Hip Hop', 'R&B'],
     title: 'No Scrubs — TLC',
     description:
       "TLC releases 'No Scrubs', a sharp, self-assured anthem rejecting broke, aimless men that becomes one of the defining pop-R&B moments of the late 1990s. Its blunt, conversational lyrics give voice to a generation of women refusing to settle, and the song's cultural impact is so immediate that Destiny's Child answers it with 'Bills, Bills, Bills' the same year.",
@@ -6635,7 +6656,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Dublin',
       country: 'IE',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: "Nothing Compares 2 U — Sinead O'Connor",
     description:
       "Sinead O'Connor releases her devastating cover of Prince's 'Nothing Compares 2 U', transforming it into one of the most emotionally raw ballads of its era. Her shaved head and a single tear in the iconic music video become inseparable from the song itself — an image that defines a moment in pop culture. The track catapults O'Connor to global stardom and stands as a landmark of early 1990s music.",
@@ -6651,7 +6672,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Nowhere Man — The Beatles',
     description:
       "The Beatles release 'Nowhere Man', a rare departure from romance into existential reflection — a song about a man with no point of view, going nowhere. Written by John Lennon during a period of personal doubt, it signals the band's expanding ambition beyond teen pop and points toward the introspective depth that will define Rubber Soul and beyond.",
@@ -6667,7 +6688,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Ob-La-Di, Ob-La-Da — The Beatles',
     description:
       "The Beatles release 'Ob-La-Di, Ob-La-Da' on the sprawling White Album in 1968, a buoyant ska-inflected singalong that signals the band's restless genre-hopping at the peak of their powers. Written by Paul McCartney and inspired by the catchphrase of Nigerian musician Jimmy Scott, it becomes one of the most covered songs of its era — proof that even the Beatles' lightest moments carry an irresistible global reach.",
@@ -6683,7 +6704,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Gary',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'Off The Wall — Michael Jackson',
     description:
       "Michael Jackson releases 'Off The Wall' in 1979, marking his explosive arrival as a solo adult artist after years as the child star of the Jackson 5. Produced by Quincy Jones, the track fuses disco, funk, and pop into a sleek, irresistible groove that signals a new era — one that will culminate in the greatest-selling album of all time just three years later.",
@@ -6715,7 +6736,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Old Time Rock And Roll — Bob Seger',
     description:
       "Bob Seger's 'Old Time Rock And Roll' becomes a generational anthem for classic rock purists who distrust the flashy sounds of disco and new wave. Already a staple of his live shows, the song crystallizes a defiant nostalgia — a working-class refusal to abandon the raw, guitar-driven music of the 1950s and 60s. Its cultural reach explodes when Tom Cruise slides across the floor in his socks in Risky Business in 1983.",
@@ -6747,7 +6768,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['New Wave'],
+    genre: ['Rock'],
     title: 'Once In A Lifetime — The Talking Heads',
     description:
       "Talking Heads release 'Once In A Lifetime', a hypnotic meditation on suburban alienation and the unconscious drift of modern life. Built on African polyrhythms and Brian Eno's production, David Byrne's stream-of-consciousness delivery — 'same as it ever was' — captures something universal about routine and awakening. It becomes one of new wave's defining artistic statements.",
@@ -6763,7 +6784,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'One Fine Day — The Chiffons',
     description:
       "The Chiffons release 'One Fine Day', a shimmering piece of early 1960s girl group pop with a melody written by Carole King. The song becomes a top-five hit and captures the breezy optimism of the Brill Building era, where professional songwriters crafted perfect pop gems for young vocal groups to bring to life.",
@@ -6779,7 +6800,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Macon',
       country: 'US',
     },
-    genre: ['Blues Rock'],
+    genre: ['Rock'],
     title: 'One Way Out — The Allman Brothers',
     description:
       "The Allman Brothers Band resurrect 'One Way Out' — a song rooted in the Sonny Boy Williamson blues tradition — as a live staple that showcases their unrivaled improvisational power. By 2004, the band's legendary dual-guitar interplay and extended jams remind a new generation why they remain the gold standard of American blues-rock. Few songs in their catalog capture the raw, swaggering energy of a band utterly in their element.",
@@ -6795,7 +6816,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Jazzy Pop'],
+    genre: ['Jazz', 'Pop'],
     title: 'Only The Good Die Young — Billy Joel',
     description:
       "Billy Joel releases 'Only The Good Die Young' from his album The Stranger, a rollicking, piano-driven pop song that immediately draws fire from Catholic groups for its irreverent seduction of a parochial school girl. The controversy only amplifies its reach — bans from several radio stations and school districts turn it into an anthem of youthful rebellion, cementing Joel's status as a sharp-witted voice of working-class American life.",
@@ -6811,7 +6832,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Woodstock',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Ophelia — The Band',
     description:
       "The Band revisits 'Ophelia', originally recorded in 1975, as part of their enduring catalog that blends Americana, rock, and R&B into something timeless. The song's rollicking energy captures the rootsy spirit that made The Band a touchstone for generations of musicians seeking authenticity over spectacle.",
@@ -6843,7 +6864,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Ottawa',
       country: 'CA',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Ordinary People — Joe Legend',
     description:
       "Joe Legend releases 'Ordinary People', a slow-burning pop ballad that strips romance down to its raw, unglamorous truth. Rather than chasing radio gloss, the song lingers in the quiet tensions of real relationships — the kind that don't resolve neatly. It resonates with listeners who recognize love as work, not fantasy.",
@@ -6875,7 +6896,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Francisco',
       country: 'US',
     },
-    genre: ['Latin Rock'],
+    genre: ['Latin', 'Rock'],
     title: 'Oye Como Va — Santana',
     description:
       "Santana revives 'Oye Como Va' — Tito Puente's 1963 Latin jazz classic — transforming it into a landmark of Latin rock. Carlos Santana's fluid guitar work weaves through the song's Afro-Cuban groove, bridging the worlds of rock and Latin music in a way that few artists had dared before. The recording becomes one of Santana's signature moments, introducing Tito Puente's songwriting to a global rock audience.",
@@ -6891,7 +6912,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Gary',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'P.Y.T. (Pretty Young Thing) — Michael Jackson',
     description:
       "Michael Jackson releases 'P.Y.T. (Pretty Young Thing)' as part of the landmark Thriller album, the best-selling record of all time. Propelled by irresistible, synth-driven grooves and Jackson's elastic, playful vocals, the track captures the euphoric energy of early 1980s pop at its peak. It cements Thriller's dominance across pop, R&B, and dance floors worldwide.",
@@ -6928,7 +6949,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Indie Rock'],
+    genre: ['Rock'],
     title: 'Paper Bag — Fiona Apple',
     description:
       "Fiona Apple releases 'Paper Bag' from her second album 'When the Pawn...', a searching meditation on romantic self-delusion delivered over jazz-inflected piano and strings. The song showcases Apple's signature blend of confessional lyricism and unconventional song structure, deepening her reputation as one of the most distinctive voices in late-90s and early-2000s alternative music.",
@@ -7008,7 +7029,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Halifax',
       country: 'GB',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Perfect — Ed Sheeran',
     description:
       "Ed Sheeran releases 'Perfect' in 2017, a sweeping romantic ballad that becomes one of the best-selling singles of the year worldwide. Written about his then-girlfriend (and future wife) Cherry Seaborn, the song channels classic love song tradition into a modern pop setting — earning Sheeran his second UK number one from the Divide album and cementing his reputation as the defining balladeer of his generation.",
@@ -7056,7 +7077,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Pleasant Valley Sunday — The Monkees',
     description:
       "The Monkees release 'Pleasant Valley Sunday', a sharp piece of social satire written by Gerry Goffin and Carole King skewering the conformity and hollow comfort of American suburbia. At the height of their TV fame, the song signals a more serious artistic ambition — proving the group capable of biting cultural commentary beneath the bubblegum surface.",
@@ -7093,7 +7114,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Montreal',
       country: 'CA',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Poses — Rufus Wainwright',
     description:
       "Rufus Wainwright releases 'Poses', the title track of his second album, a lush, melancholic meditation on decadence, desire, and self-destruction set against the backdrop of New York City. With orchestral arrangements and his signature baroque pop sensibility, Wainwright carves out a space for queer vulnerability and literary ambition in an era of polished mainstream pop — proving that confessional songwriting could be both intimate and grandiose.",
@@ -7109,7 +7130,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Francisco',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Power Of Love — Huey Lewis and The News',
     description:
       "Huey Lewis and the News record 'Power of Love' for the Back to the Future soundtrack, and the song rockets to number one, becoming one of the defining anthems of 1985. Its muscular, no-frills rock sound captures the blue-collar spirit of mid-decade America — a throwback to straightforward rock at a moment when synth-pop dominates the charts.",
@@ -7130,7 +7151,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Wink',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Pretty Woman — Roy Orbison',
     description:
       "Roy Orbison releases 'Oh, Pretty Woman' in 1964, and its instantly recognizable guitar riff becomes one of the most iconic openings in pop music history. Orbison's operatic vocal range and dramatic delivery set him apart from his contemporaries, bridging the gap between the pre-Beatles era and the British Invasion. The song becomes a massive hit on both sides of the Atlantic, cementing his status as a singular voice in American rock and roll.",
@@ -7146,7 +7167,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Dallas',
       country: 'US',
     },
-    genre: ['Blues Rock'],
+    genre: ['Rock'],
     title: 'Pride And Joy — Stevie Ray Vaughn',
     description:
       "Stevie Ray Vaughan releases 'Pride and Joy', a swaggering blues-rock declaration that announces his arrival as the most electrifying guitarist of his generation. Drawing from Texas blues legends like Lightnin' Hopkins and Albert King, Vaughan drags the blues back into the mainstream at a time when the genre had been pushed to the margins — proving that raw, feeling-soaked guitar could still shake the world.",
@@ -7210,7 +7231,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Indie Pop'],
+    genre: ['Pop'],
     title: 'Pumped Up For Kicks — Foster The People',
     description:
       "Foster The People release 'Pumped Up Kicks', an unsettling indie pop earworm wrapped in a whistling, sun-drenched melody that masks deeply dark lyrical subject matter. The contrast between its breezy, danceable sound and its disturbing narrative becomes a cultural talking point, catapulting the Los Angeles band from obscurity to global recognition and defining a new wave of indie pop crossover success.",
@@ -7231,7 +7252,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Memphis',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Pusher Love Girl — Justin Timberlake',
     description:
       "Justin Timberlake opens his comeback album 'The 20/20 Experience' with 'Pusher Love Girl', a lush, slow-burning track that stretches past eight minutes and signals his full embrace of classic soul and funk. The song borrows its groove from the vintage sound of Sly Stone and Marvin Gaye, making clear that Timberlake is swinging for timeless rather than trendy. It announces his return as one of pop's most ambitious arrangers of his generation.",
@@ -7247,7 +7268,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Leeds',
       country: 'GB',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Put Your Records On — Corinne Bailey Rae',
     description:
       "Corinne Bailey Rae releases 'Put Your Records On', a sun-drenched debut single that captures a mood of easy, unguarded joy. The Leeds-born singer-songwriter's warm, effortless voice and acoustic simplicity cut through the mid-2000s pop landscape, earning her widespread acclaim and introducing a softer, more intimate strand of British soul-pop to a global audience.",
@@ -7263,7 +7284,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Bergen',
       country: 'NO',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Raging — Kygo',
     description:
       "Kygo releases 'Raging' in 2016, a track that showcases the Norwegian producer's signature tropical house sound blending organic piano melodies with soaring electronic production. At a time when streaming platforms are reshaping how pop music reaches global audiences, Kygo's emotionally charged style earns him a massive international following and cements his place as a pioneer of the chillwave-meets-pop movement.",
@@ -7279,7 +7300,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Downey',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Rainy Days And Mondays — The Carpenters',
     description:
       "The Carpenters release 'Rainy Days And Mondays', a melancholy pop ballad that becomes one of their signature hits. Karen Carpenter's warm, aching contralto transforms a simple lyric about loneliness into something deeply universal — capturing a mood that millions recognize instantly. The song cements the duo's place as the defining voice of early 1970s soft pop.",
@@ -7295,7 +7316,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Doylestown',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Raise Your Glass — Pink',
     description:
       "Pink's anthemic 'Raise Your Glass' becomes a rallying cry for the outsiders, the underdogs, and the unapologetically different. Blending pop-rock attitude with a defiant message of self-acceptance, it cements Pink's reputation as one of pop's most authentic voices — never chasing trends, always championing those who don't fit the mold.",
@@ -7311,7 +7332,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Ramble On — Led Zeppelin',
     description:
       "Led Zeppelin releases 'Ramble On' on their second album, weaving J.R.R. Tolkien references into a hard rock framework that shifts between acoustic tenderness and electric ferocity. The song captures the band at their most adventurous — balancing Jimmy Page's dynamic guitar work with Robert Plant's mythological lyricism. It stands as an early blueprint for the acoustic-electric contrasts that define classic rock.",
@@ -7327,7 +7348,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Jazz Waltz'],
+    genre: ['Jazz'],
     title: 'Raspberry Jam — Carole King',
     description:
       "Carole King releases 'Raspberry Jam' in 1970, a jazz waltz that reveals a playful, genre-bending side of an artist on the cusp of her breakthrough. Written as she transitions from Brill Building songwriter to solo performer, it hints at the rich musical range that will soon make her one of the defining voices of the singer-songwriter era.",
@@ -7343,7 +7364,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Motown'],
+    genre: ['R&B'],
     title: 'Reach Out, I’ll Be There — Four Tops',
     description:
       "The Four Tops release 'Reach Out, I'll Be There', a dramatic departure from conventional Motown sweetness. Levi Stubbs' raw, desperate vocal performance — more plea than melody — combined with an urgent, almost military rhythm pushes soul music toward a darker emotional intensity. The song tops charts on both sides of the Atlantic, cementing Motown's global reach.",
@@ -7375,7 +7396,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Nashville',
       country: 'US',
     },
-    genre: ['Country Pop'],
+    genre: ['Folk', 'Pop'],
     title: 'Redneck Woman — Gretchen Wilson',
     description:
       "Gretchen Wilson bursts onto the country scene with 'Redneck Woman', a defiant anthem celebrating working-class femininity that the polished Nashville establishment had long ignored. The song becomes a massive hit in 2004, turning Wilson into a symbol of country music's rowdier, unapologetic heartland — and sparking a broader conversation about authenticity versus the genre's pop crossover drift.",
@@ -7407,7 +7428,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Philadelphia',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Rich Girl — Hall and Oates',
     description:
       "Hall & Oates release 'Rich Girl', becoming their first number one hit on the Billboard Hot 100. Built around a biting portrait of a wealthy woman insulated from consequence, the song announces the Philadelphia duo as a major commercial force — blending blue-eyed soul and soft rock into a formula that will dominate the late 1970s and beyond.",
@@ -7423,7 +7444,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Memphis',
       country: 'US',
     },
-    genre: ['Country'],
+    genre: ['Folk'],
     title: 'Ring Of Fire — Johnny Cash',
     description:
       "Johnny Cash releases 'Ring of Fire' in 1963, a song written by June Carter Cash and Merle Kilgore about the consuming power of love. Its distinctive mariachi-style trumpet arrangement — unusual for country music — gives it an irresistible swagger that crosses genre lines. The song becomes one of Cash's signature recordings and one of the best-selling country singles of the era.",
@@ -7487,7 +7508,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Cleveland',
       country: 'US',
     },
-    genre: ['Blues Rock'],
+    genre: ['Rock'],
     title: 'Rocky Mountain Way — Joe Walsh',
     description:
       "Joe Walsh's 'Rocky Mountain Way' becomes a blues-rock anthem rooted in his time living in Colorado after leaving the James Gang. The song's talk box guitar riff — one of the earliest and most recognizable uses of the effect in rock — cements Walsh's reputation as one of America's most inventive guitarists, paving his way into the Eagles.",
@@ -7503,7 +7524,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Rolling In The Deep — Adele',
     description:
       "Adele releases 'Rolling In The Deep' as the lead single from her second album 21, a gospel-infused pop-rock anthem born from a painful breakup. The song becomes a global phenomenon, signaling the arrival of a powerhouse voice that cuts through an era dominated by electronic pop. Its raw emotional directness redefines what a mainstream hit can feel like.",
@@ -7519,7 +7540,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Auckland',
       country: 'NZ',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Royals — Lorde',
     description:
       "Sixteen-year-old Ella Yelich-O'Connor, recording as Lorde, releases 'Royals' from Auckland, New Zealand — a spare, minimalist pop song that rejects the champagne-and-jets excess dominating mainstream radio. Its cool detachment and frank class critique resonate globally, announcing a new kind of pop star: self-possessed, literary, and unbothered by glamour.",
@@ -7535,7 +7556,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Blues Rock'],
+    genre: ['Rock'],
     title: 'Run-Around — Blues Traveler',
     description:
       "Blues Traveler releases 'Run-Around' in 1994, a blues-rock anthem built around John Popper's virtuosic harmonica work and a deceptively catchy melody. The song becomes a massive radio hit, introducing a generation to the band's jam-band roots and proving that guitar-driven blues rock with genuine instrumental chops can still conquer mainstream airwaves.",
@@ -7551,7 +7572,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Gainesville',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Runnin’ Down A Dream — Tom Petty',
     description:
       "Tom Petty releases 'Runnin' Down A Dream' from his debut solo album 'Full Moon Fever', a driving, guitar-powered anthem that captures the restless American spirit of hitting the open road. The song becomes one of Petty's signature tracks, cementing his reputation as a master of lean, hook-driven rock and roll at a moment when his career reaches new heights beyond his work with the Heartbreakers.",
@@ -7583,7 +7604,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Ada',
       country: 'US',
     },
-    genre: ['Country'],
+    genre: ['Folk'],
     title: 'Sangria — Blake Shelton',
     description:
       "Blake Shelton releases 'Sangria', a sun-soaked country love song that leans into relaxed, almost tropical warmth rather than traditional Nashville twang. The track captures a mid-2010s moment when mainstream country was stretching its borders, blending laid-back summer moods with radio-ready hooks — and Shelton, already a dominant force on the charts, delivers it with effortless charm.",
@@ -7599,7 +7620,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Long Beach',
       country: 'US',
     },
-    genre: ['Ska Punk'],
+    genre: ['Reggae', 'Rock'],
     title: 'Santeria — Sublime',
     description:
       "Sublime releases 'Santeria' from their self-titled third album, a laid-back ska-punk meditation on heartbreak and obsession recorded in Long Beach, California. The song becomes one of the band's signature tracks — yet frontman Bradley Nowell never sees its success, dying of a heroin overdose two months before the album drops. His absence makes Sublime's sun-soaked blend of punk, reggae, and hip hop feel all the more bittersweet.",
@@ -7615,7 +7636,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Chicago',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Saturday In The Park — Chicago',
     description:
       "Chicago releases 'Saturday In The Park', a sun-drenched celebration of summer in New York City that showcases the band's signature blend of rock and jazz-inflected brass. The song captures a joyful, communal spirit that sets it apart from the harder edges of early 1970s rock — a reminder that Chicago could write melodic pop as effortlessly as they could swing. It becomes one of their most enduring anthems.",
@@ -7631,7 +7652,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Saturn — Stevie Wonder',
     description:
       "Stevie Wonder releases 'Saturn' as part of his landmark double album 'Songs in the Key of Life' in 1976. A cosmic meditation on peace and a better world beyond Earth's troubles, the song reflects Wonder's spiritual and political vision at the height of his creative powers — a streak of albums that many consider the greatest run in pop music history.",
@@ -7647,7 +7668,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Newark',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Saving All My Love For You — Whitney Houston',
     description:
       "Whitney Houston releases 'Saving All My Love for You' in 1985, announcing herself to the world with a vocal performance of breathtaking control and emotional depth. The ballad becomes her first number one hit, establishing her as the defining pop voice of a generation. It earns her the Grammy for Best Pop Vocal Performance, Female — the first of many.",
@@ -7676,7 +7697,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: 'ENXvZ9YRjbo',
   },
   {
-    id: 'song-say_something',
+    id: 'song-say_something_timberlake',
     year: 2018,
     location: {
       lat: 35.15,
@@ -7684,7 +7705,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Memphis',
       country: 'US',
     },
-    genre: ['Pop', 'R And B'],
+    genre: ['Pop'],
     title: 'Say Something — Justin Timberlake, Chris Stapleton',
     description:
       "Justin Timberlake and Chris Stapleton bridge two worlds on 'Say Something' — polished pop R&B meeting raw country soul. Stapleton's weathered voice and guitar work pull Timberlake into grittier territory than his usual sonic comfort zone, creating one of the most unexpected vocal pairings of the era. The collaboration signals a broader blurring of genre lines between Nashville and mainstream pop.",
@@ -7786,7 +7807,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Memphis',
       country: 'US',
     },
-    genre: ['Dance Pop'],
+    genre: ['Pop'],
     title: 'SexyBack — Justin Timberlake',
     description:
       "Justin Timberlake releases 'SexyBack', a stark, industrial-edged dance track that announces a bold reinvention. Produced with Timbaland, its abrasive synths and minimalist groove shock pop radio — and it works. The song signals that the post-boy-band era has a new dominant force, blurring the line between mainstream pop and underground club sounds.",
@@ -7818,7 +7839,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Nashville',
       country: 'US',
     },
-    genre: ['Synth Pop'],
+    genre: ['Electronic', 'Pop'],
     title: 'Shake It Off — Taylor Swift',
     description:
       "Taylor Swift releases 'Shake It Off' in 2014, marking a deliberate pivot from country to pure pop and announcing her album '1989'. The song's carefree message of brushing off critics becomes an anthem for self-empowerment, signaling a new era in Swift's career and cementing her status as one of pop music's most commanding figures.",
@@ -7834,7 +7855,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Gary',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Shake Your Body (Down To The Ground) — Michael Jackson',
     description:
       "Michael Jackson and his brother Randy co-write 'Shake Your Body (Down To The Ground)', a funk-driven anthem that becomes one of The Jacksons' biggest hits. Released in 1979, the track showcases Michael's explosive vocal range and his gift for crafting irresistible grooves — a clear signal that a solo superstar is about to emerge. It points directly toward the disco-funk fusion that will define the early 1980s pop landscape.",
@@ -7871,7 +7892,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Halifax',
       country: 'GB',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Shape Of You — Ed Sheeran',
     description:
       "Ed Sheeran releases 'Shape Of You' in 2017, a sleek pop track built on tropical house rhythms and a looping melodic hook that makes it almost impossible to ignore. The song becomes one of the best-selling singles of all time, dominating charts worldwide and cementing Sheeran's place not just as a singer-songwriter but as a hitmaking force reshaping mainstream pop.",
@@ -7887,7 +7908,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'She Loves You — The Beatles',
     description:
       "The Beatles release 'She Loves You' in 1963, and Britain is never the same. The song's infectious 'Yeah, yeah, yeah' chorus becomes the rallying cry of Beatlemania, sending fans into frenzied hysteria at concert halls and television appearances across the UK. It signals that a cultural earthquake is underway — one that will soon reshape music on both sides of the Atlantic.",
@@ -7935,7 +7956,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Motown'],
+    genre: ['R&B'],
     title: 'Shotgun — Jr Walker and the Allstars',
     description:
       "Jr. Walker and the All Stars release 'Shotgun', a raw, saxophone-driven blast of energy that stands apart from the polished Motown sound dominating the era. Walker's honking, gritty sax leads the charge where most Motown acts feature smooth vocals, making 'Shotgun' an irresistible dance floor igniter. It becomes one of the label's most visceral and enduring hits.",
@@ -7951,7 +7972,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Cincinnati',
       country: 'US',
     },
-    genre: ['Soul'],
+    genre: ['R&B'],
     title: 'Shout — Isley Brothers',
     description:
       "The Isley Brothers record 'Shout' in 1959, unleashing a raw, gospel-drenched cry that bridges the church and the dancefloor. Ronald Isley's call-and-response vocals — equal parts preacher and showman — help define the sound of soul music and inspire generations of artists from the British Invasion to Motown and beyond.",
@@ -7967,7 +7988,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Boston',
       country: 'US',
     },
-    genre: ['Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Shower The People — James Taylor',
     description:
       "James Taylor releases 'Shower The People' in 1976, a tender meditation on love and emotional openness that becomes one of his most enduring anthems. At a moment when soft rock and singer-songwriter intimacy dominate the airwaves, Taylor's gentle delivery and heartfelt message crystallize the warmth at the core of the 1970s folk rock movement — proving that vulnerability can be its own kind of strength.",
@@ -7983,7 +8004,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Cincinnati',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Shut Up And Dance — Walk The Moon',
     description:
       "Walk The Moon releases 'Shut Up And Dance', a euphoric pop-rock anthem that captures the carefree energy of a perfect night out. Its irresistible new wave-influenced hooks and sing-along chorus turn it into an unexpected global smash, dominating radio and playlists in 2014 and cementing the Cincinnati band's place in mainstream pop consciousness.",
@@ -7999,7 +8020,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Signed, Sealed, Delivered I’m Yours — Stevie Wonder',
     description:
       "Stevie Wonder records 'Signed, Sealed, Delivered I'm Yours' at just 20 years old, co-writing and producing the track himself — a declaration of creative independence as much as romantic devotion. The irresistible groove and joyful energy make it one of the defining soul singles of 1970, cementing Wonder's transition from child prodigy to fully autonomous artist at Motown.",
@@ -8057,7 +8078,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Francisco',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Single Ladies — Sara Bareilles',
     description:
       "Beyonce releases 'Single Ladies (Put a Ring on It)', a minimalist pop anthem built on a relentless rhythm and a defiant, empowering message. The song's stark black-and-white music video — featuring a now-iconic hand choreography — sparks a global imitation craze and cements Beyonce's status as a defining cultural force of her era.",
@@ -8089,7 +8110,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Macon',
       country: 'US',
     },
-    genre: ['Soul'],
+    genre: ['R&B'],
     title: '(Sittin’ On) The Dock Of The Bay — Otis Redding',
     description:
       "Otis Redding records '(Sittin' On) The Dock Of The Bay' just weeks before his death in a plane crash, and it becomes the first posthumous single to reach #1 in the United States. Its relaxed, introspective tone — complete with whistling and crashing waves — marks a striking departure from his raw, urgent soul style. The song reshapes what soul music can be: still and searching, as vast as the open water.",
@@ -8105,7 +8126,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Sledgehammer — Peter Gabriel',
     description:
       "Peter Gabriel releases 'Sledgehammer', a funk and soul-drenched anthem that becomes one of the defining pop moments of 1986. Its groundbreaking stop-motion music video — a collaboration with Aardman Animations — wins a record nine MTV Video Music Awards and rewrites what a music video can be. Gabriel cements his solo career as one of the most adventurous in rock.",
@@ -8137,7 +8158,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Shuffle Rock'],
+    genre: ['Rock'],
     title: 'Smackwater Jack — Carole King',
     description:
       "Carole King includes 'Smackwater Jack' on her landmark 1971 album Tapestry — a shuffle-rock outlier amid the record's softer confessional songs. Written with Gerry Goffin, the rollicking tale of a trigger-happy outlaw shows King's range as a songwriter, reaching back to the Brill Building storytelling tradition while the rest of Tapestry redefines the singer-songwriter era.",
@@ -8153,7 +8174,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Aberdeen',
       country: 'US',
     },
-    genre: ['Grunge Rock'],
+    genre: ['Rock'],
     title: 'Smells Like Teen Spirit — Nirvana',
     description:
       "Nirvana releases 'Smells Like Teen Spirit' in 1991, and the raw, distorted anthem tears through mainstream radio like a wrecking ball. Kurt Cobain's quiet-loud dynamics and disaffected howl give voice to a generation of alienated youth, dragging grunge out of Seattle's underground and into living rooms worldwide — permanently redrawing the map of rock music.",
@@ -8169,7 +8190,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Smooth Operator — Sade',
     description:
       "Sade releases 'Smooth Operator' in 1984, introducing the world to her cool, understated blend of jazz, soul, and sophisti-pop. The track's languid groove and her silken vocal delivery cut through the bombast of mid-80s pop, carving out a distinct space for a quieter, more adult sound. Sade becomes one of the decade's most distinctive voices — elegant, unhurried, and impossible to imitate.",
@@ -8206,7 +8227,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'So Far Away — Carole King',
     description:
       "Carole King releases 'So Far Away' as part of her landmark album Tapestry, a tender meditation on distance and longing that resonates with a generation navigating change. The song exemplifies the intimate singer-songwriter movement sweeping early 1970s America, where confessional lyrics and understated piano replace the bombast of the previous decade. Tapestry becomes one of the best-selling albums in history, cementing King's transformation from Brill Building hitmaker to iconic solo artist.",
@@ -8222,7 +8243,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Solsbury Hill — Peter Gabriel',
     description:
       "Peter Gabriel releases 'Solsbury Hill' as his debut solo single after departing Genesis, the progressive rock band he co-founded and fronted for a decade. The song — built on an unusual 7/4 time signature — becomes an open letter about his decision to leave, capturing a moment of personal liberation on a Somerset hilltop. It announces Gabriel as a singular voice outside the group, launching one of rock's most adventurous solo careers.",
@@ -8259,7 +8280,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Something — The Beatles',
     description:
       "George Harrison's 'Something' appears on Abbey Road, becoming the first Harrison composition to lead a Beatles single. Frank Sinatra later calls it the greatest love song of the past fifty years — a remarkable vindication for the Beatle long overshadowed by Lennon and McCartney. It signals Harrison's full arrival as a songwriter of the highest order.",
@@ -8275,7 +8296,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Something Just Like This — The Chainsmokers and Coldplay',
     description:
       "The Chainsmokers and Coldplay unite electronic pop production with Coldplay's signature anthemic rock, creating 'Something Just Like This' — a song that rejects superhero mythology in favor of ordinary love. The collaboration bridges two generations of pop dominance, pairing Chris Martin's melodic warmth with the Chainsmokers' festival-ready drops. It becomes one of the most-streamed songs of 2017, cementing the era's appetite for genre-blending pop crossovers.",
@@ -8296,7 +8317,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Country Pop'],
+    genre: ['Folk', 'Pop'],
     title: 'Something To Talk About — Bonnie Raitt',
     description:
       "Bonnie Raitt releases 'Something To Talk About' in 1991, riding the momentum of her commercial renaissance after winning four Grammy Awards for 'Nick of Time'. The country-pop groove becomes one of her signature songs, cementing her status as a mainstream force after decades on the margins of the industry — proof that great artistry eventually finds its audience.",
@@ -8317,7 +8338,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Soul'],
+    genre: ['R&B'],
     title: 'Son Of A Preacher Man — Dusty Springfield',
     description:
       "Dusty Springfield records 'Son of a Preacher Man' in Memphis, stepping into the heart of American soul music and making it entirely her own. The track becomes one of the defining recordings of her landmark album 'Dusty in Memphis', proving that a British pop star can command the deep Southern soul sound with raw emotional authority. It remains her signature song and a landmark moment in the crossover between British and American soul.",
@@ -8333,7 +8354,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Miami',
       country: 'US',
     },
-    genre: ['Soul'],
+    genre: ['R&B'],
     title: 'Soul Man — Sam and Dave',
     description:
       "Sam and Dave release 'Soul Man', a barnstorming anthem that distills the essence of Southern soul into two and a half minutes of pure fire. Recorded at Stax Studios in Memphis with Booker T. & the M.G.'s and the Memphis Horns driving the groove, it becomes one of the defining records of the genre — and gives soul music its unofficial name.",
@@ -8365,7 +8386,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Soul'],
+    genre: ['R&B'],
     title: 'Stand By Me — Ben E. King',
     description:
       "Ben E. King records 'Stand By Me' in 1961, drawing on the gospel tradition of Sam Cooke and the doo-wop of his years with The Drifters to create one of soul music's most enduring ballads. Its spare, hypnotic bass line and King's aching vocal become a template for intimacy in popular song — a sound so timeless it charts again decades later and crosses into virtually every corner of global music.",
@@ -8413,7 +8434,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Springfield',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Stay With You — John Legend',
     description:
       "John Legend releases 'Stay With You', a tender pop ballad that showcases his classically trained piano style and gospel-rooted vocal warmth. The track captures Legend at the height of his early breakthrough, offering an intimate counterpoint to the polished R&B of the mid-2000s — proof that understated elegance could still cut through a crowded pop landscape.",
@@ -8546,7 +8567,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Memphis',
       country: 'US',
     },
-    genre: ['Rock Pop'],
+    genre: ['Pop', 'Rock'],
     title: 'Suit & Tie — Justin Timberlake',
     description:
       "Justin Timberlake returns after a six-year recording hiatus with 'Suit & Tie', a sleek, old-school R&B slow-burn featuring Jay-Z. The song signals a deliberate throwback to classic soul sophistication — think Rat Pack elegance filtered through modern pop production — and announces Timberlake's comeback as a dominant force in contemporary music.",
@@ -8578,7 +8599,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Sunday Morning — Maroon 5',
     description:
       "Maroon 5 releases 'Sunday Morning' from their debut album 'Songs About Jane', a smooth, funk-tinged pop rock track that captures the band's Los Angeles groove at its most effortless. The song becomes a defining moment for early 2000s pop rock, helping Maroon 5 transition from a struggling club act into a mainstream phenomenon and establishing their signature blend of soul, R&B, and rock.",
@@ -8610,7 +8631,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Sweet Caroline — Neil Diamond',
     description:
       "Neil Diamond releases 'Sweet Caroline' in 1969, a sweeping, anthemic pop song that becomes one of his signature recordings. Its irresistible sing-along chorus transforms it into a communal ritual far beyond the charts — most famously adopted by Boston Red Sox fans at Fenway Park, cementing its place as one of the most enduring crowd participation moments in sports and popular culture.",
@@ -8642,7 +8663,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['New Wave'],
+    genre: ['Rock'],
     title: 'Sweet Dreams — Eurhythmics',
     description:
       "Annie Lennox and Dave Stewart release 'Sweet Dreams (Are Made of This)', a hypnotic synth-driven anthem that becomes a global phenomenon. Lennox's androgynous image and icy, commanding vocal cut through the MTV era with striking force, making the Eurythmics one of the defining acts of 1980s new wave. The song's relentless synthesizer riff lodges itself permanently in pop culture.",
@@ -8658,7 +8679,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Jacksonville',
       country: 'US',
     },
-    genre: ['Country Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Sweet Home Alabama — Lynyrd Skynyrd',
     description:
       "Lynyrd Skynyrd's 'Sweet Home Alabama' becomes an anthem of Southern pride and a defining moment for Southern rock. Written partly as a rebuttal to Neil Young's criticisms of the South in 'Southern Man' and 'Alabama', the song stakes out a defiant regional identity — and its three-guitar attack cements Lynyrd Skynyrd as the genre's definitive voice.",
@@ -8711,7 +8732,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Memphis',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Take Back The Night — Justin Timberlake',
     description:
       "Justin Timberlake releases 'Take Back The Night' in 2013, a funk-drenched throwback that channels the spirit of late-70s disco and early Michael Jackson. The track arrives as part of his ambitious comeback era, signaling a bold pivot away from contemporary pop trends toward vintage grooves — and proving Timberlake's instinct for reviving classic sounds for a new generation.",
@@ -8743,7 +8764,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Aspen',
       country: 'US',
     },
-    genre: ['Country'],
+    genre: ['Folk'],
     title: 'Take Me Home, Country Roads — John Denver',
     description:
       "John Denver releases 'Take Me Home, Country Roads' in 1971, a hymn to the rural beauty of West Virginia that becomes one of the most instantly recognizable American songs ever recorded. Its warm, open-hearted longing for home transcends country radio, crossing into pop and folk audiences and cementing Denver as a defining voice of early 1970s Americana. West Virginia later adopts it as an official state song.",
@@ -8775,7 +8796,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Oslo',
       country: 'NO',
     },
-    genre: ['Classic Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Take On Me — A-ha',
     description:
       "Norwegian trio A-ha releases 'Take On Me', a synth-pop anthem that initially struggles to find an audience before a landmark rotoscope music video transforms it into a global phenomenon. The song's soaring falsetto hook and cascading synthesizer riff become defining sounds of 1980s pop — proof that a band from Oslo could conquer the world with the right melody and the right image.",
@@ -8812,7 +8833,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Jose',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Takin’ It To The Streets — The Doobie Brothers',
     description:
       "The Doobie Brothers release 'Takin' It To The Streets', the title track of their sixth album and the first to prominently feature new keyboardist Michael McDonald. McDonald's soulful vocals and gospel-tinged songwriting mark a sharp departure from the band's earlier country-rock sound, steering them toward a smoother, R&B-influenced style that defines their late-1970s identity.",
@@ -8833,7 +8854,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Tapestry — Carole King',
     description:
       "Carole King releases 'Tapestry', a landmark album that reshapes the landscape of singer-songwriter pop. Recorded intimately in Los Angeles, it captures a deeply personal voice — a woman writing and performing her own truth at a time when that was still rare in mainstream music. The album spends over six years on the Billboard charts and becomes one of the best-selling records of all time.",
@@ -8849,7 +8870,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Motown'],
+    genre: ['R&B'],
     title: 'Tears Of A Clown — Smokey Robinson & The Miracles',
     description:
       "Smokey Robinson & The Miracles release 'Tears Of A Clown', a song built on a Stevie Wonder melody that had sat unreleased for years before Robinson added his bittersweet lyrics about heartbreak hidden behind a smile. The track becomes a landmark of the Motown sound — lush, orchestrated soul wrapped around Robinson's achingly tender falsetto. Its unlikely resurrection as a UK single sparks a transatlantic hit and cements Robinson's reputation as one of pop's most gifted songwriters.",
@@ -8870,7 +8891,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Funky Pop'],
+    genre: ['Funk', 'Pop'],
     title: 'Tell Me Something Good — Stevie Wonder/Chaka Khan',
     description:
       "Stevie Wonder writes 'Tell Me Something Good' for Rufus, and Chaka Khan's raw, commanding vocal performance turns it into a funk landmark. The track announces Khan as one of the most electrifying voices in R&B and helps elevate Rufus from a backing band into a force in their own right. It wins the Grammy for Best R&B Song in 1975.",
@@ -8891,7 +8912,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Nashville',
       country: 'US',
     },
-    genre: ['Country Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'Tennessee Whiskey — Chris Stapleton',
     description:
       "Chris Stapleton releases 'Tennessee Whiskey' on his debut solo album Traveller, transforming a 1981 country standard into a slow-burning soul and gospel tour de force. His raw, powerhouse vocals and the song's swampy groove catch the industry off guard, turning a veteran Nashville songwriter into an overnight star. The performance signals a hunger for authentic, roots-driven country at a time when the genre has drifted toward polished pop.",
@@ -8907,7 +8928,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Tequila — The Champs',
     description:
       "The Champs record 'Tequila,' an infectious instrumental built around a rolling sax riff and a single shouted word. The track becomes a massive hit in 1958, crossing genre lines and introducing a Latin swagger into the mainstream American sound. Its irresistible groove makes it one of the most recognizable instrumentals in rock history.",
@@ -8982,7 +9003,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Honolulu',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'That’s What I Like — Bruno Mars',
     description:
       "Bruno Mars releases 'That's What I Like', a sleek, funk-and-R&B-drenched pop track that becomes one of the defining hits of 2017. It earns him a Grammy for Record of the Year, cementing his reputation as a performer who bridges classic soul traditions with modern pop production. The song's effortless charm underscores Mars's rare ability to make retro sounds feel utterly contemporary.",
@@ -9014,7 +9035,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Nashville',
       country: 'US',
     },
-    genre: ['Country'],
+    genre: ['Folk'],
     title: 'The Bones — Maren Morris',
     description:
       "Maren Morris releases 'The Bones', a spare, emotionally grounded country ballad about the bedrock of a lasting relationship. Built on a simple metaphor — that a love is only as strong as its foundation — the song becomes one of the defining country hits of 2019, cementing Morris's place as a leading voice in modern Nashville's crossover era.",
@@ -9046,7 +9067,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'The Chain — Fleetwood Mac',
     description:
       "Fleetwood Mac releases 'The Chain' on their landmark album Rumours, recorded amid the simultaneous romantic breakdowns of multiple band members. The song is the only track on Rumours credited to all five members, its tension and defiance mirroring the fractured relationships that fuel the entire record. It becomes one of their most enduring anthems — a testament to the band's refusal to dissolve despite the chaos.",
@@ -9062,7 +9083,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Houston',
       country: 'US',
     },
-    genre: ['Country Pop'],
+    genre: ['Folk', 'Pop'],
     title: 'The Gambler — Kenny Rogers',
     description:
       "Kenny Rogers releases 'The Gambler' in 1978, a story-song built around a chance meeting with a card shark on a late-night train. The gambling metaphors — 'know when to hold 'em, know when to fold 'em' — transcend country radio and enter the American vernacular as universal life advice. The song wins Rogers a Grammy and cements his crossover appeal as one of country pop's defining voices.",
@@ -9094,7 +9115,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'San Francisco',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'The Joker — The Steve Miller Band',
     description:
       "The Steve Miller Band releases 'The Joker,' a laid-back, swaggering anthem that becomes one of the defining rock tracks of 1973. Miller weaves together his own self-referential nicknames — the joker, the smoker, the midnight toker — into a chorus so effortlessly catchy it transcends the decade. The song cements Miller's reputation as a craftsman of accessible, groove-driven rock and earns him his first number one hit.",
@@ -9115,7 +9136,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Classic R&B'],
+    genre: ['R&B'],
     title: 'The Loco-Motion — Little Eva',
     description:
       "Little Eva records 'The Loco-Motion', a song written for her by Carole King and Gerry Goffin — her employers, for whom she worked as a babysitter. The infectious dance track rockets to #1, making Eva Boyd an overnight star and cementing the Brill Building songwriting machine as the hitmaking engine of early 1960s pop.",
@@ -9131,7 +9152,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Athens',
       country: 'US',
     },
-    genre: ['New Wave'],
+    genre: ['Rock'],
     title: 'The Love Shack — The B-52s',
     description:
       "The B-52s release 'Love Shack', a jubilant burst of new wave party energy that becomes one of the defining feel-good anthems of the late 1980s. The Athens, Georgia band — already cult favorites since the late 1970s — reach their commercial peak, proving that quirky, campy exuberance can conquer mainstream radio. Its call-and-response energy and sheer infectious joy make it inescapable.",
@@ -9179,7 +9200,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'The Ocean — Led Zeppelin',
     description:
       "Led Zeppelin release 'The Ocean' on Houses of the Holy, a thunderous tribute to their live audiences — the 'ocean of people' Zeppelin faced night after night on their legendary stadium tours. Robert Plant's lyrics and John Bonham's ferocious, count-in opening capture the band at their most self-aware and celebratory. The song's shifting time signatures showcase Zeppelin's refusal to be confined by conventional rock structure.",
@@ -9227,7 +9248,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Gothenburg',
       country: 'SE',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'The Sign — Ace Of Base',
     description:
       "Ace of Base releases 'The Sign', a euphoric Swedish pop track that becomes one of the best-selling singles of the 1990s. Built on reggae-inflected rhythms and an irresistibly bright melody, the Gothenburg quartet brings a distinctly Scandinavian flavor to global pop — helping establish Sweden as a powerhouse of radio-ready songcraft that would dominate the decade and beyond.",
@@ -9259,7 +9280,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Woodstock',
       country: 'US',
     },
-    genre: ['Folk Rock'],
+    genre: ['Folk', 'Rock'],
     title: 'The Weight — The Band',
     description:
       "The Band's 'The Weight' stands as one of the defining documents of Americana — a song so steeped in Southern mythology and communal storytelling that it seems to have always existed. Written by Robbie Robertson and rooted in the weight of human obligation, it captures the group's uncanny ability to sound ancient and immediate at once. Its chorus, shared between multiple voices, embodies the Band's philosophy: no single star, just the song.",
@@ -9275,7 +9296,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Omaha',
       country: 'US',
     },
-    genre: ['Funk Rock'],
+    genre: ['Funk', 'Rock'],
     title: 'Them Changes — Buddy Miles',
     description:
       "Buddy Miles releases 'Them Changes', a raw funk-rock anthem that showcases his powerhouse drumming and soulful vocals. The track becomes one of the defining grooves of the early 1970s, bridging the gap between psychedelic rock and hard funk — a sound Miles had been forging alongside Jimi Hendrix in the Band of Gypsys.",
@@ -9291,7 +9312,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Macon',
       country: 'US',
     },
-    genre: ['Soul'],
+    genre: ['R&B'],
     title: 'These Arms Of Mine — Otis Redding',
     description:
       "Otis Redding records 'These Arms Of Mine' at Stax Records in Memphis, pouring raw emotional longing into a slow, aching ballad that becomes his debut single. The recording captures a 21-year-old finding his voice — a voice so devastatingly sincere it redefines what Southern soul can feel like. It marks the beginning of one of the most powerful careers in American music.",
@@ -9307,7 +9328,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Downey',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: '(They Long To Be) Close To You — The Carpenters',
     description:
       "The Carpenters release '(They Long To Be) Close To You', transforming a Burt Bacharach and Hal David composition into a soft-pop landmark. Karen Carpenter's warm, intimate alto and the song's lush orchestration capture a mood of gentle longing that defines the early 1970s easy listening sound. It hits #1 and launches the duo from Downey, California into global stardom.",
@@ -9414,7 +9435,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['New Wave'],
+    genre: ['Rock'],
     title:
       'This Must Be The Place (Naive Melody) — Talking Heads / Tina Weymouth',
     description:
@@ -9516,7 +9537,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Till There Was You — The Beatles',
     description:
       "The Beatles record 'Till There Was You', a show tune from the 1957 musical 'The Music Man', for their landmark US debut album 'Meet the Beatles!'. The choice is revealing — the Fab Four are not merely a rock and roll act but versatile interpreters capable of disarming American audiences with charm and elegance. It works: teenage girls swoon, and skeptical parents find a reason to listen.",
@@ -9532,7 +9553,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Tiny Dancer — Elton John',
     description:
       "Elton John and Bernie Taupin's 'Tiny Dancer' captures the sun-drenched romanticism of early 1970s California, painting a portrait of a free-spirited dancer against the backdrop of the LA music scene. Though not an immediate chart sensation on release, the song becomes one of rock's most beloved anthems — immortalized for a new generation by its unforgettable appearance in Cameron Crowe's Almost Famous.",
@@ -9548,7 +9569,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Train in Vain — The Clash',
     description:
       "The Clash release 'Train in Vain' as a hidden, unlisted track on their landmark album 'London Calling' — so new it didn't even make the sleeve. The song surprises fans and radio programmers alike with its melodic, soul-tinged hook, proving the band's range extends far beyond punk aggression. It becomes their first US Top 40 hit, opening American ears to one of Britain's most vital acts.",
@@ -9564,7 +9585,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Honolulu',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Treasure — Bruno Mars',
     description:
       "Bruno Mars releases 'Treasure', a sun-drenched funk and pop throwback that channels the euphoric groove of 1980s acts like Earth, Wind & Fire and Kool & the Gang. At a moment when electronic production dominates pop radio, Mars doubles down on live-band energy and irresistible hooks — proving that classic soul and funk can still conquer the charts.",
@@ -9580,7 +9601,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Macon',
       country: 'US',
     },
-    genre: ['Classic Soul'],
+    genre: ['R&B'],
     title: 'Try A Little Tenderness — Otis Redding',
     description:
       "Otis Redding's 'Try A Little Tenderness' becomes one of the defining performances of classic soul — a slow, aching build that erupts into a frenzy of raw gospel energy. Recorded in the 1960s at Stax Studios in Memphis, Redding transforms a decades-old pop standard into something entirely his own, stripping it down to pure human longing. It remains a masterclass in emotional escalation and the power of the Memphis soul sound.",
@@ -9596,7 +9617,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Belfast',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Tupelo Honey — Van Morrison',
     description:
       "Van Morrison releases 'Tupelo Honey' in 1971, a luminous love song that stands as one of his most tender and unhurried performances. Steeped in Southern soul and Celtic romanticism, it captures Morrison at his most open-hearted — a stark contrast to the cosmic mysticism of 'Astral Weeks'. The song becomes a touchstone for artists seeking to blend rock's raw energy with the warmth of gospel and country.",
@@ -9612,7 +9633,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Twist And Shout — The Beatles/Isley Brothers',
     description:
       "The Isley Brothers record 'Twist and Shout' in 1962, igniting a raw, call-and-response frenzy that captures the explosive energy of early rock and roll. The Beatles then cover it on their debut album 'Please Please Me', with John Lennon delivering a throat-shredding vocal recorded in a single take at the end of a marathon session. The cover introduces the song to a global audience and becomes one of the most iconic moments in Beatles history.",
@@ -9719,7 +9740,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Motown'],
+    genre: ['R&B'],
     title: 'Uptight (Everything’s Alright) — Stevie Wonder',
     description:
       "Fifteen-year-old Stevie Wonder records 'Uptight (Everything's Alright)', his first major hit as a co-writer, signaling a new creative independence within the Motown machine. The track's irresistible groove and jubilant energy announce Wonder not merely as a child prodigy but as a genuine songwriting force — one who will go on to redefine soul music entirely.",
@@ -9756,7 +9777,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Uptown Girl — Billy Joel',
     description:
       "Billy Joel releases 'Uptown Girl' in 1983, a gleaming homage to the Four Seasons and early 1960s doo-wop pop that stands apart from his usual piano-driven balladry. The song becomes a massive international hit and captures a playful, nostalgic optimism at the height of the MTV era — its music video, featuring Joel as a greasy mechanic wooing a glamorous model, becomes as iconic as the song itself.",
@@ -9788,7 +9809,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Valerie — Amy Winehouse',
     description:
       "Amy Winehouse records a cover of 'Valerie', originally by The Zutons, with producer Mark Ronson for his album 'Version'. Winehouse's raw, soulful delivery transforms the song into something entirely her own, blending vintage soul and Motown warmth with modern pop-rock energy. The track becomes one of the defining recordings of her career, showcasing the voice that had already captivated the world.",
@@ -9852,7 +9873,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Latin Pop'],
+    genre: ['Latin', 'Pop'],
     title: 'Vivir Mi Vida — Marc Anthony',
     description:
       "Marc Anthony releases 'Vivir Mi Vida', a jubilant salsa anthem that becomes one of the defining Latin pop hits of the decade. Adapted from the North African classic 'C'est la vie' by Khaled, the song's irresistible rhythm and message of resilience propel Anthony back to the top of the Latin music world, earning him multiple Grammy and Latin Grammy awards.",
@@ -9868,7 +9889,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Charleston',
       country: 'US',
     },
-    genre: ['Bluegrass'],
+    genre: ['Folk'],
     title: 'Wagon Wheel — Darius Rucker/Old Crow Medicine Show',
     description:
       "Old Crow Medicine Show builds a full song around an unfinished Bob Dylan sketch, turning a fragment from the 'Knockin' on Heaven's Door' sessions into a rousing bluegrass anthem about drifting south. Darius Rucker's 2013 country cover brings the song to massive mainstream audiences, making it one of the rare tracks to top both the country and bluegrass charts — a testament to its timeless, rambling spirit.",
@@ -9905,7 +9926,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Bridgeport',
       country: 'US',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Waiting On The World To Change — John Mayer',
     description:
       "John Mayer releases 'Waiting On The World To Change' in 2006, a laid-back anthem that captures the political disillusionment of a generation raised on the Iraq War and 24-hour news cycles. Its gentle, optimistic groove masks a sharp critique of youthful powerlessness, sparking debate about whether it's a rallying cry or an excuse for passivity — and making it one of the defining pop-rock statements of the mid-2000s.",
@@ -9926,7 +9947,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Stockholm',
       country: 'SE',
     },
-    genre: ['Rock Pop'],
+    genre: ['Pop', 'Rock'],
     title: 'Wake Me Up — Avicii',
     description:
       "Avicii releases 'Wake Me Up' in 2013, fusing electronic dance music with folk and bluegrass elements in a way that shocks dance music purists but captivates the world. The track becomes a global phenomenon, demonstrating that EDM could absorb acoustic warmth and emotional depth without losing the dancefloor. It signals a new era of genre-blurring pop that defines the mid-2010s mainstream.",
@@ -9942,7 +9963,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Wake Me Up Before You Go-Go — Wham',
     description:
       "Wham! releases 'Wake Me Up Before You Go-Go', a burst of pure pop euphoria that captures the sun-drenched optimism of mid-1980s Britain. The track catapults George Michael and Andrew Ridgeley to international stardom, becoming a defining anthem of the decade's exuberant, neon-bright pop culture.",
@@ -9958,7 +9979,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Winchester',
       country: 'US',
     },
-    genre: ['Country'],
+    genre: ['Folk'],
     title: 'Walkin’ After Midnight — Patsy Cline',
     description:
       "Patsy Cline reluctantly records 'Walkin' After Midnight' in 1957, a song she initially dismisses as too pop for her taste. After performing it on Arthur Godfrey's Talent Scouts, it crosses over to both the country and pop charts, making Cline a star and proving that country music could reach a far wider audience than Nashville had imagined.",
@@ -9974,7 +9995,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Cambridge',
       country: 'GB',
     },
-    genre: ['New Wave'],
+    genre: ['Rock'],
     title: 'Walking On Sunshine — Katrina And The Waves',
     description:
       "Katrina and the Waves record 'Walking On Sunshine' in 1983, unleashing one of the most irresistibly euphoric pop songs of the decade. Its bright, horn-driven energy and Katrina Leskanich's powerhouse vocals cut through the cool detachment of new wave, delivering unfiltered joy at a moment when pop rarely allowed itself such abandon. The song becomes a timeless emblem of pure, uncomplicated happiness.",
@@ -10027,7 +10048,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Watermelon Sugar — Harry Styles',
     description:
       "Harry Styles releases 'Watermelon Sugar', a sun-drenched, carefree anthem that signals his full evolution from One Direction teen idol to confident solo artist. With its breezy retro-pop-rock feel, the song captures a hedonistic summer energy and becomes one of his signature tracks — cementing his place as a defining pop voice of his generation.",
@@ -10043,7 +10064,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Way Over Yonder — Carole King',
     description:
       "Carole King releases 'Way Over Yonder' on her landmark album Tapestry, a soulful ballad rooted in gospel yearning and quiet spiritual longing. In a year when Tapestry rewrites the rules for singer-songwriters, the track stands as one of its most intimate moments — King's voice and piano stripped to their emotional core, proving that vulnerability itself can be a kind of mastery.",
@@ -10059,7 +10080,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Philadelphia',
       country: 'US',
     },
-    genre: ['Disco'],
+    genre: ['Funk'],
     title: 'We Are Family — Sister Sledge',
     description:
       "Sister Sledge releases 'We Are Family', a disco anthem that becomes one of the genre's defining moments. Written and produced by Nile Rodgers and Bernard Edwards of Chic, its irresistible groove and empowering message transcend the dancefloor — becoming a rallying cry for unity adopted by sports teams, civil rights movements, and celebrations worldwide.",
@@ -10091,7 +10112,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Bridgetown',
       country: 'BB',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'We Found Love — Rihanna',
     description:
       "Rihanna and producer Calvin Harris release 'We Found Love', a euphoric dance-pop anthem that becomes one of the best-selling singles of all time. Its pulsing four-on-the-floor beat and Rihanna's soaring vocal hook capture the peak of EDM's crossover into mainstream pop, cementing the era when festival culture and Top 40 radio fully collide.",
@@ -10107,7 +10128,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New Orleans',
       country: 'US',
     },
-    genre: ['Jazz Ballad'],
+    genre: ['Jazz'],
     title: 'What A Wonderful World — Louis Armstrong',
     description:
       "Louis Armstrong records 'What A Wonderful World' in 1967, a tender jazz ballad that stands in quiet defiance of the turbulence tearing through American society. His gravelly, weathered voice transforms a simple hymn to beauty into something profound — a reminder that joy and grace still exist amid war and civil unrest. The song becomes one of the most beloved recordings in popular music history.",
@@ -10160,7 +10181,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'What Is And What Should Never Be — Led Zeppelin',
     description:
       "Led Zeppelin's 'What Is And What Should Never Be', written by Jimmy Page and Robert Plant, captures the band's genius for dynamic contrast — shifting from hushed, intimate verses to explosive, full-throttle choruses. Originally released on Led Zeppelin II in 1969, the song showcases the band's ability to move between vulnerability and raw power within a single track, cementing their reputation as architects of hard rock.",
@@ -10181,7 +10202,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Washington',
       country: 'US',
     },
-    genre: ['Motown'],
+    genre: ['R&B'],
     title: 'What’s Going On — Marivn Gaye',
     description:
       "Marvin Gaye releases 'What's Going On', a deeply personal protest against the Vietnam War, racism, and poverty — a radical departure from Motown's polished pop formula. Berry Gordy initially refuses to release it, convinced it will fail. It becomes one of the best-selling Motown singles of all time and redefines what soul music can say.",
@@ -10213,7 +10234,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Liverpool',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'When I’m Sixty-Four — The Beatles',
     description:
       "The Beatles release 'When I'm Sixty-Four' on Sgt. Pepper's Lonely Hearts Club Band, one of the most celebrated albums in rock history. Paul McCartney's whimsical, music-hall-flavored number — originally sketched in his teenage years — stands apart from the album's psychedelic grandeur, nodding instead to the pre-rock British pop his father's generation adored. It proves the Beatles can inhabit any era, any mood, any genre.",
@@ -10245,7 +10266,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Where You Lead — Carole King',
     description:
       "Carole King releases 'Where You Lead' as part of her landmark 1971 album 'Tapestry', a record that redefines the singer-songwriter genre and becomes one of the best-selling albums of all time. The song's warm devotion and intimate feel capture the spirit of a generation turning inward after the upheaval of the 1960s. Decades later, it finds a new audience as the theme song for 'Gilmore Girls', cementing its place in American pop culture.",
@@ -10261,7 +10282,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Akron',
       country: 'US',
     },
-    genre: ['New Wave'],
+    genre: ['Rock'],
     title: 'Whip It — Devo',
     description:
       "Devo releases 'Whip It' in 1980, and the absurdist new wave anthem becomes the Ohio band's unlikely commercial breakthrough. With its jerky synth riffs, robotic rhythms, and deadpan lyrics, the song brings Devo's philosophy of 'de-evolution' to mainstream American radio — proving that weird, angular, and ironic could sell.",
@@ -10277,7 +10298,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Dublin',
       country: 'IE',
     },
-    genre: ['Irish Folk'],
+    genre: ['Folk'],
     title: 'Whiskey In A Jar — The Dubliners',
     description:
       "The Dubliners record their version of 'Whiskey In A Jar', one of Ireland's most enduring traditional folk songs. Rooted in 17th-century Irish balladry, the song tells the tale of a highwayman's betrayal and has become a cornerstone of the Irish pub folk repertoire. Their rollicking rendition keeps the ancient story alive for new generations.",
@@ -10293,7 +10314,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Whole Lotta Love — Led Zeppelin',
     description:
       "Led Zeppelin releases 'Whole Lotta Love' in 1969, a thunderous blast of electric blues that redefines what hard rock can be. Jimmy Page's riff — one of the most recognizable in rock history — and Robert Plant's howling vocals push the boundaries of studio recording, while the song's psychedelic midsection points toward the experimental ambition that will define the band's legacy.",
@@ -10309,7 +10330,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Billstown',
       country: 'US',
     },
-    genre: ['Country'],
+    genre: ['Folk'],
     title: 'Wichita Lineman — Glen Campbell',
     description:
       "Glen Campbell releases 'Wichita Lineman', Jimmy Webb's meditation on loneliness and longing set against the vast Oklahoma plains. A telephone lineman becomes an unlikely romantic hero, and the song blurs the line between country and pop with an orchestral sophistication rarely heard in either genre. It becomes one of the first country songs to be widely recognized as serious art.",
@@ -10341,7 +10362,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Houston',
       country: 'US',
     },
-    genre: ['Soul'],
+    genre: ['R&B'],
     title: 'Will It Go Round In Circles — Billy Preston',
     description:
       "Billy Preston releases 'Will It Go Round In Circles', a buoyant soul groove built on a rolling piano figure and a melody, as Preston cheerfully admits, with no story. The song hits #1 in the US, cementing Preston's status as a rare instrumentalist-turned-solo-star — the only artist to receive a co-billing credit on a Beatles record. It captures the looser, funkier side of early 1970s soul.",
@@ -10373,7 +10394,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Will You Love Me Tomorrow? — Carole King',
     description:
       "Carole King reimagines 'Will You Love Me Tomorrow?' — a song she originally wrote for The Shirelles' landmark 1960 hit — on her era-defining album 'Tapestry'. Where the original captured teenage vulnerability through girl-group pop, King's 1971 piano-driven version reclaims it as a deeply personal meditation, cementing 'Tapestry' as one of the best-selling albums of all time.",
@@ -10410,7 +10431,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Boston',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'Wise Up — Aimee Mann',
     description:
       "Aimee Mann writes 'Wise Up' as a spare, aching ballad that distills her gift for emotional precision into something almost unbearably intimate. The song later finds its defining cultural moment when Paul Thomas Anderson weaves it into the film Magnolia, where an entire ensemble cast sings it simultaneously — a rare cinematic rupture that elevates both the movie and Mann's reputation as one of America's most honest songwriters.",
@@ -10426,7 +10447,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Wish You Were Here — Pink Floyd',
     description:
       "Pink Floyd releases 'Wish You Were Here' in 1975, a haunting meditation on absence, alienation, and the tragic decline of founding member Syd Barrett. Built around a fingerpicked acoustic guitar motif and Roger Waters' aching vocals, the song becomes one of rock's most profound elegies — a quiet devastation amid the era's arena bombast.",
@@ -10442,7 +10463,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Sheffield',
       country: 'GB',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'With A Little Help From My Friends — Joe Cocker',
     description:
       "Joe Cocker releases his debut single, a soulful reimagining of the Beatles' 'With A Little Help From My Friends.' Where the original is breezy and playful, Cocker's raw, gospel-drenched delivery transforms it into something visceral and urgent — announcing a voice that sounds like it carries the weight of the world. His performance at Woodstock the following year cements the song as one of rock's defining moments.",
@@ -10463,7 +10484,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Blues Rock'],
+    genre: ['Rock'],
     title: 'Wonderful Tonight — Eric Clapton',
     description:
       "Eric Clapton releases 'Wonderful Tonight', a tender blues-rock ballad written about his then-wife Pattie Boyd. The song strips away the guitar heroics that defined Clapton's earlier career, revealing a softer, more intimate side that resonates with audiences worldwide. Its gentle fingerpicked melody becomes one of the most recognizable love songs of the 1980s.",
@@ -10511,7 +10532,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Gainesville',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'Yer So Bad — Tom Petty',
     description:
       "Tom Petty releases 'Yer So Bad' as part of his landmark solo run, a wry, lighthearted track that showcases his gift for storytelling — finding dark humor in divorce, dysfunction, and the wreckage of family life. Its easy melodic charm proves that Petty's solo work can stand shoulder to shoulder with his Heartbreakers catalog, cementing his place as one of rock's most consistent and beloved voices.",
@@ -10559,7 +10580,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Soul'],
+    genre: ['R&B'],
     title: 'You Are The Sunshine Of My Life — Stevie Wonder',
     description:
       "Stevie Wonder releases 'You Are The Sunshine Of My Life' from his landmark album Talking Book, a radiant soul ballad that earns him his first Grammy Award for Best Male Pop Vocal Performance. The song signals Wonder's artistic liberation after renegotiating full creative control from Motown — marking the beginning of his classic period, one of the most celebrated runs in pop music history.",
@@ -10596,7 +10617,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Gainesville',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'You Don’t Know How It Feels — Tom Petty',
     description:
       "Tom Petty releases 'You Don't Know How It Feels' as the lead single from his album Wildflowers in 1994. Its laid-back, rolling groove and defiant spirit capture Petty at his most relaxed and self-assured — a reminder that great rock and roll doesn't always need to shout. The song becomes one of his signature solo-era anthems, earning him a Grammy for Best Male Rock Vocal Performance.",
@@ -10633,7 +10654,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Winchester',
       country: 'US',
     },
-    genre: ['Country'],
+    genre: ['Folk'],
     title: 'You Made Me Love You (I Didn’t Want To Do It) — Patsy Cline',
     description:
       "Patsy Cline's recording of 'You Made Me Love You' arrives as a posthumous release, extending her legacy years after her tragic death in 1963. The song — a pop standard first recorded in 1913 — showcases Cline's singular ability to dissolve the line between country and pop, a gift that made her one of the most influential vocalists in American music history.",
@@ -10654,7 +10675,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'New York',
       country: 'US',
     },
-    genre: ['Pop Ballad'],
+    genre: ['Pop'],
     title: 'You Make Me Feel (Like A Natural Woman) — Carole King',
     description:
       "Carole King records 'You Make Me Feel (Like A Natural Woman)' for her landmark album Tapestry, transforming a song she originally wrote for Aretha Franklin into a deeply personal statement of vulnerability and joy. Where Aretha's 1967 version was a soul triumph, King's piano-driven rendition strips it to something intimate and confessional — defining the singer-songwriter movement of the early 1970s.",
@@ -10691,7 +10712,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Sydney',
       country: 'AU',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'You Shook Me All Night Long — AC/DC',
     description:
       "AC/DC releases 'You Shook Me All Night Long' on their landmark album 'Back in Black' — the band's first record with new vocalist Brian Johnson following the death of Bon Scott. The song becomes one of the defining hard rock anthems of 1980, cementing AC/DC's global dominance and proving the band could not only survive the loss of their frontman but reach new commercial heights.",
@@ -10707,7 +10728,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'London',
       country: 'GB',
     },
-    genre: ['Pop Rock'],
+    genre: ['Pop', 'Rock'],
     title: 'Young Americans — David Bowie',
     description:
       "David Bowie releases 'Young Americans' in 1975, a radical pivot from his Ziggy Stardust glam rock persona into what he calls 'plastic soul' — a love letter to Philadelphia soul and American R&B. Recorded in Philadelphia with backing vocals from a young Luther Vandross, the song captures Bowie's restless reinvention and earns him his first major American hit, bridging British art rock and Black American music.",
@@ -10723,7 +10744,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Detroit',
       country: 'US',
     },
-    genre: ['Motown'],
+    genre: ['R&B'],
     title: '(Your Love Keeps Lifting Me) Higher And Higher — Jackie Wilson',
     description:
       "Jackie Wilson releases '(Your Love Keeps Lifting Me) Higher And Higher' in 1967, a euphoric burst of soul that showcases his extraordinary vocal range and infectious energy. The song becomes one of his signature recordings, blending gospel fervor with polished pop production and cementing Wilson's reputation as one of the most dynamic performers of his era — a direct influence on Michael Jackson and generations of soul singers that follow.",
@@ -10760,7 +10781,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Los Angeles',
       country: 'US',
     },
-    genre: ['Classic Rock'],
+    genre: ['Rock'],
     title: 'You’re The One That I Want — Grease',
     description:
       "John Travolta and Olivia Newton-John record 'You're The One That I Want' for the Grease soundtrack, a euphoric burst of pop energy that captures the film's blend of 1950s nostalgia and late-70s gloss. The song becomes a massive global hit, cementing Grease as a cultural phenomenon and introducing a generation to the fantasy of Sandy and Danny's romance.",
@@ -10773,7 +10794,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     videoId: 'e__Pp4FxsjU',
   },
   {
-    id: 'song-youve_got_a_friend',
+    id: 'song-youve_got_a_friend_king',
     year: 1971,
     location: {
       lat: 42.36,
@@ -10781,7 +10802,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       city: 'Boston',
       country: 'US',
     },
-    genre: ['Folk', 'Singer Songwriter'],
+    genre: ['Pop'],
     title: 'You’ve Got A Friend — James Taylor',
     description:
       "James Taylor releases 'You've Got A Friend', a cover of Carole King's song from her landmark Tapestry album, becoming one of his signature recordings. The gentle folk ballad captures the intimate, confessional spirit of the early 1970s singer-songwriter movement and earns Taylor a Grammy for Best Pop Vocal Performance. Its message of unconditional friendship resonates across generations, cementing both Taylor and King as defining voices of the era.",

@@ -21,8 +21,48 @@ import GenrePianoRoll, {
 
 const STAVE_SPACER = 8; // px gap between RH and LH staves
 const TARGET_LANE_HEIGHT = 18; // px — ideal lane height; compress to fit rather than reducing note range
+/**
+ * Absolute floor, and deliberately low.
+ *
+ * A two-hand step is 30–40 chromatic lanes — 20-odd semitones per hand once
+ * the bass reaches down for an octave pop. At 13px that is 430–570px of staves
+ * before the timeline, which no realistic lesson viewport has: every one of
+ * the 65 authored two-hand note sets overflowed and pushed the bottom of the
+ * LH stave out of sight. Seeing every note of both hands matters more than row
+ * thickness, so the floor sits below where real content lands (9–12px in a
+ * 420–520px box) and only bites on a pathologically short window.
+ *
+ * Single-stave steps have far fewer lanes and still reach TARGET_LANE_HEIGHT.
+ */
+const MIN_LANE_HEIGHT = 8;
 const TIMELINE_HEIGHT = 40; // px header reserved by RH stave
 const MIN_OCTAVE_SEMITONES = 12; // always show at least 1 full octave per stave
+
+/**
+ * How tall each chromatic lane gets: fit when it can, scroll when it can't.
+ *
+ * Lane height tracks the space available, capped at TARGET_LANE_HEIGHT so a
+ * tall window does not blow the rows up, and floored at MIN_LANE_HEIGHT
+ * because below that the rows stop being readable — and a roll you cannot read
+ * is worse than one you have to scroll a little.
+ *
+ * When the floor wins, the staves overflow their box on purpose and the roll
+ * viewport scrolls. That is deliberately NOT the page scrolling: the keyboard
+ * is pinned outside this box, so it stays visible at every window size. It
+ * used to be the other way round — the box was inflated past the viewport to
+ * reach 18px lanes, which pushed the keyboard off the bottom of the screen.
+ */
+export function laneHeightFor(
+  containerHeight: number,
+  totalLanes: number,
+): number {
+  if (totalLanes <= 0) return TARGET_LANE_HEIGHT;
+  const availableForStaves = containerHeight - (STAVE_SPACER + TIMELINE_HEIGHT);
+  return Math.min(
+    TARGET_LANE_HEIGHT,
+    Math.max(MIN_LANE_HEIGHT, Math.floor(availableForStaves / totalLanes)),
+  );
+}
 
 export interface DualStaffPianoRollProps extends PianoRollProps {
   handConfig: HandConfig;
@@ -34,7 +74,7 @@ export interface DualStaffPianoRollProps extends PianoRollProps {
 // ---------------------------------------------------------------------------
 
 /** Derive a MIDI split threshold from events that carry a `hand` tag. */
-function computeSplitMidi(events: NoteEvent[]): number {
+export function computeSplitMidi(events: NoteEvent[]): number {
   const lhMidis = events
     .filter((e) => e.hand === 'lh' && e.midi !== undefined)
     .map((e) => e.midi as number);
@@ -51,7 +91,7 @@ function computeSplitMidi(events: NoteEvent[]): number {
   return 60; // fallback: middle C
 }
 
-function splitEvents(
+export function splitEvents(
   events: NoteEvent[],
   splitMidi: number,
 ): { rh: NoteEvent[]; lh: NoteEvent[] } {
@@ -97,7 +137,7 @@ function splitUserNotes(
  * - Returns midiRangeMin/Max and the lane count (rowHeight is computed externally
  *   once we know the effective lane height for both staves together).
  */
-function computeStaveParams(
+export function computeStaveParams(
   events: NoteEvent[],
   fallbackCenter: number,
   minSemitones: number,
@@ -161,24 +201,14 @@ const DualStaffPianoRoll: React.FC<DualStaffPianoRollProps> = ({
   );
 
   // Scale-to-fit: always show at least 1 octave per stave.
-  // Compress lane height toward MIN_LANE_HEIGHT rather than reducing note range.
   const { rhParams, lhParams, laneHeight } = useMemo(() => {
-    const overhead = STAVE_SPACER + TIMELINE_HEIGHT;
-    const availableForStaves = containerHeight - overhead;
-
     const rh = computeStaveParams(rhEvents, 64, MIN_OCTAVE_SEMITONES);
     const lh = computeStaveParams(lhEvents, 48, MIN_OCTAVE_SEMITONES);
-    const totalLanes = rh.laneCount + lh.laneCount;
-
-    // Scale lane height to fit exactly within the available space.
-    // Never exceed TARGET_LANE_HEIGHT; never go below 1px (overflow clips LH otherwise).
-    // MIN_LANE_HEIGHT is a readability guide only — we never force it if it would overflow.
-    const laneH = Math.max(
-      1,
-      Math.min(TARGET_LANE_HEIGHT, Math.floor(availableForStaves / totalLanes)),
-    );
-
-    return { rhParams: rh, lhParams: lh, laneHeight: laneH };
+    return {
+      rhParams: rh,
+      lhParams: lh,
+      laneHeight: laneHeightFor(containerHeight, rh.laneCount + lh.laneCount),
+    };
   }, [rhEvents, lhEvents, containerHeight]);
 
   const rhRowHeight = rhParams.laneCount * laneHeight;
@@ -205,8 +235,9 @@ const DualStaffPianoRoll: React.FC<DualStaffPianoRollProps> = ({
         display: 'flex',
         flexDirection: 'column',
         gap: STAVE_SPACER,
-        height: containerHeight,
-        overflow: 'hidden',
+        // minHeight, not height: fills the box when the staves fit, and grows
+        // past it when the lane floor wins so the viewport above can scroll.
+        minHeight: containerHeight,
       }}
     >
       {/* RH label + stave */}

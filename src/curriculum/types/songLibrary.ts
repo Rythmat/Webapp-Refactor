@@ -219,6 +219,81 @@ export interface AudioSource {
   startOffsetSec?: number;
 }
 
+/* ── Recording credits ──────────────────────────────────────────────── */
+
+/**
+ * What someone did on the recording.
+ *
+ * `performer` is the only role that carries an `instrument`; the rest are the
+ * jobs a session credit names without one. Songwriters appear here AND in the
+ * song's `composer` line — `composer` is the sentence a reader sees ("Written
+ * by Ashford & Simpson"), these are the entities the constellation walks.
+ */
+export type CreditRole =
+  | 'performer'
+  | 'vocals'
+  | 'producer'
+  | 'engineer'
+  | 'arranger'
+  | 'conductor'
+  | 'songwriter';
+
+/**
+ * One name on the recording.
+ *
+ * An ensemble is a credit like any other: session records routinely name the
+ * group and not its players ("The Funk Brothers", "Detroit Symphony
+ * Orchestra"), and inventing a roster to fill the gap would be worse than
+ * saying what the label said.
+ */
+export interface Credit {
+  /** Display name: 'James Jamerson', 'The Funk Brothers'. */
+  name: string;
+  role: CreditRole;
+  /** A `SESSION_INSTRUMENTS` id. Only meaningful for `performer`. */
+  instrument?: string;
+  /** True when the name is a group rather than one person. */
+  ensemble?: boolean;
+  /** A billed artist on the record, not a sideman. `Song.artist` is the
+   *  display line ("Marvin Gaye"); this marks everyone the label actually
+   *  credited, which is how a duet gets both names into the constellation. */
+  primary?: boolean;
+  /** Globe artist slug, when this name exists in the Globe's artist index. */
+  artistGlobeId?: string;
+  /** Set when this could not be pinned to a reliable source — renders muted
+   *  and is excluded from the constellation until someone confirms it. */
+  unverified?: boolean;
+}
+
+/**
+ * Where, when and for whom the recording was made.
+ *
+ * This is what "Motown in Detroit" actually decomposes into: a label, a studio
+ * and a city, each of which is its own pill and its own point on the globe.
+ */
+export interface RecordingSession {
+  /** Studio: 'Hitsville U.S.A.', 'Van Gelder Studio', 'Abbey Road'. */
+  studio?: string;
+  city?: string;
+  country?: string;
+  /** Issuing label: 'Motown', 'Blue Note', 'Stax', 'Daptone'. */
+  label?: string;
+  /** Recording year, when it differs from the release `year`. */
+  recordedYear?: number;
+  unverified?: boolean;
+}
+
+/** Another recording this one is tied to — a cover, an original, a sample. */
+export interface RelatedRecording {
+  /** This library's song id, when that recording is charted here too. */
+  songId?: string;
+  artist: string;
+  year?: number;
+  relation: 'original' | 'cover' | 'sample' | 'interpolation' | 'collaboration';
+  artistGlobeId?: string;
+  unverified?: boolean;
+}
+
 /* ── Song (top-level) ───────────────────────────────────────────────── */
 
 export interface Song {
@@ -249,6 +324,14 @@ export interface Song {
    *  by enrichSongDescriptions.mjs and round-tripped through this file so
    *  buildGlobeData.mjs can pick it up on regeneration. */
   historicalDescription?: string;
+
+  // ── Recording ──
+  /** Everyone credited on this recording, players and non-players alike. */
+  credits?: Credit[];
+  /** Where it was cut, and on whose label. */
+  session?: RecordingSession;
+  /** Other recordings of this song, and records this one is tied to. */
+  relatedRecordings?: RelatedRecording[];
 
   // ── Content cross-references ──
   /** Explicit overrides; resolver fills in the rest from metadata. */

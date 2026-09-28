@@ -45,8 +45,14 @@ export const FeaturedSongCard = ({ song }: FeaturedSongCardProps) => {
   }, [song, currentSong.id]);
 
   const visibleSong = incomingSong ?? currentSong;
-  const { openInLesson, openInStudio, openInGlobe, toggleSaved, isSaved } =
-    useSongActions(visibleSong);
+  const {
+    openInLesson,
+    openInStudio,
+    openInGlobe,
+    toggleSaved,
+    isSaved,
+    studioPrompt,
+  } = useSongActions(visibleSong);
 
   return (
     <Link
@@ -180,6 +186,7 @@ export const FeaturedSongCard = ({ song }: FeaturedSongCardProps) => {
           />
         </div>
       </div>
+      {studioPrompt}
     </Link>
   );
 };

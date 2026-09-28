@@ -15,6 +15,7 @@
 
 import type { ActivityStepV2 } from '../../types/activity.v2';
 import { buildApproachNotes, shouldAddApproach } from './bassApproach';
+import { bassFifthMidi } from './bassFifthRule';
 import { bassPC_toMidi } from './chordBassNote';
 import type { ChordSymbolTones } from './chordSymbolTones';
 import {
@@ -678,7 +679,7 @@ function buildPopBalladDrumPattern(bars: number): BackingNote[] {
 
 // ── Groove dispatcher ───────────────────────────────────────────────────────
 
-type GrooveId =
+export type GrooveId =
   | 'groove_funk_01'
   | 'groove_funk_02'
   | 'groove_funk_03'
@@ -692,7 +693,12 @@ type GrooveId =
   | 'groove_rock_02'
   | 'groove_ballad_01';
 
-function getGrooveForStyleRef(
+/**
+ * The groove a step plays over, from its style sub-profile. Exported because a
+ * Practice Track has to reach the same groove the section's activities used —
+ * the whole point of it is playing over what you just practised.
+ */
+export function getGrooveForStyleRef(
   styleRef: string | undefined,
   genre: string,
 ): GrooveId {
@@ -782,13 +788,16 @@ function buildBassPattern(
       dur: number,
       vel: number,
     ) => {
-      const root = rootAt(o + onset);
+      const chord = chordAt(o + onset);
+      const root = bassPC_toMidi(chord.bassPc);
       const note =
         degree === 'root'
           ? root
           : degree === 'oct'
             ? Math.min(root + 12, 48) // cap at C3 — keeps bass in C1-C3
-            : root + 7;
+            : // The chord's 5, not a fifth above whatever the bass is sitting
+              // on: under Bb/D that is F, never A. See bassFifthRule.ts.
+              bassFifthMidi(chord, root);
       notes.push({
         note,
         onset: o + onset + jitter(0, 5),

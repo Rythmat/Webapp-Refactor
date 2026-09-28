@@ -478,8 +478,14 @@ interface SongListRowProps {
 }
 
 const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
-  const { openInLesson, openInStudio, openInGlobe, toggleSaved, isSaved } =
-    useSongActions(song);
+  const {
+    openInLesson,
+    openInStudio,
+    openInGlobe,
+    toggleSaved,
+    isSaved,
+    studioPrompt,
+  } = useSongActions(song);
 
   return (
     <tr
@@ -595,6 +601,7 @@ const SongListRow: FC<SongListRowProps> = ({ song, index }) => {
               height={LIST_LINK_ICON_SIZE}
             />
           </button>
+          {studioPrompt}
         </div>
       </td>
     </tr>

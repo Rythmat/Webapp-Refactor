@@ -59,6 +59,34 @@ Joining them was scoped on 2026-09-24 and **deliberately deferred** — see
 The timing helpers are the largest gap. Everything needed to follow a chart bar by
 bar during playback is finished and tested; nothing draws it.
 
+### Globe Cities: a content kind wired at neither end
+
+`globe_city` is registered in [kinds.ts](../src/features/admin/content/kinds.ts)
+with a proper form — id, name, country, genres, description — is routed, and
+renders. **Its list in the console is empty, and would do nothing if it were
+not**, because the disconnect runs both ways:
+
+- **Nothing to read.** The CDN serves exactly four bundles — `globe-events`,
+  `songs`, `lessons`, `fundamentals`. Cities are not one of them, so no city
+  records were ever created server-side.
+- **Nothing would read it.** The 302 cities in
+  [cities.ts](../src/components/atlas/data/cities.ts) are a plain static export,
+  imported directly by the globe, the lesson thumbnails, the deck editor and the
+  slide templates. Unlike `MUSIC_HISTORY`, they never pass through
+  `contentStore`, so a record created in the console would be invisible.
+
+The contrast that explains it: **artist locations went the other way.**
+`src/scripts/artistLocations.json` is seeded into the API via
+`music-atlas-api/src/scripts/importArtistLocations.ts` (recorded in the retired
+`buildGlobeData.mjs` header). Someone wrote an importer for artist locations and
+never wrote one for cities.
+
+This matters for the graph work: `place` is one of the eight facets the Globe
+will filter by, and clicking a city is how location filtering works. The repo
+file is perfectly good data for that, so the facet lookup is unaffected — but
+cities cannot be edited the way songs can, and that belongs on the list Ryan
+gets.
+
 ---
 
 ## 4. Production does not read these files
@@ -85,6 +113,23 @@ server content is updated and republished:
 **Unresolved:** whether a republish picks these up from the repo, or whether the
 edits must be re-entered through the admin editor. That cannot be determined from
 the client code.
+
+---
+
+### The vibe rules do not match how vibes were applied
+
+Running `progressionMatchesVibe` against the 539 hand-tagged progressions
+(2026-09-26) shows the coded rules and the curator disagree. Where a human
+explicitly applied a vibe and the rules said no: **sophisticated 334**,
+intriguing 117, cool 115, fun 77, dark 38, sexy 35. In the other direction the
+rules fire very freely — 427 progressions match `romantic`, 367 `hypnotic`, 348
+`happy`.
+
+This matters because `filterProgressionsByVibe` falls back to the algorithm for
+any progression without stored tags, so a vibe filter returns far more than a
+curator would accept. **Deliberately not acted on** — the product owner ranked
+vibes lowest priority (2026-09-26). The 539 labelled entries are the test set
+for recalibrating the rules whenever that becomes worth doing.
 
 ---
 

@@ -863,13 +863,24 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
 
                   if (startPct >= 100 || endPct <= 0) return null;
 
+                  // Proportional margin, matching PlayNote's 15%. A fixed 2px
+                  // inset left the student's own notes visibly thinner than
+                  // the targets they sit on once two-hand lanes compress.
+                  const userMargin = Math.max(
+                    1,
+                    Math.floor(effectiveRowHeight * 0.15),
+                  );
+
                   return (
                     <div
                       key={`user_${i}`}
                       style={{
                         position: 'absolute',
-                        top: row * effectiveRowHeight + 2,
-                        height: effectiveRowHeight - 4,
+                        top: row * effectiveRowHeight + userMargin,
+                        height: Math.max(
+                          1,
+                          effectiveRowHeight - userMargin * 2,
+                        ),
                         left: `${Math.max(0, startPct)}%`,
                         width: `${widthPct}%`,
                         backgroundColor: isCorrect

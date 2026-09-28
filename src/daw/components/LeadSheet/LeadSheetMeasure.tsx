@@ -67,6 +67,8 @@ interface LeadSheetMeasureProps {
   onInsertChordAt?: (tick: number) => void;
   /** Beats in a bar — 4 in common time. */
   beatsPerMeasure?: number;
+  /** Ticks in one of those beats — an eighth (240) in 6/8, a quarter in 4/4. */
+  ticksPerBeat?: number;
   /** Newly inserted chord that should open straight into its edit box. */
   autoEditRegionId?: string | null;
   /** First bar of its system: its barline target leans inward, not off the edge. */
@@ -107,6 +109,7 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
   onSelectItem,
   onInsertChordAt,
   beatsPerMeasure = 4,
+  ticksPerBeat = PPQ,
   autoEditRegionId,
   isSystemStart,
   isLastMeasure,
@@ -141,11 +144,11 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
   const handleBeatDoubleClick = useCallback(
     (beat: number) => (e: React.MouseEvent) => {
       e.stopPropagation();
-      const tick = measure.startTick + beat * PPQ;
+      const tick = measure.startTick + beat * ticksPerBeat;
       if (onInsertChordAt) onInsertChordAt(tick);
       else onClickEmptyBeat(tick);
     },
-    [measure.startTick, onInsertChordAt, onClickEmptyBeat],
+    [measure.startTick, ticksPerBeat, onInsertChordAt, onClickEmptyBeat],
   );
 
   const isMeasureSelected =
@@ -235,7 +238,7 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
       ) : (
         <>
           {measure.chords.map((chord) => {
-            const beatPos = chord.beatOffsetTicks / PPQ;
+            const beatPos = chord.beatOffsetTicks / ticksPerBeat;
             const cx = (beatPos / beatsPerMeasure) * width + 4;
             const chordY = CHORD_AREA_HEIGHT - 8;
             const isBeingDragged = chordDrag?.regionId === chord.regionId;

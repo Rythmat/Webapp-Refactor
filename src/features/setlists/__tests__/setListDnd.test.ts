@@ -3,13 +3,18 @@ import {
   SETLIST_CARD_MIME,
   SETLIST_DRAG_MIME,
   SETLIST_SHOW_MIME,
+  SETLIST_SONG_MIME,
   claimDrop,
   dropIndex,
   hasDragItem,
+  hasSongDrag,
   readCardDrag,
   readDragItem,
   readShowDrag,
+  readSongDrag,
+  setCardDrag,
   setDragItem,
+  setSongDrag,
 } from '../setListDnd';
 
 /** Just enough DataTransfer for the helpers. */
@@ -118,5 +123,43 @@ describe('claimDrop', () => {
       showId: 'sh1',
       artistId: 'a1',
     });
+  });
+});
+
+describe('dragging a lead sheet into a set', () => {
+  it('round-trips the song it carries', () => {
+    const dt = fakeDt();
+    setSongDrag(dt, { songId: 'song_1', title: 'Blue Monk' });
+    expect(hasSongDrag(dt)).toBe(true);
+    expect(readSongDrag(dt)).toEqual({ songId: 'song_1', title: 'Blue Monk' });
+  });
+
+  it('asks to copy, not move — the repertoire keeps the chart', () => {
+    const dt = fakeDt();
+    setSongDrag(dt, { songId: 'song_1', title: 'Blue Monk' });
+    expect(dt.effectAllowed).toBe('copy');
+  });
+
+  it('is not confused with the other set list drags', () => {
+    const card = fakeDt();
+    setCardDrag(card, { setListId: 'sl_1' });
+    expect(hasSongDrag(card)).toBe(false);
+    expect(readSongDrag(card)).toBeNull();
+
+    const song = fakeDt();
+    setSongDrag(song, { songId: 'song_1', title: 'Blue Monk' });
+    expect(hasDragItem(song)).toBe(false);
+    expect(readCardDrag(song)).toBeNull();
+    expect(readShowDrag(song)).toBeNull();
+  });
+
+  it('refuses a payload missing its song id', () => {
+    const dt = fakeDt({ [SETLIST_SONG_MIME]: '{"title":"Blue Monk"}' });
+    expect(readSongDrag(dt)).toBeNull();
+  });
+
+  it('survives a payload that is not JSON', () => {
+    const dt = fakeDt({ [SETLIST_SONG_MIME]: 'not json' });
+    expect(readSongDrag(dt)).toBeNull();
   });
 });

@@ -25,7 +25,11 @@ import {
   uniformSystemNeed,
   type PageSpec,
 } from '@/lib/notation/pageLayout';
-import { planSystemsOver, type SystemMarks } from '@/lib/notation/systemPlan';
+import {
+  packSystems,
+  planSystemsOver,
+  type SystemMarks,
+} from '@/lib/notation/systemPlan';
 import './grandStaff.css';
 
 // ── Staff renderer ─────────────────────────────────────────────────────────
@@ -145,6 +149,15 @@ export interface StaffLayout {
   systemHeight: number;
   /** Vertical distance of one staff step (a line to its next space). */
   stepPx: number;
+  /**
+   * How far below a measure box's `y` its top staff line is drawn, scaled.
+   *
+   * A box's `y` is the top of the stave's own space, not its first line, and
+   * the difference is most of a stave's height. Anything meant to sit "just
+   * above the staff" — a chord symbol, a rehearsal mark — has to add this or
+   * it floats a long way clear of the music and into the system above.
+   */
+  topLineDrop: number;
 }
 
 export interface StaffViewProps {
@@ -168,8 +181,16 @@ export interface StaffViewProps {
    * title block the host prints there (page pixels).
    */
   printTitleInset?: number;
-  /** Bars per system. Without it, systems fill the width. */
+  /** Bars per system. Without it, every bar goes on one system. */
   measuresPerSystem?: number;
+  /**
+   * Break to a new system whenever the next bar will not fit, instead of
+   * running one system off the edge. How many bars a line holds then depends
+   * on what is written in them and how wide the view is, which is what a
+   * reader expects: reach the end of the line, drop down, start again at the
+   * left. Ignored when `measuresPerSystem` says how many bars a line holds.
+   */
+  wrapToFit?: boolean;
   /** Measures that must begin a new system. */
   /**
    * Where system breaks, made-up systems and page breaks fall. Without it a
@@ -217,6 +238,11 @@ export interface StaffViewProps {
 
 // Layout, in unscaled px. Stave y is the top of its space above the lines;
 // the top line sits 40px below it.
+/**
+ * Air at each edge of the music. The same figure both sides, so a score that
+ * wraps onto several systems sits evenly in its box rather than hugging one
+ * edge — `left` below adds it to whatever the brace and part names need.
+ */
 const RIGHT = 6;
 const BRACE_WIDTH = 18;
 const NAME_GAP = 10;
@@ -276,7 +302,20 @@ const MIN_MEASURE_WIDTH = 90;
 /** A multi-bar rest needs room for the thick bar and the count above it. */
 const MULTI_REST_WIDTH = 150;
 const NOTE_PADDING = 28;
-const MIN_SCALE = 0.7;
+/**
+ * How far `fitHeight` may shrink a score so every system fits the box.
+ *
+ * 0.7 was set when a score was always one system, where it never bound. Once
+ * systems wrap it does: a two-staff lesson system is ~256px, so two of them
+ * need 0.70 exactly in a 358px lesson box and three need 0.47 — and a floor
+ * that stops short of what is needed does not produce small notation, it
+ * produces notation with its last system cut off.
+ *
+ * Shrinking also widens the line in music units, so each pass packs more bars
+ * onto fewer systems; the loop usually stops well above this floor. It is
+ * headroom for the case that does not, not a target.
+ */
+const MIN_SCALE = 0.55;
 /**
  * How small the notation may get so a crowded system still fits its page.
  * Below this it would stop being readable, and the system is allowed to run
@@ -568,6 +607,8 @@ interface Grouping {
   marks?: SystemMarks;
   /** Give every bar in a system the same width, whatever is written in it. */
   uniform?: boolean;
+  /** Break to a new system whenever the next bar will not fit the width. */
+  wrap?: boolean;
 }
 
 function layoutSystems(
@@ -578,11 +619,23 @@ function layoutSystems(
   headerRest: number,
   grouping?: Grouping,
 ): SystemLayout[] {
-  const planned = planSystemsOver(
-    slots,
-    grouping?.perSystem ?? Number.POSITIVE_INFINITY,
-    grouping?.marks,
-  );
+  // An explicit bars-a-line count wins; wrapping is for callers that have not
+  // said, and would otherwise get one system however wide the music runs.
+  const planned =
+    grouping?.wrap && grouping.perSystem === undefined
+      ? packSystems(
+          slots,
+          minWidths,
+          available,
+          headerFirst,
+          headerRest,
+          grouping.marks,
+        )
+      : planSystemsOver(
+          slots,
+          grouping?.perSystem ?? Number.POSITIVE_INFINITY,
+          grouping?.marks,
+        );
   const systems: SystemLayout[] = planned.map((system) => ({
     measures: [...system.measures],
     widths: system.measures.map((index) => minWidths[index]),
@@ -631,6 +684,43 @@ function layoutSystems(
 interface Anchor {
   tick: number;
   x: number;
+}
+
+/**
+ * Reduce a system's raw anchors to one x per tick, rising with time.
+ *
+ * Every bar contributes two: the x where its notes start, and the x of its
+ * closing edge. At each downbeat except the system's first, those two collide
+ * — the previous bar's closing edge and this bar's note start carry the very
+ * same tick — and which one survives is where the playhead will sit on that
+ * beat.
+ *
+ * Keep the note start. Beat one is engraved a little INSIDE the barline, after
+ * the bar's own left padding and, on an opening bar, after the clef, key and
+ * time signature. Keeping the closing edge instead put the playhead on the
+ * barline at every downbeat and left it chasing the noteheads across the bar:
+ * fifteen or twenty pixels, constant, never accumulating — the kind of lag a
+ * player feels without being able to name it. The closing edge still ends the
+ * system, where no note start follows it to take its place.
+ */
+export function systemAnchors(raw: readonly Anchor[]): Anchor[] {
+  // Descending x within a tick, so the note start — always right of the
+  // barline it follows — is the one the filter below keeps.
+  const sorted = [...raw].sort((a, b) => a.tick - b.tick || b.x - a.x);
+  const unique = sorted.filter(
+    (a, i) => i === 0 || a.tick !== sorted[i - 1].tick,
+  );
+  // x has to rise with time, or interpolation between a pair runs backwards.
+  const out: Anchor[] = [];
+  for (const anchor of unique) {
+    const previous = out[out.length - 1];
+    out.push(
+      previous
+        ? { ...anchor, x: Math.max(anchor.x, previous.x) }
+        : { ...anchor },
+    );
+  }
+  return out;
 }
 
 interface Rendered {
@@ -683,6 +773,8 @@ interface RenderOptions {
   /** Draw onto paper of this size; without it the score fills the container. */
   page?: PageSpec;
   measuresPerSystem?: number;
+  /** Break to a new system when the next bar will not fit the width. */
+  wrapToFit?: boolean;
   systemMarks?: SystemMarks;
   repeatStarts?: ReadonlySet<number>;
   repeatEnds?: ReadonlySet<number>;
@@ -754,7 +846,15 @@ function render(
     }
     if (nameWidth > 0) nameWidth += NAME_GAP;
   }
-  const left = nameWidth + BRACE_WIDTH;
+  // A brace is only drawn for a part written on more than one stave. Holding
+  // its width open regardless pushed a single-staff lesson 18px to the right
+  // with nothing in the gap, which is most of what read as the score sitting
+  // too far over. The leading RIGHT is the matching gutter: the ink then has
+  // the same air either side of it, wrapped or not.
+  const braceWidth = parts.some((part) => part.score.staves.length > 1)
+    ? BRACE_WIDTH
+    : 0;
+  const left = RIGHT + nameWidth + braceWidth;
 
   // On a page, systems lay out into the paper's content width — a fixed size
   // — and the whole page is then scaled to the space on screen. That is what
@@ -770,6 +870,7 @@ function render(
     // A page is engraved with bars of one size; a lesson staff keeps the
     // proportional spacing it has always had.
     ...(options.page ? { uniform: true } : {}),
+    ...(options.wrapToFit ? { wrap: true } : {}),
   };
   const layoutAt = (scale: number) =>
     layoutSystems(
@@ -876,9 +977,16 @@ function render(
   const ties: Array<InstanceType<VexFlowModule['StaveTie']>> = [];
   const rendered: Rendered = {
     scale,
-    // The paper scales with the view alone; only the music inside it carries
-    // the extra shrink that makes a crowded system fit.
-    width: (page ? page.width : width) * viewScale,
+    // On paper the sheet scales with the view alone, and only the music
+    // inside it carries the extra shrink that makes a crowded system fit.
+    //
+    // Off paper there is no sheet: the music is laid out into `width / scale`
+    // and drawn at `scale`, so it comes out `width` px wide however far it has
+    // shrunk. Scaling again here made the box narrower than the music inside
+    // it — the staff ran off its right edge and was clipped, and `margin: 0
+    // auto` centred the short box, opening a gap down the left. Height never
+    // had the bug; it uses the drawn extent, as this now does.
+    width: page ? page.width * viewScale : width,
     pages:
       page && paged
         ? pageTops(paged.pageCount, page, pageGap).map((top) => ({
@@ -985,7 +1093,7 @@ function render(
             // `nameWidth` already carries NAME_GAP, which belongs between the
             // name and the brace — so the text ends before it, not on it.
             const nameRight =
-              (page ? toMusic(page.margin) : 0) + nameWidth - NAME_GAP;
+              (page ? toMusic(page.margin) : RIGHT) + nameWidth - NAME_GAP;
             ctx.fillText(
               part.name,
               Math.max(0, nameRight - ctx.measureText(part.name).width),
@@ -1031,6 +1139,9 @@ function render(
           }
         }
       }
+      // Where each written tick actually landed, gathered across parts, so the
+      // playhead can be pinned to the beats rather than sweeping a bar evenly.
+      const xByTick = new Map<number, number>();
       parts.forEach((part, partIndex) => {
         const measure = measureOf(part.score, measureIndex);
         // The bars a multi-bar rest covers are not written out.
@@ -1057,6 +1168,16 @@ function render(
           (a, b) => a.item.startTick - b.item.startTick,
         );
         for (const { item, note, staff } of drawn) {
+          // Notes and visible rests alike — a beat that falls on a rest is
+          // still a beat the student is counting, and still a place the
+          // playhead has to be on time.
+          if (item.kind !== 'rest' || !item.hidden) {
+            const at = note.getAbsoluteX();
+            const seen = xByTick.get(item.startTick);
+            if (seen === undefined || at < seen) {
+              xByTick.set(item.startTick, at);
+            }
+          }
           if (item.kind === 'rest' && !item.hidden) {
             // Rests are pickable too: a note can be written over one.
             const element = note.getSVGElement();
@@ -1160,6 +1281,27 @@ function render(
       const slotEndTick = measureOf(lead, slotEnd).endTick;
       if (measure) {
         anchors.push({ tick: measure.startTick, x: noteStart });
+        // An anchor on every beat, at the x the engraver actually used.
+        //
+        // Bar edges alone are not enough. Within a bar the spacing is not
+        // proportional to time — beat 1 holding four sixteenths takes half the
+        // bar's width, beat 4 holding a rest takes a sliver — so sweeping the
+        // bar evenly in time puts the playhead well behind the note sounding
+        // on a busy beat and ahead of it on an empty one. Pinning each beat to
+        // its engraved position locks the click to the page: the playhead is
+        // on beat 2 exactly where beat 2 is written, and merely sweeps between.
+        //
+        // Beats with nothing written at them — a note tied across the beat, a
+        // syncopation that leaves it empty — get no anchor and are covered by
+        // the sweep, which is the best that can be said about a position the
+        // engraving never committed to.
+        const beat = lead.beatTicks;
+        if (beat > 0) {
+          for (let t = measure.startTick + beat; t < slotEndTick!; t += beat) {
+            const at = xByTick.get(t);
+            if (at !== undefined) anchors.push({ tick: t, x: at });
+          }
+        }
         anchors.push({ tick: slotEndTick!, x: x + staveWidth - 4 });
       }
       rendered.barlines.push({
@@ -1206,14 +1348,7 @@ function render(
       }
     });
 
-    // Anchors must rise with time; keep the leftmost x per tick.
-    anchors.sort((a, b) => a.tick - b.tick || a.x - b.x);
-    const unique = anchors.filter(
-      (a, i) => i === 0 || a.tick !== anchors[i - 1].tick,
-    );
-    for (let i = 1; i < unique.length; i++) {
-      unique[i].x = Math.max(unique[i].x, unique[i - 1].x);
-    }
+    const unique = systemAnchors(anchors);
     const firstMeasure = measureOf(lead, system.measures[0]);
     const lastOfSystem = measureOf(lead, system.measures.at(-1)!);
     rendered.systems.push({
@@ -1227,27 +1362,42 @@ function render(
   return rendered;
 }
 
-/** Playhead position (unscaled px) for a tick, or null outside the score. */
 /**
- * Where the playhead sits for a tick — linear in time across the whole system.
+ * Playhead position (unscaled px) for a tick — bar by bar across the system.
  *
  * WHY NOT FOLLOW THE NOTEHEADS
  * Notation spacing is not proportional to duration: a whole note is nowhere
  * near four times the width of a quarter, and a justified system widens a busy
  * bar over a sparse one holding the same amount of time. Interpolating between
- * noteheads — which this used to do — made the playhead crawl across long notes
+ * noteheads — which this once did — made the playhead crawl across long notes
  * and bolt across short ones, so the one thing on screen that is supposed to
  * BE the flow of time was the thing moving unevenly.
  *
- * Mapping the system's tick span onto its drawn span instead gives a constant
- * velocity, and the rhythm of the notes is then read against that even sweep —
- * which is the point of a playhead. The cost is that it does not sit exactly on
- * each notehead; the notes keep their engraved spacing and the clock stays
- * honest.
+ * WHY NOT ONE STRAIGHT LINE ACROSS THE SYSTEM
+ * Stretching the system's whole tick span over its whole drawn span — which
+ * this once did instead — buys that even sweep at a price the eye catches
+ * immediately in an in-time lesson: the engraving and the clock only agree at
+ * the two ends of the line. Everywhere between, the playhead drifts off the
+ * beat it is on, because a line's first bar gives up room to the clef and key
+ * while a dense bar takes room from a sparse one. The drift runs a bar wide on
+ * a busy funk line, and it reads as the playhead lagging the music.
  *
- * The first and last anchors are the system's musical edges: the x where its
- * first bar's notes begin (after the clef and key) and the x where its last bar
- * ends.
+ * SO: INTERPOLATE BETWEEN THE BEATS
+ * Anchor every beat at the x it was actually engraved at, and sweep between.
+ * The playhead is on beat 2 exactly where beat 2 is written, whatever the beat
+ * before it was holding, and no error accumulates down the line.
+ *
+ * The beat is the right grain because it is the one the player is counting.
+ * Anchoring finer — every notehead — brings back the crawl and bolt, since
+ * within a beat the engraving stops being about time at all and starts being
+ * about how much ink has to fit. Anchoring coarser — bar edges only, which
+ * this did until beats were added — leaves the playhead behind the music on
+ * any beat that is busier than its neighbours, which on a sixteenth-note funk
+ * figure is most of them.
+ *
+ * Anchors are ordered by tick, with x rising with them. The first and last are
+ * the system's musical edges: the x where its first bar's notes begin (after
+ * the clef and key) and the x where its last bar ends.
  */
 export function playheadX(
   anchors: readonly { tick: number; x: number }[],
@@ -1256,10 +1406,17 @@ export function playheadX(
   if (anchors.length < 2) return null;
   const first = anchors[0];
   const last = anchors[anchors.length - 1];
-  const span = last.tick - first.tick;
-  if (span <= 0) return first.x;
-  const t = Math.min(1, Math.max(0, (tick - first.tick) / span));
-  return first.x + (last.x - first.x) * t;
+  // Outside the system — hold at the edge rather than run off the staff.
+  if (tick <= first.tick) return first.x;
+  if (tick >= last.tick) return last.x;
+
+  let i = 1;
+  while (i < anchors.length - 1 && anchors[i].tick < tick) i++;
+  const from = anchors[i - 1];
+  const to = anchors[i];
+  const span = to.tick - from.tick;
+  if (span <= 0) return from.x;
+  return from.x + (to.x - from.x) * ((tick - from.tick) / span);
 }
 
 function locate(rendered: Rendered, tick: number) {
@@ -1308,6 +1465,7 @@ export function StaffView({
   page,
   printTitleInset,
   measuresPerSystem,
+  wrapToFit = false,
   systemMarks,
   repeatStarts,
   repeatEnds,
@@ -1368,6 +1526,7 @@ export function StaffView({
           fitHeight,
           page,
           measuresPerSystem,
+          wrapToFit,
           systemMarks,
           repeatStarts,
           repeatEnds,
@@ -1389,6 +1548,7 @@ export function StaffView({
     fitHeight,
     page,
     measuresPerSystem,
+    wrapToFit,
     systemMarks,
     repeatStarts,
     repeatEnds,
@@ -1409,6 +1569,7 @@ export function StaffView({
             scale: rendered.scale,
             systemHeight: rendered.systemHeight * rendered.scale,
             stepPx: STAFF_STEP * rendered.scale,
+            topLineDrop: TOP_LINE_DROP * rendered.scale,
           }
         : null,
     );

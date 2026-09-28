@@ -18,10 +18,25 @@ export type ViewType =
   | 'practice';
 
 /**
- * A Practice Track opened from a Learn lesson: what the one-purpose practice
- * screen needs to name the task and send the student back. Session-only.
+ * One scale the practice keyboard can light, as its switcher offers it.
  */
-export interface PracticeSession {
+export interface PracticeSessionScale {
+  id: string;
+  /** Without the tonic: 'Dorian', 'Minor Blues'. */
+  title: string;
+  intervals: number[];
+  /** Scale degrees, display-ready: ['1','2','♭3','4','5','6','♭7']. */
+  degrees: string[];
+  /** Note names in the key: ['A','B','C','D','E','F♯','G']. */
+  names: string[];
+}
+
+/**
+ * A Practice Track opened from a Theory lesson (Learn ▸ Theory): a mode and a
+ * key, from which the whole track is reproducible. Session-only.
+ */
+export interface TheoryPracticeSession {
+  kind: 'theory';
   /** Prism mode key, e.g. 'ionian'. */
   mode: string;
   /** The lesson's key URL param, e.g. 'bflat'. */
@@ -29,6 +44,44 @@ export interface PracticeSession {
   level: 1 | 2 | 3;
   openTrack: 'melody' | 'chords';
 }
+
+/**
+ * A Practice Track opened from a genre activity flow. It carries more than the
+ * Theory one because a genre backing is not reproducible from parameters — the
+ * generator jitters timing and picks drum phrases at random — so everything the
+ * practice screen needs to name the task, light the right scales and send the
+ * student back travels with the session rather than being re-derived.
+ */
+export interface GenrePracticeSession {
+  kind: 'genre';
+  /** Genre slug, e.g. 'funk'. */
+  genre: string;
+  /** As a student reads it, e.g. 'Funk'. */
+  genreLabel: string;
+  level: number;
+  section: 'A' | 'B' | 'C' | 'D';
+  /** The section's own name: 'Melody', 'Chords', 'Bass', 'Performance'. */
+  sectionName: string;
+  /** Note letter of the tonic, e.g. 'A'. */
+  keyLabel: string;
+  /** Every scale this level teaches, its default first. */
+  scales: PracticeSessionScale[];
+  /** Chord symbols of one turn of the progression, as the chart draws them. */
+  chordCycle: string[];
+  /** What the student plays; two parts means a two-hand Performance track. */
+  studentParts: ('melody' | 'chords' | 'bass')[];
+  /** The keyboard the screen draws, in PianoKeyboard's C-octave numbering. */
+  keyboard: { startC: number; endC: number };
+  /** Where the scale is lit: the MIDI note its tonic sounds at. */
+  scaleTonic: number;
+  /** Things to try, the section's own instruction first. */
+  prompts: string[];
+  /** Back to the lesson this came from. */
+  returnTo: string;
+}
+
+/** A Practice Track in progress, from either kind of lesson. */
+export type PracticeSession = TheoryPracticeSession | GenrePracticeSession;
 /** Tabs of the bottom Channel Strip. Kept here (not in ChannelStrip.tsx) so
  *  the tutorial system can read/open a specific tab from the store. */
 export type ChannelStripTabId =

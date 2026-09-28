@@ -212,3 +212,58 @@ describe('buildBackingNotes follows the progression', () => {
     ]);
   });
 });
+
+describe('the bass line under a slash chord', () => {
+  // Pop L3's progression, as pop_v2.ts writes it. The pop bass pattern is the
+  // one that leans on the 5 — root on beat 1, 5 on beat 3 — so it is where a
+  // fifth taken from the wrong note is most audible.
+  const CHORDS = ['Bb/D', 'Ebm6', 'F7sus4', 'Bb'];
+  const popStep = step({
+    chordSymbols: CHORDS,
+    backing_parts: {
+      engine_generates: ['bass'],
+      student_plays: ['chords'],
+    },
+  });
+  const bassIn = (bar: number) => {
+    const notes = buildBackingNotes(popStep, 58, 1, 'l3a', [], 'pop', 0);
+    return inRange(notes, 'bass', bar * BAR, (bar + 1) * BAR);
+  };
+
+  const D = 2;
+  const F = 5;
+  const A = 9;
+
+  it('never plays a fifth above the slash bass note', () => {
+    // Bb/D: A is the fifth above D, and is not a tone of Bb major. This is the
+    // note the line used to reach for. See bassFifthRule.ts.
+    for (const bar of [0, 4, 8, 12]) {
+      expect([...pitchClasses(bassIn(bar))], `bar ${bar + 1}`).not.toContain(A);
+    }
+  });
+
+  it('plays the chord’s own fifth instead', () => {
+    for (const bar of [0, 4, 8, 12]) {
+      const pcs = pitchClasses(bassIn(bar));
+      expect([...pcs], `bar ${bar + 1}`).toContain(F);
+      // And it still states the slash bass note itself.
+      expect([...pcs], `bar ${bar + 1}`).toContain(D);
+    }
+  });
+
+  it('stays inside the chord, whatever it plays', () => {
+    const tones = chordTones('Bb');
+    for (const bar of [0, 4, 8, 12]) {
+      for (const pc of pitchClasses(bassIn(bar))) {
+        expect([...tones], `bar ${bar + 1}`).toContain(pc);
+      }
+    }
+  });
+
+  it('still plays a fifth above the root under a plain chord', () => {
+    // Bar 4 is Bb with no slash: root Bb, 5 F — unchanged by the rule.
+    const pcs = pitchClasses(bassIn(3));
+    expect([...pcs]).toContain(10);
+    expect([...pcs]).toContain(F);
+  });
+});

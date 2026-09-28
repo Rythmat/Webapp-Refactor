@@ -157,6 +157,12 @@ export function LearnNotationView({
           noteStyles={noteStyles}
           playheadTick={inTime && playheadTick >= 0 ? playheadTick : null}
           fitHeight
+          // The roll scrolls sideways; the staff must not. Bars wrap onto as
+          // many systems as they need and the whole thing shrinks to fit the
+          // height, so nothing runs off the right edge where it cannot be
+          // reached. It also reads the way sheet music does — to the end of
+          // the line, then down and back to the left.
+          wrapToFit
           className="min-h-0 flex-1 px-2 pt-2"
           {...(chordSymbols?.length
             ? {

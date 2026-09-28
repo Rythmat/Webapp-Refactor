@@ -55,6 +55,7 @@ interface LeadSheetStaffProps {
   onSelectItem?: (item: LeadSheetItem, event: React.MouseEvent) => void;
   onInsertChordAt?: (tick: number) => void;
   beatsPerMeasure?: number;
+  ticksPerBeat?: number;
   autoEditRegionId?: string | null;
   /** Bars in the whole piece, so the last one can own the closing barline. */
   measureCount?: number;
@@ -89,6 +90,7 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
   onSelectItem,
   onInsertChordAt,
   beatsPerMeasure,
+  ticksPerBeat,
   autoEditRegionId,
   measureCount,
 }: LeadSheetStaffProps) {
@@ -150,6 +152,7 @@ export const LeadSheetStaff = memo(function LeadSheetStaff({
             onSelectItem={onSelectItem}
             onInsertChordAt={onInsertChordAt}
             beatsPerMeasure={beatsPerMeasure}
+            ticksPerBeat={ticksPerBeat}
             autoEditRegionId={autoEditRegionId}
             isSystemStart={i === 0}
             isLastMeasure={

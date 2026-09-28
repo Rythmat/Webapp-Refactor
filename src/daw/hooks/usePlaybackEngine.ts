@@ -37,6 +37,7 @@ import {
 import { PianoSampler } from '@/daw/instruments/PianoSampler';
 import { SamplerInstrument } from '@/daw/instruments/SamplerInstrument';
 import {
+  BASS_ELECTRIC_CONFIG,
   ELECTRIC_PIANO_CONFIG,
   CELLO_CONFIG,
   ORGAN_CONFIG,
@@ -111,6 +112,8 @@ export function createInstrument(
       return new PianoSampler();
     case 'electric-piano':
       return new SamplerInstrument(ELECTRIC_PIANO_CONFIG);
+    case 'bass-electric':
+      return new SamplerInstrument(BASS_ELECTRIC_CONFIG);
     case 'cello':
       return new SamplerInstrument(CELLO_CONFIG);
     case 'organ':

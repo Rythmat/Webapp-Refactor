@@ -12,6 +12,8 @@ export interface GrandStaffProps {
   playheadTick?: number | null;
   /** Shrink (down to 70%) so every system fits the height when possible. */
   fitHeight?: boolean;
+  /** Break to a new system when the next bar will not fit the width. */
+  wrapToFit?: boolean;
   /** Called with the drawn layout, for positioning an overlay. */
   onLayout?: StaffViewProps['onLayout'];
   /** Drawn over the staves, scrolling with them — chord symbols, markers. */

@@ -24,6 +24,7 @@ import {
 } from '@/curriculum/songLibrary/timing';
 import { useBeatGrid } from '@/curriculum/songLibrary/useBeatGrid';
 import { useSongActions } from '@/features/songs/useSongActions';
+import { SongCredits } from './SongCredits';
 import { useViewedSongsStore } from '@/features/songs/useViewedSongsStore';
 import type { Song } from '@/curriculum/types/songLibrary';
 
@@ -241,6 +242,8 @@ export const SongDetailPage: FC = () => {
               ) : null}
             </p>
 
+            <SongCredits song={song} />
+
             {/* Metadata stat row */}
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm">
               <TransposeKeyButton
@@ -385,7 +388,8 @@ const FavoriteStar: FC<{ songId: string }> = ({ songId }) => {
 };
 
 const SongActionPills: FC<{ song: Song }> = ({ song }) => {
-  const { openInLesson, openInStudio, openInGlobe } = useSongActions(song);
+  const { openInLesson, openInStudio, openInGlobe, studioPrompt } =
+    useSongActions(song);
   const pills: { label: string; iconSrc: string; onClick: () => void }[] = [
     {
       label: 'Open in Lesson',
@@ -417,6 +421,7 @@ const SongActionPills: FC<{ song: Song }> = ({ song }) => {
           <img src={iconSrc} alt="" draggable={false} width={28} height={28} />
         </button>
       ))}
+      {studioPrompt}
     </>
   );
 };

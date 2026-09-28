@@ -1,11 +1,11 @@
 import { NOTES } from '@prism/engine';
 import {
   measureSegments,
-  PPQ,
   regionToMeasures,
   parseChordDisplay,
   type Measure,
 } from '@/daw/midi/leadSheetUtils';
+import { ticksPerBar, ticksPerBeatUnit } from '@/daw/utils/timelineScale';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { LeadSheetRepeat, LeadSheetSection } from '@/daw/store/uiSlice';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
@@ -30,8 +30,8 @@ import type { StoredChart } from '@/features/setlists/types';
  *
  * What comes across is what is on the screen: the same filtered measures, the
  * same section labels, repeats, multi-bar rests and fermatas, at the same
- * indices the staff draws them at. The Studio's chart is 4/4 throughout
- * (`BEATS_PER_MEASURE` is hard-coded there), so the copy is too.
+ * indices the staff draws them at, in the project's own metre — a 3/4 chart
+ * has to reach the set in 3/4 or its bars are read a beat short.
  */
 
 export interface StudioChartSource {
@@ -47,6 +47,7 @@ export interface StudioChartSource {
   measureFermatas: number[] | null;
   leadSheetSections: LeadSheetSection[];
   leadSheetRepeats: LeadSheetRepeat[];
+  timeSignature: [number, number];
 }
 
 /** The song library writes 'major'/'minor' where the Studio says
@@ -78,7 +79,10 @@ export function chartChordName(noteName: string): string {
 /** The measures the staff actually draws: ghost bars swallowed by a multi-bar
  *  rest are dropped, exactly as LeadSheetChartView drops them. */
 function visibleMeasures(source: StudioChartSource): Measure[] {
-  const raw = regionToMeasures(source.chordRegions);
+  const raw = regionToMeasures(
+    source.chordRegions,
+    ticksPerBar(source.timeSignature[0], source.timeSignature[1]),
+  );
   const rest = source.measureRestMap;
   if (!rest) return raw;
   const skip = new Set<number>();
@@ -94,13 +98,15 @@ function barFrom(
   idx: number,
   source: StudioChartSource,
 ): ChordBar {
+  // Beats are counted in the metre's own beat: an eighth in 6/8.
+  const beatTicks = ticksPerBeatUnit(source.timeSignature[1]);
   const chords: ChordHit[] = measureSegments(measure)
     .filter((segment) => segment.chord)
     .map((segment) => ({
       degree: displayAccidentals(segment.chord?.name ?? ''),
       chordName: chartChordName(segment.chord?.noteName ?? ''),
-      beat: 1 + segment.offsetTicks / PPQ,
-      duration: segment.durationTicks / PPQ,
+      beat: 1 + segment.offsetTicks / beatTicks,
+      duration: segment.durationTicks / beatTicks,
     }));
 
   const restBars = source.measureRestMap?.[idx];
@@ -182,7 +188,7 @@ export function chartFromStudio(source: StudioChartSource): StoredChart {
     keyRoot: ((root % 12) + 12) % 12,
     mode,
     tempo: Math.round(source.bpm) || 120,
-    timeSignature: [4, 4],
+    timeSignature: source.timeSignature,
     sections: sections.filter((s) => s.bars.length > 0),
   };
 }

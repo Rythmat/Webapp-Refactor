@@ -10,39 +10,50 @@ import {
   Users,
   X,
 } from 'lucide-react';
-import { useMemo, useState, type FC } from 'react';
+import { useEffect, useMemo, useRef, useState, type FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SearchInput } from '@/components/songLibrary/SearchInput';
 import { LearnRoutes, SongRoutes } from '@/constants/routes';
 import { getSong } from '@/curriculum/data/songs';
+import { SongPickerDialog } from '@/features/classroom/slides/wizard/SongPickerDialog';
 import {
   claimDrop,
   hasCardDrag,
   hasShowDrag,
+  hasSongDrag,
   readCardDrag,
   readShowDrag,
+  readSongDrag,
   setCardDrag,
   setShowDrag,
+  setSongDrag,
 } from '../setListDnd';
 import { isFavorite, roleList } from '../setListsStore';
+import { attachTouchDrag } from '../touchDrag';
 import type { Artist, SetList, SetListParent, Show } from '../types';
 import { useSetLists } from '../useSetLists';
 
 /**
  * Set Lists.
  *
- * Flat by default: every set a player has is one grid of cards, because that
- * is what they have. Underneath, an organiser they build themselves — bands,
- * their shows, and whatever they have dragged into either. Nothing announces
- * a hierarchy before one exists.
+ * Three columns, and the order of them is the work: My Lead Sheets, the
+ * charts a player performs; the set lists they build out of those charts; and
+ * the bands and shows those sets get played at. Each column is a drop target
+ * for the one on its left, so the page reads the way the job goes — a chart
+ * into a set, a set into a show, a show into a band.
  *
- * A set filed under a band stays in the grid as well. Filing is not a move; it
- * is a second way to find the same set, so nothing ever goes missing because
- * it was put somewhere.
+ * Flat by default underneath all that. Every set is in the middle column
+ * whether or not it has been filed anywhere, and filing is not a move: it is
+ * a second way to find the same set, so nothing goes missing because it was
+ * put somewhere. Nothing announces a hierarchy before one exists.
  *
- * My Lead Sheets is not in the grid at all. It is the player's repertoire —
- * the master list of what they play — so it gets its own panel down the side,
- * with Favorites as a filter within it rather than a list of its own.
+ * My Lead Sheets is not a set list — you cannot file it or delete it — which
+ * is why it sits outside the middle column with Favorites as a filter over
+ * it rather than a list of its own.
+ *
+ * The drags are native HTML5 DnD, which is mouse-only; `../touchDrag` is what
+ * makes the same handlers answer to a finger, because this page is used on a
+ * tablet as much as a laptop.
  */
 
 const SONG_LIST_ROUTE = LearnRoutes.root(undefined, { tab: 'Songs' });
@@ -66,6 +77,14 @@ export const SetListsIndexPage: FC = () => {
 
   const hasOrganiser =
     organiser.artists.length > 0 || organiser.looseShows.length > 0;
+
+  // Touch drags for the whole three-column area. The drop handlers below are
+  // written once, for drag events; this is what makes a finger produce them.
+  const columnsRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const node = columnsRef.current;
+    return node ? attachTouchDrag(node) : undefined;
+  }, []);
 
   return (
     <div
@@ -131,59 +150,32 @@ export const SetListsIndexPage: FC = () => {
         </div>
       </header>
 
-      <div className="mt-4 flex min-h-0 flex-1 gap-4 px-6 pb-10 md:px-10">
+      {/*
+        Three columns, and the order is the workflow: the charts you play, the
+        sets you build out of them, and the bands and shows those sets belong
+        to. Every column is a drop target for the one on its left, so the way
+        the work moves is the way the page reads.
+
+        Side by side from md up. Below that they stack in the same order —
+        a phone gets the same sequence, scrolled instead of scanned.
+      */}
+      <div
+        ref={columnsRef}
+        className="mt-4 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-6 pb-10 md:flex-row md:overflow-hidden md:px-10"
+      >
         <Repertoire
           open={repertoireOpen}
           onToggle={() => setRepertoireOpen((v) => !v)}
         />
 
-        <div className="custom-scrollbar min-w-0 flex-1 overflow-y-auto">
-          {visible.length > 0 ? (
-            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-              {visible.map((list) => (
-                <SetListCard
-                  key={list.id}
-                  list={list}
-                  filedIn={filedLabel(list, blob)}
-                  onOpen={() =>
-                    navigate(SongRoutes.setList({ setListId: list.id }))
-                  }
-                  onDuplicate={() => actions.duplicateSetList(list.id)}
-                  onDelete={() => actions.deleteSetList(list.id)}
-                  onUnfile={
-                    list.parent
-                      ? () => actions.fileSetList(list.id, undefined)
-                      : undefined
-                  }
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-xl border border-dashed border-white/15 px-6 py-10 text-center">
-              <ListMusic className="mx-auto mb-3 text-white/30" size={28} />
-              <p className="text-white/70">
-                {needle ? 'Nothing by that name.' : 'No set lists yet.'}
-              </p>
-              {!needle && (
-                <>
-                  <p className="mt-1 text-sm text-white/40">
-                    Build a set for a show, or star a song to start My
-                    Favorites.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={newSetList}
-                    className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#7ecfcf] px-3 py-1.5 text-sm font-semibold text-[#191919]"
-                  >
-                    <Plus size={15} /> New Set List
-                  </button>
-                </>
-              )}
-            </div>
-          )}
+        <SetListColumn
+          lists={visible}
+          blob={blob}
+          searching={needle.length > 0}
+          onNew={newSetList}
+        />
 
-          <Organiser hasAny={hasOrganiser} organiser={organiser} />
-        </div>
+        <OrganiserColumn hasAny={hasOrganiser} organiser={organiser} />
       </div>
     </div>
   );
@@ -203,6 +195,88 @@ function filedLabel(
   return band ? `${band} ▸ ${show.title}` : show.title;
 }
 
+/* ── The set lists ────────────────────────────────────────────────────── */
+
+/**
+ * The middle column: every set the player has, one under another.
+ *
+ * This was a two- and three-across grid. A grid asks to be scanned in both
+ * directions, which fought the point of the page — across is the workflow,
+ * down is just how many you have. One column leaves left-to-right to mean
+ * lead sheet → set → show.
+ */
+const SetListColumn: FC<{
+  lists: SetList[];
+  blob: ReturnType<typeof useSetLists>['blob'];
+  searching: boolean;
+  onNew: () => void;
+}> = ({ lists, blob, searching, onNew }) => {
+  const navigate = useNavigate();
+  const { actions } = useSetLists();
+
+  return (
+    <section className="flex min-h-0 min-w-0 flex-1 flex-col rounded-xl border border-white/10 bg-white/[0.02]">
+      <div className="flex flex-shrink-0 items-center justify-between gap-2 px-3 py-2.5">
+        <span className="text-xs font-semibold uppercase tracking-wide text-white/50">
+          Set Lists
+        </span>
+        <button
+          type="button"
+          onClick={onNew}
+          className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-white/60 hover:border-white/30 hover:text-white"
+        >
+          <Plus size={12} /> Set List
+        </button>
+      </div>
+
+      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-2 pb-2">
+        {lists.length > 0 ? (
+          <div className="flex flex-col gap-2">
+            {lists.map((list) => (
+              <SetListCard
+                key={list.id}
+                list={list}
+                filedIn={filedLabel(list, blob)}
+                onOpen={() =>
+                  navigate(SongRoutes.setList({ setListId: list.id }))
+                }
+                onDuplicate={() => actions.duplicateSetList(list.id)}
+                onDelete={() => actions.deleteSetList(list.id)}
+                onUnfile={
+                  list.parent
+                    ? () => actions.fileSetList(list.id, undefined)
+                    : undefined
+                }
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-dashed border-white/15 px-4 py-8 text-center">
+            <ListMusic className="mx-auto mb-3 text-white/30" size={24} />
+            <p className="text-sm text-white/70">
+              {searching ? 'Nothing by that name.' : 'No set lists yet.'}
+            </p>
+            {!searching && (
+              <>
+                <p className="mt-1 text-xs leading-relaxed text-white/40">
+                  Make one, then drag lead sheets into it from the left.
+                </p>
+                <button
+                  type="button"
+                  onClick={onNew}
+                  className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#7ecfcf] px-3 py-1.5 text-sm font-semibold text-[#191919]"
+                >
+                  <Plus size={15} /> New Set List
+                </button>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
+
 /* ── The repertoire ───────────────────────────────────────────────────── */
 
 /**
@@ -217,6 +291,7 @@ const Repertoire: FC<{ open: boolean; onToggle: () => void }> = ({
   const navigate = useNavigate();
   const { blob, actions } = useSetLists();
   const [starredOnly, setStarredOnly] = useState(false);
+  const [picking, setPicking] = useState(false);
   const inbox = roleList(blob, 'inbox');
   const entries = inbox?.entries ?? [];
 
@@ -237,32 +312,38 @@ const Repertoire: FC<{ open: boolean; onToggle: () => void }> = ({
         type="button"
         onClick={onToggle}
         aria-label="Show My Lead Sheets"
-        className="hidden h-full w-9 flex-shrink-0 flex-col items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] py-3 text-white/45 hover:text-white lg:flex"
+        className="flex w-full flex-shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 text-white/45 hover:text-white md:h-full md:w-9 md:flex-col md:px-0 md:py-3"
       >
         <ChevronRight size={15} />
-        <span
-          className="text-[11px] font-medium tracking-wide"
-          style={{ writingMode: 'vertical-rl' }}
-        >
+        <span className="text-[11px] font-medium tracking-wide md:[writing-mode:vertical-rl]">
           My Lead Sheets
         </span>
       </button>
     );
 
   return (
-    <aside className="hidden w-64 flex-shrink-0 flex-col rounded-xl border border-white/10 bg-white/[0.02] lg:flex">
-      <div className="flex flex-shrink-0 items-center justify-between px-3 py-2.5">
+    <aside className="flex w-full flex-shrink-0 flex-col rounded-xl border border-white/10 bg-white/[0.02] md:w-56 lg:w-64">
+      <div className="flex flex-shrink-0 items-center justify-between gap-2 px-3 py-2.5">
         <span className="text-xs font-semibold uppercase tracking-wide text-white/50">
           My Lead Sheets
         </span>
-        <button
-          type="button"
-          onClick={onToggle}
-          aria-label="Hide My Lead Sheets"
-          className="rounded p-0.5 text-white/35 hover:text-white"
-        >
-          <ChevronLeft size={15} />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setPicking(true)}
+            className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2 py-0.5 text-[11px] text-white/60 hover:border-white/30 hover:text-white"
+          >
+            <Plus size={12} /> Song
+          </button>
+          <button
+            type="button"
+            onClick={onToggle}
+            aria-label="Hide My Lead Sheets"
+            className="rounded p-0.5 text-white/35 hover:text-white"
+          >
+            <ChevronLeft size={15} />
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-shrink-0 gap-1 px-3 pb-2">
@@ -288,18 +369,31 @@ const Repertoire: FC<{ open: boolean; onToggle: () => void }> = ({
         ))}
       </div>
 
-      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-2 pb-2">
+      <div className="custom-scrollbar max-h-64 min-h-0 flex-1 overflow-y-auto px-2 pb-2 md:max-h-none">
         {songs.length === 0 ? (
           <p className="px-2 py-4 text-xs leading-relaxed text-white/35">
             {starredOnly
               ? 'Nothing starred yet.'
-              : 'Charts you save land here — it is your master list of what you play.'}
+              : 'Charts you save land here — it is your master list of what you play. Add one with ＋ Song.'}
           </p>
         ) : (
           songs.map((song) => (
             <div
               key={song.id}
-              className="group flex items-center gap-1 rounded-lg px-2 py-1 hover:bg-white/5"
+              // Only a library song can be dragged into a set: a set holds a
+              // reference by song id, so a chart with no id has nothing to
+              // hand over. Those stay click-to-open.
+              draggable={!!song.songId}
+              onDragStart={(e) => {
+                if (!song.songId) return;
+                setSongDrag(e.dataTransfer, {
+                  songId: song.songId,
+                  title: song.title,
+                });
+              }}
+              className={`group flex items-center gap-1 rounded-lg px-2 py-1 hover:bg-white/5 ${
+                song.songId ? 'cursor-grab active:cursor-grabbing' : ''
+              }`}
             >
               <button
                 type="button"
@@ -334,6 +428,17 @@ const Repertoire: FC<{ open: boolean; onToggle: () => void }> = ({
           ))
         )}
       </div>
+
+      {/* Adding to the repertoire from the page that shows it — the same
+          picker the set list workspace uses, pointed at the inbox list. */}
+      <SongPickerDialog
+        open={picking}
+        onOpenChange={setPicking}
+        onSelect={(song) => {
+          if (inbox) actions.addSong(inbox.id, song.id);
+          setPicking(false);
+        }}
+      />
     </aside>
   );
 };
@@ -390,9 +495,9 @@ const StructureDiagram: FC = () => (
     <p className="mt-4 max-w-2xl text-xs leading-relaxed text-white/40">
       A band does not need a show, and a show does not need a band — but a show
       belongs to the band it was made in and stays there; to use it elsewhere,
-      duplicate it. Drag a set list from the grid above into any of these. It
-      stays in the grid wherever you file it: this is a second way to find a
-      set, not a move.
+      duplicate it. Drag a set list in from the column on the left. It stays in
+      that column wherever you file it: this is a second way to find a set, not
+      a move.
     </p>
   </div>
 );
@@ -408,18 +513,37 @@ const Leaf: FC<{ label: string; note?: string }> = ({ label, note }) => (
   </div>
 );
 
-const Organiser: FC<{
+/**
+ * The right column: Bands over Shows, because that is the order they contain
+ * each other in — a show belongs to a band, a set list belongs to either.
+ *
+ * They were one section under the grid, which put the last step of the
+ * workflow below the middle of it. Stacked in their own column, the page
+ * reads lead sheet → set list → where it is played.
+ */
+const OrganiserColumn: FC<{
   hasAny: boolean;
   organiser: ReturnType<typeof useSetLists>['organiser'];
-}> = ({ hasAny, organiser }) => {
+}> = ({ hasAny, organiser }) => (
+  <div className="flex w-full min-w-0 flex-shrink-0 flex-col gap-4 md:w-72 lg:w-80 xl:w-96">
+    <BandsPanel artists={organiser.artists} showDiagram={!hasAny} />
+    <ShowsPanel shows={organiser.looseShows} />
+  </div>
+);
+
+/** Bands, each holding its shows and whatever has been filed straight on it. */
+const BandsPanel: FC<{
+  artists: ReturnType<typeof useSetLists>['organiser']['artists'];
+  showDiagram: boolean;
+}> = ({ artists, showDiagram }) => {
   const { actions } = useSetLists();
 
   return (
-    <section className="mt-8">
-      <div className="mb-2 flex flex-wrap items-center gap-2">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-white/40">
-          Bands &amp; Shows
-        </h2>
+    <section className="flex min-h-0 flex-[3] flex-col rounded-xl border border-white/10 bg-white/[0.02]">
+      <div className="flex flex-shrink-0 items-center justify-between gap-2 px-3 py-2.5">
+        <span className="text-xs font-semibold uppercase tracking-wide text-white/50">
+          Bands &amp; Artists
+        </span>
         <button
           type="button"
           onClick={() => actions.createArtist()}
@@ -427,6 +551,47 @@ const Organiser: FC<{
         >
           <Plus size={12} /> Band
         </button>
+      </div>
+
+      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-2 pb-2">
+        {artists.length > 0 ? (
+          <div className="space-y-3">
+            {artists.map(({ artist, shows, setLists }) => (
+              <ArtistBox
+                key={artist.id}
+                artist={artist}
+                shows={shows}
+                setLists={setLists}
+              />
+            ))}
+          </div>
+        ) : showDiagram ? (
+          <StructureDiagram />
+        ) : (
+          <p className="px-2 py-4 text-xs leading-relaxed text-white/35">
+            No bands yet. Make one, then drag shows and set lists onto it.
+          </p>
+        )}
+      </div>
+    </section>
+  );
+};
+
+/**
+ * Shows in no band, under the bands they can be dragged into. Dropping a show
+ * here is how it comes back out of one.
+ */
+const ShowsPanel: FC<{
+  shows: { show: Show; setLists: SetList[] }[];
+}> = ({ shows }) => {
+  const { actions } = useSetLists();
+
+  return (
+    <section className="flex min-h-0 flex-[2] flex-col rounded-xl border border-white/10 bg-white/[0.02]">
+      <div className="flex flex-shrink-0 items-center justify-between gap-2 px-3 py-2.5">
+        <span className="text-xs font-semibold uppercase tracking-wide text-white/50">
+          Shows &amp; Concerts
+        </span>
         <button
           type="button"
           onClick={() => actions.createShow(undefined)}
@@ -436,22 +601,9 @@ const Organiser: FC<{
         </button>
       </div>
 
-      {!hasAny ? (
-        <StructureDiagram />
-      ) : (
-        <div className="space-y-3">
-          {organiser.artists.map(({ artist, shows, setLists }) => (
-            <ArtistBox
-              key={artist.id}
-              artist={artist}
-              shows={shows}
-              setLists={setLists}
-            />
-          ))}
-
-          <LooseShows shows={organiser.looseShows} />
-        </div>
-      )}
+      <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-2 pb-2">
+        <LooseShows shows={shows} />
+      </div>
     </section>
   );
 };
@@ -462,7 +614,6 @@ const LooseShows: FC<{ shows: { show: Show; setLists: SetList[] }[] }> = ({
 }) => {
   const { actions } = useSetLists();
   const [over, setOver] = useState(false);
-  if (shows.length === 0) return null;
   return (
     <div
       onDragOver={(e) => {
@@ -478,12 +629,14 @@ const LooseShows: FC<{ shows: { show: Show; setLists: SetList[] }[] }> = ({
         const item = claimDrop(e, readShowDrag);
         if (item) actions.fileShowAt(item.showId, undefined, null);
       }}
-      className={`rounded-xl border border-dashed p-2 transition-colors ${
+      className={`min-h-full rounded-xl border border-dashed p-2 transition-colors ${
         over ? 'border-[#7ecfcf] bg-[#7ecfcf]/[0.06]' : 'border-transparent'
       }`}
     >
-      <p className="mb-1.5 text-[11px] text-white/30">
-        Shows with no band — drag one onto a band to put it there.
+      <p className="mb-1.5 text-[11px] leading-relaxed text-white/30">
+        {shows.length === 0
+          ? 'Shows with no band. Drop one here to take it out of a band.'
+          : 'Shows with no band — drag one onto a band to put it there.'}
       </p>
       {shows.map(({ show, setLists }) => (
         <div key={show.id}>
@@ -791,6 +944,8 @@ const SetListCard: FC<{
   onDelete: () => void;
   onUnfile?: () => void;
 }> = ({ list, filedIn, onOpen, onDuplicate, onDelete, onUnfile }) => {
+  const { actions } = useSetLists();
+  const [over, setOver] = useState(false);
   const songs = list.entries.filter((e) => e.kind !== 'text').length;
   const texts = list.entries.length - songs;
   return (
@@ -799,11 +954,30 @@ const SetListCard: FC<{
       tabIndex={0}
       draggable
       onDragStart={(e) => setCardDrag(e.dataTransfer, { setListId: list.id })}
+      // A chart dragged in from My Lead Sheets lands at the end of the set.
+      onDragOver={(e) => {
+        if (!hasSongDrag(e.dataTransfer)) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+        setOver(true);
+      }}
+      onDragLeave={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) setOver(false);
+      }}
+      onDrop={(e) => {
+        setOver(false);
+        const item = claimDrop(e, readSongDrag);
+        if (item) actions.addSong(list.id, item.songId);
+      }}
       onClick={onOpen}
       onKeyDown={(e) => {
         if (e.key === 'Enter') onOpen();
       }}
-      className="group flex cursor-pointer items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 transition-colors hover:border-white/25"
+      className={`group flex cursor-pointer items-center justify-between rounded-xl border bg-white/[0.03] px-4 py-3 transition-colors ${
+        over
+          ? 'border-[#7ecfcf] bg-[#7ecfcf]/[0.08]'
+          : 'border-white/10 hover:border-white/25'
+      }`}
     >
       <div className="min-w-0">
         <div className="flex items-center gap-1.5">

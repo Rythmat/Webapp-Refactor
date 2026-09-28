@@ -41,6 +41,7 @@ const source = (over: Partial<StudioChartSource> = {}): StudioChartSource => ({
   measureFermatas: null,
   leadSheetSections: [],
   leadSheetRepeats: [],
+  timeSignature: [4, 4],
   ...over,
 });
 

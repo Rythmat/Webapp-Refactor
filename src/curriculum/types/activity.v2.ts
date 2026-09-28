@@ -30,9 +30,29 @@ export interface BackingParts {
   student_plays: ('melody' | 'chords' | 'bass')[];
 }
 
+/**
+ * A hand-authored backing for a level's Practice Tracks, overriding what would
+ * otherwise be inferred from the section's own play-along step.
+ *
+ * Worth authoring where a section has no chord symbols of its own: Funk L2's
+ * Melody section teaches over a one-chord tonic vamp, which is idiomatic but
+ * gives an improvising student nothing to move against. Set `chords` here and
+ * all four of that level's Practice Tracks loop it instead.
+ */
+export interface PracticeTrackParams {
+  /** Chord symbols, one per bar, cycled across the loop ('Am9', 'D13'). */
+  chords: string[];
+  /** The groove to play; defaults to the section step's own style groove. */
+  grooveId?: string;
+  /** Tempo to open at; defaults to the middle of `tempoRange`. */
+  bpm?: number;
+}
+
 export interface ActivityFlowParamsV2 extends ActivityFlowParams {
   defaultScale: number[]; // scale intervals for this level e.g. [0,3,5,7,10]
   defaultScaleId: string; // human-readable e.g. 'minor_pentatonic'
+  /** Optional authored backing for this level's Practice Tracks. */
+  practiceTrack?: PracticeTrackParams;
 }
 
 // Extended ActivityStep for v2 content

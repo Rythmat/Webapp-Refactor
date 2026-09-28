@@ -114,6 +114,46 @@ export function readShowDrag(dt: DataTransfer): ShowDrag | null {
   }
 }
 
+/* ── Dragging a lead sheet into a set list ────────────────────────────── */
+
+/**
+ * The first step of the workflow, and the only one that crosses out of the
+ * repertoire: a chart from My Lead Sheets onto a set list card.
+ *
+ * It carries the song id rather than the entry it was dragged from, because
+ * the repertoire is a list of what the player performs, not a stack of cards
+ * they hand out — dragging a chart into a set copies it there and leaves the
+ * repertoire alone. The title rides along only so the drag preview and the
+ * drop feedback can say what is being carried.
+ */
+export const SETLIST_SONG_MIME = 'application/x-ma-setlist-song';
+
+export interface SongDrag {
+  songId: string;
+  title: string;
+}
+
+export function setSongDrag(dt: DataTransfer, item: SongDrag): void {
+  dt.setData(SETLIST_SONG_MIME, JSON.stringify(item));
+  dt.effectAllowed = 'copy';
+}
+
+export const hasSongDrag = (dt: DataTransfer): boolean =>
+  Array.from(dt.types).includes(SETLIST_SONG_MIME);
+
+export function readSongDrag(dt: DataTransfer): SongDrag | null {
+  try {
+    const raw = dt.getData(SETLIST_SONG_MIME);
+    if (!raw) return null;
+    const item = JSON.parse(raw) as SongDrag;
+    return typeof item?.songId === 'string' && typeof item?.title === 'string'
+      ? item
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 /* ── Claiming a drop ──────────────────────────────────────────────────── */
 
 /**

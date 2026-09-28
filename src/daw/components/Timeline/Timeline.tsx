@@ -311,12 +311,15 @@ function computeProjectLengthTicks(
   let maxTick = barTicks * PROJECT_MIN_BARS;
   for (const track of tracks) {
     for (const clip of track.midiClips) {
-      const endTick = clip.durationTicks
-        ? clip.startTick + clip.durationTicks
-        : clip.events.reduce(
+      // Event ticks are clip-relative, so the clip's end is its start plus its
+      // content extent — not the larger of the two.
+      const endTick =
+        clip.startTick +
+        (clip.durationTicks ??
+          clip.events.reduce(
             (max, e) => Math.max(max, e.startTick + e.durationTicks),
-            clip.startTick,
-          );
+            0,
+          ));
       maxTick = Math.max(maxTick, endTick);
     }
     for (const clip of track.audioClips) {
@@ -649,15 +652,15 @@ export function Timeline() {
         if (clip.durationTicks) {
           clipDuration = clip.durationTicks;
         } else if (clip.events.length > 0) {
-          eventsMinTick = clip.events.reduce(
-            (min, e) => Math.min(min, e.startTick),
-            Infinity,
-          );
-          const maxTick = clip.events.reduce(
+          // Events are clip-relative (playback adds clip.startTick), so an
+          // unsized clip is measured from its own tick 0 — NOT from its first
+          // note. Measuring from the first note collapses a rest at the front
+          // of the clip and drags the notes onto its leading edge.
+          eventsMinTick = 0;
+          clipDuration = clip.events.reduce(
             (max, e) => Math.max(max, e.startTick + e.durationTicks),
-            -Infinity,
+            0,
           );
-          clipDuration = maxTick - eventsMinTick;
         } else {
           clipDuration = 0;
         }
@@ -1541,15 +1544,12 @@ export function Timeline() {
             if (midiClip.durationTicks != null) {
               dur = midiClip.durationTicks;
             } else if (midiClip.events.length > 0) {
-              const minT = midiClip.events.reduce(
-                (m, e) => Math.min(m, e.startTick),
-                Infinity,
-              );
-              const maxT = midiClip.events.reduce(
+              // From the clip's own tick 0, so a rest at the front counts
+              // toward the length the right edge trims against.
+              dur = midiClip.events.reduce(
                 (m, e) => Math.max(m, e.startTick + e.durationTicks),
-                -Infinity,
+                0,
               );
-              dur = maxT - minT;
             }
             endTickOrigin = midiClip.startTick + dur;
             minStartTick = midiClip.startTick;

@@ -28,8 +28,14 @@ const SongCardImpl = ({
   bleedOnHover = false,
   compact = false,
 }: SongCardProps) => {
-  const { openInLesson, openInStudio, openInGlobe, toggleSaved, isSaved } =
-    useSongActions(song);
+  const {
+    openInLesson,
+    openInStudio,
+    openInGlobe,
+    toggleSaved,
+    isSaved,
+    studioPrompt,
+  } = useSongActions(song);
 
   const [imageBroken, setImageBroken] = useState(false);
   const hasArtistImage = !!song.artistImageRef && !imageBroken;
@@ -189,6 +195,7 @@ const SongCardImpl = ({
           </div>
         </div>
       )}
+      {studioPrompt}
     </Link>
   );
 };

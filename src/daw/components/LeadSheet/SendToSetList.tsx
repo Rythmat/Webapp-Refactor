@@ -44,6 +44,8 @@ export function useStudioChartSource(): StudioChartSource {
   const measureFermatas = useStore((s) => s.measureFermatas);
   const leadSheetSections = useStore((s) => s.leadSheetSections);
   const leadSheetRepeats = useStore((s) => s.leadSheetRepeats);
+  const tsNumerator = useStore((s) => s.timeSignatureNumerator);
+  const tsDenominator = useStore((s) => s.timeSignatureDenominator);
   return useMemo(
     () => ({
       projectName,
@@ -58,6 +60,7 @@ export function useStudioChartSource(): StudioChartSource {
       measureFermatas,
       leadSheetSections,
       leadSheetRepeats,
+      timeSignature: [tsNumerator, tsDenominator],
     }),
     [
       projectName,
@@ -72,6 +75,8 @@ export function useStudioChartSource(): StudioChartSource {
       measureFermatas,
       leadSheetSections,
       leadSheetRepeats,
+      tsNumerator,
+      tsDenominator,
     ],
   );
 }

@@ -97,6 +97,8 @@ export const useModuleTour = (tab: TourScript, ref: RefObject<Element>) => {
     dispatch,
     stepProgress,
     visible,
+    /** The page is hidden (another tab, minimized). */
+    hidden: docHidden,
     reduce: !!reduce,
     step: tab.steps[state.step],
     selectStep: (i: number) => dispatch({ type: 'SELECT_STEP', step: i }),

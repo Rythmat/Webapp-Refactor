@@ -17,12 +17,33 @@ import { DemoKeys } from '../DemoKeys';
 import type { SceneProps } from './sceneTypes';
 
 /**
+ * Creep for the demo: its first eight bars, two rows of four under one label.
+ * The closing fermata G is dropped (the loop back to the opening G still
+ * resolves it). Counted across sections, so it holds however the library
+ * splits the chart. The library's song is untouched.
+ */
+const CREEP_BARS = 8;
+const CREEP_DEMO: Song = {
+  ...creep,
+  sections: creep.sections.flatMap((s, i, all) => {
+    const before = all.slice(0, i).reduce((n, prev) => n + prev.bars.length, 0);
+    const bars = s.bars.slice(0, Math.max(0, CREEP_BARS - before));
+    // One chart: only the first section keeps its label.
+    const label = i === 0 ? s.label : '';
+    return bars.length > 0 ? [{ ...s, label, measuresPerRow: 4, bars }] : [];
+  }),
+};
+
+/**
  * Three real songs from the library (bundled files, no content fetch), each
  * with a different color story: Creep borrows two chords from outside G
  * major, Stand By Me never leaves A, Sweet Home Alabama's ♭VII takes G's
  * color.
  */
-const SONGS: Song[] = [creep, stand_by_me, sweet_home_alabama];
+const SONGS: Song[] = [CREEP_DEMO, stand_by_me, sweet_home_alabama];
+
+/** A chart row's natural height, and the most it grows to fill the card. */
+const ROW_H = { min: 76, max: 112, compactMax: 160 };
 
 /** Faint five-line staff behind each bar's beat slashes. */
 const STAFF = {
@@ -164,7 +185,7 @@ export const SongsScene = ({
     onUserAction();
     if (playing) {
       setPlaying(false);
-      audio.stopAll();
+      audio.disable();
       return;
     }
     // From the chord the visitor picked, else the top.
@@ -209,6 +230,20 @@ export const SongsScene = ({
   );
 
   let barIndex = 0;
+  // Chart rows grow into the card's spare height, each up to ROW_H's max; a
+  // shorter chart (Sweet Home's one row) then centers instead of stretching.
+  const rowMax = compact ? ROW_H.compactMax : ROW_H.max;
+  const sectionGrid = chart.sections.map((s) => {
+    const cols = Math.min(s.perRow, compact ? 4 : 5);
+    return { cols, rows: Math.ceil(s.bars.length / cols) };
+  });
+  const chartRows = chart.sections
+    .flatMap((s, i) => {
+      const { rows } = sectionGrid[i];
+      const bars = `minmax(${rows * ROW_H.min}px, ${rows * rowMax}px)`;
+      return s.label ? ['auto', bars] : [bars];
+    })
+    .join(' ');
 
   return (
     <div
@@ -252,7 +287,7 @@ export const SongsScene = ({
               className="size-9 shrink-0 rounded-md object-cover"
             />
             <span className="flex min-w-0 flex-col">
-              <span className="truncate text-xs font-semibold">{s.title}</span>
+              <span className="truncate text-xs">{s.title}</span>
               <span className="flex items-center gap-1.5 truncate text-[11px] text-white/45">
                 <span
                   className="size-1.5 shrink-0 rounded-full"
@@ -280,7 +315,7 @@ export const SongsScene = ({
             className="size-14 shrink-0 rounded-xl object-cover"
           />
           <div className="flex min-w-0 flex-col gap-1">
-            <span className="truncate text-lg font-semibold leading-tight">
+            <span className="truncate text-lg leading-tight">
               “{song.title}”
             </span>
             <span className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-white/50">
@@ -322,106 +357,118 @@ export const SongsScene = ({
         {/* Chord chart */}
         <div
           data-tour-target="chart"
-          className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.03] p-3"
+          className="grid min-h-0 flex-1 content-center overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.03] p-3"
+          style={{ gridTemplateRows: chartRows }}
         >
-          {chart.sections.map((section) => (
-            <div key={section.label} className="flex flex-col gap-1">
-              <span className="w-fit rounded-sm border border-white/25 px-1.5 font-serif text-[11px] font-bold text-white/60">
-                {section.label}
-              </span>
-              <div
-                className="grid"
-                style={{
-                  gridTemplateColumns: `repeat(${Math.min(section.perRow, compact ? 4 : 5)}, minmax(0, 1fr))`,
-                }}
-              >
-                {section.bars.map((hits) => {
-                  const b = barIndex++;
-                  const isActive = b === activeBar;
-                  return (
-                    <div
-                      key={b}
-                      className={cn(
-                        'relative flex h-[76px] flex-col justify-end border-l border-white/25 px-2 pb-2 transition-colors duration-200',
-                        isActive && 'bg-white/[0.06]',
-                      )}
-                    >
-                      <div className="relative h-9">
-                        {hits.map((h, i) => (
-                          <button
-                            key={i}
-                            type="button"
-                            onClick={() => pickChord(b, h)}
-                            className="absolute bottom-0 flex flex-col items-start text-left"
-                            style={{
-                              left: `${((h.beat - 1) / chart.beatsPerBar) * 100}%`,
-                            }}
-                          >
-                            <span
-                              className="font-serif text-[15px] font-bold leading-none transition-colors duration-200"
+          {chart.sections.map((section, i) => {
+            const { cols } = sectionGrid[i];
+            return (
+              <div key={i} className="contents">
+                {section.label && (
+                  <span
+                    className={cn(
+                      'mb-1 w-fit rounded-sm border border-white/25 px-1.5 font-serif text-[11px] text-white/60',
+                      i > 0 && 'mt-2',
+                    )}
+                  >
+                    {section.label}
+                  </span>
+                )}
+                <div
+                  className="grid"
+                  style={{
+                    gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+                    gridAutoRows: '1fr',
+                  }}
+                >
+                  {section.bars.map((hits) => {
+                    const b = barIndex++;
+                    const isActive = b === activeBar;
+                    return (
+                      <div
+                        key={b}
+                        className={cn(
+                          'relative flex flex-col justify-end border-l border-white/25 px-2 pb-2 transition-colors duration-200',
+                          isActive && 'bg-white/[0.06]',
+                        )}
+                      >
+                        <div className="relative h-9">
+                          {hits.map((h, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={() => pickChord(b, h)}
+                              className="absolute bottom-0 flex flex-col items-start text-left"
                               style={{
-                                color:
-                                  isActive && active === h && showColors
-                                    ? h.color
-                                    : undefined,
+                                left: `${((h.beat - 1) / chart.beatsPerBar) * 100}%`,
                               }}
                             >
-                              {displayAccidentals(h.name)}
-                            </span>
-                            <span className="mt-0.5 text-[10px] font-semibold text-white/40">
-                              {displayAccidentals(h.degree)}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                      <div className="relative mt-1 h-[21px]" style={STAFF}>
-                        {Array.from(
-                          { length: chart.beatsPerBar },
-                          (_, beat) => (
+                              <span
+                                className="font-serif text-[15px] leading-none transition-colors duration-200"
+                                style={{
+                                  color:
+                                    isActive && active === h && showColors
+                                      ? h.color
+                                      : undefined,
+                                }}
+                              >
+                                {displayAccidentals(h.name)}
+                              </span>
+                              <span className="mt-0.5 text-[10px] text-white/40">
+                                {displayAccidentals(h.degree)}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                        <div className="relative mt-1 h-[21px]" style={STAFF}>
+                          {Array.from(
+                            { length: chart.beatsPerBar },
+                            (_, beat) => (
+                              <span
+                                key={beat}
+                                className="absolute top-1/2 h-3 w-0.5 -translate-y-1/2 rotate-[30deg] bg-white/30"
+                                style={{
+                                  left: `${((beat + 0.5) / chart.beatsPerBar) * 100}%`,
+                                }}
+                              />
+                            ),
+                          )}
+                          {isActive && running && pos !== null && (
                             <span
-                              key={beat}
-                              className="absolute top-1/2 h-3 w-0.5 -translate-y-1/2 rotate-[30deg] bg-white/30"
+                              className="absolute -inset-y-1 w-0.5 rounded-full bg-white shadow-[0_0_10px_white]"
                               style={{
-                                left: `${((beat + 0.5) / chart.beatsPerBar) * 100}%`,
+                                left: `${(((pos % chart.beatsPerBar) + 0.5) / chart.beatsPerBar) * 100}%`,
                               }}
                             />
-                          ),
-                        )}
-                        {isActive && running && pos !== null && (
-                          <span
-                            className="absolute -inset-y-1 w-0.5 rounded-full bg-white shadow-[0_0_10px_white]"
-                            style={{
-                              left: `${(((pos % chart.beatsPerBar) + 0.5) / chart.beatsPerBar) * 100}%`,
-                            }}
-                          />
-                        )}
+                          )}
+                        </div>
+                        {/* Each chord's Prism color, across its beats */}
+                        <div className="relative mt-1.5 h-1">
+                          {hits.map((h, i) => (
+                            <motion.span
+                              key={i}
+                              className="absolute inset-y-0 origin-left rounded-full"
+                              style={{
+                                left: `${((h.beat - 1) / chart.beatsPerBar) * 100}%`,
+                                width: `calc(${(h.duration / chart.beatsPerBar) * 100}% - 6px)`,
+                                background: h.color,
+                              }}
+                              initial={false}
+                              animate={{ scaleX: showColors ? 1 : 0 }}
+                              transition={{
+                                duration: 0.4,
+                                delay: showColors && auto ? b * 0.07 : 0,
+                              }}
+                            />
+                          ))}
+                        </div>
                       </div>
-                      {/* Each chord's Prism color, across its beats */}
-                      <div className="relative mt-1.5 h-1">
-                        {hits.map((h, i) => (
-                          <motion.span
-                            key={i}
-                            className="absolute inset-y-0 origin-left rounded-full"
-                            style={{
-                              left: `${((h.beat - 1) / chart.beatsPerBar) * 100}%`,
-                              width: `calc(${(h.duration / chart.beatsPerBar) * 100}% - 6px)`,
-                              background: h.color,
-                            }}
-                            initial={false}
-                            animate={{ scaleX: showColors ? 1 : 0 }}
-                            transition={{
-                              duration: 0.4,
-                              delay: showColors && auto ? b * 0.07 : 0,
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Current chord + keys */}
@@ -430,10 +477,10 @@ export const SongsScene = ({
             {active && showColors ? (
               <>
                 <span className="flex items-baseline gap-2">
-                  <span className="font-serif text-xl font-bold">
+                  <span className="font-serif text-xl">
                     {displayAccidentals(active.name)}
                   </span>
-                  <span className="text-[11px] font-semibold text-white/45">
+                  <span className="text-[11px] text-white/45">
                     {displayAccidentals(active.degree)}
                   </span>
                 </span>

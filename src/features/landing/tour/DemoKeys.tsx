@@ -1,7 +1,25 @@
 import { cn } from '@/components/utilities';
 
-const WHITE_PCS = [0, 2, 4, 5, 7, 9, 11];
+const WHITE_PCS = new Set([0, 2, 4, 5, 7, 9, 11]);
 const BLACK_AFTER: Record<number, number> = { 0: 1, 2: 3, 5: 6, 7: 8, 9: 10 };
+
+/** The white keys from `startMidi` through `endMidi` (both white keys). */
+export const whiteKeysBetween = (startMidi: number, endMidi: number) => {
+  const whites: number[] = [];
+  for (let m = startMidi; m <= endMidi; m++)
+    if (WHITE_PCS.has(m % 12)) whites.push(m);
+  return whites;
+};
+
+/**
+ * A key's horizontal center as a % of the keyboard's width (a black key sits
+ * on the line after its white key) — for lining things up with the keys.
+ */
+export const keyCenterPct = (midi: number, whites: readonly number[]) => {
+  const w = 100 / whites.length;
+  const i = whites.indexOf(midi);
+  return i >= 0 ? (i + 0.5) * w : (whites.indexOf(midi - 1) + 1) * w;
+};
 
 /**
  * Lightweight demo keyboard for the product tour. Unlike the app's
@@ -12,6 +30,7 @@ const BLACK_AFTER: Record<number, number> = { 0: 1, 2: 3, 5: 6, 7: 8, 9: 10 };
 export const DemoKeys = ({
   startMidi = 48,
   octaves = 2,
+  endMidi,
   lit,
   hint,
   onPress,
@@ -20,16 +39,18 @@ export const DemoKeys = ({
 }: {
   startMidi?: number;
   octaves?: number;
+  /** Last key (a white key); defaults to `octaves` above `startMidi`. */
+  endMidi?: number;
   lit?: ReadonlyMap<number, string>;
   hint?: ReadonlyMap<number, string>;
   onPress?: (midi: number) => void;
   className?: string;
   label?: string;
 }) => {
-  const whites: number[] = [];
-  for (let o = 0; o < octaves; o++)
-    for (const pc of WHITE_PCS) whites.push(startMidi + o * 12 + pc);
-  whites.push(startMidi + octaves * 12);
+  const whites = whiteKeysBetween(
+    startMidi,
+    endMidi ?? startMidi + octaves * 12,
+  );
 
   const whiteW = 100 / whites.length;
 

@@ -1,6 +1,5 @@
 import { motion, useTransform, type MotionValue } from 'framer-motion';
 import {
-  ChevronDown,
   Circle,
   Lock,
   Metronome,
@@ -30,7 +29,7 @@ const keyName = (pc: number) =>
   displayAccidentals(KEY_CENTERS.find((k) => k.pitchClass === pc)?.name ?? '');
 
 /**
- * The Studio's transport bar (`TransportBar.tsx`): File, project name and the
+ * The Studio's transport bar (`TransportBar.tsx`), trimmed for the demo: the
  * KEY pill (rainbow-bordered until a key is set, then filled "KEY: C"), the
  * tempo cluster, ■ ▶ ● and the bar:beat:sixteenth counter in the true center,
  * then the view switcher. Only KEY, Stop and Play are real controls. Compact
@@ -47,6 +46,8 @@ export const StudioTransport = ({
   onKey,
   onPlay,
   onStop,
+  playTarget,
+  keyLabel,
 }: {
   layout: StudioLayout;
   compact: boolean;
@@ -59,6 +60,10 @@ export const StudioTransport = ({
   onKey: () => void;
   onPlay: () => void;
   onStop: () => void;
+  /** A tour's `data-tour-target` on Play (the demo that clicks it). */
+  playTarget?: string;
+  /** What the keyed KEY pill does, for screen readers (default: Prism). */
+  keyLabel?: string;
 }) => {
   const counter = useTransform(position, formatPosition);
   const keyed = keyPc !== null && keyColor !== null;
@@ -69,14 +74,16 @@ export const StudioTransport = ({
       active={!keyed}
       onClick={onKey}
       aria-label={
-        keyed ? `Key: ${keyName(keyPc)} major. Open Prism` : 'Pick a key'
+        keyed
+          ? `Key: ${keyName(keyPc)} major. ${keyLabel ?? 'Open Prism'}`
+          : 'Pick a key'
       }
       wrapperClassName="inline-flex shrink-0 rounded-[8px] p-[2px]"
       className={cn(
         'gap-1 whitespace-nowrap uppercase tracking-wider',
         compact
-          ? 'h-7 min-w-[84px] px-2.5 text-[14px] font-bold'
-          : 'h-[22px] min-w-[64px] px-2 text-[11px] font-semibold',
+          ? 'h-7 min-w-[84px] px-2.5 text-[14px]'
+          : 'h-[22px] min-w-[64px] px-2 text-[11px]',
         FOCUS,
       )}
       style={{
@@ -113,6 +120,7 @@ export const StudioTransport = ({
         type="button"
         aria-label={playing ? 'Pause' : 'Play'}
         aria-pressed={playing}
+        data-tour-target={playTarget}
         onClick={onPlay}
         className={cn(
           'grid place-items-center rounded-full transition-[transform,background-color] duration-150',
@@ -199,20 +207,6 @@ export const StudioTransport = ({
       }}
     >
       <div className="flex min-w-0 items-center gap-2 text-[11px]">
-        <span
-          aria-hidden
-          className="flex items-center gap-0.5 px-1 font-medium"
-          style={{ color: STUDIO.text }}
-        >
-          File <ChevronDown className="size-2.5" />
-        </span>
-        <span
-          aria-hidden
-          className="truncate font-medium"
-          style={{ color: STUDIO.text }}
-        >
-          My First Song
-        </span>
         {keyPill}
         <span
           aria-hidden
@@ -238,7 +232,7 @@ export const StudioTransport = ({
         </span>
       </div>
       {controls}
-      <div aria-hidden className="flex items-center justify-end gap-2">
+      <div aria-hidden className="flex items-center justify-end">
         <span
           className="flex rounded-md p-0.5"
           style={{ background: STUDIO.surface2 }}
@@ -246,7 +240,7 @@ export const StudioTransport = ({
           {VIEWS.map((v, i) => (
             <span
               key={v}
-              className="flex h-5 items-center rounded px-2.5 text-[10px] font-semibold uppercase tracking-wide"
+              className="flex h-5 items-center rounded px-2.5 text-[10px] uppercase tracking-wide"
               style={
                 i === 0
                   ? { background: STUDIO.surface3, color: STUDIO.text }
@@ -256,13 +250,6 @@ export const StudioTransport = ({
               {v}
             </span>
           ))}
-        </span>
-        <span
-          className="flex h-5 items-center gap-1 rounded px-1.5 text-[9px]"
-          style={{ background: STUDIO.surface2, color: STUDIO.textDim }}
-        >
-          <span className="size-1.5 rounded-full bg-white/30" />
-          MIDI
         </span>
       </div>
     </div>

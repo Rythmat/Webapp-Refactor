@@ -37,17 +37,28 @@ export interface StudioState {
 /** What a cursor click presses: a spectrum segment (color index), or a button. */
 export type PressTarget = { segment: number } | 'create' | 'roll' | 'play';
 
-/** Step 3: Play is pressed, one 4-bar pass runs, then it rings C again. */
+/** The key the tour picks: D major (orange). */
+export const DEMO_KEY_PC = 2;
+const DEMO_ROOT = keyRootFor(DEMO_KEY_PC);
+
+/** Step 3: Play is pressed, one 4-bar pass runs, then it rings D again. */
 export const PLAY_AT_MS = 1000;
 export const LOOP_MS = 8000;
 export const RESOLVE_MS = 400;
-/** Where the playhead rests in the static end state: 4:1:1 (F min). */
+/** Where the playhead rests in the static end state: 4:1:1 (G min). */
 export const PARK_TICK = 5760;
 
-/** Spectrum segments (`KEY_COLORS` index) the script clicks. */
-const RED = 1;
-const GREEN = 5;
-const PURPLE = 10;
+/** The spectrum segment (`KEY_COLORS` index) a chord lights in the demo key. */
+const segmentOf = (token: string): number =>
+  [...colorGroups([token], DEMO_ROOT).keys()][0];
+
+/**
+ * Spectrum segments the script clicks: the key's own color (D's orange, for
+ * I and IV), III's (F♯'s teal) and iv's (Gm, borrowed from D minor → F's pink).
+ */
+const KEY_SEGMENT = segmentOf(DEMO_PROGRESSION[0]);
+export const III_SEGMENT = segmentOf(DEMO_PROGRESSION[1]);
+const IV_MINOR_SEGMENT = segmentOf(DEMO_PROGRESSION[3]);
 
 /** Per step, the ms at which each cue lands. */
 export const STEP_CUES: readonly (readonly number[])[] = [
@@ -63,11 +74,11 @@ export const STEP_PRESSES: readonly (readonly {
   from: number;
   to: number;
 }[])[] = [
-  [{ target: { segment: RED }, from: 1500, to: 1850 }],
+  [{ target: { segment: KEY_SEGMENT }, from: 1500, to: 1850 }],
   [
-    { target: { segment: GREEN }, from: 650, to: 950 },
-    { target: { segment: RED }, from: 1500, to: 1850 },
-    { target: { segment: PURPLE }, from: 2400, to: 2750 },
+    { target: { segment: III_SEGMENT }, from: 650, to: 950 },
+    { target: { segment: KEY_SEGMENT }, from: 1500, to: 1850 },
+    { target: { segment: IV_MINOR_SEGMENT }, from: 2400, to: 2750 },
   ],
   [{ target: 'create', from: 650, to: 950 }],
   [
@@ -112,7 +123,7 @@ export const stateAt = (step: number, passed: number): StudioState => {
   const s = step <= 0 ? initialState() : copy(endState(step - 1));
   switch (step) {
     case 0:
-      s.keyPc = passed >= 1 ? 0 : null;
+      s.keyPc = passed >= 1 ? DEMO_KEY_PC : null;
       s.seq = passed >= 2 ? DEMO_PROGRESSION.slice(0, 1) : [];
       break;
     case 1:
@@ -196,15 +207,15 @@ export const cursorSegment = (step: number, ms: number): number | null => {
 /** Which cue sounds what: the key's tonic triad, then each added chord. */
 const cueSound = (step: number, passed: number): number[] | null => {
   if (passed === 0) return null;
-  if (step === 0) return demoChord('1 major').midis;
-  if (step === 1) return demoChord(DEMO_PROGRESSION[passed]).midis;
+  if (step === 0) return demoChord('1 major', DEMO_ROOT).midis;
+  if (step === 1) return demoChord(DEMO_PROGRESSION[passed], DEMO_ROOT).midis;
   return null;
 };
 
 /**
  * What the auto tour shows `ms` into a step. `ms = Infinity` is the step's
  * end state (user / static modes): no press, not playing, and step 3's
- * playhead parked on F min.
+ * playhead parked on G min.
  */
 export const autoFrame = (step: number, ms: number): AutoFrame => {
   const passed = passedAt(step, ms);

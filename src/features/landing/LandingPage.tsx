@@ -1,8 +1,10 @@
 import { Helmet } from 'react-helmet';
 import { LandingShell } from './LandingShell';
+import { ConnectionsSection } from './sections/ConnectionsSection';
 import { HeroSection } from './sections/HeroSection';
 import { ModuleBentoRow } from './sections/ModuleBentoRow';
 import { ModuleTocSections } from './sections/ModuleTocSections';
+import { TryFreeSection } from './sections/TryFreeSection';
 import {
   LANDING_DESCRIPTION,
   LANDING_JSON_LD,
@@ -14,7 +16,8 @@ import {
  * Public landing page (`/`, logged-out visitors), inside the shared
  * `LandingShell`: the hero horizon, the five-module bento row, then the module
  * sections with a sticky sidebar table of contents (each with its live guided
- * demo).
+ * demo), the "Connected" demo (one song through Learn, Globe and Studio),
+ * then the closing "Try for free" section (the hero, mirrored).
  */
 export const LandingPage = () => {
   return (
@@ -30,6 +33,8 @@ export const LandingPage = () => {
       <HeroSection />
       <ModuleBentoRow />
       <ModuleTocSections />
+      <ConnectionsSection />
+      <TryFreeSection />
     </LandingShell>
   );
 };

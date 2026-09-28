@@ -1,17 +1,29 @@
 import { Flame, Sparkles, Trophy } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/components/utilities';
-import { DEMO_KEY_ROOT, keyCenterColor } from '../../music';
-import { DemoKeys } from '../DemoKeys';
+import { keyCenterColor } from '../../music';
+import { DemoKeys, keyCenterPct, whiteKeysBetween } from '../DemoKeys';
 import type { SceneProps } from './sceneTypes';
 
-/** One octave of white keys, C4–C5 (lanes line up with the keys below). */
-const WHITE_MIDIS = [60, 62, 64, 65, 67, 69, 71, 72];
+/** The demo's key: F♯ major (teal). */
+const KEY_PC = 6;
+const COLOR = keyCenterColor(KEY_PC);
+/** The keyboard, F4–G5: room for F♯4 up to its octave, mostly black keys. */
+const KEYS_FROM = 65;
+const KEYS_TO = 79;
+const WHITES = whiteKeysBetween(KEYS_FROM, KEYS_TO);
+/** One lane per scale note, F♯4–F♯5, each over its key. */
+const LANE_MIDIS = [0, 2, 4, 5, 7, 9, 11, 12].map((i) => 66 + i);
+const LANE_X = LANE_MIDIS.map((m) => keyCenterPct(m, WHITES));
+/** Note width (% of the lanes): under half a white key, so A♯–B never touch. */
+const NOTE_W = 48 / WHITES.length;
+/** The scale, tinted on the keys as the lanes' targets. */
+const HINT = new Map(LANE_MIDIS.map((m) => [m, COLOR]));
 const LOOP_MS = 4800;
 const FALL_MS = 1700;
 const HIT_WINDOW_MS = 220;
 
-/** A C major phrase: lane (white-key index) + hit time within the loop. */
+/** The phrase by scale degree: lane (`LANE_MIDIS` index) + hit time in the loop. */
 const PHRASE = [
   { lane: 0, t: 500 },
   { lane: 2, t: 1100 },
@@ -31,7 +43,7 @@ const untilHit = (t: number, now: number) => {
 };
 
 /**
- * Arcade scene — falling notes of a C major phrase (all in the key-center
+ * Arcade scene — falling notes of an F♯ major phrase (all in the key-center
  * color), hit on the keys, with streak + XP. In `user` mode it's playable:
  * press the key in a note's lane as it crosses the line.
  */
@@ -43,7 +55,7 @@ export const ArcadeScene = ({
   onUserAction,
   playNotes,
 }: SceneProps) => {
-  const color = keyCenterColor(DEMO_KEY_ROOT % 12);
+  const color = COLOR;
   const [now, setNow] = useState(0);
   const [xp, setXp] = useState(120);
   const [streak, setStreak] = useState(0);
@@ -102,7 +114,7 @@ export const ArcadeScene = ({
     if (autoHits || mode === 'static')
       PHRASE.forEach((n) => {
         const d = untilHit(n.t, now);
-        if (d <= 0 && d > -160) m.set(WHITE_MIDIS[n.lane], color);
+        if (d <= 0 && d > -160) m.set(LANE_MIDIS[n.lane], color);
       });
     if (pressed !== null) m.set(pressed, color);
     return m;
@@ -113,7 +125,7 @@ export const ArcadeScene = ({
     setPressed(midi);
     window.setTimeout(() => setPressed(null), 180);
     playNotes([midi], 0.4);
-    const lane = WHITE_MIDIS.indexOf(midi);
+    const lane = LANE_MIDIS.indexOf(midi);
     const hit = PHRASE.some(
       (n) =>
         n.lane === lane &&
@@ -134,9 +146,9 @@ export const ArcadeScene = ({
   return (
     <div className="flex h-full flex-col gap-3 p-4 text-white">
       <div className="flex items-center gap-2 text-xs">
-        <span className="flex items-center gap-1.5 rounded-md bg-white/[0.06] px-2.5 py-1.5 font-semibold">
+        <span className="flex items-center gap-1.5 rounded-md bg-white/[0.06] px-2.5 py-1.5">
           <Sparkles className="size-3.5 text-white/70" />
-          Ear training · C major
+          Ear training · F♯ major
         </span>
         <div
           data-tour-target="score"
@@ -147,11 +159,11 @@ export const ArcadeScene = ({
               : 'border-white/10',
           )}
         >
-          <span className="flex items-center gap-1 rounded-full bg-white/[0.06] px-2 py-0.5 font-semibold">
+          <span className="flex items-center gap-1 rounded-full bg-white/[0.06] px-2 py-0.5">
             <Flame className="size-3.5 text-white/80" />
             {streak}
           </span>
-          <span className="flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 font-semibold text-white">
+          <span className="flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-white">
             <Trophy className="size-3.5" />
             {xp} XP
           </span>
@@ -162,14 +174,13 @@ export const ArcadeScene = ({
         data-tour-target="lanes"
         className="relative min-h-0 flex-1 overflow-hidden rounded-xl border border-white/[0.08] bg-black/30"
       >
-        <div className="absolute inset-0 grid grid-cols-8">
-          {WHITE_MIDIS.map((m) => (
-            <div
-              key={m}
-              className="border-r border-white/[0.05] last:border-0"
-            />
-          ))}
-        </div>
+        {LANE_X.map((x) => (
+          <div
+            key={x}
+            className="absolute inset-y-0 bg-white/[0.03]"
+            style={{ left: `${x - NOTE_W / 2}%`, width: `${NOTE_W}%` }}
+          />
+        ))}
         {PHRASE.map((n, i) => {
           const d = untilHit(n.t, now);
           if (d > FALL_MS || d < -260) return null;
@@ -177,9 +188,10 @@ export const ArcadeScene = ({
           return (
             <span
               key={i}
-              className="absolute h-[16%] w-[10.5%] rounded-md"
+              className="absolute h-[16%] rounded-md"
               style={{
-                left: `${n.lane * 12.5 + 1}%`,
+                left: `${LANE_X[n.lane] - NOTE_W / 2}%`,
+                width: `${NOTE_W}%`,
                 top: `${progress * 82 - 16}%`,
                 background: `linear-gradient(to bottom, color-mix(in srgb, ${color} 30%, transparent), ${color})`,
                 boxShadow: d <= 0 ? `0 0 24px ${color}` : undefined,
@@ -192,7 +204,7 @@ export const ArcadeScene = ({
         {feedback && (
           <span
             key={feedback.id}
-            className="absolute left-1/2 top-[40%] -translate-x-1/2 animate-fade-in-bottom text-2xl font-bold"
+            className="absolute left-1/2 top-[40%] -translate-x-1/2 animate-fade-in-bottom text-2xl"
             style={{ color: feedback.text === 'Miss' ? '#a1a1aa' : '#fff' }}
           >
             {feedback.text}
@@ -200,10 +212,11 @@ export const ArcadeScene = ({
         )}
       </div>
 
-      <div data-tour-target="keys" className={compact ? 'h-16' : 'h-24'}>
+      <div data-tour-target="keys" className={compact ? 'h-28' : 'h-[180px]'}>
         <DemoKeys
-          startMidi={60}
-          octaves={1}
+          startMidi={KEYS_FROM}
+          endMidi={KEYS_TO}
+          hint={HINT}
           lit={lit}
           onPress={pressKey}
           label="Arcade keyboard"

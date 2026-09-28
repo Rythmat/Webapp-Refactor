@@ -5,12 +5,7 @@ import { getScaleSpellings } from '@prism/engine';
 import { CircleOfFifthsSvg } from '@/components/common/CircleOfFifthsSvg';
 import { cn } from '@/components/utilities';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
-import {
-  diatonicTriads,
-  keyCenterOf,
-  parallelModes,
-  stepPattern,
-} from '../../music';
+import { diatonicTriads, keyCenterOf, parallelModes } from '../../music';
 import { DemoKeys } from '../DemoKeys';
 import type { SceneProps } from './sceneTypes';
 
@@ -27,7 +22,9 @@ const STEP_VIEW: View[] = ['scale', 'chords', 'modes'];
 
 /** Step 1 walks down the circle by fifths and lands on C. */
 const KEY_WALK = [9, 2, 7, 0];
-/** Step 2's auto "pick": vi (Am in C). */
+/** The Scale view's caption: the major scale's degrees. */
+const SCALE_DEGREES = '1, 2, 3, 4, 5, 6, 7';
+/** Step 2's auto "pick": 6 min (Am in C). */
 const AUTO_CHORD = 5;
 /** Shown when the visitor takes over the Modes view without picking. */
 const DEFAULT_MODE = 3; // Dorian — its parent key (B♭) isn't the root's.
@@ -191,10 +188,10 @@ export const TheoryScene = ({
 
   const title =
     view === 'scale'
-      ? `The ${keyName} major scale`
+      ? `${keyName} Ionian`
       : view === 'chords'
-        ? `The chords of ${keyName} major`
-        : `Seven modes of ${keyName}`;
+        ? `Diatonic Triads: ${keyName} Major`
+        : `Parallel Modes: ${keyName}`;
 
   const caption =
     view === 'modes'
@@ -202,8 +199,8 @@ export const TheoryScene = ({
           shownMode.parent.name,
         )} major, so it takes ${displayAccidentals(shownMode.parent.name)}’s color.`
       : view === 'chords'
-        ? `All seven chords come from ${keyName} major, so they share its color.`
-        : stepPattern(major.intervals).join(' · ');
+        ? `${keyName} Ionian: ${key.colorName} (${key.signature})`
+        : SCALE_DEGREES;
 
   return (
     <div
@@ -220,19 +217,20 @@ export const TheoryScene = ({
             selectedMode="major"
             size={compact ? 160 : 270}
             ariaLabel={`Key center: ${keyName} major`}
+            labelWeight={400}
             onSelectPitch={pickKey}
           />
         </div>
         <span className="text-center text-xs text-white/60">
           {view === 'modes' ? (
             <>
-              <span className="font-semibold text-white">
+              <span className="text-white">
                 {keyName} {shownMode.name}
               </span>{' '}
-              · parent key {displayAccidentals(shownMode.parent.name)}
+              · Parent Key {displayAccidentals(shownMode.parent.name)}
             </>
           ) : (
-            <span className="font-semibold text-white">{keyName} major</span>
+            <span className="text-white">{keyName} Ionian</span>
           )}
         </span>
       </div>
@@ -248,7 +246,7 @@ export const TheoryScene = ({
               <span className="text-[11px] uppercase tracking-[0.12em] text-white/45">
                 Lesson · Theory
               </span>
-              <span className="truncate text-sm font-semibold">{title}</span>
+              <span className="truncate text-sm">{title}</span>
             </div>
             <div
               role="group"
@@ -263,7 +261,7 @@ export const TheoryScene = ({
                   data-tour-target={v.id === 'scale' ? undefined : v.id}
                   onClick={() => pickView(v.id)}
                   className={cn(
-                    'rounded-full px-3 py-1 text-xs font-semibold transition-colors',
+                    'rounded-full px-3 py-1 text-xs transition-colors',
                     view === v.id
                       ? 'bg-white text-[#101012]'
                       : 'text-white/55 hover:text-white',
@@ -275,104 +273,112 @@ export const TheoryScene = ({
             </div>
           </div>
 
-          {view === 'scale' && (
-            <div className="flex items-center gap-2">
-              <div className="flex flex-1 gap-1">
-                {major.midis.map((m) => (
-                  <span
-                    key={m}
+          {/* Fixed at the tallest view (the chord tiles: one row, two when
+              compact), so the card — and the keys under it — never resize
+              between steps. */}
+          <div
+            className={cn(
+              'flex flex-col justify-center',
+              compact ? 'h-24' : 'h-[45px]',
+            )}
+          >
+            {view === 'scale' && (
+              <div className="flex items-center gap-2">
+                <div className="flex flex-1 gap-1">
+                  {major.midis.map((m) => (
+                    <span
+                      key={m}
+                      className={cn(
+                        'flex-1 rounded-md py-1.5 text-center text-xs transition-colors duration-200',
+                        runMidi === m || pressed === m
+                          ? 'text-[#101012]'
+                          : 'bg-white/[0.05] text-white/70',
+                      )}
+                      style={
+                        runMidi === m || pressed === m
+                          ? { background: color }
+                          : undefined
+                      }
+                    >
+                      {displayAccidentals(spellings.get(m % 12) ?? '')}
+                    </span>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onUserAction();
+                    runScale(major.midis);
+                  }}
+                  className="flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-[#101012] transition-transform duration-300 hover:scale-105"
+                  style={{ background: color }}
+                >
+                  <Play className="size-3 fill-current" /> Play
+                </button>
+              </div>
+            )}
+
+            {view === 'chords' && (
+              <div
+                className={cn(
+                  'grid gap-1.5',
+                  compact ? 'grid-cols-4' : 'grid-cols-7',
+                )}
+              >
+                {chords.map((c, i) => (
+                  <motion.button
+                    key={`${keyPc}-${c.token}`}
+                    type="button"
+                    initial={mode === 'static' ? false : { opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: i * 0.05 }}
+                    onClick={() => pickChord(i)}
                     className={cn(
-                      'flex-1 rounded-md py-1.5 text-center text-xs font-semibold transition-colors duration-200',
-                      runMidi === m || pressed === m
-                        ? 'text-[#101012]'
-                        : 'bg-white/[0.05] text-white/70',
+                      'flex flex-col items-start rounded-md px-2 py-1.5 text-left text-[#101012] transition-shadow',
+                      chordIdx === i && 'ring-2 ring-white',
                     )}
-                    style={
-                      runMidi === m || pressed === m
-                        ? { background: color }
-                        : undefined
-                    }
+                    style={{ background: c.color }}
                   >
-                    {displayAccidentals(spellings.get(m % 12) ?? '')}
-                  </span>
+                    <span className="text-sm leading-none">
+                      {displayAccidentals(c.name)}
+                    </span>
+                    <span className="mt-1 text-[10px] opacity-70">
+                      {c.hybrid}
+                    </span>
+                  </motion.button>
                 ))}
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  onUserAction();
-                  runScale(major.midis);
-                }}
-                className="flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-[#101012] transition-transform duration-300 hover:scale-105"
-                style={{ background: color }}
+            )}
+
+            {view === 'modes' && (
+              <div
+                className={cn(
+                  'grid gap-1.5',
+                  compact ? 'grid-cols-4' : 'grid-cols-7',
+                )}
               >
-                <Play className="size-3 fill-current" /> Play
-              </button>
-            </div>
-          )}
+                {modes.map((m, i) => (
+                  <button
+                    key={m.mode}
+                    type="button"
+                    onClick={() => pickMode(i)}
+                    className={cn(
+                      'flex flex-col items-start rounded-md px-2 py-1.5 text-left text-[#101012] transition-[box-shadow,opacity] duration-200',
+                      modeIdx === i ? 'ring-2 ring-white' : 'opacity-80',
+                    )}
+                    style={{ background: m.parent.color }}
+                  >
+                    <span className="text-[11px] leading-none">{m.name}</span>
+                    <span className="mt-1 text-[10px] opacity-70">
+                      from {displayAccidentals(m.parent.name)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
-          {view === 'chords' && (
-            <div
-              className={cn(
-                'grid gap-1.5',
-                compact ? 'grid-cols-4' : 'grid-cols-7',
-              )}
-            >
-              {chords.map((c, i) => (
-                <motion.button
-                  key={`${keyPc}-${c.token}`}
-                  type="button"
-                  initial={mode === 'static' ? false : { opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: i * 0.05 }}
-                  onClick={() => pickChord(i)}
-                  className={cn(
-                    'flex flex-col items-start rounded-md px-2 py-1.5 text-left text-[#101012] transition-shadow',
-                    chordIdx === i && 'ring-2 ring-white',
-                  )}
-                  style={{ background: c.color }}
-                >
-                  <span className="text-sm font-bold leading-none">
-                    {displayAccidentals(c.name)}
-                  </span>
-                  <span className="mt-1 text-[10px] font-semibold opacity-70">
-                    {c.roman}
-                  </span>
-                </motion.button>
-              ))}
-            </div>
-          )}
-
-          {view === 'modes' && (
-            <div
-              className={cn(
-                'grid gap-1.5',
-                compact ? 'grid-cols-4' : 'grid-cols-7',
-              )}
-            >
-              {modes.map((m, i) => (
-                <button
-                  key={m.mode}
-                  type="button"
-                  onClick={() => pickMode(i)}
-                  className={cn(
-                    'flex flex-col items-start rounded-md px-2 py-1.5 text-left text-[#101012] transition-[box-shadow,opacity] duration-200',
-                    modeIdx === i ? 'ring-2 ring-white' : 'opacity-80',
-                  )}
-                  style={{ background: m.parent.color }}
-                >
-                  <span className="text-[11px] font-bold leading-none">
-                    {m.name}
-                  </span>
-                  <span className="mt-1 text-[10px] font-semibold opacity-70">
-                    from {displayAccidentals(m.parent.name)}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-
-          <p className="min-h-4 text-xs text-white/55">{caption}</p>
+          <p className="h-4 truncate text-xs text-white/55">{caption}</p>
         </div>
 
         <div

@@ -194,7 +194,11 @@ export const StudioScene = ({
         setUserPlaying(next);
     };
     // Play is a gesture: it turns Sound on, like the demo's other keys.
-    if (!next || audio.isEnabled()) start();
+    // Pause turns it off.
+    if (!next) {
+      audio.disable();
+      start();
+    } else if (audio.isEnabled()) start();
     else void audio.enableFromGesture().then(start, start);
   };
 
@@ -204,7 +208,7 @@ export const StudioScene = ({
     setUserPlaying(false);
     setStops((n) => (n ?? 0) + 1);
     setSelected(null);
-    audio.stopAll();
+    audio.disable();
   };
 
   const playRegion = (region: ChordRegion, index: number) => {

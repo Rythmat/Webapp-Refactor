@@ -6,6 +6,7 @@ import type { TourTabId } from '../tour/tourSteps';
 import { GlobeModuleBlock } from './GlobeModuleBlock';
 import { ModuleBlock } from './ModuleBlock';
 import { LANDING_MODULES } from './modules';
+import { scrollToModule } from './scrollToModule';
 
 /**
  * The rainbow brand motif: all 12 key-center colors in circle-of-fifths order
@@ -16,17 +17,6 @@ const RAINBOW_VERTICAL = `linear-gradient(to bottom, ${[
   ...KEY_CENTERS.map((k) => k.color),
   KEY_CENTERS[0].color,
 ].join(', ')})`;
-
-const scrollToModule = (id: string) => (e: React.MouseEvent) => {
-  const el = document.getElementById(id);
-  if (!el) return;
-  e.preventDefault();
-  const reduce = window.matchMedia?.(
-    '(prefers-reduced-motion: reduce)',
-  ).matches;
-  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
-  history.replaceState(null, '', `#${id}`);
-};
 
 /**
  * Module sections with a sticky sidebar table of contents (Attio "Build

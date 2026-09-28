@@ -53,8 +53,8 @@ const buildDrumKit = (): DrumKit => {
 
 /**
  * Tiny gesture-gated synth for the product tour. Nothing is created (and no
- * audio context is resumed) until the visitor turns sound on or plays a key —
- * the tour's autoplay is always silent. Deliberately NOT the app's piano
+ * audio context is resumed) until the visitor interacts with the demo — the
+ * tour's autoplay is silent until then. Deliberately NOT the app's piano
  * sampler (16 MB of samples): one small triangle PolySynth, plus a lazy
  * three-voice drum kit for the Studio demo's playback.
  */
@@ -63,6 +63,9 @@ export const useTourSynth = () => {
   const kitRef = useRef<DrumKit | null>(null);
   const [enabled, setEnabled] = useState(false);
   const enabledRef = useRef(false);
+  // Bumped by every `disable`: an `enable` still awaiting the audio context
+  // drops out, so a Stop in the same click that turned Sound on wins.
+  const genRef = useRef(0);
   // False once unmounted (StrictMode re-runs set it back): `audio` may still
   // be called from a scene's cleanup after the synth is disposed.
   const aliveRef = useRef(false);
@@ -73,9 +76,11 @@ export const useTourSynth = () => {
   });
 
   const enable = useCallback(async () => {
+    const gen = genRef.current;
     await startTone();
     // Unmounted meanwhile: build nothing the cleanup can no longer dispose.
-    if (!aliveRef.current) return;
+    // Turned off meanwhile: stay off.
+    if (!aliveRef.current || genRef.current !== gen) return;
     if (!synthRef.current) {
       const synth = new Tone.PolySynth(Tone.Synth, {
         oscillator: { type: 'triangle' },
@@ -89,6 +94,7 @@ export const useTourSynth = () => {
   }, []);
 
   const disable = useCallback(() => {
+    genRef.current += 1;
     enabledRef.current = false;
     setEnabled(false);
     synthRef.current?.releaseAll();
@@ -162,8 +168,12 @@ export const useTourSynth = () => {
         if (!aliveRef.current) return;
         synthRef.current?.releaseAll();
       },
+      disable: () => {
+        if (!aliveRef.current) return;
+        disable();
+      },
     };
-  }, [enable]);
+  }, [enable, disable]);
 
   useEffect(() => {
     aliveRef.current = true;

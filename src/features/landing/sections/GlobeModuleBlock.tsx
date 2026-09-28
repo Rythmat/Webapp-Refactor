@@ -5,8 +5,9 @@ import { useNearViewport } from '../motion/useInView';
 import { SILENT_TOUR_AUDIO } from '../tour/scenes/sceneTypes';
 import { TOUR_BY_ID } from '../tour/tourSteps';
 import { useModuleTour } from '../tour/useModuleTour';
-import { FeatureCells, SeeMoreLink } from './ModuleBlock';
+import { FeatureCells, OpenLink, SectionTitle } from './ModuleBlock';
 import { Statement } from './Statement';
+import { moduleIcon } from './moduleIcons';
 import type { LandingModule } from './modules';
 
 // Code-split: the globe pulls in cobe.
@@ -15,7 +16,7 @@ const GlobeScene = lazy(() => import('../tour/scenes/GlobeScene'));
 const noop = () => {};
 
 /**
- * Globe block (Attio "Signals" layout): tag, two-tone headline, "See more",
+ * Globe block (Attio "Signals" layout): title, two-tone headline, "Open",
  * then an accordion of the demo's steps on the left — the active item shows
  * its description and a progress bar that fills over the step — and the live
  * globe on the right, driven by the same step.
@@ -37,16 +38,18 @@ export const GlobeModuleBlock = ({ module: m }: { module: LandingModule }) => {
     >
       <div className="grid md:grid-cols-2">
         <div className="flex flex-col px-6 py-20 md:border-r md:border-white/[0.08] md:px-10 md:py-28">
-          <span className="w-fit rounded-md bg-white/10 px-2 py-0.5 text-sm font-medium text-white/80">
-            Globe
-          </span>
-          <Statement
+          <SectionTitle
             id="globe-title"
+            label={m.label}
+            icon={moduleIcon(m.id, 'size-8')}
+          />
+          <Statement
+            as="h3"
             lead={m.statement.lead}
             rest={m.statement.rest}
-            className="mt-5"
+            className="mt-6"
           />
-          <SeeMoreLink to={tab.href} className="mt-6" />
+          <OpenLink path={m.app} className="mt-6" />
 
           <ol className="mt-auto flex flex-col gap-1 pt-16">
             {tab.steps.map((s, i) => {
@@ -116,7 +119,7 @@ export const GlobeModuleBlock = ({ module: m }: { module: LandingModule }) => {
           )}
         </div>
       </div>
-      <FeatureCells features={m.features} />
+      {m.features && <FeatureCells features={m.features} />}
     </section>
   );
 };

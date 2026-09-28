@@ -22,15 +22,13 @@ const Slide = ({ upTo, small }: { upTo: number; small?: boolean }) => {
   const notes = [...majorScale(G), G];
   return (
     <div className={cn('flex flex-col', small ? 'gap-1.5' : 'gap-4')}>
-      {!small && (
-        <span className="text-lg font-bold text-white">The G major scale</span>
-      )}
+      {!small && <span className="text-lg text-white">The G major scale</span>}
       <div className={cn('flex', small ? 'gap-0.5' : 'gap-1.5')}>
         {notes.map((pc, i) => (
           <span
             key={i}
             className={cn(
-              'flex flex-1 items-center justify-center rounded-md font-semibold transition-colors duration-300',
+              'flex flex-1 items-center justify-center rounded-md transition-colors duration-300',
               small ? 'h-5 text-[9px]' : 'h-12 text-sm',
               i <= upTo ? 'text-[#101012]' : 'bg-white/[0.06] text-white/50',
             )}
@@ -93,14 +91,14 @@ export const TeachScene = ({
   return (
     <div className="flex h-full flex-col gap-3 p-4 text-white">
       <div className="flex items-center gap-2 text-xs">
-        <span className="flex items-center gap-1.5 rounded-md bg-white/[0.06] px-2.5 py-1.5 font-semibold">
+        <span className="flex items-center gap-1.5 rounded-md bg-white/[0.06] px-2.5 py-1.5">
           <Users className="size-3.5 text-white/70" />
           My class
         </span>
         <span
           data-tour-target="code"
           className={cn(
-            'flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 font-semibold tracking-wider transition-shadow duration-500',
+            'flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 tracking-wider transition-shadow duration-500',
             stepIndex === 0 && auto
               ? 'border-white/50 shadow-[0_0_0_4px_rgba(255,255,255,0.12)]'
               : 'border-white/10',
@@ -108,7 +106,7 @@ export const TeachScene = ({
         >
           Join code · 4F7K2
         </span>
-        <span className="ml-auto flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 font-semibold text-white">
+        <span className="ml-auto flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-white">
           <Wifi className="size-3.5" /> Live
         </span>
       </div>
@@ -151,7 +149,7 @@ export const TeachScene = ({
                 )}
               >
                 <div className="flex items-center gap-2 text-xs">
-                  <span className="font-semibold">{s.name}</span>
+                  <span>{s.name}</span>
                   {isJoined && (
                     <span className="flex items-center gap-1 text-white/60">
                       <Check className="size-3" /> Joined

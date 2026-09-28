@@ -4,7 +4,7 @@ export const long_train_running: Song = {
   id: 'long_train_running',
   title: 'Long Train Running',
   artist: 'The Doobie Brothers',
-  year: 1987,
+  year: 1973,
   historicalDescription:
     "The Doobie Brothers re-release 'Long Train Runnin'' as the classic rock era gives way to a new wave of nostalgia for 1970s sounds. Originally a funk-driven rock staple from their 1973 album 'The Captain and Me', the song's relentless groove and hypnotic guitar riff have kept it a radio fixture for over a decade — a reminder that the Doobies' San Francisco Bay Area swagger never really left.",
   key: 'G minor',

@@ -50,10 +50,38 @@ function nearest(
 }
 
 /**
+ * Every CITIES entry with this name in this country.
+ *
+ * Usually one. The US has two Portlands and two Charlestons, and taking the
+ * first (Oregon, South Carolina) filed the Maine and West Virginia events under
+ * the wrong state — their panels never listed them and the camera flew to the
+ * wrong coast. Callers disambiguate with {@link nearestOf}.
+ */
+export function sameNameCities(event: HistoricalEvent): City[] {
+  const cityLower = event.location.city.toLowerCase();
+  return CITIES.filter(
+    (c) =>
+      c.name.toLowerCase() === cityLower &&
+      sameCountry(c.country, event.location.country),
+  );
+}
+
+/** Of several identically named cities, the one the event's coordinates sit in. */
+function nearestOf(
+  event: HistoricalEvent,
+  candidates: City[],
+): City | undefined {
+  if (candidates.length <= 1) return candidates[0];
+  return nearest(event, candidates)?.city;
+}
+
+/**
  * The CITIES entry an event happened IN: a name match in the SAME country first
- * (so a Birmingham-UK event resolves to Birmingham, England — not Alabama), then
- * the nearest city within ~0.6° — which covers name mismatches like "New York"
- * (event) vs "New York City" (CITIES), and "Brooklyn", which has no entry.
+ * (so a Birmingham-UK event resolves to Birmingham, England — not Alabama),
+ * resolved by coordinates when that country has more than one city of that
+ * name, then the nearest city within ~0.6° — which covers name mismatches like
+ * "New York" (event) vs "New York City" (CITIES), and "Brooklyn", which has no
+ * entry.
  *
  * Undefined when nothing is close enough to honestly call it that city.
  */
@@ -61,10 +89,7 @@ export function matchCity(event: HistoricalEvent): City | undefined {
   const cached = preciseCache.get(event);
   if (cached !== undefined) return cached ?? undefined;
 
-  const cityLower = event.location.city.toLowerCase();
-  const byName = CITIES.filter((c) => c.name.toLowerCase() === cityLower).find(
-    (c) => sameCountry(c.country, event.location.country),
-  );
+  const byName = nearestOf(event, sameNameCities(event));
   let match = byName;
   if (!match) {
     const hit = nearest(event, CITIES);
@@ -91,12 +116,7 @@ export function eventSubdivision(
   const cached = subdivisionCache.get(event);
   if (cached !== undefined) return cached ?? undefined;
 
-  const cityLower = event.location.city.toLowerCase();
-  const byName = CITIES.find(
-    (c) =>
-      c.name.toLowerCase() === cityLower &&
-      sameCountry(c.country, event.location.country),
-  );
+  const byName = nearestOf(event, sameNameCities(event));
   let result: Subdivision | undefined;
   if (byName?.subdivision) {
     result = {

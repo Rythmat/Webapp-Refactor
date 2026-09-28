@@ -4,7 +4,7 @@ export const fresh_eyes: Song = {
   id: 'fresh_eyes',
   title: 'Fresh Eyes',
   artist: 'Andy Grammer',
-  year: 2017,
+  year: 2016,
   historicalDescription:
     "Andy Grammer releases 'Fresh Eyes', a warm pop-rock anthem about rediscovering love for someone familiar. The song captures a universal emotional moment — seeing a partner as if for the first time — and becomes one of Grammer's most celebrated tracks, finding its way into weddings and romantic playlists worldwide.",
   key: 'G major',

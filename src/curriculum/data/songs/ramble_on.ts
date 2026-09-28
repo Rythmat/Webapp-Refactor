@@ -4,7 +4,7 @@ export const ramble_on: Song = {
   id: 'ramble_on',
   title: 'Ramble On',
   artist: 'Led Zeppelin',
-  year: 2024,
+  year: 1969,
   historicalDescription:
     "Led Zeppelin releases 'Ramble On' on their second album, weaving J.R.R. Tolkien references into a hard rock framework that shifts between acoustic tenderness and electric ferocity. The song captures the band at their most adventurous — balancing Jimmy Page's dynamic guitar work with Robert Plant's mythological lyricism. It stands as an early blueprint for the acoustic-electric contrasts that define classic rock.",
   key: 'E major',

@@ -7,6 +7,19 @@ import type { DaySnapshot } from '../publish/publishDay';
 import type { Interaction } from '../types';
 import type { Slide, SlideDeck } from './types';
 
+/**
+ * Whether a slide renders its student phase chip — the top-left anchor of the
+ * standardized slide anatomy.
+ *
+ * The chip is opt-OUT, not opt-in. `hidePhaseLabel` is an optional flag that a
+ * freshly authored slide simply does not carry, so a gate of
+ * `hidePhaseLabel === false` hid the chip on every new slide and only ever
+ * showed it after a teacher toggled the switch twice. Both render sites and the
+ * appearance menu read this one predicate so they cannot drift apart again.
+ */
+export const showsPhaseChip = (slide: Pick<Slide, 'hidePhaseLabel'>): boolean =>
+  slide.hidePhaseLabel !== true;
+
 /** The deck attached to a snapshot, or null for legacy slide-less Days. */
 export const deckFromSnapshot = (
   snapshot: DaySnapshot | null | undefined,

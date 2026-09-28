@@ -4,7 +4,7 @@ export const rocky_mountain_way: Song = {
   id: 'rocky_mountain_way',
   title: 'Rocky Mountain Way',
   artist: 'Joe Walsh',
-  year: 1985,
+  year: 1973,
   historicalDescription:
     "Joe Walsh's 'Rocky Mountain Way' becomes a blues-rock anthem rooted in his time living in Colorado after leaving the James Gang. The song's talk box guitar riff — one of the earliest and most recognizable uses of the effect in rock — cements Walsh's reputation as one of America's most inventive guitarists, paving his way into the Eagles.",
   key: 'E major',

@@ -194,6 +194,16 @@ export interface SessionStore {
    * (Rule 2 — position is identified) and never reaches the projector.
    */
   positions: Record<string, Record<string, number>>;
+  /**
+   * Live presence, keyed sessionId → enrollmentId → state. TEACHER-ONLY, like
+   * `positions`: the party restricts the identified presence stream to teacher
+   * sockets and `sessionSocketController` drops it on any other role, so this
+   * map is never populated on a student or projector client.
+   *
+   * Exists so "N joined" can stop meaning "N enrolled" — the roster previously
+   * had no way to tell a connected student from an enrolled one.
+   */
+  presence: Record<string, Record<string, PresenceStateValue>>;
   seq: Record<string, number>;
 }
 
@@ -202,6 +212,7 @@ const EMPTY_STORE: SessionStore = {
   sessions: {},
   responses: {},
   positions: {},
+  presence: {},
   seq: {},
 };
 
@@ -225,6 +236,9 @@ const readStore = (userId: string | null | undefined): SessionStore => {
       sessions: parsed.sessions ?? {},
       responses: parsed.responses ?? {},
       positions: parsed.positions ?? {},
+      // Absent on stores written before P0 — normalize rather than bumping
+      // SCHEMA_VERSION, which would discard every teacher's live session.
+      presence: parsed.presence ?? {},
       seq: parsed.seq ?? {},
     };
   } catch {
@@ -611,12 +625,32 @@ export type SessionSocketMessage =
     }
   | { type: 'end' }
   | {
+      /** Identified response — teacher + student sockets only (Rule 2). */
       type: 'response';
       at: string;
       interactionId: string;
       sessionId: string;
       enrollmentId: string;
       displayName?: string;
+      payload: InteractionResponsePayload;
+    }
+  | {
+      /**
+       * Anonymized response — the ONLY response shape a projector socket ever
+       * receives. The server's `stripForProjector` (see
+       * `daw/collab/server/classroom_session/firewall.ts`) removes
+       * `enrollmentId`, `displayName` and `sessionId`, substituting a per-session
+       * `anon` key that groups one student's answers without identifying them.
+       *
+       * Modeling it here is not an envelope change — this shape has always been
+       * on the wire; the client type simply never described it, which is how
+       * every projector response ended up bucketed under the literal key
+       * "undefined".
+       */
+      type: 'response';
+      at: string;
+      interactionId: string;
+      anon: string;
       payload: InteractionResponsePayload;
     }
   | {
@@ -755,25 +789,49 @@ export const applySocketMessageForUser = (
 
   let nextResponses = current.responses;
   let nextPositions = current.positions;
+  let nextPresence = current.presence;
   if (msg.type === 'response') {
-    const forSession: ResponsesForSession = {
-      ...(current.responses[sessionId] ?? {}),
-    };
-    const bag = { ...(forSession[msg.enrollmentId] ?? {}) };
-    bag[msg.interactionId] = msg.payload;
-    forSession[msg.enrollmentId] = bag;
-    nextResponses = { ...current.responses, [sessionId]: forSession };
+    // Bucket by whichever participant key this socket's role is allowed to see:
+    // `enrollmentId` on teacher/student sockets, `anon` on a projector, whose
+    // messages have been through `stripForProjector`. Without the `anon` branch
+    // every projector response lands under the key "undefined" and a 30-student
+    // class reveals a single card.
+    const bucketKey = 'anon' in msg ? msg.anon : msg.enrollmentId;
+    if (bucketKey) {
+      const forSession: ResponsesForSession = {
+        ...(current.responses[sessionId] ?? {}),
+      };
+      const bag = { ...(forSession[bucketKey] ?? {}) };
+      bag[msg.interactionId] = msg.payload;
+      forSession[bucketKey] = bag;
+      nextResponses = { ...current.responses, [sessionId]: forSession };
+    }
   } else if (msg.type === 'position') {
     const forSession = { ...(current.positions[sessionId] ?? {}) };
     forSession[msg.enrollmentId] = msg.slideIndex;
     nextPositions = { ...current.positions, [sessionId]: forSession };
+  } else if (msg.type === 'presence') {
+    const forSession = { ...(current.presence[sessionId] ?? {}) };
+    for (const { enrollmentId, state } of msg.delta) {
+      if (!enrollmentId) continue;
+      if (state === 'left') delete forSession[enrollmentId];
+      else forSession[enrollmentId] = state;
+    }
+    nextPresence = { ...current.presence, [sessionId]: forSession };
   }
 
   // No-op if reducer returned nothing new AND no side-map write happened.
   const stateChanged = nextState !== existing;
   const responsesChanged = nextResponses !== current.responses;
   const positionsChanged = nextPositions !== current.positions;
-  if (!stateChanged && !responsesChanged && !positionsChanged) return;
+  const presenceChanged = nextPresence !== current.presence;
+  if (
+    !stateChanged &&
+    !responsesChanged &&
+    !positionsChanged &&
+    !presenceChanged
+  )
+    return;
 
   const nextSessions = nextState
     ? { ...current.sessions, [sessionId]: nextState }
@@ -783,6 +841,7 @@ export const applySocketMessageForUser = (
     sessions: nextSessions,
     responses: nextResponses,
     positions: nextPositions,
+    presence: nextPresence,
   };
   writeStore(userId, nextStore);
 };

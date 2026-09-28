@@ -15,7 +15,6 @@ const initialState: AppState = {
   selectedSubdivisions: [],
   selectedCities: [],
   selectedLocation: null,
-  globeAltitude: 2.5,
   activeTab: 'Region',
   searchQuery: '',
   isSearchOpen: false,
@@ -27,10 +26,10 @@ const initialState: AppState = {
   searchFlyTarget: null,
   visibleArcDirections: new Set(),
   detailsPanelWidth: null,
-  rotationPaused: false,
+  globeRotating: false,
 };
 
-function appReducer(state: AppState, action: AppAction): AppState {
+export function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case 'SET_YEAR':
       return { ...state, currentYear: action.payload };
@@ -86,12 +85,12 @@ function appReducer(state: AppState, action: AppAction): AppState {
     }
     case 'SELECT_LOCATION':
       return { ...state, selectedLocation: action.payload, pinnedEvent: null };
-    case 'SET_ALTITUDE':
-      return { ...state, globeAltitude: action.payload };
     case 'SET_DETAILS_PANEL_WIDTH':
       return { ...state, detailsPanelWidth: action.payload };
-    case 'SET_ROTATION_PAUSED':
-      return { ...state, rotationPaused: action.payload };
+    case 'SET_GLOBE_ROTATING':
+      return state.globeRotating === action.payload
+        ? state
+        : { ...state, globeRotating: action.payload };
     case 'SET_TAB':
       return { ...state, activeTab: action.payload };
     case 'SET_SEARCH':
@@ -166,6 +165,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return state;
   }
 }
+
+export const initialAppState = initialState;
 
 const AppContext = createContext<AppState>(initialState);
 const DispatchContext = createContext<Dispatch<AppAction>>(() => {});

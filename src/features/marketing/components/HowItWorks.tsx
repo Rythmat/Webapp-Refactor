@@ -1,40 +1,35 @@
 import type { HowItWorksStep } from '../content/types';
-import { MarketingSection } from './MarketingSection';
-import { Reveal } from './Reveal';
+import { SectionHeading } from './SectionHeading';
 
-/** 3-step "how it works" spine (the narrative backbone of each product page). */
+/**
+ * 3-step "how it works" spine (the narrative backbone of each product page):
+ * hairline cells, each numbered like the demos' step pills.
+ */
 export const HowItWorks = ({
   heading = 'How it works',
   steps,
-  accent,
 }: {
   heading?: string;
   steps: HowItWorksStep[];
-  accent: string;
 }) => {
   return (
-    <MarketingSection className="border-y border-white/[0.06] bg-white/[0.015]">
-      <Reveal>
-        <h2 className="mb-10 text-3xl font-semibold text-white md:text-4xl">
-          {heading}
-        </h2>
-      </Reveal>
-      <div className="grid gap-4 md:grid-cols-3">
+    <section aria-labelledby="how-title">
+      <SectionHeading id="how-title" text={heading} />
+      <ol className="grid grid-cols-1 gap-px border-y border-white/[0.08] bg-white/[0.08] md:grid-cols-3">
         {steps.map((step, i) => (
-          <Reveal key={step.title} delay={i * 0.06}>
-            <div className="flex h-full flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-              <span
-                className="flex size-9 items-center justify-center rounded-full text-sm font-bold text-black"
-                style={{ background: accent }}
-              >
-                {i + 1}
-              </span>
-              <h3 className="text-lg font-semibold text-white">{step.title}</h3>
-              <p className="text-sm text-white/70">{step.body}</p>
-            </div>
-          </Reveal>
+          <li key={step.title} className="bg-[#101012] px-6 py-10 md:px-10">
+            <span className="grid size-6 place-items-center rounded-full bg-white text-xs font-bold text-[#101012]">
+              {i + 1}
+            </span>
+            <h3 className="mt-6 text-lg font-semibold text-white">
+              {step.title}
+            </h3>
+            <p className="mt-1 max-w-[36ch] text-[15px] text-white/50">
+              {step.body}
+            </p>
+          </li>
         ))}
-      </div>
-    </MarketingSection>
+      </ol>
+    </section>
   );
 };

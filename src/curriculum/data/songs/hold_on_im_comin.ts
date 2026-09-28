@@ -4,7 +4,7 @@ export const hold_on_im_comin: Song = {
   id: 'hold_on_im_comin',
   title: 'Hold On, I’m Comin’',
   artist: 'Sam and Dave',
-  year: 2007,
+  year: 1966,
   historicalDescription:
     "Sam and Dave release 'Hold On, I'm Comin'', a defining anthem of Southern soul recorded at Stax Records in Memphis. Written by Isaac Hayes and David Porter, the track's call-and-response vocals and tight rhythm section capture the raw, church-inflected energy that makes Stax the rival of Motown. It becomes one of the duo's signature hits and a cornerstone of soul music.",
   key: 'A♭ mixolydian',

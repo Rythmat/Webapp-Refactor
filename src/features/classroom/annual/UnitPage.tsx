@@ -26,6 +26,7 @@ import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { TeacherRoutes } from '@/constants/routes';
+import { useCanEditClassroom } from '@/hooks/data';
 import { useLessonSeedBank, useThemeBank } from '../content/hooks';
 import type { LessonSeed } from '../content/types';
 import { PHASES, STUDENT_PHASE_LABELS } from '../phases';
@@ -71,7 +72,15 @@ export const UnitPage = () => {
     setUnitMeta,
     suggestDayScheduleInUnit,
   } = useAnnualPlan(cid);
-  const { getDay, saveDay, deleteDay } = useLocalPlan();
+  const {
+    getDay,
+    saveDay: saveDayRaw,
+    deleteDay: deleteDayRaw,
+  } = useLocalPlan(cid);
+  const canEdit = useCanEditClassroom(cid);
+  // One guard in front of every write on this page.
+  const saveDay = canEdit ? saveDayRaw : () => {};
+  const deleteDay = canEdit ? deleteDayRaw : () => {};
   const { byId } = useThemeBank();
   const { byThemeId } = useLessonSeedBank();
 
@@ -514,6 +523,7 @@ export const UnitPage = () => {
         <SeedApplyDialog
           seed={seedToApply}
           unitDays={daysInUnit}
+          classroomId={cid}
           onNewDay={(dayId) => addDayToUnit(uid, dayId)}
           suggestSchedule={suggestScheduleForNewDay}
           onClose={() => setSeedToApply(null)}

@@ -4,7 +4,7 @@ export const blame_it_on_the_boogie: Song = {
   id: 'blame_it_on_the_boogie',
   title: 'Blame It On The Boogie',
   artist: 'Michael Jackson',
-  year: 2005,
+  year: 1978,
   historicalDescription:
     "The Jacksons release 'Blame It on the Boogie', a funk-driven anthem that becomes one of their most jubilant and enduring grooves. Built around an irresistible call-and-response hook, the track captures disco-era dancefloor euphoria at its peak — blaming the music, the moonlight, and the boogie itself for the body's inability to stand still.",
   key: 'E♭ major',

@@ -4,7 +4,7 @@ export const one_way_out: Song = {
   id: 'one_way_out',
   title: 'One Way Out',
   artist: 'The Allman Brothers',
-  year: 2004,
+  year: 1972,
   historicalDescription:
     "The Allman Brothers Band resurrect 'One Way Out' — a song rooted in the Sonny Boy Williamson blues tradition — as a live staple that showcases their unrivaled improvisational power. By 2004, the band's legendary dual-guitar interplay and extended jams remind a new generation why they remain the gold standard of American blues-rock. Few songs in their catalog capture the raw, swaggering energy of a band utterly in their element.",
   key: 'A major',

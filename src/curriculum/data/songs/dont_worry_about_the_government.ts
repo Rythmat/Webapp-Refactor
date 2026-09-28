@@ -4,7 +4,7 @@ export const dont_worry_about_the_government: Song = {
   id: 'dont_worry_about_the_government',
   title: 'Don’t Worry About The Government',
   artist: 'Talking Heads',
-  year: 1976,
+  year: 1977,
   historicalDescription:
     "Talking Heads debut on their self-titled album with 'Don't Worry About The Government', David Byrne's eerily cheerful meditation on civic contentment and suburban conformity. Recorded in New York at the height of the CBGB scene, the song captures the band's cerebral, art-school sensibility — a sharp contrast to the raw aggression of their punk contemporaries. Talking Heads prove that anxiety and irony can be just as subversive as noise.",
   key: 'C major',

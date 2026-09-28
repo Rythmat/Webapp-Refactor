@@ -4,7 +4,7 @@ export const life_on_mars: Song = {
   id: 'life_on_mars',
   title: 'Life On Mars',
   artist: 'David Bowie',
-  year: 1972,
+  year: 1971,
   historicalDescription:
     "David Bowie releases 'Life On Mars?' in 1972, a sweeping, cinematic ballad that captures the restless alienation of a generation raised on Hollywood dreams and television disappointment. Arranged with lush orchestration, it cements Bowie's gift for grand theatrical rock — part glam, part art song — and stands as one of the defining statements of his Ziggy Stardust era.",
   key: 'E major & A major',

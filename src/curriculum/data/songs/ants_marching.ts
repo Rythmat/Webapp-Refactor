@@ -4,7 +4,7 @@ export const ants_marching: Song = {
   id: 'ants_marching',
   title: 'Ants Marching',
   artist: 'Dave Matthews Band',
-  year: 1995,
+  year: 1994,
   historicalDescription:
     "Dave Matthews Band releases 'Ants Marching' from their major-label debut, capturing the jam rock energy that had already made them legends of the college circuit. The song's intricate violin lines and Matthews' percussive acoustic guitar style bring a sound rooted in Charlottesville, Virginia's live music scene to a national audience — proving that improvisational, genre-blending rock can thrive on mainstream radio.",
   key: 'D major',

@@ -4,7 +4,7 @@ export const cisco_kid: Song = {
   id: 'cisco_kid',
   title: 'Cisco Kid',
   artist: 'War',
-  year: 1997,
+  year: 1972,
   historicalDescription:
     "War's 'Cisco Kid' is a laid-back funk groove rooted in the band's signature street-level sound — a blend of Latin rhythms, rock, and R&B that made them one of the most eclectic acts to emerge from the early 1970s. Originally a hit in 1972, the song's relaxed swagger and cross-cultural feel capture War's vision of music as a unifying force across racial and social lines.",
   key: 'D minor',

@@ -89,7 +89,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-philly-soul-philadelphia-1972',
-    year: 1972,
+    year: 1971,
     location: {
       lat: 39.9526,
       lng: -75.1652,
@@ -302,7 +302,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-bobmarley-wilmington-1965',
-    year: 1965,
+    year: 1966,
     location: {
       lat: 39.7391,
       lng: -75.5398,
@@ -1360,7 +1360,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
   // ── Funk Events ──────────────────────────────────────────────────────
   {
     id: 'evt-funk-nyc-1963-james-brown-apollo',
-    year: 1963,
+    year: 1962,
     location: {
       lat: 40.8101,
       lng: -73.9503,
@@ -1720,7 +1720,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-funk-dayton-1981-lakeside',
-    year: 1981,
+    year: 1980,
     location: { lat: 39.7589, lng: -84.1916, city: 'Dayton', country: 'US' },
     genre: ['Funk', 'R&B'],
     title: 'Lakeside release "Fantastic Voyage"',

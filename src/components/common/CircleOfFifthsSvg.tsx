@@ -1,11 +1,12 @@
 import { type FC } from 'react';
 import { KEY_COLORS, KEYS, type ColorIndex } from '@prism/engine';
 import type { Song } from '@/curriculum/types/songLibrary';
+import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { wedgeColorRgb } from '@/lib/keyWheelColors';
 
 /**
- * Read-only Circle of Fifths SVG, used as a small key-center badge across the
- * app. Mirrors the visual + color logic of the Studio's CircleOfFifths
+ * Circle of Fifths SVG, used as a small key-center badge across the app.
+ * Read-only unless `onSelectPitch` is passed, which makes each slice a button. Mirrors the visual + color logic of the Studio's CircleOfFifths
  * (src/daw/components/Prism/CircleOfFifths.tsx) — including the convention
  * that minor keys take the relative major's color.
  *
@@ -97,6 +98,8 @@ export interface CircleOfFifthsSvgProps {
   size?: number;
   className?: string;
   ariaLabel?: string;
+  /** Makes the slices selectable; called with the clicked slice's pitch class. */
+  onSelectPitch?: (pitch: number) => void;
 }
 
 export const CircleOfFifthsSvg: FC<CircleOfFifthsSvgProps> = ({
@@ -105,6 +108,7 @@ export const CircleOfFifthsSvg: FC<CircleOfFifthsSvgProps> = ({
   size = DEFAULT_SIZE,
   className,
   ariaLabel,
+  onSelectPitch,
 }) => {
   const scale = size / DEFAULT_SIZE;
   const cx = size / 2;
@@ -123,13 +127,14 @@ export const CircleOfFifthsSvg: FC<CircleOfFifthsSvgProps> = ({
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       className={`select-none ${className ?? ''}`.trim()}
-      role={ariaLabel ? 'img' : undefined}
+      role={onSelectPitch ? 'group' : ariaLabel ? 'img' : undefined}
       aria-label={ariaLabel}
     >
       {Array.from({ length: 12 }, (_, i) => {
         const idx = (i + 1) as ColorIndex;
         const semitone = SEMITONES[idx];
         const isSelected = idx === selectedIdx;
+        const name = displayAccidentals(KEYS[idx]);
 
         // Match Studio logic: in minor mode, use the relative major's color.
         const colorIdx = isMinor
@@ -153,6 +158,20 @@ export const CircleOfFifthsSvg: FC<CircleOfFifthsSvgProps> = ({
               stroke={isSelected ? '#fff' : 'rgba(0,0,0,0.25)'}
               strokeWidth={isSelected ? 2 * scale : 0.5 * scale}
               opacity={opacity}
+              {...(onSelectPitch && {
+                role: 'button',
+                tabIndex: 0,
+                'aria-label': `${name} ${selectedMode}`,
+                'aria-pressed': isSelected,
+                className:
+                  'cursor-pointer outline-none transition-opacity hover:opacity-100 focus-visible:opacity-100',
+                onClick: () => onSelectPitch(semitone),
+                onKeyDown: (e: React.KeyboardEvent) => {
+                  if (e.key !== 'Enter' && e.key !== ' ') return;
+                  e.preventDefault();
+                  onSelectPitch(semitone);
+                },
+              })}
             />
             {isSelected && (
               <text
@@ -164,7 +183,7 @@ export const CircleOfFifthsSvg: FC<CircleOfFifthsSvgProps> = ({
                 fontSize={(idx === 7 ? 11 : 12) * scale}
                 fontWeight={700}
               >
-                {KEYS[idx]}
+                {name}
               </text>
             )}
           </g>
@@ -197,7 +216,7 @@ export const KeyCenterBadge: FC<KeyCenterBadgeProps> = ({
       selectedMode={isMinor ? 'minor' : 'major'}
       size={size}
       className={className}
-      ariaLabel={`Key: ${song.key}`}
+      ariaLabel={`Key: ${displayAccidentals(song.key)}`}
     />
   );
 };

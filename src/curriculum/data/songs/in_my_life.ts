@@ -4,7 +4,7 @@ export const in_my_life: Song = {
   id: 'in_my_life',
   title: 'In My Life',
   artist: 'The Beatles',
-  year: 2025,
+  year: 1965,
   historicalDescription:
     "'In My Life' stands as one of The Beatles' most beloved compositions, a tender meditation on memory and mortality that marks a turning point in John Lennon's songwriting. Where earlier Beatles songs chased love and excitement, this track turns inward — personal, literary, and deeply human. It influences generations of songwriters to treat pop music as a space for genuine reflection.",
   key: 'A major',

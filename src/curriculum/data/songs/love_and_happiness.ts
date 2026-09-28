@@ -4,7 +4,7 @@ export const love_and_happiness: Song = {
   id: 'love_and_happiness',
   title: 'Love And Happiness',
   artist: 'Al Green',
-  year: 2001,
+  year: 1972,
   historicalDescription:
     "Al Green's 'Love And Happiness' stands as one of the defining monuments of Southern soul, recorded at the height of his creative partnership with producer Willie Mitchell in Memphis. The track captures the raw, spiritual tension at the heart of Green's genius — the push and pull between earthly desire and divine devotion. Decades after its release, it remains a cornerstone of soul music, endlessly sampled and covered.",
   key: 'G♯ minor',

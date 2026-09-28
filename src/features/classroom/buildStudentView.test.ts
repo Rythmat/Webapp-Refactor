@@ -12,21 +12,13 @@
  */
 import { describe, expect, it } from 'vitest';
 import { buildStudentView } from './buildStudentView';
+import {
+  expectForbiddenKeyListCovered,
+  expectNoForbiddenKeys,
+  expectNoRationaleLeak,
+} from './firewall.testUtils';
 import type { Slide } from './slides/types';
 import type { Cell, Day, StudentViewConfig } from './types';
-
-const FORBIDDEN_SUBSTRINGS = [
-  'assessment',
-  'rationale',
-  'clo',
-  'impact',
-  'scaffold',
-  'standard',
-  'initiation',
-  'createdby',
-  'notes',
-  'localcontext',
-];
 
 const makeCell = (phaseLabel: string): Cell => ({
   presentation: {
@@ -89,16 +81,11 @@ const makeDay = (): Day => ({
 const config: StudentViewConfig = { language: 'en', agePreset: 'high' };
 
 describe('buildStudentView firewall', () => {
-  it('emits none of the forbidden rationale substrings', () => {
+  it('emits no teacher-only field name and no rationale content', () => {
     const view = buildStudentView(makeDay(), config);
-    const serialized = JSON.stringify(view).toLowerCase();
-
-    for (const forbidden of FORBIDDEN_SUBSTRINGS) {
-      expect(
-        serialized.includes(forbidden),
-        `student view contains forbidden substring "${forbidden}"`,
-      ).toBe(false);
-    }
+    expectNoForbiddenKeys(view, 'student view');
+    expectForbiddenKeyListCovered(view);
+    expectNoRationaleLeak(view, 'student view');
   });
 
   it('emits all five phases in canonical order', () => {
@@ -182,11 +169,8 @@ describe('buildStudentView deck', () => {
     const view = buildStudentView(day, config);
     expect(view.deck?.slides).toHaveLength(1);
     expect(view.deck?.slides[0].id).toBe('sl-1');
-    const serialized = JSON.stringify(view);
-    expect(serialized).not.toContain('SECRET');
-    for (const forbidden of FORBIDDEN_SUBSTRINGS) {
-      expect(serialized.toLowerCase().includes(forbidden)).toBe(false);
-    }
+    expectNoForbiddenKeys(view, 'student view');
+    expectNoRationaleLeak(view, 'student view');
   });
 
   it('carries content-slide launchTiles + resetChecklist through, whitelist-copied', () => {
@@ -223,12 +207,10 @@ describe('buildStudentView deck', () => {
       { en: 'Chairs in', es: 'Sillas' },
     ]);
     const serialized = JSON.stringify(view);
-    expect(serialized).not.toContain('SECRET');
     expect(serialized).not.toContain('scaffoldNote');
     expect(serialized).not.toContain('teacherGuide');
-    for (const forbidden of FORBIDDEN_SUBSTRINGS) {
-      expect(serialized.toLowerCase().includes(forbidden)).toBe(false);
-    }
+    expectNoForbiddenKeys(view, 'student view');
+    expectNoRationaleLeak(view, 'student view');
   });
 
   it('omits deck for legacy Days', () => {
@@ -325,12 +307,7 @@ describe('buildStudentView firewall — applied seed', () => {
       resolveActivityId: () => undefined,
     });
     const view = buildStudentView(applied, config);
-    const serialized = JSON.stringify(view).toLowerCase();
-    for (const forbidden of FORBIDDEN_SUBSTRINGS) {
-      expect(
-        serialized.includes(forbidden),
-        `applied-seed student view contains "${forbidden}"`,
-      ).toBe(false);
-    }
+    expectNoForbiddenKeys(view, 'applied-seed student view');
+    expectNoRationaleLeak(view, 'applied-seed student view');
   });
 });

@@ -7,6 +7,12 @@ import {
 
 export interface RosterTabsProps {
   classroomId: string;
+  /**
+   * Viewers see the roster but change nobody's enrollment. These are the
+   * highest-stakes controls in the Office: approve/deny/remove/reactivate are
+   * SERVER-backed writes that change another person's access to the class.
+   */
+  canEdit: boolean;
   searchQuery: string;
 }
 
@@ -25,7 +31,11 @@ const EMPTY_COPY: Record<TabKey, string> = {
   removed: 'No removed students.',
 };
 
-export const RosterTabs = ({ classroomId, searchQuery }: RosterTabsProps) => {
+export const RosterTabs = ({
+  classroomId,
+  searchQuery,
+  canEdit,
+}: RosterTabsProps) => {
   const [tab, setTab] = useState<TabKey>('pending');
   const { enrollments, approve, deny, kick, reactivate, isLoading } =
     useEnrollments(classroomId);
@@ -103,6 +113,7 @@ export const RosterTabs = ({ classroomId, searchQuery }: RosterTabsProps) => {
               onDeny={() => deny(row.id).catch(() => {})}
               onKick={() => kick(row.id).catch(() => {})}
               onReactivate={() => reactivate(row.id).catch(() => {})}
+              canEdit={canEdit}
             />
           ))}
         </ul>
@@ -117,6 +128,7 @@ interface RosterRowProps {
   onDeny: () => void;
   onKick: () => void;
   onReactivate: () => void;
+  canEdit: boolean;
 }
 
 const RosterRow = ({
@@ -125,6 +137,7 @@ const RosterRow = ({
   onDeny,
   onKick,
   onReactivate,
+  canEdit,
 }: RosterRowProps) => {
   const initial = enrollment.displayName.charAt(0).toUpperCase() || '·';
   return (
@@ -141,7 +154,7 @@ const RosterRow = ({
         {enrollment.status}
       </span>
       <div className="flex flex-shrink-0 items-center gap-2">
-        {enrollment.status === 'pending' && (
+        {canEdit && enrollment.status === 'pending' && (
           <>
             <button
               type="button"
@@ -159,7 +172,7 @@ const RosterRow = ({
             </button>
           </>
         )}
-        {enrollment.status === 'active' && (
+        {canEdit && enrollment.status === 'active' && (
           <button
             type="button"
             onClick={onKick}
@@ -168,7 +181,7 @@ const RosterRow = ({
             Remove
           </button>
         )}
-        {enrollment.status === 'removed' && (
+        {canEdit && enrollment.status === 'removed' && (
           <button
             type="button"
             onClick={onReactivate}

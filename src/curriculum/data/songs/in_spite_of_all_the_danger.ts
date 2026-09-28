@@ -4,7 +4,7 @@ export const in_spite_of_all_the_danger: Song = {
   id: 'in_spite_of_all_the_danger',
   title: 'In Spite Of All The Danger',
   artist: 'The Beatles',
-  year: 1994,
+  year: 1995,
   historicalDescription:
     "'In Spite Of All The Danger' is the earliest known Beatles recording, cut in 1958 at a Liverpool studio when the group were still teenagers calling themselves The Quarrymen. Though recorded decades before its 1994 release on 'Anthology 1', the song offers a rare glimpse into the raw, skiffle-influenced roots of the band that would change popular music forever.",
   key: 'E major',

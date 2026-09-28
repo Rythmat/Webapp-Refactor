@@ -4,7 +4,7 @@ export const just_a_girl: Song = {
   id: 'just_a_girl',
   title: 'Just A Girl',
   artist: 'No Doubt',
-  year: 1996,
+  year: 1995,
   historicalDescription:
     "No Doubt releases 'Just A Girl', a sharp, punk-tinged anthem capturing Gwen Stefani's frustration with the limitations placed on young women. Bursting out of the Anaheim ska-punk scene, the song catapults the band to mainstream success and becomes a defining feminist rallying cry of 1990s alternative rock.",
   key: 'D major',

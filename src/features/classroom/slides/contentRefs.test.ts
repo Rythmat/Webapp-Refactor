@@ -66,22 +66,58 @@ describe('contentRefs — every builder round-trips through the resolver', () =>
   });
 });
 
-describe('refFirewallCollision — blocks un-publishable refs/labels', () => {
-  it('flags the "clo" collision in real song ids', () => {
-    expect(refFirewallCollision(songChartRef('tears_of_a_clown'))).toBe('clo');
+describe('refFirewallCollision — a KEY-name gate, never a text gate', () => {
+  it('no longer blocks real songs whose id contains a former forbidden substring', () => {
+    // Regression: both are real entries in the 642-song library and were
+    // unpickable under the old substring matcher because "clown"/"close"
+    // contain "clo". Content VALUES are student-safe by definition.
     expect(
-      refFirewallCollision(songLessonRef('they_long_to_be_close_to_you')),
-    ).toBe('clo');
+      refFirewallCollision({ ref: songChartRef('tears_of_a_clown') }),
+    ).toBeNull();
+    expect(
+      refFirewallCollision({
+        ref: songLessonRef('they_long_to_be_close_to_you'),
+        title: 'They Long to Be Close to You',
+      }),
+    ).toBeNull();
   });
 
-  it('flags a forbidden substring in the label', () => {
+  it('no longer blocks a label that merely mentions a teacher-only word', () => {
     expect(
-      refFirewallCollision('globe:pathway:blues-to-rock', 'My notes'),
-    ).toBe('notes');
+      refFirewallCollision({
+        ref: 'globe:pathway:blues-to-rock',
+        title: 'My notes',
+      }),
+    ).toBeNull();
   });
 
-  it('returns null for a safe ref + label', () => {
-    expect(refFirewallCollision(songChartRef('africa'), 'Africa')).toBeNull();
-    expect(refFirewallCollision(globePathwayRef('jazz-chain'))).toBeNull();
+  it('flags a candidate that structurally carries a teacher-only field', () => {
+    // The real leak this exists to catch: a content-bank Activity handed to the
+    // deck whole instead of projected down to {module, activityRef, label}.
+    expect(
+      refFirewallCollision({
+        ref: songChartRef('africa'),
+        title: 'Africa',
+        cloIds: ['clo-learn-act-1'],
+      }),
+    ).toBe('cloIds');
+  });
+
+  it('finds a teacher-only field nested at any depth', () => {
+    expect(
+      refFirewallCollision({
+        ref: globePathwayRef('jazz-chain'),
+        meta: { extras: [{ rationale: { notes: 'teacher only' } }] },
+      }),
+    ).toBe('rationale');
+  });
+
+  it('returns null for an ordinary picker row', () => {
+    expect(
+      refFirewallCollision({ ref: songChartRef('africa'), title: 'Africa' }),
+    ).toBeNull();
+    expect(
+      refFirewallCollision({ ref: globePathwayRef('jazz-chain') }),
+    ).toBeNull();
   });
 });

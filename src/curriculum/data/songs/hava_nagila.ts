@@ -4,7 +4,7 @@ export const hava_nagila: Song = {
   id: 'hava_nagila',
   title: 'Hava Nagila',
   artist: 'Traditional',
-  year: 1996,
+  year: 1918,
   historicalDescription:
     "A 1996 pop recording of 'Hava Nagila' carries one of the world's most recognizable melodies into a new era. Originally rooted in Hasidic Jewish folk tradition and first popularized in the early 20th century, the song has become a global symbol of celebration — sung and danced at weddings, gatherings, and joyful occasions across cultures far beyond its origins.",
   key: 'D harmonic minor',

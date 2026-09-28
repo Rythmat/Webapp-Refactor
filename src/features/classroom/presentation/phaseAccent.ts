@@ -2,7 +2,8 @@ import type { PhaseKey } from '../phases';
 
 /**
  * Per-phase accent (hex) for the Presentation surface. Single source of truth:
- * `SlidePresentBody` sets it as the inline `--slide-accent` on the `SlideFrame`
+ * `SlideRenderer` and `SlideCanvas` set it as the inline `--slide-accent` on the
+ * stage frame
  * element (its glow + chip dot read `var(--slide-accent)`), and `Board` tints
  * its phase cards with it. The deck student/projector surfaces never consume
  * this map, so they keep their default teal — this stays scoped to Presentation

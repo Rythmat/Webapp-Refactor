@@ -7,9 +7,12 @@
  * title promotion) plus interaction losslessness for legacy backfill.
  */
 import { describe, expect, it } from 'vitest';
+import {
+  expectNoForbiddenKeys,
+  expectNoRationaleLeak,
+} from '../firewall.testUtils';
 import { PHASES } from '../phases';
 import { newBlankDay } from '../plan/newBlankDay';
-import { FORBIDDEN_SUBSTRINGS } from '../publish/publishDay';
 import type { Day } from '../types';
 import { deckFromCells } from './deckFromCells';
 
@@ -62,10 +65,9 @@ describe('deckFromCells', () => {
       createdBy: 'CREATEDBY-teacher-123',
       localContext: 'LOCALCONTEXT: Denver tie-in',
     };
-    const serialized = JSON.stringify(deckFromCells(day)).toLowerCase();
-    for (const forbidden of FORBIDDEN_SUBSTRINGS) {
-      expect(serialized.includes(forbidden)).toBe(false);
-    }
+    const deck = deckFromCells(day);
+    expectNoForbiddenKeys(deck, 'deck');
+    expectNoRationaleLeak(deck, 'deck');
   });
 
   it('a blank Day yields exactly the 5 phase content slides in order', () => {

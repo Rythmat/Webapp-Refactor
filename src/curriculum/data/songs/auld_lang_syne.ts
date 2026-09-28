@@ -4,7 +4,7 @@ export const auld_lang_syne: Song = {
   id: 'auld_lang_syne',
   title: 'Auld Lang Syne',
   artist: 'Traditional',
-  year: 1993,
+  year: 1788,
   historicalDescription:
     "Few songs cross as many borders as 'Auld Lang Syne', a Scottish folk melody built on Robert Burns' 1788 poem about remembering old friends. By the 1990s it is the universal soundtrack of New Year's Eve, sung in ballrooms, living rooms, and public squares across the world — a rare piece of music that belongs to everyone and no one at once.",
   key: 'C major',

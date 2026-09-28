@@ -1,6 +1,7 @@
 import { ArrowRight, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MUSICAL_ERAS } from '@/components/atlas/data';
+import { eraRangeLabel } from '@/components/atlas/data/musicalEras';
 import { AtlasRoutes } from '@/constants/routes';
 import { GlobeSectionHeader } from './GlobeSectionHeader';
 
@@ -40,7 +41,7 @@ export const GlobeEras = () => (
           <span
             className={`inline-flex w-fit items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${era.activeBg} ${era.activeText} ${era.activeBorder}`}
           >
-            {era.yearStart}–{era.yearEnd}
+            {eraRangeLabel(era)}
           </span>
           <h3 className="mt-3 text-lg font-medium text-white">{era.label}</h3>
           <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-[#7ecfcf]">

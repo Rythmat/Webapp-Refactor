@@ -45,6 +45,19 @@ const ALIASES: Record<string, string> = {
   pr: 'puerto rico',
   se: 'sweden',
   'democratic republic of the congo': 'dr congo',
+
+  // Natural Earth's abbreviated NAME values, which is what a polygon click
+  // hands us. Without these, ten countries opened a panel with no events in
+  // them even though the dataset had events there all along.
+  'dem. rep. congo': 'dr congo',
+  congo: 'republic of congo',
+  'eq. guinea': 'equatorial guinea',
+  'central african rep.': 'central african republic',
+  's. sudan': 'south sudan',
+  'bosnia and herz.': 'bosnia and herzegovina',
+  'united arab emirates': 'uae',
+  'solomon is.': 'solomon islands',
+  'dominican rep.': 'dominican republic',
 };
 
 export function normCountry(x: string | undefined | null): string {

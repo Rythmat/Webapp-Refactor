@@ -4,7 +4,7 @@ export const lets_go_crazy: Song = {
   id: 'lets_go_crazy',
   title: 'Let’s Go Crazy',
   artist: 'Prince',
-  year: 1987,
+  year: 1984,
 
   historicalDescription:
     "Prince opens the 'Purple Rain' album and film with 'Let's Go Crazy', a sermon-turned-explosion that fuses funk, rock, and gospel into something entirely his own. The track announces Prince's commercial and artistic peak — a Minneapolis one-man revolution that rewires pop music's relationship with race, genre, and electric guitar heroics.",

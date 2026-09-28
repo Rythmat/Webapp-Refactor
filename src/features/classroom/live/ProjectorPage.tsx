@@ -2,9 +2,12 @@ import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { PHASES } from '../phases';
 import { usePublishedDays } from '../publish/usePublishedDays';
+import { useSanitizedPublishedDay } from '../publish/useRuleOneReadGuard';
 import type { Interaction, InteractionResponse } from '../types';
 import { AnonymousShareOverlay } from './AnonymousShareOverlay';
+import { ConnectionBadge } from './ConnectionBadge';
 import { buildProjectorView } from './buildProjectorView';
+import type { SessionState } from './sessionsStore';
 import { ProjectorDeckView } from './slides/ProjectorDeckView';
 import { useLiveResponses } from './useLiveResponses';
 import { useSessionSync } from './useSessionSync';
@@ -17,13 +20,52 @@ export const ProjectorPage = () => {
   const cid = classroomId ?? '';
   const sid = sessionId ?? '';
 
-  const { state } = useSessionSync(sid, 'projector', cid);
+  // ONE socket. The surface receives the session it needs as props rather than
+  // calling `useSessionSync` again, which would open a second connection.
+  const { state, connectionStatus } = useSessionSync(sid, 'projector', cid);
+
+  return (
+    <>
+      <ProjectorSurface classroomId={cid} sessionId={sid} state={state} />
+      {/* NO SILENT MOCKS. A healthy projected board stays chrome-free; a
+          practice or dropped session is unmissable from the back of the room. */}
+      {connectionStatus !== 'connected' && (
+        <div className="pointer-events-none fixed right-4 top-4 z-50">
+          <ConnectionBadge status={connectionStatus} />
+        </div>
+      )}
+    </>
+  );
+};
+
+interface ProjectorSurfaceProps {
+  classroomId: string;
+  sessionId: string;
+  state: SessionState | null;
+}
+
+/**
+ * The projected board itself. Kept separate so `ProjectorPage` can mount the
+ * status overlay exactly once, above whichever of the five surfaces renders.
+ */
+const ProjectorSurface = ({
+  classroomId: cid,
+  sessionId: sid,
+  state,
+}: ProjectorSurfaceProps) => {
   const { responsesByEnrollment } = useLiveResponses(sid);
   const { getPublishedDay } = usePublishedDays(cid);
 
-  const publishedDay = state?.publishedDayId
+  const storedPublishedDay = state?.publishedDayId
     ? getPublishedDay(state.publishedDayId)
     : undefined;
+  // Rule 1, read path: strip rather than blank. The projector is the one screen
+  // the whole class is looking at — it must render.
+  const { day: publishedDay } = useSanitizedPublishedDay(
+    storedPublishedDay,
+    'projector',
+    cid,
+  );
 
   const interactions = useMemo<Interaction[]>(() => {
     if (!publishedDay) return [];

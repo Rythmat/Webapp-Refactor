@@ -4,7 +4,7 @@ export const rock_steady: Song = {
   id: 'rock_steady',
   title: 'Rock Steady',
   artist: 'Aretha Franklin',
-  year: 2004,
+  year: 1971,
   historicalDescription:
     "Aretha Franklin records 'Rock Steady', a raw, self-produced funk groove that marks a bold creative turn for the Queen of Soul. Stripping back the lush orchestration of her Atlantic ballads, she locks into a tight, percussive pocket that rivals James Brown at his most primal. The track becomes one of the defining funk statements of the early 1970s.",
   key: 'A minor',

@@ -13,12 +13,12 @@
  *   globe:region:<id> | globe:city:<id> | globe:era:<id>
  *
  * Also exposes `refFirewallCollision` — a pre-publish guard so the picker never
- * emits a ref/label containing a Rule 1 forbidden substring, which would make
- * the whole Day fail to publish (see `publishDay.ts` FORBIDDEN_SUBSTRINGS).
+ * emits an object carrying a Rule 1 teacher-only KEY, which would make the whole
+ * Day fail to publish (see `publishDay.ts` FORBIDDEN_KEYS).
  */
 import type { CurriculumGenreId } from '@/curriculum/bridge/genreIdMap';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
-import { FORBIDDEN_SUBSTRINGS } from '../publish/publishDay';
+import { findForbiddenKeyIn } from '../publish/publishDay';
 import type { LaunchTile } from '../types';
 
 export type PickerKind =
@@ -100,18 +100,20 @@ export const moduleForKind = (kind: PickerKind): LaunchTile['module'] =>
       : 'learn';
 
 /**
- * Return the first Rule 1 forbidden substring found in the ref or label, or
- * null when safe. The publish firewall (`findForbiddenSubstring`) serializes the
- * whole snapshot and rejects the Day if any occurs — e.g. song ids like
- * `tears_of_a_clown` contain `clo`. The picker calls this to block such items.
+ * Return the first Rule 1 teacher-only KEY carried by a candidate object, or
+ * null when safe. The picker calls this on the object it is about to insert so
+ * a structural leak is caught at author time rather than at publish time.
+ *
+ * Keys only — never values. This deliberately no longer inspects ref or label
+ * TEXT. The old substring scan blocked legitimate content outright: the songs
+ * `tears_of_a_clown` and `they_long_to_be_close_to_you` both contain `clo`, so
+ * neither could be linked into a lesson at all. Values are student-safe content
+ * by definition; only a teacher-only field NAME is a leak, and `publishDay`'s
+ * exact-key matcher agrees.
+ *
+ * The real risk this still catches: a picker row sourced from the content bank
+ * (whose `Activity` carries `cloIds` / `cloText`) being handed to the deck
+ * whole instead of projected down to `{module, activityRef, label}`.
  */
-export const refFirewallCollision = (
-  ref: string,
-  label?: string,
-): string | null => {
-  const haystack = `${ref} ${label ?? ''}`.toLowerCase();
-  for (const forbidden of FORBIDDEN_SUBSTRINGS) {
-    if (haystack.includes(forbidden)) return forbidden;
-  }
-  return null;
-};
+export const refFirewallCollision = (candidate: unknown): string | null =>
+  findForbiddenKeyIn(candidate);

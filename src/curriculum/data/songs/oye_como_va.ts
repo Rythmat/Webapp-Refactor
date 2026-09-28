@@ -4,7 +4,7 @@ export const oye_como_va: Song = {
   id: 'oye_como_va',
   title: 'Oye Como Va',
   artist: 'Santana',
-  year: 2007,
+  year: 1970,
   historicalDescription:
     "Santana revives 'Oye Como Va' — Tito Puente's 1963 Latin jazz classic — transforming it into a landmark of Latin rock. Carlos Santana's fluid guitar work weaves through the song's Afro-Cuban groove, bridging the worlds of rock and Latin music in a way that few artists had dared before. The recording becomes one of Santana's signature moments, introducing Tito Puente's songwriting to a global rock audience.",
   key: 'A minor',

@@ -1,8 +1,12 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
 import { useMemo, type FC, type ReactNode } from 'react';
-import { getChordColorFromNotes, midiNameInKey } from '@prism/engine';
+import { midiNameInKey } from '@prism/engine';
 import type { SongMode } from '@/curriculum/types/songLibrary';
-import { chordNameToMidi } from '@/curriculum/songLibrary/chordParser';
+import {
+  chordRgbFor,
+  normalizeMode,
+  type ChordRgb,
+} from '@/curriculum/songLibrary/chordColor';
 import { PianoKeyboard } from '@/components/PianoKeyboard/PianoKeyboard';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext';
 import { Piano } from 'lucide-react';
@@ -22,7 +26,9 @@ import { useRollView } from '@/lib/notation/viewPreference';
  * be one component rather than two that drift.
  */
 
-export type ChordRgb = readonly [number, number, number];
+// The colour helpers live in a plain module; re-exported for existing callers.
+export { chordRgbFor, normalizeMode };
+export type { ChordRgb };
 
 /** Teal — matches the former hard-coded #7ecfcf. */
 export const FALLBACK_CHORD_RGB: ChordRgb = [126, 207, 207];
@@ -45,29 +51,6 @@ const NOTE_NAMES = [
 /** Spell a MIDI note the way the chord pills do, e.g. 63 → "E♭4". */
 export const midiToNoteLabel = (midi: number) =>
   `${NOTE_NAMES[((midi % 12) + 12) % 12]}${Math.floor(midi / 12) - 1}`;
-
-/** Map Song's SongMode to the Prism engine's parent-Ionian mode keys. */
-export function normalizeMode(mode: SongMode): string {
-  if (mode === 'major') return 'ionian';
-  if (mode === 'minor') return 'aeolian';
-  return mode;
-}
-
-/**
- * The Studio key-colour for a chord name, routed through MIDI so callers don't
- * have to translate the song's degree strings ('1 maj', '♭7 maj') into Studio's
- * format. Null when the name doesn't parse.
- */
-export function chordRgbFor(
-  chordName: string,
-  keyRoot: number,
-  mode: SongMode,
-): ChordRgb | null {
-  const midis = chordNameToMidi(chordName);
-  if (midis.length === 0) return null;
-  const [r, g, b] = getChordColorFromNotes(midis, keyRoot, normalizeMode(mode));
-  return [r, g, b] as const;
-}
 
 const midiToPlaybackEvents = (midis: number[]): PlaybackEvent[] =>
   midis.map((midi, i) => ({

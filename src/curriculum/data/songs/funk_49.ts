@@ -4,7 +4,7 @@ export const funk_49: Song = {
   id: 'funk_49',
   title: 'Funk #49',
   artist: 'The James Gang',
-  year: 1997,
+  year: 1970,
   historicalDescription:
     "The James Gang release 'Funk #49', a hard-driving groove built around Joe Walsh's razor-sharp guitar riff and one of rock's most recognizable drum breaks. The track captures the raw, stripped-down energy of early 1970s funk rock, bridging the gap between blues-soaked rock and the rhythmic swagger that would define the decade. Walsh's guitar work here foreshadows his later stardom with the Eagles.",
   key: 'A major',

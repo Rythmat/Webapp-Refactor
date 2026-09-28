@@ -372,8 +372,13 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-blues-burbank-1989',
-    year: 1989,
-    location: { lat: 34.1808, lng: -118.3089, city: 'Burbank', country: 'US' },
+    year: 1990,
+    location: {
+      lat: 34.0522,
+      lng: -118.2437,
+      city: 'Los Angeles',
+      country: 'US',
+    },
     genre: ['Blues', 'Blues Rock', 'Pop'],
     title: 'Bonnie Raitt wins Album of the Year with "Nick of Time"',
     description:
@@ -513,7 +518,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-blues-rochester-1965',
-    year: 1965,
+    year: 1964,
     location: { lat: 43.1566, lng: -77.6088, city: 'Rochester', country: 'US' },
     genre: ['Blues', 'Delta Blues'],
     title: 'Son House rediscovered during the folk-blues revival',
@@ -786,7 +791,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-blues-chicago-1961-etta',
-    year: 1961,
+    year: 1960,
     location: { lat: 41.8781, lng: -87.6298, city: 'Chicago', country: 'US' },
     genre: ['Blues', 'R&B', 'Soul'],
     title: 'Etta James records "At Last"',

@@ -1,7 +1,7 @@
 /**
  * Reflect-phase reset checklist. Check state is deliberately ephemeral — it
  * lives in the uncontrolled inputs and evaporates when the slide unmounts.
- * Shared by the "present" surface (SlidePresentBody) and the live projector /
+ * Shared by every surface through `SlideElementView`'s `checklist` case —
  * student surfaces (ContentSlide).
  */
 import type { LocalizedText, StudentLanguage } from '../types';

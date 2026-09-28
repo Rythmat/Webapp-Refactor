@@ -4,7 +4,7 @@ export const jessies_girl: Song = {
   id: 'jessies_girl',
   title: 'Jessie’s Girl',
   artist: 'Rick Springfield',
-  year: 2018,
+  year: 1981,
   historicalDescription:
     "Rick Springfield releases 'Jessie's Girl', a hook-driven rock anthem fueled by jealousy and longing that becomes one of the defining pop-rock singles of the early 1980s. The song reaches #1 on the Billboard Hot 100 and earns Springfield a Grammy for Best Male Rock Vocal Performance — proof that arena rock and radio-ready songwriting can coexist perfectly.",
   key: 'D major',

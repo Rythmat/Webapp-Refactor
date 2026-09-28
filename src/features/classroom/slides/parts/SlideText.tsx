@@ -1,6 +1,7 @@
 /**
  * Shared title / prompt / body text blocks — used by both the present body
- * (SlidePresentBody) and the live per-kind renderers (ContentSlide) so a slide's
+ * (the editor canvas) and the live surfaces, all of which now render through
+ * `SlideElementView`, so a slide's
  * text looks identical whether it's authored, presented, or projected. Sizes
  * come from the per-surface `--slide-*-fz` tokens; 'both' mode stacks the ES
  * line via `secondaryLine`. An optional per-block `SlideBlockStyle` scales the

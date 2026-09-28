@@ -18,7 +18,8 @@ import type {
 export const SLIDE_CANVAS = { w: 1280, h: 720 } as const;
 export const MIN_BLOCK = { w: 96, h: 40 } as const;
 
-/** Side/‌top safe margins (design px) — mirror SlideFrame's 4%/3% padding. */
+/** Side/‌top safe margins (design px) — the 4%/3% padding the deleted
+ *  `SlideFrame` applied, now expressed by `SAFE_AREA` in slideGrid.ts. */
 const M = 64;
 const CONTENT_W = SLIDE_CANVAS.w - M * 2; // 1152
 

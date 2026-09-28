@@ -14,7 +14,7 @@ import { CreditsBadge } from '@/components/CreditsBadge';
 import { Logo } from '@/components/Logo';
 import { BetaHelp } from '@/components/ui/beta-help';
 import { cn } from '@/components/utilities';
-import { AdminRoutes } from '@/constants/routes';
+import { AdminRoutes, LegalRoutes } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { isContentEditor } from '@/features/admin/consoleRoles';
 import { ClassroomSwitcher } from '@/features/teacher/components/ClassroomSwitcher';
@@ -175,28 +175,23 @@ export const Sidebar = ({
             >
               <SidebarSecondaryNavItem
                 external
-                label="Changelog"
-                to="https://www.musicatlas.io/policies/change-log"
-              />
-              <SidebarSecondaryNavItem
-                external
                 label="Support"
                 to="mailto:aaron@musicatlas.io"
               />
               <SidebarSecondaryNavItem
                 external
                 label="Licensing"
-                to="https://www.musicatlas.io/policies/licensing"
+                to={LegalRoutes.licensing()}
               />
               <SidebarSecondaryNavItem
                 external
                 label="Privacy Policy"
-                to="https://www.musicatlas.io/policies/privacy"
+                to={LegalRoutes.privacyPolicy()}
               />
               <SidebarSecondaryNavItem
                 external
                 label="Terms of Use"
-                to="https://www.musicatlas.io/policies/terms"
+                to={LegalRoutes.termsOfService()}
               />
             </ul>
           )}

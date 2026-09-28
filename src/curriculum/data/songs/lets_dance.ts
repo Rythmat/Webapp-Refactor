@@ -4,7 +4,7 @@ export const lets_dance: Song = {
   id: 'lets_dance',
   title: 'Let’s Dance',
   artist: 'David Bowie',
-  year: 1976,
+  year: 1983,
 
   historicalDescription:
     "David Bowie releases 'Let's Dance', a sleek pivot from his art rock and glam rock roots toward a polished, funk-inflected sound that dominates radio and earns him his biggest commercial audience yet. The track signals a new era — Bowie the shape-shifter once again reinventing himself, trading the fractured avant-garde for the dancefloor.",

@@ -4,7 +4,7 @@ export const landslide: Song = {
   id: 'landslide',
   title: 'Landslide',
   artist: 'Fleetwood Mac',
-  year: 1988,
+  year: 1975,
   historicalDescription:
     "Stevie Nicks writes 'Landslide' as a deeply personal meditation on change, fear, and self-reflection — capturing a pivotal moment of uncertainty in her life and career. Its fingerpicked acoustic guitar and confessional lyrics resonate far beyond Fleetwood Mac's catalog, becoming one of rock's most enduring songs about growing older and letting go. Decades after its original release, the song continues to find new generations of listeners.",
   key: 'B♭ major',

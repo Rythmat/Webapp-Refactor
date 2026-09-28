@@ -206,6 +206,20 @@ export default class ClassroomSessionServer implements Party.Server {
       JSON.stringify({ type: 'hello', session: auth.session, role: auth.role }),
     );
 
+    // Size the roster immediately for a non-teacher too. Presence otherwise
+    // only emits on CHANGE, so a projector or student connecting after the
+    // class has already joined would sit on a blank count until someone's
+    // state happened to flip.
+    if (auth.role !== 'teacher') {
+      conn.send(
+        JSON.stringify({
+          type: 'presenceCount',
+          at: this.nowIso(),
+          ...this.presenceCounts(),
+        }),
+      );
+    }
+
     // Announce presence for enrolled students (teachers/projectors are not
     // tracked in the roster presence stream).
     if (auth.enrollmentId) {
@@ -316,14 +330,43 @@ export default class ClassroomSessionServer implements Party.Server {
     if (deltas.length) this.emitPresence(deltas);
   }
 
+  /**
+   * Rule 2 for presence.
+   *
+   * `enrollmentId` is the same identifier class `stripForProjector` exists to
+   * remove from responses, so broadcasting it to students and the projector
+   * leaked the roster to every screen in the room — including the one the whole
+   * class is looking at. The identified stream is teacher-only; everyone else
+   * gets a COUNT.
+   *
+   * Additive per the frozen-envelope rule: the `v: 1` `presence` body is
+   * unchanged, and `presenceCount` is a new body rather than a mutation of it.
+   */
   private emitPresence(
     delta: { enrollmentId: string; state: PresenceState }[],
   ) {
-    this.broadcast({ type: 'presence', at: this.nowIso(), delta }, [
-      'teacher',
-      'student',
-      'projector',
-    ]);
+    this.broadcast({ type: 'presence', at: this.nowIso(), delta }, ['teacher']);
+    this.broadcast(
+      { type: 'presenceCount', at: this.nowIso(), ...this.presenceCounts() },
+      ['student', 'projector'],
+    );
+  }
+
+  /** How many enrolled students are currently connected, and how many of those
+   *  are active rather than idle. Derived from live connections, so "joined"
+   *  means joined — not "enrolled". */
+  private presenceCounts(): { joined: number; active: number } {
+    let joined = 0;
+    let active = 0;
+    for (const conn of this.room.getConnections()) {
+      const meta = this.meta.get(conn.id);
+      if (!meta?.enrollmentId) continue;
+      joined++;
+      if (meta.lastPresence === 'active' || meta.lastPresence === 'joined') {
+        active++;
+      }
+    }
+    return { joined, active };
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────────

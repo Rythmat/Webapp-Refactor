@@ -4,7 +4,7 @@ export const cruise: Song = {
   id: 'cruise',
   title: 'Cruise',
   artist: 'Florida Georgia Line',
-  year: 2013,
+  year: 2012,
   historicalDescription:
     "Florida Georgia Line's 'Cruise' becomes a cultural flashpoint for the bro-country movement sweeping Nashville in the early 2010s. Its sun-soaked blend of country twang and hip-hop influenced production captures the sound of Southern youth on a summer night — and its massive crossover success forces country radio to reckon with a new generation's tastes.",
   key: 'B♭ major',

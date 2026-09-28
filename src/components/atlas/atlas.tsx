@@ -4,6 +4,7 @@ import { BaseGlobe } from '@/components/atlas/components/Globe';
 import { ArtistPanel } from '@/components/atlas/components/UI/ArtistPanel';
 import { AtlasToolbar } from '@/components/atlas/components/UI/AtlasToolbar';
 import { DetailsCard } from '@/components/atlas/components/UI/DetailsCard';
+import { GlobeSpinToggle } from '@/components/atlas/components/UI/GlobeSpinToggle';
 import { GuidedTourBar } from '@/components/atlas/components/UI/GuidedTourBar';
 import { ModuleProgressBar } from '@/components/atlas/components/UI/ModuleProgressBar';
 import { RegionTimeline } from '@/components/atlas/components/UI/RegionTimeline';
@@ -72,6 +73,7 @@ function AppLayout() {
       <AtlasToolbar />
       <div className="relative flex-1">
         <BaseGlobe />
+        <GlobeSpinToggle />
         {sidePanel}
         {!activeModule && !activeTour && <RegionTimeline />}
         {activeModule && <ModuleProgressBar />}

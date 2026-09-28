@@ -1,9 +1,9 @@
 import { Eye, GraduationCap, PlusCircle, Sparkles } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ClassroomLayout } from '@/components/ClassroomLayout/ClassroomLayout';
 import { ClassroomRoutes } from '@/constants/routes';
-import { useClassrooms, useMe } from '@/hooks/data';
+import { useClassrooms, useMe, useMyClassrooms } from '@/hooks/data';
 import { JoinClassroomDialog } from './JoinClassroomDialog';
 
 export const ClassroomPickerPage = () => {
@@ -13,6 +13,13 @@ export const ClassroomPickerPage = () => {
     isLoading: isClassroomsLoading,
     error: classroomsError,
   } = useClassrooms();
+  // One owned-id set for the whole list — a hook cannot be called per row,
+  // and this is the same owner filter the other seven sites used to inline.
+  const { classrooms: ownedClassrooms } = useMyClassrooms();
+  const ownedIds = useMemo(
+    () => new Set(ownedClassrooms.map((c) => c.id)),
+    [ownedClassrooms],
+  );
   const { data: me } = useMe();
   const isTeacherLike = me?.role === 'teacher' || me?.role === 'admin';
 
@@ -36,7 +43,7 @@ export const ClassroomPickerPage = () => {
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {classrooms?.map((classroom) => {
-              const isOwner = Boolean(me?.id && classroom.teacherId === me.id);
+              const isOwner = ownedIds.has(classroom.id);
               const to = isOwner
                 ? `${ClassroomRoutes.home({ classroomId: classroom.id })}?viewAs=student`
                 : ClassroomRoutes.home({ classroomId: classroom.id });
@@ -103,7 +110,7 @@ const EmptyState = ({ onJoin, isTeacherLike }: EmptyStateProps) => (
     <h2 className="text-xl font-medium text-white">No classrooms yet</h2>
     <p className="text-base text-white/60">
       {isTeacherLike
-        ? "You haven't joined any classrooms yet. Use a colleague's join code to preview — or create your own classroom from Manage."
+        ? "You haven't joined any classrooms yet. Use a colleague's join code to preview — or create your own classroom from Office."
         : 'Join your first classroom using the code from your teacher.'}
     </p>
     <button

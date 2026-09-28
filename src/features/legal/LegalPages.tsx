@@ -16,6 +16,12 @@ const TermsOfServicePage = lazy(() =>
   })),
 );
 
+const LicensingPage = lazy(() =>
+  import('./LicensingPage').then(({ LicensingPage }) => ({
+    default: LicensingPage,
+  })),
+);
+
 export const legalPages = () => {
   return {
     // Legal routes
@@ -33,6 +39,10 @@ export const legalPages = () => {
       {
         path: LegalRoutes.termsOfService.definition,
         element: <TermsOfServicePage />,
+      },
+      {
+        path: LegalRoutes.licensing.definition,
+        element: <LicensingPage />,
       },
       {
         path: '*',

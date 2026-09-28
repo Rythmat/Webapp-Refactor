@@ -47,7 +47,7 @@ const FEATURED_EVENT_IDS = [
   'evt-samba-rio-1928',
   'evt-bossanova-rio-1962',
   'evt-tango-buenos-aires-1917',
-  'evt-mambo-havana-1948',
+  'evt-mambo-havana-1950',
   'evt-cumbia-barranquilla-1962',
   'evt-reggaeton-san-juan-2004',
   'evt-mariachi-mexicocity-1950',
@@ -134,11 +134,11 @@ function buildGlobeData(event: HistoricalEvent): {
 
   const featuredKey = coordKey(event.location.lat, event.location.lng);
   const markers: GlobeMarker[] = [];
-  let i = 0;
   for (const [k, ep] of endpoints) {
     if (k === featuredKey) continue; // featured rendered separately, labelled
+    // No id: these dots carry no label, and every id costs a DOM anchor that
+    // cobe repositions on every frame.
     markers.push({
-      id: `mp${i++}`,
       location: ep.location,
       label: '',
       color: ep.color,

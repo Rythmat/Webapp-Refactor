@@ -4,7 +4,7 @@ export const burn_this_disco_out: Song = {
   id: 'burn_this_disco_out',
   title: 'Burn This Disco Out',
   artist: 'Michael Jackson',
-  year: 2022,
+  year: 1979,
   historicalDescription:
     "Michael Jackson closes his landmark Off the Wall album with 'Burn This Disco Out', a sleek, funk-driven anthem that captures the last burning embers of disco at its peak. Produced by Quincy Jones, the track showcases Jackson's effortless command of rhythm and groove — proof that at just 21, he is already something far beyond a child star.",
   key: 'E♭ dorian',

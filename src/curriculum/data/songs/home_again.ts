@@ -4,7 +4,7 @@ export const home_again: Song = {
   id: 'home_again',
   title: 'Home Again',
   artist: 'Carole King',
-  year: 2022,
+  year: 1971,
   historicalDescription:
     "Carole King performs 'Home Again' at the Platinum Jubilee Concert outside Buckingham Palace, bringing her signature warm piano-driven sound to a global audience of millions. The moment echoes the intimacy of her landmark 1971 album Tapestry — a rare live appearance from one of popular music's most enduring songwriters, whose influence spans generations of artists from James Taylor to Taylor Swift.",
   key: 'A major',

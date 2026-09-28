@@ -4,7 +4,7 @@ export const is_this_love: Song = {
   id: 'is_this_love',
   title: 'Is This Love',
   artist: 'Bob Marley',
-  year: 1977,
+  year: 1978,
   historicalDescription:
     "Bob Marley releases 'Is This Love', a tender reggae love song that reveals a softer side of the artist better known for protest anthems. Recorded during the Kaya sessions, the track's warm, unhurried groove becomes one of his most universally beloved songs — proof that reggae's gentle pulse can carry pure joy just as powerfully as revolution.",
   key: 'F♯ minor',

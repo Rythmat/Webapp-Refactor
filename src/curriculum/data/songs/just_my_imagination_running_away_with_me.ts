@@ -4,7 +4,7 @@ export const just_my_imagination_running_away_with_me: Song = {
   id: 'just_my_imagination_running_away_with_me',
   title: 'Just My Imagination (Running Away With Me)',
   artist: 'The Temptations',
-  year: 2020,
+  year: 1971,
   historicalDescription:
     "The Temptations release 'Just My Imagination (Running Away With Me)', a tender, aching ballad that marks the group's return to classic Motown romanticism after their psychedelic soul era. Written by Norman Whitfield and Barrett Strong, it becomes the group's last #1 hit with lead vocalist Eddie Kendricks — a bittersweet farewell to an era of Motown elegance.",
   key: 'C major',

@@ -4,7 +4,7 @@ export const another_star: Song = {
   id: 'another_star',
   title: 'Another Star',
   artist: 'Stevie Wonder',
-  year: 1977,
+  year: 1976,
   historicalDescription:
     "Stevie Wonder closes his landmark album 'Songs in the Key of Life' with 'Another Star', a jubilant calypso-driven celebration that showcases his effortless command of Afro-Caribbean rhythms. At a moment when Wonder is widely regarded as the most ambitious artist in popular music, the track captures his joy in exploring the full breadth of Black musical tradition — from rhythm and blues to samba and beyond.",
   key: 'F♯ minor',

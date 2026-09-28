@@ -4,7 +4,7 @@ export const mercy: Song = {
   id: 'mercy',
   title: 'Mercy',
   artist: 'Duffy',
-  year: 2007,
+  year: 2008,
   historicalDescription:
     "Welsh singer Duffy records 'Mercy', a retro-soul anthem that channels the spirit of 1960s Motown and Stax into a contemporary pop package. The song becomes a global smash, topping charts across Europe and introducing Duffy's powerhouse voice to the world — proving that vintage soul still has an irresistible pull on modern audiences.",
   key: 'G major',

@@ -1,13 +1,18 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect } from 'react';
-import type { ContentSlide } from '../slides/types';
-import type { StudentLanguage } from '../types';
-import { SlidePresentBody } from './SlidePresentBody';
+import { SlideRenderer, type SlideSlots } from '../slides/SlideRenderer';
+import type { Slide } from '../slides/types';
+import type { Interaction, StudentLanguage } from '../types';
 
 interface FocusProps {
-  /** The current deck slide, already adapted for the static present board. */
-  slide: ContentSlide;
+  /** The current deck slide, whatever its kind. */
+  slide: Slide;
   language: StudentLanguage;
+  /**
+   * Interactions resolved for this slide. Present passes the same pre-gated,
+   * anonymized set the projector gets; `[]` outside a live session.
+   */
+  interactions?: Interaction[];
   onExit: () => void;
   onPrev: () => void;
   onNext: () => void;
@@ -15,23 +20,35 @@ interface FocusProps {
   hasNext: boolean;
   /** "3 / 12" — position within the deck. */
   position: string;
+  /**
+   * Pre-gated surface slots for a LIVE session — in practice just `reveal`,
+   * built with the SAME anonymized gating the projector uses. Present is a
+   * projected surface, so it shows the anonymized aggregate, never identified
+   * data. `SlideRenderer` decides which interactions the slot is even called
+   * for (`interactionPolicy`), so a check-in can never reach it.
+   */
+  slots?: SlideSlots;
 }
 
 /**
- * Focus — one deck slide, full-bleed, rendered through the shared present body
- * (`SlidePresentBody` → `SlideFrame`) so Presentation Mode matches the editor +
- * the deck surfaces. A bottom bar walks the deck slide-by-slide; Esc exits the
- * presentation, ←/→ move between slides.
+ * Focus — one deck slide, full-bleed, rendered through `SlideRenderer` at
+ * `surface="present"` — the same single path the projector and the student
+ * device use, so Present cannot drift from what the class sees.
+ *
+ * A bottom bar walks the deck slide-by-slide; Esc exits the presentation,
+ * ←/→ move between slides.
  */
 export const Focus = ({
   slide,
   language,
+  interactions = [],
   onExit,
   onPrev,
   onNext,
   hasPrev,
   hasNext,
   position,
+  slots,
 }: FocusProps) => {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -45,7 +62,13 @@ export const Focus = ({
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">
-      <SlidePresentBody slide={slide} language={language} playableMedia />
+      <SlideRenderer
+        slide={slide}
+        surface="present"
+        language={language}
+        interactions={interactions}
+        slots={slots}
+      />
 
       <div
         className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center"

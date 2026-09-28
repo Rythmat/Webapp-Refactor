@@ -33,6 +33,13 @@ export const ProductEvents = {
   SUBSCRIPTION_ACTIVATED: 'subscription_activated',
   CHALLENGE_STARTED: 'challenge_started',
   CHALLENGE_COMPLETED: 'challenge_completed',
+  /**
+   * Rule 1 read-path repair: a stored lesson snapshot carried a teacher-only
+   * key and it was stripped before render. Never expected in a healthy system —
+   * one of these means a snapshot was published by a build whose projection was
+   * incomplete, and the publishing path needs a fix.
+   */
+  SNAPSHOT_KEYS_STRIPPED: 'snapshot_keys_stripped',
 } as const;
 
 export const AudioEvents = {

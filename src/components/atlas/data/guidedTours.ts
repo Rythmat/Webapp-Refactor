@@ -276,7 +276,7 @@ const REGION_TOURS: GuidedTour[] = [
         cityId: 'berlin',
         title: 'Berlin, Germany',
         blurb:
-          "Kraftwerk's electronics and, after 1989, the techno of its warehouse clubs made Berlin an electronic-music capital.",
+          "Tangerine Dream's kosmische electronics, the Bowie and Eno Hansa records and, after 1989, the techno of its warehouse clubs made Berlin an electronic-music capital.",
       },
     ],
   ),

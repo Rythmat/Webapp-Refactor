@@ -4,7 +4,7 @@ export const december_1963_oh_what_a_night: Song = {
   id: 'december_1963_oh_what_a_night',
   title: 'December 1963, Oh What A Night',
   artist: 'The Four Seasons',
-  year: 2008,
+  year: 1975,
   historicalDescription:
     "Originally recorded in 1975, 'December 1963 (Oh What A Night)' by The Four Seasons enjoys a remarkable second life when it surges back onto charts worldwide in 2008, driven by its infectious groove and nostalgic warmth. Few songs from the classic pop era cross so effortlessly into dance floors decades later, cementing Frankie Valli and the group's legacy across generations.",
   key: 'D♭ major',

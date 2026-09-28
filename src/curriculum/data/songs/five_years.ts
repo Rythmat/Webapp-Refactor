@@ -4,7 +4,7 @@ export const five_years: Song = {
   id: 'five_years',
   title: 'Five Years',
   artist: 'David Bowie',
-  year: 2015,
+  year: 1972,
   historicalDescription:
     "David Bowie opens 'The Rise and Fall of Ziggy Stardust and the Spiders from Mars' with 'Five Years', a slow-building apocalyptic vision of Earth's final countdown. The track establishes the emotional core of Bowie's Ziggy Stardust persona — a world on the brink, desperate for a rock and roll savior. It remains one of the most haunting album openers in rock history.",
   key: 'E minor',

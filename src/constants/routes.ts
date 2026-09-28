@@ -356,6 +356,14 @@ export const TeacherRoutes = {
 };
 
 /**
+ * Teacher "Office" — the standalone classroom picker/home, promoted to a
+ * top-level URL (no `/teacher` prefix).
+ */
+export const OfficeRoutes = {
+  root: createRouteDefinition('/office'),
+};
+
+/**
  * The routes for the classroom.
  */
 const classroomPrefix = '/classrooms';
@@ -458,12 +466,15 @@ export const LegalRoutes = {
    * The route to the terms of service.
    */
   termsOfService: createRouteDefinition('/terms', { prefix: legalPrefix }),
+
+  /**
+   * The route to the licensing policy.
+   */
+  licensing: createRouteDefinition('/licensing', { prefix: legalPrefix }),
 };
 
 export const ExternalLinks = {
-  LandingPage: createLinkDefinition('https://music-atlas.io'),
-  About: createLinkDefinition('https://music-atlas.io/about'),
-  Help: createLinkDefinition('https://help.music-atlas.io'),
+  LandingPage: createLinkDefinition('https://musicatlas.io'),
 };
 
 const studioPrefix = '/studio';

@@ -27,8 +27,13 @@ import { getSong } from '@/curriculum/data/songs';
 import type { ActivityFlow } from '@/curriculum/types/activity';
 import type { GCMKey, CurriculumLevelId } from '@/curriculum/types/curriculum';
 import type { Song } from '@/curriculum/types/songLibrary';
+import { useCanEditClassroom } from '@/hooks/data';
 import { useAnnualPlan } from '../../annual/useAnnualPlan';
-import { useStartClassroomSession } from '../../live/useStartClassroomSession';
+import { useLocalSessionStore } from '../../live/useLocalSessionStore';
+import {
+  confirmPracticeSession,
+  useStartClassroomSession,
+} from '../../live/useStartClassroomSession';
 import { defaultUnitIdFor } from '../../plan/useEnsureLessonUnits';
 import { useLocalPlan } from '../../plan/useLocalPlan';
 import { usePublishedDays } from '../../publish/usePublishedDays';
@@ -81,9 +86,12 @@ export const DeckWizardPage = () => {
   const cid = classroomId ?? '';
   const navigate = useNavigate();
 
-  const { listDays, saveDay } = useLocalPlan();
+  const { listDays, saveDay } = useLocalPlan(cid);
   const { publishDayToClassroom } = usePublishedDays(cid);
   const startClassroomSession = useStartClassroomSession();
+  const { endSession } = useLocalSessionStore();
+  // Viewers may browse the wizard but cannot publish or start a session.
+  const canEdit = useCanEditClassroom(cid);
   const { plan, seedFromTemplate, addDayToUnit, suggestDayScheduleInUnit } =
     useAnnualPlan(cid);
 
@@ -114,7 +122,7 @@ export const DeckWizardPage = () => {
   const [theoryMode, setTheoryMode] = useState<string | undefined>(undefined);
   const genreReqRef = useRef<GCMKey | null>(null);
 
-  const days = listDays();
+  const days = listDays(cid);
   const plannedDay = plannedDayId
     ? (days.find((d) => d.id === plannedDayId) ?? null)
     : null;
@@ -230,6 +238,13 @@ export const DeckWizardPage = () => {
         initialPhase: firstSlidePhase,
         initialSlideIndex: 0,
       });
+      // NO SILENT MOCKS: a local session is never presented as a real one.
+      if (started.transport === 'local') {
+        if (!confirmPracticeSession(started.reason)) {
+          endSession(started.sessionId);
+          return;
+        }
+      }
       navigate(
         TeacherRoutes.session({
           classroomId: cid,
@@ -436,7 +451,10 @@ export const DeckWizardPage = () => {
             </button>
             <button
               type="button"
-              disabled={busy}
+              disabled={busy || !canEdit}
+              title={
+                canEdit ? undefined : 'Viewers cannot start a live session'
+              }
               onClick={() => launch('live')}
               className="inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-2 text-sm font-medium text-black transition-colors hover:bg-emerald-300 disabled:opacity-50"
             >

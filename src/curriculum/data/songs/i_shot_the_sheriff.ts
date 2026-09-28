@@ -4,7 +4,7 @@ export const i_shot_the_sheriff: Song = {
   id: 'i_shot_the_sheriff',
   title: 'I Shot The Sheriff',
   artist: 'Bob Marley',
-  year: 2005,
+  year: 1973,
   historicalDescription:
     "Bob Marley and the Wailers record 'I Shot the Sheriff', a defiant reggae anthem rooted in the struggles of Jamaican rural life. When Eric Clapton covers it in 1974 and takes it to #1 in the US, the song becomes reggae's first major mainstream breakthrough — introducing Marley's music to a global audience and cementing Jamaica as a force in world music.",
   key: 'G minor',

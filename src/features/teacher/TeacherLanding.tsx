@@ -11,16 +11,14 @@
  */
 import { GraduationCap, PlusCircle } from 'lucide-react';
 import { Link, Navigate } from 'react-router-dom';
-import { TeacherRoutes } from '@/constants/routes';
-import { useClassrooms, useMe } from '@/hooks/data';
+import { OfficeRoutes, TeacherRoutes } from '@/constants/routes';
+import { useMyClassrooms } from '@/hooks/data';
 
 export const TeacherLanding = () => {
-  const { data: me } = useMe();
-  const { data: allClassrooms = [], isLoading } = useClassrooms();
-
-  const owned = me?.id
-    ? allClassrooms.filter((c) => c.teacherId === me.id)
-    : [];
+  // Owned + co-taught, via the single role hook. `useMyClassrooms` keeps the
+  // owner filter that used to be inlined here — `GET /classrooms` is scoped by
+  // token, not by ownership, so dropping it would surface enrolled classes.
+  const { classrooms: owned, isLoading } = useMyClassrooms();
 
   if (isLoading) {
     return (
@@ -47,7 +45,7 @@ export const TeacherLanding = () => {
     );
   }
 
-  return <Navigate to={TeacherRoutes.classrooms()} replace />;
+  return <Navigate to={OfficeRoutes.root()} replace />;
 };
 
 const EmptyOwned = () => (
@@ -62,7 +60,7 @@ const EmptyOwned = () => (
       </p>
     </div>
     <Link
-      to={TeacherRoutes.classrooms()}
+      to={OfficeRoutes.root()}
       className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-white/85"
     >
       <PlusCircle className="h-4 w-4" />

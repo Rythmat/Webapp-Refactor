@@ -4,7 +4,7 @@ export const friend_of_the_devil: Song = {
   id: 'friend_of_the_devil',
   title: 'Friend of the Devil',
   artist: 'Grateful Dead',
-  year: 1981,
+  year: 1970,
   historicalDescription:
     "The Grateful Dead's 'Friend of the Devil' becomes a touchstone of the American folk rock tradition, weaving a rambling outlaw narrative over acoustic guitar that feels rooted in old mountain ballads and Delta blues mythology. Originally appearing on American Beauty, the song captures the Dead at their most intimate — swapping the psychedelic sprawl of their live shows for campfire storytelling. It endures as one of the band's most beloved compositions, a staple of their improvisational live sets for decades.",
   key: 'G major',

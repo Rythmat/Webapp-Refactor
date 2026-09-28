@@ -4,7 +4,7 @@ export const man_i_feel_like_a_woman: Song = {
   id: 'man_i_feel_like_a_woman',
   title: 'Man, I Feel Like A Woman',
   artist: 'Shania Twain',
-  year: 1998,
+  year: 1997,
   historicalDescription:
     "Shania Twain releases 'Man! I Feel Like a Woman!' in 1998, a defiant anthem of female liberation that blurs the line between country and pop. Co-written with her producer Robert John 'Mutt' Lange, the song becomes one of the defining hits of the Come On Over era — cementing Twain as the best-selling female country artist of all time and reshaping Nashville's relationship with mainstream pop radio.",
   key: 'B♭ major',

@@ -67,7 +67,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   {
     id: 'evt-flamenco-seville-1922',
     year: 1922,
-    location: { lat: 37.3891, lng: -5.9845, city: 'Seville', country: 'Spain' },
+    location: { lat: 37.1773, lng: -3.5986, city: 'Granada', country: 'Spain' },
     genre: ['Flamenco'],
     title: 'Concurso de Cante Jondo preserves flamenco',
     description:
@@ -175,7 +175,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-chaabi-algiers-1920',
-    year: 1920,
+    year: 1928,
     location: {
       lat: 36.7538,
       lng: 3.0588,
@@ -390,7 +390,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-moutya-victoria-2011',
-    year: 2011,
+    year: 2021,
     location: {
       lat: -4.6191,
       lng: 55.4513,
@@ -440,7 +440,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-shambo-windhoek-2000',
-    year: 2000,
+    year: 2004,
     location: {
       lat: -22.5609,
       lng: 17.0658,
@@ -798,7 +798,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-khaliji-pop-kuwait-1975',
-    year: 1975,
+    year: 1983,
     location: {
       lat: 29.3759,
       lng: 47.9774,
@@ -1289,7 +1289,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-choral-suva-1985',
-    year: 1985,
+    year: 1972,
     location: { lat: -18.1416, lng: 178.4419, city: 'Suva', country: 'Fiji' },
     genre: ['Fijian Choral', 'Island Reggae'],
     title:
@@ -1396,7 +1396,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-tebino-tarawa-1978',
-    year: 1978,
+    year: 1979,
     location: {
       lat: 1.4518,
       lng: 172.9717,
@@ -1467,9 +1467,9 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
     id: 'evt-omengat-ngerulmud-1995',
     year: 1995,
     location: {
-      lat: 7.5006,
-      lng: 134.6243,
-      city: 'Ngerulmud',
+      lat: 7.3419,
+      lng: 134.4792,
+      city: 'Koror',
       country: 'Palau',
     },
     genre: ['Palauan Chant', 'Omengat Song'],
@@ -1555,7 +1555,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-jonimitchell-saskatoon-1964',
-    year: 1964,
+    year: 1962,
     location: {
       lat: 52.1332,
       lng: -106.67,
@@ -1727,7 +1727,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-marimba-guatemalacity-1955',
-    year: 1955,
+    year: 1978,
     location: {
       lat: 14.6349,
       lng: -90.5069,
@@ -1751,7 +1751,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-andean-lapaz-1965',
-    year: 1965,
+    year: 1966,
     location: {
       lat: -16.4897,
       lng: -68.1193,
@@ -1801,11 +1801,11 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-folkfestival-anchorage-1980',
-    year: 1980,
+    year: 1975,
     location: {
-      lat: 61.2181,
-      lng: -149.9003,
-      city: 'Anchorage',
+      lat: 58.3019,
+      lng: -134.4197,
+      city: 'Juneau',
       country: 'US',
     },
     genre: ['Folk', 'Acoustic', 'Traditional'],
@@ -1931,7 +1931,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-powwow-albuquerque-1970',
-    year: 1970,
+    year: 1983,
     location: {
       lat: 35.0844,
       lng: -106.6504,
@@ -2317,7 +2317,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-spiritual-nashville-1867',
-    year: 1867,
+    year: 1871,
     location: { lat: 36.1627, lng: -86.7816, city: 'Nashville', country: 'US' },
     genre: ['Spiritual', 'Choral'],
     title: 'Fisk Jubilee Singers carry slave spirituals to the world',
@@ -2383,11 +2383,11 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-rai-algiers-1990',
-    year: 1990,
+    year: 1992,
     location: {
-      lat: 36.7538,
-      lng: 3.0588,
-      city: 'Algiers',
+      lat: 35.6969,
+      lng: -0.6331,
+      city: 'Oran',
       country: 'Algeria',
     },
     genre: ['Raï', 'World Music'],
@@ -2434,10 +2434,10 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
     id: 'evt-rosalia-sanjuan-2018',
     year: 2018,
     location: {
-      lat: 18.4655,
-      lng: -66.1057,
-      city: 'San Juan',
-      country: 'Puerto Rico',
+      lat: 41.3874,
+      lng: 2.1686,
+      city: 'Barcelona',
+      country: 'Spain',
     },
     genre: ['Flamenco', 'Reggaeton', 'Electronic'],
     title: 'Rosalía fuses flamenco with reggaeton and electronic production',
@@ -2456,7 +2456,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-mizrahi-telaviv-1980',
-    year: 1980,
+    year: 1982,
     location: {
       lat: 32.0853,
       lng: 34.7818,
@@ -2481,7 +2481,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-dombra-almaty-1990',
-    year: 1990,
+    year: 1991,
     location: {
       lat: 43.222,
       lng: 76.8512,
@@ -2506,7 +2506,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-qawwali-lahore-1987',
-    year: 1987,
+    year: 1985,
     location: {
       lat: 31.5497,
       lng: 74.3436,
@@ -2557,7 +2557,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-pacific-suva-1985',
-    year: 1985,
+    year: 1972,
     location: { lat: -18.1416, lng: 178.4419, city: 'Suva', country: 'Fiji' },
     genre: ['Pacific Island Music', 'Fijian Folk'],
     title: 'South Pacific Festival of Arts unites Oceanian music traditions',
@@ -2577,7 +2577,7 @@ export const FOLK_EVENTS: HistoricalEvent[] = [
   },
   {
     id: 'evt-maori-haka-auckland-1900',
-    year: 1900,
+    year: 1950,
     location: {
       lat: -36.8485,
       lng: 174.7633,

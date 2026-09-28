@@ -27,25 +27,7 @@ import {
   BILLING_STATE_MESSAGE,
   formatPeriodDate,
 } from './subscription/subscriptionUtils';
-
-const FALLBACK_TIERS = [
-  {
-    id: 'free' as const,
-    name: 'Free',
-    price: '$0',
-    period: 'forever',
-    credits: '50 credits (one-time)',
-    features: ['AI chord generation', 'Basic MIDI export', 'Community access'],
-  },
-  {
-    id: 'pro' as const,
-    name: 'Pro',
-    price: '$10',
-    period: '/month',
-    credits: '100 credits/month',
-    features: ['Access to all content'],
-  },
-];
+import { FALLBACK_TIERS } from './subscription/tiers';
 
 export const PlanPage = () => {
   const { data: billingConfig } = useBillingConfig();

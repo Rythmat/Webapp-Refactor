@@ -4,7 +4,7 @@ export const rebel_rebel: Song = {
   id: 'rebel_rebel',
   title: 'Rebel Rebel',
   artist: 'David Bowie',
-  year: 1973,
+  year: 1974,
   historicalDescription:
     "David Bowie releases 'Rebel Rebel' in 1974, a crunching guitar anthem that serves as both a farewell to his Ziggy Stardust glam rock era and a celebration of teenage outsiders. Built on one of rock's most recognizable riffs, the song captures Bowie at a pivot point — shedding one identity before shapeshifting into the next, as only he could.",
   key: 'A major',

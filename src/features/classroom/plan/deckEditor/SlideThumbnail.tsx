@@ -1,15 +1,12 @@
 /**
  * SlideThumbnail — a true, pixel-faithful shrink of a slide for the filmstrip,
- * rendered through the shared `SlidePresentBody` inside the `DeckPreview`
+ * rendered through the shared `SlideRenderer` inside the `DeckPreview`
  * 1280×720 transform-scale box. Carries the phase accent, selection ring, a
  * dangling-interaction badge, and hover Duplicate / Delete controls.
  */
 import { AlertTriangle, Copy, Trash2 } from 'lucide-react';
-import {
-  SlidePresentBody,
-  slideToPresentContent,
-} from '../../presentation/SlidePresentBody';
 import { PHASE_ACCENT_HEX } from '../../presentation/phaseAccent';
+import { SlideRenderer } from '../../slides/SlideRenderer';
 import type { Slide } from '../../slides/types';
 import type { Interaction } from '../../types';
 
@@ -58,10 +55,18 @@ export const SlideThumbnail = ({
           className="presentation-root relative aspect-[16/9] w-full overflow-hidden"
           data-age="high"
         >
-          <SlidePresentBody
-            slide={slideToPresentContent(slide)}
+          {/*
+            The filmstrip renders through the SAME path the class does, so a
+            thumbnail cannot show something the projector will not. It used to
+            go through `slideToPresentContent` → block mode, which ignores
+            `presetId` entirely — so every preset-authored slide was previewed
+            in the wrong zones.
+          */}
+          <SlideRenderer
+            slide={slide}
+            surface="present"
             language="en"
-            interactions={interactions}
+            interactions={interactions ?? []}
           />
         </div>
         <span className="absolute bottom-1 left-1 rounded bg-black/60 px-1.5 text-[10px] font-medium text-white/80 backdrop-blur">

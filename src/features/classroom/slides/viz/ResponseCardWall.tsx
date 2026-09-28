@@ -1,7 +1,17 @@
 /**
  * Anonymized text-answer card wall over a `VizTextAggregate` — the "reveal"
- * moment for text questions. Staggered dark-glass cards, capped at 40 with a
- * bilingual "+N more" chip.
+ * moment for text questions. Staggered dark-glass cards with a bilingual
+ * "+N more" chip.
+ *
+ * THE CAP IS SIZED TO ITS BOX, not fixed.
+ *
+ * It used to be a flat 40. At projector scale a one-line card is ~70px tall in
+ * a 3-column grid, so 40 cards is ~14 rows ≈ 1150px — rendered into a reveal
+ * band of ~316px design px, inside a `SlideFrame` that is `overflow-hidden`
+ * with no scroll. Two thirds of the class's answers were being silently
+ * dropped off the bottom, with the "+N more" chip itself clipped away too, so
+ * nothing on screen said so. Deriving the cap from the available height means
+ * overflow surfaces through the chip instead of vanishing.
  *
  * Pure props-in: the aggregate carries bare answer strings only (see
  * buildVizAggregate.ts); this component never touches response hooks.
@@ -15,9 +25,39 @@ export interface ResponseCardWallProps {
   /** 'projector' = big-screen scale (default); 'panel' = compact teacher dashboard. */
   size?: 'projector' | 'panel';
   language?: StudentLanguage;
+  /**
+   * Height of the box this wall is rendered into, in design px. Given by the
+   * reveal band; omit on auto-height/scrolling surfaces.
+   */
+  availableHeight?: number;
 }
 
+/** Hard ceiling regardless of box size — past this a wall stops being readable. */
 const MAX_CARDS = 40;
+
+/** Approximate rendered card height, in design px, per size. */
+const CARD_H = { projector: 70, panel: 34 } as const;
+/** Grid columns the wall uses at each size (its widest breakpoint). */
+const CARD_COLS = { projector: 3, panel: 2 } as const;
+/** Room the "+N more" chip needs below the grid. */
+const MORE_CHIP_H = { projector: 52, panel: 32 } as const;
+
+/**
+ * How many cards actually fit in `availableHeight` design px.
+ *
+ * Undefined height (the teacher dashboard's auto-height column) keeps the old
+ * behaviour — that surface scrolls, so nothing is lost there.
+ */
+export const cardCapForHeight = (
+  size: 'projector' | 'panel',
+  availableHeight?: number,
+): number => {
+  if (availableHeight === undefined) return MAX_CARDS;
+  const usable = Math.max(0, availableHeight - MORE_CHIP_H[size]);
+  const rows = Math.floor(usable / CARD_H[size]);
+  // Always show at least one row, or a small class sees nothing at all.
+  return Math.max(CARD_COLS[size], Math.min(MAX_CARDS, rows * CARD_COLS[size]));
+};
 const STAGGER_SEC = 0.06;
 /** Cards past this index enter together — a 40-card wall shouldn't take 2.4s. */
 const MAX_STAGGER_STEPS = 20;
@@ -34,10 +74,12 @@ export const ResponseCardWall = ({
   aggregate,
   size = 'projector',
   language = 'en',
+  availableHeight,
 }: ResponseCardWallProps) => {
   const reduce = useReducedMotion();
   const projector = size === 'projector';
-  const visible = aggregate.answers.slice(0, MAX_CARDS);
+  const cap = cardCapForHeight(size, availableHeight);
+  const visible = aggregate.answers.slice(0, cap);
   const overflow = aggregate.answers.length - visible.length;
 
   return (

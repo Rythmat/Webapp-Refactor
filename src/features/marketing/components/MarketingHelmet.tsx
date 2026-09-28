@@ -1,6 +1,5 @@
 import { Helmet } from 'react-helmet';
-
-const ORIGIN = 'https://music-atlas.io';
+import { SITE_ORIGIN } from '@/constants/hosts';
 
 /** Per-page SEO tags for a public marketing page. */
 export const MarketingHelmet = ({
@@ -12,7 +11,7 @@ export const MarketingHelmet = ({
   description: string;
   canonicalPath: string;
 }) => {
-  const url = `${ORIGIN}${canonicalPath}`;
+  const url = `${SITE_ORIGIN}${canonicalPath}`;
   return (
     <Helmet>
       <title>{title}</title>

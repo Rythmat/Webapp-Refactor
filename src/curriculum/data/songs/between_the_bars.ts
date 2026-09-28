@@ -4,7 +4,7 @@ export const between_the_bars: Song = {
   id: 'between_the_bars',
   title: 'Between The Bars',
   artist: 'Elliott Smith',
-  year: 1996,
+  year: 1997,
   historicalDescription:
     "Elliott Smith releases 'Between The Bars' on his album 'Either/Or', a hushed, intimate portrait of addiction and longing that showcases his gift for confessional songwriting. The song's delicate fingerpicked guitar and close-mic'd vocals create an almost unbearable closeness — as if Smith is whispering directly into the listener's ear. It becomes one of his most beloved songs, later reaching wider audiences through its placement in Gus Van Sant's film 'Good Will Hunting'.",
   key: 'G minor',

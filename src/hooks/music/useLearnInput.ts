@@ -1,22 +1,42 @@
 // ── useLearnInput ────────────────────────────────────────────────────────
-// Input hook for the Learn section. Listens for MIDI keyboard input only;
-// microphone-based pitch detection has been removed because stray ambient
-// audio was producing spurious notes and breaking activity feedback.
+// Input hook for the Learn section. Piano (the default) listens for MIDI
+// keyboard input only; microphone-based pitch detection was removed because
+// stray ambient audio was producing spurious notes and breaking activity
+// feedback.
+//
+// Guitar lessons ('guitar') bring audio back for guitar only, and only once
+// guitar.enable() runs from a user gesture — never on mount or start(). The
+// guitar engine's notes join the MIDI note subscribers; strummed chords, from
+// the engine or from a MIDI guitar's held notes, go to chord subscribers.
 //
 // Hot-plugging is supported via the Web MIDI API's statechange event so
 // devices can be connected/disconnected mid-lesson.
 //
 // The audio refs and stop logic are preserved so the surrounding state
 // surface (capture, inputLevel, noteConfidences, isV2) stays compatible
-// with consumers — they just remain at default values.
+// with consumers — for piano they just remain at default values.
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { audioContextOwner } from '@/audio/core/AudioContextOwner';
+import type { LessonInstrument } from '@/curriculum/types/activity.v2';
 import { isV2Enabled } from '@/learn/audio/AudioSystemSelector';
 import {
   AudioToMidiAdapter,
   type DetectionMode,
 } from '@/learn/audio/AudioToMidiAdapter';
 import { LearnAudioCapture } from '@/learn/audio/LearnAudioCapture';
+import { GuitarLearnInputEngine } from '@/learn/audio/guitar/GuitarLearnInputEngine';
+import { MidiGuitarChordAggregator } from '@/learn/audio/guitar/MidiGuitarChordAggregator';
+import {
+  loadGuitarInputPrefs,
+  saveGuitarInputPrefs,
+} from '@/learn/audio/guitar/guitarInputPrefs';
+import type {
+  GuitarChordEvent,
+  GuitarInputHandle,
+  GuitarInputPrefs,
+  GuitarInputStatus,
+} from '@/learn/audio/guitar/types';
 import {
   StreamingAudioCapture,
   ProbabilisticOrchestrator,
@@ -34,6 +54,21 @@ export interface UseLearnInputOptions {
   onNoteOn?: (event: MidiNoteEvent) => void;
   /** Called when a note ends (with duration). */
   onNoteOff?: (event: MidiNoteEvent) => void;
+  /**
+   * The instrument the lesson teaches, read on mount. Piano (the default) is
+   * MIDI only; guitar adds chord events and gesture-started audio input.
+   */
+  instrument?: LessonInstrument;
+}
+
+/** The guitar handle, plus the metronome click filter for audio input. */
+export interface LearnGuitarInput extends GuitarInputHandle {
+  /**
+   * `isClick(perfMs)`: whether an attack heard at `perfMs` (performance.now(),
+   * before input latency is removed) falls on a scheduled metronome click.
+   * Such attacks only count when clearly played (see GuitarLearnInputEngine).
+   */
+  setClickFilter(isClick: ((perfMs: number) => boolean) | null): void;
 }
 
 export interface UseLearnInputReturn {
@@ -69,6 +104,38 @@ export interface UseLearnInputReturn {
   isV2: boolean;
   /** Note confidences from v2 tracker (MIDI → confidence). Empty for v1/MIDI. */
   noteConfidences: Map<number, number>;
+  /** The instrument this input serves. */
+  instrument: LessonInstrument;
+  /** Subscribe to strummed chords (guitar only). Returns unsubscribe. */
+  subscribeChord: (cb: (event: GuitarChordEvent) => void) => () => void;
+  /**
+   * Guitar input controls; null for piano. Its `level` reads live — render
+   * meters from `inputLevel`, which updates at ~15 Hz while listening.
+   */
+  guitar: LearnGuitarInput | null;
+}
+
+/** Status while not listening: audio input not set up yet, or ready. */
+function idleStatus(prefs: GuitarInputPrefs): GuitarInputStatus {
+  return prefs.source === 'audio' && prefs.setupCompletedAt === undefined
+    ? 'needs-setup'
+    : 'idle';
+}
+
+const FAILED = new Set<GuitarInputStatus>(['denied', 'no-device', 'error']);
+
+/** The engine names failures as getUserMedia does. */
+function failureStatus(err: unknown): GuitarInputStatus {
+  const name = err instanceof Error ? err.name : '';
+  if (name === 'NotAllowedError' || name === 'SecurityError') return 'denied';
+  if (name === 'NotFoundError' || name === 'OverconstrainedError') {
+    return 'no-device';
+  }
+  return 'error';
+}
+
+function failureMessage(err: unknown): string {
+  return err instanceof Error ? err.message : 'Guitar input failed';
 }
 
 // ── Hook ─────────────────────────────────────────────────────────────────
@@ -76,7 +143,12 @@ export interface UseLearnInputReturn {
 export function useLearnInput(
   options: UseLearnInputOptions = {},
 ): UseLearnInputReturn {
-  const { detectionMode = 'monophonic', onNoteOn, onNoteOff } = options;
+  const {
+    detectionMode = 'monophonic',
+    onNoteOn,
+    onNoteOff,
+    instrument: requestedInstrument = 'piano',
+  } = options;
 
   const [activeSource, setActiveSource] = useState<InputSource>('midi');
   const [isListening, setIsListening] = useState(false);
@@ -130,6 +202,31 @@ export function useLearnInput(
     setActiveNotes(Array.from(activeNotesRef.current));
   }, []);
 
+  // Guitar state. The instrument is fixed for the hook's life; for piano the
+  // engine and MIDI chord aggregator are never created.
+  const [instrument] = useState(requestedInstrument);
+  const chordSubscribersRef = useRef<Set<(event: GuitarChordEvent) => void>>(
+    new Set(),
+  );
+  const [guitarPrefs, setGuitarPrefs] = useState<GuitarInputPrefs | null>(() =>
+    instrument === 'guitar' ? loadGuitarInputPrefs() : null,
+  );
+  const [guitarEngine] = useState(() =>
+    guitarPrefs ? new GuitarLearnInputEngine(guitarPrefs) : null,
+  );
+  const [midiChords] = useState(() =>
+    guitarPrefs
+      ? new MidiGuitarChordAggregator((event) => {
+          for (const cb of chordSubscribersRef.current) cb(event);
+        })
+      : null,
+  );
+  const [guitarStatus, setGuitarStatus] = useState<GuitarInputStatus>(() =>
+    guitarPrefs ? idleStatus(guitarPrefs) : 'idle',
+  );
+  const [guitarError, setGuitarError] = useState<string | null>(null);
+  const guitarLevelRef = useRef(0);
+
   // ── MIDI message handler ──────────────────────────────────────────────
 
   const handleMidiMessage = useCallback(
@@ -154,6 +251,7 @@ export function useLearnInput(
         };
         onNoteOnRef.current?.(noteOnEvent);
         for (const cb of noteOnSubscribersRef.current) cb(noteOnEvent);
+        midiChords?.noteOn(noteNumber, velocity, performance.now());
       } else if (command === 0x80 || (command === 0x90 && velocity === 0)) {
         // Note OFF
         const start = midiNoteStartsRef.current.get(noteNumber);
@@ -170,10 +268,11 @@ export function useLearnInput(
           };
           onNoteOffRef.current?.(noteOffEvent);
           for (const cb of noteOffSubscribersRef.current) cb(noteOffEvent);
+          midiChords?.noteOff(noteNumber, performance.now());
         }
       }
     },
-    [updateActiveNotes],
+    [updateActiveNotes, midiChords],
   );
 
   // ── Start MIDI listening ──────────────────────────────────────────────
@@ -251,9 +350,10 @@ export function useLearnInput(
   const start = useCallback(async () => {
     const generation = ++startGenerationRef.current;
 
-    // Microphone-based pitch detection is intentionally disabled for lessons:
-    // the mic was picking up extraneous sound and producing spurious notes
-    // that broke activity feedback. Lessons rely solely on MIDI input now.
+    // Microphone-based pitch detection is intentionally disabled here: the
+    // mic was picking up extraneous sound and producing spurious notes that
+    // broke activity feedback. start() is MIDI-only for every instrument;
+    // guitar audio starts only from guitar.enable(), after a user gesture.
 
     try {
       const midiAccess = await navigator.requestMIDIAccess();
@@ -282,12 +382,154 @@ export function useLearnInput(
     }
   }, [startMidi, stopMidi]);
 
+  // ── Guitar input ──────────────────────────────────────────────────────
+
+  const stopGuitar = useCallback(() => {
+    guitarEngine?.stop();
+    midiChords?.reset();
+  }, [guitarEngine, midiChords]);
+
+  useEffect(() => {
+    guitarEngine?.setCallbacks({
+      onNoteOn: (event) => {
+        activeNotesRef.current.add(event.number);
+        updateActiveNotes();
+        onNoteOnRef.current?.(event);
+        for (const cb of noteOnSubscribersRef.current) cb(event);
+      },
+      onNoteOff: (event) => {
+        activeNotesRef.current.delete(event.number);
+        updateActiveNotes();
+        onNoteOffRef.current?.(event);
+        for (const cb of noteOffSubscribersRef.current) cb(event);
+      },
+      onChord: (event) => {
+        for (const cb of chordSubscribersRef.current) cb(event);
+      },
+      onLevel: (level) => {
+        guitarLevelRef.current = level;
+        setInputLevel(level);
+      },
+      onError: (err) => {
+        setGuitarStatus(failureStatus(err));
+        setGuitarError(failureMessage(err));
+        setActiveSource('midi');
+      },
+    });
+  }, [guitarEngine, updateActiveNotes]);
+
+  const enableGuitar = useCallback(async () => {
+    if (!guitarEngine || guitarEngine.isListening) return;
+    // Set-up may have been saved elsewhere since mount.
+    const prefs = loadGuitarInputPrefs();
+    setGuitarPrefs(prefs);
+    // Resume inside the gesture, before any await: Safari may refuse later.
+    if (prefs.source === 'audio') audioContextOwner.resume();
+    await guitarEngine.setPrefs(prefs); // stopped, so this only stores them
+    if (prefs.source !== 'audio') return;
+    setGuitarStatus('requesting-permission');
+    setGuitarError(null);
+    try {
+      await guitarEngine.start();
+    } catch (err) {
+      // MIDI keeps working; the student can retry from set-up.
+      setGuitarStatus(failureStatus(err));
+      setGuitarError(failureMessage(err));
+      return;
+    }
+    if (!guitarEngine.isListening) return; // stopped meanwhile
+    setGuitarStatus('listening');
+    setActiveSource('audio');
+    setIsListening(true);
+  }, [guitarEngine]);
+
+  const restartGuitar = useCallback(
+    async (patch: Partial<GuitarInputPrefs>) => {
+      if (!guitarEngine) return;
+      const next = saveGuitarInputPrefs(patch);
+      setGuitarPrefs(next);
+      if (next.source !== 'audio') guitarEngine.stop();
+      try {
+        await guitarEngine.setPrefs(next); // reopens on a device change
+      } catch (err) {
+        setGuitarStatus(failureStatus(err));
+        setGuitarError(failureMessage(err));
+        setActiveSource('midi');
+        return;
+      }
+      const listening = guitarEngine.isListening;
+      if (!listening) setActiveSource('midi');
+      // An audio failure stays shown until enable() is tried again, and an
+      // open permission prompt stays shown until enable() settles.
+      setGuitarStatus((status) =>
+        listening
+          ? 'listening'
+          : next.source === 'audio' &&
+              (FAILED.has(status) || status === 'requesting-permission')
+            ? status
+            : idleStatus(next),
+      );
+    },
+    [guitarEngine],
+  );
+
+  const calibrateGuitarGate = useCallback(
+    async (ms?: number) => {
+      if (!guitarEngine) throw new Error('Not a guitar lesson');
+      const gateRms = await guitarEngine.calibrateGate(ms);
+      setGuitarPrefs(saveGuitarInputPrefs({ gateRms }));
+      return gateRms;
+    },
+    [guitarEngine],
+  );
+
+  const guitar = useMemo<LearnGuitarInput | null>(
+    () =>
+      guitarEngine && guitarPrefs
+        ? {
+            status: guitarStatus,
+            prefs: guitarPrefs,
+            get level() {
+              return guitarLevelRef.current;
+            },
+            error: guitarError,
+            enable: enableGuitar,
+            restart: restartGuitar,
+            setEvaluationMode: (mode) => guitarEngine.setEvaluationMode(mode),
+            setSuppressed: (suppressed) =>
+              guitarEngine.setSuppressed(suppressed),
+            setExpectedNotes: (midis) => guitarEngine.setExpectedNotes(midis),
+            setKeyContext: (rootPc, modeIntervals) =>
+              guitarEngine.setKeyContext(rootPc, modeIntervals),
+            setClickFilter: (isClick) => guitarEngine.setClickFilter(isClick),
+            calibrateGate: calibrateGuitarGate,
+            getTunerAnalyser: () => guitarEngine.getTunerAnalyser(),
+            getLastChroma: () => guitarEngine.getLastChroma(),
+            getRig: () => guitarEngine.getRig(),
+          }
+        : null,
+    [
+      guitarEngine,
+      guitarPrefs,
+      guitarStatus,
+      guitarError,
+      enableGuitar,
+      restartGuitar,
+      calibrateGuitarGate,
+    ],
+  );
+
   const stop = useCallback(() => {
     // Invalidate any in-flight start()
     startGenerationRef.current++;
 
     stopMidi();
     stopAudio();
+    if (guitarEngine) {
+      stopGuitar();
+      setGuitarStatus(idleStatus(loadGuitarInputPrefs()));
+      setActiveSource('midi');
+    }
     activeNotesRef.current.clear();
     updateActiveNotes();
     setIsListening(false);
@@ -296,7 +538,7 @@ export function useLearnInput(
       midiAccessRef.current.onstatechange = null;
       midiAccessRef.current = null;
     }
-  }, [stopMidi, stopAudio, updateActiveNotes]);
+  }, [stopMidi, stopAudio, stopGuitar, guitarEngine, updateActiveNotes]);
 
   // Update detection mode on adapter when it changes
   useEffect(() => {
@@ -320,31 +562,48 @@ export function useLearnInput(
     };
   }, []);
 
+  const subscribeChord = useCallback(
+    (cb: (event: GuitarChordEvent) => void) => {
+      chordSubscribersRef.current.add(cb);
+      return () => {
+        chordSubscribersRef.current.delete(cb);
+      };
+    },
+    [],
+  );
+
   // ── Detection context methods ────────────────────────────────────────
 
   const setKeyContext = useCallback(
     (rootPc: number, modeIntervals: number[]) => {
       adapterRef.current?.setKeyContext(rootPc, modeIntervals);
       v2OrchestratorRef.current?.setKeyContext(rootPc, modeIntervals);
+      guitarEngine?.setKeyContext(rootPc, modeIntervals);
     },
-    [],
+    [guitarEngine],
   );
 
   const clearKeyContext = useCallback(() => {
     adapterRef.current?.clearKeyContext();
     v2OrchestratorRef.current?.clearKeyContext();
-  }, []);
+    guitarEngine?.clearKeyContext();
+  }, [guitarEngine]);
 
-  const setExpectedNotes = useCallback((notes: number[] | null) => {
-    adapterRef.current?.setExpectedNotes(notes);
-    v2OrchestratorRef.current?.setExpectedNotes(notes);
-  }, []);
+  const setExpectedNotes = useCallback(
+    (notes: number[] | null) => {
+      adapterRef.current?.setExpectedNotes(notes);
+      v2OrchestratorRef.current?.setExpectedNotes(notes);
+      guitarEngine?.setExpectedNotes(notes);
+    },
+    [guitarEngine],
+  );
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       stopMidi();
       stopAudio();
+      stopGuitar();
       if (midiAccessRef.current) {
         midiAccessRef.current.onstatechange = null;
       }
@@ -371,5 +630,8 @@ export function useLearnInput(
     capture,
     isV2,
     noteConfidences,
+    instrument,
+    subscribeChord,
+    guitar,
   };
 }

@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { CountOff, countOffBeatIndex } from '@/components/notation/CountOff';
-import { GrandStaff, type NoteStyle } from '@/components/notation/GrandStaff';
+import { GrandStaff } from '@/components/notation/GrandStaff';
 import type { StaffLayout } from '@/components/notation/StaffView';
 import { pitchNameToMidi } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import {
@@ -11,6 +11,7 @@ import {
 import { ChordSymbolOverlay } from '../notation/ChordSymbolOverlay';
 import type { LessonChordSymbol } from '../notation/lessonChordSymbols';
 import type { NoteEvent, NoteHoldMeta } from './GenrePianoRoll';
+import { learnNoteStyles } from './learnNoteStyles';
 
 // ── Learn: lesson notes on the grand staff ─────────────────────────────────
 // The notation face of GenrePianoRoll. The roll keeps running the lesson
@@ -18,7 +19,6 @@ import type { NoteEvent, NoteHoldMeta } from './GenrePianoRoll';
 // own spelling, hand tags for the staves, and the same progress colors.
 
 const HEADER_HEIGHT = 34;
-const ACCENT = '#7ecfcf';
 
 interface LearnNotationViewProps {
   events: NoteEvent[];
@@ -40,6 +40,13 @@ interface LearnNotationViewProps {
    * letting the grand-staff split guess from pitch. Defaults to the split.
    */
   staves?: 'grand' | 'treble' | 'bass';
+  /**
+   * Octaves to write above the sounding pitch. Guitar is written an octave up
+   * (with an 8 under the clef), so its lessons pass 1; the notes stay the same.
+   */
+  writtenOctaveShift?: number;
+  /** The 8 under the clef that marks a part written an octave up. */
+  clefAnnotation?: '8vb';
   noteHoldMeta?: Record<string, NoteHoldMeta>;
   performanceMeta?: Record<string, { startTick: number; endTick?: number }>;
   /** Total height, matching the roll it replaces. */
@@ -61,6 +68,8 @@ export function LearnNotationView({
   beatTicks = 480,
   musicStartTick = 0,
   staves,
+  writtenOctaveShift = 0,
+  clefAnnotation,
   noteHoldMeta,
   performanceMeta,
   height,
@@ -82,7 +91,8 @@ export function LearnNotationView({
       if (midi == null) continue;
       notes.push({
         id: e.id,
-        midi,
+        // The name keeps its letter; buildScore takes the octave from midi.
+        midi: midi + 12 * writtenOctaveShift,
         name: e.pitchName,
         startTick: e.startTicks,
         durationTicks: e.durationTicks,
@@ -99,32 +109,19 @@ export function LearnNotationView({
       ...(resolved ? { staves: resolved } : {}),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `signature` stands for `events`
-  }, [signature, bars, beatsPerBar, keyRoot, staves]);
+  }, [signature, bars, beatsPerBar, keyRoot, staves, writtenOctaveShift]);
 
-  const noteStyles = useMemo(() => {
-    const styles = new Map<string, NoteStyle>();
-    const highlight = keyColor ?? ACCENT;
-    for (const e of events) {
-      const done = e.color ?? highlight;
-      if (inTime) {
-        const perf = performanceMeta?.[e.id];
-        const end = e.startTicks + e.durationTicks;
-        const played =
-          !!perf && perf.startTick >= e.startTicks && perf.startTick <= end;
-        if (played) styles.set(e.id, { color: done });
-        else if (playheadTick >= e.startTicks && playheadTick <= end) {
-          styles.set(e.id, { color: highlight, glow: true });
-        }
-      } else {
-        const meta = noteHoldMeta?.[e.id];
-        if (meta?.isCompleted) styles.set(e.id, { color: done });
-        else if (meta?.isCurrentChord) {
-          styles.set(e.id, { color: highlight, glow: true });
-        }
-      }
-    }
-    return styles;
-  }, [events, inTime, performanceMeta, noteHoldMeta, playheadTick, keyColor]);
+  const noteStyles = useMemo(
+    () =>
+      learnNoteStyles(events, {
+        inTime,
+        performanceMeta,
+        noteHoldMeta,
+        playheadTick,
+        keyColor,
+      }),
+    [events, inTime, performanceMeta, noteHoldMeta, playheadTick, keyColor],
+  );
 
   // The staff has no playhead running up to the first note, so the lead-in is
   // counted underneath it instead.
@@ -154,6 +151,7 @@ export function LearnNotationView({
       <div className="relative flex min-h-0 flex-1 flex-col">
         <GrandStaff
           score={score}
+          clefAnnotation={clefAnnotation}
           noteStyles={noteStyles}
           playheadTick={inTime && playheadTick >= 0 ? playheadTick : null}
           fitHeight

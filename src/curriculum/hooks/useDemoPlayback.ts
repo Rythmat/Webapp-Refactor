@@ -1,7 +1,8 @@
 /**
  * useDemoPlayback.ts — Sequential note demo with keyboard highlighting.
  * User presses Demo button → notes play one at a time → keyboard lights up.
- * Uses the Salamander Grand Piano sampler for authentic sound.
+ * Uses the Salamander Grand Piano sampler for authentic sound, unless the
+ * lesson brings its own voice (guitar).
  */
 
 import { useCallback, useRef, useState } from 'react';
@@ -15,7 +16,30 @@ import {
   type GenreNoteEvent,
 } from '../engine/genreGeneration/resolveStepContent';
 
-export function useDemoPlayback(keyRoot: number, tempo: number) {
+/**
+ * A lesson instrument other than the piano. The demo plays through it instead
+ * of the piano sampler; without one, the piano plays as it always has.
+ */
+export interface LessonVoice {
+  /** Ready the sound; awaited on the Demo gesture before the first note. */
+  load(): Promise<void>;
+  /** Sound a note now, or a chord (an array) the way the instrument plays one. */
+  attackRelease(
+    midis: number | readonly number[],
+    durationSeconds: number,
+    velocity: number,
+    /** Tone.js time; omit to play now. */
+    time?: number,
+  ): void;
+  /** Silence everything the voice is playing or has scheduled. */
+  stop(): void;
+}
+
+export function useDemoPlayback(
+  keyRoot: number,
+  tempo: number,
+  voice?: LessonVoice,
+) {
   const [demoHighlightMidis, setDemoHighlightMidis] = useState<Set<number>>(
     new Set(),
   );
@@ -25,18 +49,20 @@ export function useDemoPlayback(keyRoot: number, tempo: number) {
   const stopDemo = useCallback(() => {
     timeoutsRef.current.forEach(clearTimeout);
     timeoutsRef.current = [];
+    voice?.stop();
     setDemoHighlightMidis(new Set());
     setIsPlayingDemo(false);
-  }, []);
+  }, [voice]);
 
   const playDemo = useCallback(
     async (targetNotes: GenreNoteEvent[]) => {
       // Stop any current demo
       stopDemo();
 
-      // Unlock Web Audio + load sampler on user gesture
+      // Unlock Web Audio + load the sound on user gesture
       await startTone();
-      await startPianoSampler();
+      if (voice) await voice.load();
+      else await startPianoSampler();
 
       setIsPlayingDemo(true);
 
@@ -65,6 +91,16 @@ export function useDemoPlayback(keyRoot: number, tempo: number) {
         const onT = setTimeout(() => {
           const midis = new Set(group.map((n) => n.midi));
           setDemoHighlightMidis(midis);
+
+          if (voice) {
+            // A chord goes to the voice whole, so a guitar can strum it
+            voice.attackRelease(
+              group.length >= 2 ? group.map((n) => n.midi) : group[0].midi,
+              Math.max(0.3, holdMs / 1000),
+              80,
+            );
+            return;
+          }
 
           // Play through Salamander piano sampler
           group.forEach((note) => {
@@ -116,7 +152,7 @@ export function useDemoPlayback(keyRoot: number, tempo: number) {
       }, totalMs);
       timeoutsRef.current.push(doneT);
     },
-    [stopDemo, tempo, keyRoot],
+    [stopDemo, tempo, keyRoot, voice],
   );
 
   return { playDemo, stopDemo, demoHighlightMidis, isPlayingDemo };

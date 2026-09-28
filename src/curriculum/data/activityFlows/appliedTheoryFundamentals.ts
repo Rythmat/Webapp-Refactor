@@ -33,8 +33,8 @@ import type {
   TargetNote,
 } from '../../types/activity.v2';
 
-const MAJOR_SCALE_INTERVALS = [0, 2, 4, 5, 7, 9, 11];
-const TICKS_PER_BEAT = 480;
+export const MAJOR_SCALE_INTERVALS = [0, 2, 4, 5, 7, 9, 11];
+export const TICKS_PER_BEAT = 480;
 
 // ASCII key name -> MIDI root, matching GenreLessonContainerV2's own KEY_MAP
 // (that component derives keyRoot from flow.params.defaultKey using this
@@ -145,9 +145,9 @@ function buildScaleSteps(): ActivityStepV2[] {
 
 // ── Section A2/A3: Melody & Melody Articulation ─────────────────────────────
 
-const STACCATO_DURATION = 120; // short, clearly detached
-const LEGATO_DURATION = 440; // near-full beat, connected
-const NORMAL_DURATION = TICKS_PER_BEAT - 20; // same fill convention as generateScale
+export const STACCATO_DURATION = 120; // short, clearly detached
+export const LEGATO_DURATION = 440; // near-full beat, connected
+export const NORMAL_DURATION = TICKS_PER_BEAT - 20; // same fill convention as generateScale
 
 /** Scale-degree (1-indexed, wraps/octaves past 7) -> semitone offset from root. */
 function degreeInterval(degree: number): number {
@@ -171,8 +171,8 @@ function contourNotes(
 // The two melodic shapes reused across Section A2 (plain) and A3
 // (articulation variants) — a simple stepwise 3-note contour, and two of
 // them joined into a 6-note "connect two" phrase.
-const CONTOUR_A_DEGREES = [1, 2, 3];
-const CONTOUR_CONNECTED_DEGREES = [1, 2, 3, 3, 2, 1];
+export const CONTOUR_A_DEGREES = [1, 2, 3];
+export const CONTOUR_CONNECTED_DEGREES = [1, 2, 3, 3, 2, 1];
 
 function melodyStep(
   stepNumber: number,
@@ -450,16 +450,16 @@ function chordProgressionStep(
 // I-ii-iii-IV, the same four triads Section B1 arpeggiates — reused as block
 // chords here rather than a fresh set, keeping the whole Chords section
 // built from one consistent set of harmony.
-const PROGRESSION_DEGREES = [1, 2, 3, 4];
+export const PROGRESSION_DEGREES = [1, 2, 3, 4];
 // A non-sequential ordering for the "Random Order" progression drills
 // (deterministic, per this flow's no-randomization convention — see Scale
 // and Melody sections above).
-const SHUFFLED_PROGRESSION_DEGREES = [4, 2, 1, 3];
+export const SHUFFLED_PROGRESSION_DEGREES = [4, 2, 1, 3];
 
-const WHOLE_NOTE = TICKS_PER_BEAT * 4;
-const HALF_NOTE = TICKS_PER_BEAT * 2;
-const QUARTER_NOTE = TICKS_PER_BEAT;
-const EIGHTH_NOTE = TICKS_PER_BEAT / 2;
+export const WHOLE_NOTE = TICKS_PER_BEAT * 4;
+export const HALF_NOTE = TICKS_PER_BEAT * 2;
+export const QUARTER_NOTE = TICKS_PER_BEAT;
+export const EIGHTH_NOTE = TICKS_PER_BEAT / 2;
 
 function buildPlayChordSteps(keyRoot: number): ActivityStepV2[] {
   const symbols = chordSymbolsFor(keyRoot, PROGRESSION_DEGREES);

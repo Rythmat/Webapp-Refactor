@@ -21,11 +21,11 @@ import { useStore } from '@/daw/store';
 import { trackEngineRegistry } from './usePlaybackEngine';
 import { GuitarFxAdapter } from '@/daw/instruments/GuitarFxAdapter';
 import { NodeTapCapture } from '@/daw/audio/NodeTapCapture';
-import { pitchProfileForInstrument } from '@/daw/audio/instrumentPitchProfiles';
 import {
-  ProbabilisticOrchestrator,
-  type OrchestratorOptions,
-} from '@/learn/audio/v2/ProbabilisticOrchestrator';
+  orchestratorOptionsFor,
+  pitchProfileForInstrument,
+} from '@/daw/audio/instrumentPitchProfiles';
+import { ProbabilisticOrchestrator } from '@/learn/audio/v2/ProbabilisticOrchestrator';
 import type { DetectionMode } from '@/learn/audio/v2/types';
 import { studioRealtime } from '@/daw/collab/studioRealtime';
 
@@ -163,22 +163,11 @@ export function useGuitarMidiDetection(): void {
       const profile = pitchProfileForInstrument(instrument);
 
       capture = new NodeTapCapture(sourceNode, profile);
-      const options: OrchestratorOptions = {
-        minFreq: profile.minFreq,
-        maxFreq: profile.maxFreq,
-        fastFftSize: profile.fastFftSize,
-        hiResFftSize: profile.hiResFftSize,
-        // Mono (bass, single-note guitar) doesn't need the ML peer — save CPU.
-        disableMl: mode === 'monophonic',
-        // Studio chords need multiple simultaneous notes, not the mono HMM.
-        usePolyTracker: mode === 'polyphonic',
-        // Mono: re-fire repeated same-pitch notes (basslines/riffs) on a fresh
-        // pluck, and decimate the hi-res YIN (its 171ms window can't update
-        // faster) to cut main-thread cost. Both are Studio-only, Learn untouched.
-        retriggerOnOnset: mode === 'monophonic',
-        hiResSkipFactor: mode === 'monophonic' ? 6 : 1,
-      };
-      orchestrator = new ProbabilisticOrchestrator(capture, mode, options);
+      orchestrator = new ProbabilisticOrchestrator(
+        capture,
+        mode,
+        orchestratorOptionsFor(profile, mode),
+      );
       orchestrator.setCallbacks({
         onNoteOn: (e) => routeNoteOn(targetTrackId, e.number, e.velocity),
         onNoteOff: (e) => routeNoteOff(targetTrackId, e.number),

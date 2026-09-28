@@ -7,6 +7,7 @@ import {
   LibraryRoutes,
   StudioRoutes,
 } from '@/constants/routes';
+import { isGuitarLearnEnabled } from '@/features/learn/useInstrumentStore';
 import type { ActivityEntry, MatchResult } from './types';
 
 // ── Activity Catalog ──────────────────────────────────────────────
@@ -331,6 +332,23 @@ const ACTIVITY_CATALOG: ActivityEntry[] = [
   },
 ];
 
+/** Guitar (The Guitar Atlas): offered while its rollout flag is on. */
+const GUITAR_ACTIVITY: ActivityEntry = {
+  label: 'Guitar: Applied Theory Fundamentals',
+  description: 'The Guitar Atlas',
+  route: CurriculumRoutes.guitarAppliedTheoryFundamentals(),
+  keywords: [
+    'guitar',
+    'guitar atlas',
+    'tab',
+    'tablature',
+    'chords',
+    'key centers',
+    'music maps',
+  ],
+  category: 'section',
+};
+
 // ── Intent words that boost specific categories ──
 
 const CATEGORY_INTENT: Record<string, ActivityEntry['category'][]> = {
@@ -400,10 +418,14 @@ export function useAssistantMatcher() {
     const tokens = normalize(input);
     if (tokens.length === 0) return [];
 
-    return ACTIVITY_CATALOG.map((entry) => ({
-      entry,
-      score: scoreEntry(tokens, entry),
-    }))
+    const catalog = isGuitarLearnEnabled()
+      ? [...ACTIVITY_CATALOG, GUITAR_ACTIVITY]
+      : ACTIVITY_CATALOG;
+    return catalog
+      .map((entry) => ({
+        entry,
+        score: scoreEntry(tokens, entry),
+      }))
       .filter((r) => r.score >= MIN_SCORE)
       .sort((a, b) => b.score - a.score)
       .slice(0, MAX_RESULTS);

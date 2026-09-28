@@ -674,6 +674,19 @@ export const CurriculumRoutes = {
     { prefix: curriculumPrefix },
   ),
 
+  // Guitar twin of Applied Theory Fundamentals (The Guitar Atlas: Book One).
+  // Static segments, so they rank above '/:genre/:level'.
+  guitarAppliedTheoryFundamentals: createRouteDefinition(
+    '/guitar/applied-theory-fundamentals',
+    { prefix: curriculumPrefix },
+  ),
+
+  guitarAppliedTheoryFundamentalsLesson: createRouteDefinition<{
+    key: string;
+  }>('/guitar/applied-theory-fundamentals/:key', {
+    prefix: curriculumPrefix,
+  }),
+
   genreLevel: createRouteDefinition<{ genre: string; level: string }>(
     '/:genre/:level',
     { prefix: curriculumPrefix },

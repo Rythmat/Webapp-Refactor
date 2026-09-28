@@ -16,14 +16,17 @@ import {
   useRef,
   type ReactNode,
 } from 'react';
+import type { LessonInstrument } from '@/curriculum/types/activity.v2';
 import {
   useLearnInput,
   type InputSource,
+  type LearnGuitarInput,
   type UseLearnInputOptions,
   type UseLearnInputReturn,
 } from '@/hooks/music/useLearnInput';
 import type { MidiNoteEvent } from '@/hooks/music/useMidiInput';
 import type { LearnAudioCapture } from '@/learn/audio/LearnAudioCapture';
+import type { GuitarChordEvent } from '@/learn/audio/guitar/types';
 
 // ── Stable context (functions + rare state) ──────────────────────────────
 
@@ -42,6 +45,11 @@ interface StableContextValue {
   capture: LearnAudioCapture | null;
   /** Whether the v2 audio system is active. */
   isV2: boolean;
+  instrument: LessonInstrument;
+  /** Strummed chords (guitar only). Returns unsubscribe. */
+  subscribeChord: (cb: (event: GuitarChordEvent) => void) => () => void;
+  /** Guitar input controls; null for piano. */
+  guitar: LearnGuitarInput | null;
 }
 
 // ── Live context (rapidly changing) ──────────────────────────────────────
@@ -84,6 +92,9 @@ export function LearnInputProvider({
       subscribeNoteOff: input.subscribeNoteOff,
       capture: input.capture,
       isV2: input.isV2,
+      instrument: input.instrument,
+      subscribeChord: input.subscribeChord,
+      guitar: input.guitar,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -100,6 +111,9 @@ export function LearnInputProvider({
       input.subscribeNoteOff,
       input.capture,
       input.isV2,
+      input.instrument,
+      input.subscribeChord,
+      input.guitar,
     ],
   );
 
@@ -181,4 +195,9 @@ export function useOptionalLearnInputStable(): StableContextValue | null {
 }
 
 // Re-export types for convenience
-export type { InputSource, UseLearnInputOptions, UseLearnInputReturn };
+export type {
+  InputSource,
+  LearnGuitarInput,
+  UseLearnInputOptions,
+  UseLearnInputReturn,
+};

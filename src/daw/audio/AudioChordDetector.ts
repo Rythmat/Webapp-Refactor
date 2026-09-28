@@ -70,7 +70,7 @@ const ENVELOPE_ALPHA = 0.3; // EMA smoothing for RMS envelope
 const DIATONIC_BOOST = 1.25; // 25% boost for chords with diatonic root
 
 // Quality prior: favor common chords, penalize obscure ones
-const CHORD_PRIOR: Record<string, number> = {
+export const CHORD_PRIOR: Readonly<Record<string, number>> = {
   major: 1.1,
   minor: 1.1,
   dominant7: 1.05,
@@ -156,6 +156,9 @@ const TIER1_QUALITIES = new Set([
   'dominant7#5b9',
 ]);
 
+/** The qualities the detector can report (read-only view of TIER1_QUALITIES). */
+export const DETECTABLE_CHORD_QUALITIES: ReadonlySet<string> = TIER1_QUALITIES;
+
 // Slash chords skipped
 const SKIP_QUALITIES = new Set<string>();
 for (const key of Object.keys(CHORDS)) {
@@ -190,6 +193,10 @@ export class AudioChordDetector {
   // Key-aware diatonic priors
   private diatonicPCs: Set<number> | null = null;
 
+  // Latest frame, before the vote (read-only accessors; never fed back)
+  private lastFrameMatch: AudioChordResult | null = null;
+  private chromaNormalized = false;
+
   private sampleRate = 48000;
   private fftSize: number;
 
@@ -210,6 +217,8 @@ export class AudioChordDetector {
 
   analyze(analyser: AnalyserNode): AudioChordResult | null {
     this.sampleRate = analyser.context.sampleRate;
+    this.lastFrameMatch = null;
+    this.chromaNormalized = false;
 
     // Step 1: Time-domain RMS silence gate
     analyser.getFloatTimeDomainData(this.timeDomainBuffer);
@@ -236,7 +245,9 @@ export class AudioChordDetector {
 
     // Step 6: L2-normalize and match against templates (with diatonic priors)
     this.normalizeChroma();
+    this.chromaNormalized = true;
     const match = this.matchChord();
+    this.lastFrameMatch = match;
     if (!match) {
       return this.updateVote(null);
     }
@@ -256,6 +267,27 @@ export class AudioChordDetector {
     this.heldChord = null;
     this.rmsEnvelope = 0;
     this.rmsMin = 0;
+    this.lastFrameMatch = null;
+    this.chromaNormalized = false;
+  }
+
+  /**
+   * The latest analyze() frame's template match before vote smoothing: fast
+   * enough to identify each strum of a quick chord change. Null when that
+   * frame was silent, had fewer than two active pitch classes, or matched no
+   * template confidently.
+   */
+  getLastFrameMatch(): AudioChordResult | null {
+    return this.lastFrameMatch;
+  }
+
+  /**
+   * A copy of the latest frame's chroma (index = pitch class) after harmonic
+   * suppression and L2 normalisation. Null when the frame was silent or had
+   * fewer than two active pitch classes.
+   */
+  getLastChroma(): Float64Array | null {
+    return this.chromaNormalized ? new Float64Array(this.chroma) : null;
   }
 
   setKeyContext(rootPc: number, modeIntervals: number[]): void {

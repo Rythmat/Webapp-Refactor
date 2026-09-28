@@ -22,6 +22,7 @@ import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
 import { buildCurriculumLessonId } from '@/curriculum/hooks/useCurriculumProgress';
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
+import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
 import {
   useSavedItemsStore,
   type SavedItemKind,
@@ -61,6 +62,7 @@ import {
   type TechniqueSort,
   type TheorySort,
 } from './learnFilterOptions';
+import { techniqueDataFor } from './techniqueCatalog';
 import './learn.css';
 
 /* ── Filter row + helpers ─────────────────────────────────────────── */
@@ -174,6 +176,8 @@ interface ContentItem {
   /** When true (and `image` is a polygon honeycomb), the tile art is an
    *  interactive hex canvas that paints on hover and drifts on its own. */
   interactive?: boolean;
+  /** Saved-items id when the title isn't unique (guitar Technique tiles). */
+  savedId?: string;
 }
 
 interface SelectedSubItem {
@@ -516,20 +520,7 @@ const PENTATONIC_BLUES_DATA: ContentItem[] = SCALE_LESSON_SLUGS.map((slug) => ({
   interactive: true,
 }));
 
-const TECHNIQUE_DATA: ContentItem[] = [
-  {
-    title: 'Piano Fundamentals',
-    route: CurriculumRoutes.genre({ genre: 'piano-fundamentals' }),
-    image: '/learn-tiles/beginner-hex.svg',
-    interactive: true,
-  },
-  {
-    title: 'Applied Theory Fundamentals',
-    route: CurriculumRoutes.appliedTheoryFundamentals(),
-    image: '/learn-tiles/beginner-hex.svg',
-    interactive: true,
-  },
-];
+// Technique tiles live in ./techniqueCatalog, one list per instrument.
 
 const RELATIVE_MODES_DATA: ContentItem[] = [
   {
@@ -1036,7 +1027,7 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
  */
 function isLearnItemFree(item: ContentItem, tab: string): boolean {
   return (
-    tab === 'Technique' || // Piano Fundamentals
+    tab === 'Technique' || // Piano Fundamentals, Applied Theory (piano + guitar)
     (tab === 'Theory' && item.mode === 'ionian') // C Ionian available
   );
 }
@@ -1306,6 +1297,12 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
           ? initialTab
           : 'Home';
   const [subTab, setSubTab] = useState(defaultTab);
+  // Technique tiles follow the instrument picker (piano or guitar).
+  const learnInstrument = useLearnInstrument();
+  const techniqueData = useMemo<ContentItem[]>(
+    () => [...techniqueDataFor(learnInstrument)],
+    [learnInstrument],
+  );
   const [highlightedGenre, setHighlightedGenre] = useState<string | null>(
     genreParam,
   );
@@ -1427,15 +1424,15 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   }, [theoryFilters, savedLearnItems]);
 
   const filteredTechnique = useMemo(() => {
-    const searched = applySearch(TECHNIQUE_DATA, techniqueFilters.search);
+    const searched = applySearch(techniqueData, techniqueFilters.search);
     const savedFiltered = applySavedFilter(
       searched,
       techniqueFilters.saved,
-      (i) => Boolean(savedLearnItems[`technique:${i.title}`]),
+      (i) => Boolean(savedLearnItems[`technique:${i.savedId ?? i.title}`]),
     );
     // category + difficulty have no backing data today — wired but no-op
     return applyTechniqueSort(savedFiltered, techniqueFilters.sort);
-  }, [techniqueFilters, savedLearnItems]);
+  }, [techniqueData, techniqueFilters, savedLearnItems]);
 
   const filteredCourses = useMemo(
     () =>
@@ -1534,7 +1531,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         ? COURSES_DATA
         : subTab === 'Theory'
           ? [...THEORY_DATA, ...PENTATONIC_BLUES_DATA]
-          : TECHNIQUE_DATA;
+          : techniqueData;
     const item = data.find((d) => (d.expandId ?? d.mode) === expandedMode);
     if (item?.mode) {
       handleKeySelect(item.mode, KEY_LABELS[0], item.title);
@@ -1602,7 +1599,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
       if (tab === 'Theory' && item.mode)
         return { savedKind: 'mode', savedId: item.mode };
       if (tab === 'Technique')
-        return { savedKind: 'technique', savedId: item.title };
+        return { savedKind: 'technique', savedId: item.savedId ?? item.title };
       if (tab === 'Genre' && item.expandId)
         return { savedKind: 'course', savedId: item.expandId };
       return {};

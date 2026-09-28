@@ -4,16 +4,21 @@ export type TourDrum = 'kick' | 'snare' | 'hat';
 
 /**
  * The tour's sound-gated audio. Sound comes on with the visitor's first click
- * in the demo and goes off on Pause/Stop or when the demo leaves the screen.
- * Every method is a no-op while Sound is off, so timers and rAF loops may
- * call them freely; only `enableFromGesture` may start audio, and only from a
- * click/key handler.
+ * in the demo and goes off on Pause/Stop, when the demo leaves the screen or
+ * with the demo's Sound toggle (a mute: clicks leave it off until a Play, a
+ * note or the toggle turns it on). Every method is a no-op while Sound is
+ * off, so timers and rAF loops may call them freely; only `enableFromGesture`
+ * may start audio, and only from a click/key handler.
  */
 export interface TourAudio {
   /** Whether Sound is on (read at call time, not reactive). */
   isEnabled: () => boolean;
-  /** Turn Sound on from a user gesture (resumes the audio context). */
-  enableFromGesture: () => Promise<void>;
+  /**
+   * Turn Sound on from a user gesture (resumes the audio context). Resolves
+   * true once it's on; false if it went off meanwhile (a mute, the demo
+   * leaving the screen, a hidden tab).
+   */
+  enableFromGesture: () => Promise<boolean>;
   /** Play a chord `delay` seconds from now (scheduling lookahead). */
   notes: (
     midis: readonly number[],
@@ -32,7 +37,7 @@ export interface TourAudio {
 /** Audio for scenes that never make sound (Globe). */
 export const SILENT_TOUR_AUDIO: TourAudio = {
   isEnabled: () => false,
-  enableFromGesture: () => Promise.resolve(),
+  enableFromGesture: () => Promise.resolve(false),
   notes: () => {},
   drum: () => {},
   stopAll: () => {},
@@ -64,6 +69,12 @@ export interface SceneProps {
   stepProgress: MotionValue<number>;
   /** Sound-gated audio for scheduled playback. */
   audio: TourAudio;
+  /**
+   * Whether Sound is on, or coming on from the gesture that turned it on, as
+   * state (the scene re-renders when it changes). The visitor's playback
+   * never runs while it's off (`useSoundOff`).
+   */
+  soundOn: boolean;
   /**
    * Bumped by every step-pill click, including the current step's: scenes
    * that keep visitor state may drop it and show the step's end state again.

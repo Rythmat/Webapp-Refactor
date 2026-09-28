@@ -24,6 +24,7 @@ import {
 } from 'react';
 import { cn } from '@/components/utilities';
 import { useNearViewport } from '../../motion/useInView';
+import { useSoundOff } from '../useSoundOff';
 import { useStepFrame } from '../useStepFrame';
 import {
   BACK_LABEL,
@@ -110,6 +111,7 @@ export const ConnectionsScene = ({
   playNotes,
   stepProgress,
   audio,
+  soundOn,
   resetKey,
   goToStep,
 }: SceneProps) => {
@@ -135,11 +137,15 @@ export const ConnectionsScene = ({
 
   // ── Auto sound cues: once per cue of an auto run ───────────────────────
   const lastCue = useRef<string | null>(null);
+  // When a cue last sounded: a take-over of the guided loop within that half
+  // note leaves its chord ringing (see `takeOver`).
+  const cueHeardAt = useRef(-Infinity);
   const cue = `${epoch}:${stepIndex}:${frame.soundKey}`;
   useEffect(() => {
     if (!auto || !frame.sound || lastCue.current === cue) return;
     lastCue.current = cue;
     audio.notes(frame.sound.midis, frame.sound.seconds, 0, 0.6);
+    if (audio.isEnabled()) cueHeardAt.current = performance.now();
   }, [cue, auto]);
 
   // ── Studio playback ────────────────────────────────────────────────────
@@ -154,7 +160,9 @@ export const ConnectionsScene = ({
   const onBar = (t: number) => t >= bar * BAR && t <= (bar + 1) * BAR;
   if (!playing && !onBar(ticks.get())) ticks.set(bar * BAR);
   useMotionValueEvent(stepProgress, 'change', (p) => {
-    if (!auto || stepIndex !== 2 || !frame.playing) return;
+    // 1 is the hand-over (the tour's clock never gets there): the playhead
+    // stays where the visitor took it.
+    if (!auto || stepIndex !== 2 || !frame.playing || p >= 1) return;
     ticks.set(clamp01((p * STEP_MS[2] - PLAY_AT) / LOOP_MS) * CLIP_TICKS);
   });
   // A ruler pick restarts its bar, even the bar that's playing.
@@ -163,7 +171,16 @@ export const ConnectionsScene = ({
   // can't overwrite where they put the playhead before the effect cleans up.
   const glide = useRef<{ stop: () => void } | null>(null);
   const halt = () => glide.current?.stop();
+  // Set by a take-over from the guided loop while its half note still
+  // sounds: the pass doesn't strike it again.
+  const heard = useRef(false);
+  // A hit came due before the audio was up (the click turning Sound on is
+  // still starting it): the pass restarts once it is (see `takeOver`).
+  const missed = useRef(false);
   useEffect(() => {
+    const carried = heard.current;
+    heard.current = false;
+    missed.current = false;
     if (auto || !userPlaying || !visible) return;
     onUserAction();
     // Resume where the playhead is (after Pause), else from the bar's start.
@@ -180,16 +197,18 @@ export const ConnectionsScene = ({
     // when it's due (not scheduled ahead in the synth), so Pause, Stop, a
     // pick or leaving the step cancel what hasn't sounded.
     const ids = [0, HALF_MS]
-      .filter((at) => at + HALF_MS > elapsed)
+      .filter((at) => at + HALF_MS > elapsed && !(carried && at < elapsed))
       .map((at) =>
         window.setTimeout(
-          () =>
+          () => {
+            if (!audio.isEnabled()) missed.current = true;
             audio.notes(
               LOOP[bar].midis,
               (HALF_S * (at + HALF_MS - Math.max(at, elapsed))) / HALF_MS,
               0,
               0.6,
-            ),
+            );
+          },
           Math.max(0, at - elapsed),
         ),
       );
@@ -205,6 +224,24 @@ export const ConnectionsScene = ({
     };
   }, [auto, userPlaying, bar, visible, picks]);
 
+  // Taking over mid-loop keeps it playing on its bar (as the Studio demo's
+  // `take`): only Pause and Stop stop it. The loop's chord still rings if it
+  // sounded less than a half note ago (not after a focus pause). A take-over
+  // is a note gesture: it turns Sound on, and a pass that missed its hit
+  // meanwhile restarts once it's on, so the click that turned it on is heard.
+  const takeOver = () => {
+    if (auto && frame.playing) {
+      heard.current =
+        audio.isEnabled() && performance.now() - cueHeardAt.current < HALF_MS;
+      setUserPlaying(true);
+      setUserBar(frame.bar);
+    }
+    onUserAction();
+    if (playing && !audio.isEnabled())
+      void audio.enableFromGesture().then((on) => {
+        if (on && missed.current) setPicks((n) => n + 1);
+      });
+  };
   const togglePlay = () => {
     onUserAction();
     if (playing) {
@@ -218,9 +255,13 @@ export const ConnectionsScene = ({
       setUserBar((b) => b ?? 0);
       setUserPlaying(true);
     };
-    // Play is a gesture: it turns Sound on, like the other demos' keys.
+    // Play is a gesture: it turns Sound on, like the other demos' keys, and
+    // starts once it's on (Sound going off meanwhile drops it).
     if (audio.isEnabled()) start();
-    else void audio.enableFromGesture().then(start, start);
+    else
+      void audio.enableFromGesture().then((on) => {
+        if (on) start();
+      });
   };
   const stop = () => {
     onUserAction();
@@ -231,7 +272,7 @@ export const ConnectionsScene = ({
     audio.disable();
   };
   const pickBar = (i: number) => {
-    onUserAction();
+    takeOver();
     halt();
     setUserBar(i);
     ticks.set(i * BAR);
@@ -239,6 +280,13 @@ export const ConnectionsScene = ({
     if (playing) setPicks((n) => n + 1);
     else playNotes(LOOP[i].midis, 0.9);
   };
+  // Sound off (the mute, the demo leaving the screen, a hidden tab) pauses
+  // the visitor's pass as Pause does.
+  useSoundOff(!auto && playing, soundOn, () => {
+    halt();
+    setUserBar(bar);
+    setUserPlaying(false);
+  });
 
   // ── Theory: the visitor's scale run ────────────────────────────────────
   const timers = useRef<number[]>([]);
@@ -321,11 +369,11 @@ export const ConnectionsScene = ({
         onStop={stop}
         onPick={pickBar}
         onKeyPill={() => {
-          onUserAction();
+          takeOver();
           playNotes(LOOP[LOOP.length - 1].midis, 0.9);
         }}
         onRollKey={(midi) => {
-          onUserAction();
+          takeOver();
           playNotes([midi], 0.5);
         }}
         onKey={() => go(3)}

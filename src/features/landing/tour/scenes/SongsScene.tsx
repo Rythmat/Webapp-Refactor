@@ -14,6 +14,7 @@ import {
   type SongChartSection,
 } from '../../music';
 import { DemoKeys } from '../DemoKeys';
+import { useSoundOff } from '../useSoundOff';
 import type { SceneProps } from './sceneTypes';
 
 /**
@@ -114,6 +115,7 @@ export const SongsScene = ({
   playNotes,
   stepProgress,
   audio,
+  soundOn,
 }: SceneProps) => {
   const auto = mode === 'auto';
   const [userSong, setUserSong] = useState<number | null>(null);
@@ -152,9 +154,12 @@ export const SongsScene = ({
     setUserPos(null);
     setPlaying(false);
   }, [auto]);
+  // So do leaving the screen and Sound off (the mute, a hidden tab): the
+  // visitor's playback never runs on silently.
   useEffect(() => {
     if (!visible) setPlaying(false);
   }, [visible]);
+  useSoundOff(playing, soundOn, () => setPlaying(false));
 
   // Beat clock for the visitor's playback, at the song's real tempo. The
   // latest callbacks live in a ref so a re-render never restarts the clock.
@@ -172,7 +177,8 @@ export const SongsScene = ({
       setUserPos(pos);
       const hit = chart.startsAt.get(pos);
       if (!hit) return;
-      // Sound-gated: stays silent if the visitor muted mid-song.
+      // Sound-gated, for a beat that lands after Sound goes off and before
+      // that stops the song (above).
       latest.current.audio.notes(hit.midis, hit.duration * beatSec * 0.95);
       // Keep the tour from resuming its autoplay mid-song.
       latest.current.onUserAction();
@@ -192,8 +198,11 @@ export const SongsScene = ({
     const start = userPos ?? 0;
     startRef.current = start;
     setUserPos(start);
+    // Play is a gesture: it turns Sound on with its first chord, or by itself
+    // from a rest.
     const first = chordAt(chart, start);
     if (first) playNotes(first.midis, first.duration * beatSec * 0.95);
+    else if (!audio.isEnabled()) void audio.enableFromGesture();
     setPlaying(true);
   };
 

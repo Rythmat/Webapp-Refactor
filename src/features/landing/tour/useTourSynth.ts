@@ -61,11 +61,17 @@ const buildDrumKit = (): DrumKit => {
 export const useTourSynth = () => {
   const synthRef = useRef<Tone.PolySynth | null>(null);
   const kitRef = useRef<DrumKit | null>(null);
+  // On, or coming on: shown (and read by scenes) from the gesture itself, so
+  // a Play still waiting on the audio context isn't a silent one. Audio plays
+  // once `enabledRef` is set.
   const [enabled, setEnabled] = useState(false);
   const enabledRef = useRef(false);
   // Bumped by every `disable`: an `enable` still awaiting the audio context
   // drops out, so a Stop in the same click that turned Sound on wins.
   const genRef = useRef(0);
+  // The visitor's mute (the demo's Sound toggle): a passive click (`wake`)
+  // leaves Sound off until they turn it on or play something (`enable`).
+  const mutedRef = useRef(false);
   // False once unmounted (StrictMode re-runs set it back): `audio` may still
   // be called from a scene's cleanup after the synth is disposed.
   const aliveRef = useRef(false);
@@ -75,12 +81,22 @@ export const useTourSynth = () => {
     hat: 0,
   });
 
+  /** Resolves true once Sound is on; false if it was turned off meanwhile. */
   const enable = useCallback(async () => {
+    mutedRef.current = false;
     const gen = genRef.current;
-    await startTone();
+    setEnabled(true);
+    const started = await startTone().then(
+      () => true,
+      () => false,
+    );
     // Unmounted meanwhile: build nothing the cleanup can no longer dispose.
     // Turned off meanwhile: stay off.
-    if (!aliveRef.current || genRef.current !== gen) return;
+    if (!aliveRef.current || genRef.current !== gen) return false;
+    if (!started) {
+      setEnabled(false);
+      return false;
+    }
     if (!synthRef.current) {
       const synth = new Tone.PolySynth(Tone.Synth, {
         oscillator: { type: 'triangle' },
@@ -91,6 +107,7 @@ export const useTourSynth = () => {
     }
     enabledRef.current = true;
     setEnabled(true);
+    return true;
   }, []);
 
   const disable = useCallback(() => {
@@ -99,6 +116,17 @@ export const useTourSynth = () => {
     setEnabled(false);
     synthRef.current?.releaseAll();
   }, []);
+
+  /** Any click in the demo: turns Sound on, unless the visitor muted it. */
+  const wake = useCallback(() => {
+    if (!mutedRef.current && !enabledRef.current) void enable();
+  }, [enable]);
+
+  /** The visitor's mute: Sound stays off until they turn it on or play. */
+  const mute = useCallback(() => {
+    mutedRef.current = true;
+    disable();
+  }, [disable]);
 
   /** Play notes if sound is on. */
   const play = useCallback((midis: number[], seconds = 0.6) => {
@@ -187,5 +215,14 @@ export const useTourSynth = () => {
     };
   }, []);
 
-  return { enabled, enable, disable, play, playFromGesture, audio };
+  return {
+    enabled,
+    enable,
+    disable,
+    wake,
+    mute,
+    play,
+    playFromGesture,
+    audio,
+  };
 };

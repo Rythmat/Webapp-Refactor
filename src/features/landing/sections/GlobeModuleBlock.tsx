@@ -113,6 +113,7 @@ export const GlobeModuleBlock = ({ module: m }: { module: LandingModule }) => {
                   playNotes={noop}
                   stepProgress={tour.stepProgress}
                   audio={SILENT_TOUR_AUDIO}
+                  soundOn={false}
                 />
               </div>
             </Suspense>

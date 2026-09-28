@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { demoChord, keyCenterColor } from '../../music';
+import { useSoundOff } from '../useSoundOff';
 import type { SceneProps } from './sceneTypes';
 import { MiniPianoRoll } from './studio/MiniPianoRoll';
 import { PrismPanel } from './studio/PrismPanel';
@@ -55,6 +56,7 @@ export const StudioScene = ({
   playNotes,
   stepProgress,
   audio,
+  soundOn,
   resetKey,
 }: SceneProps) => {
   const layout = studioLayout(compact);
@@ -193,14 +195,25 @@ export const StudioScene = ({
       if (playReq.current === id && scopeRef.current === at)
         setUserPlaying(next);
     };
-    // Play is a gesture: it turns Sound on, like the demo's other keys.
-    // Pause turns it off.
+    // Play is a gesture: it turns Sound on, like the demo's other keys, and
+    // starts once it's on (Sound going off meanwhile drops it). Pause turns
+    // it off.
     if (!next) {
       audio.disable();
       start();
     } else if (audio.isEnabled()) start();
-    else void audio.enableFromGesture().then(start, start);
+    else
+      void audio.enableFromGesture().then((on) => {
+        if (on) start();
+      });
   };
+
+  // Sound off (the mute, the demo leaving the screen, a hidden tab, a
+  // take-over while muted) pauses the visitor's playback as Pause does.
+  useSoundOff(!auto && playing, soundOn, () => {
+    playReq.current += 1;
+    setUserPlaying(false);
+  });
 
   const stop = () => {
     takeOver();

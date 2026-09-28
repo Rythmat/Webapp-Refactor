@@ -1,3 +1,4 @@
+import { useRef, type MouseEvent, type PointerEvent } from 'react';
 import { cn } from '@/components/utilities';
 
 const WHITE_PCS = new Set([0, 2, 4, 5, 7, 9, 11]);
@@ -54,6 +55,20 @@ export const DemoKeys = ({
 
   const whiteW = 100 / whites.length;
 
+  // A mouse plays on press; touch plays on click (as the Studio's piano
+  // roll): a touch's pointerdown is no user activation, so it could not
+  // start audio, and a finger landing on a key to scroll isn't a press.
+  const pointerType = useRef('mouse');
+  const pressOn = (midi: number) => ({
+    onPointerDown: (e: PointerEvent) => {
+      pointerType.current = e.pointerType;
+      if (e.pointerType === 'mouse') onPress?.(midi);
+    },
+    onClick: (e: MouseEvent) => {
+      if (e.detail === 0 || pointerType.current !== 'mouse') onPress?.(midi);
+    },
+  });
+
   const keyStyle = (midi: number, black: boolean) => {
     const litColor = lit?.get(midi);
     if (litColor) return { background: litColor };
@@ -80,7 +95,7 @@ export const DemoKeys = ({
           type="button"
           tabIndex={-1}
           aria-label={`Note ${midi}`}
-          onPointerDown={() => onPress?.(midi)}
+          {...pressOn(midi)}
           className={cn(
             'mr-px h-full flex-1 rounded-b-[4px] bg-white transition-[background-color,transform] duration-100 last:mr-0 active:translate-y-px',
             lit?.has(midi) && 'translate-y-px',
@@ -98,7 +113,7 @@ export const DemoKeys = ({
             type="button"
             tabIndex={-1}
             aria-label={`Note ${bMidi}`}
-            onPointerDown={() => onPress?.(bMidi)}
+            {...pressOn(bMidi)}
             className="absolute top-px z-10 h-3/5 rounded-b-[4px] border-b-[3px] border-b-zinc-700 bg-zinc-900 transition-[background-color] duration-100"
             style={{
               left: `calc(${(i + 1) * whiteW}% - ${whiteW * 0.3}%)`,

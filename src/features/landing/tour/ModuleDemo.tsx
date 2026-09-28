@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Volume2, VolumeX } from 'lucide-react';
 import {
   useEffect,
   useLayoutEffect,
@@ -35,7 +36,9 @@ const MAX_SCALE = 1.15;
  * under the window. Reduced motion: no clock, no cursor, end state.
  *
  * Sound follows the visitor: any click in the demo turns it on; the scene's
- * Pause/Stop and the demo leaving the screen turn it off.
+ * Pause/Stop and the demo leaving the screen turn it off. The Sound toggle
+ * under the window shows it and mutes it: muted, clicks leave it off until
+ * the toggle, a Play or a played note turns it back on.
  *
  * `bleed`: the window fills its column edge to edge (flush, no scale cap) and
  * the steps become a hairline row of bento boxes, the active one carrying the
@@ -60,9 +63,15 @@ export const ModuleDemo = ({
   const synth = useTourSynth();
 
   // ── Sound ──────────────────────────────────────────────────────────────
-  // Capture phase, so a Pause/Stop handler in the same click still wins.
-  const onClickCapture = () => {
-    if (!synth.audio.isEnabled()) void synth.enable();
+  // Capture phase, so a Pause/Stop handler in the same click still wins. The
+  // Sound toggle's own clicks are its alone (a mute must not wake it first).
+  const soundRef = useRef<HTMLButtonElement>(null);
+  const onClickCapture = (e: React.MouseEvent) => {
+    if (!soundRef.current?.contains(e.target as Node)) synth.wake();
+  };
+  const toggleSound = () => {
+    if (synth.enabled) synth.mute();
+    else void synth.enable();
   };
   // Its own on-screen test (any part visible), not the tour's 35%: a click
   // can land on a barely visible demo, and leaving the screen still mutes it.
@@ -169,16 +178,67 @@ export const ModuleDemo = ({
   );
   // The cursor's callout narrates while it plays, so the caption hides then —
   // except bleed's caption row, which stays so the page below doesn't jump.
+  // Shown, it is as tall as the longest callout (hidden copies share its
+  // cell): the Sound toggle narrows it, and the page below mustn't jump from
+  // step to step.
   const caption = (className: string) => (
-    <p
-      aria-live={state.status === 'playing' ? 'off' : 'polite'}
+    <div
       className={cn(
-        'text-sm text-white/60',
+        'grid text-sm',
         showCursor && !bleed ? 'sr-only' : className,
       )}
     >
-      {step.callout}
-    </p>
+      {tab.steps.map((s) => (
+        <span key={s.id} className="invisible col-start-1 row-start-1">
+          {s.callout}
+        </span>
+      ))}
+      <p
+        aria-live={state.status === 'playing' ? 'off' : 'polite'}
+        className="col-start-1 row-start-1 text-white/60"
+      >
+        {step.callout}
+      </p>
+    </div>
+  );
+  // Always shown, under the window so it never covers the scene: bleed's
+  // last bento box (phones: the end of the caption's row), else a pill at the
+  // end of the caption's line. Hover only where it can hover: a tap's sticky
+  // hover would light a muted toggle as if it were on.
+  const soundOn = synth.enabled;
+  const soundIcon = bleed ? 'size-4 shrink-0 md:size-5' : 'size-3.5';
+  const soundToggle = (
+    <button
+      ref={soundRef}
+      type="button"
+      onClick={toggleSound}
+      aria-pressed={soundOn}
+      aria-label={soundOn ? 'Mute demo sound' : 'Turn on demo sound'}
+      className={cn(
+        'flex shrink-0 items-center gap-1.5 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70',
+        soundOn
+          ? 'text-white'
+          : 'text-white/50 [@media(hover:hover)]:hover:text-white',
+        bleed
+          ? cn(
+              'col-start-2 row-start-2 border-t border-white/[0.08] px-6 text-sm focus-visible:ring-inset md:row-start-1 md:flex-col md:items-start md:gap-3 md:border-l md:border-t-0 md:px-8 md:py-6 md:text-[15px]',
+              soundOn
+                ? 'md:bg-white/[0.05]'
+                : '[@media(hover:hover)]:md:hover:bg-white/[0.02]',
+            )
+          : cn(
+              'ml-auto rounded-full border px-3 py-1.5 text-xs',
+              soundOn ? 'border-white/20 bg-white/10' : 'border-white/[0.08]',
+            ),
+      )}
+    >
+      {soundOn ? (
+        <Volume2 className={soundIcon} />
+      ) : (
+        <VolumeX className={soundIcon} />
+      )}
+      Sound
+    </button>
   );
 
   // Keyboard focus inside the demo pauses it (pointer clicks don't).
@@ -210,7 +270,7 @@ export const ModuleDemo = ({
           ? 'paused'
           : state.status
       }
-      data-sound={synth.enabled ? 'on' : 'off'}
+      data-sound={soundOn ? 'on' : 'off'}
     >
       <div
         ref={wrapperRef}
@@ -237,6 +297,7 @@ export const ModuleDemo = ({
                 playNotes={synth.playFromGesture}
                 stepProgress={tour.stepProgress}
                 audio={synth.audio}
+                soundOn={soundOn}
                 resetKey={pillClicks}
                 goToStep={selectStep}
               />
@@ -260,9 +321,9 @@ export const ModuleDemo = ({
       </div>
 
       {bleed ? (
-        <>
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] border-t border-white/[0.08]">
           <ol
-            className="grid grid-cols-2 gap-px border-t border-white/[0.08] bg-white/[0.08] md:grid-cols-[repeat(var(--steps),minmax(0,1fr))]"
+            className="col-span-2 grid grid-cols-2 gap-px bg-white/[0.08] md:col-span-1 md:grid-cols-[repeat(var(--steps),minmax(0,1fr))]"
             style={{ '--steps': tab.steps.length } as CSSProperties}
             aria-label={`${tab.label} demo steps`}
           >
@@ -304,8 +365,11 @@ export const ModuleDemo = ({
               );
             })}
           </ol>
-          {caption('border-t border-white/[0.08] px-6 py-5 md:px-10')}
-        </>
+          {soundToggle}
+          {caption(
+            'col-start-1 row-start-2 border-t border-white/[0.08] px-6 py-5 md:col-span-2 md:px-10',
+          )}
+        </div>
       ) : (
         <div className="flex flex-col gap-3 md:flex-row md:items-center">
           <ol
@@ -334,7 +398,10 @@ export const ModuleDemo = ({
               );
             })}
           </ol>
-          {caption('md:ml-auto md:max-w-[40ch] md:text-right')}
+          <div className="flex items-center gap-3 md:ml-auto">
+            {caption('min-w-0 flex-1 md:max-w-[40ch] md:text-right')}
+            {soundToggle}
+          </div>
         </div>
       )}
     </div>

@@ -68,14 +68,22 @@ export const _100_days_100_nights: Song = {
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭6 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭6 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -112,8 +120,12 @@ export const _100_days_100_nights: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -144,7 +156,9 @@ export const _100_days_100_nights: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -196,8 +210,14 @@ export const _100_days_100_nights: Song = {
             { degree: '4 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭6 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭6 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -266,10 +286,20 @@ export const _100_days_100_nights: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭6 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭6 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -311,25 +341,33 @@ export const _100_days_100_nights: Song = {
             { degree: '♯4 dim7', chordName: 'D♯dim7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
-          chords: [
-            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
-          ],
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
         },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -367,7 +405,9 @@ export const _100_days_100_nights: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭6 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭6 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
           fermata: true,
         },
         {
@@ -379,19 +419,25 @@ export const _100_days_100_nights: Song = {
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Amin7', beat: 1, duration: 4 },

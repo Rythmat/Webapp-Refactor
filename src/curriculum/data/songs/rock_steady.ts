@@ -134,12 +134,24 @@ export const rock_steady: Song = {
       id: 'bridge',
       label: 'Bridge',
       bars: [
-        { chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {

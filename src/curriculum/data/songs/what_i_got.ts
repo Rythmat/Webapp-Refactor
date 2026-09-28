@@ -27,13 +27,17 @@ export const what_i_got: Song = {
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
       ],
     },
   ],

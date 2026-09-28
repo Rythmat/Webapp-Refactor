@@ -98,7 +98,9 @@ export const new_york_new_york: Song = {
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         { chords: [] },
         { chords: [] },
         { chords: [] },
@@ -114,13 +116,17 @@ export const new_york_new_york: Song = {
             { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         { chords: [] },
       ],
     },
@@ -147,7 +153,9 @@ export const new_york_new_york: Song = {
             { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         { chords: [] },
         { chords: [] },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
@@ -161,7 +169,9 @@ export const new_york_new_york: Song = {
             { degree: '1 maj/5', chordName: 'D/A', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 2 },
@@ -187,16 +197,22 @@ export const new_york_new_york: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭6 dom7', chordName: 'B♭7', beat: 1, duration: 4 }],
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭6 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '♭2 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
         { chords: [] },
         {
-          chords: [{ degree: '♭2 dom7', chordName: 'E♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭2 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '♭5 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -222,13 +238,19 @@ export const new_york_new_york: Song = {
             { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '6 dom7', chordName: 'B7', beat: 1, duration: 4 }],
           fermata: true,
         },
         {
-          chords: [{ degree: '♭6 dom7', chordName: 'B♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭6 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
           fermata: true,
         },
         { chords: [] },
@@ -266,7 +288,9 @@ export const new_york_new_york: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭2 dom7', chordName: 'E♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭2 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '♭5 maj', chordName: 'A♭', beat: 1, duration: 4 }],
@@ -281,7 +305,11 @@ export const new_york_new_york: Song = {
             { degree: '4 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [] },
         {
           chords: [

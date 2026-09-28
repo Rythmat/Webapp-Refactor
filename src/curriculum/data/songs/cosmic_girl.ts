@@ -69,7 +69,11 @@ export const cosmic_girl: Song = {
             { degree: '4 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -87,7 +91,11 @@ export const cosmic_girl: Song = {
             { degree: '4 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -105,7 +113,11 @@ export const cosmic_girl: Song = {
             { degree: '4 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -123,7 +135,11 @@ export const cosmic_girl: Song = {
             { degree: '4 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -177,7 +193,11 @@ export const cosmic_girl: Song = {
             { degree: '4 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -195,7 +215,11 @@ export const cosmic_girl: Song = {
             { degree: '4 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -213,7 +237,11 @@ export const cosmic_girl: Song = {
             { degree: '4 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -231,7 +259,11 @@ export const cosmic_girl: Song = {
             { degree: '4 min7', chordName: 'F♯min7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'C♯min7', beat: 1, duration: 4 },

@@ -83,8 +83,12 @@ export const brother_soul: Song = {
             { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 dom7', chordName: 'D7(♯9)', beat: 1, duration: 4 },

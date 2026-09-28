@@ -78,7 +78,9 @@ export const just_like_a_woman: Song = {
             { degree: '1 maj', chordName: 'E', beat: 4, duration: 1 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -148,7 +150,9 @@ export const just_like_a_woman: Song = {
       id: 'bridge',
       label: 'Bridge',
       bars: [
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -159,14 +163,32 @@ export const just_like_a_woman: Song = {
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -214,7 +236,9 @@ export const just_like_a_woman: Song = {
             { degree: '1 maj', chordName: 'E', beat: 4, duration: 1 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -284,7 +308,9 @@ export const just_like_a_woman: Song = {
       id: 'outro',
       label: 'Outro',
       bars: [
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [

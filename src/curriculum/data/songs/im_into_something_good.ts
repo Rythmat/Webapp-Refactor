@@ -121,8 +121,12 @@ export const im_into_something_good: Song = {
       id: 'bridge',
       label: 'Bridge',
       bars: [
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
@@ -130,8 +134,12 @@ export const im_into_something_good: Song = {
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 dom7', chordName: 'D7', beat: 1, duration: 2 },
@@ -144,8 +152,12 @@ export const im_into_something_good: Song = {
             { degree: '2 min7', chordName: 'Dmin7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 maj', chordName: 'C', beat: 1, duration: 2 },
@@ -211,10 +223,18 @@ export const im_into_something_good: Song = {
             { degree: '4 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -233,9 +253,15 @@ export const im_into_something_good: Song = {
             { degree: '4 maj', chordName: 'F', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 2 },

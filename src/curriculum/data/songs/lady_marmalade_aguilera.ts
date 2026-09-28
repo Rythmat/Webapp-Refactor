@@ -28,25 +28,33 @@ export const lady_marmalade_aguilera: Song = {
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -68,7 +76,9 @@ export const lady_marmalade_aguilera: Song = {
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -80,13 +90,17 @@ export const lady_marmalade_aguilera: Song = {
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -115,13 +129,17 @@ export const lady_marmalade_aguilera: Song = {
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -147,8 +165,12 @@ export const lady_marmalade_aguilera: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -160,13 +182,17 @@ export const lady_marmalade_aguilera: Song = {
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -183,8 +209,12 @@ export const lady_marmalade_aguilera: Song = {
             { degree: '5 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -196,13 +226,17 @@ export const lady_marmalade_aguilera: Song = {
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -240,25 +274,33 @@ export const lady_marmalade_aguilera: Song = {
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
       ],
     },
   ],

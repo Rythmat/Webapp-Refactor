@@ -32,74 +32,138 @@ export const papas_got_a_brand_new_bag: Song = {
       id: 'verse_1',
       label: 'Verse 1',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'chorus_1',
       label: 'Chorus 1',
       bars: [
-        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'verse_3',
       label: 'Verse 3',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'chorus_2',
       label: 'Chorus 2',
       bars: [
-        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'verse_4',
       label: 'Verse 4',
       bars: [
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'verse_5',
       label: 'Verse 5',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
       ],
     },
   ],

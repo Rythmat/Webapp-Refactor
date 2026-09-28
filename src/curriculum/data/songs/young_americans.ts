@@ -137,7 +137,9 @@ export const young_americans: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {

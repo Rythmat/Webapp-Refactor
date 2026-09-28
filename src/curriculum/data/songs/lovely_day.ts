@@ -70,7 +70,9 @@ export const lovely_day: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -88,7 +90,9 @@ export const lovely_day: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [

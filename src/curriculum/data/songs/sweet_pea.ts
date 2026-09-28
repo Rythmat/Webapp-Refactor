@@ -23,7 +23,11 @@ export const sweet_pea: Song = {
       label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -68,14 +72,42 @@ export const sweet_pea: Song = {
       id: 'bridge',
       label: 'Bridge',
       bars: [
-        { chords: [{ degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'C♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'C♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -83,7 +115,11 @@ export const sweet_pea: Song = {
       label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },

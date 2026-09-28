@@ -22,18 +22,42 @@ export const birthday: Song = {
       id: 'verse',
       label: 'Verse',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -57,19 +81,35 @@ export const birthday: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'G7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'G7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'G7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'G7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
       ],
@@ -78,18 +118,42 @@ export const birthday: Song = {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -118,19 +182,35 @@ export const birthday: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'G7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'G7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'G7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '♭3 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'G7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
       ],
@@ -139,18 +219,42 @@ export const birthday: Song = {
       id: 'verse_3',
       label: 'Verse 3',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -158,8 +262,12 @@ export const birthday: Song = {
       label: 'Outro',
       instrumental: true,
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '1 dom7', chordName: 'A7', beat: 1, duration: 4 }],
           fermata: true,

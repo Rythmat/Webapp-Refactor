@@ -251,7 +251,11 @@ export async function readChart(file) {
 /* ── CLI ──────────────────────────────────────────────────────────────── */
 
 const arg = (name) =>
-  process.argv.find((a) => a.startsWith(`--${name}=`))?.split('=').slice(1).join('=');
+  process.argv
+    .find((a) => a.startsWith(`--${name}=`))
+    ?.split('=')
+    .slice(1)
+    .join('=');
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const only = arg('song');

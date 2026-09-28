@@ -86,12 +86,24 @@ export const smackwater_jack: Song = {
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -108,8 +120,12 @@ export const smackwater_jack: Song = {
         },
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -148,7 +164,9 @@ export const smackwater_jack: Song = {
             { degree: '1 maj', chordName: 'D', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -189,7 +207,9 @@ export const smackwater_jack: Song = {
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -207,12 +227,24 @@ export const smackwater_jack: Song = {
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -229,8 +261,12 @@ export const smackwater_jack: Song = {
         },
         { chords: [{ degree: '5 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {

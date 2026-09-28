@@ -129,10 +129,26 @@ export const five_years: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 3 }],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 3 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 3 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 3 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 3 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 3 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 3 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 3 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 3 },
+          ],
+        },
         {
           chords: [
             { degree: '4 min7', chordName: 'Amin7', beat: 1, duration: 3 },

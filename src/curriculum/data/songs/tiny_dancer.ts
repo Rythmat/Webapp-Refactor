@@ -115,7 +115,9 @@ export const tiny_dancer: Song = {
             { degree: '2 min7/4', chordName: 'Dmin7/F', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
@@ -313,7 +315,9 @@ export const tiny_dancer: Song = {
             { degree: '2 min7/4', chordName: 'Dmin7/F', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },

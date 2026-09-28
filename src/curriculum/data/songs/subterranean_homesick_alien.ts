@@ -46,16 +46,24 @@ export const subterranean_homesick_alien: Song = {
       id: 'verse_1',
       label: 'Verse 1',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }],
+        },
         {
           chords: [
             { degree: '4 min7/1', chordName: 'Cmin7/G', beat: 1, duration: 6 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }],
+        },
         {
           chords: [
             { degree: '4 min7/1', chordName: 'Cmin7/G', beat: 1, duration: 6 },
@@ -68,24 +76,36 @@ export const subterranean_homesick_alien: Song = {
       id: 'bridge',
       label: 'Bridge',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }],
+        },
         {
           chords: [
             { degree: '4 min7/1', chordName: 'Cmin7/G', beat: 1, duration: 6 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }],
+        },
         {
           chords: [
             { degree: '4 min7/1', chordName: 'Cmin7/G', beat: 1, duration: 6 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }],
+        },
         {
           chords: [
             { degree: '4 min7/1', chordName: 'Cmin7/G', beat: 1, duration: 6 },
@@ -112,16 +132,24 @@ export const subterranean_homesick_alien: Song = {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }],
+        },
         {
           chords: [
             { degree: '4 min7/1', chordName: 'Cmin7/G', beat: 1, duration: 6 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }],
+        },
         {
           chords: [
             { degree: '4 min7/1', chordName: 'Cmin7/G', beat: 1, duration: 6 },
@@ -134,8 +162,12 @@ export const subterranean_homesick_alien: Song = {
       id: 'verse_3',
       label: 'Verse 3',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }],
+        },
         {
           chords: [
             { degree: '4 min7/1', chordName: 'Cmin7/G', beat: 1, duration: 6 },
@@ -149,16 +181,24 @@ export const subterranean_homesick_alien: Song = {
       id: 'verse_4',
       label: 'Verse 4',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }],
+        },
         {
           chords: [
             { degree: '4 min7/1', chordName: 'Cmin7/G', beat: 1, duration: 6 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }],
+        },
         {
           chords: [
             { degree: '4 min7/1', chordName: 'Cmin7/G', beat: 1, duration: 6 },
@@ -189,16 +229,24 @@ export const subterranean_homesick_alien: Song = {
       id: 'verse_5',
       label: 'Verse 5',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }],
+        },
         {
           chords: [
             { degree: '4 min7/1', chordName: 'Cmin7/G', beat: 1, duration: 6 },
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '1 maj6', chordName: 'G6', beat: 1, duration: 6 }],
+        },
         {
           chords: [
             { degree: '4 min7/1', chordName: 'Cmin7/G', beat: 1, duration: 6 },

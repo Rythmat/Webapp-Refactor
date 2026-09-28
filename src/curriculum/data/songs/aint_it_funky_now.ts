@@ -23,14 +23,30 @@ export const aint_it_funky_now: Song = {
       label: 'Intro',
       instrumental: true,
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -87,8 +103,12 @@ export const aint_it_funky_now: Song = {
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -96,10 +116,18 @@ export const aint_it_funky_now: Song = {
       label: 'Interlude',
       instrumental: true,
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -156,8 +184,12 @@ export const aint_it_funky_now: Song = {
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -165,10 +197,18 @@ export const aint_it_funky_now: Song = {
       label: 'Outro',
       instrumental: true,
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
       ],
     },
   ],

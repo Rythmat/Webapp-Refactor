@@ -332,7 +332,9 @@ export const every_little_thing: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭7 dom7', chordName: 'A♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [

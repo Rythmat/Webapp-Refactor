@@ -37,15 +37,29 @@ export const ophelia: Song = {
       label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -53,11 +67,19 @@ export const ophelia: Song = {
       label: 'Bridge',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -66,9 +88,13 @@ export const ophelia: Song = {
             { degree: '3 dom7', chordName: 'E7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 maj', chordName: 'C', beat: 1, duration: 1 },
@@ -77,10 +103,16 @@ export const ophelia: Song = {
             { degree: '3 dom7', chordName: 'E7', beat: 4, duration: 1 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -88,15 +120,29 @@ export const ophelia: Song = {
       label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -104,11 +150,19 @@ export const ophelia: Song = {
       label: 'Outro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },

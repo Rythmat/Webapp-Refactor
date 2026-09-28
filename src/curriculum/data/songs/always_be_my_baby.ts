@@ -213,7 +213,11 @@ export const always_be_my_baby: Song = {
             { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 2 },
@@ -240,7 +244,11 @@ export const always_be_my_baby: Song = {
             { degree: '6 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '3 dom7', chordName: 'G♯7', beat: 1, duration: 2 },

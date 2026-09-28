@@ -32,17 +32,27 @@ export const chain_of_fools: Song = {
       id: 'verse_1',
       label: 'Verse 1',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'bridge',
       label: 'Bridge',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         { chords: [], restBars: 8 },
         { chords: [] },
         { chords: [] },
@@ -52,10 +62,18 @@ export const chain_of_fools: Song = {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
       ],
     },
   ],

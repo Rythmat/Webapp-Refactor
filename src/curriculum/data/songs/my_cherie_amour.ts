@@ -28,7 +28,11 @@ export const my_cherie_amour: Song = {
         {
           chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
@@ -38,7 +42,11 @@ export const my_cherie_amour: Song = {
         {
           chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 maj', chordName: 'C♯', beat: 1, duration: 2 },
@@ -100,9 +108,21 @@ export const my_cherie_amour: Song = {
         {
           chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '6 dom7', chordName: 'A♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'D♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'A♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'D♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'G♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
@@ -167,9 +187,21 @@ export const my_cherie_amour: Song = {
         {
           chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '6 dom7', chordName: 'A♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'D♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'A♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'D♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'G♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
@@ -186,7 +218,11 @@ export const my_cherie_amour: Song = {
         {
           chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
@@ -196,7 +232,11 @@ export const my_cherie_amour: Song = {
         {
           chords: [{ degree: '♭7 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 maj', chordName: 'C♯', beat: 1, duration: 2 },
@@ -252,9 +292,21 @@ export const my_cherie_amour: Song = {
           ],
         },
         { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'B7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭3 dom7', chordName: 'E7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭6 dom7', chordName: 'A7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '♭2 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
@@ -269,7 +321,9 @@ export const my_cherie_amour: Song = {
           chords: [{ degree: '♭5 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '7 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭2 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
@@ -277,7 +331,9 @@ export const my_cherie_amour: Song = {
           chords: [{ degree: '♭5 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '7 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '7 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '7 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭2 maj', chordName: 'D', beat: 1, duration: 4 }],
         },

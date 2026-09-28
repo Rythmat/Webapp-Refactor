@@ -25,7 +25,9 @@ export const kiss_on_my_list: Song = {
       bars: [
         { chords: [], restBars: 2 },
         {
-          chords: [{ degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -154,10 +156,14 @@ export const kiss_on_my_list: Song = {
       label: 'Verse 2',
       bars: [
         {
-          chords: [{ degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -174,10 +180,14 @@ export const kiss_on_my_list: Song = {
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -214,7 +224,9 @@ export const kiss_on_my_list: Song = {
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -222,10 +234,14 @@ export const kiss_on_my_list: Song = {
       label: 'Verse 4',
       bars: [
         {
-          chords: [{ degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [

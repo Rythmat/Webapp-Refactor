@@ -192,10 +192,14 @@ export const im_comin_out: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'D7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'D7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [

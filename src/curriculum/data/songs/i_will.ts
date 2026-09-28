@@ -33,7 +33,9 @@ export const i_will: Song = {
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -45,7 +47,9 @@ export const i_will: Song = {
             { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -89,7 +93,9 @@ export const i_will: Song = {
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -107,7 +113,9 @@ export const i_will: Song = {
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -119,7 +127,9 @@ export const i_will: Song = {
             { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -153,7 +163,9 @@ export const i_will: Song = {
           ],
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
@@ -177,9 +189,13 @@ export const i_will: Song = {
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -204,10 +220,18 @@ export const i_will: Song = {
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -225,7 +249,9 @@ export const i_will: Song = {
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -237,7 +263,9 @@ export const i_will: Song = {
             { degree: '3 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -247,7 +275,9 @@ export const i_will: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -262,7 +292,9 @@ export const i_will: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -277,7 +309,9 @@ export const i_will: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'B♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
@@ -292,7 +326,9 @@ export const i_will: Song = {
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -334,7 +370,9 @@ export const i_will: Song = {
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }],
           fermata: true,

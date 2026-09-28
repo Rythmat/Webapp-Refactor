@@ -61,7 +61,9 @@ export const what_a_wonderful_world: Song = {
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '3 dom7', chordName: 'A7b9', beat: 1, duration: 6 }],
+          chords: [
+            { degree: '3 dom7', chordName: 'A7b9', beat: 1, duration: 6 },
+          ],
         },
         {
           chords: [
@@ -85,7 +87,9 @@ export const what_a_wonderful_world: Song = {
             { degree: '5 dom7', chordName: 'C7sus4', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 6 }] },
         {
           chords: [
@@ -97,7 +101,9 @@ export const what_a_wonderful_world: Song = {
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 6 }],
+        },
       ],
     },
     {
@@ -125,7 +131,9 @@ export const what_a_wonderful_world: Song = {
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '3 dom7', chordName: 'A7b9', beat: 1, duration: 6 }],
+          chords: [
+            { degree: '3 dom7', chordName: 'A7b9', beat: 1, duration: 6 },
+          ],
         },
         {
           chords: [
@@ -149,7 +157,9 @@ export const what_a_wonderful_world: Song = {
             { degree: '5 dom7', chordName: 'C7sus4', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 6 }] },
         {
           chords: [
@@ -207,7 +217,9 @@ export const what_a_wonderful_world: Song = {
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 6 }],
+        },
       ],
     },
     {
@@ -235,7 +247,9 @@ export const what_a_wonderful_world: Song = {
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 6 }] },
         {
-          chords: [{ degree: '3 dom7', chordName: 'A7b9', beat: 1, duration: 6 }],
+          chords: [
+            { degree: '3 dom7', chordName: 'A7b9', beat: 1, duration: 6 },
+          ],
         },
         {
           chords: [
@@ -259,21 +273,29 @@ export const what_a_wonderful_world: Song = {
             { degree: '5 dom7', chordName: 'C7sus4', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 6 }] },
         {
           chords: [
             { degree: '1 maj/♭7', chordName: 'F/E♭', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '6 dom7', chordName: 'D7', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'D7', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'D7', beat: 1, duration: 6 }],
+        },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'D7', beat: 1, duration: 6 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 6 }] },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 6 }] },
       ],

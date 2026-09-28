@@ -23,24 +23,72 @@ export const have_a_talk_with_god: Song = {
       label: 'Intro',
       instrumental: true,
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
       id: 'verse',
       label: 'Verse',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'D♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'D♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'D♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'D♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -52,26 +100,60 @@ export const have_a_talk_with_god: Song = {
             { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'D♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'D♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'D♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'D♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'D♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '4 dom7', chordName: 'D♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
           fermata: true,
         },
       ],

@@ -35,7 +35,9 @@ export const paper_bag: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -43,7 +45,9 @@ export const paper_bag: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -57,14 +61,22 @@ export const paper_bag: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -78,7 +90,9 @@ export const paper_bag: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -86,7 +100,9 @@ export const paper_bag: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -100,14 +116,24 @@ export const paper_bag: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -116,24 +142,48 @@ export const paper_bag: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -147,7 +197,9 @@ export const paper_bag: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -155,7 +207,9 @@ export const paper_bag: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -169,14 +223,22 @@ export const paper_bag: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -190,7 +252,9 @@ export const paper_bag: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
@@ -198,7 +262,9 @@ export const paper_bag: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -212,14 +278,24 @@ export const paper_bag: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -228,10 +304,18 @@ export const paper_bag: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -240,15 +324,25 @@ export const paper_bag: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -257,10 +351,18 @@ export const paper_bag: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -269,15 +371,25 @@ export const paper_bag: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'F7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }],
           fermata: true,

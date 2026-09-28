@@ -49,8 +49,12 @@ export const cant_take_my_eyes_off_you_valli: Song = {
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'A', beat: 1, duration: 4 }] },
         {
@@ -99,7 +103,9 @@ export const cant_take_my_eyes_off_you_valli: Song = {
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
       ],
@@ -113,9 +119,15 @@ export const cant_take_my_eyes_off_you_valli: Song = {
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'C♯7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -127,7 +139,9 @@ export const cant_take_my_eyes_off_you_valli: Song = {
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
@@ -154,8 +168,16 @@ export const cant_take_my_eyes_off_you_valli: Song = {
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -174,8 +196,16 @@ export const cant_take_my_eyes_off_you_valli: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♭3 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭3 dom7', chordName: 'G7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭3 dom7', chordName: 'G7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '♭6 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
@@ -230,9 +260,15 @@ export const cant_take_my_eyes_off_you_valli: Song = {
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'C♯7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -244,7 +280,9 @@ export const cant_take_my_eyes_off_you_valli: Song = {
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '3 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
@@ -271,9 +309,15 @@ export const cant_take_my_eyes_off_you_valli: Song = {
             { degree: '2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
           fermata: true,
         },
       ],

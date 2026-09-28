@@ -66,7 +66,9 @@ export const will_you_love_me_tomorrow: Song = {
             { degree: '4 maj/5', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -74,7 +76,9 @@ export const will_you_love_me_tomorrow: Song = {
       label: 'Bridge',
       bars: [
         {
-          chords: [{ degree: '3 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '3 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '3 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -88,7 +92,9 @@ export const will_you_love_me_tomorrow: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
@@ -134,13 +140,17 @@ export const will_you_love_me_tomorrow: Song = {
             { degree: '6 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -162,7 +172,9 @@ export const will_you_love_me_tomorrow: Song = {
             { degree: '4 maj/5', chordName: 'F/G', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -170,7 +182,9 @@ export const will_you_love_me_tomorrow: Song = {
       label: 'Verse 4',
       bars: [
         {
-          chords: [{ degree: '3 dom7', chordName: 'E7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '3 dom7', chordName: 'E7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '3 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
@@ -186,7 +200,9 @@ export const will_you_love_me_tomorrow: Song = {
         { chords: [{ degree: '4 maj', chordName: 'F', beat: 1, duration: 4 }] },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {

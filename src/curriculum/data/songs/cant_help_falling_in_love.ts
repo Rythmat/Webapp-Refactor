@@ -23,9 +23,13 @@ export const cant_help_falling_in_love: Song = {
       label: 'Intro',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -45,7 +49,9 @@ export const cant_help_falling_in_love: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -53,16 +59,22 @@ export const cant_help_falling_in_love: Song = {
       label: 'Verse 2',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -82,7 +94,9 @@ export const cant_help_falling_in_love: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -90,45 +104,65 @@ export const cant_help_falling_in_love: Song = {
       label: 'Bridge',
       bars: [
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '7 dom7', chordName: 'C♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '7 dom7', chordName: 'C♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '7 dom7', chordName: 'C♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -148,9 +182,13 @@ export const cant_help_falling_in_love: Song = {
         },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
@@ -163,10 +201,14 @@ export const cant_help_falling_in_love: Song = {
       id: 'outro',
       label: 'Outro',
       bars: [
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'Bmin7', beat: 1, duration: 4 },

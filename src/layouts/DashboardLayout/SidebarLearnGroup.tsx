@@ -135,7 +135,15 @@ export const SidebarLearnGroup = () => {
             <ul className="flex flex-col gap-1 pt-1">
               {ITEMS.map(
                 (
-                  { slug, label, icon: Icon, iconSrc, glyphClassName, to, match },
+                  {
+                    slug,
+                    label,
+                    icon: Icon,
+                    iconSrc,
+                    glyphClassName,
+                    to,
+                    match,
+                  },
                   i,
                 ) => {
                   const isActive = match

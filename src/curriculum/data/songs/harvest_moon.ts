@@ -115,28 +115,44 @@ export const harvest_moon: Song = {
       instrumental: true,
       bars: [
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
@@ -176,28 +192,44 @@ export const harvest_moon: Song = {
       instrumental: true,
       bars: [
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },

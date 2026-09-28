@@ -144,7 +144,11 @@ export const burn_this_disco_out: Song = {
             { degree: '♭7 maj', chordName: 'D♭', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [] },
       ],
     },
@@ -282,7 +286,11 @@ export const burn_this_disco_out: Song = {
             { degree: '♭7 maj', chordName: 'D♭', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [] },
       ],
     },
@@ -336,8 +344,16 @@ export const burn_this_disco_out: Song = {
       id: 'bridge',
       label: 'Bridge',
       bars: [
-        { chords: [{ degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '♭7 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -350,8 +366,16 @@ export const burn_this_disco_out: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
@@ -437,7 +461,11 @@ export const burn_this_disco_out: Song = {
             { degree: '♭7 maj', chordName: 'D♭', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
@@ -529,7 +557,11 @@ export const burn_this_disco_out: Song = {
             { degree: '♭7 maj', chordName: 'D♭', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [] },
       ],
     },

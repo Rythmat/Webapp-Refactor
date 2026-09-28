@@ -23,13 +23,27 @@ export const shake_your_body_down_to_the_ground: Song = {
       label: 'Verse',
       bars: [
         { chords: [], restBars: 3 },
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
       ],
     },
   ],

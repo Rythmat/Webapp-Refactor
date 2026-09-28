@@ -83,7 +83,9 @@ export const happy_xmas_war_is_over: Song = {
           chords: [{ degree: '♭7 maj', chordName: 'G', beat: 1, duration: 6 }],
         },
         { chords: [{ degree: '4 maj', chordName: 'D', beat: 1, duration: 6 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 6 }],
+        },
       ],
     },
     {

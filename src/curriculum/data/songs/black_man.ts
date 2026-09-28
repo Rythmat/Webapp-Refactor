@@ -109,7 +109,9 @@ export const black_man: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭6 dom7', chordName: 'G♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭6 dom7', chordName: 'G♭7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -164,7 +166,9 @@ export const black_man: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭6 dom7', chordName: 'G♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭6 dom7', chordName: 'G♭7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -305,7 +309,9 @@ export const black_man: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭6 dom7', chordName: 'G♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭6 dom7', chordName: 'G♭7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [

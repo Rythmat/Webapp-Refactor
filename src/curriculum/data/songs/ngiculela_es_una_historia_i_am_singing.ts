@@ -24,27 +24,39 @@ export const ngiculela_es_una_historia_i_am_singing: Song = {
       label: 'Verse 1',
       bars: [
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],
@@ -58,9 +70,15 @@ export const ngiculela_es_una_historia_i_am_singing: Song = {
             { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -72,7 +90,9 @@ export const ngiculela_es_una_historia_i_am_singing: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -109,7 +129,11 @@ export const ngiculela_es_una_historia_i_am_singing: Song = {
             { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '7 dom7', chordName: 'C♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '3 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -126,7 +150,9 @@ export const ngiculela_es_una_historia_i_am_singing: Song = {
           ],
         },
         {
-          chords: [{ degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'A7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },
@@ -173,9 +199,15 @@ export const ngiculela_es_una_historia_i_am_singing: Song = {
             { degree: '5 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'C7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -187,7 +219,9 @@ export const ngiculela_es_una_historia_i_am_singing: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
       ],
@@ -201,7 +235,9 @@ export const ngiculela_es_una_historia_i_am_singing: Song = {
             { degree: '2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
           chords: [

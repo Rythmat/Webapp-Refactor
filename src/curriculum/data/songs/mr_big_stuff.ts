@@ -139,7 +139,11 @@ export const mr_big_stuff: Song = {
         {
           chords: [{ degree: '4 maj', chordName: 'A♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {

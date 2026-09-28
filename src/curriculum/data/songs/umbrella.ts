@@ -148,8 +148,12 @@ export const umbrella: Song = {
         {
           chords: [{ degree: '♭6 maj', chordName: 'G♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {

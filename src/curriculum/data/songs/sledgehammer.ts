@@ -25,12 +25,26 @@ export const sledgehammer: Song = {
       bars: [
         { chords: [] },
         {
-          chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
           fermata: true,
         },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
@@ -55,21 +69,64 @@ export const sledgehammer: Song = {
       id: 'verse_1',
       label: 'Verse 1',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -77,22 +134,67 @@ export const sledgehammer: Song = {
             { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -149,18 +251,66 @@ export const sledgehammer: Song = {
       id: 'verse_3',
       label: 'Verse 3',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -272,21 +422,11 @@ export const sledgehammer: Song = {
         {
           chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
@@ -300,21 +440,11 @@ export const sledgehammer: Song = {
         {
           chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
@@ -328,21 +458,11 @@ export const sledgehammer: Song = {
         {
           chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
@@ -356,21 +476,11 @@ export const sledgehammer: Song = {
         {
           chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+            { degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
           ],
         },
-        {
-          chords: [
-            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
-          ],
-        },
-        {
-          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
-        },
-        { chords: [{ degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
         {
           chords: [
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
@@ -384,7 +494,11 @@ export const sledgehammer: Song = {
         {
           chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
@@ -398,7 +512,83 @@ export const sledgehammer: Song = {
         {
           chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '♯5 maj', chordName: 'B', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '4 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
   ],

@@ -105,7 +105,9 @@ export const my_girl: Song = {
             { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -141,7 +143,9 @@ export const my_girl: Song = {
           ],
         },
         { chords: [{ degree: '5 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -155,7 +159,9 @@ export const my_girl: Song = {
             { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '2 maj', chordName: 'D', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'D', beat: 1, duration: 4 }] },
         {
@@ -163,7 +169,9 @@ export const my_girl: Song = {
             { degree: '3 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
   ],

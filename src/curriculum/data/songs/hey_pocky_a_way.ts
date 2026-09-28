@@ -23,35 +23,81 @@ export const hey_pocky_a_way: Song = {
       label: 'Intro',
       bars: [
         { chords: [], restBars: 10 },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'verse_1',
       label: 'Verse 1',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -64,30 +110,42 @@ export const hey_pocky_a_way: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'verse_2',
       label: 'Verse 2',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
@@ -111,10 +169,18 @@ export const hey_pocky_a_way: Song = {
       id: 'verse_3',
       label: 'Verse 3',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -127,20 +193,28 @@ export const hey_pocky_a_way: Song = {
           ],
         },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
       id: 'verse_4',
       label: 'Verse 4',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         { chords: [{ degree: '4 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '♭7 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
@@ -151,10 +225,18 @@ export const hey_pocky_a_way: Song = {
       id: 'verse_5',
       label: 'Verse 5',
       bars: [
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
       ],
     },
   ],

@@ -153,7 +153,9 @@ export const wise_up: Song = {
       label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 maj', chordName: 'G', beat: 1, duration: 2 },

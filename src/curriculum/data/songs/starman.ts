@@ -55,7 +55,9 @@ export const starman: Song = {
       label: 'Bridge',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 maj', chordName: 'F', beat: 1, duration: 2 },
@@ -90,7 +92,9 @@ export const starman: Song = {
       label: 'Pre-Chorus 1',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'C', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '3 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
@@ -158,7 +162,9 @@ export const starman: Song = {
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -259,7 +265,9 @@ export const starman: Song = {
             { degree: '2 min7', chordName: 'Gmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {

@@ -116,16 +116,24 @@ export const fire_and_rain: Song = {
       instrumental: true,
       bars: [
         {
-          chords: [{ degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },

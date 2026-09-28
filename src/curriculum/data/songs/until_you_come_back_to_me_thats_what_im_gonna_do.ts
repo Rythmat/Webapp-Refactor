@@ -41,12 +41,16 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
       bars: [
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
@@ -65,13 +69,17 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '7 min7', chordName: 'F♯min7b5', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -110,7 +118,9 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
             { degree: '5 min7', chordName: 'Dmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'G7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 4 }] },
         {
@@ -123,9 +133,15 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '6 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -134,7 +150,9 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
       bars: [
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
@@ -153,13 +171,17 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
             { degree: '6 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '7 min7', chordName: 'F♯min7b5', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -189,7 +211,9 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
             { degree: '1 maj/2', chordName: 'G/A', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],
@@ -200,7 +224,9 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
       bars: [
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
         { chords: [{ degree: '2 maj', chordName: 'A', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 4 }] },
       ],

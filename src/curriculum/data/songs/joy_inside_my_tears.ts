@@ -23,34 +23,60 @@ export const joy_inside_my_tears: Song = {
       label: 'Verse 1',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'G♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'A7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'G♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'A7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'G♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '♭3 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
       ],
@@ -60,20 +86,34 @@ export const joy_inside_my_tears: Song = {
       label: 'Verse 2',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'G♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -95,7 +135,9 @@ export const joy_inside_my_tears: Song = {
             { degree: '♭7 dom7', chordName: 'A7', beat: 2, duration: 3 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -124,7 +166,9 @@ export const joy_inside_my_tears: Song = {
             { degree: '♭7 dom7', chordName: 'A7', beat: 2, duration: 3 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -139,13 +183,21 @@ export const joy_inside_my_tears: Song = {
       label: 'Bridge',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'G♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
@@ -165,20 +217,34 @@ export const joy_inside_my_tears: Song = {
       label: 'Verse 4',
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'G♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -200,7 +266,9 @@ export const joy_inside_my_tears: Song = {
             { degree: '♭7 dom7', chordName: 'A7', beat: 2, duration: 3 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -229,7 +297,9 @@ export const joy_inside_my_tears: Song = {
             { degree: '♭7 dom7', chordName: 'A7', beat: 2, duration: 3 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -243,8 +313,14 @@ export const joy_inside_my_tears: Song = {
       id: 'verse_6',
       label: 'Verse 6',
       bars: [
-        { chords: [{ degree: '♭7 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'A7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -252,7 +328,11 @@ export const joy_inside_my_tears: Song = {
             { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'A7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }],
           fermata: true,
@@ -278,7 +358,9 @@ export const joy_inside_my_tears: Song = {
             { degree: '♭7 dom7', chordName: 'A7', beat: 2, duration: 3 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -307,7 +389,9 @@ export const joy_inside_my_tears: Song = {
             { degree: '♭7 dom7', chordName: 'A7', beat: 2, duration: 3 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -336,7 +420,9 @@ export const joy_inside_my_tears: Song = {
             { degree: '♭7 dom7', chordName: 'A7', beat: 2, duration: 3 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -350,8 +436,14 @@ export const joy_inside_my_tears: Song = {
       id: 'outro',
       label: 'Outro',
       bars: [
-        { chords: [{ degree: '♭7 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'A7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -359,8 +451,14 @@ export const joy_inside_my_tears: Song = {
             { degree: '1 maj', chordName: 'B', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '♭7 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♭7 dom7', chordName: 'A7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         {
           chords: [{ degree: '4 maj', chordName: 'E', beat: 1, duration: 4 }],
           fermata: true,

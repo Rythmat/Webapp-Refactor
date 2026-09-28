@@ -56,15 +56,21 @@ export const tapestry: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -188,15 +194,21 @@ export const tapestry: Song = {
       bars: [
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         { chords: [{ degree: '1 maj', chordName: 'F', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '5 dom7', chordName: 'C7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'C7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [

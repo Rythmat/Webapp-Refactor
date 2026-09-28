@@ -65,7 +65,9 @@ export const if_its_magic: Song = {
             { degree: '2 dom7', chordName: 'F♯7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 1 },
@@ -85,7 +87,9 @@ export const if_its_magic: Song = {
             { degree: '2 dom7', chordName: 'F♯7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
       ],
     },
@@ -105,7 +109,9 @@ export const if_its_magic: Song = {
             { degree: '2 dom7', chordName: 'F♯7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [
@@ -159,7 +165,9 @@ export const if_its_magic: Song = {
             { degree: '2 dom7', chordName: 'F♯7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '1 maj', chordName: 'E', beat: 1, duration: 2 },
@@ -172,7 +180,9 @@ export const if_its_magic: Song = {
             { degree: '6 min7', chordName: 'C♯min7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         {
           chords: [

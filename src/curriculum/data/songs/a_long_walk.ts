@@ -24,10 +24,14 @@ export const a_long_walk: Song = {
       instrumental: true,
       bars: [
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -43,10 +47,14 @@ export const a_long_walk: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -68,10 +76,14 @@ export const a_long_walk: Song = {
       label: 'Verse',
       bars: [
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -87,10 +99,14 @@ export const a_long_walk: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -112,10 +128,14 @@ export const a_long_walk: Song = {
       label: 'Chorus 1',
       bars: [
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -133,10 +153,14 @@ export const a_long_walk: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -160,10 +184,14 @@ export const a_long_walk: Song = {
       label: 'Bridge',
       bars: [
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -175,10 +203,14 @@ export const a_long_walk: Song = {
           chords: [{ degree: '♭2 maj', chordName: 'C', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -199,10 +231,14 @@ export const a_long_walk: Song = {
       label: 'Chorus 2',
       bars: [
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -220,10 +256,14 @@ export const a_long_walk: Song = {
           ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -247,10 +287,14 @@ export const a_long_walk: Song = {
       label: 'Outro',
       bars: [
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '1 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [

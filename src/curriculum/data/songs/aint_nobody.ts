@@ -498,7 +498,9 @@ export const aint_nobody: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭7 dom7', chordName: 'D♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭7 dom7', chordName: 'D♭7', beat: 1, duration: 4 },
+          ],
         },
       ],
     },

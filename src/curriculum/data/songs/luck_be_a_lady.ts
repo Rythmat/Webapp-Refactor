@@ -22,8 +22,16 @@ export const luck_be_a_lady: Song = {
       id: 'verse_1',
       label: 'Verse 1',
       bars: [
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '1 dom7', chordName: 'D♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'D♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 2 },
@@ -44,11 +52,19 @@ export const luck_be_a_lady: Song = {
             { degree: '4 maj', chordName: 'G♭', beat: 4, duration: 1 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -82,7 +98,11 @@ export const luck_be_a_lady: Song = {
         {
           chords: [{ degree: '♯5 maj', chordName: 'A', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -95,16 +115,32 @@ export const luck_be_a_lady: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -117,20 +153,40 @@ export const luck_be_a_lady: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♯5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♯5 dom7', chordName: 'A7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -143,16 +199,32 @@ export const luck_be_a_lady: Song = {
         {
           chords: [{ degree: '♯1 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♯1 maj', chordName: 'D', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '♯1 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯1 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '♯1 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
@@ -168,8 +240,16 @@ export const luck_be_a_lady: Song = {
         {
           chords: [{ degree: '2 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '2 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
@@ -186,7 +266,9 @@ export const luck_be_a_lady: Song = {
             { degree: '7 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -213,19 +295,27 @@ export const luck_be_a_lady: Song = {
             { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '7 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '7 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -238,34 +328,74 @@ export const luck_be_a_lady: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
       id: 'verse_8',
       label: 'Verse 8',
       bars: [
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '♯1 maj', chordName: 'D', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '♯1 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '♯1 maj', chordName: 'D', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'E♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '♯1 maj', chordName: 'D', beat: 1, duration: 4 }],
         },
@@ -281,8 +411,16 @@ export const luck_be_a_lady: Song = {
         {
           chords: [{ degree: '2 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '2 maj', chordName: 'E♭', beat: 1, duration: 4 }],
         },
@@ -299,7 +437,9 @@ export const luck_be_a_lady: Song = {
             { degree: '7 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '3 dom7', chordName: 'F7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '3 dom7', chordName: 'F7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -326,19 +466,27 @@ export const luck_be_a_lady: Song = {
             { degree: '6 min7', chordName: 'B♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '7 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '7 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -351,16 +499,32 @@ export const luck_be_a_lady: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -377,11 +541,14 @@ export const luck_be_a_lady: Song = {
             { degree: '♯2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♯5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
         {
           chords: [
-            { degree: '♯2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+            { degree: '♯5 dom7', chordName: 'A7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯5 dom7', chordName: 'A7', beat: 1, duration: 4 },
           ],
         },
         {
@@ -389,8 +556,21 @@ export const luck_be_a_lady: Song = {
             { degree: '♯2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♯5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯5 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♯2 min7', chordName: 'Emin7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯5 dom7', chordName: 'A7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯5 dom7', chordName: 'A7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
@@ -401,8 +581,16 @@ export const luck_be_a_lady: Song = {
             { degree: '2 min7', chordName: 'E♭min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'A♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
@@ -421,16 +609,32 @@ export const luck_be_a_lady: Song = {
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
         {
-          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '1 maj', chordName: 'D♭', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♯1 dom7', chordName: 'D7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
   ],

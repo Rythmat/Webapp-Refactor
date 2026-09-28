@@ -56,7 +56,9 @@ export const life_on_mars: Song = {
             { degree: '4 maj/1', chordName: 'A/E', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -228,7 +230,9 @@ export const life_on_mars: Song = {
             { degree: '4 maj/1', chordName: 'A/E', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'B7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {

@@ -129,13 +129,19 @@ export const golden_lady: Song = {
             { degree: '♯2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♯5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♯5 dom7', chordName: 'B7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '♯4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '7 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -202,7 +208,11 @@ export const golden_lady: Song = {
             { degree: '2 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -287,13 +297,19 @@ export const golden_lady: Song = {
             { degree: '♯2 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '♯5 dom7', chordName: 'B7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '♯5 dom7', chordName: 'B7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '♯4 min7', chordName: 'Amin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '7 dom7', chordName: 'D7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '7 dom7', chordName: 'D7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {

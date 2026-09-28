@@ -63,7 +63,9 @@ export const if_i_aint_got_you: Song = {
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
           chords: [
@@ -75,7 +77,9 @@ export const if_i_aint_got_you: Song = {
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 6 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 6 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 6 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 6 }] },
         {
           chords: [

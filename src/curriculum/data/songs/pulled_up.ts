@@ -111,10 +111,22 @@ export const pulled_up: Song = {
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '♭3 dom7', chordName: 'G7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [{ degree: '4 dom7', chordName: 'A7', beat: 1, duration: 4 }],
+        },
+        {
+          chords: [
+            { degree: '♭3 dom7', chordName: 'G7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '♭3 dom7', chordName: 'G7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {

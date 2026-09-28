@@ -191,13 +191,21 @@ export const one_fine_day: Song = {
             { degree: '5 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '5 min7', chordName: 'C♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '1 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '1 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '4 maj', chordName: 'B', beat: 1, duration: 4 }] },
@@ -213,13 +221,21 @@ export const one_fine_day: Song = {
             { degree: '6 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'G♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'D♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'G♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'G♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
@@ -231,7 +247,11 @@ export const one_fine_day: Song = {
         {
           chords: [{ degree: '5 maj', chordName: 'C♯', beat: 1, duration: 4 }],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'C♯7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {

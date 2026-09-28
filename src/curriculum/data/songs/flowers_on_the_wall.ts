@@ -24,8 +24,16 @@ export const flowers_on_the_wall: Song = {
       instrumental: true,
       bars: [
         { chords: [], restBars: 1 },
-        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -44,10 +52,26 @@ export const flowers_on_the_wall: Song = {
             { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'C♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'C♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
@@ -60,10 +84,26 @@ export const flowers_on_the_wall: Song = {
             { degree: '6 min7', chordName: 'G♯min7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '2 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'C♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '2 dom7', chordName: 'C♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
       ],
     },
     {
@@ -154,8 +194,16 @@ export const flowers_on_the_wall: Song = {
       id: 'outro',
       label: 'Outro',
       bars: [
-        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
+        {
+          chords: [
+            { degree: '5 dom7', chordName: 'F♯7', beat: 1, duration: 4 },
+          ],
+        },
         { chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }] },
         {
           chords: [{ degree: '1 maj', chordName: 'B', beat: 1, duration: 4 }],

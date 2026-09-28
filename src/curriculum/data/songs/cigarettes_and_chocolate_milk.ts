@@ -263,7 +263,9 @@ export const cigarettes_and_chocolate_milk: Song = {
           chords: [{ degree: '♭3 maj', chordName: 'G', beat: 1, duration: 4 }],
         },
         {
-          chords: [{ degree: '5 dom7', chordName: 'B7sus', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '5 dom7', chordName: 'B7sus', beat: 1, duration: 4 },
+          ],
         },
       ],
     },

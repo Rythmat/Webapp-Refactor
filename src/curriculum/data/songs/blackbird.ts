@@ -59,7 +59,9 @@ export const blackbird: Song = {
             { degree: '2 dom7/♯4', chordName: 'A7/C♯', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '3 dom7/♯5', chordName: 'B7/D♯', beat: 1, duration: 3 },
@@ -93,8 +95,12 @@ export const blackbird: Song = {
             { degree: '1 maj/3', chordName: 'G/B', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 3 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 3 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 3 }] },
         {
@@ -102,8 +108,12 @@ export const blackbird: Song = {
             { degree: '1 maj/3', chordName: 'G/B', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 3 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 3 }] },
       ],
     },
@@ -129,7 +139,9 @@ export const blackbird: Song = {
             { degree: '2 dom7/♯4', chordName: 'A7/C♯', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '3 dom7/♯5', chordName: 'B7/D♯', beat: 1, duration: 3 },
@@ -163,8 +175,12 @@ export const blackbird: Song = {
             { degree: '1 maj/3', chordName: 'G/B', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 3 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 3 }] },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 3 }] },
       ],
@@ -196,8 +212,12 @@ export const blackbird: Song = {
         {
           chords: [{ degree: '♭3 maj', chordName: 'B♭', beat: 1, duration: 3 }],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 3 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }],
+        },
       ],
     },
     {
@@ -239,7 +259,9 @@ export const blackbird: Song = {
             { degree: '1 maj/3', chordName: 'G/B', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '2 min7/5', chordName: 'Amin7/D', beat: 1, duration: 3 },
@@ -270,7 +292,9 @@ export const blackbird: Song = {
             { degree: '2 dom7/♯4', chordName: 'A7/C♯', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }],
+        },
         {
           chords: [
             { degree: '3 dom7/♯5', chordName: 'B7/D♯', beat: 1, duration: 3 },
@@ -304,9 +328,15 @@ export const blackbird: Song = {
             { degree: '1 maj/3', chordName: 'G/B', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 3 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }] },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '2 dom7', chordName: 'A7', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }],
+        },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }],
+        },
       ],
     },
     {
@@ -325,7 +355,9 @@ export const blackbird: Song = {
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }],
+        },
         { chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 3 }] },
         { chords: [{ degree: '4 maj', chordName: 'C', beat: 1, duration: 3 }] },
         {
@@ -338,7 +370,9 @@ export const blackbird: Song = {
             { degree: '2 min7', chordName: 'Amin7', beat: 1, duration: 3 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'D7', beat: 1, duration: 3 }],
+        },
         {
           chords: [{ degree: '1 maj', chordName: 'G', beat: 1, duration: 3 }],
           fermata: true,

@@ -45,7 +45,9 @@ export const at_last: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
@@ -378,7 +380,9 @@ export const at_last: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [

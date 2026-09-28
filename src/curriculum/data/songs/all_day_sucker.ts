@@ -85,7 +85,11 @@ export const all_day_sucker: Song = {
             { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom9', chordName: 'C♯9', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 dom9', chordName: 'C♯9', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 dom7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
@@ -121,7 +125,11 @@ export const all_day_sucker: Song = {
             { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom9', chordName: 'C♯9', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 dom9', chordName: 'C♯9', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 dom7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
@@ -230,7 +238,11 @@ export const all_day_sucker: Song = {
             { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom9', chordName: 'C♯9', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 dom9', chordName: 'C♯9', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 dom7', chordName: 'F7(♯9)', beat: 1, duration: 4 },
@@ -266,7 +278,11 @@ export const all_day_sucker: Song = {
             { degree: '1 dom7', chordName: 'G♯7(♯9)', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '4 dom9', chordName: 'C♯9', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '4 dom9', chordName: 'C♯9', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 dom7', chordName: 'F7(♯9)', beat: 1, duration: 4 },

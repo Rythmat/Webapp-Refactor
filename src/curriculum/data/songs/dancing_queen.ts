@@ -42,7 +42,11 @@ export const dancing_queen: Song = {
           ],
         },
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 dom7', chordName: 'C♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -95,7 +99,9 @@ export const dancing_queen: Song = {
             { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -107,7 +113,9 @@ export const dancing_queen: Song = {
             { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -125,7 +133,11 @@ export const dancing_queen: Song = {
       label: 'Verse 5',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 dom7', chordName: 'C♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'F♯min7', beat: 1, duration: 4 },
@@ -186,7 +198,9 @@ export const dancing_queen: Song = {
             { degree: '2 min7', chordName: 'Bmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'E7', beat: 1, duration: 4 }],
+        },
       ],
     },
     {
@@ -204,7 +218,11 @@ export const dancing_queen: Song = {
       label: 'Verse 8',
       bars: [
         { chords: [{ degree: '5 maj', chordName: 'E', beat: 1, duration: 4 }] },
-        { chords: [{ degree: '3 dom7', chordName: 'C♯7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '3 dom7', chordName: 'C♯7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '6 min7', chordName: 'F♯min7', beat: 1, duration: 4 },

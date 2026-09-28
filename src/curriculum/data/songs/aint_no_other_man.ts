@@ -338,10 +338,14 @@ export const aint_no_other_man: Song = {
       label: 'Bridge',
       bars: [
         {
-          chords: [{ degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -349,7 +353,9 @@ export const aint_no_other_man: Song = {
             { degree: '5 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 2 },
@@ -357,10 +363,14 @@ export const aint_no_other_man: Song = {
           ],
         },
         {
-          chords: [{ degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 4 },
+          ],
         },
         {
-          chords: [{ degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 4 }],
+          chords: [
+            { degree: '♭6 dom7', chordName: 'D♭7', beat: 1, duration: 4 },
+          ],
         },
         {
           chords: [
@@ -440,7 +450,9 @@ export const aint_no_other_man: Song = {
             { degree: '5 dom7', chordName: 'C7', beat: 3, duration: 2 },
           ],
         },
-        { chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }] },
+        {
+          chords: [{ degree: '5 dom7', chordName: 'C7', beat: 1, duration: 4 }],
+        },
         {
           chords: [
             { degree: '4 dom7', chordName: 'B♭7', beat: 1, duration: 2 },

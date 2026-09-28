@@ -446,7 +446,11 @@ export const havent_met_you_yet: Song = {
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [
             { degree: '3 min7', chordName: 'Fmin7', beat: 1, duration: 4 },
@@ -604,7 +608,11 @@ export const havent_met_you_yet: Song = {
             { degree: '7 min7', chordName: 'Cmin7', beat: 1, duration: 4 },
           ],
         },
-        { chords: [{ degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 }] },
+        {
+          chords: [
+            { degree: '6 dom7', chordName: 'B♭7', beat: 1, duration: 4 },
+          ],
+        },
         {
           chords: [{ degree: '2 maj', chordName: 'E♭', beat: 1, duration: 4 }],
           fermata: true,

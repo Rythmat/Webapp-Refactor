@@ -51,14 +51,14 @@ const ACTIVITY_CATALOG: ActivityEntry[] = [
   {
     label: 'Hip Hop',
     description: 'Genre Course',
-    route: CurriculumRoutes.genre({ genre: 'hip%20hop' }),
+    route: CurriculumRoutes.genre({ genre: 'hip-hop' }),
     keywords: ['hip hop', 'hiphop', 'hip-hop', 'rap', 'beats'],
     category: 'genre',
   },
   {
     label: 'Jam Band',
     description: 'Genre Course',
-    route: CurriculumRoutes.genre({ genre: 'jam%20band' }),
+    route: CurriculumRoutes.genre({ genre: 'jam-band' }),
     keywords: ['jam band', 'jam', 'jamband', 'improvisation', 'improv'],
     category: 'genre',
   },

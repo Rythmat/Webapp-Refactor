@@ -189,7 +189,7 @@ export function edgesForProgression(entry: {
     });
   }
   for (const style of entry.styles) {
-    // The library spells them its own way ('r&b', 'hip hop'); unmapped styles
+    // The library spells them its own way ('r&b', 'hip-hop'); unmapped styles
     // like 'gospel' and 'african' are skipped rather than forced somewhere.
     const genre = PROGRESSION_STYLE_TO_GENRE[style];
     if (genre) {

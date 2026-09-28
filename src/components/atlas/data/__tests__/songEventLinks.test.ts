@@ -104,7 +104,7 @@ describe('song → globe event links', () => {
     // Eighth Funk' and 'Classic Rock' while their songs said 'funk' and
     // 'rock'. Prince's 1999 is how it surfaced — one wrong pill on the globe.
     const name = new Map(GENRES.map((g) => [g.id, g.name]));
-    const tagToId = (tag: string) => (tag === 'hip hop' ? 'hip-hop' : tag);
+    const tagToId = (tag: string) => (tag === 'hip-hop' ? 'hip-hop' : tag);
     const byId = new Map(songs.map((s) => [s.id, s]));
     const drifted: string[] = [];
     for (const event of SONG_LIBRARY_EVENTS) {

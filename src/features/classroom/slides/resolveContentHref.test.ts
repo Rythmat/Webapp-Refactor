@@ -59,8 +59,10 @@ describe('resolveActivityRefHref — learn', () => {
 
 describe('resolveActivityRefHref — curriculum', () => {
   it('maps uppercase GCM keys with spaces to route slugs', () => {
+    // The key still has a space; the slug does not, so the URL needs no
+    // percent-encoding to carry it.
     expect(resolveActivityRefHref('learn', 'curriculum:HIP HOP:L1:B')).toBe(
-      '/curriculum/hip%20hop/1?section=B',
+      '/curriculum/hip-hop/1?section=B',
     );
   });
   it('maps R&B to the rnb slug and accepts bare levels', () => {

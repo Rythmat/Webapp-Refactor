@@ -15,7 +15,7 @@ export const it_takes_two: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip hop'],
+  genreTags: ['hip-hop'],
   techniques: [],
 
   sections: [

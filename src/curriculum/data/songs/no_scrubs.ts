@@ -14,7 +14,7 @@ export const no_scrubs: Song = {
   timeSignature: [4, 4],
 
   difficulty: 3,
-  genreTags: ['hip hop', 'rnb'],
+  genreTags: ['hip-hop', 'rnb'],
   techniques: [],
 
   sections: [

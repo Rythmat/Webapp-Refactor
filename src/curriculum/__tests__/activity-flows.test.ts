@@ -14,6 +14,14 @@ import { getActivityFlow } from '../data/activityFlows';
 import { parseContentGeneration } from '../engine/contentGenerationParser';
 import type { AssessmentType } from '../types/activity';
 
+/**
+ * The genres whose flows are actually authored. The other twelve ship as
+ * stubs — one step per section, four in all — so a step-count floor is a
+ * statement about content that does not exist yet rather than a bug. The list
+ * is asserted below, so it stays honest as genres get written.
+ */
+const AUTHORED_GENRES = ['funk', 'pop'];
+
 const GENRES = [
   'african',
   'blues',
@@ -96,8 +104,8 @@ describe('Activity Flow Data', () => {
     }
   });
 
-  it('step counts are reasonable (10-80 per flow)', async () => {
-    for (const genre of GENRES) {
+  it('step counts are reasonable (10-80 per authored flow)', async () => {
+    for (const genre of AUTHORED_GENRES) {
       for (const level of LEVELS) {
         const flow = await getActivityFlow(genre, level);
         if (!flow) continue;
@@ -109,6 +117,26 @@ describe('Activity Flow Data', () => {
         expect(totalSteps).toBeLessThanOrEqual(80);
       }
     }
+  });
+
+  it('reports which genres are authored and which are still stubs', async () => {
+    // Not a bound on content — a record of it. A stub is four steps, one per
+    // section; anything more has been written. When a genre gets authored this
+    // fails, and the fix is to add it to AUTHORED_GENRES so the step-count
+    // floor above starts covering it too.
+    const authored: string[] = [];
+    for (const genre of GENRES) {
+      const counts: number[] = [];
+      for (const level of LEVELS) {
+        const flow = await getActivityFlow(genre, level);
+        if (flow)
+          counts.push(
+            flow.sections.reduce((s, sec) => s + sec.steps.length, 0),
+          );
+      }
+      if (counts.some((n) => n > 4)) authored.push(genre);
+    }
+    expect(authored.sort()).toEqual([...AUTHORED_GENRES].sort());
   });
 });
 

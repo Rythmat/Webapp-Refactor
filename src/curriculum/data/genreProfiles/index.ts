@@ -23,12 +23,12 @@ const GENRE_PROFILES: Record<string, GenreProfile> = {
   rnb: rnbProfile,
   'neo-soul': neoSoulProfile,
   reggae: reggaeProfile,
-  'hip hop': hipHopProfile,
+  'hip-hop': hipHopProfile,
   latin: latinProfile,
   african: africanProfile,
   electronic: electronicProfile,
   folk: folkProfile,
-  'jam band': jamBandProfile,
+  'jam-band': jamBandProfile,
 };
 
 export function getGenreProfile(slug: string): GenreProfile | null {

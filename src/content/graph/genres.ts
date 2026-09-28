@@ -92,9 +92,11 @@ export const TAUGHT_GENRES: readonly Genre[] = GENRES.filter((g) => g.taught);
 /**
  * How a song's `genreTags` value spells a genre id.
  *
- * The library writes 'hip hop' and 'rnb'; the graph writes 'hip-hop' and
- * 'rnb'. One mapping here rather than a `.replace(' ', '-')` scattered around,
- * because the two vocabularies are allowed to diverge again later.
+ * The two vocabularies agree today — the library's slugs were spaced ('hip
+ * hop', 'jam band') until they were hyphenated to be URL-safe, and this map
+ * fell to an identity for those. It stays because the vocabularies are allowed
+ * to diverge again later, and one mapping is better than a `.replace(' ', '-')`
+ * scattered around.
  */
 export const SONG_TAG_TO_GENRE: Record<string, string> = {
   rock: 'rock',
@@ -103,7 +105,7 @@ export const SONG_TAG_TO_GENRE: Record<string, string> = {
   folk: 'folk',
   rnb: 'rnb',
   jazz: 'jazz',
-  'hip hop': 'hip-hop',
+  'hip-hop': 'hip-hop',
   reggae: 'reggae',
   latin: 'latin',
   blues: 'blues',
@@ -114,8 +116,9 @@ export const SONG_TAG_TO_GENRE: Record<string, string> = {
 /**
  * The progression library's `styles` → genre ids.
  *
- * That vocabulary predates the graph and spells things its own way — `r&b`,
- * `hip hop`, `jam band` — so it needs the same translation `genreTags` needs.
+ * That vocabulary predates the graph and still spells one thing its own way —
+ * `r&b`, where the graph says `rnb` — so it needs the same translation
+ * `genreTags` needs.
  *
  * `gospel` and `african` are deliberately absent. Gospel is a tradition the
  * twelve do not name, and `african` is too broad for any of the regional
@@ -131,10 +134,10 @@ export const PROGRESSION_STYLE_TO_GENRE: Record<string, string> = {
   pop: 'pop',
   blues: 'blues',
   folk: 'folk',
-  'hip hop': 'hip-hop',
+  'hip-hop': 'hip-hop',
   reggae: 'reggae',
   funk: 'funk',
-  'jam band': 'jam-band',
+  'jam-band': 'jam-band',
   electronic: 'electronic',
   rock: 'rock',
 };

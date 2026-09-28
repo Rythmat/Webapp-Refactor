@@ -360,9 +360,9 @@ const COURSES_DATA: ContentItem[] = [
   },
   {
     title: 'Hip Hop',
-    route: CurriculumRoutes.genre({ genre: 'hip hop' }),
+    route: CurriculumRoutes.genre({ genre: 'hip-hop' }),
     expandId: 'course:hip hop',
-    subItems: buildGenreLevels('hip hop'),
+    subItems: buildGenreLevels('hip-hop'),
     image: '/learn-tiles/hip-hop-hex.svg',
     interactive: true,
   },

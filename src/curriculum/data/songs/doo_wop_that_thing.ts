@@ -14,7 +14,7 @@ export const doo_wop_that_thing: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip hop'],
+  genreTags: ['hip-hop'],
   techniques: [],
 
   sections: [

@@ -251,7 +251,7 @@ export function normalizeSongMode(mode: Song['mode']): string {
 export const GENRE_DISPLAY_LABELS: Record<string, string> = {
   pop: 'Pop',
   rock: 'Rock',
-  'hip hop': 'Hip Hop',
+  'hip-hop': 'Hip Hop',
   rnb: 'R&B',
   jazz: 'Jazz',
   blues: 'Blues',

@@ -30,7 +30,7 @@ export const flowContentSource = (): ContentSource | null => source;
  * Collapse the several spellings of a genre to one lookup token.
  *
  * The data is inconsistent by history: a flow's own `genre` field carries the
- * display form ('hip hop', 'neo-soul', 'jam band'), the previous loaders used
+ * display form ('hip-hop', 'neo-soul', 'jam-band'), the previous loaders used
  * camelCase keys ('hipHop', 'neoSoul', 'jamBand'), and URLs use the display
  * form again. Normalising on both write and read is what lets all three keep
  * working — the API's activityFlowSlug applies the identical rule, so the

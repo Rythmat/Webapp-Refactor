@@ -14,7 +14,7 @@ export const let_me_clear_my_throat: Song = {
   timeSignature: [4, 4],
 
   difficulty: 1,
-  genreTags: ['hip hop'],
+  genreTags: ['hip-hop'],
   techniques: [],
 
   sections: [

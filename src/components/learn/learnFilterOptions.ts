@@ -66,7 +66,7 @@ export type CoursesGenre =
   | 'all'
   | 'pop'
   | 'rock'
-  | 'hip hop'
+  | 'hip-hop'
   | 'rnb'
   | 'jazz'
   | 'blues'
@@ -87,7 +87,7 @@ export const COURSES_GENRE_OPTIONS: FilterOption<CoursesGenre>[] = [
   { value: 'all', label: 'All Genres' },
   { value: 'pop', label: 'Pop' },
   { value: 'rock', label: 'Rock' },
-  { value: 'hip hop', label: 'Hip Hop' },
+  { value: 'hip-hop', label: 'Hip Hop' },
   { value: 'rnb', label: 'R&B' },
   { value: 'jazz', label: 'Jazz' },
   { value: 'blues', label: 'Blues' },

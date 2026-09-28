@@ -15,7 +15,7 @@ export const love_on_the_brain: Song = {
   timeSignature: [6, 8],
 
   difficulty: 2,
-  genreTags: ['hip hop', 'rnb'],
+  genreTags: ['hip-hop', 'rnb'],
   techniques: [],
 
   sections: [

@@ -14,7 +14,7 @@ export const this_is_how_we_do_it: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['hip hop'],
+  genreTags: ['hip-hop'],
   techniques: [],
 
   sections: [

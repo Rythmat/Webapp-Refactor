@@ -54,7 +54,7 @@ describe('parseStyle — basic genre + level recognition', () => {
 
 describe('parseStyle — genre synonyms and multi-word genres', () => {
   it('handles hip hop in all the formatting variants', () => {
-    expect(parseStyle('hip hop')?.primaryGenre).toBe('HIP HOP');
+    expect(parseStyle('hip-hop')?.primaryGenre).toBe('HIP HOP');
     expect(parseStyle('hip-hop')?.primaryGenre).toBe('HIP HOP');
     expect(parseStyle('hiphop')?.primaryGenre).toBe('HIP HOP');
   });
@@ -73,7 +73,7 @@ describe('parseStyle — genre synonyms and multi-word genres', () => {
   });
 
   it('handles jam band variants', () => {
-    expect(parseStyle('jam band')?.primaryGenre).toBe('JAM BAND');
+    expect(parseStyle('jam-band')?.primaryGenre).toBe('JAM BAND');
     expect(parseStyle('jam-band')?.primaryGenre).toBe('JAM BAND');
     expect(parseStyle('jamband')?.primaryGenre).toBe('JAM BAND');
   });

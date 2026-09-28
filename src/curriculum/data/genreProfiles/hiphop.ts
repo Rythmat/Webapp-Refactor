@@ -1,7 +1,7 @@
 import type { GenreProfile } from '../../types/genreProfile';
 
 export const hipHopProfile: GenreProfile = {
-  id: 'hip hop',
+  id: 'hip-hop',
   displayName: 'Hip Hop',
   accentColor: '#212121', // NOTE
   tagline: '[NOTE]',

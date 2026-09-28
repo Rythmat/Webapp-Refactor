@@ -126,7 +126,7 @@ const GENRE_OPTIONS = [
   { value: 'all', label: 'All Genres' },
   { value: 'pop', label: 'Pop' },
   { value: 'rock', label: 'Rock' },
-  { value: 'hip hop', label: 'Hip Hop' },
+  { value: 'hip-hop', label: 'Hip Hop' },
   { value: 'rnb', label: 'R&B' },
   { value: 'jazz', label: 'Jazz' },
   { value: 'blues', label: 'Blues' },

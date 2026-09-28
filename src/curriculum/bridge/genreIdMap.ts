@@ -82,7 +82,7 @@ export const ENGINE_ONLY_GENRES: Record<string, CurriculumGenreId> = {
 
 /**
  * Slug form used in URLs and internal keys (lowercase, hyphens).
- * e.g. 'neo-soul', 'hip hop', 'jam band'
+ * e.g. 'neo-soul', 'hip-hop', 'jam-band'
  */
 export const CURRICULUM_GENRE_SLUGS: Record<CurriculumGenreId, string> = {
   AFRICAN: 'african',
@@ -90,8 +90,8 @@ export const CURRICULUM_GENRE_SLUGS: Record<CurriculumGenreId, string> = {
   ELECTRONIC: 'electronic',
   FOLK: 'folk',
   FUNK: 'funk',
-  'HIP HOP': 'hip hop',
-  'JAM BAND': 'jam band',
+  'HIP HOP': 'hip-hop',
+  'JAM BAND': 'jam-band',
   JAZZ: 'jazz',
   LATIN: 'latin',
   'NEO SOUL': 'neo-soul',

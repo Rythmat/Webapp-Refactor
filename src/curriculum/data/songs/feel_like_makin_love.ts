@@ -14,7 +14,7 @@ export const feel_like_makin_love: Song = {
   timeSignature: [4, 4],
 
   difficulty: 2,
-  genreTags: ['funk', 'hip hop'],
+  genreTags: ['funk', 'hip-hop'],
   techniques: [],
 
   sections: [

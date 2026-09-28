@@ -182,9 +182,9 @@ export async function loadAllFlows(): Promise<Map<string, ActivityFlow[]>> {
 
 /** Normalize URL slugs (hip hop, neo-soul, jam band) to loader keys */
 const SLUG_TO_FLOW_KEY: Record<string, string> = {
-  'hip hop': 'hipHop',
+  'hip-hop': 'hipHop',
   'neo-soul': 'neoSoul',
-  'jam band': 'jamBand',
+  'jam-band': 'jamBand',
 };
 
 export async function getActivityFlow(

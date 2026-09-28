@@ -1,0 +1,26 @@
+/* ── Guitar TAB (VexFlow SVG) ──────────────────────────────────────────────
+   Builds on grandStaff.css, which repaints every SVG element in currentColor.
+   VexFlow clears a white box behind each fret digit so the string line
+   doesn't run through it; repainted in currentColor that box would cover the
+   digit. It takes the panel's own colour instead, which is why the panel is
+   solid rather than translucent. */
+
+.ma-tab-staff {
+  background: var(--ma-tab-gap, #141416);
+}
+
+/* (0,2,2) — outranks the theme's `svg:not(.ma-marks) *` at (0,2,1). */
+.ma-tab-staff svg .vf-tabnote rect {
+  fill: var(--ma-tab-gap, #141416);
+  stroke: none;
+}
+
+.ma-tab-staff svg .vf-tabnote {
+  transition:
+    color 120ms ease,
+    opacity 120ms ease;
+}
+
+.ma-tab-staff svg .vf-string-names {
+  color: var(--color-text-dim, #6b6b80);
+}

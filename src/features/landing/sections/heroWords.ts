@@ -3,6 +3,9 @@ import { LOGO, type Curve } from '../motion/lissajous';
 /** Phases below are counted in half-turns of the mark. */
 const halfTurns = (n: number) => n * Math.PI;
 
+/** "Production": unison at a quarter turn, a circle. */
+export const PRODUCTION_CURVE: Curve = { ratio: [1, 1], phase: halfTurns(3.5) };
+
 /**
  * The hero title's words, shown one at a time, each with its own Lissajous
  * curve for the mark: a ratio `[fx, fy]` at a phase. "Music Atlas" alone has
@@ -24,11 +27,7 @@ export const HERO_WORDS: readonly { text: string; curve: Curve }[] = [
     text: 'Guitar',
     curve: { ratio: [1, 3], phase: halfTurns(2.5) },
   },
-  {
-    text: 'Production',
-    // Unison at a quarter turn: a circle.
-    curve: { ratio: [1, 1], phase: halfTurns(3.5) },
-  },
+  { text: 'Production', curve: PRODUCTION_CURVE },
   {
     text: 'Creation',
     curve: { ratio: [3, 1], phase: halfTurns(4 + 1 / 6) },

@@ -59,11 +59,33 @@ const rgb = ([r, g, b]: readonly number[]) => `rgb(${r}, ${g}, ${b})`;
 const fifthsIndex = (pc: number) =>
   ((((((pc % 12) + 12) % 12) * 7) % 12) + 1) as ColorIndex;
 
+/** Each key center's color name, in circle-of-fifths order (C → F). */
+const COLOR_NAMES = [
+  'Red',
+  'Vermillion',
+  'Orange',
+  'Yellow',
+  'Green',
+  'Sage',
+  'Teal',
+  'Blue',
+  'Indigo',
+  'Purple',
+  'Magenta',
+  'Pink',
+];
+
+/** A major key's signature, fifths index 0 (C) … 11 (F): ♮, ♯ … ♯♯♯♯♯♯, ♭♭♭♭♭ … ♭. */
+const signatureOf = (i: number) =>
+  i === 0 ? '♮' : i <= 6 ? '♯'.repeat(i) : '♭'.repeat(12 - i);
+
 /** The 12 key centers in circle-of-fifths order, each with its color. */
 export const KEY_CENTERS = KEYS.slice(1).map((name, i) => ({
   name,
   pitchClass: (i * 7) % 12,
   color: rgb(KEY_COLORS[(i + 1) as ColorIndex]),
+  colorName: COLOR_NAMES[i],
+  signature: signatureOf(i),
 }));
 
 /** A major key center's color (the color the user's key selection receives). */
@@ -93,6 +115,8 @@ export interface DemoChord {
   name: string;
   /** Roman numeral, e.g. "III". */
   roman: string;
+  /** Hybrid Number System name: degree + abbreviated quality, "3 maj". */
+  hybrid: string;
   /** Studio chord-ruler label: letter root + abbreviated quality, "E maj". */
   label: string;
   midis: number[];
@@ -111,6 +135,10 @@ const toRoman = (token: string) => {
   const roman = acc + (lower ? base.toLowerCase() : base);
   return quality === 'diminished' ? `${roman}°` : roman;
 };
+
+/** "b7 major" → "♭7 maj". */
+const toHybrid = (token: string) =>
+  abbreviateSequence(token.replace(/^b/, '♭').replace(/^#/, '♯'));
 
 /**
  * Spell a chord root from its degree token in the key: the diatonic letter
@@ -145,6 +173,7 @@ export const demoChord = (token: string, keyRootMidi = 60): DemoChord => {
       spellRoot(token, keyRootMidi) +
       (QUALITY_SUFFIX[quality] ?? ` ${quality}`),
     roman: toRoman(token),
+    hybrid: toHybrid(token),
     label: `${spellRoot(token, keyRootMidi)} ${abbreviateSequence(quality)}`,
     midis: generateChord(chordRoot, quality),
     color: rgb(getChordColor(token, keyRootMidi, 'ionian')),
@@ -155,14 +184,12 @@ export const demoChord = (token: string, keyRootMidi = 60): DemoChord => {
 export const nextOptions = (sequence: string[]): string[] =>
   getOptions(2, sequence.join('|')).filter((t) => !t.includes('/'));
 
-/** Demo key: C major (key center color = red). */
-export const DEMO_KEY_ROOT = 60;
-
 /**
- * The tour's progression in C major: I – III – IV – iv, a real path through
- * the Prism progression graph. Per `getChordColor`: C and F are diatonic →
- * red (key center); E (III, secondary-dominant area) → light green; Fm (iv,
- * borrowed from C minor, whose parent key is Eb) → purple.
+ * The Studio tour's progression: I – III – IV – iv, a real path through the
+ * Prism progression graph (degrees, so it follows the tour's key). In D major,
+ * per `getChordColor`: D and G are diatonic → orange (key center); F♯ (III,
+ * secondary-dominant area) → teal; Gm (iv, borrowed from D minor, whose parent
+ * key is F) → pink.
  */
 export const DEMO_PROGRESSION = ['1 major', '3 major', '4 major', '4 minor'];
 /** Major-scale pitch classes for a tonic (all shown in the key-center color). */
@@ -191,15 +218,9 @@ const DIATONIC_TRIADS = [
   '7 diminished',
 ];
 
-/** A major key's seven diatonic triads, I → vii° (all in the key's color). */
+/** A major key's seven diatonic triads, 1 maj → 7 dim (all in the key's color). */
 export const diatonicTriads = (tonicPc: number): DemoChord[] =>
   DIATONIC_TRIADS.map((t) => demoChord(t, tonicMidi(tonicPc)));
-
-/** Whole/half steps between a diatonic scale's notes, up to the octave. */
-export const stepPattern = (intervals: readonly number[]): ('W' | 'H')[] =>
-  [...intervals.slice(1), 12].map((n, i) =>
-    n - intervals[i] === 1 ? 'H' : 'W',
-  );
 
 export interface DemoMode {
   mode: string;

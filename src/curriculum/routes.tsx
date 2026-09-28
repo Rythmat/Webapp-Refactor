@@ -5,7 +5,7 @@
  * so curriculum pages get sidebar, auth protection, and identical UI.
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { lazy, useState, useEffect, useMemo } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { FundamentalsLessonContainer } from '@/components/learn/FundamentalsLessonContainer';
 import { FundamentalsOverview } from '@/components/learn/FundamentalsOverview';
@@ -49,6 +49,12 @@ const GenreOverviewRoute = () => {
     </RequirePremium>
   );
 };
+
+// Guitar lessons load on demand: the guitar views, book data and TAB
+// renderer stay out of the piano path's bundle.
+const GuitarAppliedTheoryFundamentalsLesson = lazy(
+  () => import('@/curriculum/pages/GuitarAppliedTheoryFundamentalsLesson'),
+);
 
 const AppliedTheoryFundamentalsLessonRoute = () => {
   const { key } = useParams<{ key: string }>();
@@ -143,6 +149,14 @@ export function curriculumPages() {
       {
         path: CurriculumRoutes.appliedTheoryFundamentalsLesson.definition,
         element: <AppliedTheoryFundamentalsLessonRoute />,
+      },
+      {
+        path: CurriculumRoutes.guitarAppliedTheoryFundamentals.definition,
+        element: <AppliedTheoryFundamentalsKeyPicker instrument="guitar" />,
+      },
+      {
+        path: CurriculumRoutes.guitarAppliedTheoryFundamentalsLesson.definition,
+        element: <GuitarAppliedTheoryFundamentalsLesson />,
       },
       {
         path: CurriculumRoutes.genre.definition,

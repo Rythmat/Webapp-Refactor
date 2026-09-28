@@ -1,4 +1,14 @@
 export { buildScore } from './buildScore';
+export { buildTab } from './buildTab';
+export type {
+  TabItem,
+  TabMeasure,
+  TabNoteInput,
+  TabOptions,
+  TabPosition,
+  TabScore,
+  TabVoice,
+} from './buildTab';
 export {
   inferKeyFifths,
   keyFifthsForTonic,
@@ -11,4 +21,10 @@ export { isHandSplit, resolveStaves, type NotationStaves } from './handSplit';
 export type { ChordClef } from './clefPreference';
 export { getRollView, setRollView, useRollView } from './viewPreference';
 export type { RollView, RollViewScope } from './viewPreference';
+export {
+  getGuitarView,
+  setGuitarView,
+  useGuitarView,
+} from './guitarViewPreference';
+export type { GuitarView } from './guitarViewPreference';
 export type * from './types';

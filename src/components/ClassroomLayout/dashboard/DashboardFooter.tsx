@@ -34,7 +34,10 @@ const COLUMNS: Column[] = [
 const linkCls =
   'text-base text-white/80 transition-colors hover:text-white md:text-lg';
 
-export const DashboardFooter = () => {
+/** `showLogo`: the animated logo on the right (off on the public landing). */
+export const DashboardFooter = ({
+  showLogo = true,
+}: { showLogo?: boolean } = {}) => {
   return (
     <footer className="mt-8 border-t border-white/15 pt-8 text-base text-white/70 md:mt-12 md:pt-10 md:text-lg">
       <div className="flex flex-wrap items-start gap-6 md:gap-10">
@@ -82,12 +85,14 @@ export const DashboardFooter = () => {
             </ul>
           </div>
         </div>
-        <img
-          src="/music-atlas-moving-logo.gif"
-          alt="Music Atlas"
-          loading="lazy"
-          className="h-20 w-auto flex-shrink-0 md:h-32"
-        />
+        {showLogo && (
+          <img
+            src="/music-atlas-moving-logo.gif"
+            alt="Music Atlas"
+            loading="lazy"
+            className="h-20 w-auto flex-shrink-0 md:h-32"
+          />
+        )}
       </div>
       <div className="mt-8 border-t border-white/15 pt-4 md:mt-10 md:pt-6">
         <span className="text-sm text-white/50 md:text-base">

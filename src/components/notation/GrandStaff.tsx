@@ -1,11 +1,18 @@
 import { useMemo, type CSSProperties, type ReactNode } from 'react';
 import type { NotationScore } from '@/lib/notation';
-import { StaffView, type NoteStyle, type StaffViewProps } from './StaffView';
+import {
+  StaffView,
+  type NoteStyle,
+  type ScorePart,
+  type StaffViewProps,
+} from './StaffView';
 
 export type { NoteStyle };
 
 export interface GrandStaffProps {
   score: NotationScore;
+  /** The 8 above or below the clef, for a part written an octave off. */
+  clefAnnotation?: ScorePart['clefAnnotation'];
   /** Styles by piano-roll note id. */
   noteStyles?: ReadonlyMap<string, NoteStyle>;
   /** Tick to draw the playhead at; none when null/undefined. */
@@ -23,7 +30,16 @@ export interface GrandStaffProps {
 }
 
 /** One part on its own staves — a lesson's notes, or a Studio clip. */
-export function GrandStaff({ score, ...rest }: GrandStaffProps) {
-  const parts = useMemo(() => [{ id: 'part', score }], [score]);
+export function GrandStaff({
+  score,
+  clefAnnotation,
+  ...rest
+}: GrandStaffProps) {
+  const parts = useMemo(
+    () => [
+      { id: 'part', score, ...(clefAnnotation ? { clefAnnotation } : {}) },
+    ],
+    [score, clefAnnotation],
+  );
   return <StaffView parts={parts} {...rest} />;
 }

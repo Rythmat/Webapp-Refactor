@@ -3,6 +3,7 @@ import { CHORD_RHYTHMS, GENRE_MAP } from '@prism/engine';
 import { DEMO_PROGRESSION } from '../../music';
 import {
   autoFrame,
+  DEMO_KEY_PC,
   endState,
   INITIAL_STATE,
   LOOP_MS,
@@ -35,6 +36,7 @@ const inC = (seq: string[]): StudioState => ({
   keyPc: 0,
   seq,
 });
+const inD = (seq: string[]): StudioState => ({ ...inC(seq), keyPc: 2 });
 const litColors = (s: StudioState) =>
   [...spectrumGroups(s).keys()].sort((a, b) => a - b);
 
@@ -71,6 +73,25 @@ describe('Studio demo: Prism spectrum', () => {
     ]);
   });
 
+  it('picks the same path in the tour’s D: F♯ (teal), G (orange), Gm (pink)', () => {
+    expect(DEMO_KEY_PC).toBe(2);
+    // Teal (F♯'s color) holds only III after D — the tour's callout.
+    expect(spectrumGroups(inD(['1 major'])).get(7)).toEqual(['3 major']);
+    const seq = ['1 major'];
+    const path: [number, string][] = [
+      [7, '3 major'],
+      [3, '4 major'],
+      [12, '4 minor'],
+    ];
+    for (const [color, expected] of path) {
+      const group = spectrumGroups(inD(seq)).get(color);
+      expect(group).toBeDefined();
+      expect(pickFromColor(group!, seq, seq.length)).toBe(expected);
+      seq.push(expected);
+    }
+    expect(seq).toEqual(DEMO_PROGRESSION);
+  });
+
   it('rotates through a color off the tour path', () => {
     const group = ['6 minor', '4 major'];
     expect(pickFromColor(group, ['2 minor'], 0)).toBe('6 minor');
@@ -92,7 +113,7 @@ describe('Studio demo: Prism spectrum', () => {
 describe('Studio demo: script', () => {
   it('reaches each step’s end state', () => {
     expect(endState(0)).toMatchObject({
-      keyPc: 0,
+      keyPc: 2,
       seq: ['1 major'],
       clip: null,
       dock: 'prism',
@@ -104,7 +125,7 @@ describe('Studio demo: script', () => {
       dock: 'prism',
     });
     expect(endState(3)).toMatchObject({
-      keyPc: 0,
+      keyPc: 2,
       clip: DEMO_PROGRESSION,
       dock: 'roll',
       style: 'Pop',
@@ -124,7 +145,7 @@ describe('Studio demo: script', () => {
 
   it('lands each cue at its ms', () => {
     expect(autoFrame(0, 749).state.keyPc).toBeNull();
-    expect(autoFrame(0, 750).state.keyPc).toBe(0);
+    expect(autoFrame(0, 750).state.keyPc).toBe(2);
     expect(autoFrame(1, 749).state.seq).toHaveLength(1);
     expect(autoFrame(1, 750).state.seq).toHaveLength(2);
     expect(autoFrame(1, 2600).state.seq).toHaveLength(4);
@@ -138,9 +159,9 @@ describe('Studio demo: script', () => {
   });
 
   it('presses what the cursor clicks, around each cue', () => {
-    expect(autoFrame(0, 1600).press).toEqual({ segment: 1 });
-    expect(autoFrame(1, 700).press).toEqual({ segment: 5 });
-    expect(autoFrame(1, 2500).press).toEqual({ segment: 10 });
+    expect(autoFrame(0, 1600).press).toEqual({ segment: 3 });
+    expect(autoFrame(1, 700).press).toEqual({ segment: 7 });
+    expect(autoFrame(1, 2500).press).toEqual({ segment: 12 });
     expect(autoFrame(2, 700).press).toBe('create');
     expect(autoFrame(3, 700).press).toBe('roll');
     expect(autoFrame(3, 1000).press).toBe('play');
@@ -149,11 +170,11 @@ describe('Studio demo: script', () => {
 
   it('sends the cursor to each later spectrum press before it lands', () => {
     expect(autoFrame(0, 999).cursor).toBeNull();
-    expect(autoFrame(0, 1000).cursor).toBe(1);
+    expect(autoFrame(0, 1000).cursor).toBe(3);
     expect(autoFrame(1, 100).cursor).toBeNull();
-    expect(autoFrame(1, 150).cursor).toBe(5);
-    expect(autoFrame(1, 1000).cursor).toBe(1);
-    expect(autoFrame(1, 1900).cursor).toBe(10);
+    expect(autoFrame(1, 150).cursor).toBe(7);
+    expect(autoFrame(1, 1000).cursor).toBe(3);
+    expect(autoFrame(1, 1900).cursor).toBe(12);
     expect(autoFrame(2, 700).cursor).toBeNull();
     expect(autoFrame(1, Infinity).cursor).toBeNull();
     expect(autoFrame(0, 999).key).not.toBe(autoFrame(0, 1000).key);
@@ -161,13 +182,13 @@ describe('Studio demo: script', () => {
 
   it('reads out the pressed color from the state before the click', () => {
     expect(autoFrame(1, 800).hover).toEqual({
-      segment: 5,
+      segment: 7,
       tokens: ['3 major'],
       pick: '3 major',
     });
-    const red = autoFrame(0, 1800).hover;
-    expect(red?.pick).toBe('1 major');
-    expect(red?.tokens).toContain('4 major');
+    const orange = autoFrame(0, 1800).hover;
+    expect(orange?.pick).toBe('1 major');
+    expect(orange?.tokens).toContain('4 major');
   });
 
   it('shows the end state at ms = Infinity: parked, silent, no press', () => {
@@ -181,9 +202,9 @@ describe('Studio demo: script', () => {
 
   it('previews each cue’s chord once per cue', () => {
     expect(autoFrame(0, 500).sound).toBeNull();
-    expect(autoFrame(0, 800).sound).toEqual([60, 64, 67]);
-    expect(autoFrame(1, 800).sound).toEqual([64, 68, 71]);
-    expect(autoFrame(1, 2700).sound).toEqual([65, 68, 72]);
+    expect(autoFrame(0, 800).sound).toEqual([62, 66, 69]); // D
+    expect(autoFrame(1, 800).sound).toEqual([66, 70, 73]); // F♯
+    expect(autoFrame(1, 2700).sound).toEqual([67, 70, 74]); // Gm
     expect(autoFrame(1, 800).soundKey).toBe(autoFrame(1, 1600).soundKey);
     expect(autoFrame(1, 800).soundKey).not.toBe(autoFrame(1, 1700).soundKey);
   });
@@ -213,9 +234,9 @@ describe('Studio demo: the clip Create writes', () => {
       keyRoot: 60,
       style: 'Pop',
     });
-    expect(song.chordNotes).toHaveLength(48);
+    expect(song.chordNotes).toHaveLength(12);
     const chordHits = song.events.filter((e) => e.track === 'chords');
-    expect(chordHits).toHaveLength(16);
+    expect(chordHits).toHaveLength(4);
     const drums = song.events.flatMap((e) =>
       e.track === 'drums' ? [e.drum] : [],
     );
@@ -269,13 +290,25 @@ describe('Studio demo: the clip Create writes', () => {
 
   it('builds every STYLE with a groove matching its rhythm', () => {
     for (const style of STYLE_NAMES) {
-      const { rhythm, genre } = STYLES[style];
+      const { rhythm, drums = rhythm, genre } = STYLES[style];
       expect(CHORD_RHYTHMS[rhythm]).toBeDefined();
-      expect(GENRE_MAP[rhythm]).toBe(genre);
+      expect(GENRE_MAP[drums]).toBe(genre);
       const song = buildSong({ clip: DEMO_PROGRESSION, keyRoot: 60, style });
       expect(song.chordNotes.length).toBeGreaterThan(0);
       expect(song.drumNotes.length).toBeGreaterThan(0);
     }
+  });
+
+  it('holds each chord for a whole note in Pop, the default style', () => {
+    const { chordNotes } = buildSong({
+      clip: DEMO_PROGRESSION,
+      keyRoot: 60,
+      style: 'Pop',
+    });
+    // One hit per bar (the engine starts each hit a tick in), a bar long.
+    const bars = chordNotes.map((n) => Math.floor(n.startTick / 1920));
+    expect([...new Set(bars)]).toEqual([0, 1, 2, 3]);
+    expect(chordNotes.every((n) => n.durationTicks === 1920)).toBe(true);
   });
 
   it('fits the demo in a 22-row piano roll (58–79)', () => {

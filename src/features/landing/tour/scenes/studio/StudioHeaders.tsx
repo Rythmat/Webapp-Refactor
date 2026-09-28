@@ -140,7 +140,7 @@ export const StudioHeaders = ({
               />
               <span
                 className={cn(
-                  'font-bold uppercase tracking-wide',
+                  'uppercase tracking-wide',
                   compact ? 'text-[13px]' : 'text-[11px]',
                 )}
                 style={{ color: STUDIO.text }}
@@ -183,7 +183,7 @@ export const StudioHeaders = ({
                     aria-pressed={on}
                     onClick={() => onToggle(kind, id)}
                     className={cn(
-                      'grid place-items-center rounded-[3px] border font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80',
+                      'grid place-items-center rounded-[3px] border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80',
                       msSize,
                       !on && 'hover:bg-white/[0.08]',
                     )}
@@ -227,7 +227,7 @@ export const StudioHeaders = ({
               style={{ background: MASTER_STRIPE }}
             />
             <span
-              className="text-[11px] font-bold uppercase tracking-wide"
+              className="text-[11px] uppercase tracking-wide"
               style={{ color: STUDIO.text }}
             >
               Master

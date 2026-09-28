@@ -124,7 +124,7 @@ export const HeroSection = () => {
         >
           Modern Music Technology
         </motion.p>
-        <div className="fs-display mt-3 grid w-full font-bold text-white">
+        <div className="fs-display mt-3 grid w-full text-white">
           {/* Sizers at 0.001 opacity, not hidden: Chrome skips hidden text for LCP. */}
           {HERO_WORDS.map(({ text: w }) => (
             <span
@@ -154,6 +154,7 @@ export const HeroSection = () => {
               to={appHref(AuthRoutes.signIn())}
               tone="ghost"
               size="lg"
+              strength={0}
               ariaLabel="Open Music Atlas"
             >
               Open

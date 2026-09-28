@@ -1,9 +1,13 @@
+import type { FretPosition } from '@/lib/guitar/types';
 import type {
   ActivityStep,
   ActivityFlow,
   ActivityFlowParams,
   ActivitySection,
 } from './activity';
+
+/** The instrument a flow is played on. A flow without one is piano. */
+export type LessonInstrument = 'piano' | 'guitar';
 
 // Hand configuration options for Performance section (Section D)
 export type HandConfig =
@@ -51,6 +55,8 @@ export interface PracticeTrackParams {
 export interface ActivityFlowParamsV2 extends ActivityFlowParams {
   defaultScale: number[]; // scale intervals for this level e.g. [0,3,5,7,10]
   defaultScaleId: string; // human-readable e.g. 'minor_pentatonic'
+  /** Omitted for piano; 'guitar' switches the lesson to guitar input and views. */
+  instrument?: LessonInstrument;
   /** Optional authored backing for this level's Practice Tracks. */
   practiceTrack?: PracticeTrackParams;
 }
@@ -62,6 +68,48 @@ export interface TargetNote {
   onset: number; // ticks from start (480 = quarter note)
   duration: number; // ticks
   hand?: 'lh' | 'rh'; // explicit stave assignment for grand staff rendering (D section only)
+  /** Guitar only: where the note is played. `midi` is its sounding pitch. */
+  fretPosition?: FretPosition;
+}
+
+/**
+ * Chord qualities the Studio chord detector (AudioChordDetector) reports for
+ * the chords guitar lessons use — keys of @prism/engine's CHORDS table.
+ */
+export type DetectorChordQuality =
+  | 'major'
+  | 'minor'
+  | 'major7'
+  | 'minor7'
+  | 'dominant7'
+  | 'minor7b5';
+
+/**
+ * One chord the student is asked to play, on the same tick timeline as the
+ * step's targetNotes. Guitar chords are judged by identity (pitch classes),
+ * not by exact MIDI, so this carries what that needs.
+ */
+export interface ChordTarget {
+  rootPc: number;
+  quality: DetectorChordQuality;
+  pitchClasses: number[];
+  bassPc: number;
+  onsetTick: number;
+  durationTicks: number;
+  /** Parser-friendly symbol, e.g. 'Dm7'. */
+  symbol: string;
+  /** Book shape id, e.g. 'C/triad/2' (see data/guitar/bookOne). */
+  shapeId: string;
+  /** Strummed as one chord, or picked string by string. */
+  attack: 'strum' | 'arpeggio';
+}
+
+/** Guitar step metadata: which book material the step plays. Ids only. */
+export interface GuitarStepMeta {
+  keyCenter: string;
+  scalePosition?: 'major' | 'pentatonic';
+  shapeIds?: string[];
+  musicMap?: { example: 1 | 2 | 3 | 4 | 5; passes: number };
 }
 
 export interface ActivityVariant {
@@ -91,6 +139,10 @@ export interface ActivityStepV2 extends ActivityStep {
   variants?: ActivityVariant[];
   /** Override groove selection — if present, bypasses styleRef→groove lookup */
   grooveId?: string;
+  /** Guitar only: the chords to play, for chord-identity scoring and views. */
+  chordTargets?: ChordTarget[];
+  /** Guitar only: the book material this step plays. */
+  guitar?: GuitarStepMeta;
 }
 
 // Extended ActivityFlow for v2 content

@@ -49,6 +49,12 @@ export const featureLinks = [
   },
 ] as const;
 
+/**
+ * Show the Features menu and the top-level links (Blog) in the nav. Hidden
+ * until those pages are fully built; flip to `true` to bring them back.
+ */
+export const SHOW_NAV_PAGES: boolean = false;
+
 /** Top-level nav links (besides the Features menu). */
 export const navLinks = [
   { label: 'Blog', href: MarketingRoutes.blog() },

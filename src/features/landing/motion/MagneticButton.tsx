@@ -69,7 +69,7 @@ export const MagneticButton = ({
   };
 
   const cls = cn(
-    'landing-shine inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-colors duration-200',
+    'landing-shine inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full transition-colors duration-200',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-[#101012]',
     '[&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:transition-transform hover:[&_svg]:translate-x-0.5',
     TONES[tone],

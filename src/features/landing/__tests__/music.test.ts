@@ -7,8 +7,8 @@ import {
   keyCenterColor,
   parallelModes,
   songDemoChart,
+  KEY_CENTERS,
   songKeyColor,
-  stepPattern,
 } from '../music';
 
 const hits = (song: Parameters<typeof songDemoChart>[0]) =>
@@ -77,6 +77,15 @@ describe('theory helpers', () => {
         'vi',
         'vii°',
       ]);
+      expect(triads.map((t) => t.hybrid)).toEqual([
+        '1 maj',
+        '2 min',
+        '3 min',
+        '4 maj',
+        '5 maj',
+        '6 min',
+        '7 dim',
+      ]);
       expect(new Set(triads.map((t) => t.color))).toEqual(
         new Set([keyCenterColor(pc)]),
       );
@@ -93,6 +102,25 @@ describe('theory helpers', () => {
       'G',
       'Am',
       'B°',
+    ]);
+  });
+
+  it('names each key center by color and key signature', () => {
+    expect(
+      KEY_CENTERS.map((k) => `${k.name}: ${k.colorName} (${k.signature})`),
+    ).toEqual([
+      'C: Red (♮)',
+      'G: Vermillion (♯)',
+      'D: Orange (♯♯)',
+      'A: Yellow (♯♯♯)',
+      'E: Green (♯♯♯♯)',
+      'B: Sage (♯♯♯♯♯)',
+      'F#: Teal (♯♯♯♯♯♯)',
+      'Db: Blue (♭♭♭♭♭)',
+      'Ab: Indigo (♭♭♭♭)',
+      'Eb: Purple (♭♭♭)',
+      'Bb: Magenta (♭♭)',
+      'F: Pink (♭)',
     ]);
   });
 
@@ -115,26 +143,5 @@ describe('theory helpers', () => {
       expect(m.midis).toHaveLength(8);
       expect(m.midis[7] - m.midis[0]).toBe(12);
     }
-  });
-
-  it('reads whole and half steps', () => {
-    expect(stepPattern([0, 2, 4, 5, 7, 9, 11])).toEqual([
-      'W',
-      'W',
-      'H',
-      'W',
-      'W',
-      'W',
-      'H',
-    ]);
-    expect(stepPattern([0, 2, 3, 5, 7, 9, 10])).toEqual([
-      'W',
-      'H',
-      'W',
-      'W',
-      'W',
-      'H',
-      'W',
-    ]);
   });
 });

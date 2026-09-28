@@ -13,6 +13,7 @@
 //     to see its lowest notes — at the cost of higher latency (~150 ms). Bass is
 //     monophonic, so this is an acceptable trade.
 
+import type { OrchestratorOptions } from '@/learn/audio/v2/ProbabilisticOrchestrator';
 import type { DetectionMode } from '@/learn/audio/v2/types';
 
 export interface PitchDetectProfile {
@@ -64,4 +65,29 @@ export function pitchProfileForInstrument(
   instrument: string,
 ): PitchDetectProfile {
   return instrument === 'bass-fx' ? BASS_PITCH_PROFILE : GUITAR_PITCH_PROFILE;
+}
+
+/**
+ * The detection-engine settings Studio's Guitar/Bass-to-MIDI runs with. Learn's
+ * guitar notes use the mono settings exactly; Learn's piano path passes none.
+ */
+export function orchestratorOptionsFor(
+  profile: PitchDetectProfile,
+  mode: DetectionMode,
+): OrchestratorOptions {
+  return {
+    minFreq: profile.minFreq,
+    maxFreq: profile.maxFreq,
+    fastFftSize: profile.fastFftSize,
+    hiResFftSize: profile.hiResFftSize,
+    // Mono (bass, single-note guitar) doesn't need the ML peer — save CPU.
+    disableMl: mode === 'monophonic',
+    // Studio chords need multiple simultaneous notes, not the mono HMM.
+    usePolyTracker: mode === 'polyphonic',
+    // Mono: re-fire repeated same-pitch notes (basslines/riffs) on a fresh
+    // pluck, and decimate the hi-res YIN (its 171ms window can't update
+    // faster) to cut main-thread cost.
+    retriggerOnOnset: mode === 'monophonic',
+    hiResSkipFactor: mode === 'monophonic' ? 6 : 1,
+  };
 }

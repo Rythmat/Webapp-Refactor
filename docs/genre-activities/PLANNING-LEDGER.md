@@ -4,7 +4,7 @@ The running record for the Genre activity-flow planning effort. Maintained by
 `/genre-sync`; edit by hand freely — the command merges, it doesn't overwrite.
 
 **Last synced:** 2026-09-30 20:58
-**Current focus:** Hip-hop — flows built and committed (6 commits on Peter); Overview page + style DNA next
+**Current focus:** Hip-hop done (pending CDN republish); next genre to choose
 
 ---
 
@@ -34,7 +34,7 @@ general, promote it here.
 | Electronic | not reviewed | | |
 | Folk | not reviewed | | |
 | Funk | planning | New blues melody for Funk L3 (Q-018) | Section A reordered; finger bass |
-| Hip-hop | building | All 3 levels built and committed; next: Overview page (T-003) + style DNA (T-015), then republish (T-024) | 89 steps | chords, scales, bass and play-along specs agreed for L1–L3; flow, Overview, engine grooves still stubs |
+| Hip-hop | done | Flows, Overview and style DNA done; republish to CDN (T-024) | 89 steps | chords, scales, bass and play-along specs agreed for L1–L3; flow, Overview, engine grooves still stubs |
 | Jam band | not reviewed | | |
 | Jazz | not reviewed | | |
 | Latin | not reviewed | | |
@@ -133,6 +133,8 @@ supersedes it and mark the old one `~~struck~~ → D-xxx`.
 | D-054 | 2026-09-30 | Hip-hop | L1 outline signed off as written (hiphop-L1-outline.md): draft melodies, G root position as G4-B4-D5, Bass sequence (one note → foundation → 5→♭7 bar 2 → 5→♭3 bar 1 → Aeolian ♭6→5 → play-along), Performance steps | "seems good, let's proceed" |
 | D-055 | 2026-09-30 | all | Practice Tracks use the same kit and bass as their lesson play-alongs (Pop, Funk, Hip Hop) | sound like the lesson |
 | D-056 | 2026-09-30 | Hip-hop | L2 and L3 outlines signed off as written ("Let's go for it!") | |
+| D-057 | 2026-09-30 | Funk | Funk L2 Practice Tracks (all sections) loop D3.1's progression: Am9 – D13 – Am9 – E7♯5 | Aaron |
+| D-058 | 2026-09-30 | Funk | A Practice Track's 16th-note chromatic approach may sit a half step outside Funk's C3–C5 chord window, resolving in (the rule is about voicings) | needed for D-057; Aaron may override |
 
 ## Open questions
 
@@ -149,11 +151,13 @@ Remove a question once it is answered (the answer becomes a decision).
 
 | ID | Scope | Task | Status |
 | -- | ----- | ---- | ------ |
-| T-003 | Hip-hop | Write the Overview profile (genreProfiles/hiphop.ts is all [NOTE] placeholders) | todo |
+| T-003 | Hip-hop | Overview written (genreProfiles/hiphop.ts): history, 11 artists, characteristics, per-level keys/voicings/technique; accent #8B5CF6 | done |
 | T-005 | all | Engine: per-genre kit + instrument choice in useBackingTrack and the Practice Track Studio seed | todo |
 | T-007 | Pop | Bug: Pop L3 grooveIds groove_rnb_01 / groove_neosoul_01 silently play funk_01 | todo |
 | T-008 | Funk | Tidy: funk_v2 L2/L3 section consts are swapped vs the shipped levels | todo |
-| T-015 | Hip-hop | Rewrite styleDna/hipHop.ts: L1 Trap, L2 Boom Bap, L3 Conscious with the agreed artists | todo |
+| T-015 | Hip-hop | Style DNA rewritten: Trap / Boom Bap / Conscious with artist descriptions, tags, vocabulary | done |
+| T-034 | all | Practice Track voicings: a bar can hold two chords (chordVoicings.ts `spells`/`barChords`) — fixes Hip Hop L2 sus2 groove lighting the sus2 on Am/Dm. Lives in the other chat's uncommitted chordVoicings.ts; commit with it | todo |
+| T-035 | Hip-hop | L1 artists Metro Boomin, Southside, Lex Luger and L2 Dr. Dre are Claude's picks — Aaron to confirm | todo |
 | T-025 | Pop, Funk | Until T-023's melodies exist, these scales end their block with no phrases: Pop L2 E Aeolian, Pop L3 Dorian + Aeolian, Funk L3 C minor blues | blocked |
 | T-026 | all | Flaky tests: melodyPipeline.test.ts "the 4 over a major chord"; landing lissajous.test.ts "stays inside its box"; Games melodyPhrases.test.ts "builds the long phrase from new material" — all fail now and then, unrelated to flows | todo |
 | T-028 | Pop, Funk, Hip-hop | Practice Tracks carry the lesson's kit + bass into the Studio: Track.bassVoice (saved + synced like drumKit), EightOhEightInstrument, GM bass sample sets; checked live (Hip Hop 808 kit + 808, Pop Fretless, Funk Finger) | done |

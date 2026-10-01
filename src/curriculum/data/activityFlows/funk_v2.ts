@@ -5956,6 +5956,9 @@ export const funkL2: ActivityFlowV2 = {
     tempoRange: [95, 108],
     swing: 0, // v2 note: swing not used at ActivityFlow level — defined per sub-profile in styleDna/funk.v2.ts
     grooves: ['groove_funk_01', 'groove_funk_02', 'groove_funk_03'],
+    // Every section's Practice Track loops D3.1's progression (Aaron,
+    // 2026-09-30) — the level's integrated LH bass + RH chords performance.
+    practiceTrack: { chords: ['Am9', 'D13', 'Am9', 'E7#5'] },
   },
   sections: [funkL3SectionA, funkL3SectionB, funkL3SectionC, funkL3SectionD],
 };

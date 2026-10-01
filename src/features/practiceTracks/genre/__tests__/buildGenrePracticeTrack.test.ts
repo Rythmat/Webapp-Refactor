@@ -69,8 +69,26 @@ describe('buildGenrePracticeTrack — the loop', () => {
     }
   });
 
+  // Funk L2 as it was before it authored a Practice Track progression, for the
+  // tests of what a section falls back on.
+  const unauthored: ActivityFlowV2 = {
+    ...funkL2,
+    params: { ...funkL2.params, practiceTrack: undefined },
+  };
+
+  it('loops D3.1’s progression in every Funk L2 section', () => {
+    for (const section of SECTIONS) {
+      expect(buildGenrePracticeTrack(funkL2, section)!.chordCycle).toEqual([
+        'Am9',
+        'D13',
+        'Am9',
+        'E7#5',
+      ]);
+    }
+  });
+
   it('takes the chord cycle from the section that has one', () => {
-    expect(buildGenrePracticeTrack(funkL2, 'B')!.chordCycle).toEqual([
+    expect(buildGenrePracticeTrack(unauthored, 'B')!.chordCycle).toEqual([
       'Am9',
       'D13',
       'Am9',
@@ -80,7 +98,7 @@ describe('buildGenrePracticeTrack — the loop', () => {
 
   it('vamps the modal tonic where the section names no chords', () => {
     // Funk L2 Section A teaches scales and phrases; it has no chord symbols.
-    const track = buildGenrePracticeTrack(funkL2, 'A')!;
+    const track = buildGenrePracticeTrack(unauthored, 'A')!;
     expect(track.chordCycle).toEqual(['Am9']);
     expect(track.mode).toBe('dorian');
   });
@@ -171,9 +189,19 @@ describe('buildGenrePracticeTrack — register', () => {
     // Funk's own content header: chord voicings within C3(48)-C5(72), sweet
     // spot E3(52)-G4(67). The engine voices Am9 as G4-C5-E5, reaching F#5 on
     // its approach — outside the rule until the figure is moved.
-    const notes = chordNotes('A')!;
-    expect(Math.min(...notes)).toBeGreaterThanOrEqual(48);
-    expect(Math.max(...notes)).toBeLessThanOrEqual(72);
+    //
+    // The rule is about voicings. A 16th-note chromatic approach may sit a
+    // half step outside it, resolving in: under D3.1's progression (the level's
+    // Practice Track since 2026-09-30) D13's C3 is sometimes approached from B2.
+    const events = buildGenrePracticeTrack(funkL2, 'A')!.clips.chords!.events;
+    const voiced = events
+      .filter((e) => e.durationTicks > 120)
+      .map((e) => e.note);
+    const all = events.map((e) => e.note);
+    expect(Math.min(...voiced)).toBeGreaterThanOrEqual(48);
+    expect(Math.max(...voiced)).toBeLessThanOrEqual(72);
+    expect(Math.min(...all)).toBeGreaterThanOrEqual(47);
+    expect(Math.max(...all)).toBeLessThanOrEqual(73);
   });
 
   it('leaves the chords where the lesson voiced them when nobody is improvising', () => {

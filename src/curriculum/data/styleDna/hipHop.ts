@@ -49,6 +49,17 @@ export const hipHopStyleDna: StyleDnaLevel[] = [
           'hiphop',
         ],
       },
+      {
+        name: 'Cardi B',
+        description:
+          'Bold, punchy flow riding trap\'s 808s and hi-hats all the way to No. 1. "Bodak Yellow," "I Like It."',
+        tags: [
+          'hiphop:cardi_b:punchy_flow',
+          'hiphop',
+          'hiphop:cardi_b:trap_808',
+          'hiphop',
+        ],
+      },
     ],
     vocabulary: [
       {
@@ -172,6 +183,17 @@ export const hipHopStyleDna: StyleDnaLevel[] = [
           'hiphop:snoop_dogg:laid_back_flow',
           'hiphop',
           'hiphop:snoop_dogg:g_funk',
+          'hiphop',
+        ],
+      },
+      {
+        name: 'Missy Elliott',
+        description:
+          'Futuristic, playful and fearless: with Timbaland, stuttering syncopated drums, wide-open space and odd sounds. "Get Ur Freak On," "Work It," "The Rain (Supa Dupa Fly)."',
+        tags: [
+          'hiphop:missy_elliott:syncopated_drums',
+          'hiphop',
+          'hiphop:missy_elliott:space_and_texture',
           'hiphop',
         ],
       },

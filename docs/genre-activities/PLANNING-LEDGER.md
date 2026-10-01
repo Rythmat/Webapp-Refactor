@@ -139,6 +139,7 @@ supersedes it and mark the old one `~~struck~~ → D-xxx`.
 | D-060 | 2026-09-30 | Hip-hop | Jay-Z must be included; Eminem added as a revolutionary, iconic white rapper (both L2, Eminem beside Dr. Dre) | Aaron |
 | D-061 | 2026-09-30 | Hip-hop | Tupac Shakur and Snoop Dogg acknowledged (Snoop in L2 beside Dr. Dre; Tupac's level → D-062) | Aaron |
 | D-062 | 2026-09-30 | Hip-hop | Tupac Shakur sits in L3 Conscious (message songs: Dear Mama, Changes) | Aaron |
+| D-063 | 2026-09-30 | Hip-hop | Cardi B (L1 Trap) and Missy Elliott (L2, by era — her Timbaland sound isn't boom bap) added | Aaron |
 
 ## Open questions
 

@@ -11,7 +11,7 @@ export const hipHopProfile: GenreProfile = {
   accentColor: '#8B5CF6',
   tagline: 'The beat comes first. The loop. The low end.',
 
-  history: `Hip hop began at Bronx parties in the 1970s, when DJs like Kool Herc looped the drum breaks of funk and soul records so dancers never had to stop. By the late 1980s producers were building tracks on samplers — the E-mu SP-1200 and Akai MPC — chopping jazz and soul records into loops over hard, swung drums. That New York sound, boom bap, ran through DJ Premier and Pete Rock, and the Wu-Tang Clan made it raw and cinematic. On the West Coast, N.W.A — with Dr. Dre behind the boards — put Compton on the map and changed what hip hop could say. Jay-Z turned a Brooklyn hustle into an empire, and Dr. Dre’s protégé Eminem, a white rapper from Detroit, became one of the genre’s most revolutionary voices. Queen Latifah and Lauryn Hill claimed the mic for women and for message, while A Tribe Called Quest, Common and Mos Def brought jazz harmony and conscious lyrics to the same foundation, and J Dilla taught everyone to play behind the beat. In the 2000s Atlanta trap rebuilt hip hop around the Roland TR-808: sub-bass kicks, half-time snares and rolling hi-hats, a sound producers like Metro Boomin and Southside carried to the top of the charts. Kendrick Lamar’s To Pimp a Butterfly (2015) brought jazz and funk musicians back into the room. Underneath every era: a short loop, a deep bass, and drums that do the talking.`,
+  history: `Hip hop began at Bronx parties in the 1970s, when DJs like Kool Herc looped the drum breaks of funk and soul records so dancers never had to stop. By the late 1980s producers were building tracks on samplers — the E-mu SP-1200 and Akai MPC — chopping jazz and soul records into loops over hard, swung drums. That New York sound, boom bap, ran through DJ Premier and Pete Rock, and the Wu-Tang Clan made it raw and cinematic. On the West Coast, N.W.A — with Dr. Dre behind the boards — put Compton on the map and changed what hip hop could say, and Dre’s G-funk carried Snoop Dogg and Tupac Shakur to the world. Jay-Z turned a Brooklyn hustle into an empire, and Dr. Dre’s protégé Eminem, a white rapper from Detroit, became one of the genre’s most revolutionary voices. Queen Latifah and Lauryn Hill claimed the mic for women and for message, while A Tribe Called Quest, Common and Mos Def brought jazz harmony and conscious lyrics to the same foundation, and J Dilla taught everyone to play behind the beat. In the 2000s Atlanta trap rebuilt hip hop around the Roland TR-808: sub-bass kicks, half-time snares and rolling hi-hats, a sound producers like Metro Boomin and Southside carried to the top of the charts. Kendrick Lamar’s To Pimp a Butterfly (2015) brought jazz and funk musicians back into the room. Underneath every era: a short loop, a deep bass, and drums that do the talking.`,
 
   primaryArtists: [
     {
@@ -86,6 +86,20 @@ export const hipHopProfile: GenreProfile = {
       styleRef: 'l2a',
       role: 'MC',
       tracks: ['Lose Yourself', 'The Real Slim Shady'],
+    },
+    {
+      name: 'Snoop Dogg',
+      era: '1990s\u2013present',
+      styleRef: 'l2a',
+      role: 'MC',
+      tracks: ['Gin and Juice', "Nuthin' but a 'G' Thang (with Dr. Dre)"],
+    },
+    {
+      name: 'Tupac Shakur',
+      era: '1990s',
+      styleRef: 'l2a',
+      role: 'MC',
+      tracks: ['California Love', 'Dear Mama', 'Changes'],
     },
     {
       name: 'A Tribe Called Quest',

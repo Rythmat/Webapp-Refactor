@@ -164,6 +164,28 @@ export const hipHopStyleDna: StyleDnaLevel[] = [
           'hiphop',
         ],
       },
+      {
+        name: 'Snoop Dogg',
+        description:
+          'The laid-back West Coast drawl over Dr. Dre\'s G-funk: slow funk grooves, whining synth leads, deep bass. "Gin and Juice," "Nuthin\' but a \'G\' Thang."',
+        tags: [
+          'hiphop:snoop_dogg:laid_back_flow',
+          'hiphop',
+          'hiphop:snoop_dogg:g_funk',
+          'hiphop',
+        ],
+      },
+      {
+        name: 'Tupac Shakur',
+        description:
+          'Raw emotion and message over piano-led and G-funk beats. "California Love," "Dear Mama," "Changes."',
+        tags: [
+          'hiphop:tupac:message_mc',
+          'hiphop',
+          'hiphop:tupac:piano_loop',
+          'hiphop',
+        ],
+      },
     ],
     vocabulary: [
       {

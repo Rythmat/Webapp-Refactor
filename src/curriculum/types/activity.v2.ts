@@ -41,11 +41,13 @@ export interface BackingParts {
  */
 export interface PracticeTrackParams {
   /** Chord symbols, one per bar, cycled across the loop ('Am9', 'D13'). */
-  chords: string[];
+  chords?: string[];
   /** The groove to play; defaults to the section step's own style groove. */
   grooveId?: string;
   /** Tempo to open at; defaults to the middle of `tempoRange`. */
   bpm?: number;
+  /** Swing percentage; defaults to the source step's, then the flow's. */
+  swing?: number;
 }
 
 export interface ActivityFlowParamsV2 extends ActivityFlowParams {
@@ -91,6 +93,39 @@ export interface ActivityStepV2 extends ActivityStep {
   variants?: ActivityVariant[];
   /** Override groove selection — if present, bypasses styleRef→groove lookup */
   grooveId?: string;
+  /**
+   * 16th-note swing for this step, as a percentage: 50 straight, 66 triplet
+   * feel. Overrides the flow's `params.swing`. See engine/genreGeneration/swing.ts.
+   */
+  swing?: number;
+  /**
+   * The tempo this step opens at, when it differs from the level's (Hip Hop
+   * play-alongs run at 77–90 within one level). Also the step's Practice Track
+   * tempo. Steps without one keep whatever tempo is set.
+   */
+  tempo?: number;
+  /** Play-along sound and patterns for this step (Hip Hop). */
+  backing_style?: BackingStyle;
+}
+
+/**
+ * How a step's play-along sounds, where a genre chooses per step rather than
+ * per level. Pattern ids are in engine/genreGeneration/hipHop/hipHopPatterns.ts;
+ * the drum pattern is the step's `grooveId`.
+ */
+export interface BackingStyle {
+  /** Drum kit: 'natural' (default), '808' or 'house'. */
+  kit?: 'natural' | '808' | 'house';
+  /** Bass sound; defaults to the genre's (genreBassVoices.ts). */
+  bassVoice?: 'electric' | 'finger' | 'fretless' | 'upright' | '808';
+  /** Bass pattern id, e.g. 'trap_foundation', 'follow_kick'. */
+  bassPattern?: string;
+  /** Chord rhythm id, e.g. 'held', 'chunk_eighths_staccato'. */
+  comping?: string;
+  /** MIDI note the backing chords are voiced up from (default 60 = C4). */
+  chordRegister?: number;
+  /** Semitones to move the whole bass line (e.g. -12). */
+  bassOffset?: number;
 }
 
 // Extended ActivityFlow for v2 content

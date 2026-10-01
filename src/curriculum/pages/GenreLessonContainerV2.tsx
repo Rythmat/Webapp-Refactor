@@ -64,6 +64,7 @@ import {
   midiToPitchName,
   type GenreNoteEvent,
 } from '../engine/genreGeneration/resolveStepContent';
+import { stepSwing } from '../engine/genreGeneration/swing';
 import { BACKING_LEAD_SEC, useBackingTrack } from '../hooks/useBackingTrack';
 import { useDemoPlayback } from '../hooks/useDemoPlayback';
 import {
@@ -376,6 +377,7 @@ function GenreLessonContainerV2Inner({
       resolvedStep.targetNotes?.length,
     );
   }
+  const swing = stepSwing(resolvedStep as ActivityStepV2, flow.params.swing);
   const targetNotes = useMemo(
     () =>
       resolveStepContent(resolvedStep, {
@@ -385,8 +387,18 @@ function GenreLessonContainerV2Inner({
         timeSignature: [4, 4],
         tpb: 480,
         defaultScale: flow.params.defaultScale,
+        genre: flow.genre,
+        swing,
       }) ?? [],
-    [resolvedStep, activeSection, keyRoot, tempo, flow.params.defaultScale],
+    [
+      resolvedStep,
+      activeSection,
+      keyRoot,
+      tempo,
+      flow.params.defaultScale,
+      flow.genre,
+      swing,
+    ],
   );
 
   // For IT activities, offset all notes by 1 bar to create a genuine count-in
@@ -1212,6 +1224,11 @@ function GenreLessonContainerV2Inner({
     [setBpm],
   );
 
+  // A step that names its own tempo opens at it.
+  useEffect(() => {
+    if (currentStep.tempo) handleTempoChange(currentStep.tempo);
+  }, [currentStep, handleTempoChange]);
+
   const handleSectionChange = useCallback(
     (sectionId: ActivitySectionId) => {
       stopDemo();
@@ -1505,6 +1522,7 @@ function GenreLessonContainerV2Inner({
         undefined, // no metronome in Play Now with backing track — drums provide the pulse
         flow.genre,
         isIT ? LEAD_IN_TICKS : 0, // backing bar 1 = the student's bar 1
+        swing,
       );
 
       // startBacking starts the transport itself; record the same lead so

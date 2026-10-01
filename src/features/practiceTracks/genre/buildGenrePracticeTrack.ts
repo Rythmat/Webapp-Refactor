@@ -26,6 +26,8 @@ import {
   type BackingNote,
 } from '@/curriculum/engine/genreGeneration/backingPatterns';
 import { chordSymbolTones } from '@/curriculum/engine/genreGeneration/chordSymbolTones';
+import { genreBassVoice } from '@/curriculum/engine/genreGeneration/genreBassVoices';
+import { swingPercent } from '@/curriculum/engine/genreGeneration/swing';
 import type { ActivitySectionId } from '@/curriculum/types/activity';
 import type {
   ActivityFlowV2,
@@ -39,7 +41,7 @@ import {
 } from '@/curriculum/utils/flowKey';
 import { formatAccidentalsForDisplay } from '@/curriculum/utils/formatAccidentals';
 import { nextChordId, type ChordRegion } from '@/daw/store/prismSlice';
-import type { MidiClip } from '@/daw/store/tracksSlice';
+import type { MidiClip, StudioBassVoice } from '@/daw/store/tracksSlice';
 import { formatChord, normalizeQuality, parseChord } from '@/lib/chordNotation';
 import { flowPracticeScales, type PracticeScale } from './practiceScales';
 
@@ -112,6 +114,10 @@ export interface GenrePracticeTrackResult {
   /** The source step's own instruction, as the first improvisation prompt. */
   sourceDirection: string | null;
   grooveId: string;
+  /** The lesson's drum kit, so the Studio's drums sound like the play-along. */
+  drumKit: 'natural' | '808' | 'house';
+  /** The lesson's bass sound; undefined = the sampled electric bass. */
+  bassVoice?: StudioBassVoice;
 }
 
 // ── Content gate ─────────────────────────────────────────────────────────────
@@ -177,6 +183,23 @@ function tonicSymbol(keyLabel: string, mode: string, genre: string): string {
     default:
       return `${keyLabel}m9`;
   }
+}
+
+/**
+ * The kit and bass sound the lesson's play-along used: the source step's own
+ * (Hip Hop names them per step), else the genre's bass (Pop Fretless, Funk
+ * Finger electric — genreBassVoices.ts).
+ */
+function lessonSounds(
+  flow: ActivityFlowV2,
+  step: ActivityStepV2 | null,
+): Pick<GenrePracticeTrackResult, 'drumKit' | 'bassVoice'> {
+  const style = step?.backing_style;
+  const voice = style?.bassVoice ?? genreBassVoice(flow.genre)?.id;
+  return {
+    drumKit: style?.kit ?? 'natural',
+    bassVoice: voice === 'electric' ? undefined : voice,
+  };
 }
 
 /** The chords the Practice Track loops, and the groove under them. */
@@ -427,6 +450,7 @@ export function buildGenrePracticeTrack(
   const bpm =
     options.bpm ??
     flow.params.practiceTrack?.bpm ??
+    step?.tempo ??
     Math.round((tempoLow + tempoHigh) / 2);
 
   // A synthetic step, so the engine generates the parts this section's student
@@ -450,6 +474,9 @@ export function buildGenrePracticeTrack(
     [],
     flow.genre,
     0,
+    swingPercent(
+      flow.params.practiceTrack?.swing ?? step?.swing ?? flow.params.swing,
+    ),
   );
 
   const clips: Partial<Record<EnginePart, MidiClip>> = {};
@@ -488,5 +515,6 @@ export function buildGenrePracticeTrack(
     scales: flowPracticeScales(flow),
     sourceDirection: step?.direction ?? null,
     grooveId,
+    ...lessonSounds(flow, step),
   };
 }

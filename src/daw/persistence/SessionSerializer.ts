@@ -28,6 +28,7 @@ export interface SerializedTrackSettings {
   drumPads?: Track['drumPads'];
   automation?: Track['automation'];
   drumKit?: Track['drumKit'];
+  bassVoice?: Track['bassVoice'];
   samplerSample?: Track['samplerSample'];
   sends?: Track['sends'];
   // The track's own id at save time, so cross-track references inside effects
@@ -50,6 +51,7 @@ function trackSettings(t: Track): SerializedTrackSettings {
     drumPads: t.drumPads,
     automation: t.automation,
     drumKit: t.drumKit,
+    bassVoice: t.bassVoice,
     samplerSample: t.samplerSample,
     sends: t.sends,
     sourceTrackId: t.id,
@@ -69,6 +71,7 @@ function applyTrackSettings(
   | 'guitarChain'
   | 'drumPads'
   | 'drumKit'
+  | 'bassVoice'
   | 'samplerSample'
   | 'sends'
   | 'automation'
@@ -86,6 +89,7 @@ function applyTrackSettings(
     drumPads: settings?.drumPads,
     automation: settings?.automation,
     drumKit: settings?.drumKit,
+    bassVoice: settings?.bassVoice,
     // ensure: saves written before sampleId existed get a deterministic one.
     samplerSample: settings?.samplerSample
       ? ensureSamplerSampleId(settings.samplerSample)

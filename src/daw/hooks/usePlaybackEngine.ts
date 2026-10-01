@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import * as Tone from 'tone';
 import { showError } from '@/components/utils/toast';
 import { useStore, type InstrumentType, type Track } from '@/daw/store';
+import type { StudioBassVoice } from '@/daw/store/tracksSlice';
 import { audioEngine } from '@/daw/audio/AudioEngine';
 import { isTrackAudible } from '@/daw/audio/trackAudibility';
 import { getPlaybackLoop } from '@/daw/store/transportSlice';
@@ -41,7 +42,9 @@ import {
   ELECTRIC_PIANO_CONFIG,
   CELLO_CONFIG,
   ORGAN_CONFIG,
+  bassVoiceSamplerConfig,
 } from '@/daw/instruments/sampleConfigs';
+import { EightOhEightInstrument } from '@/daw/instruments/EightOhEightInstrument';
 import {
   DrumMachineEngine,
   DRUM_PADS,
@@ -104,6 +107,7 @@ export function createInstrument(
   type: InstrumentType,
   gmProgram?: number,
   drumKit?: DrumKitId,
+  bassVoice?: StudioBassVoice,
 ): InstrumentAdapter | null {
   switch (type) {
     case 'oracle-synth':
@@ -113,7 +117,10 @@ export function createInstrument(
     case 'electric-piano':
       return new SamplerInstrument(ELECTRIC_PIANO_CONFIG);
     case 'bass-electric':
-      return new SamplerInstrument(BASS_ELECTRIC_CONFIG);
+      if (bassVoice === '808') return new EightOhEightInstrument();
+      return new SamplerInstrument(
+        bassVoice ? bassVoiceSamplerConfig(bassVoice) : BASS_ELECTRIC_CONFIG,
+      );
     case 'cello':
       return new SamplerInstrument(CELLO_CONFIG);
     case 'organ':
@@ -440,6 +447,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
         track.instrument,
         track.gmProgram,
         track.drumKit,
+        track.bassVoice,
       );
 
       if (instrument) {

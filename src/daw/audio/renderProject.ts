@@ -207,6 +207,7 @@ export async function renderProject(
           track.instrument,
           track.gmProgram,
           track.drumKit,
+          track.bassVoice,
         );
         if (instrument) {
           const ready = instrument

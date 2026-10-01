@@ -8,6 +8,8 @@ export interface SamplerConfig {
   baseUrl: string;
   /** Map of note names to filenames, e.g. { 'C2': 'C2.mp3', 'F#3': 'Fs3.mp3' } */
   sampleMap: Record<string, string>;
+  /** Level match in dB, for sample sets recorded quieter than the rest. */
+  volumeDb?: number;
 }
 
 // ── SamplerInstrument ───────────────────────────────────────────────────
@@ -34,6 +36,7 @@ export class SamplerInstrument implements InstrumentAdapter {
       this.sampler = new Tone.Sampler({
         urls: this.config.sampleMap,
         baseUrl: this.config.baseUrl,
+        volume: this.config.volumeDb ?? 0,
         onload: () => {
           this.loaded = true;
           resolve();

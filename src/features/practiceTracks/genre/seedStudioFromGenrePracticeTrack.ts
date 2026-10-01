@@ -41,6 +41,25 @@ const STUDENT_INSTRUMENT: Record<StudentPart, InstrumentType> = {
   bass: 'bass-electric',
 };
 
+/**
+ * The lesson's kit and bass sound on a new track: the drums get the
+ * play-along's kit (Hip Hop's 808 or house), a bass track its bass (Pop
+ * Fretless, Funk and Hip Hop Finger electric, Hip Hop's 808 or Upright).
+ */
+function applyLessonSound(
+  trackId: string,
+  instrument: InstrumentType,
+  track: GenrePracticeTrackResult,
+): void {
+  const store = useStore.getState();
+  if (instrument === 'drum-machine' && track.drumKit !== 'natural') {
+    store.setDrumKit(trackId, track.drumKit);
+  }
+  if (instrument === 'bass-electric' && track.bassVoice) {
+    store.updateTrack(trackId, { bassVoice: track.bassVoice });
+  }
+}
+
 /** What the student's track is called, by what the section asked them to play. */
 function studentTrackName(parts: StudentPart[], sectionName: string): string {
   if (parts.length > 1) return `${sectionName} — Rhodes`;
@@ -71,6 +90,7 @@ export function seedStudioFromGenrePracticeTrack(
     if (!clip) continue;
     const trackId = store.addTrack('midi', instrument, clip.name ?? part);
     store.addMidiClip(trackId, clip);
+    applyLessonSound(trackId, instrument, track);
   }
 
   // The student's part: an empty track, which is the whole invitation.
@@ -80,6 +100,7 @@ export function seedStudioFromGenrePracticeTrack(
     STUDENT_INSTRUMENT[studentPart],
     studentTrackName(track.studentParts, track.sectionName),
   );
+  applyLessonSound(studentTrackId, STUDENT_INSTRUMENT[studentPart], track);
 
   store.setLoopRange(0, track.loopTicks);
   store.setLoopEnabled(true);

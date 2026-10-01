@@ -110,6 +110,28 @@ export const hipHopStyleDna: StyleDnaLevel[] = [
         ],
       },
       {
+        name: 'Wu-Tang Clan',
+        description:
+          'RZA\'s gritty, cinematic loops — dusty soul samples, detuned piano, hard drums. "C.R.E.A.M.," "Protect Ya Neck."',
+        tags: [
+          'hiphop:wu_tang_clan:gritty_soul_loop',
+          'hiphop',
+          'hiphop:wu_tang_clan:detuned_piano',
+          'hiphop',
+        ],
+      },
+      {
+        name: 'N.W.A',
+        description:
+          'West Coast pioneers: Dr. Dre and DJ Yella\'s funk-sampling drums under a voice that changed what hip hop could say. "Straight Outta Compton," "Express Yourself."',
+        tags: [
+          'hiphop:nwa:funk_sample_drums',
+          'hiphop',
+          'hiphop:nwa:west_coast',
+          'hiphop',
+        ],
+      },
+      {
         name: 'Dr. Dre',
         description:
           'Simple high piano and synth figures over a deep bass — a single repeated chord idea carries the track. "Still D.R.E.," "Nuthin\' but a \'G\' Thang."',
@@ -184,6 +206,17 @@ export const hipHopStyleDna: StyleDnaLevel[] = [
         description:
           'Soulful, melodic and politically minded; live-band warmth. "Ms. Fat Booty," "Umi Says."',
         tags: ['hiphop:mos_def:soulful_melody', 'hiphop'],
+      },
+      {
+        name: 'Queen Latifah',
+        description:
+          'Claimed the mic for women and for message, over jazzy, soulful boom bap. "Ladies First," "U.N.I.T.Y."',
+        tags: [
+          'hiphop:queen_latifah:message_mc',
+          'hiphop',
+          'hiphop:queen_latifah:jazzy_boom_bap',
+          'hiphop',
+        ],
       },
       {
         name: 'Lauryn Hill',

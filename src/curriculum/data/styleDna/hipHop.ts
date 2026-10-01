@@ -60,6 +60,17 @@ export const hipHopStyleDna: StyleDnaLevel[] = [
           'hiphop',
         ],
       },
+      {
+        name: 'Bad Bunny',
+        description:
+          'Latin trap and reggaeton: hip hop fused with Afro-Caribbean rhythms, 808s under dembow. "Tití Me Preguntó," "I Like It" (with Cardi B & J Balvin).',
+        tags: [
+          'hiphop:bad_bunny:latin_trap',
+          'hiphop',
+          'hiphop:bad_bunny:dembow_808',
+          'hiphop',
+        ],
+      },
     ],
     vocabulary: [
       {
@@ -117,6 +128,23 @@ export const hipHopStyleDna: StyleDnaLevel[] = [
           'hiphop:pete_rock:jazz_soul_loop',
           'hiphop',
           'hiphop:pete_rock:horn_stab',
+          'hiphop',
+        ],
+      },
+      {
+        name: 'The Fat Boys',
+        description:
+          'Beatbox-driven 1980s party rap that took hip hop to the mainstream. "The Twist (Yo, Twist!)," "Wipeout."',
+        tags: ['hiphop:fat_boys:beatbox', 'hiphop'],
+      },
+      {
+        name: 'Cypress Hill',
+        description:
+          'Latin hip hop pioneers: DJ Muggs\'s dark, smoky loops and heavy funk-sampled drums. "Insane in the Brain," "How I Could Just Kill a Man."',
+        tags: [
+          'hiphop:cypress_hill:dark_loop',
+          'hiphop',
+          'hiphop:cypress_hill:latin_hip_hop',
           'hiphop',
         ],
       },

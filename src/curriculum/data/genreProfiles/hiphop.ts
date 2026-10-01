@@ -11,7 +11,13 @@ export const hipHopProfile: GenreProfile = {
   accentColor: '#8B5CF6',
   tagline: 'The beat comes first. The loop. The low end.',
 
-  history: `Hip hop began at Bronx parties in the 1970s, when DJs like Kool Herc looped the drum breaks of funk and soul records so dancers never had to stop. By the late 1980s producers were building tracks on samplers — the E-mu SP-1200 and Akai MPC — chopping jazz and soul records into loops over hard, swung drums. That New York sound, boom bap, ran through DJ Premier and Pete Rock, and the Wu-Tang Clan made it raw and cinematic. On the West Coast, N.W.A — with Dr. Dre behind the boards — put Compton on the map and changed what hip hop could say, and Dre’s G-funk carried Snoop Dogg and Tupac Shakur to the world. Jay-Z turned a Brooklyn hustle into an empire, and Dr. Dre’s protégé Eminem, a white rapper from Detroit, became one of the genre’s most revolutionary voices. Missy Elliott and Timbaland pushed the beat into the future with stuttering, spacious productions. Queen Latifah and Lauryn Hill claimed the mic for women and for message, while A Tribe Called Quest, Common and Mos Def brought jazz harmony and conscious lyrics to the same foundation, and J Dilla taught everyone to play behind the beat. In the 2000s Atlanta trap rebuilt hip hop around the Roland TR-808: sub-bass kicks, half-time snares and rolling hi-hats, a sound producers like Metro Boomin and Southside carried to the top of the charts — and Cardi B’s “Bodak Yellow” (2017) became the first No. 1 by a solo woman rapper since Lauryn Hill’s “Doo Wop (That Thing).” Kendrick Lamar’s To Pimp a Butterfly (2015) brought jazz and funk musicians back into the room. Underneath every era: a short loop, a deep bass, and drums that do the talking.`,
+  history: `Hip hop began at Bronx parties in the 1970s, when DJs like Kool Herc looped the drum breaks of funk and soul records so dancers never had to stop. By the late 1980s producers were building tracks on samplers — the E-mu SP-1200 and Akai MPC — chopping jazz and soul records into loops over hard, swung drums. That New York sound, boom bap, ran through DJ Premier and Pete Rock, and the Wu-Tang Clan made it raw and cinematic. On the West Coast, N.W.A — with Dr. Dre behind the boards — put Compton on the map and changed what hip hop could say, and Dre’s G-funk carried Snoop Dogg and Tupac Shakur to the world. Jay-Z turned a Brooklyn hustle into an empire, and Dr. Dre’s protégé Eminem, a white rapper from Detroit, became one of the genre’s most revolutionary voices. Missy Elliott and Timbaland pushed the beat into the future with stuttering, spacious productions.
+
+Queen Latifah and Lauryn Hill claimed the mic for women, while A Tribe Called Quest, Common and Mos Def brought jazz harmony and conscious lyrics to the same foundation, and J Dilla taught everyone to play behind the beat. In the 2000s Atlanta trap rebuilt hip hop around the Roland TR-808: sub-bass kicks, half-time snares and rolling hi-hats, a sound producers like Metro Boomin and Southside carried to the top of the charts. Kendrick Lamar’s To Pimp a Butterfly (2015) brought jazz and funk musicians back into the room.
+
+Latinos were part of the earliest origins of hip hop as break-dancing music, and the Fat Boys and Cypress Hill brought hip hop to prominence right alongside the Wu-Tang Clan, N.W.A and other pioneering groups. Today, Cardi B tops the charts, and Bad Bunny combines hip hop with Afro-Caribbean music traditions and headlined the Super Bowl halftime show. Hip hop has become a global music, with talented artists and producers emerging everywhere on the planet.
+
+Underneath every artist’s flow and message: a short loop, a deep bass, and driving beats born from the lineage of Black American Music and the Afro-Caribbean diaspora.`,
 
   primaryArtists: [
     {
@@ -46,6 +52,16 @@ export const hipHopProfile: GenreProfile = {
       tracks: ['Bodak Yellow', 'I Like It'],
     },
     {
+      name: 'Bad Bunny',
+      era: '2010s\u2013present',
+      styleRef: 'l1a',
+      role: 'MC / Singer',
+      tracks: [
+        'Tit\u00ed Me Pregunt\u00f3',
+        'I Like It (with Cardi B & J Balvin)',
+      ],
+    },
+    {
       name: 'DJ Premier',
       era: '1980s–present',
       styleRef: 'l2a',
@@ -58,6 +74,20 @@ export const hipHopProfile: GenreProfile = {
       styleRef: 'l2a',
       role: 'Producer',
       tracks: ['They Reminisce Over You (T.R.O.Y.)'],
+    },
+    {
+      name: 'The Fat Boys',
+      era: '1980s',
+      styleRef: 'l2a',
+      role: 'Group',
+      tracks: ['The Twist (Yo, Twist!)', 'Wipeout'],
+    },
+    {
+      name: 'Cypress Hill',
+      era: '1990s\u2013present',
+      styleRef: 'l2a',
+      role: 'Group',
+      tracks: ['Insane in the Brain', 'How I Could Just Kill a Man'],
     },
     {
       name: 'Wu-Tang Clan',
@@ -161,6 +191,8 @@ export const hipHopProfile: GenreProfile = {
 
   subGenres: [
     'Boom Bap',
+    'Latin Hip Hop',
+    'Latin Trap',
     'Trap',
     'Conscious Hip Hop',
     'Jazz Rap',

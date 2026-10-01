@@ -3,8 +3,8 @@
 The running record for the Genre activity-flow planning effort. Maintained by
 `/genre-sync`; edit by hand freely — the command merges, it doesn't overwrite.
 
-**Last synced:** 2026-09-30 20:58
-**Current focus:** Hip-hop done (pending CDN republish); next genre to choose
+**Last synced:** 2026-10-01 10:57
+**Current focus:** Hip-hop Overview wording + Latin hip hop story; then choose the next genre
 
 ---
 
@@ -140,6 +140,8 @@ supersedes it and mark the old one `~~struck~~ → D-xxx`.
 | D-061 | 2026-09-30 | Hip-hop | Tupac Shakur and Snoop Dogg acknowledged (Snoop in L2 beside Dr. Dre; Tupac's level → D-062) | Aaron |
 | D-062 | 2026-09-30 | Hip-hop | Tupac Shakur sits in L3 Conscious (message songs: Dear Mama, Changes) | Aaron |
 | D-063 | 2026-09-30 | Hip-hop | Cardi B (L1 Trap) and Missy Elliott (L2, by era — her Timbaland sound isn't boom bap) added | Aaron |
+| D-064 | 2026-10-01 | Hip-hop | Overview history wording (Aaron's): "claimed the mic for women"; closes on "Underneath every artist's flow and message … the lineage of Black American Music and the Afro-Caribbean diaspora" | Aaron |
+| D-065 | 2026-10-01 | Hip-hop | No separate Latin section, so Hip Hop tells the Latin story: Latinos in the earliest break-dancing origins; the Fat Boys and Cypress Hill alongside Wu-Tang and N.W.A; Cardi B and Bad Bunny today; hip hop as global music. Artists added: Fat Boys, Cypress Hill (L2), Bad Bunny (L1) | Aaron |
 
 ## Open questions
 
@@ -156,22 +158,17 @@ Remove a question once it is answered (the answer becomes a decision).
 
 | ID | Scope | Task | Status |
 | -- | ----- | ---- | ------ |
-| T-003 | Hip-hop | Overview written (genreProfiles/hiphop.ts): history, 11 artists, characteristics, per-level keys/voicings/technique; accent #8B5CF6 | done |
 | T-005 | all | Engine: per-genre kit + instrument choice in useBackingTrack and the Practice Track Studio seed | todo |
 | T-007 | Pop | Bug: Pop L3 grooveIds groove_rnb_01 / groove_neosoul_01 silently play funk_01 | todo |
 | T-008 | Funk | Tidy: funk_v2 L2/L3 section consts are swapped vs the shipped levels | todo |
-| T-015 | Hip-hop | Style DNA rewritten: Trap / Boom Bap / Conscious with artist descriptions, tags, vocabulary | done |
 | T-034 | all | Practice Track voicings: a bar can hold two chords (chordVoicings.ts `spells`/`barChords`) — fixes Hip Hop L2 sus2 groove lighting the sus2 on Am/Dm. Lives in the other chat's uncommitted chordVoicings.ts; commit with it | todo |
-| T-035 | Hip-hop | L1 artists Metro Boomin, Southside, Lex Luger and L2 Dr. Dre are Claude's picks — Aaron to confirm (Wu-Tang, N.W.A, Queen Latifah added per D-059) | todo |
+| T-035 | Hip-hop | Artist list shaped by Aaron (D-059–D-063); L1 Metro Boomin, Southside, Lex Luger still Claude's picks | todo |
 | T-025 | Pop, Funk | Until T-023's melodies exist, these scales end their block with no phrases: Pop L2 E Aeolian, Pop L3 Dorian + Aeolian, Funk L3 C minor blues | blocked |
 | T-026 | all | Flaky tests: melodyPipeline.test.ts "the 4 over a major chord"; landing lissajous.test.ts "stays inside its box"; Games melodyPhrases.test.ts "builds the long phrase from new material" — all fail now and then, unrelated to flows | todo |
 | T-028 | Pop, Funk, Hip-hop | Practice Tracks carry the lesson's kit + bass into the Studio: Track.bassVoice (saved + synced like drumKit), EightOhEightInstrument, GM bass sample sets; checked live (Hip Hop 808 kit + 808, Pop Fretless, Funk Finger) | done |
 | T-023 | Pop, Funk | New melodies the reorder needs: Pop L2 Aeolian, Pop L3 Dorian + Aeolian, Funk L3 blues (no sequence steps needed after D-043) | blocked |
-| T-033 | all | Committed 2026-09-30: 64bf9695 ledger/tools, 63f42ae8 engine, 98b5bbdf Pop/Funk reorder, b19640a7 Hip Hop flows, 5e103af1 Practice Track sounds, 2a5809e9 audition page. The other chat's Practice Track keyboard work left uncommitted for it | done |
 | T-024 | all | Republish the CDN lesson bundle after flow edits (prod reads the CDN, not the TS files) | todo |
 | T-030 | Hip-hop | L1 "Trap" authored in hipHop_v2.ts (32 steps, generated from the outline); tests mark Hip Hop L1 authored; walked in the app (808 kit, high chords, two-hand split) | done |
-| T-031 | Hip-hop | L2 "Boom Bap" (28 steps) and L3 "Conscious" (29 steps) authored; per-step tempo/kit/bass checked in the app | done |
-| T-032 | Hip-hop | Per-step tempo: ActivityStepV2.tempo; lesson switches to it on step change; Practice Track uses it | done |
 | T-009 | Hip-hop | AUTHORED_GENRES includes hipHop; step-count floor skips still-stubbed levels; practiceTrackCoverage lists hip-hop L1 | done |
 
 Status values: `todo`, `doing`, `blocked`, `done` (done items move to the
@@ -181,6 +178,7 @@ session log at the next sync).
 
 One short entry per sync, newest first.
 
+- **2026-10-01 10:57** — Hip Hop L2/L3 built; all Hip Hop work committed (8 commits); Overview + style DNA written; artists added at Aaron's request (Wu-Tang, N.W.A, Queen Latifah, Jay-Z, Eminem, Snoop Dogg, Tupac → L3, Cardi B, Missy Elliott); Funk L2 Practice Track loops D3.1; Practice Track voicings fixed for two chords a bar (uncommitted, in the other chat's file). Done: T-003, T-015, T-031, T-032, T-033.
 - **2026-09-30 20:58** — Hip Hop engine support built (hipHopPatterns/hipHopBacking, per-step kit + bass voice, shared 808, nearest-step bass); L1 outline written and signed off (D-054). Done: T-004, T-006, T-011, T-017, T-021, T-029.
 - **2026-09-30 11:51** — Pop/Funk Section A reordered (Pop L2 11→9, Pop L3 22→13, Funk L1/L3 interleaved); checked live. Lesson bass voices: Pop Fretless, Funk + Hip Hop Finger electric (genreBassVoices.ts). Hip Hop: all 8th chunking staccato, Trap 2-bar comp without pickup, Cm vamp in two variations, L3 bass sounds and house kit set. Done: T-022, T-027.
 - **2026-09-29 20:06** — Hip-hop levels set (L1 Trap C min, L2 Boom Bap A min, L3 Conscious E min) with chords, scales, artists and per-progression play-along specs, chosen by ear on the new /__hiphop-grooves page. Engine: swing added (swing.ts, step/flow/Practice Track) and Hip-hop register exception (chords start ≤ C6); full suite green. Trap bass pattern defined. Melody rule adopted for all genres; Pop/Funk Section A audited (Pop L3 had 18 scale steps in a row). Done: T-001, T-002, T-010, T-012, T-013, T-014, T-016, T-018, T-019, T-020.

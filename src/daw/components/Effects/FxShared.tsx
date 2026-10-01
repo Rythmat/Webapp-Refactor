@@ -1,7 +1,7 @@
 /* eslint-disable tailwindcss/classnames-order */
 /* eslint-disable tailwindcss/enforces-shorthand */
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, X, Maximize2, ChevronDown } from 'lucide-react';
+import { Settings, X, Maximize2, ChevronDown, Power } from 'lucide-react';
 import type { EqBandType } from '@/daw/audio/EffectChain';
 
 // ── Constants ────────────────────────────────────────────────────────────
@@ -27,6 +27,58 @@ export const VIZ_SPRING = {
   stiffness: 350,
   damping: 30,
 };
+
+// ── FX Power Button ─────────────────────────────────────────────────────
+// The on/off switch for auditioning an effect: lit green with a glow when the
+// effect is in the signal path, dark when it's bypassed. `withText` adds an
+// ON/OFF label (used in the editor header, where there's room for it).
+
+const POWER_ON = '#22c55e';
+
+export function FxPowerButton({
+  enabled,
+  onToggle,
+  effectName,
+  size = 18,
+  withText = false,
+}: {
+  enabled: boolean;
+  onToggle: () => void;
+  effectName: string;
+  size?: number;
+  withText?: boolean;
+}) {
+  const action = enabled ? 'Turn off' : 'Turn on';
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onToggle();
+      }}
+      aria-pressed={enabled}
+      aria-label={`${action} ${effectName}`}
+      title={`${action} ${effectName}`}
+      className="flex shrink-0 cursor-pointer items-center justify-center gap-1 rounded-full transition-all"
+      style={{
+        height: size,
+        minWidth: size,
+        padding: withText ? '0 8px 0 6px' : 0,
+        backgroundColor: enabled ? POWER_ON : 'var(--color-surface-3, #222)',
+        color: enabled ? '#04210f' : 'rgba(255,255,255,0.55)',
+        border: `1px solid ${enabled ? POWER_ON : 'rgba(255,255,255,0.25)'}`,
+        boxShadow: enabled ? `0 0 8px ${POWER_ON}aa` : 'none',
+      }}
+    >
+      <Power size={Math.round(size * 0.6)} strokeWidth={2.75} />
+      {withText && (
+        <span className="text-[9px] font-bold tracking-wider">
+          {enabled ? 'ON' : 'OFF'}
+        </span>
+      )}
+    </button>
+  );
+}
 
 // ── Section Header ──────────────────────────────────────────────────────
 

@@ -13,6 +13,10 @@ interface MidiControlChangeEvent {
   rawValue?: number;
 }
 
+interface MidiPitchBendEvent {
+  value?: number | boolean;
+}
+
 // ── Manager ────────────────────────────────────────────────────────────
 
 /**
@@ -86,6 +90,7 @@ export class MidiDeviceManager {
    * @param onNoteOn - Called with MIDI note (0-127) and velocity (0-127)
    * @param onNoteOff - Called with MIDI note (0-127)
    * @param onCC - Optional: called with controller number (0-127) and value (0-127)
+   * @param onPitchBend - Optional: called with the wheel position, -1 to +1
    * @returns An unsubscribe function.
    */
   subscribeToInput(
@@ -93,6 +98,7 @@ export class MidiDeviceManager {
     onNoteOn: (note: number, velocity: number, timestamp: number) => void,
     onNoteOff: (note: number, timestamp: number) => void,
     onCC?: (cc: number, value: number) => void,
+    onPitchBend?: (value: number) => void,
   ): () => void {
     const input = WebMidi.getInputById(inputId);
     if (!input) {
@@ -115,15 +121,22 @@ export class MidiDeviceManager {
           onCC(e.controller.number, e.rawValue ?? 0);
         }
       : null;
+    const handlePitchBend = onPitchBend
+      ? (e: MidiPitchBendEvent) => {
+          onPitchBend(typeof e.value === 'number' ? e.value : 0);
+        }
+      : null;
 
     input.addListener('noteon', handleNoteOn);
     input.addListener('noteoff', handleNoteOff);
     if (handleCC) input.addListener('controlchange', handleCC);
+    if (handlePitchBend) input.addListener('pitchbend', handlePitchBend);
 
     return () => {
       input.removeListener('noteon', handleNoteOn);
       input.removeListener('noteoff', handleNoteOff);
       if (handleCC) input.removeListener('controlchange', handleCC);
+      if (handlePitchBend) input.removeListener('pitchbend', handlePitchBend);
     };
   }
 

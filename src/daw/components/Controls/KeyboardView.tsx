@@ -8,6 +8,25 @@ import { PianoKeyboard } from '@/daw/oracle-synth/components/keyboard/PianoKeybo
 import { auditionNote } from '@/daw/audio/auditionNote';
 import { PianoRoll } from '../PianoRoll/PianoRoll';
 import { PresetBrowser } from './PresetBrowser';
+import { PRESETS } from '@/daw/data/instrumentPresets';
+import type { Track } from '@/daw/store/tracksSlice';
+
+/** The preset name to show: the saved one while it still matches the track's
+ *  instrument, else the first preset for that instrument. */
+function displayPresetName(track: Track | undefined): string {
+  if (!track) return 'Studio Grand';
+  const saved = PRESETS.find((p) => p.name === track.presetName);
+  if (
+    saved &&
+    (!saved.instrumentType || saved.instrumentType === track.instrument)
+  )
+    return saved.name;
+  if (track.instrument === 'piano-sampler') return 'Studio Grand';
+  return (
+    PRESETS.find((p) => p.instrumentType === track.instrument)?.name ??
+    'Studio Grand'
+  );
+}
 import type { MidiNoteEvent } from '@prism/engine';
 import { useLiveChordColor } from '@/daw/hooks/useLiveChordColor';
 
@@ -48,7 +67,6 @@ export function KeyboardView({ trackId }: { trackId: string }) {
     [activeNotes, hwActiveNotes],
   );
   const activeColor = useLiveChordColor(mergedNotes);
-  const [presetName, setPresetName] = useState('Studio Grand');
   const [browserOpen, setBrowserOpen] = useState(false);
   const [mode, setMode] = useState<ViewMode>('keyboard');
   const heldKeysRef = useRef<Set<string>>(new Set());
@@ -58,6 +76,7 @@ export function KeyboardView({ trackId }: { trackId: string }) {
   const clip = track?.midiClips[0] ?? null;
   const updateMidiClipEvents = useStore((s) => s.updateMidiClipEvents);
   const updateTrack = useStore((s) => s.updateTrack);
+  const presetName = displayPresetName(track);
 
   const handlePianoRollChange = useCallback(
     (newEvents: MidiNoteEvent[]) => {
@@ -280,15 +299,16 @@ export function KeyboardView({ trackId }: { trackId: string }) {
             <div className="absolute inset-0 z-20">
               <PresetBrowser
                 onSelect={(preset) => {
-                  setPresetName(preset.name);
-                  if (preset.instrumentType) {
-                    updateTrack(trackId, {
+                  // Saved on the track so the name (and sound) reload.
+                  updateTrack(trackId, {
+                    presetName: preset.name,
+                    ...(preset.instrumentType && {
                       instrument: preset.instrumentType,
-                      ...(preset.gmProgram !== undefined && {
-                        gmProgram: preset.gmProgram,
-                      }),
-                    });
-                  }
+                    }),
+                    ...(preset.gmProgram !== undefined && {
+                      gmProgram: preset.gmProgram,
+                    }),
+                  });
                   // If already a SoundFont track, live-switch the program
                   if (preset.gmProgram !== undefined) {
                     const state = trackEngineRegistry.get(trackId);

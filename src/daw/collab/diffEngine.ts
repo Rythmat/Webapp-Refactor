@@ -62,6 +62,7 @@ const TRACK_SCALAR_KEYS: (keyof Track)[] = [
   'trackRole',
   'drumKit',
   'bassVoice',
+  'presetName',
 ];
 
 // ── Main diff function ──────────────────────────────────────────────────
@@ -201,6 +202,12 @@ function diffTracks(
       yTrack.set(
         'drumPads',
         nextTrack.drumPads ? JSON.stringify(nextTrack.drumPads) : null,
+      );
+    }
+    if (prevTrack.organState !== nextTrack.organState) {
+      yTrack.set(
+        'organState',
+        nextTrack.organState ? JSON.stringify(nextTrack.organState) : null,
       );
     }
     if (prevTrack.samplerSample !== nextTrack.samplerSample) {
@@ -466,6 +473,8 @@ function diffMastering(doc: Y.Doc, prev: AllSlices, next: AllSlices): void {
     yM.set('effects', JSON.stringify(next.masteringEffects));
   if (prev.masterVolume !== next.masterVolume)
     yM.set('masterVolume', next.masterVolume);
+  if (prev.masterAutomation !== next.masterAutomation)
+    yM.set('masterAutomation', JSON.stringify(next.masterAutomation));
   // Aux return buses ride the mastering doc map (mixer-global like mastering).
   if (prev.returns !== next.returns)
     yM.set('returns', JSON.stringify(next.returns));

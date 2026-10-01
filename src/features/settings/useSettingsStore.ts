@@ -26,6 +26,12 @@ interface SettingsState {
   practiceShowDegrees: boolean;
   /** Practice Track keyboard: show the note-name row over the lit keys. */
   practiceShowNoteNames: boolean;
+  /**
+   * Chords Practice Track keyboard: 'root', or the id of one of the lesson's
+   * own voicing sets. '' until the student picks, so each track opens on its
+   * own default.
+   */
+  practiceChordVoicing: string;
 
   // MIDI
   midiDeviceId: string;
@@ -43,6 +49,7 @@ interface SettingsState {
   setNoteStreaks: (enabled: boolean) => void;
   setPracticeShowDegrees: (enabled: boolean) => void;
   setPracticeShowNoteNames: (enabled: boolean) => void;
+  setPracticeChordVoicing: (voicing: string) => void;
   setMidiDeviceId: (id: string) => void;
   setHitSensitivity: (sensitivity: number) => void;
   setMidiMapping: (mapping: MidiMapping | null) => void;
@@ -64,6 +71,7 @@ export const useSettingsStore = create<SettingsState>()(
       noteStreaks: true,
       practiceShowDegrees: true,
       practiceShowNoteNames: true,
+      practiceChordVoicing: '',
 
       // MIDI defaults
       midiDeviceId: '',
@@ -83,6 +91,8 @@ export const useSettingsStore = create<SettingsState>()(
         set({ practiceShowDegrees: enabled }),
       setPracticeShowNoteNames: (enabled) =>
         set({ practiceShowNoteNames: enabled }),
+      setPracticeChordVoicing: (voicing) =>
+        set({ practiceChordVoicing: voicing }),
       setMidiDeviceId: (id) => set({ midiDeviceId: id }),
       setHitSensitivity: (sensitivity) => set({ hitSensitivity: sensitivity }),
       setMidiMapping: (mapping) => set({ midiMapping: mapping }),

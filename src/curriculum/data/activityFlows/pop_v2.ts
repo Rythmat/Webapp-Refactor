@@ -1947,6 +1947,15 @@ export const popL1: ActivityFlowV2 = {
     tempoRange: [70, 110],
     swing: 0,
     grooves: ['groove_pop_01', 'groove_pop_02', 'groove_ballad_01'],
+    // The level ends its Chords section on power chords over a moving bass,
+    // but its triad play-along is what a Practice Track should open on.
+    practiceTrack: {
+      voicings: [
+        { id: 'power', label: 'Power Chords', activity: 'B5.6' },
+        { id: 'triads', label: 'Triads', activity: 'B5.4' },
+      ],
+      defaultVoicing: 'triads',
+    },
   },
   sections: [popL1SectionA, popL1SectionB, popL1SectionC, popL1SectionD],
 };

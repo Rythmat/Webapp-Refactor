@@ -27,7 +27,8 @@ export const createFilterSlice: StateCreator<
   [],
   FilterSlice
 > = (set) => ({
-  filters: [defaultFilter(true), defaultFilter(false)],
+  // Filter 1 opens at 13.4 kHz, matching the INITIALIZE factory preset
+  filters: [{ ...defaultFilter(true), cutoff: 13400 }, defaultFilter(false)],
 
   setFilterParam: (index, param, value) =>
     set((state) => {

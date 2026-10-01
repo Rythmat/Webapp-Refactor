@@ -17,6 +17,7 @@
 //   • Master volume + the mastering EffectChain.
 //   • Parameter automation lanes (volume/pan/sends + rideable FX params) —
 //     scheduled as absolute-time AudioParam ramps (applyOfflineAutomation).
+//   • Master volume automation (Track automation's grammar, on the master gain).
 // Deliberately NOT covered (documented gaps — see notes):
 //   • Ducker (Phase 5) and Gate rely on a JS setInterval loop that does NOT run
 //     during an OfflineAudioContext render (offline renders faster than real
@@ -47,7 +48,12 @@ import { isTrackAudible } from './trackAudibility';
 import { MidiScheduler } from './MidiScheduler';
 import { AudioClipScheduler } from './AudioClipScheduler';
 import { getAudioBuffer, sliceBuffer } from './AudioBufferStore';
-import { applyOfflineAutomation } from './AutomationScheduler';
+import { TonewheelOrganEngine } from '@/daw/instruments/TonewheelOrganEngine';
+import {
+  applyOfflineAutomation,
+  applyOfflineLanes,
+} from './AutomationScheduler';
+import { resolveMasterAutomationTargets } from './automationParams';
 import { createInstrument, applyDrumPads } from '@/daw/hooks/usePlaybackEngine';
 import { OracleSynthAdapter } from '@/daw/instruments/OracleSynthAdapter';
 import { DrumMachineEngine } from '@/daw/instruments/DrumMachineEngine';
@@ -90,7 +96,11 @@ function asRunningContext(ctx: AudioContext): AudioContext {
   }) as AudioContext;
 }
 
-export type RenderRange = 'project' | 'loop';
+/** Whole project, the loop region, or a custom [startTick, endTick) window. */
+export type RenderRange =
+  | 'project'
+  | 'loop'
+  | { startTick: number; endTick: number };
 
 export interface RenderOptions {
   range?: RenderRange;
@@ -102,6 +112,14 @@ function renderWindowTicks(
   state: ReturnType<typeof useStore.getState>,
   range: RenderRange,
 ): { startTick: number; endTick: number; tail: number } {
+  if (typeof range === 'object') {
+    const startTick = Math.max(0, range.startTick);
+    return {
+      startTick,
+      endTick: Math.max(startTick, range.endTick),
+      tail: LOOP_TAIL_SECONDS,
+    };
+  }
   if (
     range === 'loop' &&
     state.loopEnabled &&
@@ -113,6 +131,13 @@ function renderWindowTicks(
       tail: LOOP_TAIL_SECONDS,
     };
   }
+  return { startTick: 0, endTick: projectEndTick(state), tail: TAIL_SECONDS };
+}
+
+/** The tick where the last note or audio clip ends (0 for an empty project). */
+export function projectEndTick(
+  state: ReturnType<typeof useStore.getState>,
+): number {
   let endTick = 0;
   for (const t of state.tracks) {
     for (const c of t.midiClips) {
@@ -125,7 +150,7 @@ function renderWindowTicks(
       endTick = Math.max(endTick, c.startTick + c.duration);
     }
   }
-  return { startTick: 0, endTick, tail: TAIL_SECONDS };
+  return endTick;
 }
 
 /**
@@ -137,7 +162,14 @@ export async function renderProject(
   opts: RenderOptions = {},
 ): Promise<AudioBuffer> {
   const state = useStore.getState();
-  const { tracks, bpm, returns, masteringEffects, masterVolume } = state;
+  const {
+    tracks,
+    bpm,
+    returns,
+    masteringEffects,
+    masterVolume,
+    masterAutomation,
+  } = state;
   const range: RenderRange = opts.range ?? 'project';
   const sampleRate = opts.sampleRate ?? 44100;
 
@@ -163,6 +195,13 @@ export async function renderProject(
       // Master → mastering chain → offline destination.
       const master = ctx.createGain();
       master.gain.value = masterVolume;
+      // Master volume automation rides over the fader value, as in playback.
+      applyOfflineLanes(
+        masterAutomation,
+        (paramId) => resolveMasterAutomationTargets(paramId, master),
+        startTick,
+        bpm,
+      );
       const mastering = new EffectChain(ctx);
       disposables.push(mastering);
       mastering.update(masteringEffects);
@@ -222,6 +261,11 @@ export async function renderProject(
                 applyDrumPads(instrument, track);
               } else if (instrument instanceof ChopsSampler) {
                 applyOfflineSampler(instrument, track, ctx);
+              } else if (
+                instrument instanceof TonewheelOrganEngine &&
+                track.organState
+              ) {
+                instrument.setState(track.organState);
               }
               scheduleTrackMidi(track, te, startTick);
             })

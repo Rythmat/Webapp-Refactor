@@ -338,6 +338,12 @@ interface OrganViewProps {
 export function OrganView({ trackId }: OrganViewProps) {
   const engine = useOrganEngine(trackId);
   const [, forceRender] = useReducer((x: number) => x + 1, 0);
+  // Saved organ settings — the panel shows these (so undo, a reload or a
+  // collaborator's change is reflected) and every edit writes back to them.
+  const savedOrgan = useStore(
+    (s) => s.tracks.find((t) => t.id === trackId)?.organState,
+  );
+  const updateTrack = useStore((s) => s.updateTrack);
   const [activePreset, setActivePreset] = useState<string | null>(null);
   const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
   const hwActiveNotes = useStore((s) => s.hwActiveNotes);
@@ -380,28 +386,36 @@ export function OrganView({ trackId }: OrganViewProps) {
     );
   }
 
-  const drawbars = engine.getDrawbars();
-  const percEnabled = engine.getPercEnabled();
-  const percHarmonic = engine.getPercHarmonic();
-  const percVolume = engine.getPercVolume();
-  const percDecay = engine.getPercDecay();
-  const vibratoMode = engine.getVibratoMode();
-  const leslieSpeed = engine.getLeslieSpeed();
-  const leslieEnabled = engine.getLeslieEnabled();
-  const clickLevel = engine.getClickLevel();
-  const overdrive = engine.getOverdrive();
-  const swellLevel = engine.getSwellLevel();
+  const organ = savedOrgan ?? engine.getState();
+  const drawbars = organ.drawbars;
+  const percEnabled = organ.percEnabled;
+  const percHarmonic = organ.percHarmonic;
+  const percVolume = organ.percVolume;
+  const percDecay = organ.percDecay;
+  const vibratoMode = organ.vibratoMode;
+  const leslieSpeed = organ.leslieSpeed;
+  const leslieEnabled = organ.leslieEnabled;
+  const clickLevel = organ.clickLevel;
+  const overdrive = organ.overdrive;
+  const swellLevel = organ.swellLevel;
+
+  // After any engine edit: save the organ's settings on the track (that's what
+  // reloads with the project) and repaint.
+  const commit = () => {
+    if (trackId) updateTrack(trackId, { organState: engine.getState() });
+    forceRender();
+  };
 
   const handleDrawbar = (index: number, value: number) => {
     engine.setDrawbar(index, value);
     setActivePreset(null);
-    forceRender();
+    commit();
   };
 
   const handleLoadPreset = (preset: (typeof ORGAN_PRESETS)[number]) => {
     engine.loadPreset(preset);
     setActivePreset(preset.name);
-    forceRender();
+    commit();
   };
 
   const moduleAccent = (accent: string): CSSProperties =>
@@ -446,7 +460,7 @@ export function OrganView({ trackId }: OrganViewProps) {
               accent={ACCENT.leslie}
               onChange={(v) => {
                 engine.setLeslieEnabled(v);
-                forceRender();
+                commit();
               }}
             />
             <Segmented<LeslieSpeed>
@@ -456,7 +470,7 @@ export function OrganView({ trackId }: OrganViewProps) {
               className={styles.leslieSpeed}
               onChange={(v) => {
                 engine.setLeslieSpeed(v);
-                forceRender();
+                commit();
               }}
             />
             <div className={styles.leslieIndicators}>
@@ -514,7 +528,7 @@ export function OrganView({ trackId }: OrganViewProps) {
               accent={ACCENT.vibrato}
               onChange={(v) => {
                 engine.setVibratoMode(v);
-                forceRender();
+                commit();
               }}
             />
           </div>
@@ -549,7 +563,7 @@ export function OrganView({ trackId }: OrganViewProps) {
               accent={ACCENT.percussion}
               onChange={(v) => {
                 engine.setPercEnabled(v);
-                forceRender();
+                commit();
               }}
             />
             <Toggle
@@ -558,7 +572,7 @@ export function OrganView({ trackId }: OrganViewProps) {
               accent={ACCENT.percussion}
               onChange={(v) => {
                 engine.setPercHarmonic(v ? '3rd' : '2nd');
-                forceRender();
+                commit();
               }}
             />
             <Toggle
@@ -567,7 +581,7 @@ export function OrganView({ trackId }: OrganViewProps) {
               accent={ACCENT.percussion}
               onChange={(v) => {
                 engine.setPercVolume(v ? 'soft' : 'normal');
-                forceRender();
+                commit();
               }}
             />
             <Toggle
@@ -576,7 +590,7 @@ export function OrganView({ trackId }: OrganViewProps) {
               accent={ACCENT.percussion}
               onChange={(v) => {
                 engine.setPercDecay(v ? 'slow' : 'fast');
-                forceRender();
+                commit();
               }}
             />
           </div>
@@ -594,7 +608,7 @@ export function OrganView({ trackId }: OrganViewProps) {
                 size={40}
                 onChange={(v) => {
                   engine.setClickLevel(v);
-                  forceRender();
+                  commit();
                 }}
               />
               <Knob
@@ -606,7 +620,7 @@ export function OrganView({ trackId }: OrganViewProps) {
                 size={40}
                 onChange={(v) => {
                   engine.setOverdrive(v);
-                  forceRender();
+                  commit();
                 }}
               />
               <Knob
@@ -618,7 +632,7 @@ export function OrganView({ trackId }: OrganViewProps) {
                 size={40}
                 onChange={(v) => {
                   engine.setSwellLevel(v);
-                  forceRender();
+                  commit();
                 }}
               />
             </div>

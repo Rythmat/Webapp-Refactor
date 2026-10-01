@@ -3,6 +3,7 @@ import { UndoManager } from 'yjs';
 import { useStore } from './index';
 import type { ChordRegion } from './prismSlice';
 import type { Track } from './tracksSlice';
+import type { AutomationLanes } from '@/daw/audio/automation';
 import type { LeadSheetRepeat, LeadSheetSection } from './uiSlice';
 import type { ScoreTextMark } from '@/daw/components/Score/scoreText';
 import { ORIGIN_LOCAL } from '@/daw/collab/types';
@@ -31,6 +32,7 @@ export interface ScoreMarkSnapshot {
   leadSheetRepeats: LeadSheetRepeat[];
   measureRowSizes: number[] | null;
   measureFermatas: number[] | null;
+  masterAutomation: AutomationLanes;
 }
 
 export interface UndoSnapshot {
@@ -53,6 +55,8 @@ const MARK_KEYS = [
   'leadSheetRepeats',
   'measureRowSizes',
   'measureFermatas',
+  // Not a score mark, but restored the same way: Master volume automation.
+  'masterAutomation',
 ] as const;
 
 function readMarks(): ScoreMarkSnapshot {
@@ -70,6 +74,7 @@ function readMarks(): ScoreMarkSnapshot {
     leadSheetRepeats: state.leadSheetRepeats,
     measureRowSizes: state.measureRowSizes,
     measureFermatas: state.measureFermatas,
+    masterAutomation: state.masterAutomation,
   });
 }
 

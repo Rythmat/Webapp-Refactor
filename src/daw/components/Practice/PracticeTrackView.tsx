@@ -10,13 +10,26 @@ import {
   displayDegree,
 } from '@/daw/utils/displayAccidentals';
 import { getScaleLesson, spellScaleLesson } from '@/lib/learn/scaleLessons';
+import { chordSymbolTones } from '@/curriculum/engine/genreGeneration/chordSymbolTones';
 import { practiceMelodyTonic } from '@/features/practiceTracks/generatePracticeTrack';
+import {
+  chordTones,
+  rootPositionVoicing,
+  spellVoicing,
+} from '@/features/practiceTracks/chordVoicings';
+import { keyboardWindow } from '@/features/practiceTracks/genre/practiceKeyboard';
+import { useSettingsStore } from '@/features/settings/useSettingsStore';
 import { ChordChart } from './ChordChart';
 import { ScaleKeyboard, type KeyboardScale } from './ScaleKeyboard';
+import { SegmentedToggle } from './SegmentedToggle';
 
 /**
  * The screen a Practice Track opens on: one job — play over this — with the
- * chart, a big Play, Record, loop and tempo, and the scale lit on a keyboard.
+ * chart, a big Play, Record, loop and tempo, and the keyboard lit with what to
+ * play from: the scale when improvising a melody, the chord sounding now when
+ * playing the chords, the bass note sounding now when playing the bass. Tracks
+ * whose part covers more than one of those (Bass, Performance) switch between
+ * them over the keyboard.
  * It drives the same project and transport as the full Studio, so taking it to
  * the Studio is only a change of view.
  *
@@ -38,6 +51,21 @@ const TEMPO_MAX = 160;
 /** A Theory Practice Track always shows C3–B5; a genre one is sized to its part. */
 const THEORY_KEYBOARD = { startC: 4, endC: 6 };
 const BAR_TICKS = 1920;
+const ROOT_POSITION = { id: 'root', label: 'Root Position' };
+/** E2: where bass notes are lit when the student's writing has no bass of its own. */
+const BASS_FLOOR_FALLBACK = 40;
+
+/** What the keyboard lights. */
+type KeyboardView = 'chords' | 'bass' | 'scales';
+const BASS_TRACK_VIEWS = [
+  { id: 'bass', label: 'Bass Notes' },
+  { id: 'scales', label: 'Scales' },
+] as const;
+const PERFORMANCE_VIEWS = [
+  { id: 'bass', label: 'Bass' },
+  { id: 'chords', label: 'Chords' },
+  { id: 'scales', label: 'Melody' },
+] as const;
 
 export function PracticeTrackView({
   session,
@@ -114,6 +142,26 @@ export function PracticeTrackView({
     ? genre.studentParts.includes('melody')
     : theory?.openTrack === 'melody';
   const twoHands = (genre?.studentParts.length ?? 1) > 1;
+  /**
+   * What the keyboard can light, and what it opens on. A Chords track shows the
+   * chord to press, a Melody track the scale. A Bass track switches between the
+   * bass note and the scales; a Performance track, whose two hands cover all
+   * three parts, between bass, chords and the melody's scales.
+   */
+  const views = twoHands
+    ? PERFORMANCE_VIEWS
+    : genre?.studentParts[0] === 'bass'
+      ? BASS_TRACK_VIEWS
+      : null;
+  const defaultView: KeyboardView = twoHands
+    ? 'chords'
+    : genre?.studentParts[0] === 'bass'
+      ? 'bass'
+      : (genre ? genre.studentParts[0] === 'chords' : !playsMelody)
+        ? 'chords'
+        : 'scales';
+  const [view, setView] = useState<KeyboardView>(defaultView);
+  useEffect(() => setView(defaultView), [defaultView]);
 
   const task = useMemo(() => {
     if (!genre) {
@@ -144,6 +192,126 @@ export function PracticeTrackView({
     [chordRegions, genre],
   );
   const cycleTicks = cycleRegions.length * BAR_TICKS;
+
+  // ── The chords, when the student plays them ────────────────────────────────
+
+  const voicingChoice = useSettingsStore((s) => s.practiceChordVoicing);
+  const setVoicingChoice = useSettingsStore((s) => s.setPracticeChordVoicing);
+  /**
+   * A genre Chords track can show the voicings its lesson taught; Theory can't.
+   * The student's last pick carries across tracks where it exists; elsewhere a
+   * track opens on its own default. A Performance track shows its chord hand's
+   * own voicings, with no switch of their own.
+   */
+  const voicingSets = genre?.voicingSets ?? [];
+  const showVoicingSwitch = !twoHands && voicingSets.length > 0;
+  const voicingSet = twoHands
+    ? (voicingSets[0] ?? null)
+    : voicingChoice === ROOT_POSITION.id
+      ? null
+      : (voicingSets.find((set) => set.id === voicingChoice) ??
+        voicingSets.find((set) => set.id === genre?.defaultVoicing) ??
+        voicingSets[0] ??
+        null);
+  const voicingOptions = [
+    ...voicingSets.map(({ id, label }) => ({ id, label })),
+    ROOT_POSITION,
+  ];
+
+  /**
+   * Each chord of the cycle as the keyboard lights it, with its chord-tone
+   * numbers: the chord's voicing — a chord the lesson never voiced falls back
+   * to root position — or its bass note, the root or a slash chord's bass,
+   * lit from where the section's own bass writing starts.
+   */
+  const cycleVoicings = useMemo(() => {
+    if (view === 'scales') return null;
+    const bassFloor = genre?.bassFloor ?? BASS_FLOOR_FALLBACK;
+    return cycleRegions.map((region, i) => {
+      const midis = region.midis ?? [];
+      if (midis.length === 0) return null;
+      const root = midis[0];
+      let notes: number[];
+      if (view === 'bass') {
+        const symbol = genre?.chordCycle[i % genre.chordCycle.length] ?? '';
+        const bassPc = chordSymbolTones(symbol)?.bassPc ?? root % 12;
+        notes = [bassFloor + ((((bassPc - bassFloor) % 12) + 12) % 12)];
+      } else {
+        notes =
+          voicingSet?.voicings[i] ??
+          rootPositionVoicing(
+            root,
+            midis.map((midi) => midi - root),
+          );
+      }
+      // Numbered against the voicing as well as the chord, so a note the
+      // lesson holds over a chord it isn't in (Pop L1's C-G power chord over
+      // G, Am and F) still reads as what it is there: 11, ♭7, 9.
+      const tones = chordTones([...midis, ...notes].map((midi) => midi - root));
+      return {
+        region,
+        notes,
+        degrees: notes.map(
+          (midi) => tones.get((((midi - root) % 12) + 12) % 12)?.label ?? '',
+        ),
+        names: spellVoicing(
+          region.noteName,
+          noteNameInKey(root % 12, rootNote, mode),
+          root,
+          midis,
+          notes,
+        ).map(displayAccidentals),
+      };
+    });
+  }, [view, genre, cycleRegions, voicingSet, rootNote, mode]);
+
+  /**
+   * The keys to draw for the chords or bass notes: the track's own keyboard
+   * when it holds every note of the cycle, so switching views doesn't move the
+   * keys; else three octaves that do, so the keyboard stays put as the chords
+   * change. A lesson's two-hand voicings can be too wide for three (Pop L3's
+   * left-hand B♭2 under a right hand up to F5), and then it takes a fourth
+   * rather than cut one off.
+   */
+  const chordKeyboard = useMemo(() => {
+    const all = (cycleVoicings ?? []).flatMap((v) => v?.notes ?? []);
+    if (all.length === 0) return null;
+    const low = Math.min(...all);
+    const high = Math.max(...all);
+    if (keyboard.startC * 12 <= low && keyboard.endC * 12 + 11 >= high)
+      return keyboard;
+    const window = keyboardWindow(low, high);
+    if (window.startC * 12 <= low && window.endC * 12 + 11 >= high)
+      return window;
+    const startC = Math.floor(low / 12);
+    return { startC, endC: Math.max(startC + 3, Math.floor(high / 12)) };
+  }, [cycleVoicings, keyboard]);
+
+  /**
+   * The chord sounding now. Before Play it is the chord the playhead is parked
+   * on, so the first chord is lit and waiting.
+   */
+  const chordNow = useMemo<(KeyboardScale & { tonic: number }) | null>(() => {
+    if (!cycleVoicings) return null;
+    const withinCycle = cycleTicks > 0 ? position % cycleTicks : position;
+    const now =
+      cycleVoicings.find(
+        (v) =>
+          v !== null &&
+          withinCycle >= v.region.startTick &&
+          withinCycle < v.region.endTick,
+      ) ?? cycleVoicings.find((v) => v !== null);
+    if (!now) return null;
+    const lowest = now.notes[0];
+    return {
+      id: now.region.id,
+      title: displayAccidentals(now.region.noteName),
+      tonic: lowest,
+      intervals: now.notes.map((midi) => midi - lowest),
+      degrees: now.degrees,
+      names: now.names,
+    };
+  }, [cycleVoicings, cycleTicks, position]);
 
   // Playing the chords makes the chart the thing to read, so its boxes are big;
   // improvising makes it context, and it sits small under the keyboard. Either
@@ -257,12 +425,47 @@ export function PracticeTrackView({
       <p className="text-sm" style={{ color: 'var(--color-text-dim)' }}>
         {takeNotes > 0 && !isRecording
           ? `Your take is on the ${openTrackLabel} track. Take it to the Studio to hear or edit it.`
-          : `Play along on your MIDI keyboard; the ${playsMelody ? 'scale notes are lit on the keyboard' : 'chords are above'}.`}
+          : `Play along on your MIDI keyboard; the ${view === 'bass' ? 'bass note is lit on the keyboard' : view === 'chords' ? 'chord to play is lit on the keyboard' : 'scale notes are lit on the keyboard'}.`}
       </p>
     </>
   );
 
-  const keyboardPanel = activeScale ? (
+  const viewSwitch = views ? (
+    <SegmentedToggle
+      label="What the keyboard shows"
+      options={views}
+      value={view}
+      onChange={setView}
+    />
+  ) : null;
+
+  const keyboardPanel = chordNow ? (
+    <ScaleKeyboard
+      kind="chord"
+      scales={[chordNow]}
+      activeId={chordNow.id}
+      scaleTonic={chordNow.tonic}
+      startC={chordKeyboard?.startC ?? keyboard.startC}
+      endC={chordKeyboard?.endC ?? keyboard.endC}
+      heldNotes={hwActiveNotes}
+      fitWithin={rootRef}
+      fitAnchor={chartRef}
+      onScaleChange={() => {}}
+      controls={
+        <>
+          {viewSwitch}
+          {view === 'chords' && showVoicingSwitch ? (
+            <SegmentedToggle
+              label="Chord voicing"
+              options={voicingOptions}
+              value={voicingSet?.id ?? ROOT_POSITION.id}
+              onChange={setVoicingChoice}
+            />
+          ) : null}
+        </>
+      }
+    />
+  ) : activeScale ? (
     <ScaleKeyboard
       scales={scales}
       activeId={activeScale.id}
@@ -273,6 +476,7 @@ export function PracticeTrackView({
       fitWithin={rootRef}
       fitAnchor={chartRef}
       onScaleChange={(next) => setActiveScaleId(next.id)}
+      controls={viewSwitch}
     />
   ) : null;
 

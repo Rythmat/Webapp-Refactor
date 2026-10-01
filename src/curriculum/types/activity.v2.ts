@@ -52,6 +52,29 @@ export interface PracticeTrackParams {
   bpm?: number;
   /** Swing percentage; defaults to the source step's, then the flow's. */
   swing?: number;
+  /**
+   * The Chords track's keyboard voicings, one switch option each, in the order
+   * the switch shows them. Each is read from the Chords activity named, as the
+   * student played it there. Without this, one "Stylistic Voicings" option is
+   * read from the section's last activity.
+   */
+  voicings?: PracticeVoicingSource[];
+  /** Which of `voicings` the keyboard opens on; defaults to the first. */
+  defaultVoicing?: string;
+  /**
+   * A section's Practice Track direction, where the source activity's own
+   * doesn't fit a loop — Funk L3's capstone talks about its five-bar phrase,
+   * and the loop is four. Leads the track's "Things to try".
+   */
+  directions?: Partial<Record<'A' | 'B' | 'C' | 'D', string>>;
+}
+
+export interface PracticeVoicingSource {
+  id: string;
+  /** As the switch reads: 'Triads', 'Power Chords'. */
+  label: string;
+  /** The activity's number, as its `activity` title starts: 'B5.4'. */
+  activity: string;
 }
 
 export interface ActivityFlowParamsV2 extends ActivityFlowParams {

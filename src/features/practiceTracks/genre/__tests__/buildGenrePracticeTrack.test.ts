@@ -13,6 +13,7 @@ import {
   buildGenrePracticeTrack,
   chordOctaveShift,
   flowHasPracticeTracks,
+  loopChords,
   sectionHasContent,
 } from '../buildGenrePracticeTrack';
 
@@ -321,5 +322,63 @@ describe('buildGenrePracticeTrack — every fallback tonic is playable', () => {
     expect(track.chordCycle).toHaveLength(1);
     expect(chordSymbolTones(track.chordCycle[0])).not.toBeNull();
     expect(track.chordRegions).toHaveLength(16);
+  });
+});
+
+describe('loopChords — an activity’s phrase as a loop', () => {
+  it('drops a landing back on the first chord from an odd-length phrase', () => {
+    expect(loopChords(['Cm9', 'F13', 'Ab13', 'G7alt', 'Cm9'])).toEqual([
+      'Cm9',
+      'F13',
+      'Ab13',
+      'G7alt',
+    ]);
+  });
+
+  it('keeps an even-length progression that ends where it began', () => {
+    expect(loopChords(['Am9', 'D13', 'E7#5', 'Am9'])).toEqual([
+      'Am9',
+      'D13',
+      'E7#5',
+      'Am9',
+    ]);
+  });
+
+  it('reads a list written out twice as one turn', () => {
+    expect(loopChords(['C', 'G', 'Am', 'F', 'C', 'G', 'Am', 'F'])).toEqual([
+      'C',
+      'G',
+      'Am',
+      'F',
+    ]);
+    // …but never below four bars.
+    expect(loopChords(['Dm7', 'G9', 'Dm7', 'G9'])).toEqual([
+      'Dm7',
+      'G9',
+      'Dm7',
+      'G9',
+    ]);
+  });
+
+  it('Funk L3’s Performance track leads with its own four-chord direction', () => {
+    const direction = buildGenrePracticeTrack(funkL3, 'D')?.sourceDirection;
+    expect(direction).toContain('all four chords');
+    expect(direction).not.toMatch(/five/i);
+    // Other sections keep their activity's own direction.
+    expect(buildGenrePracticeTrack(funkL3, 'B')?.sourceDirection).toBe(
+      funkL3.sections
+        .find((s) => s.id === 'B')!
+        .steps.filter((st) => st.backing_parts?.engine_generates?.length)
+        .at(-1)?.direction,
+    );
+  });
+
+  it('Funk L3’s Performance track is a four-bar loop', () => {
+    expect(buildGenrePracticeTrack(funkL3, 'D')?.chordCycle).toEqual([
+      'Cm9',
+      'F13',
+      'Ab13',
+      'G7alt',
+    ]);
   });
 });

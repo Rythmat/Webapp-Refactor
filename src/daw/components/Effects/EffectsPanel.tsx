@@ -27,6 +27,7 @@ import {
   AutoCheckbox,
   BandTab,
   CurveTypeSelector,
+  FxPowerButton,
 } from './FxShared';
 import { FxBrowser } from './FxBrowser';
 
@@ -366,39 +367,32 @@ export function FxChainRow({
               data-tutorial-id={`fx-slot-${slot}`}
               className="flex shrink-0 flex-col items-center"
             >
-              <div
-                onClick={() => onSelect(slot)}
-                className="relative flex shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl"
-                style={{
-                  width: 68,
-                  height: 68,
-                  backgroundColor: 'rgba(255,255,255,0.03)',
-                  border: `2px solid ${color}`,
-                  opacity: enabled ? 1 : 0.35,
-                  boxShadow: isSelected ? `0 0 10px ${color}40` : 'none',
-                  transition: 'opacity 150ms ease, box-shadow 150ms ease',
-                }}
-              >
-                <FxBlockIcon type={slot} size={28} color={color} />
-                {/* Enable dot */}
+              <div className="relative">
                 <div
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onToggle(slot);
-                  }}
-                  className="absolute cursor-pointer rounded-full"
+                  onClick={() => onSelect(slot)}
+                  className="relative flex shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl"
                   style={{
-                    bottom: 5,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: 7,
-                    height: 7,
-                    backgroundColor: enabled
-                      ? '#22c55e'
-                      : 'rgba(255,255,255,0.12)',
-                    boxShadow: enabled ? '0 0 4px #22c55e80' : 'none',
+                    width: 68,
+                    height: 68,
+                    backgroundColor: 'rgba(255,255,255,0.03)',
+                    border: `2px solid ${color}`,
+                    opacity: enabled ? 1 : 0.35,
+                    boxShadow: isSelected ? `0 0 10px ${color}40` : 'none',
+                    transition: 'opacity 150ms ease, box-shadow 150ms ease',
                   }}
-                />
+                >
+                  <FxBlockIcon type={slot} size={28} color={color} />
+                </div>
+                {/* On/off — outside the dimmed block so it stays readable
+                    (and clickable) while the effect is bypassed. */}
+                <div className="absolute" style={{ top: -8, right: -8 }}>
+                  <FxPowerButton
+                    enabled={enabled}
+                    onToggle={() => onToggle(slot)}
+                    effectName={FX_LABEL[slot] ?? slot}
+                    size={20}
+                  />
+                </div>
               </div>
               <span
                 className="mt-1 text-[9px] font-semibold uppercase tracking-wider"
@@ -480,6 +474,14 @@ export function FxControlsPanel({
   const category = FX_CATEGORY[selectedEffect] ?? '';
   const label = FX_LABEL[selectedEffect] ?? selectedEffect;
   const hasViz = HAS_VIZ.has(selectedEffect);
+  const slotState = effects[selectedEffect as keyof TrackEffectState] as {
+    enabled: boolean;
+  };
+  const enabled = slotState?.enabled ?? false;
+  const toggleEnabled = () =>
+    onUpdate(trackId, {
+      [selectedEffect]: { ...slotState, enabled: !enabled },
+    });
 
   return (
     <div
@@ -491,6 +493,13 @@ export function FxControlsPanel({
         className="flex items-center gap-2.5 border-b px-4 py-1.5"
         style={{ borderColor: 'var(--color-border)' }}
       >
+        <FxPowerButton
+          enabled={enabled}
+          onToggle={toggleEnabled}
+          effectName={label}
+          size={22}
+          withText
+        />
         <div
           className="size-2.5 shrink-0 rounded-full"
           style={{ backgroundColor: color }}

@@ -5,6 +5,12 @@ import {
   type EffectSlotType,
   type TrackEffectState,
 } from '@/daw/audio/EffectChain';
+import {
+  insertPoint,
+  removePoint,
+  type AutomationLanes,
+  type AutomationPoint,
+} from '@/daw/audio/automation';
 
 // ── Types ────────────────────────────────────────────────────────────────
 
@@ -30,6 +36,9 @@ export interface MasteringSlice {
   masteringEffects: TrackEffectState;
   // Master bus output volume (0–1), driving the audio engine's master gain.
   masterVolume: number;
+  /** Master-bus automation lanes, same shape as Track.automation. Only
+   *  'volume' is offered (see MASTER_AUTOMATION_PARAMS). */
+  masterAutomation: AutomationLanes;
 
   // Actions
   setMasteringStyle: (style: MasteringStyle) => void;
@@ -53,6 +62,11 @@ export interface MasteringSlice {
   removeMasteringFx: (effectType: EffectSlotType) => void;
   updateMasteringEffects: (effects: Partial<TrackEffectState>) => void;
   setMasterVolume: (value: number) => void;
+  upsertMasterAutomationPoint: (
+    paramId: string,
+    point: AutomationPoint,
+  ) => void;
+  removeMasterAutomationPoint: (paramId: string, tick: number) => void;
 }
 
 // ── Slice ────────────────────────────────────────────────────────────────
@@ -75,6 +89,7 @@ export const createMasteringSlice: StateCreator<
   masteringFxChain: [],
   masteringEffects: structuredClone(DEFAULT_EFFECTS),
   masterVolume: 0.8,
+  masterAutomation: {},
 
   setMasteringStyle: (style) => set({ masteringStyle: style }),
 
@@ -166,4 +181,25 @@ export const createMasteringSlice: StateCreator<
 
   setMasterVolume: (value) =>
     set({ masterVolume: Math.max(0, Math.min(1, value)) }),
+
+  // Fresh lanes object on every edit (like track automation) so the undo,
+  // collab diff and playback re-assert all see the change by reference.
+  upsertMasterAutomationPoint: (paramId, point) =>
+    set((s) => ({
+      masterAutomation: {
+        ...s.masterAutomation,
+        [paramId]: insertPoint(s.masterAutomation[paramId], point),
+      },
+    })),
+
+  removeMasterAutomationPoint: (paramId, tick) =>
+    set((s) => {
+      const lane = s.masterAutomation[paramId];
+      if (!lane) return {};
+      const next = removePoint(lane, tick);
+      const masterAutomation: AutomationLanes = { ...s.masterAutomation };
+      if (next.length === 0) delete masterAutomation[paramId];
+      else masterAutomation[paramId] = next;
+      return { masterAutomation };
+    }),
 });

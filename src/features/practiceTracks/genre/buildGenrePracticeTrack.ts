@@ -27,6 +27,7 @@ import {
 } from '@/curriculum/engine/genreGeneration/backingPatterns';
 import { chordSymbolTones } from '@/curriculum/engine/genreGeneration/chordSymbolTones';
 import { genreBassVoice } from '@/curriculum/engine/genreGeneration/genreBassVoices';
+import { resolveStepContent } from '@/curriculum/engine/genreGeneration/resolveStepContent';
 import { swingPercent } from '@/curriculum/engine/genreGeneration/swing';
 import type { ActivitySectionId } from '@/curriculum/types/activity';
 import type {
@@ -43,6 +44,7 @@ import { formatAccidentalsForDisplay } from '@/curriculum/utils/formatAccidental
 import { nextChordId, type ChordRegion } from '@/daw/store/prismSlice';
 import type { MidiClip, StudioBassVoice } from '@/daw/store/tracksSlice';
 import { formatChord, normalizeQuality, parseChord } from '@/lib/chordNotation';
+import { stylisticVoicings } from '../chordVoicings';
 import { flowPracticeScales, type PracticeScale } from './practiceScales';
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -111,13 +113,26 @@ export interface GenrePracticeTrackResult {
   studentRange: { low: number; high: number };
   /** Every scale this level teaches, the level's default first. */
   scales: PracticeScale[];
-  /** The source step's own instruction, as the first improvisation prompt. */
-  sourceDirection: string | null;
-  grooveId: string;
+  /**
+   * For a Chords track, the lesson's own voicings the keyboard can show — one
+   * set per switch option, each chord of `chordCycle` as that activity voiced
+   * it (null where none does). Null on the other tracks.
+   */
+  voicingSets: VoicingSet[] | null;
+  /** Which of `voicingSets` the keyboard opens on. */
+  defaultVoicing: string | null;
   /** The lesson's drum kit, so the Studio's drums sound like the play-along. */
   drumKit: 'natural' | '808' | 'house';
   /** The lesson's bass sound; undefined = the sampled electric bass. */
   bassVoice?: StudioBassVoice;
+  /**
+   * The lowest bass note the section writes — where its bass notes are lit —
+   * or null when the student's writing has no bass part.
+   */
+  bassFloor: number | null;
+  /** The source step's own instruction, as the first improvisation prompt. */
+  sourceDirection: string | null;
+  grooveId: string;
 }
 
 // ── Content gate ─────────────────────────────────────────────────────────────
@@ -202,6 +217,39 @@ function lessonSounds(
   };
 }
 
+/**
+ * An activity's chord list as a loop. Activities are written as phrases, and a
+ * phrase's shape isn't a loop's:
+ *
+ * - A phrase that ends by landing back on its first chord lists that landing
+ *   as a bar of its own — Funk L3's capstone is Cm9 F13 A♭13 G7alt Cm9. Looped,
+ *   that's a fifth bar and two Cm9s in a row; the loop is the four before it.
+ *   Only an odd-length list is read this way, since an even one ending where
+ *   it began (Am9 D13 E7♯5 Am9) is a progression, not a landing.
+ * - A list written out twice over (Pop L1's eight-bar jam, C G Am F C G Am F)
+ *   is one turn of it — down to four bars, never fewer, so a four-bar vamp
+ *   (Dm7 G9 Dm7 G9) still reads as the four bars it was taught as.
+ */
+const MIN_LOOP_BARS = 4;
+
+export function loopChords(chords: readonly string[]): string[] {
+  let loop = [...chords];
+  if (
+    loop.length > 1 &&
+    loop.length % 2 === 1 &&
+    loop[loop.length - 1] === loop[0]
+  )
+    loop = loop.slice(0, -1);
+  for (let size = MIN_LOOP_BARS; size < loop.length; size++) {
+    if (
+      loop.length % size === 0 &&
+      loop.every((chord, i) => chord === loop[i % size])
+    )
+      return loop.slice(0, size);
+  }
+  return loop;
+}
+
 /** The chords the Practice Track loops, and the groove under them. */
 function resolveLoop(
   flow: ActivityFlowV2,
@@ -218,7 +266,7 @@ function resolveLoop(
   const chords = authored?.chords?.length
     ? authored.chords
     : step?.chordSymbols?.length
-      ? step.chordSymbols
+      ? loopChords(step.chordSymbols)
       : [tonicSymbol(keyLabel, mode, flow.genre)];
 
   // A symbol the parser can't read would sound as the engine's fallback tonic
@@ -373,6 +421,137 @@ export function chordOctaveShift(
   return floor <= SHELL_TOP ? -12 : 0;
 }
 
+// ── Stylistic voicings ───────────────────────────────────────────────────────
+
+export interface VoicingSet {
+  id: string;
+  label: string;
+  voicings: (number[] | null)[];
+}
+
+/**
+ * The hands that play chords in a step: all of them in a Chords section, the
+ * hand given the chords role in a Performance one ('lh_chords_rh_melody' is the
+ * left, 'lh_bass_rh_chords' the right). None when a Performance step doesn't
+ * say, since its chords can't be told from its melody or bass.
+ */
+function chordHands(
+  step: ActivityStepV2,
+  sectionId: ActivitySectionId,
+): ('lh' | 'rh')[] | 'all' {
+  if (sectionId !== 'D') return 'all';
+  const roles = step.instrument_config;
+  if (!roles) return [];
+  return (['lh', 'rh'] as const).filter(
+    (hand) => roles[`${hand}_role`] === 'chords',
+  );
+}
+
+/**
+ * The voicings a section taught, one per chord of the loop: read from
+ * `fromActivity` (its last activity when not given), then from earlier ones for
+ * any chord that one doesn't play. Read through `resolveStepContent`, so they
+ * sit in the register the student saw them in. In a Performance section only
+ * the chord hand is read.
+ */
+function sectionVoicings(
+  flow: ActivityFlowV2,
+  section: ActivitySectionV2,
+  chords: string[],
+  fromActivity?: string,
+): (number[] | null)[] {
+  const ctx = {
+    section: section.id,
+    keyRoot: flowKeyRoot(flow),
+    tempo: flow.params.tempoRange[0],
+    timeSignature: [4, 4] as [number, number],
+    tpb: 480,
+    defaultScale: flow.params.defaultScale,
+    genre: flow.genre,
+  };
+  const from = fromActivity
+    ? section.steps.findIndex((step) =>
+        step.activity.startsWith(`${fromActivity}:`),
+      )
+    : section.steps.length - 1;
+  const activities = section.steps
+    .slice(0, from + 1)
+    .reverse()
+    .flatMap((step) => {
+      const variant = step.targetNotes?.length ? null : step.variants?.[0];
+      const written: ActivityStepV2 = variant
+        ? {
+            ...step,
+            targetNotes: variant.targetNotes,
+            chordSymbols: variant.chordSymbols ?? step.chordSymbols,
+          }
+        : step;
+      const hands = chordHands(step, section.id);
+      if (
+        !written.targetNotes?.length ||
+        !written.chordSymbols?.length ||
+        hands.length === 0
+      )
+        return [];
+      const notes = resolveStepContent(written, ctx) ?? [];
+      return [
+        {
+          notes:
+            hands === 'all'
+              ? notes
+              : notes.filter((note) => note.hand && hands.includes(note.hand)),
+          chordSymbols: written.chordSymbols,
+        },
+      ];
+    });
+  return stylisticVoicings(chords, activities);
+}
+
+/**
+ * The switch options a Chords track offers beyond Root Position: the level's
+ * authored ones, else one set from the section's last activity. A set that
+ * voices none of the loop's chords is left off.
+ */
+function voicingSets(
+  flow: ActivityFlowV2,
+  section: ActivitySectionV2,
+  chords: string[],
+): VoicingSet[] {
+  // A level's authored sets name Chords activities; Performance reads its own.
+  const authored =
+    section.id === 'B' ? flow.params.practiceTrack?.voicings : undefined;
+  const sources = authored ?? [
+    { id: 'stylistic', label: 'Stylistic Voicings', activity: undefined },
+  ];
+  return sources
+    .map(({ id, label, activity }) => ({
+      id,
+      label,
+      voicings: sectionVoicings(flow, section, chords, activity),
+    }))
+    .filter((set) => set.voicings.some((v) => v !== null));
+}
+
+/**
+ * Where the section's own bass writing starts: every note of a Bass section,
+ * the left hand of a Performance step that gives it the bass. Null where the
+ * student's writing has no bass.
+ */
+function bassFloor(
+  steps: readonly ActivityStepV2[],
+  sectionId: ActivitySectionId,
+): number | null {
+  const midis = steps.flatMap((step) => {
+    if (sectionId === 'C') return (step.targetNotes ?? []).map((n) => n.midi);
+    if (sectionId !== 'D' || step.instrument_config?.lh_role !== 'bass')
+      return [];
+    return (step.targetNotes ?? [])
+      .filter((n) => n.hand === 'lh')
+      .map((n) => n.midi);
+  });
+  return midis.length ? Math.min(...midis) : null;
+}
+
 // ── Clips ────────────────────────────────────────────────────────────────────
 
 /**
@@ -496,6 +675,11 @@ export function buildGenrePracticeTrack(
     if (clip) clips[part] = clip;
   }
 
+  const sets =
+    sectionId === 'B' || sectionId === 'D'
+      ? voicingSets(flow, section, chords)
+      : null;
+
   return {
     genre: flow.genre,
     level: flow.level,
@@ -513,7 +697,19 @@ export function buildGenrePracticeTrack(
     melodyFloor: melodyFloor(measured) ?? MELODY_FLOOR_FALLBACK,
     studentRange: studentRange(measured),
     scales: flowPracticeScales(flow),
-    sourceDirection: step?.direction ?? null,
+    voicingSets: sets,
+    bassFloor: bassFloor(measured, sectionId),
+    defaultVoicing: sets
+      ? (sets.find(
+          (set) => set.id === flow.params.practiceTrack?.defaultVoicing,
+        )?.id ??
+        sets[0]?.id ??
+        null)
+      : null,
+    sourceDirection:
+      flow.params.practiceTrack?.directions?.[sectionId] ??
+      step?.direction ??
+      null,
     grooveId,
     ...lessonSounds(flow, step),
   };

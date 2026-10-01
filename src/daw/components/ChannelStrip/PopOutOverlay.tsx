@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
+import { THEMES } from '@/daw/constants/themes';
 
 // ── PopOutOverlay ────────────────────────────────────────────────────────
 // Reusable full-screen portal overlay for oversized channel strip components.
@@ -65,7 +66,7 @@ export function PopOutOverlay({
   return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
       onClick={onClose}
     >
       <motion.div
@@ -75,6 +76,10 @@ export function PopOutOverlay({
         transition={{ type: 'spring', stiffness: 400, damping: 30 }}
         className="flex flex-col overflow-hidden rounded-lg"
         style={{
+          // The portal mounts in <body>, outside .daw-root where useTheme sets
+          // the Studio palette — re-apply it here or the panel and the
+          // instrument inside it render see-through.
+          ...(THEMES.dark as React.CSSProperties),
           backgroundColor: 'var(--color-surface)',
           width: fullScreen ? 'calc(100vw - 24px)' : '70vw',
           height: fullScreen ? 'calc(100vh - 24px)' : '70vh',
@@ -86,7 +91,7 @@ export function PopOutOverlay({
         {/* Minimal header */}
         <div
           className="flex shrink-0 items-center border-b px-3"
-          style={{ borderColor: 'rgba(255, 255, 255, 0.08)', height: 36 }}
+          style={{ borderColor: 'rgba(255, 255, 255, 0.08)', height: 40 }}
         >
           {trackColor && (
             <div
@@ -100,27 +105,27 @@ export function PopOutOverlay({
             </span>
           )}
           <div className="flex-1" />
-          {/* Close — kept visibly button-like at rest.  In fullScreen mode the
-              synth paints its own header right below this bar, so a bare glyph
-              reads as part of the instrument rather than as window chrome. */}
+          {/* Close — a labelled, high-contrast button so it can't be mistaken
+              for part of the instrument painted right below this bar. */}
           <button
             onClick={onClose}
-            className="flex size-7 cursor-pointer items-center justify-center rounded-md transition-colors"
+            className="flex h-7 cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-xs font-semibold transition-colors"
             style={{
-              color: 'var(--color-text)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              background: 'rgba(255,255,255,0.06)',
+              color: '#ffffff',
+              border: '1px solid rgba(255,255,255,0.35)',
+              background: 'rgba(255,255,255,0.12)',
             }}
             onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.16)')
+              (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.24)')
             }
             onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)')
+              (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.12)')
             }
             aria-label="Close"
             title="Close (Esc)"
           >
-            <X size={15} strokeWidth={2} />
+            <X size={15} strokeWidth={2.25} />
+            Close
           </button>
         </div>
 

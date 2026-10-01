@@ -5936,6 +5936,17 @@ export const funkL3: ActivityFlowV2 = {
     tempoRange: [85, 110],
     swing: 0,
     grooves: ['groove_funk_03', 'groove_funk_04'],
+    practiceTrack: {
+      // The capstone's own direction counts the five bars of its phrase,
+      // landing included; the Practice Track loops the four chords.
+      directions: {
+        D:
+          'Level 3 capstone: the full progression. ' +
+          'LH alternates octave pop (Cm, F) and 1-5-8 (Ab, G). ' +
+          'RH plays the voicings through all four chords. ' +
+          'Four chords, full groove — this is the complete Funk L3 feel.',
+      },
+    },
   },
   sections: [funkL2SectionA, funkL2SectionB, funkL2SectionC, funkL2SectionD],
 };

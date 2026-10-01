@@ -32,7 +32,8 @@ Underneath every artist’s flow and message: a short loop, a deep bass, and dri
       era: '2010s–present',
       styleRef: 'l1a',
       role: 'Producer',
-      tracks: ['Jumpman (Drake & Future, with Metro Boomin)'],
+      tracks: ['I Get the Bag (Gucci Mane ft. Migos, with Metro Boomin)'],
+      globeArtist: 'Southside',
     },
     {
       name: 'Lex Luger',
@@ -79,7 +80,7 @@ Underneath every artist’s flow and message: a short loop, a deep bass, and dri
       name: 'The Fat Boys',
       era: '1980s',
       styleRef: 'l2a',
-      role: 'Group',
+      role: 'Group \u2014 Prince Markie Dee (Mark Morales) was of Puerto Rican descent',
       tracks: ['The Twist (Yo, Twist!)', 'Wipeout'],
     },
     {

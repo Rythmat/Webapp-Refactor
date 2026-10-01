@@ -28,7 +28,7 @@ export const hipHopStyleDna: StyleDnaLevel[] = [
       {
         name: 'Southside (808 Mafia)',
         description:
-          'Heavy 808s locked to the kick, sparse triad pads, hi-hat rolls in 32nds and triplets. Co-produced "Jumpman" (Drake & Future).',
+          'Heavy 808s locked to the kick, sparse triad pads, hi-hat rolls in 32nds and triplets. Co-founded 808 Mafia with Lex Luger; co-produced "I Get the Bag" (Gucci Mane) with Metro Boomin.',
         tags: [
           'hiphop:southside:kick_locked_808',
           'hiphop',
@@ -134,7 +134,7 @@ export const hipHopStyleDna: StyleDnaLevel[] = [
       {
         name: 'The Fat Boys',
         description:
-          'Beatbox-driven 1980s party rap that took hip hop to the mainstream. "The Twist (Yo, Twist!)," "Wipeout."',
+          'Beatbox-driven 1980s party rap that took hip hop to the mainstream; Prince Markie Dee (Mark Morales) was of Puerto Rican descent. "The Twist (Yo, Twist!)," "Wipeout."',
         tags: ['hiphop:fat_boys:beatbox', 'hiphop'],
       },
       {

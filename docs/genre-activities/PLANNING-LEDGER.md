@@ -142,6 +142,8 @@ supersedes it and mark the old one `~~struck~~ → D-xxx`.
 | D-063 | 2026-09-30 | Hip-hop | Cardi B (L1 Trap) and Missy Elliott (L2, by era — her Timbaland sound isn't boom bap) added | Aaron |
 | D-064 | 2026-10-01 | Hip-hop | Overview history wording (Aaron's): "claimed the mic for women"; closes on "Underneath every artist's flow and message … the lineage of Black American Music and the Afro-Caribbean diaspora" | Aaron |
 | D-065 | 2026-10-01 | Hip-hop | No separate Latin section, so Hip Hop tells the Latin story: Latinos in the earliest break-dancing origins; the Fat Boys and Cypress Hill alongside Wu-Tang and N.W.A; Cardi B and Bad Bunny today; hip hop as global music. Artists added: Fat Boys, Cypress Hill (L2), Bad Bunny (L1) | Aaron |
+| D-066 | 2026-10-01 | all | Every Overview artist card gets a Globe icon → the artist's Globe card, which plays a featured hit (official upload, clean/edited version wherever possible) | Aaron |
+| D-067 | 2026-10-01 | Hip-hop | Fat Boys card notes Prince Markie Dee (Mark Morales) was of Puerto Rican descent; Southside's hit corrected to "I Get the Bag" ("Jumpman" is Metro Boomin's alone) | Aaron / fact-check |
 
 ## Open questions
 
@@ -169,6 +171,8 @@ Remove a question once it is answered (the answer becomes a decision).
 | T-023 | Pop, Funk | New melodies the reorder needs: Pop L2 Aeolian, Pop L3 Dorian + Aeolian, Funk L3 blues (no sequence steps needed after D-043) | blocked |
 | T-024 | all | Republish the CDN lesson bundle after flow edits (prod reads the CDN, not the TS files) | todo |
 | T-030 | Hip-hop | L1 "Trap" authored in hipHop_v2.ts (32 steps, generated from the outline); tests mark Hip Hop L1 authored; walked in the app (808 kit, high chords, two-hand split) | done |
+| T-036 | Hip-hop | Featured hit still missing: Southside (no clean official upload of any hit — keep the card without a video, or swap the artist?) and Cypress Hill (official "Insane in the Brain" may not be the edited audio — needs a listen) | blocked |
+| T-037 | all | Watch the flagged featured hits before classroom use (artistHits.ts `review`): Eminem, Snoop Dogg, Kendrick Lamar, Mos Def, Tupac, Lex Luger, Wu-Tang Clan, Metro Boomin; Prince is Purple Rain (Kiss/Sign O the Times not school-safe) | todo |
 | T-009 | Hip-hop | AUTHORED_GENRES includes hipHop; step-count floor skips still-stubbed levels; practiceTrackCoverage lists hip-hop L1 | done |
 
 Status values: `todo`, `doing`, `blocked`, `done` (done items move to the

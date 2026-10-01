@@ -1,8 +1,13 @@
 import { useMemo } from 'react';
+import { AtlasVideo } from '@/components/atlas/components/UI/AtlasVideo';
 import {
   PanelRow,
   SidePanel,
 } from '@/components/atlas/components/UI/SidePanel';
+import {
+  getArtistHit,
+  type ArtistHit,
+} from '@/components/atlas/data/artistHits';
 import { getArtist, getEventsForArtist } from '@/components/atlas/data/artists';
 import { describeStop } from '@/components/atlas/navigation/describeStop';
 import { useAtlasNavigate } from '@/components/atlas/navigation/useAtlasNavigate';
@@ -14,11 +19,16 @@ import { useAtlasNavigate } from '@/components/atlas/navigation/useAtlasNavigate
  * or from search — and addressed as `?artist=<name>`, so "Wes Montgomery on
  * the globe" is a link a teacher can hand out. The globe lights up each place
  * in the list, and the timeline along the bottom becomes this artist's.
+ *
+ * An artist with a featured hit (artistHits.ts) plays it at the top — that is
+ * where a genre Overview's Globe icon lands, so the card opens even for an
+ * artist the globe has no moments for yet.
  */
 export function ArtistPanel({ name }: { name: string }) {
   const navigate = useAtlasNavigate();
   const artist = useMemo(() => getArtist(name), [name]);
   const events = useMemo(() => getEventsForArtist(name), [name]);
+  const hit = useMemo(() => getArtistHit(name), [name]);
 
   // The distinct places, in the order the career reached them.
   const places = useMemo(() => {
@@ -28,6 +38,17 @@ export function ArtistPanel({ name }: { name: string }) {
     }
     return seen;
   }, [events]);
+
+  if (!artist && hit) {
+    return (
+      <SidePanel title={hit.artist} onClose={navigate.home}>
+        <FeaturedHit hit={hit} />
+        <p className="p-2 text-sm text-white/60">
+          No moments on the globe for {hit.artist} yet.
+        </p>
+      </SidePanel>
+    );
+  }
 
   if (!artist) {
     return (
@@ -63,6 +84,7 @@ export function ArtistPanel({ name }: { name: string }) {
       title={artist.name}
       onClose={navigate.home}
     >
+      {hit && <FeaturedHit hit={hit} />}
       <ol className="space-y-0.5">
         {events.map((event) => (
           <li key={event.id}>
@@ -77,5 +99,15 @@ export function ArtistPanel({ name }: { name: string }) {
         ))}
       </ol>
     </SidePanel>
+  );
+}
+
+/** The artist's featured hit, playable in place. */
+function FeaturedHit({ hit }: { hit: ArtistHit }) {
+  return (
+    <div className="mb-3 space-y-1.5">
+      <AtlasVideo title={hit.song} videoId={hit.videoId} />
+      <p className="px-1 text-xs text-white/60">{hit.song}</p>
+    </div>
   );
 }

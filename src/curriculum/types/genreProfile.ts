@@ -25,6 +25,12 @@ export interface ArtistRef {
   styleRef: string;
   role?: string;
   tracks?: string[];
+  /**
+   * The artist's name on the Globe when the card's differs — 'Parliament' for
+   * 'Parliament-Funkadelic'. The card's Globe icon opens `?artist=` this (else
+   * `name`), where the artist's featured hit plays (atlas/data/artistHits.ts).
+   */
+  globeArtist?: string;
 }
 
 export interface GenreLevelProfile {

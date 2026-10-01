@@ -1,12 +1,13 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Play } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Globe, Play } from 'lucide-react';
 import * as Tone from 'tone';
 import { PianoKeyboard, useRange } from '@/components/PianoKeyboard';
 import { type PlaybackEvent } from '@/contexts/PlaybackContext';
 import { startEpSampler, triggerEpAttackRelease } from '@/audio/epSampler';
-import { CurriculumRoutes } from '@/constants/routes';
+import { AtlasRoutes, CurriculumRoutes } from '@/constants/routes';
 import { HeaderBar } from '@/components/ClassroomLayout/HeaderBar';
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
 import type {
@@ -251,12 +252,26 @@ function AboutTab({ profile }: { profile: GenreProfile }) {
                 border: '1px solid var(--color-border)',
               }}
             >
-              <p
-                className="text-sm font-semibold"
-                style={{ color: 'var(--color-text)' }}
-              >
-                {artist.name}
-              </p>
+              <div className="flex items-start justify-between gap-2">
+                <p
+                  className="text-sm font-semibold"
+                  style={{ color: 'var(--color-text)' }}
+                >
+                  {artist.name}
+                </p>
+                {/* Opens the artist's globe card, where a featured hit plays. */}
+                <Link
+                  to={AtlasRoutes.globe(undefined, {
+                    artist: artist.globeArtist ?? artist.name,
+                  })}
+                  aria-label={`${artist.name} on the Globe`}
+                  title={`${artist.name} on the Globe`}
+                  className="shrink-0 rounded-md p-1 opacity-60 transition-opacity hover:opacity-100 focus-visible:opacity-100"
+                  style={{ color: 'var(--color-text)' }}
+                >
+                  <Globe size={15} aria-hidden />
+                </Link>
+              </div>
               <p className="text-xs" style={{ color: 'var(--color-text-dim)' }}>
                 {artist.era}
                 {artist.role && ` · ${artist.role}`}

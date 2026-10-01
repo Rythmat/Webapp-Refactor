@@ -136,6 +136,7 @@ supersedes it and mark the old one `~~struck~~ → D-xxx`.
 | D-057 | 2026-09-30 | Funk | Funk L2 Practice Tracks (all sections) loop D3.1's progression: Am9 – D13 – Am9 – E7♯5 | Aaron |
 | D-058 | 2026-09-30 | Funk | A Practice Track's 16th-note chromatic approach may sit a half step outside Funk's C3–C5 chord window, resolving in (the rule is about voicings) | needed for D-057; Aaron may override |
 | D-059 | 2026-09-30 | Hip-hop | Wu-Tang Clan and N.W.A must be included as pioneers (L2 Boom Bap); Queen Latifah alongside Lauryn Hill as crucial women in Hip Hop (L3) | Aaron |
+| D-060 | 2026-09-30 | Hip-hop | Jay-Z must be included; Eminem added as a revolutionary, iconic white rapper (both L2, Eminem beside Dr. Dre) | Aaron |
 
 ## Open questions
 

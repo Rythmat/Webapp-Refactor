@@ -132,6 +132,17 @@ export const hipHopStyleDna: StyleDnaLevel[] = [
         ],
       },
       {
+        name: 'Jay-Z',
+        description:
+          'Effortless flow over soulful, sample-driven boom bap that became an empire. "Dead Presidents II," "Empire State of Mind."',
+        tags: [
+          'hiphop:jay_z:soul_sample_boom_bap',
+          'hiphop',
+          'hiphop:jay_z:effortless_flow',
+          'hiphop',
+        ],
+      },
+      {
         name: 'Dr. Dre',
         description:
           'Simple high piano and synth figures over a deep bass — a single repeated chord idea carries the track. "Still D.R.E.," "Nuthin\' but a \'G\' Thang."',
@@ -139,6 +150,17 @@ export const hipHopStyleDna: StyleDnaLevel[] = [
           'hiphop:dr_dre:high_piano_riff',
           'hiphop',
           'hiphop:dr_dre:deep_bass',
+          'hiphop',
+        ],
+      },
+      {
+        name: 'Eminem',
+        description:
+          'Revolutionary and iconic: a white rapper from Detroit with dense, multisyllabic rhymes over Dr. Dre\'s sparse, heavy beats. "Lose Yourself," "The Real Slim Shady."',
+        tags: [
+          'hiphop:eminem:multisyllabic_rhyme',
+          'hiphop',
+          'hiphop:eminem:dre_production',
           'hiphop',
         ],
       },

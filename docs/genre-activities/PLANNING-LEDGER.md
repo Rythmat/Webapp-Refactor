@@ -4,7 +4,7 @@ The running record for the Genre activity-flow planning effort. Maintained by
 `/genre-sync`; edit by hand freely — the command merges, it doesn't overwrite.
 
 **Last synced:** 2026-09-30 20:58
-**Current focus:** Hip-hop — authoring the L1 flow from the signed-off outline; then L2/L3 outlines
+**Current focus:** Hip-hop — flows built and committed (6 commits on Peter); Overview page + style DNA next
 
 ---
 
@@ -34,7 +34,7 @@ general, promote it here.
 | Electronic | not reviewed | | |
 | Folk | not reviewed | | |
 | Funk | planning | New blues melody for Funk L3 (Q-018) | Section A reordered; finger bass |
-| Hip-hop | building | L1 built; outline L2 (Boom Bap) and L3 (Conscious) | chords, scales, bass and play-along specs agreed for L1–L3; flow, Overview, engine grooves still stubs |
+| Hip-hop | building | All 3 levels built and committed; next: Overview page (T-003) + style DNA (T-015), then republish (T-024) | 89 steps | chords, scales, bass and play-along specs agreed for L1–L3; flow, Overview, engine grooves still stubs |
 | Jam band | not reviewed | | |
 | Jazz | not reviewed | | |
 | Latin | not reviewed | | |
@@ -132,6 +132,7 @@ supersedes it and mark the old one `~~struck~~ → D-xxx`.
 | D-053 | 2026-09-29 | Hip-hop | Hip Hop never uses the old electric bass: Finger electric (FluidR3) everywhere it was electric, and it is Hip Hop's engine default | better sound |
 | D-054 | 2026-09-30 | Hip-hop | L1 outline signed off as written (hiphop-L1-outline.md): draft melodies, G root position as G4-B4-D5, Bass sequence (one note → foundation → 5→♭7 bar 2 → 5→♭3 bar 1 → Aeolian ♭6→5 → play-along), Performance steps | "seems good, let's proceed" |
 | D-055 | 2026-09-30 | all | Practice Tracks use the same kit and bass as their lesson play-alongs (Pop, Funk, Hip Hop) | sound like the lesson |
+| D-056 | 2026-09-30 | Hip-hop | L2 and L3 outlines signed off as written ("Let's go for it!") | |
 
 ## Open questions
 
@@ -139,8 +140,6 @@ Remove a question once it is answered (the answer becomes a decision).
 
 | ID | Raised | Scope | Question | Blocking? | Who decides |
 | -- | ------ | ----- | -------- | --------- | ----------- |
-| Q-025 | 2026-09-30 | Hip-hop | Sign off the L2 outline: draft scales (A minor blues, A Dorian) and phrases, triad review, sus2 → resolutions, Bass and Performance steps | blocks T-031 | Aaron |
-| Q-026 | 2026-09-30 | Hip-hop | Sign off the L3 outline: draft scales (E Phrygian, Dorian, harmonic minor) and phrases, Bass and Performance steps | blocks T-031 | Aaron |
 | Q-018 | 2026-09-29 | Pop, Funk | New melodies the reorder needs (Pop L2 Aeolian; Pop L3 Dorian + Aeolian; Funk L3 blues): Aaron writes them, or Claude drafts for review? | blocks T-023 | Aaron |
 | Q-020 | 2026-09-29 | Hip-hop | Trap bass expansions only over the 1 min chord? (over Fm, ♭6→5 would be D♭→C, outside C Aeolian) | no | Aaron |
 | Q-021 | 2026-09-29 | Hip-hop | 808 "1 s decay": built as a fade to silence over 1 s — or decay to a held level? | no | Aaron, by ear |
@@ -159,9 +158,10 @@ Remove a question once it is answered (the answer becomes a decision).
 | T-026 | all | Flaky tests: melodyPipeline.test.ts "the 4 over a major chord"; landing lissajous.test.ts "stays inside its box"; Games melodyPhrases.test.ts "builds the long phrase from new material" — all fail now and then, unrelated to flows | todo |
 | T-028 | Pop, Funk, Hip-hop | Practice Tracks carry the lesson's kit + bass into the Studio: Track.bassVoice (saved + synced like drumKit), EightOhEightInstrument, GM bass sample sets; checked live (Hip Hop 808 kit + 808, Pop Fretless, Funk Finger) | done |
 | T-023 | Pop, Funk | New melodies the reorder needs: Pop L2 Aeolian, Pop L3 Dorian + Aeolian, Funk L3 blues (no sequence steps needed after D-043) | blocked |
+| T-033 | all | Committed 2026-09-30: 64bf9695 ledger/tools, 63f42ae8 engine, 98b5bbdf Pop/Funk reorder, b19640a7 Hip Hop flows, 5e103af1 Practice Track sounds, 2a5809e9 audition page. The other chat's Practice Track keyboard work left uncommitted for it | done |
 | T-024 | all | Republish the CDN lesson bundle after flow edits (prod reads the CDN, not the TS files) | todo |
 | T-030 | Hip-hop | L1 "Trap" authored in hipHop_v2.ts (32 steps, generated from the outline); tests mark Hip Hop L1 authored; walked in the app (808 kit, high chords, two-hand split) | done |
-| T-031 | Hip-hop | L2 + L3 outlines written (hiphop-L2-outline.md, hiphop-L3-outline.md); author after sign-off | blocked |
+| T-031 | Hip-hop | L2 "Boom Bap" (28 steps) and L3 "Conscious" (29 steps) authored; per-step tempo/kit/bass checked in the app | done |
 | T-032 | Hip-hop | Per-step tempo: ActivityStepV2.tempo; lesson switches to it on step change; Practice Track uses it | done |
 | T-009 | Hip-hop | AUTHORED_GENRES includes hipHop; step-count floor skips still-stubbed levels; practiceTrackCoverage lists hip-hop L1 | done |
 

@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import * as Slider from '@radix-ui/react-slider';
-import { Sparkles, Ear, Headphones } from 'lucide-react';
+import { Sparkles, Ear, Headphones, Activity } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { audioEngine } from '@/daw/audio/AudioEngine';
 import { useMeterLevel } from '@/daw/hooks/useMeterLevel';
 import { PopOutOverlay } from '@/daw/components/ChannelStrip/PopOutOverlay';
 import { MasterFxPanel } from '@/daw/components/Effects/MasterFxPanel';
+import { MASTER_AUTOMATION_ID } from '@/daw/audio/automationParams';
 import {
   useListenMode,
   useStudioListenStore,
@@ -26,6 +27,14 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
   const masterVolume = useStore((s) => s.masterVolume);
   const setMasterVolume = useStore((s) => s.setMasterVolume);
   const fxCount = useStore((s) => s.masteringFxChain.length);
+  const automationOpen = useStore(
+    (s) => s.automationOpenTrackId === MASTER_AUTOMATION_ID,
+  );
+  const hasAutomation = useStore(
+    (s) => (s.masterAutomation.volume?.length ?? 0) > 0,
+  );
+  const setAutomationOpen = useStore((s) => s.setAutomationOpenTrackId);
+  const setAutomationParamId = useStore((s) => s.setAutomationParamId);
 
   const listenMode = useListenMode();
   const toggleListenMode = useStudioListenStore((s) => s.toggleListenMode);
@@ -81,6 +90,37 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
           <span className="text-[9px] font-medium">
             FX{fxCount > 0 ? ` ${fxCount}` : ''}
           </span>
+        </motion.button>
+        {/* Master volume automation — opens the docked lane editor. */}
+        <motion.button
+          onClick={() => {
+            if (automationOpen) {
+              setAutomationOpen(null);
+            } else {
+              setAutomationParamId('volume');
+              setAutomationOpen(MASTER_AUTOMATION_ID);
+            }
+          }}
+          whileTap={{ scale: 0.9 }}
+          className="flex size-5 items-center justify-center rounded transition-colors"
+          style={{
+            backgroundColor: automationOpen ? MASTER_COLOR : 'transparent',
+            color: automationOpen
+              ? '#000'
+              : hasAutomation
+                ? MASTER_COLOR
+                : 'var(--color-text-dim)',
+            border: `1px solid ${
+              automationOpen || hasAutomation
+                ? MASTER_COLOR
+                : 'var(--color-border)'
+            }`,
+          }}
+          title="Master volume automation"
+          aria-label="Master volume automation"
+          aria-pressed={automationOpen}
+        >
+          <Activity size={11} strokeWidth={2} />
         </motion.button>
       </div>
 

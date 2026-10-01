@@ -1,7 +1,7 @@
 // ── exportAudio ───────────────────────────────────────────────────────────
-// File → Export Audio: render the project (or loop region) offline via
-// renderProject, encode to the chosen format, and hand back a downloadable
-// Blob. Encoders:
+// File → Export Audio: render the project (loop region, or a start–end bar
+// range) offline via renderProject, encode to the chosen format, and hand back
+// a downloadable Blob. Encoders:
 //   • WAV  — uncompressed PCM, 16- or 24-bit (audioBufferToWav).
 //   • Opus — WebCodecs Opus-in-WebM, ~96 kbps (audioBufferToOpusWebm).
 // Both consume the offline-rendered AudioBuffer directly (no realtime capture),
@@ -25,6 +25,8 @@ export type WavBitDepth = 16 | 24;
 export interface AudioExportOptions {
   format: AudioExportFormat;
   range: RenderRange;
+  /** Filename suffix for a custom range, e.g. 'bars-5-12'. */
+  rangeLabel?: string;
   /** WAV only. */
   bitDepth?: WavBitDepth;
 }
@@ -84,7 +86,12 @@ export async function exportProjectAudio(
   }
   onProgress?.({ stage: 'encode', pct: 1 });
 
-  const suffix = opts.range === 'loop' ? '-loop' : '';
+  const suffix =
+    opts.range === 'loop'
+      ? '-loop'
+      : typeof opts.range === 'object' && opts.rangeLabel
+        ? `-${opts.rangeLabel}`
+        : '';
   const filename = `${projectSlug()}${suffix}.${FORMAT_EXT[opts.format]}`;
   return { blob, filename };
 }

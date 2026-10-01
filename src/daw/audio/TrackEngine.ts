@@ -82,6 +82,10 @@ export class TrackEngine {
     this.instrument?.cc?.(controller, value, time);
   }
 
+  pitchBend(value: number, time?: number): void {
+    this.instrument?.pitchBend?.(value, time);
+  }
+
   allNotesOff(): void {
     this.instrument?.allNotesOff();
   }

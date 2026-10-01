@@ -48,6 +48,10 @@ export class OracleSynthAdapter implements InstrumentAdapter {
     this.engine?.handleCC(controller, value / 127, time);
   }
 
+  pitchBend(value: number): void {
+    this.engine?.setPitchBend(value);
+  }
+
   allNotesOff(): void {
     this.engine?.allNotesOff();
   }

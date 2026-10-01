@@ -21,7 +21,9 @@ import {
 const SECTIONS: ActivitySectionId[] = ['A', 'B', 'C', 'D'];
 const LEVELS = [1, 2, 3];
 /** The genres with authored content today. Everything else is a stub. */
-const AUTHORED = new Set(['funk', 'pop']);
+const AUTHORED = new Set(['funk', 'pop', 'hip-hop']);
+/** Single levels authored ahead of the rest of their genre (none right now). */
+const AUTHORED_LEVELS = new Set<string>();
 
 const v2 = (flow: unknown): ActivityFlowV2 | null =>
   flow && typeof flow === 'object' && 'version' in flow && flow.version === 'v2'
@@ -34,7 +36,9 @@ describe('practice track coverage', () => {
       it(`${genre} L${level}`, async () => {
         const flow = v2(await getActivityFlow(genre, level));
         if (!flow) return;
-        const expected = AUTHORED.has(flow.genre);
+        const expected =
+          AUTHORED.has(flow.genre) ||
+          AUTHORED_LEVELS.has(`${flow.genre} L${level}`);
         expect({
           genre: flow.genre,
           offers: flowHasPracticeTracks(flow),

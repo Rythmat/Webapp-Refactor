@@ -268,6 +268,11 @@ export function observeYjsAndPushToStore(
             case 'masterVolume':
               (patch as Record<string, unknown>).masterVolume = value;
               break;
+            case 'masterAutomation':
+              (patch as Record<string, unknown>).masterAutomation = JSON.parse(
+                value as string,
+              );
+              break;
             case 'returns':
               (patch as Record<string, unknown>).returns = restoreReturns(
                 JSON.parse(value as string),
@@ -401,6 +406,7 @@ export function pullDocIntoStore(
     fxChain: ['masteringFxChain', true],
     effects: ['masteringEffects', true],
     masterVolume: ['masterVolume', false],
+    masterAutomation: ['masterAutomation', true],
     returns: ['returns', true],
   };
   for (const [docKey, [storeKey, isJson]] of Object.entries(masteringMap)) {

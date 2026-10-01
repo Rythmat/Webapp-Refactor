@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { InstrumentConfig } from '../../../types/activity.v2';
 import {
   applyRegisterRules,
+  chordLimits,
   bassOctaveShift,
   chordCeilingShift,
   chordOctaveShift,
@@ -85,6 +86,51 @@ describe('classifyNote', () => {
     expect(classifyNote({ midi: 74 }, { section: 'B' })).toBe('chord');
     expect(classifyNote({ midi: 74 }, { section: 'D' })).toBe('chord');
     expect(classifyNote({ midi: 88 }, { section: 'A' })).toBe('other');
+  });
+});
+
+describe('Hip Hop chord window', () => {
+  // Chords sit high in Hip Hop: its chord activities start in C5–C6.
+  const cmFirstInvHigh = [75, 79, 84].map((midi) => ({
+    midi,
+    onset: 0,
+    duration: 480,
+  })); // Eb5-G5-C6
+
+  it('leaves a Hip Hop chord starting between C5 and C6 where it is', () => {
+    expect(
+      applyRegisterRules(cmFirstInvHigh, { section: 'B', genre: 'hip-hop' }),
+    ).toBe(cmFirstInvHigh);
+  });
+
+  it('still drops the same chord an octave in any other genre', () => {
+    const out = applyRegisterRules(cmFirstInvHigh, {
+      section: 'B',
+      genre: 'pop',
+    });
+    expect(midis(out)).toEqual([63, 67, 72]);
+  });
+
+  it('drops a Hip Hop chord that starts above C6', () => {
+    const notes = [86, 89, 93].map((midi) => ({
+      midi,
+      onset: 0,
+      duration: 480,
+    })); // D6-F6-A6
+    const out = applyRegisterRules(notes, { section: 'B', genre: 'hip-hop' });
+    expect(midis(out)).toEqual([74, 77, 81]);
+  });
+
+  it('keeps the Hip Hop bass ceiling at C4', () => {
+    const notes = [{ midi: 62, onset: 0, duration: 480 }];
+    const out = applyRegisterRules(notes, { section: 'C', genre: 'hip-hop' });
+    expect(midis(out)).toEqual([50]);
+  });
+
+  it('exposes the window', () => {
+    expect(chordLimits('hip-hop')).toEqual({ floor: 84, top: 96 });
+    expect(chordLimits('funk')).toEqual({ floor: 72, top: 84 });
+    expect(chordLimits()).toEqual({ floor: 72, top: 84 });
   });
 });
 

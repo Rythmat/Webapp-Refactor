@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { DashboardResponsiveTest } from './__qa/DashboardResponsiveTest';
+import { HipHopGrooveAudition } from './__qa/hipHopAudition/HipHopGrooveAudition';
 import ModalSphereDemo from './components/ui/3d-orb-demo';
 import { CustomCursor } from './components/ui/CustomCursor';
 import { isMarketingHost } from './constants/hosts';
@@ -63,6 +64,7 @@ const appRoutes = () => [
   ...(import.meta.env.DEV
     ? [
         { path: '/__dashboard-qa', element: <DashboardResponsiveTest /> },
+        { path: '/__hiphop-grooves', element: <HipHopGrooveAudition /> },
         { path: '/dev/msp/mock-learn', element: <MockLearn /> },
       ]
     : []),

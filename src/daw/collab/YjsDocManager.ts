@@ -153,6 +153,8 @@ export function trackToYMap(track: Track): Y.Map<unknown> {
   m.set('pan', track.pan);
   m.set('trackRole', track.trackRole);
   m.set('drumKit', track.drumKit ?? null);
+  m.set('bassVoice', track.bassVoice ?? null);
+  m.set('presetName', track.presetName ?? null);
 
   // Effects — store as a JSON string for simplicity (deeply nested params).
   // Individual effect toggling is via activeEffects array.
@@ -176,6 +178,7 @@ export function trackToYMap(track: Track): Y.Map<unknown> {
   if (track.drumPads) m.set('drumPads', JSON.stringify(track.drumPads));
   if (track.samplerSample)
     m.set('samplerSample', JSON.stringify(track.samplerSample));
+  if (track.organState) m.set('organState', JSON.stringify(track.organState));
   if (track.sends) m.set('sends', JSON.stringify(track.sends));
   if (track.automation) m.set('automation', JSON.stringify(track.automation));
 
@@ -286,6 +289,8 @@ export function yMapToTrack(m: Y.Map<unknown>): Track {
     pan: m.get('pan') as number,
     trackRole: m.get('trackRole') as Track['trackRole'],
     drumKit: (m.get('drumKit') as string | null) ?? undefined,
+    bassVoice: (m.get('bassVoice') as Track['bassVoice'] | null) ?? undefined,
+    presetName: (m.get('presetName') as string | null) ?? undefined,
     midiInputId: null,
     audioInputId: null,
     audioInputChannel: null,
@@ -315,6 +320,10 @@ export function yMapToTrack(m: Y.Map<unknown>): Track {
     samplerSample:
       m.has('samplerSample') && m.get('samplerSample') !== null
         ? ensureSamplerSampleId(JSON.parse(m.get('samplerSample') as string))
+        : undefined,
+    organState:
+      m.has('organState') && m.get('organState') !== null
+        ? JSON.parse(m.get('organState') as string)
         : undefined,
     sends:
       m.has('sends') && m.get('sends') !== null
@@ -409,6 +418,7 @@ export function hydrateDocFromStore(doc: Y.Doc, state: AllSlices): void {
     mastering.set('fxChain', JSON.stringify(state.masteringFxChain));
     mastering.set('effects', JSON.stringify(state.masteringEffects));
     mastering.set('masterVolume', state.masterVolume);
+    mastering.set('masterAutomation', JSON.stringify(state.masterAutomation));
     mastering.set('returns', JSON.stringify(state.returns));
 
     // Lead sheet

@@ -18,10 +18,17 @@
 
 import * as Tone from 'tone';
 import type { TrackEngine } from './TrackEngine';
-import { sampleAutomation, type AutomationLanes } from './automation';
+import {
+  sampleAutomation,
+  type AutomationLanes,
+  type AutomationTarget,
+} from './automation';
 import { clampParamValue, resolveAutomationTargets } from './automationParams';
 
 const PPQ = 480;
+
+/** Maps a lane's paramId to the AudioParam(s) it rides ([] = skip the lane). */
+export type AutomationResolver = (paramId: string) => AutomationTarget[];
 
 export class AutomationScheduler {
   // Per-track transport event ids (for transport.clear on reschedule/cancel).
@@ -41,7 +48,27 @@ export class AutomationScheduler {
     currentTick: number,
     bpm: number,
   ): void {
-    this.clearTrack(trackId);
+    this.scheduleLanes(
+      trackId,
+      lanes,
+      (paramId) => resolveAutomationTargets(paramId, te),
+      currentTick,
+      bpm,
+    );
+  }
+
+  /**
+   * (Re)schedule any set of lanes under `key` (a track id, or the Master's
+   * MASTER_AUTOMATION_ID), with `resolve` naming each lane's AudioParam(s).
+   */
+  scheduleLanes(
+    key: string,
+    lanes: AutomationLanes | undefined,
+    resolve: AutomationResolver,
+    currentTick: number,
+    bpm: number,
+  ): void {
+    this.clearTrack(key);
     if (!lanes) return;
 
     const secPerTick = 60 / bpm / PPQ;
@@ -52,7 +79,7 @@ export class AutomationScheduler {
 
     for (const [paramId, points] of Object.entries(lanes)) {
       if (!points || points.length === 0) continue;
-      const targets = resolveAutomationTargets(paramId, te);
+      const targets = resolve(paramId);
       if (targets.length === 0) continue;
 
       const clampV = (raw: number) => clampParamValue(paramId, raw);
@@ -100,8 +127,8 @@ export class AutomationScheduler {
       }
     }
 
-    this.trackEvents.set(trackId, ids);
-    this.trackParams.set(trackId, params);
+    this.trackEvents.set(key, ids);
+    this.trackParams.set(key, params);
   }
 
   /**
@@ -157,12 +184,27 @@ export function applyOfflineAutomation(
   startTick: number,
   bpm: number,
 ): void {
+  applyOfflineLanes(
+    lanes,
+    (paramId) => resolveAutomationTargets(paramId, te),
+    startTick,
+    bpm,
+  );
+}
+
+/** applyOfflineAutomation for any resolver (the Master bus uses this). */
+export function applyOfflineLanes(
+  lanes: AutomationLanes | undefined,
+  resolve: AutomationResolver,
+  startTick: number,
+  bpm: number,
+): void {
   if (!lanes) return;
   const secPerTick = 60 / bpm / PPQ;
 
   for (const [paramId, points] of Object.entries(lanes)) {
     if (!points || points.length === 0) continue;
-    const targets = resolveAutomationTargets(paramId, te);
+    const targets = resolve(paramId);
     if (targets.length === 0) continue;
 
     const clampV = (raw: number) => clampParamValue(paramId, raw);

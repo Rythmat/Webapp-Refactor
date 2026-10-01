@@ -23,7 +23,14 @@ import {
   chordAtTick,
   type TimedChord,
 } from './chordTimeline';
+import {
+  buildHipHopBass,
+  buildHipHopChords,
+  buildHipHopDrums,
+  hipHopDrumPattern,
+} from './hipHop/hipHopBacking';
 import type { GenreNoteEvent } from './resolveStepContent';
+import { applySwing } from './swing';
 
 const BACKING_BARS = 16;
 const BAR_TICKS = 1920;
@@ -34,6 +41,8 @@ export interface BackingNote {
   duration: number;
   velocity: number;
   part: 'drums' | 'bass' | 'chords';
+  /** 808 bass: slide into this note from the one given. */
+  glideFrom?: number;
 }
 
 // ── Micro-timing jitter ─────────────────────────────────────────────────────
@@ -1256,6 +1265,8 @@ function doubledLeftHand(
  * roll's count-in bar plus the one-bar note offset). The groove, bass and chords
  * all start there, so backing bar N lines up with target bar N. The lead-in
  * plays the groove's last bars (its fill), so the drums still count the student in.
+ *
+ * `swing` is the 16th-note swing percentage (swing.ts); 50 is straight.
  */
 export function buildBackingNotes(
   step: ActivityStepV2,
@@ -1265,7 +1276,10 @@ export function buildBackingNotes(
   targetNotes: GenreNoteEvent[],
   genre: string,
   countInTicks = 0,
+  swing = 50,
 ): BackingNote[] {
+  const swung = (part: BackingNote[]) =>
+    applySwing(part, swing) as BackingNote[];
   const engineGenerates = step.backing_parts?.engine_generates ?? [];
   const timeline = buildChordTimeline(
     step.chordSymbols,
@@ -1276,32 +1290,61 @@ export function buildBackingNotes(
   const chordAt = (tick: number): ChordSymbolTones =>
     chordAtTick(timeline, tick) ?? tonic;
 
+  if (genre === 'hip-hop') {
+    return withEndingAndLeadIn(
+      buildHipHopNotes(
+        step,
+        level,
+        targetNotes,
+        chordAt,
+        engineGenerates,
+        swung,
+      ),
+      countInTicks,
+    );
+  }
+
   const notes: BackingNote[] = [];
   let drums: BackingNote[] = [];
   if (engineGenerates.includes('drums')) {
     const grooveId = (step.grooveId ??
       getGrooveForStyleRef(styleRef, genre)) as GrooveId;
-    drums = buildDrumPatternForGroove(BACKING_BARS, grooveId);
+    drums = swung(buildDrumPatternForGroove(BACKING_BARS, grooveId));
     notes.push(...drums);
   }
   if (engineGenerates.includes('bass')) {
     notes.push(
+      // A doubled left hand comes from target notes that already swing.
       ...(doubledLeftHand(step, targetNotes) ??
-        buildBassPattern(BACKING_BARS, level, genre, chordAt, timeline)),
+        swung(buildBassPattern(BACKING_BARS, level, genre, chordAt, timeline))),
     );
   }
   if (engineGenerates.includes('chords')) {
     notes.push(
-      ...(genre === 'pop'
-        ? buildPopChordPattern(BACKING_BARS, level, chordAt, timeline)
-        : buildChordPattern(BACKING_BARS, level, chordAt, timeline)),
+      ...swung(
+        genre === 'pop'
+          ? buildPopChordPattern(BACKING_BARS, level, chordAt, timeline)
+          : buildChordPattern(BACKING_BARS, level, chordAt, timeline),
+      ),
     );
   }
 
-  // ── Ending: replay beat 1 content on the downbeat after the last bar ──
-  // Collects bass + chord notes from beat 1 of bar 1 and places a copy
-  // at the final downbeat. Drums excluded — avoids kick-run violations
-  // when the last bar has a fill pattern ending near the bar line.
+  return withEndingAndLeadIn(notes, countInTicks);
+}
+
+/**
+ * The ending and the count-in lead-in, shared by every genre.
+ *
+ * Ending: bass and chord notes from beat 1 of bar 1 are replayed on the
+ * downbeat after the last bar. Drums are excluded — avoids kick-run violations
+ * when the last bar has a fill pattern ending near the bar line.
+ *
+ * Lead-in: the groove's closing bars, ending exactly on the student's bar 1.
+ */
+function withEndingAndLeadIn(
+  notes: BackingNote[],
+  countInTicks: number,
+): BackingNote[] {
   const endingTick = BACKING_BARS * BAR_TICKS;
   const beat1Notes = notes.filter((n) => n.onset < 120 && n.part !== 'drums');
   beat1Notes.forEach((n) => {
@@ -1310,14 +1353,60 @@ export function buildBackingNotes(
 
   if (countInTicks <= 0) return notes;
 
-  // Lead-in: the groove's closing bars, ending exactly on the student's bar 1.
   const leadInStart = endingTick - countInTicks;
-  const leadIn = drums
-    .filter((n) => n.onset >= leadInStart && n.onset < endingTick)
+  const leadIn = notes
+    .filter(
+      (n) =>
+        n.part === 'drums' && n.onset >= leadInStart && n.onset < endingTick,
+    )
     .map((n) => ({ ...n, onset: n.onset - leadInStart }));
 
   return [
     ...leadIn,
     ...notes.map((n) => ({ ...n, onset: n.onset + countInTicks })),
   ];
+}
+
+/** Hip Hop: the patterns the step names (hipHop/hipHopPatterns.ts). */
+function buildHipHopNotes(
+  step: ActivityStepV2,
+  level: number,
+  targetNotes: GenreNoteEvent[],
+  chordAt: (tick: number) => ChordSymbolTones,
+  engineGenerates: readonly string[],
+  swung: (part: BackingNote[]) => BackingNote[],
+): BackingNote[] {
+  const style = step.backing_style ?? {};
+  const drums = hipHopDrumPattern(step.grooveId, level);
+  const notes: BackingNote[] = [];
+  if (engineGenerates.includes('drums')) {
+    notes.push(...swung(buildHipHopDrums(BACKING_BARS, drums)));
+  }
+  if (engineGenerates.includes('bass')) {
+    notes.push(
+      ...(doubledLeftHand(step, targetNotes) ??
+        swung(
+          buildHipHopBass(
+            BACKING_BARS,
+            style.bassPattern ?? 'follow_kick',
+            drums,
+            chordAt,
+            { offset: style.bassOffset },
+          ),
+        )),
+    );
+  }
+  if (engineGenerates.includes('chords')) {
+    notes.push(
+      ...swung(
+        buildHipHopChords(
+          BACKING_BARS,
+          style.comping ?? 'held',
+          chordAt,
+          style.chordRegister ?? 60,
+        ),
+      ),
+    );
+  }
+  return notes;
 }

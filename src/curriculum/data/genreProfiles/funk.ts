@@ -22,6 +22,7 @@ export const funkProfile: GenreProfile = {
       styleRef: 'l1a',
       role: 'Collective',
       tracks: ['Flashlight', 'Give Up the Funk'],
+      globeArtist: 'Parliament',
     },
     {
       name: 'Tower of Power',
@@ -43,6 +44,7 @@ export const funkProfile: GenreProfile = {
       styleRef: 'l3a',
       role: 'Bandleader',
       tracks: ['Chameleon', 'Watermelon Man'],
+      globeArtist: 'Herbie Hancock',
     },
     {
       name: 'Prince',

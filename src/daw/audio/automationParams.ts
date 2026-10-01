@@ -85,6 +85,13 @@ export const AUTOMATION_PARAMS: AutomationParamDef[] = [
   },
 ];
 
+/** automationOpenTrackId value that opens the Master bus lane. */
+export const MASTER_AUTOMATION_ID = '__master__';
+
+/** The params a Master lane may target. Master volume only, for now. */
+export const MASTER_AUTOMATION_PARAMS: AutomationParamDef[] =
+  AUTOMATION_PARAMS.filter((p) => p.id === 'volume');
+
 const PARAM_MAP = new Map(AUTOMATION_PARAMS.map((p) => [p.id, p]));
 
 export function getAutomationParamDef(
@@ -105,6 +112,16 @@ export function clampParamValue(id: string, value: number): number {
   if (!def) return value;
   if (!Number.isFinite(value)) return def.min;
   return Math.max(def.min, Math.min(def.max, value));
+}
+
+/** Resolve a Master-lane paramId to its ramp target on the master gain. */
+export function resolveMasterAutomationTargets(
+  paramId: string,
+  masterGain: GainNode,
+): AutomationTarget[] {
+  return paramId === 'volume'
+    ? [{ param: masterGain.gain, map: (v) => v }]
+    : [];
 }
 
 /**

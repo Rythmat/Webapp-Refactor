@@ -172,7 +172,7 @@ export const INITIALIZE: PresetData = {
   filters: [
     {
       type: 'lowpass',
-      cutoff: 20000,
+      cutoff: 13400,
       resonance: 0,
       pan: 0,
       gain: 0,
@@ -263,7 +263,7 @@ export const PAD: PresetData = {
   filters: [
     {
       type: 'lowpass',
-      cutoff: 3500,
+      cutoff: 2345,
       resonance: 2,
       pan: 0,
       gain: 0,
@@ -415,7 +415,7 @@ export const BASS: PresetData = {
   filters: [
     {
       type: 'lowpass',
-      cutoff: 800,
+      cutoff: 536,
       resonance: 4,
       pan: 0,
       gain: 0,
@@ -519,7 +519,7 @@ export const LEAD: PresetData = {
   filters: [
     {
       type: 'lowpass',
-      cutoff: 5000,
+      cutoff: 3350,
       resonance: 3,
       pan: 0,
       gain: 0,
@@ -645,7 +645,7 @@ export const PLUCK: PresetData = {
   filters: [
     {
       type: 'lowpass',
-      cutoff: 6000,
+      cutoff: 4020,
       resonance: 1.5,
       pan: 0,
       gain: 0,
@@ -749,7 +749,7 @@ export const WOBBLE: PresetData = {
   filters: [
     {
       type: 'lowpass',
-      cutoff: 600,
+      cutoff: 402,
       resonance: 6,
       pan: 0,
       gain: 0,
@@ -904,7 +904,7 @@ export const DRIFT: PresetData = {
   filters: [
     {
       type: 'lowpass',
-      cutoff: 2500,
+      cutoff: 1675,
       resonance: 3,
       pan: 0,
       gain: 0,
@@ -1096,7 +1096,7 @@ export const TRANCE: PresetData = {
   filters: [
     {
       type: 'lowpass',
-      cutoff: 4000,
+      cutoff: 2680,
       resonance: 4,
       pan: 0,
       gain: 0,
@@ -1265,7 +1265,7 @@ export const SEQUENCE: PresetData = {
   filters: [
     {
       type: 'lowpass',
-      cutoff: 3000,
+      cutoff: 2010,
       resonance: 4,
       pan: 0,
       gain: 0,
@@ -1395,7 +1395,7 @@ export const CHORDS: PresetData = {
   filters: [
     {
       type: 'lowpass',
-      cutoff: 4500,
+      cutoff: 3015,
       resonance: 2,
       pan: 0,
       gain: 0,
@@ -1519,7 +1519,7 @@ export const STAB: PresetData = {
   filters: [
     {
       type: 'lowpass',
-      cutoff: 5500,
+      cutoff: 3685,
       resonance: 3,
       pan: 0,
       gain: 0,

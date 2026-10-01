@@ -8,6 +8,10 @@
  * keyboard is how a student sees what actually changes: the ♭5 arrives, the 2
  * and the 6 leave. So the scale's name is the control, and it only looks like
  * one when there is something to switch to.
+ *
+ * A student playing the chords is shown a chord instead: its own voicing lit,
+ * key for key, rather than a scale across every octave, and numbered by chord
+ * tone. The screen hands it the chord sounding now as a one-entry `scales`.
  */
 
 import {
@@ -15,6 +19,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type ReactNode,
   type RefObject,
 } from 'react';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
@@ -22,6 +27,7 @@ import { OCTAVE_WIDTH } from '@/components/PianoKeyboard/useExpandedRange';
 import type { PlaybackEvent } from '@/contexts/PlaybackContext/helpers';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
+import { SegmentedToggle } from './SegmentedToggle';
 import { BLACK_KEYS, useKeyCenters } from './useKeyCenters';
 
 const ACCENT = '#7ecfcf';
@@ -75,6 +81,13 @@ interface ScaleKeyboardProps {
   /** The last thing that has to stay on screen: the chord chart. */
   fitAnchor: RefObject<HTMLElement | null>;
   onScaleChange: (scale: KeyboardScale) => void;
+  /**
+   * `chord` lights exactly the notes given (a voicing) and names its numbers as
+   * chord tones; `scale`, the default, lights the scale in every octave.
+   */
+  kind?: 'scale' | 'chord';
+  /** Switches of the screen's own, drawn in the same row as the scale switcher. */
+  controls?: ReactNode;
 }
 
 export function ScaleKeyboard({
@@ -87,6 +100,8 @@ export function ScaleKeyboard({
   fitWithin,
   fitAnchor,
   onScaleChange,
+  kind = 'scale',
+  controls,
 }: ScaleKeyboardProps) {
   const showDegrees = useSettingsStore((s) => s.practiceShowDegrees);
   const showNames = useSettingsStore((s) => s.practiceShowNoteNames);
@@ -117,18 +132,23 @@ export function ScaleKeyboard({
   const low = startC * 12;
   const high = endC * 12 + 11;
 
-  // Every octave of the scale is lit; only the one octave is named.
+  // Every octave of a scale is lit, and only the one octave is named. A chord
+  // is lit as voiced, so the keys lit are the keys to press.
   const scalePcs = useMemo(
     () => new Set(scale.intervals.map((i) => (scaleTonic + i) % 12)),
     [scale, scaleTonic],
   );
   const litKeys = useMemo(() => {
     const keys = new Map<number, string>();
+    if (kind === 'chord') {
+      for (const step of scale.intervals) keys.set(scaleTonic + step, ACCENT);
+      return keys;
+    }
     for (let midi = low; midi <= high; midi++) {
       if (scalePcs.has(((midi % 12) + 12) % 12)) keys.set(midi, ACCENT);
     }
     return keys;
-  }, [scalePcs, low, high]);
+  }, [kind, scale, scaleTonic, scalePcs, low, high]);
 
   const playedKeys: PlaybackEvent[] = useMemo(
     () =>
@@ -164,38 +184,26 @@ export function ScaleKeyboard({
     <div className="w-full">
       {/* The switcher and the label toggles: what is lit, and how it is read. */}
       <div className="mb-2 flex flex-wrap items-center justify-center gap-2">
+        {controls}
         {scales.length > 1 ? (
-          <div
-            className="flex items-center gap-1 rounded-full p-1"
-            role="group"
-            aria-label="Scale to show"
-            style={{ border: '1px solid var(--color-border)' }}
-          >
-            {scales.map((option) => {
-              const active = option.id === scale.id;
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => onScaleChange(option)}
-                  className="rounded-full px-3 py-1 text-sm font-medium transition-colors"
-                  style={{
-                    background: active ? ACCENT : 'transparent',
-                    color: active ? '#191919' : 'var(--color-text-dim)',
-                  }}
-                >
-                  {option.title}
-                </button>
-              );
-            })}
-          </div>
+          <SegmentedToggle
+            label="Scale to show"
+            options={scales.map((option) => ({
+              id: option.id,
+              label: option.title,
+            }))}
+            value={scale.id}
+            onChange={(id) => {
+              const next = scales.find((option) => option.id === id);
+              if (next) onScaleChange(next);
+            }}
+          />
         ) : null}
 
         <div className="flex items-center gap-1">
           <LabelToggle
             label="1 2 3"
-            title="Scale degrees"
+            title={kind === 'chord' ? 'Chord tones' : 'Scale degrees'}
             on={showDegrees}
             onClick={() => setShowDegrees(!showDegrees)}
           />
@@ -233,7 +241,7 @@ export function ScaleKeyboard({
               <div
                 className="relative w-full"
                 style={{ height: labelsPx }}
-                aria-label={`${scale.title} scale: ${scale.names.join(' ')}`}
+                aria-label={`${scale.title} ${kind}: ${scale.names.join(' ')}`}
               >
                 {labels.map(({ midi, name, degree }, i) => {
                   const x = keyCenters.get(midi);

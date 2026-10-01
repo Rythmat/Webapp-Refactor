@@ -68,6 +68,19 @@ export interface GenrePracticeSession {
   scales: PracticeSessionScale[];
   /** Chord symbols of one turn of the progression, as the chart draws them. */
   chordCycle: string[];
+  /**
+   * For a Chords track, the lesson's own voicings the keyboard can show — one
+   * set per switch option beside Root Position, each chord of `chordCycle` as
+   * that activity voiced it (null where none does). A Performance track has
+   * one set, its chord hand's. Null on the others.
+   */
+  voicingSets:
+    | { id: string; label: string; voicings: (number[] | null)[] }[]
+    | null;
+  /** Which of `voicingSets` the keyboard opens on. */
+  defaultVoicing: string | null;
+  /** The lowest bass note the section writes, where bass notes are lit. */
+  bassFloor: number | null;
   /** What the student plays; two parts means a two-hand Performance track. */
   studentParts: ('melody' | 'chords' | 'bass')[];
   /** The keyboard the screen draws, in PianoKeyboard's C-octave numbering. */
@@ -201,7 +214,8 @@ export interface UiSlice {
   markAudioExported: () => void;
   // Which track's automation lane is disclosed in the arrange timeline (null =
   // none), and which paramId that lane is editing. Session-only view state, like
-  // channelStripTab — NOT persisted or collab-synced.
+  // channelStripTab — NOT persisted or collab-synced. MASTER_AUTOMATION_ID
+  // (automationParams.ts) opens the Master bus lane.
   automationOpenTrackId: string | null;
   automationParamId: string;
   setAutomationOpenTrackId: (trackId: string | null) => void;

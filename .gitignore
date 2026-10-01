@@ -47,3 +47,7 @@ pnpm-lock.yaml
 src/curriculum/data/songs/_generated_index.ts
 **/_*.json
 **/_vision_cache/
+
+# Claude Code local state
+.claude/settings.local.json
+.claude/genre-planning/

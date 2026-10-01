@@ -8,6 +8,7 @@ import { cn } from '@/components/utilities';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { keyCenterColor, majorScale } from '../../../music';
 import { rovingKeyDown, useRovingStop } from './studioHooks';
+import { DEMO_KEY_PC } from './studioScript';
 
 /** Circle-of-fifths slices (C at the top, clockwise) → pitch class. */
 const SLICE_PC = [0, 7, 2, 9, 4, 11, 6, 1, 8, 3, 10, 5];
@@ -35,7 +36,7 @@ const rgb = (i: number) => `rgb(${KEY_COLORS[i as ColorIndex].join(', ')})`;
  * `CircleOfFifths` look (which reads the DAW store): every key in its own
  * color until one is picked, then the key's seven notes in its color and the
  * rest grey. Each slice is a button (roving arrow keys walk the circle); the
- * C slice is the tour's `key` target unless `tourTarget` is false (the cursor
+ * demo key's slice (D) is the tour's `key` target unless `tourTarget` is false (the cursor
  * has moved on to the spectrum).
  */
 export const KeyWheel = ({
@@ -104,7 +105,6 @@ export const KeyWheel = ({
                       : 'rgba(255, 255, 255, 0.85)'
                 }
                 fontSize={(i === 6 ? 9 : 10) * s}
-                fontWeight={selected ? 700 : 500}
               >
                 {displayAccidentals(spelled?.get(pc) ?? KEYS[i + 1])}
               </text>
@@ -126,7 +126,9 @@ export const KeyWheel = ({
               key={pc}
               type="button"
               data-roving
-              data-tour-target={pc === 0 && tourTarget ? 'key' : undefined}
+              data-tour-target={
+                pc === DEMO_KEY_PC && tourTarget ? 'key' : undefined
+              }
               tabIndex={pc === roving.stop ? 0 : -1}
               aria-label={`${name} major`}
               aria-pressed={pc === keyPc}

@@ -5,9 +5,10 @@
  * Self-contained — no dependency on buildStepEvents(), GCM, or Prism API.
  */
 
+import type { FretPosition } from '@/lib/guitar/types';
 import type { NoteEvent as PianoRollNoteEvent } from '../../../components/Games/PianoRollPlay';
 import type { ActivitySectionId } from '../../types/activity';
-import type { ActivityStepV2 } from '../../types/activity.v2';
+import type { ActivityStepV2, LessonInstrument } from '../../types/activity.v2';
 import { midiToPitchName } from './enharmonicEngine';
 import { applyRegisterRules } from './registerRules';
 import { applySwing } from './swing';
@@ -20,6 +21,7 @@ export interface GenreNoteEvent {
   duration: number; // ticks
   velocity?: number;
   hand?: 'lh' | 'rh'; // grand staff stave assignment (passed through from TargetNote)
+  fretPosition?: FretPosition; // guitar only (passed through from TargetNote)
 }
 
 export interface StepContext {
@@ -33,6 +35,8 @@ export interface StepContext {
   genre?: string;
   /** 16th-note swing percentage; the student's notes swing with the backing. */
   swing?: number;
+  /** The flow's instrument; omitted means piano. */
+  instrument?: LessonInstrument;
 }
 
 // ── Tag detection helpers ────────────────────────────────────────────────────
@@ -156,6 +160,10 @@ export function resolveStepContent(
 ): GenreNoteEvent[] | null {
   const notes = resolveRawStepContent(step, ctx);
   if (notes === null || notes.length === 0) return notes;
+  // Guitar notes are the book's shapes at sounding pitch, each tied to a
+  // string and fret. The register rules below are piano rules; moving a
+  // guitar note would detach it from where it is played.
+  if (ctx.instrument === 'guitar') return notes;
   // Register of Chord and Bass Notes — see registerRules.ts. Applied at the one
   // choke point every student-facing note passes through, so authored data and
   // generated content obey the same rule.
@@ -200,6 +208,15 @@ function resolveRawStepContent(
   // Priority 1: explicit targetNotes — always use if present
   if (step.targetNotes && step.targetNotes.length > 0) {
     return step.targetNotes;
+  }
+
+  // Guitar content is always authored with explicit notes; the generators
+  // below build piano content from keyRoot and must never stand in for it.
+  if (ctx.instrument === 'guitar') {
+    console.warn(
+      `[resolveStepContent] Guitar step missing targetNotes: ${step.activity}`,
+    );
+    return null;
   }
 
   // Priority 2: play-along steps — student improvises, no notes to display
@@ -255,11 +272,17 @@ export {
 
 // ── PianoRoll conversion ─────────────────────────────────────────────────────
 
+/** A roll event, plus the stave hand and guitar position a note may carry. */
+export type LessonNoteEvent = PianoRollNoteEvent & {
+  hand?: 'lh' | 'rh';
+  fretPosition?: FretPosition;
+};
+
 export function toPianoRollEvents(
   notes: GenreNoteEvent[],
   keyColor?: string,
   keyRoot?: number,
-): PianoRollNoteEvent[] {
+): LessonNoteEvent[] {
   return notes.map((note, i) => ({
     id: `genre_note_${i}`,
     pitchName: midiToPitchName(note.midi, keyRoot),
@@ -269,5 +292,8 @@ export function toPianoRollEvents(
     velocity: note.velocity ?? 80,
     color: keyColor ? `${keyColor}b3` : undefined, // 70% opacity target color
     ...(note.hand !== undefined ? { hand: note.hand } : {}),
+    ...(note.fretPosition !== undefined
+      ? { fretPosition: note.fretPosition }
+      : {}),
   }));
 }

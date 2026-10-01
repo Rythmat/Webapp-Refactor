@@ -63,23 +63,31 @@ export function useMetronome({
   // does NOT start the Transport. Always disposes the old sequence first so that
   // Transport.cancel() or prior stop() calls leave no stale state that would cause
   // beat 1 to be dropped when Transport next starts from position 0.
-  const prepare = useCallback(async () => {
-    await startTone();
-    ensureSynth();
-    // Always dispose the old sequence — Transport.cancel() clears its internal events
-    // and a stopped sequence may not re-register cleanly via start(0).
-    if (loopRef.current) {
-      loopRef.current.stop(Math.max(0, Tone.now()));
-      loopRef.current.dispose();
-      loopRef.current = null;
-    }
-    ensureSequence();
-    Tone.getTransport().bpm.value = bpm;
-    // Cast resets CFA narrowing — ensureSequence() sets loopRef.current above
-    (loopRef.current as Tone.Sequence | null)?.start(0);
-    runningRef.current = true;
-    console.log('[metronome] prepared. transport:', Tone.getTransport().state);
-  }, [bpm, ensureSynth, ensureSequence]);
+  // `bpmOverride` runs one pass at another tempo (a guitar speed-trainer
+  // loop) without changing the hook's bpm.
+  const prepare = useCallback(
+    async (bpmOverride?: number) => {
+      await startTone();
+      ensureSynth();
+      // Always dispose the old sequence — Transport.cancel() clears its internal events
+      // and a stopped sequence may not re-register cleanly via start(0).
+      if (loopRef.current) {
+        loopRef.current.stop(Math.max(0, Tone.now()));
+        loopRef.current.dispose();
+        loopRef.current = null;
+      }
+      ensureSequence();
+      Tone.getTransport().bpm.value = bpmOverride ?? bpm;
+      // Cast resets CFA narrowing — ensureSequence() sets loopRef.current above
+      (loopRef.current as Tone.Sequence | null)?.start(0);
+      runningRef.current = true;
+      console.log(
+        '[metronome] prepared. transport:',
+        Tone.getTransport().state,
+      );
+    },
+    [bpm, ensureSynth, ensureSequence],
+  );
 
   // start: called from useEffect (React-driven) OR as fallback manual start.
   // Idempotent — safe to call multiple times.

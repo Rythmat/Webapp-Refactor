@@ -94,6 +94,16 @@ describe('searchStatic', () => {
     expect(course?.results.some((r) => r.to === '/curriculum/jazz')).toBe(true);
   });
 
+  it('finds the guitar course (rollout flag on in dev and tests)', () => {
+    const courses = searchStatic('guitar').find(
+      (g) => g.category === 'courses',
+    );
+    expect(courses?.results[0]).toMatchObject({
+      title: 'Guitar: Applied Theory Fundamentals',
+      to: '/curriculum/guitar/applied-theory-fundamentals',
+    });
+  });
+
   it('matches a real song by its title and links to /songs/:id', () => {
     const song = getStaticIndex().find((e) => e.result.category === 'songs')!;
     const songs = searchStatic(song.result.title).find(

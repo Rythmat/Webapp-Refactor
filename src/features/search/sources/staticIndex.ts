@@ -16,6 +16,7 @@ import {
   getTheoryTileImage,
 } from '@/curriculum/data/learnTileImages';
 import { getAllSongs } from '@/curriculum/data/songs';
+import { isGuitarLearnEnabled } from '@/features/learn/useInstrumentStore';
 import { CATEGORY_META } from '../categories';
 import type { SearchCategory, SearchResult } from '../types';
 
@@ -100,6 +101,34 @@ function buildCourses(): IndexEntry[] {
       thumb: { src: getGenreTileImage(o.value), shape: 'hex' },
     },
   }));
+}
+
+/* ── Guitar (The Guitar Atlas), while its rollout flag is on ─────────── */
+function buildGuitar(): IndexEntry[] {
+  if (!isGuitarLearnEnabled()) return [];
+  return [
+    {
+      category: 'courses',
+      keywords: [
+        'Guitar',
+        'Guitar Atlas',
+        'Applied Theory Fundamentals',
+        'tab',
+        'tablature',
+        'chords',
+        'key centers',
+        'music maps',
+      ],
+      result: {
+        id: 'course-guitar-applied-theory-fundamentals',
+        category: 'courses',
+        title: 'Guitar: Applied Theory Fundamentals',
+        subtitle: 'The Guitar Atlas',
+        to: CurriculumRoutes.guitarAppliedTheoryFundamentals(),
+        icon: CATEGORY_META.courses.icon,
+      },
+    },
+  ];
 }
 
 /* ── Theory / modes (diatonic + minor/major variants) ────────────────── */
@@ -381,6 +410,7 @@ export function getStaticIndex(): IndexEntry[] {
       ...buildSongs(),
       ...buildArtists(),
       ...buildCourses(),
+      ...buildGuitar(),
       ...buildTheory(),
       ...buildGlobe(),
       ...buildArcade(),

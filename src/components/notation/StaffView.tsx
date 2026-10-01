@@ -74,6 +74,11 @@ export interface ScorePart {
   /** Shown at the left of each system when there is more than one part. */
   name?: string;
   score: NotationScore;
+  /**
+   * An 8 on the clef for a part written an octave off its sounding pitch —
+   * guitar's treble clef with an 8 below. Never on a drumset staff.
+   */
+  clefAnnotation?: '8va' | '8vb';
 }
 
 /** Where a barline sits on screen, in scaled px, for overlays and clicks. */
@@ -580,7 +585,11 @@ function headerWidth(
   let widest = 0;
   for (const part of parts) {
     for (const clef of part.score.staves) {
-      const stave = new vf.Stave(0, 0, 500).addClef(clef);
+      const stave = new vf.Stave(0, 0, 500).addClef(
+        clef,
+        undefined,
+        clef === 'percussion' ? undefined : part.clefAnnotation,
+      );
       if (clef !== 'percussion') {
         stave.addKeySignature(KEY_SPECS[part.score.keyFifths] ?? 'C');
       }
@@ -1037,7 +1046,11 @@ function render(
             staveWidth,
           );
           if (first) {
-            stave.addClef(staff);
+            stave.addClef(
+              staff,
+              undefined,
+              staff === 'percussion' ? undefined : part.clefAnnotation,
+            );
             if (staff !== 'percussion') {
               stave.addKeySignature(KEY_SPECS[part.score.keyFifths] ?? 'C');
             }

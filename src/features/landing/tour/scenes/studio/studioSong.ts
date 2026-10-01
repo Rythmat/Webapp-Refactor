@@ -37,11 +37,17 @@ export const TICKS_PER_MS = (BEAT * BPM) / 60_000;
 export const MAX_CHORDS = 4;
 
 /**
- * Chord rhythm per STYLE pill. Each rhythm's `GENRE_MAP` genre is the pill's
- * genre, so `generateDrumMidi` picks the groove the real orchestrator would.
+ * Chord rhythm per STYLE pill. Each pill's drum rhythm (`drums`, else its chord
+ * rhythm) has the pill's genre in `GENRE_MAP`, so `generateDrumMidi` picks the
+ * groove the real orchestrator would for that genre. Pop, the default, holds
+ * each chord for a whole note but keeps the Pop groove (whole notes alone would
+ * map to Ballad).
  */
-export const STYLES: Record<StyleName, { rhythm: string; genre: GenreName }> = {
-  Pop: { rhythm: 'Quarters', genre: 'Pop' },
+export const STYLES: Record<
+  StyleName,
+  { rhythm: string; drums?: string; genre: GenreName }
+> = {
+  Pop: { rhythm: 'Whole Notes', drums: 'Quarters', genre: 'Pop' },
   Rock: { rhythm: '3-3-2 Eighths', genre: 'Rock' },
   Funk: { rhythm: 'Funk 1', genre: 'Funk' },
   'Hip Hop': { rhythm: 'Staccato Eighths', genre: 'Hip Hop' },
@@ -221,7 +227,7 @@ export const buildSong = ({
   keyRoot: number;
   style: StyleName;
 }): StudioSong => {
-  const { rhythm, genre } = STYLES[style];
+  const { rhythm, drums = rhythm, genre } = STYLES[style];
   const swing = GENRE_SWING[genre];
   const bars = barTokens(clip ?? []);
   const chordNotes =
@@ -239,7 +245,7 @@ export const buildSong = ({
           channel: InstrumentChannel.Chords,
         }).events;
   const drumNotes = generateDrumMidi({
-    rhythmName: rhythm,
+    rhythmName: drums,
     swing,
     bars: 4,
   }).events;

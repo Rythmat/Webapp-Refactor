@@ -50,7 +50,7 @@ const Card = ({
     style={cardStyle}
   >
     <div
-      className="flex h-[14px] items-center gap-1.5 text-[11px] font-semibold uppercase leading-none tracking-[1px]"
+      className="flex h-[14px] items-center gap-1.5 text-[11px] uppercase leading-none tracking-[1px]"
       style={{ color: STUDIO.textDim }}
     >
       {title}
@@ -92,11 +92,7 @@ const Readout = ({
         {chords.slice(0, READOUT_MAX).map((c, i) => (
           <Fragment key={c.token}>
             {i > 0 && <span className="px-1 text-white/30">·</span>}
-            <span
-              className={
-                c.token === hover.pick ? 'font-bold text-white' : undefined
-              }
-            >
+            <span className={c.token === hover.pick ? 'text-white' : undefined}>
               {c.label}
             </span>
           </Fragment>
@@ -113,9 +109,7 @@ const Readout = ({
     return (
       <>
         No more options available
-        {!written && (
-          <span className="font-semibold text-white">&nbsp;— press Create</span>
-        )}
+        {!written && <span className="text-white">&nbsp;— press Create</span>}
       </>
     );
   }
@@ -391,7 +385,7 @@ export const PrismPanel = ({
         onClick={onCreate}
         aria-label="Create: write the chords to the CHORDS clip"
         className={cn(
-          'relative mt-auto w-full rounded-lg font-semibold transition-[transform,filter,opacity] duration-150 disabled:opacity-50',
+          'relative mt-auto w-full rounded-lg transition-[transform,filter,opacity] duration-150 disabled:opacity-50',
           compact ? 'h-10 text-[15px]' : 'h-7 text-[12px]',
           dirty && 'ring-1 ring-white/40 ring-offset-2 ring-offset-[#242424]',
           FOCUS,

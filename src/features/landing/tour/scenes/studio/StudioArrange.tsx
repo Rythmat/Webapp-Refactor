@@ -272,7 +272,7 @@ export const StudioArrange = ({
               transition={{ delay: i * 0.08, duration: 0.28, ease: 'easeOut' }}
               className={cn(
                 'absolute inset-y-0 flex items-center overflow-hidden whitespace-nowrap pl-1.5 transition-[background-color,box-shadow] duration-200 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white',
-                compact ? 'text-[14px] font-bold' : 'text-[11px] font-semibold',
+                compact ? 'text-[14px]' : 'text-[11px]',
               )}
               style={{
                 left: Math.round((r.startTick * barW) / BAR),

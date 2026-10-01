@@ -34,8 +34,7 @@ const PrismIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const TAB =
-  'flex items-center gap-1.5 rounded-md font-semibold uppercase tracking-wider';
+const TAB = 'flex items-center gap-1.5 rounded-md uppercase tracking-wider';
 
 /**
  * The bottom dock (`ChannelStrip`): the tab bar — CONTROLS / FX (decor),
@@ -166,14 +165,14 @@ export const StudioDock = ({
                 style={{ background: STUDIO.surface2 }}
               >
                 <span
-                  className="text-[9px] font-semibold uppercase tracking-wider"
+                  className="text-[9px] uppercase tracking-wider"
                   style={{ color: STUDIO.textDim }}
                 >
                   Now playing
                 </span>
                 <motion.span
                   key={nowPlaying.label}
-                  className="text-[11px] font-semibold"
+                  className="text-[11px]"
                   style={{ color: nowPlaying.color }}
                   initial={staticMode ? false : { opacity: 0, y: 3 }}
                   animate={{ opacity: 1, y: 0 }}

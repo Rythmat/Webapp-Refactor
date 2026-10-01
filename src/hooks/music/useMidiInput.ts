@@ -5,6 +5,8 @@ export interface MidiNoteEvent {
   duration: number; // Duration in seconds
   velocity: number; // Original velocity from noteon
   source?: 'midi' | 'audio'; // Which input produced this event
+  /** Audio (guitar) only: performance.now() ms of the attack, latency removed. */
+  onsetPerfMs?: number;
 }
 
 type Callback = (event: MidiNoteEvent) => void;

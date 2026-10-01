@@ -1,13 +1,12 @@
 import { cn } from '@/components/utilities';
 import { SpotlightCard } from '../motion/SpotlightCard';
-import { TOUR_BY_ID } from '../tour/tourSteps';
 import { SeeMoreLink } from './ModuleBlock';
 import { LANDING_MODULES } from './modules';
 
 /**
  * Five bento boxes under the hero horizon (Attio-style bordered row): Learn,
  * Studio, Globe, Arcade, Teach. Each cell names its module over a "See more"
- * link to the module's page, flush with the label.
+ * link that scrolls to the module's section below, flush with the label.
  * Neutral white UI — color on this page is reserved for the music color
  * system (key centers / chords) and the rainbow brand motif.
  */
@@ -30,10 +29,10 @@ export const ModuleBentoRow = () => {
             <span className="transition-transform duration-300 group-hover:-translate-y-0.5">
               {m.icon}
             </span>
-            <span className="mt-auto pt-8 text-lg font-semibold text-white lg:pt-16">
+            <span className="mt-auto pt-8 text-lg text-white lg:pt-16">
               {m.label}
             </span>
-            <SeeMoreLink to={TOUR_BY_ID[m.id].href} className="mt-4" />
+            <SeeMoreLink id={m.id} className="mt-4" />
           </SpotlightCard>
         </div>
       ))}

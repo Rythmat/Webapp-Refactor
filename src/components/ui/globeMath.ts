@@ -26,6 +26,23 @@ export const centralAngle = (
   return Math.acos(Math.min(1, Math.max(-1, c)));
 };
 
+const TWO_PI = Math.PI * 2;
+
+/**
+ * cobe's view angles `[phi, theta]` that face `[lat, lng]`: the point sits at
+ * the globe's center, turned toward the viewer.
+ */
+export const locationToAngles = (
+  lat: number,
+  lng: number,
+): [number, number] => [Math.PI - (lng * DEG - Math.PI / 2), lat * DEG];
+
+/** The signed shortest turn (radians, in (−π, π]) from angle `from` to `to`. */
+export const shortestTurn = (from: number, to: number): number => {
+  const d = (((to - from) % TWO_PI) + TWO_PI) % TWO_PI;
+  return d > Math.PI ? d - TWO_PI : d;
+};
+
 /** Pick a global arc altitude so the longest arc peaks well above the globe.
  *  Regional-only arcs stay low (~0.28); far, intercontinental arcs get a high
  *  arch instead of clipping through. */

@@ -9,10 +9,11 @@ import {
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { demoChord } from '../../../music';
 import { rovingKeyDown, useRovingStop } from './studioHooks';
+import { III_SEGMENT } from './studioScript';
 import { PRESS } from './studioTokens';
 
-/** The spectrum's green (E's color): the tour's `pick` target by default. */
-const PICK_SEGMENT = 5;
+/** III's color (F♯'s teal in D): the tour's `pick` target by default. */
+const PICK_SEGMENT = III_SEGMENT;
 /** `ColorSpectrum`'s cover over colors with nothing to offer. */
 const UNAVAILABLE = 'rgba(0, 0, 0, 0.7)';
 

@@ -137,6 +137,7 @@ export const LearnScene = ({
             selectedMode="major"
             size={compact ? 170 : 290}
             ariaLabel={`Key center: ${displayAccidentals(key.name)} major`}
+            labelWeight={400}
             onSelectPitch={(pc) =>
               chooseKey(KEY_CENTERS.findIndex((k) => k.pitchClass === pc))
             }
@@ -158,14 +159,14 @@ export const LearnScene = ({
               <span className="text-[11px] uppercase tracking-[0.12em] text-white/45">
                 Lesson · Scales
               </span>
-              <span className="text-sm font-semibold">
+              <span className="text-sm">
                 The {displayAccidentals(key.name)} major scale
               </span>
             </div>
             <button
               type="button"
               onClick={playScale}
-              className="ml-auto flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-[#101012] transition-[transform,background-color] duration-300 hover:scale-105"
+              className="ml-auto flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-[#101012] transition-[transform,background-color] duration-300 hover:scale-105"
               style={{ background: key.color }}
             >
               <Play className="size-3 fill-current" /> Play scale
@@ -201,7 +202,7 @@ export const LearnScene = ({
               <span
                 key={m}
                 className={cn(
-                  'flex-1 rounded-md py-1 text-center text-[11px] font-semibold transition-colors duration-200',
+                  'flex-1 rounded-md py-1 text-center text-[11px] transition-colors duration-200',
                   lit.has(m)
                     ? 'text-[#101012]'
                     : 'bg-white/[0.05] text-white/60',

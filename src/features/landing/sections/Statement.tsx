@@ -34,7 +34,7 @@ export const Statement = ({
 }) => {
   const reduce = useReducedMotion();
   const cls = cn(
-    'max-w-[30ch] text-2xl font-semibold leading-[1.2] tracking-[-0.01em] md:text-[2rem]',
+    'max-w-[30ch] text-2xl leading-[1.2] tracking-[-0.01em] md:text-[2rem]',
     className,
   );
 

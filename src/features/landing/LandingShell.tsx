@@ -24,7 +24,7 @@ export const LandingShell = ({ children }: { children: ReactNode }) => {
     >
       <a
         href="#main"
-        className="sr-only z-[60] rounded-full bg-white px-4 py-2 text-sm font-semibold text-black focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+        className="sr-only z-[60] rounded-full bg-white px-4 py-2 text-sm text-black focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
       >
         Skip to content
       </a>
@@ -38,9 +38,10 @@ export const LandingShell = ({ children }: { children: ReactNode }) => {
         {children}
       </main>
 
-      {/* Same footer as the app (Home / Settings), at the page's width. */}
+      {/* Same footer as the app (Home / Settings), at the page's width,
+          without its animated logo. */}
       <div className={cn(LANDING_FRAME, 'px-6 pb-10 md:px-10')}>
-        <DashboardFooter />
+        <DashboardFooter showLogo={false} />
       </div>
     </div>
   );

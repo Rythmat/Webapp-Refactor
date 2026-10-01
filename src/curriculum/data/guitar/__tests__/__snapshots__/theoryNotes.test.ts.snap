@@ -1,0 +1,589 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`guitar theory notes: resolution > snapshots the resolved notes for C, F# and Db > C 1`] = `
+{
+  "a1.degreeNames": [
+    "Names for the numbers: 1 is the tonic, the home note. 5 is the dominant. 7 is the leading tone, because it leads back to 1.",
+  ],
+  "a1.fingers": [
+    "One finger per fret: Put finger 1 on fret 7. Each finger then covers the next fret. Keep your hand still and let your fingers reach.",
+  ],
+  "a1.ionian": [
+    "What is Ionian?: Ionian is another name for the major scale. Starting the same notes from another note makes a new sound, called a mode. Modes come in Book Two.",
+  ],
+  "a1.octave": [
+    "Two roots: The low and high C are the same note, one octave apart. The high one is two strings over and two frets up.",
+  ],
+  "a1.restless": [
+    "The restless notes: Notes 4 and 7 sound unsettled. 7 leans up to 1. 4 leans down to 3. Listen for this near the top of the scale.",
+  ],
+  "a1.slowFirst": [
+    "Clean, then fast: Start slowly. Raise the speed only when every note rings clearly.",
+  ],
+  "a1.steps": [
+    "Whole and half steps: A whole step is 2 frets. A half step is 1 fret. The major scale has half steps in two places: from 3 to 4, and from 7 to 1.",
+  ],
+  "a2.home": [
+    "Ending on 1: These melodies begin and end on 1. Ending on 1 sounds finished.",
+  ],
+  "a2.shape": [
+    "Up and back: The second melody climbs and then walks back down. Listen to the demo, then copy it.",
+  ],
+  "a3.legato": [
+    "Smooth notes: Legato means smooth. Pick each note and let it ring until the next one starts. Leave no gaps between notes.",
+  ],
+  "a3.staccato": [
+    "Short notes: Staccato means short. Pick the note, then relax your finger so the sound stops. Keep the finger touching the string.",
+  ],
+  "a4.fingers": [
+    "Same finger idea: Use one finger per fret here too. The numbers on the dots show which finger to use.",
+  ],
+  "a4.gb": [
+    "The G and B strings: The G and B strings are tuned closer together than the others. Shapes move up one fret when they cross onto the B string.",
+  ],
+  "a4.ghost": [
+    "Missing notes: Faint outlines show where 4 and 7 would be. The pentatonic skips them.",
+  ],
+  "a4.octave": [
+    "Root to root: The high C is two strings over and three frets up. It is one fret further than in the major scale shape, because of the B string.",
+  ],
+  "a4.relative": [
+    "Did you know?: These five notes also make the A minor pentatonic. Only the home note changes.",
+  ],
+  "a4.what": [
+    "Five notes: Pentatonic means five notes. This scale is the major scale without notes 4 and 7. That leaves 1, 2, 3, 5 and 6.",
+  ],
+  "a4.why": [
+    "No clashing notes: Notes 4 and 7 make the half steps. Without them, these five notes rarely clash.",
+  ],
+  "b.barreCare": [
+    "Look after your hand: Barre shapes need strength. Rest your hand when it feels tired. Stop if anything hurts.",
+  ],
+  "b.fromScale": [
+    "Chords come from the scale: Pick a scale note. Skip the next note and take the one after. Do that once more. Those three notes make a triad.",
+  ],
+  "b.pattern": [
+    "Same pattern, every key: In every major key the chords follow one pattern. 1 major, 2 minor, 3 minor, 4 major, 5 major, 6 minor, 7 diminished.",
+  ],
+  "b.sevenLater": [
+    "Where is chord 7?: The triad on 7 is diminished. You will play it later as a 7th chord: 7 min7(♭5).",
+  ],
+  "b1.arp": [
+    "One note at a time: An arpeggio plays a chord one note at a time. A strum plays the same notes together.",
+  ],
+  "b1.names": [
+    "Three note names: This shape uses 4 strings but only three note names: D, F and A. Some notes appear twice, in different octaves.",
+    "Three note names: This shape uses 4 strings but only three note names: F, A and C. Some notes appear twice, in different octaves.",
+    "Three note names: This shape uses 5 strings but only three note names: A, C and E. Some notes appear twice, in different octaves.",
+    "Three note names: This shape uses 5 strings but only three note names: C, E and G. Some notes appear twice, in different octaves.",
+    "Three note names: This shape uses 6 strings but only three note names: E, G and B. Some notes appear twice, in different octaves.",
+    "Three note names: This shape uses 6 strings but only three note names: G, B and D. Some notes appear twice, in different octaves.",
+  ],
+  "b1.order": [
+    "Listen low to high: Low to high, this shape plays R, 3, 5, R, 3, R. R is the root.",
+    "Listen low to high: Low to high, this shape plays R, 3, 5, R, 3. R is the root.",
+    "Listen low to high: Low to high, this shape plays R, 3, 5, R. R is the root.",
+    "Listen low to high: Low to high, this shape plays R, 5, R, ♭3, 5, R. R is the root.",
+    "Listen low to high: Low to high, this shape plays R, 5, R, ♭3, 5. R is the root.",
+    "Listen low to high: Low to high, this shape plays R, 5, R, ♭3. R is the root.",
+  ],
+  "b1.third": [
+    "Listen for the 3: The note marked 3 sets the mood. Major sounds bright. Minor sounds darker.",
+  ],
+  "b2.anchor": [
+    "Keep a finger down: Both chords use this note. Leave that finger pressed and move the others.",
+  ],
+  "b2.rhythmFirst": [
+    "Rhythm first: New rhythm? Strum it on one chord first. Add the changes when it feels easy.",
+  ],
+  "b2.root": [
+    "Start on the root: Start your strum on the string with the root marker.",
+  ],
+  "b2.x": [
+    "Skip the X strings: An X means do not play that string. Its note would sit under the chord and change its sound.",
+  ],
+  "b3.mute": [
+    "Short chords: To make a chord short, relax your fretting fingers. Keep them on the strings. The sound stops right away.",
+  ],
+  "b4.mixed": [
+    "Mixed order: Mixed order teaches your hand to find each shape quickly. Look at the next chord before the change.",
+  ],
+  "b7.drop2": [
+    "Drop 2 shape: Root on string 5, then one note on each string. Guitarists call this a drop 2 shape.",
+  ],
+  "b7.drop3mute": [
+    "Keep string 5 quiet: String 5 must not sound. Let the finger on string 6 lean lightly against it.",
+  ],
+  "b7.halfDim": [
+    "Half-diminished: Chord 7 is minor 7(♭5). Many charts call it half-diminished and write ø.",
+  ],
+  "b7.hidden": [
+    "A chord inside a chord: Take away the root of A minor 7 and C major is left. You already know it as chord 1.",
+    "A chord inside a chord: Take away the root of B minor 7(♭5) and D minor is left. You already know it as chord 2.",
+    "A chord inside a chord: Take away the root of C major 7 and E minor is left. You already know it as chord 3.",
+    "A chord inside a chord: Take away the root of D minor 7 and F major is left. You already know it as chord 4.",
+    "A chord inside a chord: Take away the root of E minor 7 and G major is left. You already know it as chord 5.",
+    "A chord inside a chord: Take away the root of F major 7 and A minor is left. You already know it as chord 6.",
+  ],
+  "b7.kinds": [
+    "Four kinds of 7th chord: Major 7: R 3 5 7. Dominant 7: R 3 5 ♭7. Minor 7: R ♭3 5 ♭7. Minor 7(♭5): R ♭3 ♭5 ♭7.",
+  ],
+  "b7.movable": [
+    "Movable shape: This shape has no open strings. Slide it along the neck and it keeps its type. The root note gives it its name.",
+  ],
+  "b7.oneNote": [
+    "One note apart: Lower the 7 by one fret and major 7 becomes dominant 7. Then lower the 3 and it becomes minor 7. Then lower the 5 and it becomes minor 7(♭5).",
+  ],
+  "b7.order": [
+    "Spread-out notes: Low to high, this shape plays R, 5, 7, 3. The notes are spread out, but it is still the same chord.",
+    "Spread-out notes: Low to high, this shape plays R, 5, ♭7, 3. The notes are spread out, but it is still the same chord.",
+    "Spread-out notes: Low to high, this shape plays R, 5, ♭7, ♭3. The notes are spread out, but it is still the same chord.",
+    "Spread-out notes: Low to high, this shape plays R, ♭5, ♭7, ♭3. The notes are spread out, but it is still the same chord.",
+  ],
+  "b7.plusOne": [
+    "Triad plus one: A 7th chord is a triad with one more note on top. That note is the 7th.",
+  ],
+  "b7.sound": [
+    "How they sound: Major 7 sounds soft. Dominant 7 sounds bluesy and wants to move. Minor 7 sounds mellow. Minor 7(♭5) sounds tense.",
+  ],
+  "b7.why": [
+    "Why these shapes?: Four notes packed close together are hard to finger on guitar. Moving one note down an octave spreads them out. Then each finger gets its own string.",
+  ],
+  "b8.octaveSame": [
+    "Back to 1: Chord 1 returns 12 frets higher. Same shape, one octave up.",
+  ],
+  "b8.topNote": [
+    "Listen to the top: Listen to the highest string. While the shape stays the same, it climbs one scale step per chord.",
+  ],
+  "d.listenFirst": [
+    "Listen first: Listen to the demo once before you play. Knowing the sound makes the changes easier to find.",
+  ],
+  "d3.fiveOne": [
+    "5 to 1: The 5 chord builds tension. The 1 chord releases it. This is the strongest way to arrive home.",
+  ],
+  "d3.jam": [
+    "Make it your own: Loop this map and play the pentatonic scale over it. Try ending each idea on a note from the current chord.",
+  ],
+  "d3.jobs": [
+    "Chord jobs: Home chords (1, 3, 6) feel settled. Away chords (2, 4) move away from home. Tension chords (5, 7) pull back home.",
+  ],
+  "d3.pull": [
+    "Why 5 pulls to 1: In G7, F wants to step down to E. B wants to step up to C. Those small steps make 1 sound like home.",
+  ],
+  "d3.roman": [
+    "Roman numerals: Many classes write chords as Roman numerals. Capital letters mean major. Small letters mean minor. 2 min7 is written ii7.",
+  ],
+  "d3.six": [
+    "Starting on 6: This map starts on chord 6, the relative minor. The notes are the same, but the mood is darker.",
+  ],
+  "d3.tricky": [
+    "Tricky change: These chords share no notes, so every finger moves. Loop this change a few extra times.",
+  ],
+  "key.circle": [
+    "Why this order?: Each key starts on note 5 of the key before it. Musicians call this order the circle of fifths.",
+  ],
+  "key.first": [
+    "Start with C: C major has no sharps or flats. Each key after it changes just one note.",
+  ],
+  "key.relMinor": [
+    "Its minor partner: A minor uses the same notes as C major. It starts on note 6 instead of note 1.",
+  ],
+  "pt.clean": [
+    "Clean pass: A clean pass misses no more than one note. Almost every note must be heard clearly.",
+  ],
+  "pt.focus": [
+    "One thing at a time: Choose one thing to practise today. Short, focused practice works better than long, scattered practice.",
+  ],
+}
+`;
+
+exports[`guitar theory notes: resolution > snapshots the resolved notes for C, F# and Db > Db 1`] = `
+{
+  "a1.degreeNames": [
+    "Names for the numbers: 1 is the tonic, the home note. 5 is the dominant. 7 is the leading tone, because it leads back to 1.",
+  ],
+  "a1.fingers": [
+    "One finger per fret: Put finger 1 on fret 8. Each finger then covers the next fret. Keep your hand still and let your fingers reach.",
+  ],
+  "a1.ionian": [
+    "What is Ionian?: Ionian is another name for the major scale. Starting the same notes from another note makes a new sound, called a mode. Modes come in Book Two.",
+  ],
+  "a1.octave": [
+    "Two roots: The low and high Db are the same note, one octave apart. The high one is two strings over and two frets up.",
+  ],
+  "a1.restless": [
+    "The restless notes: Notes 4 and 7 sound unsettled. 7 leans up to 1. 4 leans down to 3. Listen for this near the top of the scale.",
+  ],
+  "a1.slowFirst": [
+    "Clean, then fast: Start slowly. Raise the speed only when every note rings clearly.",
+  ],
+  "a1.steps": [
+    "Whole and half steps: A whole step is 2 frets. A half step is 1 fret. The major scale has half steps in two places: from 3 to 4, and from 7 to 1.",
+  ],
+  "a2.home": [
+    "Ending on 1: These melodies begin and end on 1. Ending on 1 sounds finished.",
+  ],
+  "a2.shape": [
+    "Up and back: The second melody climbs and then walks back down. Listen to the demo, then copy it.",
+  ],
+  "a3.legato": [
+    "Smooth notes: Legato means smooth. Pick each note and let it ring until the next one starts. Leave no gaps between notes.",
+  ],
+  "a3.staccato": [
+    "Short notes: Staccato means short. Pick the note, then relax your finger so the sound stops. Keep the finger touching the string.",
+  ],
+  "a4.fingers": [
+    "Same finger idea: Use one finger per fret here too. The numbers on the dots show which finger to use.",
+  ],
+  "a4.gb": [
+    "The G and B strings: The G and B strings are tuned closer together than the others. Shapes move up one fret when they cross onto the B string.",
+  ],
+  "a4.ghost": [
+    "Missing notes: Faint outlines show where 4 and 7 would be. The pentatonic skips them.",
+  ],
+  "a4.octave": [
+    "Root to root: The high Db is two strings over and three frets up. It is one fret further than in the major scale shape, because of the B string.",
+  ],
+  "a4.relative": [
+    "Did you know?: These five notes also make the Bb minor pentatonic. Only the home note changes.",
+  ],
+  "a4.what": [
+    "Five notes: Pentatonic means five notes. This scale is the major scale without notes 4 and 7. That leaves 1, 2, 3, 5 and 6.",
+  ],
+  "a4.why": [
+    "No clashing notes: Notes 4 and 7 make the half steps. Without them, these five notes rarely clash.",
+  ],
+  "b.barreCare": [
+    "Look after your hand: Barre shapes need strength. Rest your hand when it feels tired. Stop if anything hurts.",
+  ],
+  "b.fromScale": [
+    "Chords come from the scale: Pick a scale note. Skip the next note and take the one after. Do that once more. Those three notes make a triad.",
+  ],
+  "b.pattern": [
+    "Same pattern, every key: In every major key the chords follow one pattern. 1 major, 2 minor, 3 minor, 4 major, 5 major, 6 minor, 7 diminished.",
+  ],
+  "b.sevenLater": [
+    "Where is chord 7?: The triad on 7 is diminished. You will play it later as a 7th chord: 7 min7(♭5).",
+  ],
+  "b1.arp": [
+    "One note at a time: An arpeggio plays a chord one note at a time. A strum plays the same notes together.",
+  ],
+  "b1.names": [
+    "Three note names: This shape uses 4 strings but only three note names: Ab, C and Eb. Some notes appear twice, in different octaves.",
+    "Three note names: This shape uses 4 strings but only three note names: Bb, Db and F. Some notes appear twice, in different octaves.",
+    "Three note names: This shape uses 4 strings but only three note names: Db, F and Ab. Some notes appear twice, in different octaves.",
+    "Three note names: This shape uses 4 strings but only three note names: Eb, Gb and Bb. Some notes appear twice, in different octaves.",
+    "Three note names: This shape uses 4 strings but only three note names: F, Ab and C. Some notes appear twice, in different octaves.",
+    "Three note names: This shape uses 4 strings but only three note names: Gb, Bb and Db. Some notes appear twice, in different octaves.",
+  ],
+  "b1.order": [
+    "Listen low to high: Low to high, this shape plays R, 5, R, 3. R is the root.",
+    "Listen low to high: Low to high, this shape plays R, 5, R, ♭3. R is the root.",
+  ],
+  "b1.third": [
+    "Listen for the 3: The note marked 3 sets the mood. Major sounds bright. Minor sounds darker.",
+  ],
+  "b2.rhythmFirst": [
+    "Rhythm first: New rhythm? Strum it on one chord first. Add the changes when it feels easy.",
+  ],
+  "b2.root": [
+    "Start on the root: Start your strum on the string with the root marker.",
+  ],
+  "b2.x": [
+    "Skip the X strings: An X means do not play that string. Its note would sit under the chord and change its sound.",
+  ],
+  "b3.mute": [
+    "Short chords: To make a chord short, relax your fretting fingers. Keep them on the strings. The sound stops right away.",
+  ],
+  "b4.mixed": [
+    "Mixed order: Mixed order teaches your hand to find each shape quickly. Look at the next chord before the change.",
+  ],
+  "b7.drop2": [
+    "Drop 2 shape: Root on string 5, then one note on each string. Guitarists call this a drop 2 shape.",
+  ],
+  "b7.drop3": [
+    "Drop 3 shape: Root on string 6, then skip string 5. Guitarists call this a drop 3 shape.",
+  ],
+  "b7.drop3mute": [
+    "Keep string 5 quiet: String 5 must not sound. Let the finger on string 6 lean lightly against it.",
+  ],
+  "b7.halfDim": [
+    "Half-diminished: Chord 7 is minor 7(♭5). Many charts call it half-diminished and write ø.",
+  ],
+  "b7.hidden": [
+    "A chord inside a chord: Take away the root of Bb minor 7 and Db major is left. You already know it as chord 1.",
+    "A chord inside a chord: Take away the root of C minor 7(♭5) and Eb minor is left. You already know it as chord 2.",
+    "A chord inside a chord: Take away the root of Db major 7 and F minor is left. You already know it as chord 3.",
+    "A chord inside a chord: Take away the root of Eb minor 7 and Gb major is left. You already know it as chord 4.",
+    "A chord inside a chord: Take away the root of F minor 7 and Ab major is left. You already know it as chord 5.",
+    "A chord inside a chord: Take away the root of Gb major 7 and Bb minor is left. You already know it as chord 6.",
+  ],
+  "b7.kinds": [
+    "Four kinds of 7th chord: Major 7: R 3 5 7. Dominant 7: R 3 5 ♭7. Minor 7: R ♭3 5 ♭7. Minor 7(♭5): R ♭3 ♭5 ♭7.",
+  ],
+  "b7.movable": [
+    "Movable shape: This shape has no open strings. Slide it along the neck and it keeps its type. The root note gives it its name.",
+  ],
+  "b7.oneNote": [
+    "One note apart: Lower the 7 by one fret and major 7 becomes dominant 7. Then lower the 3 and it becomes minor 7. Then lower the 5 and it becomes minor 7(♭5).",
+  ],
+  "b7.order": [
+    "Spread-out notes: Low to high, this shape plays R, 5, 7, 3. The notes are spread out, but it is still the same chord.",
+    "Spread-out notes: Low to high, this shape plays R, 5, ♭7, ♭3. The notes are spread out, but it is still the same chord.",
+    "Spread-out notes: Low to high, this shape plays R, 7, 3, 5. The notes are spread out, but it is still the same chord.",
+    "Spread-out notes: Low to high, this shape plays R, ♭5, ♭7, ♭3. The notes are spread out, but it is still the same chord.",
+    "Spread-out notes: Low to high, this shape plays R, ♭7, 3, 5. The notes are spread out, but it is still the same chord.",
+    "Spread-out notes: Low to high, this shape plays R, ♭7, ♭3, 5. The notes are spread out, but it is still the same chord.",
+  ],
+  "b7.plusOne": [
+    "Triad plus one: A 7th chord is a triad with one more note on top. That note is the 7th.",
+  ],
+  "b7.sound": [
+    "How they sound: Major 7 sounds soft. Dominant 7 sounds bluesy and wants to move. Minor 7 sounds mellow. Minor 7(♭5) sounds tense.",
+  ],
+  "b7.why": [
+    "Why these shapes?: Four notes packed close together are hard to finger on guitar. Moving one note down an octave spreads them out. Then each finger gets its own string.",
+  ],
+  "b8.octaveEnd": [
+    "Back to 1: Chord 1 comes back to finish the set.",
+  ],
+  "b8.topNote": [
+    "Listen to the top: Listen to the highest string. While the shape stays the same, it climbs one scale step per chord.",
+  ],
+  "d.listenFirst": [
+    "Listen first: Listen to the demo once before you play. Knowing the sound makes the changes easier to find.",
+  ],
+  "d3.jam": [
+    "Make it your own: Loop this map and play the pentatonic scale over it. Try ending each idea on a note from the current chord.",
+  ],
+  "d3.jobs": [
+    "Chord jobs: Home chords (1, 3, 6) feel settled. Away chords (2, 4) move away from home. Tension chords (5, 7) pull back home.",
+  ],
+  "d3.roman": [
+    "Roman numerals: Many classes write chords as Roman numerals. Capital letters mean major. Small letters mean minor. 2 min7 is written ii7.",
+  ],
+  "d3.tricky": [
+    "Tricky change: These chords share no notes, so every finger moves. Loop this change a few extra times.",
+  ],
+  "key.circle": [
+    "Why this order?: Each key starts on note 5 of the key before it. Musicians call this order the circle of fifths.",
+  ],
+  "key.flatSwitch": [
+    "Now with flats: From this key on, notes are written with flats. A flat (♭) means one fret lower.",
+  ],
+  "key.newNoteRespelled": [
+    "One new note: Db major sounds like F# major with one note changed. B becomes C. The other notes keep their sound but take flat names.",
+  ],
+  "key.relMinor": [
+    "Its minor partner: Bb minor uses the same notes as Db major. It starts on note 6 instead of note 1.",
+  ],
+  "pt.clean": [
+    "Clean pass: A clean pass misses no more than one note. Almost every note must be heard clearly.",
+  ],
+  "pt.focus": [
+    "One thing at a time: Choose one thing to practise today. Short, focused practice works better than long, scattered practice.",
+  ],
+}
+`;
+
+exports[`guitar theory notes: resolution > snapshots the resolved notes for C, F# and Db > F# 1`] = `
+{
+  "a1.degreeNames": [
+    "Names for the numbers: 1 is the tonic, the home note. 5 is the dominant. 7 is the leading tone, because it leads back to 1.",
+  ],
+  "a1.fingers": [
+    "One finger per fret: Put finger 1 on fret 1. Each finger then covers the next fret. Keep your hand still and let your fingers reach.",
+  ],
+  "a1.ionian": [
+    "What is Ionian?: Ionian is another name for the major scale. Starting the same notes from another note makes a new sound, called a mode. Modes come in Book Two.",
+  ],
+  "a1.octave": [
+    "Two roots: The low and high F# are the same note, one octave apart. The high one is two strings over and two frets up.",
+  ],
+  "a1.restless": [
+    "The restless notes: Notes 4 and 7 sound unsettled. 7 leans up to 1. 4 leans down to 3. Listen for this near the top of the scale.",
+  ],
+  "a1.slowFirst": [
+    "Clean, then fast: Start slowly. Raise the speed only when every note rings clearly.",
+  ],
+  "a1.steps": [
+    "Whole and half steps: A whole step is 2 frets. A half step is 1 fret. The major scale has half steps in two places: from 3 to 4, and from 7 to 1.",
+  ],
+  "a2.home": [
+    "Ending on 1: These melodies begin and end on 1. Ending on 1 sounds finished.",
+  ],
+  "a2.shape": [
+    "Up and back: The second melody climbs and then walks back down. Listen to the demo, then copy it.",
+  ],
+  "a3.legato": [
+    "Smooth notes: Legato means smooth. Pick each note and let it ring until the next one starts. Leave no gaps between notes.",
+  ],
+  "a3.staccato": [
+    "Short notes: Staccato means short. Pick the note, then relax your finger so the sound stops. Keep the finger touching the string.",
+  ],
+  "a4.fingers": [
+    "Same finger idea: Use one finger per fret here too. The numbers on the dots show which finger to use.",
+  ],
+  "a4.gb": [
+    "The G and B strings: The G and B strings are tuned closer together than the others. Shapes move up one fret when they cross onto the B string.",
+  ],
+  "a4.ghost": [
+    "Missing notes: Faint outlines show where 4 and 7 would be. The pentatonic skips them.",
+  ],
+  "a4.octave": [
+    "Root to root: The high F# is two strings over and three frets up. It is one fret further than in the major scale shape, because of the B string.",
+  ],
+  "a4.relative": [
+    "Did you know?: These five notes also make the D# minor pentatonic. Only the home note changes.",
+  ],
+  "a4.what": [
+    "Five notes: Pentatonic means five notes. This scale is the major scale without notes 4 and 7. That leaves 1, 2, 3, 5 and 6.",
+  ],
+  "a4.why": [
+    "No clashing notes: Notes 4 and 7 make the half steps. Without them, these five notes rarely clash.",
+  ],
+  "b.barreCare": [
+    "Look after your hand: Barre shapes need strength. Rest your hand when it feels tired. Stop if anything hurts.",
+  ],
+  "b.fromScale": [
+    "Chords come from the scale: Pick a scale note. Skip the next note and take the one after. Do that once more. Those three notes make a triad.",
+  ],
+  "b.pattern": [
+    "Same pattern, every key: In every major key the chords follow one pattern. 1 major, 2 minor, 3 minor, 4 major, 5 major, 6 minor, 7 diminished.",
+  ],
+  "b.sevenLater": [
+    "Where is chord 7?: The triad on 7 is diminished. You will play it later as a 7th chord: 7 min7(♭5).",
+  ],
+  "b1.arp": [
+    "One note at a time: An arpeggio plays a chord one note at a time. A strum plays the same notes together.",
+  ],
+  "b1.names": [
+    "Three note names: This shape uses 4 strings but only three note names: A#, C# and E#. Some notes appear twice, in different octaves.",
+    "Three note names: This shape uses 4 strings but only three note names: B, D# and F#. Some notes appear twice, in different octaves.",
+    "Three note names: This shape uses 4 strings but only three note names: C#, E# and G#. Some notes appear twice, in different octaves.",
+    "Three note names: This shape uses 4 strings but only three note names: D#, F# and A#. Some notes appear twice, in different octaves.",
+    "Three note names: This shape uses 4 strings but only three note names: F#, A# and C#. Some notes appear twice, in different octaves.",
+    "Three note names: This shape uses 4 strings but only three note names: G#, B and D#. Some notes appear twice, in different octaves.",
+  ],
+  "b1.order": [
+    "Listen low to high: Low to high, this shape plays R, 5, R, 3. R is the root.",
+    "Listen low to high: Low to high, this shape plays R, 5, R, ♭3. R is the root.",
+  ],
+  "b1.third": [
+    "Listen for the 3: The note marked 3 sets the mood. Major sounds bright. Minor sounds darker.",
+  ],
+  "b2.anchor": [
+    "Keep a finger down: Both chords use this note. Leave that finger pressed and move the others.",
+  ],
+  "b2.rhythmFirst": [
+    "Rhythm first: New rhythm? Strum it on one chord first. Add the changes when it feels easy.",
+  ],
+  "b2.root": [
+    "Start on the root: Start your strum on the string with the root marker.",
+  ],
+  "b2.x": [
+    "Skip the X strings: An X means do not play that string. Its note would sit under the chord and change its sound.",
+  ],
+  "b3.mute": [
+    "Short chords: To make a chord short, relax your fretting fingers. Keep them on the strings. The sound stops right away.",
+  ],
+  "b4.mixed": [
+    "Mixed order: Mixed order teaches your hand to find each shape quickly. Look at the next chord before the change.",
+  ],
+  "b7.drop2": [
+    "Drop 2 shape: Root on string 5, then one note on each string. Guitarists call this a drop 2 shape.",
+  ],
+  "b7.drop3": [
+    "Drop 3 shape: Root on string 6, then skip string 5. Guitarists call this a drop 3 shape.",
+  ],
+  "b7.drop3mute": [
+    "Keep string 5 quiet: String 5 must not sound. Let the finger on string 6 lean lightly against it.",
+  ],
+  "b7.halfDim": [
+    "Half-diminished: Chord 7 is minor 7(♭5). Many charts call it half-diminished and write ø.",
+  ],
+  "b7.hidden": [
+    "A chord inside a chord: Take away the root of A# minor 7 and C# major is left. You already know it as chord 5.",
+    "A chord inside a chord: Take away the root of B major 7 and D# minor is left. You already know it as chord 6.",
+    "A chord inside a chord: Take away the root of D# minor 7 and F# major is left. You already know it as chord 1.",
+    "A chord inside a chord: Take away the root of E# minor 7(♭5) and G# minor is left. You already know it as chord 2.",
+    "A chord inside a chord: Take away the root of F# major 7 and A# minor is left. You already know it as chord 3.",
+    "A chord inside a chord: Take away the root of G# minor 7 and B major is left. You already know it as chord 4.",
+  ],
+  "b7.kinds": [
+    "Four kinds of 7th chord: Major 7: R 3 5 7. Dominant 7: R 3 5 ♭7. Minor 7: R ♭3 5 ♭7. Minor 7(♭5): R ♭3 ♭5 ♭7.",
+  ],
+  "b7.movable": [
+    "Movable shape: This shape has no open strings. Slide it along the neck and it keeps its type. The root note gives it its name.",
+  ],
+  "b7.oneNote": [
+    "One note apart: Lower the 7 by one fret and major 7 becomes dominant 7. Then lower the 3 and it becomes minor 7. Then lower the 5 and it becomes minor 7(♭5).",
+  ],
+  "b7.order": [
+    "Spread-out notes: Low to high, this shape plays R, 5, 7, 3. The notes are spread out, but it is still the same chord.",
+    "Spread-out notes: Low to high, this shape plays R, 5, ♭7, ♭3. The notes are spread out, but it is still the same chord.",
+    "Spread-out notes: Low to high, this shape plays R, 7, 3, 5. The notes are spread out, but it is still the same chord.",
+    "Spread-out notes: Low to high, this shape plays R, ♭5, ♭7, ♭3. The notes are spread out, but it is still the same chord.",
+    "Spread-out notes: Low to high, this shape plays R, ♭7, 3, 5. The notes are spread out, but it is still the same chord.",
+    "Spread-out notes: Low to high, this shape plays R, ♭7, ♭3, 5. The notes are spread out, but it is still the same chord.",
+  ],
+  "b7.plusOne": [
+    "Triad plus one: A 7th chord is a triad with one more note on top. That note is the 7th.",
+  ],
+  "b7.sound": [
+    "How they sound: Major 7 sounds soft. Dominant 7 sounds bluesy and wants to move. Minor 7 sounds mellow. Minor 7(♭5) sounds tense.",
+  ],
+  "b7.why": [
+    "Why these shapes?: Four notes packed close together are hard to finger on guitar. Moving one note down an octave spreads them out. Then each finger gets its own string.",
+  ],
+  "b8.octaveNew": [
+    "Back to 1: Chord 1 returns higher up the neck, with a different shape. It is still the same chord.",
+  ],
+  "b8.topNote": [
+    "Listen to the top: Listen to the highest string. While the shape stays the same, it climbs one scale step per chord.",
+  ],
+  "d.listenFirst": [
+    "Listen first: Listen to the demo once before you play. Knowing the sound makes the changes easier to find.",
+  ],
+  "d3.jam": [
+    "Make it your own: Loop this map and play the pentatonic scale over it. Try ending each idea on a note from the current chord.",
+  ],
+  "d3.jobs": [
+    "Chord jobs: Home chords (1, 3, 6) feel settled. Away chords (2, 4) move away from home. Tension chords (5, 7) pull back home.",
+  ],
+  "d3.pull": [
+    "Why 5 pulls to 1: In C#7, B wants to step down to A#. E# wants to step up to F#. Those small steps make 1 sound like home.",
+  ],
+  "d3.roman": [
+    "Roman numerals: Many classes write chords as Roman numerals. Capital letters mean major. Small letters mean minor. 2 min7 is written ii7.",
+  ],
+  "d3.sameFret": [
+    "Same fret, next string: The root moves from string 6 to string 5 on the same fret. That lifts the root by a 4th. Here it takes you from 1 to 4.",
+    "Same fret, next string: The root moves from string 6 to string 5 on the same fret. That lifts the root by a 4th. Here it takes you from 2 to 5.",
+  ],
+  "d3.six": [
+    "Starting on 6: This map starts on chord 6, the relative minor. The notes are the same, but the mood is darker.",
+  ],
+  "d3.tricky": [
+    "Tricky change: These chords share no notes, so every finger moves. Loop this change a few extra times.",
+  ],
+  "d3.twoFiveOne": [
+    "2-5-1: The 2 chord leads to the 5 chord. The 5 chord leads home to 1. You will hear this move in many songs.",
+  ],
+  "key.circle": [
+    "Why this order?: Each key starts on note 5 of the key before it. Musicians call this order the circle of fifths.",
+  ],
+  "key.newNote": [
+    "One new note: F# major is B major with one note changed. E becomes E#. Find E# in your scale shape.",
+  ],
+  "key.relMinor": [
+    "Its minor partner: D# minor uses the same notes as F# major. It starts on note 6 instead of note 1.",
+  ],
+  "pt.clean": [
+    "Clean pass: A clean pass misses no more than one note. Almost every note must be heard clearly.",
+  ],
+  "pt.focus": [
+    "One thing at a time: Choose one thing to practise today. Short, focused practice works better than long, scattered practice.",
+  ],
+}
+`;

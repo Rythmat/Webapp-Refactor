@@ -1,20 +1,25 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { WRONG_NOTE_KEY_COLOR } from '@/components/Games/PianoRollPlay';
 import { PlayNote } from '@/components/Games/PlayNote';
+import { GuitarViewToggle } from '@/components/notation/GuitarViewToggle';
 import { RollViewToggle } from '@/components/notation/RollViewToggle';
+import type { StaffLayout } from '@/components/notation/StaffView';
 import {
   midiToPitchName,
   pitchNameToMidi,
   spellMidi,
 } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
+import type { LessonInstrument } from '@/curriculum/types/activity.v2';
 import { formatAccidentalsForDisplay } from '@/curriculum/utils/formatAccidentals';
-import { useRollView } from '@/lib/notation';
+import type { FretPosition } from '@/lib/guitar/types';
+import { useGuitarView, useRollView } from '@/lib/notation';
 import {
   PIANO_ROLL_LANE_COLORS,
   pianoRollLaneBackground,
 } from '@/lib/pianoRollLanes';
 import type { LessonChordSymbol } from '../notation/lessonChordSymbols';
 import { LearnNotationView } from './LearnNotationView';
+import { LearnTabView } from './LearnTabView';
 import { advancePlayhead, initialClockState } from './playheadClock';
 
 export type Midi = number; // 0..127
@@ -28,6 +33,7 @@ export interface NoteEvent {
   velocity?: number;
   color?: string;
   hand?: 'lh' | 'rh'; // grand staff stave assignment (D section dual staff only)
+  fretPosition?: FretPosition; // guitar only: where the note is played (TAB)
 }
 
 export interface NoteHoldMeta {
@@ -104,6 +110,13 @@ export interface PianoRollProps {
    * The roll itself doesn't show them — there is no staff to sit above.
    */
   chordSymbols?: readonly LessonChordSymbol[];
+  /**
+   * Guitar reads from TAB (or treble-8vb notation) instead of the roll; the
+   * lesson clock here runs the same either way. Default piano.
+   */
+  instrument?: LessonInstrument;
+  /** Guitar TAB only: drawn over the TAB from its layout (practice tools). */
+  tabOverlay?: (layout: StaffLayout | null) => React.ReactNode;
 }
 
 // ===== Helpers =====
@@ -278,6 +291,8 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   noteSpelling,
   colorActiveLanesByTarget = false,
   chordSymbols,
+  instrument = 'piano',
+  tabOverlay,
 }) => {
   const laneList = buildLaneList(
     events,
@@ -426,6 +441,7 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
 
   // Notation view: the lesson clock above keeps running; only the drawing changes.
   const [view, setView] = useRollView('learn');
+  const [guitarView, setGuitarView] = useGuitarView();
   const viewToggle = <RollViewToggle view={view} onChange={setView} />;
   const notationHeader = (
     <>
@@ -433,6 +449,38 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
       {notationToggle}
     </>
   );
+  // Guitar has no roll: TAB, or the staff written an octave up with an 8
+  // under the clef, as guitar music is. The staff's own clef choice
+  // (`staves`, `notationToggle`) doesn't apply.
+  if (instrument === 'guitar') {
+    const face = {
+      events,
+      bars,
+      beatsPerBar,
+      keyColor,
+      inTime,
+      playheadTick,
+      countInTicks: countOffTicks,
+      beatTicks,
+      musicStartTick,
+      noteHoldMeta,
+      performanceMeta,
+      height: rowHeight + (showTimeline ? 40 : 0),
+      chordSymbols,
+      toggle: <GuitarViewToggle view={guitarView} onChange={setGuitarView} />,
+    };
+    return guitarView === 'tab' ? (
+      <LearnTabView {...face} overlay={tabOverlay} />
+    ) : (
+      <LearnNotationView
+        {...face}
+        keyRoot={keyRoot}
+        staves="treble"
+        writtenOctaveShift={1}
+        clefAnnotation="8vb"
+      />
+    );
+  }
   if (view === 'notation') {
     return (
       <LearnNotationView

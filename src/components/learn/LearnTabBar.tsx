@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { InstrumentSelector } from '@/components/ClassroomLayout/dashboard/InstrumentSelector';
 import { cn } from '@/components/utilities';
 import { LearnRoutes } from '@/constants/routes';
@@ -26,6 +26,7 @@ const TABS: Tab[] = [
  */
 export const LearnTabBar = () => {
   const [params] = useSearchParams();
+  const navigate = useNavigate();
   const active = params.get('tab') ?? '';
 
   return (
@@ -61,9 +62,14 @@ export const LearnTabBar = () => {
         </Link>
       ))}
 
-      {/* Instrument selector, pushed to the far right. */}
+      {/* Instrument selector, pushed to the far right. Only Technique changes
+          with the instrument today, so switching opens it. */}
       <div className="ml-auto">
-        <InstrumentSelector />
+        <InstrumentSelector
+          onChange={() => {
+            if (active !== 'Technique') navigate('?tab=Technique');
+          }}
+        />
       </div>
     </div>
   );

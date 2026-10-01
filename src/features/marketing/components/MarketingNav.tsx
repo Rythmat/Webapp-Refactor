@@ -12,7 +12,12 @@ import {
 import { cn } from '@/components/utilities';
 import { LANDING_FRAME } from '@/features/landing/frame';
 import { MagneticButton } from '@/features/landing/motion/MagneticButton';
-import { featureLinks, navLinks, OPEN_APP_HREF } from '../content/nav';
+import {
+  featureLinks,
+  navLinks,
+  OPEN_APP_HREF,
+  SHOW_NAV_PAGES,
+} from '../content/nav';
 
 /** Nav link with an underline that grows in from the left on hover/focus. */
 const linkCls = cn(
@@ -27,7 +32,8 @@ const linkCls = cn(
  * scrolls (Linear-style). Logo + wordmark left; a Features mega-menu (Home,
  * module pages + Teachers; neutral white — color is reserved for the music
  * color system), Blog and a magnetic "Open" CTA right. Collapses to an animated drawer
- * on mobile; the Open CTA stays visible.
+ * on mobile; the Open CTA stays visible. While `SHOW_NAV_PAGES` is off, only
+ * the logo and Open show (no Features, Blog or drawer).
  *
  * `solid` forces the glass bar on regardless of scroll. `framed` fits the whole
  * bar to the landing's framed column (`LANDING_FRAME`), rails included, so it
@@ -87,56 +93,58 @@ export const MarketingNav = ({
           className="flex items-center gap-2 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
         >
           <Logo className="size-8" />
-          <span className="text-lg font-semibold tracking-tight text-white">
-            Music Atlas
-          </span>
+          <span className="text-lg tracking-tight text-white">Music Atlas</span>
         </Link>
 
         {/* Desktop */}
         <div className="hidden items-center gap-7 md:flex">
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger
-              className={cn(
-                linkCls,
-                'group inline-flex items-center gap-1 outline-none data-[state=open]:text-white',
-              )}
-            >
-              Features
-              <ChevronDown className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="start"
-              sideOffset={14}
-              className="grid w-[30rem] grid-cols-2 gap-1 rounded-2xl border-white/10 bg-[#141416]/90 p-2 text-white shadow-[0_24px_60px_-12px_rgba(0,0,0,0.7)] backdrop-blur-xl"
-            >
-              {featureLinks.map(({ href, label, description, icon }) => (
-                <DropdownMenuItem
-                  key={href}
-                  asChild
-                  className="cursor-pointer rounded-xl p-3 focus:bg-white/[0.06] focus:text-white"
-                >
-                  <Link to={href} className="group/item flex items-start gap-3">
-                    <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/[0.06] text-white transition-transform duration-200 group-hover/item:scale-110">
-                      {icon}
-                    </span>
-                    <span>
-                      <span className="block text-sm font-semibold">
-                        {label}
+          {SHOW_NAV_PAGES && (
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger
+                className={cn(
+                  linkCls,
+                  'group inline-flex items-center gap-1 outline-none data-[state=open]:text-white',
+                )}
+              >
+                Features
+                <ChevronDown className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="start"
+                sideOffset={14}
+                className="grid w-[30rem] grid-cols-2 gap-1 rounded-2xl border-white/10 bg-[#141416]/90 p-2 text-white shadow-[0_24px_60px_-12px_rgba(0,0,0,0.7)] backdrop-blur-xl"
+              >
+                {featureLinks.map(({ href, label, description, icon }) => (
+                  <DropdownMenuItem
+                    key={href}
+                    asChild
+                    className="cursor-pointer rounded-xl p-3 focus:bg-white/[0.06] focus:text-white"
+                  >
+                    <Link
+                      to={href}
+                      className="group/item flex items-start gap-3"
+                    >
+                      <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/[0.06] text-white transition-transform duration-200 group-hover/item:scale-110">
+                        {icon}
                       </span>
-                      <span className="block text-xs leading-snug text-white/55">
-                        {description}
+                      <span>
+                        <span className="block text-sm">{label}</span>
+                        <span className="block text-xs leading-snug text-white/55">
+                          {description}
+                        </span>
                       </span>
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          {navLinks.map((l) => (
-            <Link key={l.href} to={l.href} className={linkCls}>
-              {l.label}
-            </Link>
-          ))}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          {SHOW_NAV_PAGES &&
+            navLinks.map((l) => (
+              <Link key={l.href} to={l.href} className={linkCls}>
+                {l.label}
+              </Link>
+            ))}
           <MagneticButton
             to={OPEN_APP_HREF}
             tone="light"
@@ -157,16 +165,18 @@ export const MarketingNav = ({
           >
             Open
           </MagneticButton>
-          <button
-            type="button"
-            aria-label={open ? 'Close menu' : 'Open menu'}
-            aria-expanded={open}
-            aria-controls="marketing-mobile-menu"
-            onClick={() => setOpen((v) => !v)}
-            className="grid size-9 place-items-center rounded-full border border-white/15 text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-          >
-            {open ? <X className="size-5" /> : <Menu className="size-5" />}
-          </button>
+          {SHOW_NAV_PAGES && (
+            <button
+              type="button"
+              aria-label={open ? 'Close menu' : 'Open menu'}
+              aria-expanded={open}
+              aria-controls="marketing-mobile-menu"
+              onClick={() => setOpen((v) => !v)}
+              className="grid size-9 place-items-center rounded-full border border-white/15 text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            >
+              {open ? <X className="size-5" /> : <Menu className="size-5" />}
+            </button>
+          )}
         </div>
       </nav>
 

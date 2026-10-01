@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import createGlobe from '@/lib/cobe';
 import { buildCountryTexture } from './globe-country-texture';
+import { locationToAngles, shortestTurn } from './globeMath';
 
 export interface GlobeMarker {
   /**
@@ -45,7 +46,29 @@ interface GlobeCdnProps {
    * while the canvas is scrolled offscreen, and resumes when visible again.
    */
   paused?: boolean;
+  /**
+   * Face `[lat, lng]`: the globe flies there (the shortest way round) and holds
+   * it, auto-rotation stopped. `null` / omitted lets go: rotation resumes and
+   * the tilt eases back. Dragging also lets go until `focus` changes.
+   */
+  focus?: [number, number] | null;
+  /** When `focus` changes, start the flight from here instead of the current view. */
+  focusFrom?: [number, number];
+  /** Flight time in ms; 0 jumps. Defaults to 1000. */
+  focusMs?: number;
 }
+
+/** A flight to a focus: view angles from → to over `ms` (from null = current view). */
+interface Flight {
+  from: [number, number] | null;
+  to: [number, number];
+  t0: number | null;
+  ms: number;
+  done: boolean;
+}
+
+const easeInOutCubic = (t: number) =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
 const defaultMarkers: GlobeMarker[] = [
   { id: 'globe-nola', location: [29.9511, -90.0715], label: 'New Orleans' },
@@ -101,6 +124,9 @@ export function GlobeCdn({
   arcHeight = 0.28,
   onRotationComplete,
   paused = false,
+  focus = null,
+  focusFrom,
+  focusMs = 1000,
 }: GlobeCdnProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const globeRef = useRef<ReturnType<typeof createGlobe> | null>(null);
@@ -132,8 +158,15 @@ export function GlobeCdn({
   // Accumulated auto-rotation (radians) since the last completed turn.
   const rotationAccumRef = useRef(0);
 
+  // Focus: the current flight, extra tilt it adds, and whether a drag let go.
+  const flightRef = useRef<Flight | null>(null);
+  const thetaExtraRef = useRef(0);
+  const focusReleasedRef = useRef(false);
+
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     pointerInteracting.current = { x: e.clientX, y: e.clientY };
+    // A drag takes over from a focus until the next one.
+    if (flightRef.current) focusReleasedRef.current = true;
     if (canvasRef.current) canvasRef.current.style.cursor = 'grabbing';
     isPausedRef.current = true;
   }, []);
@@ -230,14 +263,38 @@ export function GlobeCdn({
           lastTs === null ? 1 : Math.min(3, (t - lastTs) / (1000 / 60));
         lastTs = t;
 
-        // Auto-rotate unless the user is dragging the globe.
-        if (!isPausedRef.current) {
-          const step = speedRef.current * dt;
-          phi += step;
-          rotationAccumRef.current += step;
-          if (rotationAccumRef.current >= TWO_PI) {
-            rotationAccumRef.current -= TWO_PI;
-            onRotationCompleteRef.current?.();
+        const flight = focusReleasedRef.current ? null : flightRef.current;
+        if (flight) {
+          // Fly to the focus and hold it: the view angles are eased, then
+          // written back as `phi` / extra tilt so a later drag or release
+          // carries on from here.
+          flight.t0 ??= t;
+          flight.from ??= [
+            phi + phiOffsetRef.current,
+            0.2 + thetaOffsetRef.current + thetaExtraRef.current,
+          ];
+          const p =
+            flight.ms > 0 ? Math.min(1, (t - flight.t0) / flight.ms) : 1;
+          const e = easeInOutCubic(p);
+          const viewPhi =
+            flight.from[0] + shortestTurn(flight.from[0], flight.to[0]) * e;
+          const viewTheta =
+            flight.from[1] + (flight.to[1] - flight.from[1]) * e;
+          phi = viewPhi - phiOffsetRef.current;
+          thetaExtraRef.current = viewTheta - 0.2 - thetaOffsetRef.current;
+          if (p >= 1) flight.done = true;
+        } else {
+          // No focus: the tilt eases back to the default.
+          thetaExtraRef.current *= Math.pow(0.92, dt);
+          // Auto-rotate unless the user is dragging the globe.
+          if (!isPausedRef.current) {
+            const step = speedRef.current * dt;
+            phi += step;
+            rotationAccumRef.current += step;
+            if (rotationAccumRef.current >= TWO_PI) {
+              rotationAccumRef.current -= TWO_PI;
+              onRotationCompleteRef.current?.();
+            }
           }
         }
 
@@ -257,7 +314,11 @@ export function GlobeCdn({
 
         globeRef.current!.update({
           phi: phi + phiOffsetRef.current + dragOffset.current.phi,
-          theta: 0.2 + thetaOffsetRef.current + dragOffset.current.theta,
+          theta:
+            0.2 +
+            thetaOffsetRef.current +
+            thetaExtraRef.current +
+            dragOffset.current.theta,
           ...(arcsUpdate ? { arcs: arcsUpdate } : {}),
         });
         // Guarded: a frame already queued when stop() ran would otherwise
@@ -273,6 +334,9 @@ export function GlobeCdn({
         // Same reason: an arc grow-in interrupted by the pause would otherwise
         // measure against a stale timestamp and snap straight to finished.
         if (arcAnimatingRef.current) arcAnimStartRef.current = null;
+        // …and a flight cut short restarts its clock from where it was aimed.
+        if (flightRef.current && !flightRef.current.done)
+          flightRef.current.t0 = null;
         animationId = requestAnimationFrame(animate);
       }
 
@@ -337,6 +401,28 @@ export function GlobeCdn({
   useEffect(() => {
     syncRunningRef.current?.();
   }, [paused]);
+
+  // A new focus arms a flight (from `focusFrom`, else from the current view);
+  // no focus lets go.
+  const [focusLat, focusLng] = focus ?? [];
+  const [fromLat, fromLng] = focusFrom ?? [];
+  useEffect(() => {
+    focusReleasedRef.current = false;
+    if (focusLat === undefined || focusLng === undefined) {
+      flightRef.current = null;
+      return;
+    }
+    flightRef.current = {
+      from:
+        fromLat === undefined || fromLng === undefined
+          ? null
+          : locationToAngles(fromLat, fromLng),
+      to: locationToAngles(focusLat, focusLng),
+      t0: null,
+      ms: focusMs,
+      done: false,
+    };
+  }, [focusLat, focusLng, fromLat, fromLng, focusMs]);
 
   // On data change: markers + arc altitude update immediately; arcs restart
   // their grow-in (which re-uploads them, baking in the new arcHeight).

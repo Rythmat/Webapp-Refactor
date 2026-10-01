@@ -95,13 +95,6 @@ export const hipHopProfile: GenreProfile = {
       tracks: ['Gin and Juice', "Nuthin' but a 'G' Thang (with Dr. Dre)"],
     },
     {
-      name: 'Tupac Shakur',
-      era: '1990s',
-      styleRef: 'l2a',
-      role: 'MC',
-      tracks: ['California Love', 'Dear Mama', 'Changes'],
-    },
-    {
       name: 'A Tribe Called Quest',
       era: '1990s',
       styleRef: 'l3a',
@@ -135,6 +128,13 @@ export const hipHopProfile: GenreProfile = {
       styleRef: 'l3a',
       role: 'MC / Singer',
       tracks: ['Doo Wop (That Thing)', 'Everything Is Everything'],
+    },
+    {
+      name: 'Tupac Shakur',
+      era: '1990s',
+      styleRef: 'l3a',
+      role: 'MC',
+      tracks: ['California Love', 'Dear Mama', 'Changes'],
     },
     {
       name: 'Kendrick Lamar',

@@ -175,17 +175,6 @@ export const hipHopStyleDna: StyleDnaLevel[] = [
           'hiphop',
         ],
       },
-      {
-        name: 'Tupac Shakur',
-        description:
-          'Raw emotion and message over piano-led and G-funk beats. "California Love," "Dear Mama," "Changes."',
-        tags: [
-          'hiphop:tupac:message_mc',
-          'hiphop',
-          'hiphop:tupac:piano_loop',
-          'hiphop',
-        ],
-      },
     ],
     vocabulary: [
       {
@@ -270,6 +259,17 @@ export const hipHopStyleDna: StyleDnaLevel[] = [
           'hiphop:lauryn_hill:soul_harmony',
           'hiphop',
           'hiphop:lauryn_hill:sung_hook',
+          'hiphop',
+        ],
+      },
+      {
+        name: 'Tupac Shakur',
+        description:
+          'Raw emotion and message over piano-led and G-funk beats. "California Love," "Dear Mama," "Changes."',
+        tags: [
+          'hiphop:tupac:message_mc',
+          'hiphop',
+          'hiphop:tupac:piano_loop',
           'hiphop',
         ],
       },

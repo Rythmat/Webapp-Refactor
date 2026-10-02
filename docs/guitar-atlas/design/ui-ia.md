@@ -8,6 +8,14 @@
 > - The old `/curriculum/guitar/applied-theory-fundamentals[/:key]` paths only redirect (replace) to the new ones, keeping the key and query. The guitar key picker is gone; `AppliedTheoryFundamentalsKeyPicker` is piano-only again.
 > - Internal ids are unchanged (genre `guitar-applied-theory-fundamentals`, module, tags, builder), so saved progress carries over. The lesson breadcrumb reads Theory › Guitar · Ionian (Major), and the header shows the key ("C Major (Ionian)").
 
+> **Modes update (2026-10-02).** Guitar Theory now teaches all seven diatonic modes in all 12 keys. Ionian is Book One, unchanged.
+>
+> - Dorian … Locrian are built in code (`src/curriculum/data/guitar/modes`). Their chord boxes are the parent major key's Book One shapes, renumbered from the mode's tonic, plus one generated root-5 diminished triad. Their scale and pentatonic positions are drawn by Book One's own rules. Music Maps are vamps on each mode's colour chord (`musicMapTemplates.ts`).
+> - Pentatonics per mode: Lydian 2 3 ♯4 6 7, played from its 2; Mixolydian 1 3 4 5 ♭7; Dorian 1 ♭3 4 5 6, plus 1 2 ♭3 5 6 in A5; Aeolian minor pentatonic; Phrygian 1 ♭2 4 5 ♭7, plus the minor pentatonic in A5; Locrian 1 ♭2 4 ♭5 ♭7.
+> - Lessons, steps and shape ids name a key center: `'C'` (Book One, the same ids as before) or `'D:dorian'`. Everything mode-dependent is derived in `data/guitar/centers.ts`.
+> - Routes: `/learn/guitar/:mode[/:key]` take any diatonic mode. The Ionian overview and C Ionian stay free; everything else needs Premium, as on piano. Each mode keeps its own progress (genre `guitar-mode-<mode>`).
+> - Modal lessons teach all seven triads (B5 adds 7, B6 plays 1-7). Book One's major-key theory notes show in Ionian only; the modes have their own (`modes: 'modal'` in `theoryNotes.ts`).
+
 ## Goals
 
 1. Guitar lessons show TAB where piano lessons show the piano roll. A guitar toggle switches between **TAB | Notation**. Notation is a treble staff with an 8 under the clef. There is no piano-roll option for guitar.

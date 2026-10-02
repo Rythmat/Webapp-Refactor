@@ -25,3 +25,5 @@ docs/optimization/**/bundle.html
 
 # Vendored third-party build (SpessaSynth audio worklet, minified upstream)
 public/daw-assets/spessasynth_processor.min.js
+# Generated DOM snapshots; reformatting them breaks the comparison
+**/__snapshots__/**/*.html

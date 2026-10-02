@@ -16,6 +16,7 @@ export const sweet_pea: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  releases: [{ releaseId: 'amos-lee-supply-and-demand', track: 7 }],
 
   sections: [
     {

@@ -16,6 +16,35 @@ export const so_far_away: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'a-m-studios' },
+  credits: [
+    {
+      name: 'Carole King',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    { name: 'Hank Cicalo', role: 'engineer' },
+    { name: 'Curtis Amy', role: 'performer', instrument: 'flute' },
+    {
+      name: 'Carole King',
+      role: 'vocals',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+    { name: 'Lou Adler', role: 'producer', artistGlobeId: 'lou-adler' },
+    {
+      name: 'James Taylor',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'james-taylor',
+    },
+    { name: 'Russ Kunkel', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Charles Larkey', role: 'performer', instrument: 'electric-bass' },
+  ],
+  releases: [{ releaseId: 'carole-king-tapestry' }],
 
   sections: [
     {

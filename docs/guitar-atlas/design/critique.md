@@ -1,5 +1,7 @@
 ## Guitar in Learn: adversarial review of the three sub-plans
 
+> **Placement update (2026-09-29).** The guitar content moved from Technique ("Applied Theory Fundamentals") to **Learn → Theory → Ionian (Major)**. It is at `/learn/guitar/ionian` (overview) and `/learn/guitar/ionian/:key` (lesson); the old `/curriculum/guitar/applied-theory-fundamentals` paths redirect there. Access follows Theory: C free, the other keys Premium. With Guitar selected, Technique is hidden and the other Theory tiles show "Coming soon for guitar". Ids are unchanged, so progress carries over. Route and placement notes below predate this.
+
 I checked the claims against the code. Nearly all cited line numbers and APIs are correct; the exceptions are listed as issues below. One brief correction first: the project uses `react` 18.3.1, not React 19. `react-router` 6.30.3, `vexflow` 5.0.0, `tone` 15.0.4 and `tsx` 4.19.3 are installed.
 
 ### (1) Issues (severity, problem, fix)

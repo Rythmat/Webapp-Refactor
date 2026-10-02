@@ -16,6 +16,38 @@ export const happy: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'circle-house-studios' },
+  credits: [
+    { name: 'Ashley L. Lee', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Andrew Coleman', role: 'arranger' },
+    {
+      name: 'Pharrell Williams',
+      role: 'producer',
+      artistGlobeId: 'pharrell-williams',
+    },
+    { name: 'Mike Larson', role: 'arranger' },
+    { name: 'Leslie Brathwaite', role: 'engineer' },
+    { name: 'Terrence Rolle', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Pharrell Williams',
+      role: 'songwriter',
+      artistGlobeId: 'pharrell-williams',
+    },
+    { name: 'Jasmine Murray', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Shamika Hightower',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    {
+      name: 'Trevon Henderson',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Mike Larson', role: 'engineer' },
+    { name: 'Rhea Dummett', role: 'performer', instrument: 'backing-vocals' },
+  ],
+  releases: [{ releaseId: 'pharrell-williams-g-i-r-l', track: 5 }],
 
   sections: [
     {

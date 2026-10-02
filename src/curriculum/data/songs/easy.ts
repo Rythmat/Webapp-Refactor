@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const easy: Song = {
   id: 'easy',
   title: 'Easy',
-  artist: 'The Commodores',
+  artist: 'Commodores',
   year: 1977,
   historicalDescription:
     "The Commodores release 'Easy', a slow-burning soul ballad that reveals a softer side of the Motown-signed funk outfit. Written by Lionel Richie, the song's quiet, confessional tone stands in contrast to the band's harder dance tracks — and becomes one of the defining moments of 1970s soft soul, foreshadowing Richie's massively successful solo career.",
@@ -16,6 +16,36 @@ export const easy: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'James Anthony Carmichael',
+      role: 'producer',
+      artistGlobeId: 'james-anthony-carmichael',
+    },
+    {
+      name: 'Lionel Richie',
+      role: 'songwriter',
+      artistGlobeId: 'lionel-richie',
+    },
+    {
+      name: 'Commodores',
+      role: 'arranger',
+      ensemble: true,
+      artistGlobeId: 'commodores',
+    },
+    {
+      name: 'James Anthony Carmichael',
+      role: 'arranger',
+      artistGlobeId: 'james-anthony-carmichael',
+    },
+    {
+      name: 'Commodores',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'commodores',
+    },
+  ],
+  releases: [{ releaseId: 'commodores-commodores' }],
 
   sections: [
     {

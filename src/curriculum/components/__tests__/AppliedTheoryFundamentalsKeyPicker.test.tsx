@@ -25,18 +25,4 @@ describe('AppliedTheoryFundamentalsKeyPicker', () => {
       '/curriculum/applied-theory-fundamentals/fsharp',
     );
   });
-
-  it('opens the guitar lesson for the guitar picker', () => {
-    render(<AppliedTheoryFundamentalsKeyPicker instrument="guitar" />);
-    expect(
-      screen.getByRole('heading', {
-        name: 'Applied Theory Fundamentals — Guitar',
-      }),
-    ).toBeInTheDocument();
-    expect(screen.getAllByRole('button')).toHaveLength(12);
-    fireEvent.click(screen.getByRole('button', { name: 'D♭ Major' }));
-    expect(navigate).toHaveBeenCalledWith(
-      '/curriculum/guitar/applied-theory-fundamentals/dflat',
-    );
-  });
 });

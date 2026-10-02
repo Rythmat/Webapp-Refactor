@@ -4,7 +4,7 @@ export const cant_hide_love: Song = {
   id: 'cant_hide_love',
   title: 'Can’t Hide Love',
   artist: 'Earth, Wind & Fire',
-  year: undefined,
+  year: 1975,
 
   historicalDescription:
     "Earth, Wind & Fire release 'Can't Hide Love', a buoyant funk and soul anthem that showcases the band's signature blend of tight rhythmic grooves, lush horn arrangements, and soaring harmonies. The track captures the group at the peak of their creative powers in the mid-1970s, when they were redefining what Black pop music could be — euphoric, spiritual, and irresistibly danceable.",
@@ -17,6 +17,19 @@ export const cant_hide_love: Song = {
   difficulty: 3,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Charles Stepney',
+      role: 'producer',
+      artistGlobeId: 'charles-stepney',
+    },
+    {
+      name: 'Skip Scarborough',
+      role: 'songwriter',
+      artistGlobeId: 'skip-scarborough',
+    },
+    { name: 'Maurice White', role: 'producer', artistGlobeId: 'maurice-white' },
+  ],
 
   sections: [
     {

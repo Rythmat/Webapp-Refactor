@@ -4,7 +4,7 @@ export const it_takes_two: Song = {
   id: 'it_takes_two',
   title: 'It Takes Two',
   artist: 'Rob Base and E-Z Rock',
-  year: undefined,
+  year: 1988,
 
   historicalDescription:
     "Rob Base and E-Z Rock release 'It Takes Two', built around a propulsive sample of Lyn Collins' 'Think (About It)' that becomes one of the most recognizable hooks in hip hop history. The track becomes a crossover sensation, bridging rap and party culture in a way few songs manage. Its infectious energy ensures it endures far beyond its era, appearing at sporting events, dances, and celebrations for decades.",

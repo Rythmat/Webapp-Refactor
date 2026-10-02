@@ -4,7 +4,7 @@ export const im_comin_out: Song = {
   id: 'im_comin_out',
   title: 'I’m Comin’ Out',
   artist: 'Diana Ross',
-  year: undefined,
+  year: 1980,
 
   historicalDescription:
     "Diana Ross releases 'I'm Comin' Out', a funky anthem that becomes an accidental double anthem — written as a nod to drag queens performing as Ross in New York clubs, it crosses over into the mainstream as a jubilant declaration of self-expression. Nile Rodgers and Bernard Edwards of Chic craft its irresistible groove, cementing the song as one of the defining pop moments of the disco era's twilight.",

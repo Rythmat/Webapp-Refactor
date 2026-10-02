@@ -16,6 +16,10 @@ export const them_changes: Song = {
   difficulty: 2,
   genreTags: ['funk', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Buddy Miles', role: 'songwriter', artistGlobeId: 'buddy-miles' },
+  ],
+  releases: [{ releaseId: 'buddy-miles-them-changes' }],
 
   sections: [
     {

@@ -16,6 +16,23 @@ export const on_on: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    { name: 'Erykah Badu', role: 'songwriter', artistGlobeId: 'erykah-badu' },
+    { name: 'JaBorn Jamal', role: 'songwriter', artistGlobeId: 'jaborn-jamal' },
+    { name: 'Bob Power', role: 'producer', artistGlobeId: 'bob-power' },
+    { name: 'Bob Power', role: 'engineer', artistGlobeId: 'bob-power' },
+    { name: 'Tim Donovan', role: 'engineer' },
+    { name: 'JaBorn Jamal', role: 'producer', artistGlobeId: 'jaborn-jamal' },
+    { name: 'Bob Power', role: 'performer', artistGlobeId: 'bob-power' },
+    {
+      name: 'Erykah Badu',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'erykah-badu',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'erykah-badu-baduizm', track: 2 }],
 
   sections: [
     {

@@ -63,7 +63,7 @@
     "lat": 51.51,
     "lng": -0.13
   },
-  "andy grammar": {
+  "andy grammer": {
     "city": "Los Angeles",
     "country": "US",
     "lat": 34.05,
@@ -74,6 +74,12 @@
     "country": "US",
     "lat": 42.33,
     "lng": -83.05
+  },
+  "average white band": {
+    "city": "Dundee",
+    "country": "GB",
+    "lat": 56.46,
+    "lng": -2.97
   },
   "avicii": {
     "city": "Stockholm",
@@ -86,12 +92,6 @@
     "country": "CA",
     "lat": 49.9,
     "lng": -97.14
-  },
-  "beatles": {
-    "city": "Liverpool",
-    "country": "GB",
-    "lat": 53.41,
-    "lng": -2.98
   },
   "ben e. king": {
     "city": "New York",
@@ -195,12 +195,6 @@
     "lat": 34.05,
     "lng": -118.24
   },
-  "boyz 2 men": {
-    "city": "Philadelphia",
-    "country": "US",
-    "lat": 39.95,
-    "lng": -75.17
-  },
   "boyz ii men": {
     "city": "Philadelphia",
     "country": "US",
@@ -237,7 +231,6 @@
     "lat": 41.26,
     "lng": -95.94
   },
-  "ccr": { "city": "El Cerrito", "country": "US", "lat": 37.92, "lng": -122.3 },
   "camila cabello": {
     "city": "Miami",
     "country": "US",
@@ -299,7 +292,7 @@
     "lat": 39.95,
     "lng": -75.17
   },
-  "christina, aguilera, lil' kim, mya, pink": {
+  "christina aguilera, lil' kim, mya, pink": {
     "city": "New York",
     "country": "US",
     "lat": 40.71,
@@ -316,6 +309,12 @@
     "country": "US",
     "lat": 38.91,
     "lng": -77.04
+  },
+  "commodores": {
+    "city": "Tuskegee",
+    "country": "US",
+    "lat": 32.43,
+    "lng": -85.69
   },
   "corinne bailey rae": {
     "city": "Leeds",
@@ -391,12 +390,6 @@
     "country": "US",
     "lat": 35.87,
     "lng": -83.56
-  },
-  "doobie brothers": {
-    "city": "San Jose",
-    "country": "US",
-    "lat": 37.34,
-    "lng": -121.89
   },
   "drake/scary pockets": {
     "city": "Toronto",
@@ -509,7 +502,7 @@
     "lat": 34.05,
     "lng": -118.24
   },
-  "eurhythmics": {
+  "eurythmics": {
     "city": "London",
     "country": "GB",
     "lat": 51.51,
@@ -599,7 +592,7 @@
     "lat": 38.91,
     "lng": -77.04
   },
-  "gladys night and the pips": {
+  "gladys knight and the pips": {
     "city": "Atlanta",
     "country": "US",
     "lat": 33.75,
@@ -768,7 +761,7 @@
     "lat": 39.95,
     "lng": -75.17
   },
-  "jimmy hendrix": {
+  "jimi hendrix": {
     "city": "Seattle",
     "country": "US",
     "lat": 47.61,
@@ -785,12 +778,6 @@
     "country": "GB",
     "lat": 53.38,
     "lng": -1.47
-  },
-  "joe legend": {
-    "city": "Ottawa",
-    "country": "CA",
-    "lat": 45.42,
-    "lng": -75.69
   },
   "joe walsh": {
     "city": "Cleveland",
@@ -961,17 +948,17 @@
     "lat": 40.74,
     "lng": -74.17
   },
-  "leann womack": {
-    "city": "Nashville",
-    "country": "US",
-    "lat": 36.17,
-    "lng": -86.78
-  },
   "led zeppelin": {
     "city": "London",
     "country": "GB",
     "lat": 51.51,
     "lng": -0.13
+  },
+  "lee ann womack": {
+    "city": "Nashville",
+    "country": "US",
+    "lat": 36.17,
+    "lng": -86.78
   },
   "leon bridges": {
     "city": "Fort Worth",
@@ -1063,12 +1050,6 @@
     "country": "US",
     "lat": 40.71,
     "lng": -74.01
-  },
-  "marivn gaye": {
-    "city": "Washington",
-    "country": "US",
-    "lat": 38.91,
-    "lng": -77.04
   },
   "maroon 5": {
     "city": "Los Angeles",
@@ -1324,17 +1305,11 @@
     "lat": 42.76,
     "lng": -71.47
   },
-  "remind in light": {
-    "city": "New York",
+  "red hot chili peppers": {
+    "city": "Los Angeles",
     "country": "US",
-    "lat": 40.71,
-    "lng": -74.01
-  },
-  "rhianna": {
-    "city": "Bridgetown",
-    "country": "BB",
-    "lat": 13.1,
-    "lng": -59.62
+    "lat": 34.05,
+    "lng": -118.24
   },
   "rick astley": {
     "city": "Newton-le-Willows",
@@ -1402,12 +1377,6 @@
     "lat": 51.51,
     "lng": -0.13
   },
-  "rolling stones": {
-    "city": "London",
-    "country": "GB",
-    "lat": 51.51,
-    "lng": -0.13
-  },
   "rose royce": {
     "city": "Los Angeles",
     "country": "US",
@@ -1420,17 +1389,12 @@
     "lat": 31.75,
     "lng": -103.16
   },
+  "rufus": { "city": "Chicago", "country": "US", "lat": 41.85, "lng": -87.65 },
   "rufus wainwright": {
     "city": "Montreal",
     "country": "CA",
     "lat": 45.5,
     "lng": -73.57
-  },
-  "rufus and chaka khan": {
-    "city": "Chicago",
-    "country": "US",
-    "lat": 41.85,
-    "lng": -87.65
   },
   "sade": { "city": "London", "country": "GB", "lat": 51.51, "lng": -0.13 },
   "saint motel": {
@@ -1584,7 +1548,7 @@
     "lat": 37.77,
     "lng": -122.42
   },
-  "stevie ray vaughn": {
+  "stevie ray vaughan": {
     "city": "Dallas",
     "country": "US",
     "lat": 32.78,
@@ -1613,6 +1577,12 @@
     "country": "US",
     "lat": 33.77,
     "lng": -118.19
+  },
+  "the weeknd": {
+    "city": "Toronto",
+    "country": "CA",
+    "lat": 43.65,
+    "lng": -79.38
   },
   "tlc": { "city": "Atlanta", "country": "US", "lat": 33.75, "lng": -84.39 },
   "taio cruz": {
@@ -1645,23 +1615,11 @@
     "lat": 51.38,
     "lng": -2.36
   },
-  "temptations": {
-    "city": "Detroit",
-    "country": "US",
-    "lat": 42.33,
-    "lng": -83.05
-  },
   "the allman brothers": {
     "city": "Macon",
     "country": "US",
     "lat": 32.84,
     "lng": -83.63
-  },
-  "the average white band": {
-    "city": "Dundee",
-    "country": "GB",
-    "lat": 56.46,
-    "lng": -2.97
   },
   "the avett brothers": {
     "city": "Concord",
@@ -1741,12 +1699,6 @@
     "lat": 51.51,
     "lng": -0.13
   },
-  "the commodores": {
-    "city": "Tuskegee",
-    "country": "US",
-    "lat": 32.43,
-    "lng": -85.69
-  },
   "the cure": {
     "city": "Crawley",
     "country": "GB",
@@ -1794,12 +1746,6 @@
     "country": "US",
     "lat": 40.74,
     "lng": -74.17
-  },
-  "the four tops": {
-    "city": "Detroit",
-    "country": "US",
-    "lat": 42.33,
-    "lng": -83.05
   },
   "the fugees": {
     "city": "South Orange",
@@ -1855,12 +1801,6 @@
     "lat": 55.95,
     "lng": -3.19
   },
-  "the red hot chili peppers": {
-    "city": "Los Angeles",
-    "country": "US",
-    "lat": 34.05,
-    "lng": -118.24
-  },
   "the rolling stones": {
     "city": "London",
     "country": "GB",
@@ -1903,29 +1843,11 @@
     "lat": 38.15,
     "lng": -79.07
   },
-  "the steve miller band": {
-    "city": "San Francisco",
-    "country": "US",
-    "lat": 37.77,
-    "lng": -122.42
-  },
-  "the talking heads": {
-    "city": "New York",
-    "country": "US",
-    "lat": 40.71,
-    "lng": -74.01
-  },
   "the temptations": {
     "city": "Detroit",
     "country": "US",
     "lat": 42.33,
     "lng": -83.05
-  },
-  "the weekend": {
-    "city": "Toronto",
-    "country": "CA",
-    "lat": 43.65,
-    "lng": -79.38
   },
   "third eye blind": {
     "city": "San Francisco",

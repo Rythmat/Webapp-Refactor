@@ -16,6 +16,57 @@ export const lucky: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Iain Hill', role: 'engineer' },
+    { name: 'Jason Mraz', role: 'engineer', artistGlobeId: 'jason-mraz' },
+    { name: 'Jason Mraz', role: 'songwriter', artistGlobeId: 'jason-mraz' },
+    {
+      name: 'Martin Terefe',
+      role: 'performer',
+      artistGlobeId: 'martin-terefe',
+    },
+    { name: 'Martin Terefe', role: 'producer', artistGlobeId: 'martin-terefe' },
+    {
+      name: 'Jason Mraz',
+      role: 'performer',
+      artistGlobeId: 'jason-mraz',
+      primary: true,
+    },
+    { name: 'Dyre Gormsen', role: 'engineer' },
+    {
+      name: 'Jason Mraz',
+      role: 'vocals',
+      primary: true,
+      artistGlobeId: 'jason-mraz',
+    },
+    { name: 'Tony Maserati', role: 'engineer' },
+    {
+      name: 'Colbie Caillat',
+      role: 'songwriter',
+      artistGlobeId: 'colbie-caillat',
+    },
+    {
+      name: 'Martin Terefe',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'martin-terefe',
+    },
+    { name: 'Kristoffer Sonne', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'Timothy Fagan',
+      role: 'songwriter',
+      artistGlobeId: 'timothy-fagan',
+    },
+    {
+      name: 'Colbie Caillat',
+      role: 'vocals',
+      primary: true,
+      artistGlobeId: 'colbie-caillat',
+    },
+  ],
+  releases: [
+    { releaseId: 'jason-mraz-we-sing-we-dance-we-steal-things', track: 3 },
+  ],
 
   sections: [
     {

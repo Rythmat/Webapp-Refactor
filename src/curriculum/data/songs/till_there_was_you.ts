@@ -16,6 +16,36 @@ export const till_there_was_you: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'abbey-road-studios' },
+  credits: [
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'john-lennon',
+    },
+    { name: 'Ringo Starr', role: 'performer', instrument: 'bongos' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'Norman Smith', role: 'engineer' },
+    {
+      name: 'Meredith Willson',
+      role: 'songwriter',
+      artistGlobeId: 'meredith-willson',
+    },
+    { name: 'George Martin', role: 'producer' },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+    },
+    { name: 'Paul McCartney', role: 'vocals', artistGlobeId: 'paul-mccartney' },
+  ],
+  releases: [{ releaseId: 'the-beatles-with-the-beatles' }],
 
   sections: [
     {

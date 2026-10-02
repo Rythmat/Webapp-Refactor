@@ -1,4 +1,4 @@
-import type { HistoricalEvent } from '@/components/atlas/types';
+import type { GlobeEventRecord } from '@/content/records/types';
 
 /**
  * Song Library Events — 662 songs as Globe events.
@@ -7,7 +7,7 @@ import type { HistoricalEvent } from '@/components/atlas/types';
  * Year and historicalDescription must be edited on the source Song .ts files
  * in src/curriculum/data/songs/<slug>.ts; this file is regenerated from those.
  */
-export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
+export const SONG_LIBRARY_EVENTS: GlobeEventRecord[] = [
   {
     id: 'song-100_days_100_nights',
     year: 2007,
@@ -313,7 +313,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     title: 'Ain’t Nobody — Rufus and Chaka Khan',
     description:
       "Rufus and Chaka Khan release 'Ain't Nobody', a sleek, hypnotic funk groove that showcases Chaka Khan's towering vocal power. The track becomes one of the defining songs of early 1980s R&B, bridging the lush warmth of 70s funk with the polished, electronic sheen of the emerging new decade — a blueprint countless artists would follow.",
-    tags: ['rufus and chaka khan', 'ain’t nobody', 'funk', 'chicago'],
+    tags: ['rufus', 'ain’t nobody', 'funk', 'chicago'],
     videoId: 'BNirQXe8HOA',
   },
   {
@@ -326,10 +326,15 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Funk', 'R&B'],
-    title: 'Ain’t Too Proud To Beg — Temptations',
+    title: 'Ain’t Too Proud To Beg — The Temptations',
     description:
       "The Temptations release 'Ain't Too Proud To Beg' on Motown, a raw, pleading showcase for David Ruffin's gritty lead vocals that sets it apart from the group's smoother earlier work. The track becomes one of their signature hits, capturing the tension between heartbreak and dignity that defines the golden era of soul. It cements the Temptations as Motown's most dynamic vocal group.",
-    tags: ['temptations', 'ain’t too proud to beg', 'funky_motown', 'detroit'],
+    tags: [
+      'the temptations',
+      'ain’t too proud to beg',
+      'funky_motown',
+      'detroit',
+    ],
     videoId: '3s0TkufXA38',
   },
   {
@@ -725,10 +730,15 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Rock'],
-    title: 'Bad Moon Rising — CCR',
+    title: 'Bad Moon Rising — Creedence Clearwater Revival',
     description:
       "Creedence Clearwater Revival releases 'Bad Moon Rising', a deceptively bright, uptempo rocker wrapped around a dark omen of disaster. Written by John Fogerty and drawn from a scene in the 1941 film 'The Devil and Daniel Webster', it captures the dread and uncertainty of late-1960s America — Vietnam, social upheaval, and a nation on edge. It becomes one of CCR's signature songs and a rock standard.",
-    tags: ['ccr', 'bad moon rising', 'classic_rock', 'el cerrito'],
+    tags: [
+      'creedence clearwater revival',
+      'bad moon rising',
+      'classic_rock',
+      'el cerrito',
+    ],
     videoId: 'zUQiUFZ5RDw',
   },
   {
@@ -885,10 +895,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'GB',
     },
     genre: ['Rock'],
-    title: 'Birthday — Beatles',
+    title: 'Birthday — The Beatles',
     description:
       "The Beatles record 'Birthday' during the marathon White Album sessions, with John Lennon and Paul McCartney reportedly writing it on the spot in the studio. A raw, stomping rock and roll burst, it stands out on the double album as a deliberate throwback — pure fun amid the experimental sprawl. Its driving riff and call-and-response vocals make it one of the band's most unguarded moments.",
-    tags: ['beatles', 'birthday', 'classic_rock', 'liverpool'],
+    tags: ['the beatles', 'birthday', 'classic_rock', 'liverpool'],
     videoId: 'dhdOPhTHeoE',
   },
   {
@@ -1104,10 +1114,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Funk'],
-    title: 'Brick House — The Commodores',
+    title: 'Brick House — Commodores',
     description:
       "The Commodores release 'Brick House', a locomotive funk anthem built on one of the tightest rhythmic grooves of the decade. The song becomes a cornerstone of 1970s funk, showcasing the band's instrumental firepower before Lionel Richie's ballads would come to define their mainstream identity. Its relentless rhythm section and brass hits make it a staple of radio, dance floors, and sports arenas for generations.",
-    tags: ['the commodores', 'brick house', 'funk', 'tuskegee'],
+    tags: ['commodores', 'brick house', 'funk', 'tuskegee'],
     videoId: 'ZdJmXeod0RE',
   },
   {
@@ -1200,15 +1210,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Pop', 'Rock'],
-    title: 'Burning Down The House — The Talking Heads',
+    title: 'Burning Down The House — Talking Heads',
     description:
       "Talking Heads release 'Burning Down The House' in 1983, the lead single from their album 'Speaking in Tongues'. Driven by a funk-locked groove and David Byrne's jittery, unpredictable energy, the song becomes their first Top 10 hit — a breakthrough that brings their art-rock experimentalism into the mainstream. It captures a band at the peak of their powers, fusing new wave, funk, and postpunk into something utterly their own.",
-    tags: [
-      'the talking heads',
-      'burning down the house',
-      'pop_rock',
-      'new york',
-    ],
+    tags: ['talking heads', 'burning down the house', 'pop_rock', 'new york'],
     videoId: '_3eC35LoF4U',
   },
   {
@@ -1285,15 +1290,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Rock'],
-    title: 'Californication — The Red Hot Chili Peppers',
+    title: 'Californication — Red Hot Chili Peppers',
     description:
       "The Red Hot Chili Peppers release 'Californication', the title track from their landmark 1999 album, marking a vulnerable and melodic turn for the band after years of funk-rock aggression. Written during Anthony Kiedis's struggle with addiction and the return of guitarist John Frusciante, the song captures Hollywood's seductive yet corrosive mythology — sex, fame, and destruction wrapped in a quiet, hypnotic riff.",
-    tags: [
-      'the red hot chili peppers',
-      'californication',
-      'rock',
-      'los angeles',
-    ],
+    tags: ['red hot chili peppers', 'californication', 'rock', 'los angeles'],
     videoId: 'YlUKcNNmywk',
   },
   {
@@ -1338,10 +1338,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'CA',
     },
     genre: ['Pop', 'Rock'],
-    title: "Can't Feel My Face — The Weekend",
+    title: "Can't Feel My Face — The Weeknd",
     description:
       "The Weeknd releases 'Can't Feel My Face', a sleek pop anthem that marks his breakthrough into mainstream radio. Produced with Max Martin, the track wraps a dark narrative about destructive obsession in an irresistibly upbeat, Michael Jackson-influenced groove — demonstrating that Abel Tesfaye can conquer pop without abandoning his signature unease.",
-    tags: ['the weekend', "can't feel my face", 'pop_rock', 'toronto'],
+    tags: ['the weeknd', "can't feel my face", 'pop_rock', 'toronto'],
     videoId: 'KEI4qSrkPAs',
   },
   {
@@ -1674,15 +1674,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Funk', 'Pop'],
-    title: 'Come And Get Your Love — Redbone (Pat Vegas)',
+    title: 'Come And Get Your Love — Redbone',
     description:
       "Redbone, the pioneering Native American rock band led by brothers Pat and Lolly Vegas, releases 'Come And Get Your Love' — a sun-drenched, irresistibly funky pop anthem that becomes one of the defining grooves of 1974. The song breaks the band into mainstream consciousness and stands as a rare moment of Indigenous visibility at the top of the charts. Decades later, its jubilant hook finds a new generation through its placement in 'Guardians of the Galaxy.'",
-    tags: [
-      'redbone (pat vegas)',
-      'come and get your love',
-      'funky_pop',
-      'new york',
-    ],
+    tags: ['redbone', 'come and get your love', 'funky_pop', 'new york'],
     videoId: 'OnJqFrVD3uE',
   },
   {
@@ -2439,10 +2434,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Pop'],
-    title: 'Easy — The Commodores',
+    title: 'Easy — Commodores',
     description:
       "The Commodores release 'Easy', a slow-burning soul ballad that reveals a softer side of the Motown-signed funk outfit. Written by Lionel Richie, the song's quiet, confessional tone stands in contrast to the band's harder dance tracks — and becomes one of the defining moments of 1970s soft soul, foreshadowing Richie's massively successful solo career.",
-    tags: ['the commodores', 'easy', 'pop_ballad', 'tuskegee'],
+    tags: ['commodores', 'easy', 'pop_ballad', 'tuskegee'],
     videoId: '9nBSd1U18vM',
   },
   {
@@ -2668,10 +2663,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Rock'],
-    title: 'Fire — Jimmy Hendrix',
+    title: 'Fire — Jimi Hendrix',
     description:
       "Jimi Hendrix unleashes 'Fire' as a raw, high-voltage showcase of his guitar pyrotechnics and magnetic stage presence. First appearing on 'Are You Experienced' in 1967, the track distills the explosive energy of Hendrix's live performances into a concise burst of psychedelic rock. It cements his reputation as the most electrifying guitarist of his generation.",
-    tags: ['jimmy hendrix', 'fire', 'classic_rock', 'seattle'],
+    tags: ['jimi hendrix', 'fire', 'classic_rock', 'seattle'],
     videoId: '9-2m07d2Neo',
   },
   {
@@ -2933,10 +2928,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Pop', 'Rock'],
-    title: 'Fresh Eyes — Andy Grammar',
+    title: 'Fresh Eyes — Andy Grammer',
     description:
       "Andy Grammer releases 'Fresh Eyes', a warm pop-rock anthem about rediscovering love for someone familiar. The song captures a universal emotional moment — seeing a partner as if for the first time — and becomes one of Grammer's most celebrated tracks, finding its way into weddings and romantic playlists worldwide.",
-    tags: ['andy grammar', 'fresh eyes', 'pop_rock', 'los angeles'],
+    tags: ['andy grammer', 'fresh eyes', 'pop_rock', 'los angeles'],
     videoId: '5bgemCaaQkU',
   },
   {
@@ -3119,10 +3114,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'GB',
     },
     genre: ['Rock'],
-    title: 'Gimme Shelter — Rolling Stones',
+    title: 'Gimme Shelter — The Rolling Stones',
     description:
       "'Gimme Shelter' opens Let It Bleed as one of the Rolling Stones' most haunting and powerful statements — a brooding vision of war, violence, and apocalypse that captures the dark end of the 1960s dream. Merry Clayton's stunning guest vocal, raw and ragged, transforms the track into something terrifying and transcendent. It becomes the defining sound of an era turning dangerous.",
-    tags: ['rolling stones', 'gimme shelter', 'classic_rock', 'london'],
+    tags: ['the rolling stones', 'gimme shelter', 'classic_rock', 'london'],
     videoId: 'RbmS3tQJ7Os',
   },
   {
@@ -4012,11 +4007,11 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['R&B'],
-    title: 'I Can’t Help Myself (Sugar Pie, Honey Bunch) — The Four Tops',
+    title: 'I Can’t Help Myself (Sugar Pie, Honey Bunch) — Four Tops',
     description:
       "The Four Tops release 'I Can't Help Myself (Sugar Pie, Honey Bunch)', a propulsive Motown anthem that shoots to #1 and becomes one of the label's signature sounds. Levi Stubbs' raw, urgent lead vocal — desperate and joyful at once — sets the Four Tops apart from their Motown peers. The song cements Detroit's grip on popular music in 1965.",
     tags: [
-      'the four tops',
+      'four tops',
       'i can’t help myself (sugar pie, honey bunch)',
       'motown',
       'detroit',
@@ -4150,10 +4145,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Folk'],
-    title: 'I Hope You Dance — Leann Womack',
+    title: 'I Hope You Dance — Lee Ann Womack',
     description:
       "Lee Ann Womack releases 'I Hope You Dance', an inspirational country ballad that becomes one of the defining songs of early 2000s country music. Its message of resilience and seizing life's opportunities resonates far beyond country radio, crossing over to mainstream audiences and earning Womack a Grammy for Best Country Song. The song becomes an anthem played at graduations, weddings, and milestone moments across America.",
-    tags: ['leann womack', 'i hope you dance', 'country', 'nashville'],
+    tags: ['lee ann womack', 'i hope you dance', 'country', 'nashville'],
     videoId: 'RV-Z1YwaOiw',
   },
   {
@@ -4484,10 +4479,15 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Pop'],
-    title: 'I’ll Make Love To You — Boyz 2 Men',
+    title: 'I’ll Make Love To You — Boyz II Men',
     description:
       "Boyz II Men release 'I'll Make Love To You', a silky R&B ballad that becomes one of the best-selling singles of all time. The track holds the number one spot on the Billboard Hot 100 for 14 consecutive weeks, cementing the Philadelphia quartet's dominance of 1990s slow-jam culture and setting a commercial benchmark few acts would ever match.",
-    tags: ['boyz 2 men', 'i’ll make love to you', 'pop_ballad', 'philadelphia'],
+    tags: [
+      'boyz ii men',
+      'i’ll make love to you',
+      'pop_ballad',
+      'philadelphia',
+    ],
     videoId: 'fV8vB1BB2qc',
   },
   {
@@ -5335,11 +5335,11 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Funk', 'Pop'],
-    title: 'Lady Marmalade — Christina, Aguilera, Lil’ Kim, Mya, Pink',
+    title: 'Lady Marmalade — Christina Aguilera, Lil’ Kim, Mya, Pink',
     description:
       "Christina Aguilera, Lil' Kim, Mya, and Pink unite for 'Lady Marmalade', a reimagining of LaBelle's 1975 funk classic recorded for the Moulin Rouge! soundtrack. The unlikely collision of pop, hip hop, and R&B powerhouses becomes a cultural flashpoint — proving that genre boundaries are negotiable when the right voices are in the room.",
     tags: [
-      'christina, aguilera, lil’ kim, mya, pink',
+      'christina aguilera, lil’ kim, mya, pink',
       'lady marmalade',
       'funky_pop',
       'doylestown',
@@ -5576,11 +5576,11 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Rock'],
-    title: 'Life During Wartime — The Talking Heads',
+    title: 'Life During Wartime — Talking Heads',
     description:
       "Talking Heads release 'Life During Wartime' from their landmark album 'Fear of Music', capturing a paranoid urban America through David Byrne's anxious, breathless delivery. The song blends new wave's angular energy with a driving funk pulse, conjuring a world of safe houses and guerrilla tactics from a New York art-rock band at the peak of their powers. It becomes one of the defining tracks of the CBGB generation's restless, cerebral edge.",
     tags: [
-      'the talking heads',
+      'talking heads',
       'life during wartime',
       'new_wave',
       'art_rock',
@@ -5667,10 +5667,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Rock'],
-    title: 'Listening Wind — Remind In Light',
+    title: 'Listening Wind — Talking Heads',
     description:
       "Talking Heads release 'Listening Wind' on their landmark album Remain in Light, a haunting meditation on displacement and geopolitics told from the perspective of a Third World nationalist. Built on interlocking rhythms drawn from West African music, the track stands as one of the album's most unsettling and cinematic moments — a reminder that pop music can carry the weight of the world.",
-    tags: ['remind in light', 'listening wind', 'rock', 'new york'],
+    tags: ['talking heads', 'listening wind', 'rock', 'new york'],
     videoId: 'RjWej8fOdR8',
   },
   {
@@ -5795,10 +5795,15 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Folk', 'Rock'],
-    title: 'Long Train Running — Doobie Brothers',
+    title: 'Long Train Running — The Doobie Brothers',
     description:
       "The Doobie Brothers re-release 'Long Train Runnin'' as the classic rock era gives way to a new wave of nostalgia for 1970s sounds. Originally a funk-driven rock staple from their 1973 album 'The Captain and Me', the song's relentless groove and hypnotic guitar riff have kept it a radio fixture for over a decade — a reminder that the Doobies' San Francisco Bay Area swagger never really left.",
-    tags: ['doobie brothers', 'long train running', 'country_rock', 'san jose'],
+    tags: [
+      'the doobie brothers',
+      'long train running',
+      'country_rock',
+      'san jose',
+    ],
     videoId: 'qKlvXKUCguI',
   },
   {
@@ -5880,10 +5885,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'BB',
     },
     genre: ['Hip Hop', 'R&B'],
-    title: 'Love On The Brain — Rhianna',
+    title: 'Love On The Brain — Rihanna',
     description:
       "Rihanna releases 'Love On The Brain', a raw, gospel-drenched soul ballad that stuns listeners expecting club anthems. Channeling the fervor of 1960s soul singers, she delivers one of the most vocally demanding performances of her career — a sharp departure that reveals the full range of her artistry and silences doubters who questioned her vocal depth.",
-    tags: ['rhianna', 'love on the brain', 'hip_hop_soul', 'bridgetown'],
+    tags: ['rihanna', 'love on the brain', 'hip_hop_soul', 'bridgetown'],
     videoId: 'QMP-o8WXSPM',
   },
   {
@@ -6289,11 +6294,11 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['R&B'],
-    title: 'Midnight Train To Georgia — Gladys Night And The Pips',
+    title: 'Midnight Train To Georgia — Gladys Knight and the Pips',
     description:
       "Gladys Knight and the Pips release 'Midnight Train to Georgia', a soulful story of love and sacrifice that becomes one of the defining recordings of 1970s R&B. Knight's powerhouse vocal — aching with conviction — and the Pips' silky counterpoint elevate a tale of leaving Los Angeles behind into something universally human. The song wins the Grammy for Best R&B Song and cements the group's legacy.",
     tags: [
-      'gladys night and the pips',
+      'gladys knight and the pips',
       'midnight train to georgia',
       'classic_motown',
       'atlanta',
@@ -6769,10 +6774,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Rock'],
-    title: 'Once In A Lifetime — The Talking Heads',
+    title: 'Once In A Lifetime — Talking Heads',
     description:
       "Talking Heads release 'Once In A Lifetime', a hypnotic meditation on suburban alienation and the unconscious drift of modern life. Built on African polyrhythms and Brian Eno's production, David Byrne's stream-of-consciousness delivery — 'same as it ever was' — captures something universal about routine and awakening. It becomes one of new wave's defining artistic statements.",
-    tags: ['the talking heads', 'once in a lifetime', 'new_wave', 'new york'],
+    tags: ['talking heads', 'once in a lifetime', 'new_wave', 'new york'],
     videoId: '5IsSpAOD6K8',
   },
   {
@@ -6865,10 +6870,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'CA',
     },
     genre: ['Pop'],
-    title: 'Ordinary People — Joe Legend',
+    title: 'Ordinary People — John Legend',
     description:
-      "Joe Legend releases 'Ordinary People', a slow-burning pop ballad that strips romance down to its raw, unglamorous truth. Rather than chasing radio gloss, the song lingers in the quiet tensions of real relationships — the kind that don't resolve neatly. It resonates with listeners who recognize love as work, not fantasy.",
-    tags: ['joe legend', 'ordinary people', 'pop_ballad', 'ottawa'],
+      "John Legend releases 'Ordinary People', a slow-burning pop ballad that strips romance down to its raw, unglamorous truth. Rather than chasing radio gloss, the song lingers in the quiet tensions of real relationships — the kind that don't resolve neatly. It resonates with listeners who recognize love as work, not fantasy.",
+    tags: ['john legend', 'ordinary people', 'pop_ballad', 'ottawa'],
     videoId: 'PIh07c_P4hc',
   },
   {
@@ -7046,10 +7051,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'GB',
     },
     genre: ['Funk'],
-    title: 'Pick Up The Pieces — The Average White Band',
+    title: 'Pick Up The Pieces — Average White Band',
     description:
       "The Average White Band's 'Pick Up The Pieces' stands as one of the great ironies of funk — a group of white Scottish musicians delivering one of the genre's most celebrated instrumental grooves. Originally released in 1974, the track becomes a defining statement that funk is a feeling, not a birthright, and its infectious horn riff and locked-in rhythm section continue to influence musicians and producers for decades.",
-    tags: ['the average white band', 'pick up the pieces', 'funk', 'dundee'],
+    tags: ['average white band', 'pick up the pieces', 'funk', 'dundee'],
     videoId: 'MfAJLGFWxYo',
   },
   {
@@ -7168,10 +7173,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Rock'],
-    title: 'Pride And Joy — Stevie Ray Vaughn',
+    title: 'Pride And Joy — Stevie Ray Vaughan',
     description:
       "Stevie Ray Vaughan releases 'Pride and Joy', a swaggering blues-rock declaration that announces his arrival as the most electrifying guitarist of his generation. Drawing from Texas blues legends like Lightnin' Hopkins and Albert King, Vaughan drags the blues back into the mainstream at a time when the genre had been pushed to the margins — proving that raw, feeling-soaked guitar could still shake the world.",
-    tags: ['stevie ray vaughn', 'pride and joy', 'blues_rock', 'dallas'],
+    tags: ['stevie ray vaughan', 'pride and joy', 'blues_rock', 'dallas'],
     videoId: 'kfjXp4KTTY8',
   },
   {
@@ -8664,10 +8669,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'GB',
     },
     genre: ['Rock'],
-    title: 'Sweet Dreams — Eurhythmics',
+    title: 'Sweet Dreams — Eurythmics',
     description:
       "Annie Lennox and Dave Stewart release 'Sweet Dreams (Are Made of This)', a hypnotic synth-driven anthem that becomes a global phenomenon. Lennox's androgynous image and icy, commanding vocal cut through the MTV era with striking force, making the Eurythmics one of the defining acts of 1980s new wave. The song's relentless synthesizer riff lodges itself permanently in pop culture.",
-    tags: ['eurhythmics', 'sweet dreams', 'new_wave', 'london'],
+    tags: ['eurythmics', 'sweet dreams', 'new_wave', 'london'],
     videoId: 'qeMFqkcPYcg',
   },
   {
@@ -8720,7 +8725,7 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
     title: 'Sweet Thing — Rufus and Chaka Khan',
     description:
       "Rufus and Chaka Khan release 'Sweet Thing', a velvet-smooth R&B ballad that showcases Chaka Khan's extraordinary vocal power in its most intimate setting. The song becomes one of the defining slow jams of the mid-1970s, cementing Khan's status as one of soul music's greatest voices and Rufus as a premier funk and R&B outfit.",
-    tags: ['rufus and chaka khan', 'sweet thing', 'R&B', 'chicago'],
+    tags: ['rufus', 'sweet thing', 'R&B', 'chicago'],
     videoId: 'Y7dwufE72UE',
   },
   {
@@ -9116,15 +9121,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['Rock'],
-    title: 'The Joker — The Steve Miller Band',
+    title: 'The Joker — Steve Miller Band',
     description:
       "The Steve Miller Band releases 'The Joker,' a laid-back, swaggering anthem that becomes one of the defining rock tracks of 1973. Miller weaves together his own self-referential nicknames — the joker, the smoker, the midnight toker — into a chorus so effortlessly catchy it transcends the decade. The song cements Miller's reputation as a craftsman of accessible, groove-driven rock and earns him his first number one hit.",
-    tags: [
-      'the steve miller band',
-      'the joker',
-      'classic_rock',
-      'san francisco',
-    ],
+    tags: ['steve miller band', 'the joker', 'classic_rock', 'san francisco'],
     videoId: 'dV3AziKTBUo',
   },
   {
@@ -10203,10 +10203,10 @@ export const SONG_LIBRARY_EVENTS: HistoricalEvent[] = [
       country: 'US',
     },
     genre: ['R&B'],
-    title: 'What’s Going On — Marivn Gaye',
+    title: 'What’s Going On — Marvin Gaye',
     description:
       "Marvin Gaye releases 'What's Going On', a deeply personal protest against the Vietnam War, racism, and poverty — a radical departure from Motown's polished pop formula. Berry Gordy initially refuses to release it, convinced it will fail. It becomes one of the best-selling Motown singles of all time and redefines what soul music can say.",
-    tags: ['marivn gaye', 'what’s going on', 'motown', 'washington'],
+    tags: ['marvin gaye', 'what’s going on', 'motown', 'washington'],
     videoId: 'H-kA3UtBj4M',
   },
   {

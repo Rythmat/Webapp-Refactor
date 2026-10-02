@@ -384,7 +384,7 @@ export const TeacherSessionDashboard = () => {
             className={
               'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-colors ' +
               (state.locked
-                ? 'bg-amber-400 text-black hover:bg-amber-300'
+                ? 'bg-white/15 text-white ring-1 ring-white/40 hover:bg-white/20'
                 : 'border border-white/10 text-white/80 hover:border-white/25 hover:text-white')
             }
           >

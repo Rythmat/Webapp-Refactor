@@ -16,6 +16,37 @@ export const just_my_imagination_running_away_with_me: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  session: { studioId: 'golden-world' },
+  credits: [
+    {
+      name: 'Norman Whitfield',
+      role: 'songwriter',
+      artistGlobeId: 'norman-whitfield',
+    },
+    {
+      name: 'Eddie Kendricks',
+      role: 'vocals',
+      artistGlobeId: 'eddie-kendricks',
+    },
+    {
+      name: 'The Temptations',
+      role: 'vocals',
+      ensemble: true,
+      artistGlobeId: 'the-temptations',
+      primary: true,
+    },
+    {
+      name: 'Norman Whitfield',
+      role: 'producer',
+      artistGlobeId: 'norman-whitfield',
+    },
+    {
+      name: 'Barrett Strong',
+      role: 'songwriter',
+      artistGlobeId: 'barrett-strong',
+    },
+  ],
+  releases: [{ releaseId: 'the-temptations-skys-the-limit' }],
 
   sections: [
     {

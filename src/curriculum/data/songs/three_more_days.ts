@@ -16,6 +16,12 @@ export const three_more_days: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'John Medeski', role: 'performer', instrument: 'electric-piano' },
+  ],
+  releases: [
+    { releaseId: 'ray-lamontagne-till-the-sun-turns-black', track: 4 },
+  ],
 
   sections: [
     {

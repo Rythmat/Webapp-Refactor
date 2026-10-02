@@ -16,6 +16,66 @@ export const as: Song = {
   difficulty: 3,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Yolanda Simmons', role: 'performer', instrument: 'handclaps' },
+    {
+      name: 'Mary Lee Whitney',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    {
+      name: 'Herbie Hancock',
+      role: 'performer',
+      artistGlobeId: 'herbie-hancock',
+    },
+    {
+      name: 'Herbie Hancock',
+      role: 'performer',
+      instrument: 'handclaps',
+      artistGlobeId: 'herbie-hancock',
+    },
+    { name: 'Greg Brown', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Nathan Watts', role: 'performer', instrument: 'handclaps' },
+    { name: 'Dean Parks', role: 'performer' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'handclaps',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+    { name: 'David Henson', role: 'performer', instrument: 'handclaps' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'fender-rhodes',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Josette Valentino', role: 'performer', instrument: 'handclaps' },
+    { name: 'Stevie Wonder', role: 'arranger', artistGlobeId: 'stevie-wonder' },
+    {
+      name: 'Stevie Wonder',
+      role: 'vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Nathan Watts', role: 'performer', instrument: 'electric-bass' },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-songs-in-the-key-of-life' }],
 
   sections: [
     {

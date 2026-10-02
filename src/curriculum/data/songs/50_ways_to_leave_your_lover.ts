@@ -16,6 +16,50 @@ export const _50_ways_to_leave_your_lover: Song = {
   difficulty: 3,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Kenny Ascher', role: 'performer', instrument: 'organ' },
+    { name: 'Tony Levin', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Phil Ramone', role: 'engineer', artistGlobeId: 'phil-ramone' },
+    {
+      name: 'Hugh McCracken',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    { name: 'Glenn Berger', role: 'engineer' },
+    {
+      name: 'Valerie Simpson',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Steve Gadd', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Paul Simon', role: 'songwriter', artistGlobeId: 'paul-simon' },
+    { name: 'Phoebe Snow', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Ralph MacDonald',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'ralph-macdonald',
+    },
+    {
+      name: 'Paul Simon',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'paul-simon',
+      primary: true,
+    },
+    {
+      name: 'Paul Simon',
+      role: 'vocals',
+      artistGlobeId: 'paul-simon',
+      primary: true,
+    },
+    { name: 'Burt Szerlip', role: 'engineer' },
+    { name: 'Patti Austin', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'John Tropea', role: 'performer', instrument: 'electric-guitar' },
+    { name: 'Phil Ramone', role: 'producer', artistGlobeId: 'phil-ramone' },
+    { name: 'Paul Simon', role: 'producer', artistGlobeId: 'paul-simon' },
+  ],
+  releases: [{ releaseId: 'paul-simon-still-crazy-after-all-these-years' }],
 
   sections: [
     {

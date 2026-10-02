@@ -4,7 +4,7 @@ export const i_cant_go_for_that_no_can_do: Song = {
   id: 'i_cant_go_for_that_no_can_do',
   title: 'I Can’t Go For That (No Can Do)',
   artist: 'Hall & Oates',
-  year: undefined,
+  year: 1981,
 
   historicalDescription:
     "Hall & Oates release 'I Can't Go For That (No Can Do)', a sleek fusion of blue-eyed soul, R&B, and early synthesizer-driven pop that becomes one of their signature songs. Its cool, minimal groove crosses over to top the Billboard Hot 100 and the R&B charts simultaneously — a rare feat that cements Daryl Hall and John Oates as the best-selling duo in pop history.",
@@ -17,6 +17,17 @@ export const i_cant_go_for_that_no_can_do: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'electric-lady-studios' },
+  credits: [
+    { name: 'Neil Kernon', role: 'engineer', artistGlobeId: 'neil-kernon' },
+    { name: 'Sara Allen', role: 'songwriter', artistGlobeId: 'sara-allen' },
+    { name: 'Neil Kernon', role: 'producer', artistGlobeId: 'neil-kernon' },
+    { name: 'Daryl Hall', role: 'songwriter', artistGlobeId: 'daryl-hall' },
+    { name: 'John Oates', role: 'songwriter', artistGlobeId: 'john-oates' },
+    { name: 'Daryl Hall', role: 'producer', artistGlobeId: 'daryl-hall' },
+    { name: 'John Oates', role: 'producer', artistGlobeId: 'john-oates' },
+  ],
+  releases: [{ releaseId: 'hall-and-oates-private-eyes' }],
 
   sections: [
     {

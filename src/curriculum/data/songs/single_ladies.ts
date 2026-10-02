@@ -4,7 +4,7 @@ export const single_ladies: Song = {
   id: 'single_ladies',
   title: 'Single Ladies',
   artist: 'Sara Bareilles',
-  year: undefined,
+  year: 2008,
 
   historicalDescription:
     "Beyonce releases 'Single Ladies (Put a Ring on It)', a minimalist pop anthem built on a relentless rhythm and a defiant, empowering message. The song's stark black-and-white music video — featuring a now-iconic hand choreography — sparks a global imitation craze and cements Beyonce's status as a defining cultural force of her era.",

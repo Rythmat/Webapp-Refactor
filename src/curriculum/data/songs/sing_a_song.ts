@@ -4,7 +4,7 @@ export const sing_a_song: Song = {
   id: 'sing_a_song',
   title: 'Sing A Song',
   artist: 'Earth, Wind & Fire',
-  year: undefined,
+  year: 1975,
 
   historicalDescription:
     "Earth, Wind & Fire release 'Sing A Song', a jubilant funk anthem that captures the band at the height of their creative power. Written by Maurice White and Al McKay, the track radiates the uplifting spirit that sets Earth, Wind & Fire apart from their contemporaries — blending tight funk grooves with gospel-inflected optimism. It becomes one of their signature calls to joy.",
@@ -17,7 +17,20 @@ export const sing_a_song: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
-
+  credits: [
+    { name: 'Maurice White', role: 'producer', artistGlobeId: 'maurice-white' },
+    {
+      name: 'Maurice White',
+      role: 'songwriter',
+      artistGlobeId: 'maurice-white',
+    },
+    {
+      name: 'Charles Stepney',
+      role: 'producer',
+      artistGlobeId: 'charles-stepney',
+    },
+    { name: 'Al McKay', role: 'songwriter', artistGlobeId: 'al-mckay' },
+  ],
   sections: [
     {
       id: 'intro',

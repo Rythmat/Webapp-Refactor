@@ -22,6 +22,7 @@ import { GuitarChordStrip } from '../../GuitarChordStrip';
 import { guitarVisualModel } from '../../guitarVisualModel';
 import { GuitarKeyIntro } from '../GuitarKeyIntro';
 import { GuitarSectionBCard } from '../GuitarSectionBCard';
+import { GuitarKeyNotes, GuitarStepNotes } from '../GuitarStepNotes';
 import { GuitarTheoryPanel } from '../GuitarTheoryPanel';
 import { MusicMapOverlay } from '../MusicMapOverlay';
 import { activityId } from '../theoryUi';
@@ -127,6 +128,31 @@ function readPanel(
   clickAll('[data-why]');
   const more = screen.queryByRole('button', { name: /^More notes/ });
   if (more) fireEvent.click(more);
+  clickAll('[data-info-note] > button');
+  const compare = screen.queryByRole('button', {
+    name: 'Same root, four kinds',
+  });
+  if (compare) fireEvent.click(compare);
+  collect();
+  view.unmount();
+}
+
+/** The About this step sheet's notes, every "More notes" item opened. */
+function readStepNotes(
+  flow: ActivityFlowV2,
+  step: ActivityStepV2,
+  key: GuitarKeyName,
+) {
+  const view = render(
+    <GuitarStepNotes
+      flow={flow}
+      step={step}
+      keyCenter={key}
+      practising
+      onHearShape={() => {}}
+    />,
+  );
+  collect();
   clickAll('[data-info-note] > button');
   const compare = screen.queryByRole('button', {
     name: 'Same root, four kinds',
@@ -269,4 +295,50 @@ describe('theory copy guard', () => {
       cleanup();
     }
   });
+
+  it.each<GuitarKeyName>(['C', 'G', 'F#', 'Db', 'Bb'])(
+    'keeps the About this step sheet to authored copy (%s)',
+    (key) => {
+      const flow = buildGuitarAppliedTheoryFundamentalsFlow(key);
+      for (const step of flow.sections.flatMap((s) => s.steps)) {
+        readStepNotes(flow, step, key);
+      }
+
+      render(
+        <GuitarSectionBCard
+          variant="section"
+          flow={flow}
+          keyCenter={key}
+          keyColor={RED}
+        />,
+      );
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Where is chord 7?' }),
+      );
+      collect();
+      cleanup();
+
+      render(<GuitarKeyNotes keyCenter={key} defaultOpen />);
+      collect();
+      cleanup();
+
+      // Every block of the sheet was reached: intro notes, "More notes",
+      // the practice tips, the compare caption, Section B and the key.
+      expect(reached('a1.steps')).toBe(true);
+      expect(reached('b7.why')).toBe(true);
+      expect(reached('pt.focus')).toBe(true);
+      expect(reached('pt.clean')).toBe(true);
+      expect(reached('b.fromScale')).toBe(true);
+      expect(reached('b.sevenLater')).toBe(true);
+      expect(reached('key.circle')).toBe(true);
+      expect(
+        [...seen].some((text) =>
+          pattern(GUITAR_THEORY_STRINGS['compare.caption']).test(text),
+        ),
+      ).toBe(true);
+
+      expect([...seen].filter((text) => !isAuthored(text))).toEqual([]);
+    },
+    30_000,
+  );
 });

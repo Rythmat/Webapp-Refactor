@@ -16,6 +16,25 @@ export const blackbird: Song = {
   difficulty: 3,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  session: { studioId: 'abbey-road-studios' },
+  credits: [
+    { name: 'George Martin', role: 'producer' },
+    { name: 'Paul McCartney', role: 'vocals', artistGlobeId: 'paul-mccartney' },
+    {
+      name: 'Paul McCartney',
+      role: 'songwriter',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'Geoff Emerick', role: 'engineer' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'John Lennon', role: 'songwriter', artistGlobeId: 'john-lennon' },
+  ],
+  releases: [{ releaseId: 'the-beatles-the-beatles' }],
 
   sections: [
     {

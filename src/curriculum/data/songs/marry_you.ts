@@ -16,6 +16,22 @@ export const marry_you: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'The Smeezingtons',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'the-smeezingtons',
+    },
+    { name: 'Ari Levine', role: 'songwriter', artistGlobeId: 'ari-levine' },
+    {
+      name: 'Philip Lawrence',
+      role: 'songwriter',
+      artistGlobeId: 'philip-lawrence',
+    },
+    { name: 'Bruno Mars', role: 'songwriter', artistGlobeId: 'bruno-mars' },
+  ],
+  releases: [{ releaseId: 'bruno-mars-doo-wops-hooligans', track: 6 }],
 
   sections: [
     {

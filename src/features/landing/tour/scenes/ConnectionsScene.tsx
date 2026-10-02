@@ -614,7 +614,7 @@ const SongSurface = ({
 }) => (
   <div className="flex size-full flex-col p-5">
     <div className="flex min-h-0 flex-1 flex-col gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] p-4">
-      <span className="w-fit rounded-sm border border-white/25 px-1.5 font-serif text-[11px] font-bold text-white/60">
+      <span className="w-fit rounded-sm border border-white/25 px-1.5 text-[11px] font-bold text-white/60">
         {CHART.label}
       </span>
       <div className="grid flex-1 auto-rows-fr grid-cols-4">
@@ -636,7 +636,7 @@ const SongSurface = ({
               )}
             >
               <span
-                className="font-serif text-[22px] font-bold leading-none transition-colors"
+                className="text-[22px] font-bold leading-none transition-colors"
                 style={{ color: isLit ? chord.color : undefined }}
               >
                 {hit.name}
@@ -1063,7 +1063,7 @@ const InsightCard = ({
         {card.intervals.split(' ').map((iv, i) => (
           <span
             key={i}
-            className="rounded bg-white/[0.06] px-1 py-0.5 font-mono text-[10px] text-white/60"
+            className="rounded bg-white/[0.06] px-1 py-0.5 text-[10px] tabular-nums text-white/60"
           >
             {iv}
           </span>

@@ -16,6 +16,11 @@ export const the_loco_motion: Song = {
   difficulty: 3,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    { name: 'Gerry Goffin', role: 'songwriter', artistGlobeId: 'gerry-goffin' },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+  ],
+  releases: [{ releaseId: 'little-eva-llllloco-motion' }],
 
   sections: [
     {

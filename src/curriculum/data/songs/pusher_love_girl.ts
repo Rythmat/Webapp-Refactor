@@ -16,6 +16,62 @@ export const pusher_love_girl: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'larrabee-sound-studios' },
+  credits: [
+    {
+      name: 'James Fauntleroy',
+      role: 'songwriter',
+      artistGlobeId: 'james-fauntleroy',
+    },
+    { name: 'Elliott Ives', role: 'performer' },
+    { name: 'Chris Godbey', role: 'songwriter', artistGlobeId: 'chris-godbey' },
+    {
+      name: 'The Regiment Horns',
+      role: 'performer',
+      instrument: 'french-horn',
+      ensemble: true,
+    },
+    { name: 'J‐Roc', role: 'producer', artistGlobeId: 'j-roc' },
+    {
+      name: 'Justin Timberlake',
+      role: 'arranger',
+      artistGlobeId: 'justin-timberlake',
+    },
+    { name: 'Timbaland', role: 'songwriter', artistGlobeId: 'timbaland' },
+    {
+      name: 'Justin Timberlake',
+      role: 'songwriter',
+      artistGlobeId: 'justin-timberlake',
+    },
+    {
+      name: 'Benjamin Wright',
+      role: 'performer',
+      instrument: 'string-section',
+    },
+    { name: 'J‐Roc', role: 'songwriter', artistGlobeId: 'j-roc' },
+    {
+      name: 'Justin Timberlake',
+      role: 'engineer',
+      artistGlobeId: 'justin-timberlake',
+    },
+    { name: 'Reginald Dozier', role: 'engineer' },
+    {
+      name: 'The Benjamin Wright Orchestra',
+      role: 'performer',
+      instrument: 'string-section',
+      ensemble: true,
+    },
+    { name: 'J‐Roc', role: 'performer', artistGlobeId: 'j-roc' },
+    { name: 'Timbaland', role: 'producer', artistGlobeId: 'timbaland' },
+    { name: 'Jimmy Douglass', role: 'engineer' },
+    {
+      name: 'Justin Timberlake',
+      role: 'producer',
+      artistGlobeId: 'justin-timberlake',
+    },
+    { name: 'Chris Godbey', role: 'engineer', artistGlobeId: 'chris-godbey' },
+  ],
+  releases: [{ releaseId: 'justin-timberlake-the-20-20-experience', track: 1 }],
 
   sections: [
     {

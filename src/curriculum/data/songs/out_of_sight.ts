@@ -16,6 +16,10 @@ export const out_of_sight: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'James Brown', role: 'songwriter', artistGlobeId: 'james-brown' },
+  ],
+  releases: [{ releaseId: 'james-brown-sings-out-of-sight' }],
 
   sections: [
     {

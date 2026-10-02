@@ -16,6 +16,82 @@ export const friend_of_the_devil: Song = {
   difficulty: 2,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  session: { studioId: 'wally-heider-studios' },
+  credits: [
+    { name: 'Jerry Garcia', role: 'vocals', artistGlobeId: 'jerry-garcia' },
+    {
+      name: 'Jerry Garcia',
+      role: 'performer',
+      instrument: 'pedal-steel',
+      artistGlobeId: 'jerry-garcia',
+    },
+    { name: 'John Dawson', role: 'songwriter', artistGlobeId: 'john-dawson' },
+    {
+      name: 'Robert Hunter',
+      role: 'songwriter',
+      artistGlobeId: 'robert-hunter',
+    },
+    {
+      name: 'Mickey Hart',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'mickey-hart',
+    },
+    {
+      name: 'Grateful Dead',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'grateful-dead',
+    },
+    {
+      name: 'Ron “Pigpen” McKernan',
+      role: 'performer',
+      instrument: 'harmonica',
+      artistGlobeId: 'ron-pigpen-mckernan',
+    },
+    { name: 'Phil Lesh', role: 'vocals', artistGlobeId: 'phil-lesh' },
+    { name: 'David Grisman', role: 'performer', instrument: 'mandolin' },
+    {
+      name: 'Phil Lesh',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'phil-lesh',
+    },
+    { name: 'Phil Lesh', role: 'performer', artistGlobeId: 'phil-lesh' },
+    {
+      name: 'Ron “Pigpen” McKernan',
+      role: 'vocals',
+      artistGlobeId: 'ron-pigpen-mckernan',
+    },
+    {
+      name: 'Stephen Barncard',
+      role: 'producer',
+      artistGlobeId: 'stephen-barncard',
+    },
+    { name: 'Bob Weir', role: 'performer', artistGlobeId: 'bob-weir' },
+    {
+      name: 'Phil Lesh',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'phil-lesh',
+    },
+    { name: 'Jerry Garcia', role: 'songwriter', artistGlobeId: 'jerry-garcia' },
+    { name: 'Jerry Garcia', role: 'performer', artistGlobeId: 'jerry-garcia' },
+    {
+      name: 'Jerry Garcia',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'jerry-garcia',
+    },
+    {
+      name: 'Bill Kreutzmann',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'bill-kreutzmann',
+    },
+    { name: 'Bob Weir', role: 'vocals', artistGlobeId: 'bob-weir' },
+  ],
+  releases: [{ releaseId: 'grateful-dead-american-beauty' }],
 
   sections: [
     {

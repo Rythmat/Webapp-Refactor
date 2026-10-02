@@ -16,6 +16,26 @@ export const just_one_kiss: Song = {
   difficulty: 2,
   genreTags: ['funk', 'rnb'],
   techniques: [],
+  credits: [
+    {
+      name: 'Raphael Saadiq',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'raphael-saadiq',
+    },
+    {
+      name: 'Raphael Saadiq',
+      role: 'songwriter',
+      artistGlobeId: 'raphael-saadiq',
+    },
+    {
+      name: 'Joss Stone',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'joss-stone',
+    },
+  ],
+  releases: [{ releaseId: 'raphael-saadiq-the-way-i-see-it', track: 5 }],
 
   sections: [
     {

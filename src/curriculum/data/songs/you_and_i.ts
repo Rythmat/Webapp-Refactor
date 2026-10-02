@@ -16,6 +16,18 @@ export const you_and_i: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Wilco', role: 'producer', ensemble: true, artistGlobeId: 'wilco' },
+    { name: 'Jeff Tweedy', role: 'songwriter', artistGlobeId: 'jeff-tweedy' },
+    { name: 'Jordan Stone', role: 'engineer' },
+    { name: 'Jim Scott', role: 'engineer', artistGlobeId: 'jim-scott' },
+    { name: 'Kevin Dean', role: 'engineer' },
+    { name: 'Jason Tobias', role: 'engineer' },
+    { name: 'T.J. Doherty', role: 'engineer' },
+    { name: 'Jim Scott', role: 'producer', artistGlobeId: 'jim-scott' },
+    { name: 'Feist', role: 'vocals' },
+  ],
+  releases: [{ releaseId: 'wilco-wilco-the-album', track: 5 }],
 
   sections: [
     {

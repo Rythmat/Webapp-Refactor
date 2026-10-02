@@ -16,6 +16,45 @@ export const rolling_in_the_deep: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'eastcote-studios' },
+  credits: [
+    { name: 'Adele', role: 'songwriter', artistGlobeId: 'adele' },
+    { name: 'Ray Carless', role: 'performer', instrument: 'tenor-sax' },
+    {
+      name: 'Paul Epworth',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'paul-epworth',
+    },
+    { name: 'Mark “Top” Rankin', role: 'engineer' },
+    { name: 'Noel Langley', role: 'performer', instrument: 'trumpet' },
+    { name: 'Neil Cowley', role: 'performer', instrument: 'piano' },
+    { name: 'Leo Taylor', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Paul Epworth', role: 'performer', artistGlobeId: 'paul-epworth' },
+    {
+      name: 'Paul Epworth',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'paul-epworth',
+    },
+    { name: 'Paul Epworth', role: 'songwriter', artistGlobeId: 'paul-epworth' },
+    {
+      name: 'Paul Epworth',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'paul-epworth',
+    },
+    { name: 'Tom Elmhirst', role: 'engineer' },
+    { name: 'Adele', role: 'vocals', artistGlobeId: 'adele', primary: true },
+    { name: 'Paul Epworth', role: 'producer', artistGlobeId: 'paul-epworth' },
+    {
+      name: 'Paul Epworth',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'paul-epworth',
+    },
+  ],
+  releases: [{ releaseId: 'adele-21', track: 1 }],
 
   sections: [
     {

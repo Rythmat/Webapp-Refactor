@@ -16,6 +16,29 @@ export const signed_sealed_delivered_im_yours: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Lula Mae Hardaway',
+      role: 'songwriter',
+      artistGlobeId: 'lula-mae-hardaway',
+    },
+    { name: 'Lee Garrett', role: 'songwriter', artistGlobeId: 'lee-garrett' },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    { name: 'Paul Riser', role: 'arranger' },
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+    { name: 'Syreeta', role: 'songwriter', artistGlobeId: 'syreeta' },
+    {
+      name: 'Stevie Wonder',
+      role: 'vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-signed-sealed-delivered' }],
 
   sections: [
     {

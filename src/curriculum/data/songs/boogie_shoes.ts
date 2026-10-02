@@ -16,6 +16,27 @@ export const boogie_shoes: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Harry Wayne Casey',
+      role: 'producer',
+      artistGlobeId: 'harry-wayne-casey',
+    },
+    { name: 'Richard Finch', role: 'producer', artistGlobeId: 'richard-finch' },
+    {
+      name: 'Richard Finch',
+      role: 'songwriter',
+      artistGlobeId: 'richard-finch',
+    },
+    {
+      name: 'Harry Wayne Casey',
+      role: 'songwriter',
+      artistGlobeId: 'harry-wayne-casey',
+    },
+  ],
+  releases: [
+    { releaseId: 'kc-and-the-sunshine-band-kc-and-the-sunshine-band' },
+  ],
 
   sections: [
     {

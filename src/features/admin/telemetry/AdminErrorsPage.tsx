@@ -23,6 +23,8 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useAdminTelemetryErrors } from '@/hooks/data/admin/useAdminTelemetry';
+import { ConsoleSectionTitle } from '../ui/ConsolePageHeader';
+import { CONSOLE_TABLE_HEAD } from '../ui/styles';
 import {
   TimeRangeSelect,
   useTimeRangeParams,
@@ -77,8 +79,8 @@ export const AdminErrorsPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Errors</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <ConsoleSectionTitle>Errors</ConsoleSectionTitle>
         <div className="flex gap-2">
           <Select value={category} onValueChange={setCategory}>
             <SelectTrigger className="w-40">
@@ -110,7 +112,7 @@ export const AdminErrorsPage = () => {
         <>
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader>
+              <TableHeader className={CONSOLE_TABLE_HEAD}>
                 <TableRow>
                   <TableHead>Timestamp</TableHead>
                   <TableHead>Category</TableHead>
@@ -130,10 +132,8 @@ export const AdminErrorsPage = () => {
                       {format(new Date(row.timestamp), 'MMM d HH:mm:ss')}
                     </TableCell>
                     <TableCell className="capitalize">{row.category}</TableCell>
-                    <TableCell className="font-mono text-sm">
-                      {row.eventName}
-                    </TableCell>
-                    <TableCell className="font-mono text-sm text-muted-foreground">
+                    <TableCell className="text-sm">{row.eventName}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
                       {row.route ?? '-'}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
@@ -147,10 +147,10 @@ export const AdminErrorsPage = () => {
                     <TableCell>
                       <TruncatedCell text={row.errorMessage} />
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">
+                    <TableCell className="text-xs text-muted-foreground">
                       {row.userId ? row.userId.slice(0, 8) : '-'}
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">
+                    <TableCell className="text-xs text-muted-foreground">
                       {row.traceId ? row.traceId.slice(0, 8) : '-'}
                     </TableCell>
                   </TableRow>

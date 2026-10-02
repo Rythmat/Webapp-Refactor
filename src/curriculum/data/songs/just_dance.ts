@@ -16,6 +16,53 @@ export const just_dance: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Akon',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'akon',
+    },
+    { name: 'RedOne', role: 'engineer', artistGlobeId: 'redone' },
+    { name: 'RedOne', role: 'producer', artistGlobeId: 'redone' },
+    { name: 'Akon', role: 'songwriter', artistGlobeId: 'akon' },
+    {
+      name: 'Lady Gaga',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'lady-gaga',
+      primary: true,
+    },
+    {
+      name: 'RedOne',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'redone',
+    },
+    { name: 'Dave Russell', role: 'engineer' },
+    { name: 'Lady Gaga', role: 'songwriter', artistGlobeId: 'lady-gaga' },
+    {
+      name: 'Colby O’Donis',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'colby-odonis',
+    },
+    {
+      name: 'Lady Gaga',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'lady-gaga',
+    },
+    { name: 'Robert Orton', role: 'engineer' },
+    {
+      name: 'Colby O’Donis',
+      role: 'vocals',
+      primary: true,
+      artistGlobeId: 'colby-odonis',
+    },
+    { name: 'RedOne', role: 'songwriter', artistGlobeId: 'redone' },
+  ],
+  releases: [{ releaseId: 'lady-gaga-the-fame' }],
 
   sections: [
     {

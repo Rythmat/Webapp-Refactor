@@ -16,6 +16,54 @@ export const old_time_rock_and_roll: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'muscle-shoals-sound-studio' },
+  credits: [
+    {
+      name: 'George Jackson',
+      role: 'songwriter',
+      artistGlobeId: 'george-jackson',
+    },
+    { name: 'Bob Seger', role: 'engineer', artistGlobeId: 'bob-seger' },
+    { name: 'David Hood', role: 'performer' },
+    { name: 'Ken Bell', role: 'performer' },
+    {
+      name: 'Thomas Jones, III',
+      role: 'songwriter',
+      artistGlobeId: 'thomas-jones-iii',
+    },
+    { name: 'Alto Reed', role: 'performer', artistGlobeId: 'alto-reed' },
+    { name: 'James Easley', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'John Arrias', role: 'engineer' },
+    {
+      name: 'George Jackson',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'george-jackson',
+    },
+    { name: 'Forrest McDonald', role: 'performer' },
+    { name: 'Gregg Hamm', role: 'engineer' },
+    { name: 'Bob Seger', role: 'producer', artistGlobeId: 'bob-seger' },
+    { name: 'Roger Hawkins', role: 'performer', instrument: 'percussion' },
+    {
+      name: 'Bob Seger',
+      role: 'vocals',
+      artistGlobeId: 'bob-seger',
+      primary: true,
+    },
+    { name: 'Randy McCormick', role: 'performer', instrument: 'piano' },
+    { name: 'Stanley Carter', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Roger Hawkins', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Punch', role: 'engineer' },
+    {
+      name: 'The Muscle Shoals Rhythm Section',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'the-muscle-shoals-rhythm-section',
+    },
+  ],
+  releases: [
+    { releaseId: 'bob-seger-and-the-silver-bullet-band-stranger-in-town' },
+  ],
 
   sections: [
     {

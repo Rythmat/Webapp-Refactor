@@ -16,6 +16,28 @@ export const you_are_the_sunshine_of_my_life: Song = {
   difficulty: 3,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    { name: 'Malcolm Cecil', role: 'engineer' },
+    { name: 'Lani Groves', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+    { name: 'Scott Edwards', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Gloria Barley', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Jim Gilstrap', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Robert Margouleff', role: 'engineer' },
+    {
+      name: 'Stevie Wonder',
+      role: 'vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Daniel Ben Zebulon', role: 'performer', instrument: 'congas' },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-talking-book', track: 1 }],
 
   sections: [
     {

@@ -16,6 +16,34 @@ export const hello_walls: Song = {
   difficulty: 2,
   genreTags: ['folk'],
   techniques: [],
+  session: { studioId: 'radio-recorders-studios' },
+  credits: [
+    {
+      name: 'The B. J. Baker Singers',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      ensemble: true,
+    },
+    {
+      name: 'Willie Nelson',
+      role: 'vocals',
+      artistGlobeId: 'willie-nelson',
+      primary: true,
+    },
+    { name: 'Billy Strange', role: 'performer' },
+    {
+      name: 'Willie Nelson',
+      role: 'songwriter',
+      artistGlobeId: 'willie-nelson',
+    },
+    { name: 'Roy Nichols', role: 'performer' },
+    { name: 'Roy Harte', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Red Wootten', role: 'performer' },
+    { name: 'Joe Allison', role: 'producer', artistGlobeId: 'joe-allison' },
+    { name: 'Johnny Western', role: 'performer' },
+    { name: 'Ray Pohlman', role: 'performer' },
+  ],
+  releases: [{ releaseId: 'willie-nelson-and-then-i-wrote' }],
 
   sections: [
     {

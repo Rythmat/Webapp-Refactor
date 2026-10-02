@@ -375,7 +375,9 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       const bar = Math.floor(beat / beatsPerBar) + 1;
       const beatInBar = beat % beatsPerBar;
       ctx.fillStyle = colors.textDim;
-      ctx.font = isBar ? '10px Inter, sans-serif' : '9px Inter, sans-serif';
+      ctx.font = isBar
+        ? "10px 'Glacial Indifference', system-ui, sans-serif"
+        : "9px 'Glacial Indifference', system-ui, sans-serif";
       const label = isBar ? String(bar) : `${bar}.${beatInBar + 1}`;
       ctx.fillText(label, x + 4, h / 2);
     }
@@ -1493,7 +1495,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
             }}
             className="w-16 h-1 accent-white/50"
           />
-          <span className="text-[10px] font-mono text-white/40 w-6 text-right">
+          <span className="text-[10px] tabular-nums text-white/40 w-6 text-right">
             {velDisplay}
           </span>
         </div>
@@ -1505,7 +1507,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
           {events.length} notes
         </span>
         <span
-          className="text-[10px] font-mono"
+          className="text-[10px] tabular-nums"
           style={{ color: 'var(--color-text-dim)' }}
         >
           {Math.round(zoom * 100)}%
@@ -1977,7 +1979,7 @@ function SampleWaveformPreview({ padNote }: { padNote: number }) {
     ctx.fill();
 
     ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    ctx.font = '10px Inter, sans-serif';
+    ctx.font = "10px 'Glacial Indifference', system-ui, sans-serif";
     ctx.fillText(padDef?.label ?? 'Sample', 8, 14);
   }, [padNote, padDef]);
 

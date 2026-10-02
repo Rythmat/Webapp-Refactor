@@ -16,6 +16,47 @@ export const lets_hear_it_for_the_boy: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Deniece Williams',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'deniece-williams',
+      primary: true,
+    },
+    { name: 'George Duke', role: 'producer', artistGlobeId: 'george-duke' },
+    { name: 'Paulinho da Costa', role: 'performer', instrument: 'percussion' },
+    { name: 'Tom Perry', role: 'engineer' },
+    { name: 'George Duke', role: 'performer', artistGlobeId: 'george-duke' },
+    {
+      name: 'Dean Pitchford',
+      role: 'songwriter',
+      artistGlobeId: 'dean-pitchford',
+    },
+    { name: 'Tommy Vicari', role: 'engineer' },
+    {
+      name: 'Shannon Rubicam',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'shannon-rubicam',
+    },
+    { name: 'Paul Jackson, Jr.', role: 'performer' },
+    { name: 'Erik Zobler', role: 'engineer' },
+    {
+      name: 'George Duke',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'george-duke',
+    },
+    { name: 'Tom Snow', role: 'songwriter', artistGlobeId: 'tom-snow' },
+    {
+      name: 'George Merrill',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'george-merrill',
+    },
+  ],
+  releases: [{ releaseId: 'deniece-williams-lets-hear-it-for-the-boy' }],
 
   sections: [
     {

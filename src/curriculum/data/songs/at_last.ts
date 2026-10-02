@@ -16,6 +16,28 @@ export const at_last: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Riley Hampton', role: 'conductor' },
+    { name: 'Leonard Chess', role: 'producer', artistGlobeId: 'leonard-chess' },
+    { name: 'Riley Hampton Orchestra', role: 'performer', ensemble: true },
+    { name: 'Phil Chess', role: 'producer', artistGlobeId: 'phil-chess' },
+    { name: 'Harry Warren', role: 'songwriter', artistGlobeId: 'harry-warren' },
+    {
+      name: 'Etta James',
+      role: 'vocals',
+      artistGlobeId: 'etta-james',
+      primary: true,
+    },
+    { name: 'Mack Gordon', role: 'songwriter', artistGlobeId: 'mack-gordon' },
+    { name: 'Riley Hampton', role: 'arranger' },
+    {
+      name: 'Leonard & Phil Chess',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'leonard-and-phil-chess',
+    },
+  ],
+  releases: [{ releaseId: 'etta-james-at-last' }],
 
   sections: [
     {

@@ -16,6 +16,36 @@ export const seen_and_not_seen: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Jerry Harrison',
+      role: 'songwriter',
+      artistGlobeId: 'jerry-harrison',
+    },
+    { name: 'Chris Frantz', role: 'songwriter', artistGlobeId: 'chris-frantz' },
+    { name: 'David Byrne', role: 'arranger', artistGlobeId: 'david-byrne' },
+    { name: 'David Byrne', role: 'songwriter', artistGlobeId: 'david-byrne' },
+    { name: 'Brian Eno', role: 'producer', artistGlobeId: 'brian-eno' },
+    {
+      name: 'Talking Heads',
+      role: 'arranger',
+      ensemble: true,
+      artistGlobeId: 'talking-heads',
+    },
+    { name: 'David Byrne', role: 'engineer', artistGlobeId: 'david-byrne' },
+    { name: 'John Potoker', role: 'engineer' },
+    { name: 'Brian Eno', role: 'songwriter', artistGlobeId: 'brian-eno' },
+    {
+      name: 'Tina Weymouth',
+      role: 'songwriter',
+      artistGlobeId: 'tina-weymouth',
+    },
+    { name: 'Brian Eno', role: 'arranger', artistGlobeId: 'brian-eno' },
+    { name: 'David Byrne', role: 'vocals', artistGlobeId: 'david-byrne' },
+    { name: 'Dave Jerden', role: 'engineer' },
+    { name: 'Brian Eno', role: 'engineer', artistGlobeId: 'brian-eno' },
+  ],
+  releases: [{ releaseId: 'talking-heads-remain-in-light' }],
 
   sections: [
     {

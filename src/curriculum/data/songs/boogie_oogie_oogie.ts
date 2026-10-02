@@ -16,6 +16,21 @@ export const boogie_oogie_oogie: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Fonce Mizell', role: 'producer', artistGlobeId: 'fonce-mizell' },
+    {
+      name: 'Perry L. Kibble',
+      role: 'songwriter',
+      artistGlobeId: 'perry-l-kibble',
+    },
+    {
+      name: 'Janice Marie Johnson',
+      role: 'songwriter',
+      artistGlobeId: 'janice-marie-johnson',
+    },
+    { name: 'Larry Mizell', role: 'producer', artistGlobeId: 'larry-mizell' },
+  ],
+  releases: [{ releaseId: 'taste-of-honey-a-taste-of-honey' }],
 
   sections: [
     {

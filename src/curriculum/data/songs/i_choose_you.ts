@@ -16,6 +16,36 @@ export const i_choose_you: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Aaron Sterling', role: 'performer', instrument: 'percussion' },
+    {
+      name: 'Sara Bareilles',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'sara-bareilles',
+      primary: true,
+    },
+    { name: 'Mark Endert', role: 'producer', artistGlobeId: 'mark-endert' },
+    { name: 'Curt Schneider', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Mark Endert', role: 'engineer', artistGlobeId: 'mark-endert' },
+    { name: 'Michael Ward', role: 'performer' },
+    { name: 'Pete Harper', role: 'songwriter', artistGlobeId: 'pete-harper' },
+    {
+      name: 'Sara Bareilles',
+      role: 'vocals',
+      artistGlobeId: 'sara-bareilles',
+      primary: true,
+    },
+    { name: 'Aaron Sterling', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Cameron Stone', role: 'performer', instrument: 'cello' },
+    { name: 'Jason Blynn', role: 'songwriter', artistGlobeId: 'jason-blynn' },
+    {
+      name: 'Sara Bareilles',
+      role: 'songwriter',
+      artistGlobeId: 'sara-bareilles',
+    },
+  ],
+  releases: [{ releaseId: 'sara-bareilles-the-blessed-unrest' }],
 
   sections: [
     {

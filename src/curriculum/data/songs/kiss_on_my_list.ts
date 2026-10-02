@@ -4,7 +4,7 @@ export const kiss_on_my_list: Song = {
   id: 'kiss_on_my_list',
   title: 'Kiss On My List',
   artist: 'Hall & Oates',
-  year: undefined,
+  year: 1980,
 
   historicalDescription:
     "Hall and Oates release 'Kiss On My List', a sleek pop-rock single that rides the duo's signature blue-eyed soul sound to the top of the charts. The song becomes one of their defining early-80s hits, cementing Daryl Hall and John Oates as the best-selling duo in music history and helping establish the polished, radio-ready sound of the new decade.",
@@ -17,6 +17,18 @@ export const kiss_on_my_list: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Daryl Hall', role: 'arranger', artistGlobeId: 'daryl-hall' },
+    { name: 'Jeff Southworth', role: 'performer' },
+    { name: 'John Oates', role: 'arranger', artistGlobeId: 'john-oates' },
+    { name: 'Daryl Hall', role: 'songwriter', artistGlobeId: 'daryl-hall' },
+    { name: 'Janna Allen', role: 'songwriter', artistGlobeId: 'janna-allen' },
+    { name: 'Daryl Hall', role: 'vocals', artistGlobeId: 'daryl-hall' },
+    { name: 'Daryl Hall', role: 'producer', artistGlobeId: 'daryl-hall' },
+    { name: 'John Oates', role: 'vocals', artistGlobeId: 'john-oates' },
+    { name: 'John Oates', role: 'producer', artistGlobeId: 'john-oates' },
+  ],
+  releases: [{ releaseId: 'hall-and-oates-voices' }],
 
   sections: [
     {

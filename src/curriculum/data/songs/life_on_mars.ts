@@ -16,6 +16,27 @@ export const life_on_mars: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'trident-studios' },
+  credits: [
+    { name: 'Ken Scott', role: 'producer', artistGlobeId: 'ken-scott' },
+    { name: 'Mick Woodmansey', role: 'performer', instrument: 'drum-kit' },
+    { name: 'BBC Symphony Orchestra', role: 'performer', ensemble: true },
+    { name: 'Mick Ronson', role: 'arranger' },
+    { name: 'David Bowie', role: 'songwriter', artistGlobeId: 'david-bowie' },
+    { name: 'Trevor Bolder', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Rick Wakeman', role: 'performer', instrument: 'piano' },
+    { name: 'Ken Scott', role: 'engineer', artistGlobeId: 'ken-scott' },
+    { name: 'Mick Ronson', role: 'conductor' },
+    { name: 'Mick Ronson', role: 'performer' },
+    { name: 'Mick Ronson', role: 'performer', instrument: 'electric-guitar' },
+    {
+      name: 'David Bowie',
+      role: 'vocals',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'david-bowie-hunky-dory' }],
 
   sections: [
     {

@@ -16,6 +16,42 @@ export const crosseyed_and_painless: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Brian Eno', role: 'arranger', artistGlobeId: 'brian-eno' },
+    { name: 'David Byrne', role: 'vocals', artistGlobeId: 'david-byrne' },
+    { name: 'David Byrne', role: 'songwriter', artistGlobeId: 'david-byrne' },
+    { name: 'Chris Frantz', role: 'songwriter', artistGlobeId: 'chris-frantz' },
+    { name: 'Dave Jerden', role: 'engineer' },
+    { name: 'Brian Eno', role: 'producer', artistGlobeId: 'brian-eno' },
+    {
+      name: 'Jerry Harrison',
+      role: 'songwriter',
+      artistGlobeId: 'jerry-harrison',
+    },
+    {
+      name: 'Brian Eno',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'brian-eno',
+    },
+    { name: 'David Byrne', role: 'arranger', artistGlobeId: 'david-byrne' },
+    { name: 'Brian Eno', role: 'engineer', artistGlobeId: 'brian-eno' },
+    { name: 'Brian Eno', role: 'songwriter', artistGlobeId: 'brian-eno' },
+    { name: 'David Byrne', role: 'engineer', artistGlobeId: 'david-byrne' },
+    { name: 'John Potoker', role: 'engineer' },
+    {
+      name: 'Talking Heads',
+      role: 'arranger',
+      ensemble: true,
+      artistGlobeId: 'talking-heads',
+    },
+    {
+      name: 'Tina Weymouth',
+      role: 'songwriter',
+      artistGlobeId: 'tina-weymouth',
+    },
+  ],
+  releases: [{ releaseId: 'talking-heads-remain-in-light' }],
 
   sections: [
     {

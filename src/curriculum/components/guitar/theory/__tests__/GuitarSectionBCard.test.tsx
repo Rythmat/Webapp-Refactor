@@ -12,9 +12,11 @@ import { GUITAR_KEY_ORDER } from '@/curriculum/data/guitar/bookOne';
 import type { GuitarKeyName } from '@/curriculum/data/guitar/types';
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
 import { GuitarSectionBCard } from '../GuitarSectionBCard';
+import { FAMILY_STRIP_SHEET_LOOK } from '../noteParts';
 import {
   familyChips,
   isSectionBCardDue,
+  markSectionBCardSeen,
   sectionBCardBarreCare,
   sectionBCardSeenId,
 } from '../theoryUi';
@@ -200,5 +202,113 @@ describe('GuitarSectionBCard', () => {
       ]);
       expect(chips.every((c) => !/[#b]/.test(c.symbol.slice(1)))).toBe(true);
     }
+  });
+});
+
+describe('GuitarSectionBCard: as a section of the About sheet', () => {
+  function renderSection(
+    key: GuitarKeyName,
+    defaultOpen?: boolean,
+    withBarreCare?: boolean,
+  ) {
+    return render(
+      <GuitarSectionBCard
+        variant="section"
+        defaultOpen={defaultOpen}
+        withBarreCare={withBarreCare}
+        flow={buildGuitarAppliedTheoryFundamentalsFlow(key)}
+        keyCenter={key}
+        keyColor={RED}
+      />,
+    );
+  }
+
+  it('drops the frame and the close buttons, and marks nothing itself', () => {
+    renderSection('Db');
+    const region = screen.getByRole('region', {
+      name: 'Chords come from the scale',
+    });
+    expect(region).toHaveAttribute('data-variant', 'section');
+    expect(region.getAttribute('style')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Close' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Got it' })).toBeNull();
+    // The same content as the card.
+    expect(
+      screen.getByText(/Pick a scale note\. Skip the next note/),
+    ).toBeTruthy();
+    expect(chipItems()).toHaveLength(7);
+    expect(screen.getByText('Look after your hand')).toBeInTheDocument();
+    expect(useGuitarDisplaySettings.getState().dismissedNotes).toEqual([]);
+  });
+
+  it("leaves hand care out when the sheet's step notes show it", () => {
+    renderSection('Db', true, false);
+    expect(screen.queryByText('Look after your hand')).toBeNull();
+    expect(
+      screen.getByText(/Pick a scale note\. Skip the next note/),
+    ).toBeTruthy();
+  });
+
+  it("draws the key's chords in the sheet's type, not the card's", () => {
+    renderSection('C');
+    const strip = screen.getByRole('list', { name: 'Chords in this key' });
+    expect(strip.parentElement?.className).toBe(FAMILY_STRIP_SHEET_LOOK);
+    cleanup();
+    renderCard('C');
+    expect(
+      screen.getByRole('list', { name: 'Chords in this key' }).parentElement
+        ?.className,
+    ).not.toContain('[data-family-chip]');
+  });
+
+  it('opens and closes from its title', () => {
+    renderSection('C', false);
+    const title = screen.getByRole('button', {
+      name: 'Chords come from the scale',
+    });
+    expect(title.closest('h3')).not.toBeNull();
+    expect(title).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('list', { name: 'Scale notes' })).toBeNull();
+    fireEvent.click(title);
+    expect(title).toHaveAttribute('aria-expanded', 'true');
+    expect(title).toHaveAttribute(
+      'aria-controls',
+      screen.getByRole('list', { name: 'Scale notes' }).parentElement
+        ?.parentElement?.id,
+    );
+  });
+
+  it('steps through the chords the same way, one row wide', () => {
+    renderSection('C');
+    const result = () =>
+      document.querySelector('[data-skip-take-result]')?.textContent;
+    expect(result()).toBe('Chord 1: C E G = C (1 maj)');
+    fireEvent.click(screen.getByRole('button', { name: 'Next chord' }));
+    expect(result()).toBe('Chord 2: D F A = Dm (2 min)');
+    const cells = within(
+      screen.getByRole('list', { name: 'Scale notes' }),
+    ).getAllByRole('listitem');
+    expect(cells[1]).toHaveTextContent('D2take');
+    expect(cells[2]).toHaveTextContent('E3skip');
+  });
+});
+
+describe('markSectionBCardSeen', () => {
+  it('marks the card, and hand care where the card carries it', () => {
+    const seen: string[] = [];
+    markSectionBCardSeen(
+      (id) => seen.push(id),
+      buildGuitarAppliedTheoryFundamentalsFlow('Db'),
+      'Db',
+    );
+    expect(seen).toEqual([sectionBCardSeenId('Db'), 'b.barreCare@Db']);
+
+    seen.length = 0;
+    markSectionBCardSeen(
+      (id) => seen.push(id),
+      buildGuitarAppliedTheoryFundamentalsFlow('C'),
+      'C',
+    );
+    expect(seen).toEqual([sectionBCardSeenId('C')]);
   });
 });

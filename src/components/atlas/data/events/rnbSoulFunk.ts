@@ -1,6 +1,6 @@
-import type { HistoricalEvent } from '@/components/atlas/types';
+import type { GlobeEventRecord } from '@/content/records/types';
 
-export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
+export const RNBSOULFUNK_EVENTS: GlobeEventRecord[] = [
   {
     id: 'evt-motown-detroit-1966',
     year: 1966,
@@ -13,12 +13,20 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'berry gordy',
       'hitsville',
       'the supremes',
-      'temptations',
+      'the temptations',
       'stevie wonder',
       'marvin gaye',
       'diana ross',
     ],
     videoId: 'F1tbPVokltc',
+    artistIds: [
+      'berry-gordy',
+      'the-temptations',
+      'stevie-wonder',
+      'marvin-gaye',
+      'diana-ross',
+    ],
+    placeId: 'detroit',
   },
   {
     id: 'evt-disco-nyc-1977',
@@ -43,6 +51,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'bee gees',
     ],
     videoId: 'RdfYSI5HkDU',
+    placeId: 'new-york',
   },
   {
     id: 'evt-soul-memphis-1962',
@@ -62,6 +71,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'southern soul',
     ],
     videoId: 'kUk1WTAReyE',
+    artistIds: ['otis-redding', 'sam-and-dave', 'isaac-hayes'],
+    placeId: 'memphis',
   },
   {
     id: 'evt-funk-minneapolis-1979',
@@ -86,6 +97,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'the revolution',
     ],
     videoId: 'q_sHFZWeOUo',
+    artistIds: ['prince', 'the-revolution'],
+    placeId: 'minneapolis',
   },
   {
     id: 'evt-philly-soul-philadelphia-1972',
@@ -111,6 +124,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'disco',
     ],
     videoId: 'w1-o766_5M0',
+    placeId: 'philadelphia',
   },
   {
     id: 'evt-gogo-dc-1979',
@@ -135,6 +149,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'percussion break',
     ],
     videoId: 'ywZayiYvAyw',
+    artistIds: ['chuck-brown'],
+    songIds: ['bustin_loose'],
+    placeId: 'washington-dc',
   },
   {
     id: 'evt-dallas-soul-dallas-2015',
@@ -154,6 +171,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'neo-soul',
     ],
     videoId: 'MTrKkqE9p1o',
+    artistIds: ['leon-bridges', 'erykah-badu'],
+    songIds: ['coming_home'],
+    placeId: 'dallas',
   },
   {
     id: 'evt-voltaique-ouaga-1983',
@@ -179,6 +199,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'pan-african',
     ],
     videoId: 'txIU7h5XJOI',
+    placeId: 'ouagadougou',
   },
   {
     id: 'evt-juba-music-peace-2012',
@@ -204,6 +225,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'new nation',
     ],
     videoId: 'J4rpmcsKm-0',
+    placeId: 'juba',
   },
   {
     id: 'evt-meters-neworleans-1969',
@@ -229,6 +251,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'groove',
     ],
     videoId: '0g3UJpUunaI',
+    artistIds: ['the-meters', 'art-neville'],
+    placeId: 'new-orleans',
   },
   {
     id: 'evt-gospel-jackson-1965',
@@ -249,6 +273,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'freedom songs',
     ],
     videoId: 'TwomoSd-Q7I',
+    placeId: 'jackson-ms',
   },
   {
     id: 'evt-freedomsongs-birmingham-1963',
@@ -274,6 +299,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'mlk',
     ],
     videoId: 'duvoETGVvYU',
+    placeId: 'birmingham-al',
   },
   {
     id: 'evt-rosettatharpe-littlerock-1950',
@@ -299,6 +325,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'pioneer',
     ],
     videoId: 'OKkZ47UHIwg',
+    artistIds: ['sister-rosetta-tharpe'],
+    placeId: 'little-rock',
   },
   {
     id: 'evt-bobmarley-wilmington-1965',
@@ -324,6 +352,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'formative years',
     ],
     videoId: '58O8nUvjsLA',
+    artistIds: ['bob-marley'],
+    placeId: 'wilmington',
   },
   {
     id: 'evt-diaspora-chicago-gospel-1932',
@@ -345,6 +375,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'sacred music',
     ],
     videoId: 'RdE0NPimGFk',
+    artistIds: ['thomas-dorsey'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-diaspora-memphis-stax-soul-1967',
@@ -367,6 +399,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'memphis',
     ],
     videoId: 'RlP_9HRi78Q',
+    artistIds: ['otis-redding'],
+    placeId: 'memphis',
   },
   {
     id: 'evt-motown-detroit-1963',
@@ -384,9 +418,11 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'crossover pop',
       'detroit',
       'supremes',
-      'temptations',
+      'the temptations',
     ],
     videoId: '4NeVppowGF8',
+    artistIds: ['berry-gordy', 'the-temptations'],
+    placeId: 'detroit',
   },
   {
     id: 'evt-southern-soul-memphis-1965',
@@ -406,6 +442,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'horn driven',
     ],
     videoId: 'OjBRyG8HouM',
+    artistIds: ['otis-redding'],
+    placeId: 'memphis',
   },
   {
     id: 'evt-funk-augusta-1970',
@@ -425,6 +463,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'godfather of soul',
     ],
     videoId: '7bZc-hs0l6k',
+    artistIds: ['james-brown'],
+    placeId: 'augusta-ga',
   },
   {
     id: 'evt-philly-soul-philadelphia-1974',
@@ -449,6 +489,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'mfsb',
     ],
     videoId: 'pUKblOmUMx0',
+    placeId: 'philadelphia',
   },
   {
     id: 'evt-neosoul-richmond-1995-dangelo',
@@ -468,6 +509,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'hip-hop soul',
     ],
     videoId: 'H_WzjiTzZBA',
+    artistIds: ['dangelo'],
+    placeId: 'richmond',
   },
   {
     id: 'evt-neosoul-dallas-1997-badu',
@@ -488,6 +531,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'conscious soul',
     ],
     videoId: 'TW28iWV7nxE',
+    artistIds: ['erykah-badu'],
+    songIds: ['on_on'],
+    placeId: 'dallas',
   },
   {
     id: 'evt-neosoul-southorange-1998-laurynhill',
@@ -513,6 +559,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'grammy',
     ],
     videoId: 'x8QP8S9d4Vk',
+    artistIds: ['lauryn-hill'],
+    placeId: 'south-orange',
   },
   {
     id: 'evt-neosoul-columbia-1999-angiestone',
@@ -537,6 +585,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'hip-hop soul',
     ],
     videoId: 'V9Zgp1WzwLk',
+    artistIds: ['angie-stone'],
+    placeId: 'columbia',
   },
   {
     id: 'evt-neosoul-nyc-2000-dangelo',
@@ -562,6 +612,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'funk',
     ],
     videoId: 'smM2g2g3uL8',
+    artistIds: ['dangelo'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-neosoul-philadelphia-2000-jillscott',
@@ -587,6 +639,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'philly soul',
     ],
     videoId: '5SK48Bk_RnI',
+    artistIds: ['jill-scott'],
+    placeId: 'philadelphia',
   },
   {
     id: 'evt-neosoul-philadelphia-2000-musiq',
@@ -611,6 +665,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'just friends',
     ],
     videoId: 'IP4V3TTC3fw',
+    artistIds: ['musiq-soulchild'],
+    placeId: 'philadelphia',
   },
   {
     id: 'evt-neosoul-atlanta-2001-indiaarie',
@@ -631,6 +687,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'folk soul',
     ],
     videoId: 'dhygw-YlGyk',
+    artistIds: ['india-arie'],
+    placeId: 'atlanta',
   },
   {
     id: 'evt-neosoul-philadelphia-2001-bilal',
@@ -656,6 +714,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'vocal range',
     ],
     videoId: 'AtFd5wtfUdw',
+    artistIds: ['bilal'],
+    placeId: 'philadelphia',
   },
   {
     id: 'evt-neosoul-houston-2012-glasper',
@@ -676,6 +736,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'grammy',
     ],
     videoId: 'H_hT61-E5kg',
+    artistIds: ['robert-glasper', 'erykah-badu'],
+    placeId: 'houston',
   },
   {
     id: 'evt-neosoul-houston-2013-glasper-experiment',
@@ -696,6 +758,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'genre-fluid',
     ],
     videoId: 'e6NjqujEy1o',
+    artistIds: ['robert-glasper-experiment', 'common'],
+    placeId: 'houston',
   },
   {
     id: 'evt-neosoul-longbeach-2012-frankocean',
@@ -721,6 +785,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'lgbtq',
     ],
     videoId: '6JHu3b-pbh8',
+    artistIds: ['frank-ocean'],
+    placeId: 'long-beach',
   },
   {
     id: 'evt-neosoul-la-2014-jheneaiko',
@@ -746,6 +812,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'ambient',
     ],
     videoId: 'IuD6G3bOrIs',
+    artistIds: ['jhene-aiko'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-neosoul-la-2015-theinternet',
@@ -771,6 +839,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'neo soul',
     ],
     videoId: 'F6j49uzPugA',
+    artistIds: ['the-internet'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-neosoul-melbourne-2015-hiatuskaiyote',
@@ -796,6 +866,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'australia',
     ],
     videoId: 'KjihW7-l-rQ',
+    artistIds: ['hiatus-kaiyote'],
+    placeId: 'melbourne',
   },
   {
     id: 'evt-neosoul-oxnard-2016-andersonpaak',
@@ -816,6 +888,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'hip-hop soul',
     ],
     videoId: 'ferZnZ0_rSM',
+    placeId: 'oxnard',
   },
   {
     id: 'evt-neosoul-houston-2016-solange',
@@ -836,6 +909,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'art pop',
     ],
     videoId: 'Njp2vaBzgto',
+    artistIds: ['solange'],
+    placeId: 'houston',
   },
   {
     id: 'evt-neosoul-montreal-2016-kaytranada',
@@ -861,6 +936,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'haitian-canadian',
     ],
     videoId: 'bAX9envvbj4',
+    artistIds: ['kaytranada'],
+    placeId: 'montreal',
   },
   {
     id: 'evt-neosoul-la-2017-thundercat',
@@ -886,6 +963,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'flying lotus',
     ],
     videoId: 'McA_CgwoG-w',
+    artistIds: ['thundercat', 'flying-lotus'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-neosoul-oakland-2017-kehlani',
@@ -906,6 +985,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'pop r&b',
     ],
     videoId: 'HPHbeSGVKJo',
+    artistIds: ['kehlani'],
+    placeId: 'oakland',
   },
   {
     id: 'evt-neosoul-maplewood-2017-sza',
@@ -931,6 +1012,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'new jersey',
     ],
     videoId: 'qJ7wOEz6OUE',
+    artistIds: ['sza'],
+    placeId: 'maplewood',
   },
   {
     id: 'evt-neosoul-vallejo-2017-her',
@@ -951,6 +1034,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'grammy',
     ],
     videoId: 'hxxcEzM8r-4',
+    artistIds: ['h-e-r'],
+    placeId: 'vallejo',
   },
   {
     id: 'evt-neosoul-toronto-2017-danielcaesar',
@@ -976,6 +1061,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'canada',
     ],
     videoId: 'hKgl5-lkT8U',
+    artistIds: ['daniel-caesar'],
+    placeId: 'toronto',
   },
   {
     id: 'evt-neosoul-stockholm-2017-snohaalegra',
@@ -1001,6 +1088,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'iranian',
     ],
     videoId: 'QxUiNeEAK5I',
+    artistIds: ['snoh-aalegra'],
+    placeId: 'stockholm',
   },
   {
     id: 'evt-neosoul-brisbane-2017-jordanrakei',
@@ -1026,6 +1115,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'new zealand',
     ],
     videoId: 'a56GHV2R5dM',
+    artistIds: ['jordan-rakei'],
+    placeId: 'brisbane',
   },
   {
     id: 'evt-neosoul-london-2017-sampha',
@@ -1046,6 +1137,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'electronic soul',
     ],
     videoId: 'ZQXDVZf3akg',
+    artistIds: ['sampha'],
+    placeId: 'london',
   },
   {
     id: 'evt-neosoul-nyc-2017-macayres',
@@ -1071,6 +1164,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'self-produced',
     ],
     videoId: 'oWrBSfpA6pI',
+    artistIds: ['mac-ayres'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-neosoul-london-2018-tommisch',
@@ -1091,6 +1186,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'youtube',
     ],
     videoId: 'l1A5mPLujuA',
+    artistIds: ['tom-misch'],
+    placeId: 'london',
   },
   {
     id: 'evt-neosoul-chicago-2018-noname',
@@ -1111,6 +1208,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'south side',
     ],
     videoId: 'uT3uK24vL6w',
+    artistIds: ['noname'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-neosoul-nola-2019-luckydaye',
@@ -1136,6 +1235,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'grammy',
     ],
     videoId: 'ifTCi87_VGw',
+    artistIds: ['lucky-daye'],
+    placeId: 'new-orleans',
   },
   {
     id: 'evt-neosoul-atlanta-2019-summerwalker',
@@ -1156,6 +1257,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'streaming era',
     ],
     videoId: '1A0CuoluUr0',
+    artistIds: ['summer-walker'],
+    placeId: 'atlanta',
   },
   {
     id: 'evt-neosoul-chicago-2019-jamilawoods',
@@ -1176,6 +1279,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'poetry',
     ],
     videoId: 'wYSywnYDQZ0',
+    artistIds: ['jamila-woods'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-neosoul-london-2020-cleosol',
@@ -1196,6 +1301,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'sault',
     ],
     videoId: 'dH8rsQQqg18',
+    artistIds: ['cleo-sol'],
+    placeId: 'london',
   },
   {
     id: 'evt-neosoul-longbeach-2020-giveon',
@@ -1221,6 +1328,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'heartbreak anniversary',
     ],
     videoId: 'uWRlisQu4fo',
+    artistIds: ['giveon'],
+    placeId: 'long-beach',
   },
   {
     id: 'evt-neosoul-la-2011-moonchild',
@@ -1246,6 +1355,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'amber navran',
     ],
     videoId: 'D2KfXJ5FASE',
+    artistIds: ['moonchild'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-neosoul-la-2021-terracemartin',
@@ -1271,6 +1382,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'west coast',
     ],
     videoId: 'mgHmLnkeAHQ',
+    artistIds: ['terrace-martin'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-neosoul-philadelphia-2021-jazminesullivan',
@@ -1296,6 +1409,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'empowerment',
     ],
     videoId: 'g_msOBuocSo',
+    artistIds: ['jazmine-sullivan'],
+    placeId: 'philadelphia',
   },
   {
     id: 'evt-neosoul-chicago-2022-ravynlenae',
@@ -1316,6 +1431,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'future soul',
     ],
     videoId: 'Mr6o8y6gzi0',
+    artistIds: ['ravyn-lenae'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-neosoul-compton-2022-stevelacy',
@@ -1336,6 +1453,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'the internet',
     ],
     videoId: 'UGbDWUtqMsQ',
+    artistIds: ['steve-lacy', 'the-internet'],
+    placeId: 'compton',
   },
   {
     id: 'evt-neosoul-london-2012-liannalahavas',
@@ -1356,6 +1475,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'uk soul',
     ],
     videoId: 'Nmg5jhc9T_I',
+    artistIds: ['lianne-la-havas'],
+    placeId: 'london',
   },
   // ── Funk Events ──────────────────────────────────────────────────────
   {
@@ -1381,6 +1502,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'king records',
     ],
     videoId: 'oaUWv72c-Go',
+    artistIds: ['james-brown'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-funk-macon-1965-james-brown-papas',
@@ -1400,6 +1523,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'king records',
     ],
     videoId: 'f9uQDcp8PTY',
+    artistIds: ['james-brown'],
+    songIds: ['papas_got_a_brand_new_bag'],
+    placeId: 'macon',
   },
   {
     id: 'evt-funk-la-1975-parliament-mothership',
@@ -1425,6 +1551,13 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'bernie worrell',
     ],
     videoId: 'EAaMCh8Xy14',
+    artistIds: [
+      'parliament',
+      'george-clinton',
+      'bootsy-collins',
+      'bernie-worrell',
+    ],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-funk-sf-1969-sly-stone-stand',
@@ -1450,6 +1583,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'everyday people',
     ],
     videoId: 'Q49vjFN6Fsw',
+    artistIds: ['sly-stone'],
+    placeId: 'san-francisco',
   },
   {
     id: 'evt-funk-cincinnati-1977-bootsy-collins',
@@ -1474,6 +1609,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'warner bros',
     ],
     videoId: '8abYLA5zEkM',
+    artistIds: ['bootsy-collins'],
+    placeId: 'cincinnati',
   },
   {
     id: 'evt-funk-la-1975-earth-wind-fire',
@@ -1498,6 +1635,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'orchestral funk',
     ],
     videoId: 'Gs069dndIYk',
+    artistIds: ['earth-wind-and-fire', 'maurice-white', 'philip-bailey'],
+    songIds: ['september'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-funk-neworleans-1974-meters-rejuvenation',
@@ -1523,6 +1663,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'zigaboo',
     ],
     videoId: 'eFz9GEYLq80',
+    artistIds: ['the-meters', 'allen-toussaint'],
+    songIds: ['hey_pocky_a_way'],
+    placeId: 'new-orleans',
   },
   {
     id: 'evt-funk-oakland-1973-tower-of-power',
@@ -1543,6 +1686,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'greg adams',
     ],
     videoId: 'o1KCoX_dDBE',
+    artistIds: ['tower-of-power', 'greg-adams'],
+    placeId: 'oakland',
   },
   {
     id: 'evt-funk-dayton-1974-ohio-players',
@@ -1563,6 +1708,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'midwest funk',
     ],
     videoId: 'zqsYNc_M988',
+    artistIds: ['ohio-players'],
+    placeId: 'dayton',
   },
   {
     id: 'evt-funk-tuskegee-1974-commodores',
@@ -1588,6 +1735,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'wah-wah',
     ],
     videoId: 'SiLvUOItXVI',
+    artistIds: ['commodores', 'lionel-richie'],
+    placeId: 'tuskegee',
   },
   {
     id: 'evt-funk-buffalo-1981-rick-james',
@@ -1613,6 +1762,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'mc hammer',
     ],
     videoId: 'wnKc4zi0MLA',
+    artistIds: ['rick-james'],
+    placeId: 'buffalo',
   },
   {
     id: 'evt-funk-nyc-1986-cameo-word-up',
@@ -1637,6 +1788,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       '1980s funk',
     ],
     videoId: 'MZjAantupsA',
+    artistIds: ['cameo'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-funk-dayton-1980-zapp-roger',
@@ -1657,6 +1810,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'g-funk',
     ],
     videoId: 'YgDPrhV8z5s',
+    artistIds: ['zapp'],
+    placeId: 'dayton',
   },
   {
     id: 'evt-funk-tulsa-1982-gap-band',
@@ -1677,6 +1832,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'oklahoma funk',
     ],
     videoId: 'QDhhMvdglCQ',
+    placeId: 'tulsa',
   },
   {
     id: 'evt-funk-chicago-1978-chaka-khan',
@@ -1697,6 +1853,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'solo debut',
     ],
     videoId: 'ouUiT6b2UkE',
+    artistIds: ['chaka-khan'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-funk-chicago-1970-rufus-chaka-khan',
@@ -1717,6 +1875,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'funk rock',
     ],
     videoId: '7fgKhuqNtxw',
+    artistIds: ['rufus', 'chaka-khan', 'stevie-wonder'],
+    songIds: ['tell_me_something_good'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-funk-dayton-1981-lakeside',
@@ -1736,6 +1897,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'nine piece',
     ],
     videoId: 'hP5WGVlIqOc',
+    artistIds: ['lakeside'],
+    placeId: 'dayton',
   },
   {
     id: 'evt-funk-vallejo-1978-con-funk-shun',
@@ -1760,6 +1923,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'smooth funk',
     ],
     videoId: 'dHXSxAHZlqs',
+    artistIds: ['con-funk-shun'],
+    placeId: 'vallejo',
   },
   {
     id: 'evt-funk-longbeach-1975-war-low-rider',
@@ -1785,6 +1950,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'multiracial band',
     ],
     videoId: 'BsrqKE1iqqo',
+    artistIds: ['war', 'lee-oskar'],
+    songIds: ['low_rider'],
+    placeId: 'long-beach',
   },
   {
     id: 'evt-funk-dundee-1974-average-white-band',
@@ -1809,6 +1977,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'crossover',
     ],
     videoId: 'MfAJLGFWxYo',
+    artistIds: ['average-white-band'],
+    songIds: ['pick_up_the_pieces'],
+    placeId: 'dundee',
   },
   {
     id: 'evt-funk-jerseycity-1980-kool-gang',
@@ -1834,6 +2005,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'jt taylor',
     ],
     videoId: '3GwjfUFyY6M',
+    artistIds: ['kool-and-the-gang'],
+    songIds: ['celebration'],
+    placeId: 'jersey-city',
   },
   {
     id: 'evt-funk-memphis-1967-bar-kays',
@@ -1854,6 +2028,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'stax funk',
     ],
     videoId: '12A3U76TANw',
+    artistIds: ['otis-redding'],
+    placeId: 'memphis',
   },
   {
     id: 'evt-funk-cincinnati-1969-isley-brothers',
@@ -1879,6 +2055,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'funk pioneers',
     ],
     videoId: '7nvudxqX_LA',
+    artistIds: ['isley-brothers'],
+    songIds: ['its_your_thing'],
+    placeId: 'cincinnati',
   },
   {
     id: 'evt-funk-detroit-1972-stevie-wonder-superstition',
@@ -1899,6 +2078,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'funk crossover',
     ],
     videoId: 'egqv1mtos6A',
+    artistIds: ['stevie-wonder'],
+    songIds: ['superstition'],
+    placeId: 'detroit',
   },
   {
     id: 'evt-funk-pittsburgh-1974-betty-davis',
@@ -1924,6 +2106,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'proto-punk',
     ],
     videoId: 'EKWPynScqgw',
+    artistIds: ['betty-davis', 'miles-davis'],
+    placeId: 'pittsburgh',
   },
   {
     id: 'evt-funk-kansascity-2010-janelle-monae',
@@ -1949,6 +2133,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'prince influence',
     ],
     videoId: 'SKz3hndIc94',
+    artistIds: ['janelle-monae'],
+    placeId: 'kansas-city',
   },
   {
     id: 'evt-funk-nyc-1978-chic-le-freak',
@@ -1974,6 +2160,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'studio 54',
     ],
     videoId: 'HvDiD_vbwpg',
+    artistIds: ['nile-rodgers', 'chic', 'bernard-edwards'],
+    songIds: ['le_freak'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-funk-detroit-1982-george-clinton-solo',
@@ -1994,6 +2183,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'hip-hop influence',
     ],
     videoId: 'ILyTSesn9Ag',
+    artistIds: ['george-clinton'],
+    placeId: 'detroit',
   },
   {
     id: 'evt-ray-charles-atlanta-1954',
@@ -2014,6 +2205,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'pioneer',
     ],
     videoId: '-fLl7Fj580E',
+    artistIds: ['ray-charles'],
+    songIds: ['i_got_a_woman'],
+    placeId: 'atlanta',
   },
   {
     id: 'evt-sam-cooke-la-1964',
@@ -2039,6 +2233,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'anthem',
     ],
     videoId: 'ACi5t2q6m3s',
+    artistIds: ['sam-cooke'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-otis-redding-memphis-1965',
@@ -2059,6 +2255,8 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'mgs',
     ],
     videoId: 'Q4otbaelnl0',
+    artistIds: ['otis-redding'],
+    placeId: 'memphis',
   },
   {
     id: 'evt-aretha-franklin-muscle-shoals-1967',
@@ -2084,6 +2282,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'feminist anthem',
     ],
     videoId: 'WgcM29CuLNs',
+    artistIds: ['aretha-franklin'],
+    songIds: ['respect'],
+    placeId: 'muscle-shoals',
   },
   {
     id: 'evt-marvin-gaye-detroit-1971',
@@ -2104,6 +2305,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'masterpiece',
     ],
     videoId: 'o5TmORitlKk',
+    artistIds: ['marvin-gaye'],
+    songIds: ['whats_going_on'],
+    placeId: 'detroit',
   },
   {
     id: 'evt-al-green-memphis-1972',
@@ -2124,6 +2328,9 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'southern soul',
     ],
     videoId: 'uSu6tcbMOu0',
+    artistIds: ['al-green', 'willie-mitchell'],
+    songIds: ['lets_stay_together'],
+    placeId: 'memphis',
   },
   {
     id: 'evt-curtis-mayfield-chicago-1972',
@@ -2144,5 +2351,7 @@ export const RNBSOULFUNK_EVENTS: HistoricalEvent[] = [
       'wah-wah',
     ],
     videoId: 'muLcm3_JSR4',
+    artistIds: ['curtis-mayfield'],
+    placeId: 'chicago',
   },
 ];

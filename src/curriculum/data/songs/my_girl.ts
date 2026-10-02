@@ -16,6 +16,7 @@ export const my_girl: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  releases: [{ releaseId: 'the-temptations-the-temptations-sing-smokey' }],
 
   sections: [
     {

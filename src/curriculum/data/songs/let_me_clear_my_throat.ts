@@ -16,6 +16,17 @@ export const let_me_clear_my_throat: Song = {
   difficulty: 1,
   genreTags: ['hip-hop'],
   techniques: [],
+  credits: [
+    { name: 'Fred Derby', role: 'engineer', artistGlobeId: 'fred-derby' },
+    { name: 'DJ Kool', role: 'songwriter', artistGlobeId: 'dj-kool' },
+    { name: 's/x', role: 'producer', artistGlobeId: 's-x' },
+    { name: 'Fred Derby', role: 'producer', artistGlobeId: 'fred-derby' },
+    { name: 'Michael Grey', role: 'engineer' },
+    { name: 'Al Grey', role: 'engineer' },
+    { name: 's/x', role: 'engineer', artistGlobeId: 's-x' },
+    { name: 'DJ Kool', role: 'producer', artistGlobeId: 'dj-kool' },
+  ],
+  releases: [{ releaseId: 'dj-kool-let-me-clear-my-throat', track: 2 }],
 
   sections: [
     {

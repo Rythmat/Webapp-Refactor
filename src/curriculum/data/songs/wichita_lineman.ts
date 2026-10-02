@@ -16,6 +16,18 @@ export const wichita_lineman: Song = {
   difficulty: 3,
   genreTags: ['folk'],
   techniques: [],
+  session: { studioId: 'capitol-tower' },
+  credits: [
+    { name: 'Al De Lory', role: 'producer', artistGlobeId: 'al-de-lory' },
+    {
+      name: 'Glen Campbell',
+      role: 'vocals',
+      artistGlobeId: 'glen-campbell',
+      primary: true,
+    },
+    { name: 'Jimmy Webb', role: 'songwriter', artistGlobeId: 'jimmy-webb' },
+  ],
+  releases: [{ releaseId: 'glen-campbell-wichita-lineman' }],
 
   sections: [
     {

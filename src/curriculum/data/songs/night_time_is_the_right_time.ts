@@ -16,6 +16,13 @@ export const night_time_is_the_right_time: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    {
+      name: 'Herman Lubinsky',
+      role: 'songwriter',
+      artistGlobeId: 'herman-lubinsky',
+    },
+  ],
 
   sections: [
     {

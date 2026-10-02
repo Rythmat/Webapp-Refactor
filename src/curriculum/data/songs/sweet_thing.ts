@@ -4,7 +4,11 @@ export const sweet_thing: Song = {
   id: 'sweet_thing',
   title: 'Sweet Thing',
   artist: 'Rufus and Chaka Khan',
-  year: undefined,
+  year: 1975,
+  // The billing as the record prints it. The act is the band Rufus (Chaka
+  // Khan is her own artist too), so the lead act is linked here rather than
+  // read from the billing.
+  origin: { artistGlobeId: 'rufus' },
 
   historicalDescription:
     "Rufus and Chaka Khan release 'Sweet Thing', a velvet-smooth R&B ballad that showcases Chaka Khan's extraordinary vocal power in its most intimate setting. The song becomes one of the defining slow jams of the mid-1970s, cementing Khan's status as one of soul music's greatest voices and Rufus as a premier funk and R&B outfit.",
@@ -17,6 +21,24 @@ export const sweet_thing: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    { name: 'Tony Maiden', role: 'songwriter', artistGlobeId: 'tony-maiden' },
+    { name: 'Chaka Khan', role: 'songwriter', artistGlobeId: 'chaka-khan' },
+    {
+      name: 'Rufus',
+      role: 'performer',
+      ensemble: true,
+      primary: true,
+      artistGlobeId: 'rufus',
+    },
+    {
+      name: 'Chaka Khan',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'chaka-khan',
+    },
+  ],
+  releases: [{ releaseId: 'rufus-rufus-featuring-chaka-khan', track: 6 }],
 
   sections: [
     {

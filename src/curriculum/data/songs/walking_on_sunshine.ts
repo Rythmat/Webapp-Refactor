@@ -16,6 +16,17 @@ export const walking_on_sunshine: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'alaska-studios' },
+  credits: [
+    { name: 'Pat Collier', role: 'engineer', artistGlobeId: 'pat-collier' },
+    {
+      name: 'Kimberley Rew',
+      role: 'songwriter',
+      artistGlobeId: 'kimberley-rew',
+    },
+    { name: 'Pat Collier', role: 'producer', artistGlobeId: 'pat-collier' },
+  ],
+  releases: [{ releaseId: 'katrina-and-the-waves-walking-on-sunshine' }],
 
   sections: [
     {

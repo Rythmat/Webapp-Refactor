@@ -30,6 +30,7 @@ import {
   getTrackAudioState,
 } from '@/daw/hooks/usePlaybackEngine';
 import { useMeterLevel } from '@/daw/hooks/useMeterLevel';
+import { FixedDigits } from '@/components/common/FixedDigits';
 import { TRACK_PALETTES } from '@/daw/constants/trackColors';
 import type { DawTrackRole } from '@/daw/utils/trackRole';
 import { PresenceTrackDots } from '@/daw/collab/ui/PresenceTrackDots';
@@ -524,14 +525,15 @@ export const TrackHeader = memo(function TrackHeader({
             aria-label="Volume"
           />
         </Slider.Root>
-        <span
-          className="ml-0.5 w-8 shrink-0 text-right font-mono text-[9px] tabular-nums"
+        <FixedDigits
+          text={
+            track.volume === 0
+              ? '-\u221E'
+              : `${(20 * Math.log10(track.volume)).toFixed(1)}`
+          }
+          className="ml-0.5 w-8 shrink-0 text-right text-[9px]"
           style={{ color: 'var(--color-text-dim)' }}
-        >
-          {track.volume === 0
-            ? '-\u221E'
-            : `${(20 * Math.log10(track.volume)).toFixed(1)}`}
-        </span>
+        />
       </div>
     </motion.div>
   );

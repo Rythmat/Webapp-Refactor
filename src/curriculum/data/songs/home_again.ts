@@ -16,6 +16,34 @@ export const home_again: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'a-m-studios' },
+  credits: [
+    {
+      name: 'Carole King',
+      role: 'vocals',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    {
+      name: 'Carole King',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    {
+      name: 'James Taylor',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'james-taylor',
+    },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+    { name: 'Charles Larkey', role: 'performer', instrument: 'upright-bass' },
+    { name: 'Russ Kunkel', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Lou Adler', role: 'producer', artistGlobeId: 'lou-adler' },
+    { name: 'Hank Cicalo', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'carole-king-tapestry' }],
 
   sections: [
     {

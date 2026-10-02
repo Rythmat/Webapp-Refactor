@@ -16,6 +16,17 @@ export const virtual_insanity: Song = {
   difficulty: 3,
   genreTags: ['funk'],
   techniques: [],
+  session: { studioId: 'great-linford-manor' },
+  credits: [
+    { name: 'Jay Kay', role: 'producer', artistGlobeId: 'jay-kay' },
+    { name: 'Al Stone', role: 'producer', artistGlobeId: 'al-stone' },
+    { name: 'Simon Katz', role: 'performer', artistGlobeId: 'simon-katz' },
+    { name: 'Jay Kay', role: 'songwriter', artistGlobeId: 'jay-kay' },
+    { name: 'Al Stone', role: 'engineer', artistGlobeId: 'al-stone' },
+    { name: 'Toby Smith', role: 'songwriter', artistGlobeId: 'toby-smith' },
+    { name: 'Jay Kay', role: 'arranger', artistGlobeId: 'jay-kay' },
+  ],
+  releases: [{ releaseId: 'jamiroquai-travelling-without-moving', track: 1 }],
 
   sections: [
     {

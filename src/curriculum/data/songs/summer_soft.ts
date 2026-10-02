@@ -16,6 +16,46 @@ export const summer_soft: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Ronnie Foster', role: 'performer', instrument: 'organ' },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    { name: 'Ben Bridges', role: 'performer' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'synth-bass',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Stevie Wonder', role: 'arranger', artistGlobeId: 'stevie-wonder' },
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+    {
+      name: 'Stevie Wonder',
+      role: 'vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Larry Latimer', role: 'performer', instrument: 'percussion' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-songs-in-the-key-of-life' }],
 
   sections: [
     {

@@ -16,6 +16,82 @@ export const creep: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'chipping-norton-recording-studios' },
+  credits: [
+    { name: 'Sean Slade', role: 'producer', artistGlobeId: 'sean-slade' },
+    {
+      name: 'Albert Hammond',
+      role: 'songwriter',
+      artistGlobeId: 'albert-hammond',
+    },
+    {
+      name: 'Colin Greenwood',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'colin-greenwood',
+    },
+    {
+      name: 'Jonny Greenwood',
+      role: 'performer',
+      instrument: 'organ',
+      artistGlobeId: 'jonny-greenwood',
+    },
+    {
+      name: 'Philip Selway',
+      role: 'songwriter',
+      artistGlobeId: 'philip-selway',
+    },
+    {
+      name: 'Jonny Greenwood',
+      role: 'songwriter',
+      artistGlobeId: 'jonny-greenwood',
+    },
+    {
+      name: 'Jonny Greenwood',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'jonny-greenwood',
+    },
+    {
+      name: 'Paul Q. Kolderie',
+      role: 'engineer',
+      artistGlobeId: 'paul-q-kolderie',
+    },
+    { name: 'Ed O’Brien', role: 'performer', artistGlobeId: 'ed-obrien' },
+    {
+      name: 'Colin Greenwood',
+      role: 'songwriter',
+      artistGlobeId: 'colin-greenwood',
+    },
+    {
+      name: 'Paul Q. Kolderie',
+      role: 'producer',
+      artistGlobeId: 'paul-q-kolderie',
+    },
+    { name: 'Ed O’Brien', role: 'vocals', artistGlobeId: 'ed-obrien' },
+    {
+      name: 'Mike Hazlewood',
+      role: 'songwriter',
+      artistGlobeId: 'mike-hazlewood',
+    },
+    { name: 'Thom Yorke', role: 'performer', artistGlobeId: 'thom-yorke' },
+    { name: 'Thom Yorke', role: 'songwriter', artistGlobeId: 'thom-yorke' },
+    { name: 'Thom Yorke', role: 'vocals', artistGlobeId: 'thom-yorke' },
+    { name: 'Ed O’Brien', role: 'songwriter', artistGlobeId: 'ed-obrien' },
+    {
+      name: 'Philip Selway',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'philip-selway',
+    },
+    {
+      name: 'Jonny Greenwood',
+      role: 'performer',
+      artistGlobeId: 'jonny-greenwood',
+    },
+    { name: 'Sean Slade', role: 'engineer', artistGlobeId: 'sean-slade' },
+  ],
+  releases: [{ releaseId: 'radiohead-pablo-honey', track: 2 }],
 
   sections: [
     {

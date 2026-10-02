@@ -7,17 +7,18 @@ import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.tsx';
 import { Env } from './constants/env.ts';
 import { AuthRoutes } from './constants/routes.ts';
 import './index.css';
+import './styles/appTheme.css';
 
 const renderStartupError = (message: string) => {
   const rootElement = document.getElementById('root');
   if (!rootElement) return;
 
   rootElement.innerHTML = `
-    <div style="min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;background:#111;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;">
+    <div style="min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;background:#111;color:#fff;font-family:'Glacial Indifference',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;">
       <div style="max-width:680px;width:100%;border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:20px;background:rgba(255,255,255,.04);">
         <h1 style="margin:0 0 10px;font-size:20px;">Startup Configuration Error</h1>
         <p style="margin:0 0 8px;opacity:.88;">The app could not start because required environment variables are missing or invalid.</p>
-        <pre style="margin:0;white-space:pre-wrap;opacity:.95;">${message}</pre>
+        <pre style="margin:0;white-space:pre-wrap;opacity:.95;font-family:inherit;">${message}</pre>
       </div>
     </div>
   `;

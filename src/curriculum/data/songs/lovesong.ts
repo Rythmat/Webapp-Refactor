@@ -16,6 +16,67 @@ export const lovesong: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'hook-end-studios' },
+  credits: [
+    {
+      name: 'Porl Thompson',
+      role: 'performer',
+      artistGlobeId: 'porl-thompson',
+    },
+    { name: 'Simon Gallup', role: 'songwriter', artistGlobeId: 'simon-gallup' },
+    { name: 'Chris Parry', role: 'engineer' },
+    { name: 'Mark Saunders', role: 'engineer' },
+    { name: 'Robert Smith', role: 'vocals', artistGlobeId: 'robert-smith' },
+    { name: 'Robert Smith', role: 'engineer', artistGlobeId: 'robert-smith' },
+    { name: 'Lol Tolhurst', role: 'performer', artistGlobeId: 'lol-tolhurst' },
+    { name: 'Robert Smith', role: 'songwriter', artistGlobeId: 'robert-smith' },
+    { name: 'Lol Tolhurst', role: 'songwriter', artistGlobeId: 'lol-tolhurst' },
+    {
+      name: 'David M. Allen',
+      role: 'producer',
+      artistGlobeId: 'david-m-allen',
+    },
+    { name: 'Robert Smith', role: 'producer', artistGlobeId: 'robert-smith' },
+    {
+      name: 'Porl Thompson',
+      role: 'songwriter',
+      artistGlobeId: 'porl-thompson',
+    },
+    { name: 'Robert Smith', role: 'performer', artistGlobeId: 'robert-smith' },
+    {
+      name: 'Boris Williams',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'boris-williams',
+    },
+    {
+      name: 'David M. Allen',
+      role: 'engineer',
+      artistGlobeId: 'david-m-allen',
+    },
+    {
+      name: 'Roger O’Donnell',
+      role: 'performer',
+      artistGlobeId: 'roger-odonnell',
+    },
+    {
+      name: 'Simon Gallup',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'simon-gallup',
+    },
+    {
+      name: 'Boris Williams',
+      role: 'songwriter',
+      artistGlobeId: 'boris-williams',
+    },
+    {
+      name: 'Roger O’Donnell',
+      role: 'songwriter',
+      artistGlobeId: 'roger-odonnell',
+    },
+  ],
+  releases: [{ releaseId: 'the-cure-disintegration', track: 4 }],
 
   sections: [
     {

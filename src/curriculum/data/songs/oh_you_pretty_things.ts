@@ -16,6 +16,38 @@ export const oh_you_pretty_things: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'trident-studios' },
+  credits: [
+    { name: 'Mick Woodmansey', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'David Bowie',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'Mick Ronson', role: 'performer', instrument: 'handclaps' },
+    { name: 'Mick Ronson', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'David Bowie',
+      role: 'performer',
+      instrument: 'handclaps',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'Ken Scott', role: 'engineer', artistGlobeId: 'ken-scott' },
+    { name: 'Trevor Bolder', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Mick Ronson', role: 'performer', instrument: 'electric-guitar' },
+    { name: 'David Bowie', role: 'songwriter', artistGlobeId: 'david-bowie' },
+    { name: 'Ken Scott', role: 'producer', artistGlobeId: 'ken-scott' },
+    {
+      name: 'David Bowie',
+      role: 'vocals',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'david-bowie-hunky-dory' }],
 
   sections: [
     {

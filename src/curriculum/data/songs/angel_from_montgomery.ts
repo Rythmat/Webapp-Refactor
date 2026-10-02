@@ -16,6 +16,30 @@ export const angel_from_montgomery: Song = {
   difficulty: 1,
   genreTags: ['folk'],
   techniques: [],
+  session: { studioId: 'american-sound-studio' },
+  credits: [
+    { name: 'Arif Mardin', role: 'producer', artistGlobeId: 'arif-mardin' },
+    { name: 'Bobby Emmons', role: 'performer', instrument: 'organ' },
+    { name: 'Stan Kesler', role: 'engineer' },
+    { name: 'John Prine', role: 'songwriter', artistGlobeId: 'john-prine' },
+    {
+      name: 'John Prine',
+      role: 'vocals',
+      artistGlobeId: 'john-prine',
+      primary: true,
+    },
+    { name: 'Bobby Wood', role: 'performer', instrument: 'piano' },
+    { name: 'John Christopher', role: 'performer' },
+    { name: 'Reggie Young', role: 'performer' },
+    {
+      name: 'John Prine',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'john-prine',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'john-prine-john-prine' }],
 
   sections: [
     {

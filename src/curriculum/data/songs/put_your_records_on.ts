@@ -16,6 +16,78 @@ export const put_your_records_on: Song = {
   difficulty: 3,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Jimmy Hogarth', role: 'producer', artistGlobeId: 'jimmy-hogarth' },
+    {
+      name: 'Corinne Bailey Rae',
+      role: 'songwriter',
+      artistGlobeId: 'corinne-bailey-rae',
+    },
+    {
+      name: 'Corinne Bailey Rae',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'corinne-bailey-rae',
+      primary: true,
+    },
+    {
+      name: 'Steve Chrisanthou',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'steve-chrisanthou',
+    },
+    { name: 'Joe Tatton', role: 'performer', instrument: 'hammond-organ' },
+    { name: 'John Beck', role: 'songwriter', artistGlobeId: 'john-beck' },
+    { name: 'Jeremy Wheatley', role: 'engineer' },
+    {
+      name: 'Corinne Bailey Rae',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'corinne-bailey-rae',
+      primary: true,
+    },
+    {
+      name: 'Corinne Bailey Rae',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'corinne-bailey-rae',
+      primary: true,
+    },
+    { name: 'Cara Robinson', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Jason Rae', role: 'performer', instrument: 'alto-sax' },
+    {
+      name: 'Steve Chrisanthou',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'steve-chrisanthou',
+    },
+    {
+      name: 'Steve Chrisanthou',
+      role: 'songwriter',
+      artistGlobeId: 'steve-chrisanthou',
+    },
+    { name: 'Jim Corry', role: 'performer', instrument: 'tenor-sax' },
+    {
+      name: 'Steve Chrisanthou',
+      role: 'engineer',
+      artistGlobeId: 'steve-chrisanthou',
+    },
+    {
+      name: 'Steve Chrisanthou',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'steve-chrisanthou',
+    },
+    { name: 'John Beck', role: 'performer', artistGlobeId: 'john-beck' },
+    {
+      name: 'Steve Chrisanthou',
+      role: 'producer',
+      artistGlobeId: 'steve-chrisanthou',
+    },
+    { name: 'Malcolm Strachan', role: 'performer', instrument: 'trumpet' },
+    { name: 'Samuel Dixon', role: 'performer', instrument: 'electric-bass' },
+  ],
+  releases: [{ releaseId: 'corinne-bailey-rae-corinne-bailey-rae', track: 3 }],
 
   sections: [
     {

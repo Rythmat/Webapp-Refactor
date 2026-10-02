@@ -548,7 +548,7 @@ export function PianoRoll({
       if (isBar) {
         const barNum = beat / beatsPerBar + 1;
         ctx.fillStyle = colors.textDim;
-        ctx.font = '10px Inter, sans-serif';
+        ctx.font = "10px 'Glacial Indifference', system-ui, sans-serif";
         ctx.fillText(String(barNum), x + 4, LOOP_STRIP_H + laneH / 2);
       }
     }
@@ -691,7 +691,7 @@ export function PianoRoll({
           ),
         );
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.font = `${Math.min(rowH - 4, 11)}px Inter, sans-serif`;
+        ctx.font = `${Math.min(rowH - 4, 11)}px 'Glacial Indifference', system-ui, sans-serif`;
         ctx.textBaseline = 'middle';
         ctx.fillText(noteName, x + 3, noteY + rowH / 2);
       }
@@ -1697,7 +1697,7 @@ export function PianoRoll({
             }}
             className="h-1 w-16 accent-white/50"
           />
-          <span className="w-6 text-right font-mono text-[10px] text-white/40">
+          <span className="w-6 text-right text-[10px] tabular-nums text-white/40">
             {velDisplay}
           </span>
         </div>
@@ -1710,7 +1710,7 @@ export function PianoRoll({
           {events.length} notes
         </span>
         <span
-          className="font-mono text-[10px]"
+          className="inline-block min-w-[13ch] text-right text-[10px] tabular-nums"
           style={{ color: 'var(--color-text-dim)' }}
         >
           H:{Math.round(zoom * 100)}% V:{Math.round(vZoom * 100)}%

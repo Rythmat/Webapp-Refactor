@@ -16,6 +16,67 @@ export const shape_of_you: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Ed Sheeran',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'ed-sheeran',
+      primary: true,
+    },
+    {
+      name: 'Wayne Hernandez',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Joe Rubel', role: 'engineer' },
+    { name: 'Daniel Pursey', role: 'engineer' },
+    {
+      name: 'Ed Sheeran',
+      role: 'vocals',
+      artistGlobeId: 'ed-sheeran',
+      primary: true,
+    },
+    { name: 'Ed Sheeran', role: 'producer', artistGlobeId: 'ed-sheeran' },
+    { name: 'Tjae Cole', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Geo Gabriel', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Ed Sheeran',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'ed-sheeran',
+      primary: true,
+    },
+    { name: 'Steve Mac', role: 'producer', artistGlobeId: 'steve-mac' },
+    { name: 'Ed Sheeran', role: 'songwriter', artistGlobeId: 'ed-sheeran' },
+    { name: 'Chris Laws', role: 'engineer' },
+    {
+      name: 'Kevin “She’kspere” Briggs',
+      role: 'songwriter',
+      artistGlobeId: 'kevin-shekspere-briggs',
+    },
+    { name: 'Mark “Spike” Stent', role: 'engineer' },
+    { name: 'Chris Laws', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Steve Mac', role: 'songwriter', artistGlobeId: 'steve-mac' },
+    {
+      name: 'Tameka “Tiny” Cottle',
+      role: 'songwriter',
+      artistGlobeId: 'tameka-tiny-cottle',
+    },
+    {
+      name: 'Ed Sheeran',
+      role: 'performer',
+      artistGlobeId: 'ed-sheeran',
+      primary: true,
+    },
+    { name: 'Kandi', role: 'songwriter', artistGlobeId: 'kandi' },
+    {
+      name: 'Johnny McDaid',
+      role: 'songwriter',
+      artistGlobeId: 'johnny-mcdaid',
+    },
+    { name: 'Steve Mac', role: 'performer', artistGlobeId: 'steve-mac' },
+  ],
 
   sections: [
     {

@@ -443,7 +443,6 @@ function RadialDial({ effects, matchScore }: DialProps) {
               dominantBaseline="middle"
               fill="#71717a"
               fontSize={9}
-              fontFamily="monospace"
             >
               {effect.label}
             </text>
@@ -486,7 +485,6 @@ function RadialDial({ effects, matchScore }: DialProps) {
             dominantBaseline="middle"
             fill="#52525b"
             fontSize={8}
-            fontFamily="monospace"
             style={{ textTransform: 'uppercase' }}
           >
             MATCH
@@ -586,12 +584,7 @@ export default function SoundSpinner({ onComplete }: SoundSpinnerProps) {
       {/* Header */}
       <div className="h-14 bg-[#121214] border-b border-zinc-800 flex items-center justify-between px-6">
         <div className="flex items-center gap-3">
-          <h2
-            className="text-lg font-semibold text-white"
-            style={{ fontFamily: '"Playfair Display", serif' }}
-          >
-            Sound Spinner
-          </h2>
+          <h2 className="text-lg font-semibold text-white">Sound Spinner</h2>
           <div className="flex gap-1">
             {(['creative', 'challenge'] as GameMode[]).map((m) => (
               <button
@@ -614,7 +607,7 @@ export default function SoundSpinner({ onComplete }: SoundSpinnerProps) {
         {mode === 'challenge' && (
           <span className="text-xs text-zinc-500">
             Rounds:{' '}
-            <span className="text-emerald-400 font-mono">{roundsWon}</span>
+            <span className="text-emerald-400 tabular-nums">{roundsWon}</span>
           </span>
         )}
       </div>
@@ -664,7 +657,7 @@ export default function SoundSpinner({ onComplete }: SoundSpinnerProps) {
                 className="flex-1 h-1.5"
                 style={{ accentColor: effect.color }}
               />
-              <span className="text-[10px] text-zinc-500 font-mono w-14 text-right">
+              <span className="text-[10px] text-zinc-500 tabular-nums w-14 text-right">
                 {effect.id === 'filter'
                   ? `${Math.round(effect.value)}Hz`
                   : effect.id === 'pitch'

@@ -16,6 +16,30 @@ export const if_its_magic: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'harmonica',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Stevie Wonder', role: 'arranger', artistGlobeId: 'stevie-wonder' },
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+    { name: 'Dorothy Ashby', role: 'performer', instrument: 'harp' },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-songs-in-the-key-of-life' }],
 
   sections: [
     {

@@ -16,6 +16,20 @@ export const gone_country: Song = {
   difficulty: 2,
   genreTags: ['folk', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'John Kelton', role: 'engineer' },
+    {
+      name: 'Alan Jackson',
+      role: 'vocals',
+      artistGlobeId: 'alan-jackson',
+      primary: true,
+    },
+    { name: 'Steve Lowery', role: 'engineer' },
+    { name: 'Paula Montondo', role: 'engineer' },
+    { name: 'Keith Stegall', role: 'producer', artistGlobeId: 'keith-stegall' },
+    { name: 'Bob McDill', role: 'songwriter', artistGlobeId: 'bob-mcdill' },
+  ],
+  releases: [{ releaseId: 'alan-jackson-who-i-am', track: 4 }],
 
   sections: [
     {

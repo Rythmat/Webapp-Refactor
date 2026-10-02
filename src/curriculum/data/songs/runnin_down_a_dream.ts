@@ -16,6 +16,20 @@ export const runnin_down_a_dream: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Jeff Lynne', role: 'producer', artistGlobeId: 'jeff-lynne' },
+    { name: 'Tom Petty', role: 'songwriter', artistGlobeId: 'tom-petty' },
+    { name: 'Tom Petty', role: 'producer', artistGlobeId: 'tom-petty' },
+    { name: 'Jeff Lynne', role: 'performer', artistGlobeId: 'jeff-lynne' },
+    { name: 'Mike Campbell', role: 'producer', artistGlobeId: 'mike-campbell' },
+    {
+      name: 'Mike Campbell',
+      role: 'songwriter',
+      artistGlobeId: 'mike-campbell',
+    },
+    { name: 'Jeff Lynne', role: 'songwriter', artistGlobeId: 'jeff-lynne' },
+  ],
+  releases: [{ releaseId: 'tom-petty-full-moon-fever', track: 5 }],
 
   sections: [
     {

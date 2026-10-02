@@ -16,6 +16,17 @@ export const its_not_unusual: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Les Reed', role: 'songwriter', artistGlobeId: 'les-reed' },
+    { name: 'Bill Price', role: 'engineer' },
+    { name: 'Gordon Mills', role: 'songwriter', artistGlobeId: 'gordon-mills' },
+    {
+      name: 'Peter Sullivan',
+      role: 'producer',
+      artistGlobeId: 'peter-sullivan',
+    },
+  ],
+  releases: [{ releaseId: 'tom-jones-along-came-jones' }],
 
   sections: [
     {

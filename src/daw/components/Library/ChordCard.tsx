@@ -122,7 +122,7 @@ export function ChordCard({
           {chord.intervals.split(' ').map((interval, i) => (
             <span
               key={i}
-              className="text-[9px] font-mono px-1 py-0.5 rounded"
+              className="text-[9px] px-1 py-0.5 rounded"
               style={{
                 backgroundColor: 'var(--color-surface-2)',
                 color:

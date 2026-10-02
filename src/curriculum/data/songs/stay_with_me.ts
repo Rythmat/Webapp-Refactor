@@ -16,6 +16,18 @@ export const stay_with_me: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Jimmy Napes', role: 'songwriter', artistGlobeId: 'jimmy-napes' },
+    {
+      name: 'Will Phillips',
+      role: 'songwriter',
+      artistGlobeId: 'will-phillips',
+    },
+    { name: 'Jeff Lynne', role: 'songwriter', artistGlobeId: 'jeff-lynne' },
+    { name: 'Sam Smith', role: 'songwriter', artistGlobeId: 'sam-smith' },
+    { name: 'Tom Petty', role: 'songwriter', artistGlobeId: 'tom-petty' },
+  ],
+  releases: [{ releaseId: 'sam-smith-in-the-lonely-hour', track: 3 }],
 
   sections: [
     {

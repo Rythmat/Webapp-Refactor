@@ -16,6 +16,69 @@ export const loves_in_need_of_love_today: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Stevie Wonder', role: 'arranger', artistGlobeId: 'stevie-wonder' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'synth-bass',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'clavinet',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'fender-rhodes',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Eddie “Bongo” Brown',
+      role: 'performer',
+      instrument: 'percussion',
+    },
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-songs-in-the-key-of-life' }],
 
   sections: [
     {

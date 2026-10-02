@@ -16,6 +16,58 @@ export const just_the_two_of_us: Song = {
   difficulty: 2,
   genreTags: ['funk', 'rnb'],
   techniques: [],
+  session: { studioId: 'rosebud-recording-studio' },
+  credits: [
+    {
+      name: 'Grover Washington, Jr.',
+      role: 'producer',
+      artistGlobeId: 'grover-washington-jr',
+    },
+    { name: 'William Eaton', role: 'arranger' },
+    {
+      name: 'Ralph MacDonald',
+      role: 'songwriter',
+      artistGlobeId: 'ralph-macdonald',
+    },
+    {
+      name: 'Ralph MacDonald',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'ralph-macdonald',
+    },
+    {
+      name: 'Bill Withers',
+      role: 'vocals',
+      primary: true,
+      artistGlobeId: 'bill-withers',
+    },
+    { name: 'Steve Gadd', role: 'performer', instrument: 'drum-kit' },
+    { name: 'William Eaton', role: 'performer', instrument: 'synthesizer' },
+    {
+      name: 'Bill Withers',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'bill-withers',
+    },
+    {
+      name: 'Ralph MacDonald',
+      role: 'producer',
+      artistGlobeId: 'ralph-macdonald',
+    },
+    { name: 'Eric Gale', role: 'performer' },
+    {
+      name: 'Grover Washington, Jr.',
+      role: 'performer',
+      artistGlobeId: 'grover-washington-jr',
+      primary: true,
+    },
+    { name: 'Bill Salter', role: 'songwriter', artistGlobeId: 'bill-salter' },
+    { name: 'William Eaton', role: 'conductor' },
+    { name: 'Richard Alderson', role: 'engineer' },
+    { name: 'Bill Withers', role: 'songwriter', artistGlobeId: 'bill-withers' },
+    { name: 'Marcus Miller', role: 'performer' },
+    { name: 'Richard Tee', role: 'performer', instrument: 'fender-rhodes' },
+  ],
 
   sections: [
     {

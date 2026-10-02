@@ -151,7 +151,7 @@ export const PlanPage = () => {
       <div className="rounded-lg border p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="size-5 text-amber-500" />
+            <Sparkles className="size-5 text-white/80" />
             <span className="font-medium">Credits</span>
           </div>
           <span className="text-sm text-muted-foreground capitalize">

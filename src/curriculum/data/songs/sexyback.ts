@@ -16,6 +16,49 @@ export const sexyback: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  session: { studioId: 'thomas-crown-studio' },
+  credits: [
+    {
+      name: 'Justin Timberlake',
+      role: 'songwriter',
+      artistGlobeId: 'justin-timberlake',
+    },
+    { name: 'Jimmy Douglass', role: 'engineer' },
+    { name: 'Timbaland', role: 'engineer', artistGlobeId: 'timbaland' },
+    { name: 'Timbaland', role: 'songwriter', artistGlobeId: 'timbaland' },
+    {
+      name: 'Justin Timberlake',
+      role: 'producer',
+      artistGlobeId: 'justin-timberlake',
+    },
+    { name: 'Darryl “Day” Pearson', role: 'performer' },
+    {
+      name: 'Timbaland',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'timbaland',
+    },
+    {
+      name: 'Justin Timberlake',
+      role: 'vocals',
+      artistGlobeId: 'justin-timberlake',
+      primary: true,
+    },
+    {
+      name: 'Danja',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'danja',
+    },
+    { name: 'Bill Pettaway', role: 'performer' },
+    { name: 'Timbaland', role: 'performer', artistGlobeId: 'timbaland' },
+    { name: 'Timbaland', role: 'producer', artistGlobeId: 'timbaland' },
+    { name: 'Timbaland', role: 'vocals', artistGlobeId: 'timbaland' },
+    { name: 'Danja', role: 'performer', artistGlobeId: 'danja' },
+    { name: 'Danja', role: 'songwriter', artistGlobeId: 'danja' },
+    { name: 'Danja', role: 'producer', artistGlobeId: 'danja' },
+  ],
+  releases: [{ releaseId: 'justin-timberlake-futuresex-lovesounds', track: 2 }],
 
   sections: [
     {

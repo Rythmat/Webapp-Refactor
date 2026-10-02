@@ -3,6 +3,12 @@ import SuperJSON from 'superjson';
 import { getCurrentAppSessionId } from '@/auth/app-session-store';
 import { Env } from '@/constants/env';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
+import {
+  CONTENT_MOCK,
+  CONTENT_REPO,
+  REPO_CONTENT_BASE,
+} from '@/features/admin/content/mock/mockSwitch';
+import { artifactsVersion as CLIENT_ARTIFACTS_VERSION } from '@/scripts/apiContract/manifest.json';
 
 /**
  * Data hooks for the content back office.
@@ -12,13 +18,40 @@ import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
  * admin-only and change with the console rather than with the public contract.
  */
 
-export type ContentKind =
+/** The six kinds today's API serves. */
+export type LegacyContentKind =
   | 'globe_event'
   | 'globe_city'
   | 'song'
   | 'artist_location'
   | 'activity_flow'
   | 'fundamentals_flow';
+
+/**
+ * Kinds docs/console-content-api-contract.md adds. The console registers a
+ * kind only when `/capabilities` lists it (useCapabilities.ts), so being in
+ * this union says a kind can exist, not that the server has it.
+ */
+export type RecordContentKind =
+  | 'artist'
+  | 'release'
+  | 'studio'
+  | 'label'
+  | 'chord_progression';
+
+/**
+ * The Atlas's own vocabularies: genres, subgenres and session instruments,
+ * the repo's data in src/content/vocabulary/. Only the dev repo content
+ * server serves them (the contract has no kind for them: the API's copy is
+ * vocabulary.generated.json), with `id` as the identity, which never
+ * changes.
+ */
+export type VocabularyContentKind = 'genre' | 'subgenre' | 'instrument';
+
+export type ContentKind =
+  | LegacyContentKind
+  | RecordContentKind
+  | VocabularyContentKind;
 
 export type ContentStatus = 'draft' | 'published' | 'archived';
 
@@ -55,9 +88,21 @@ export interface ContentListItem {
   pendingAt: Date | null;
   pendingById: string | null;
   reviewNote: string | null;
+  /**
+   * Bumped on every stored change to the item (contract 5b, requested): a
+   * save sends it back as `expectedRevision`, and the server answers 409
+   * `REVISION_CONFLICT` when the item has moved since. Absent on today's
+   * API; the offline mock and the dev repo server send it.
+   */
+  revision?: number;
 }
 
 export interface ContentItemDetail extends ContentListItem {
+  /**
+   * The stored body. A new item that exists only as a proposal (`isNew` in
+   * `/pending`) has none yet, and its proposal stands in here as well as in
+   * `pendingBody`, so the editor can open it for review like any other item.
+   */
   body: Record<string, unknown>;
   overrides: Record<string, unknown> | null;
   /** The proposed body, when an edit is awaiting or was sent back from review. */
@@ -113,15 +158,99 @@ export interface ContentRelease {
   publishedAt: Date | null;
 }
 
+export type ValidationProblemCode =
+  | 'INVALID_BODY'
+  | 'SLUG_ID_MISMATCH'
+  | 'DUPLICATE_ID'
+  | 'DANGLING_REFERENCE'
+  // Added by the contract (priority 7); older servers never send them.
+  | 'INVALID_REFERENCE'
+  | 'UNPUBLISHED_REFERENCE'
+  | 'REFERENCE_CYCLE'
+  | 'UNKNOWN_VOCAB_ID'
+  | 'UNKNOWN_CODE_ID'
+  // The dev repo content server only, as a warning: a status the repo files
+  // cannot hold (a draft of anything but a song) was saved as they can.
+  | 'REPO_NO_DRAFTS'
+  // The dev repo content server's vocabulary rules
+  // (src/content/vocabulary/validate.ts). Errors: a genre's `taught` changed
+  // (IMMUTABLE_ID), a globe tag on two records or on a list that says it is
+  // no genre (DUPLICATE_TAG). Warnings: a genre named like a registered
+  // artist, two records' tags the importer reads as one, a tag the
+  // importer's aliases lead to taken off.
+  | 'IMMUTABLE_ID'
+  | 'DUPLICATE_TAG'
+  | 'NAME_COLLISION'
+  | 'TAG_FOLDS_TOGETHER'
+  | 'ALIAS_TAG_REMOVED'
+  // The offline mock and the dev repo content server: a chord progression
+  // with the same chords as another (src/curriculum/engine/
+  // progressionValidation.ts). Its other rules are INVALID_BODY.
+  | 'DUPLICATE_PROGRESSION';
+
 export interface ValidationProblem {
-  code:
-    | 'INVALID_BODY'
-    | 'SLUG_ID_MISMATCH'
-    | 'DUPLICATE_ID'
-    | 'DANGLING_REFERENCE';
+  code: ValidationProblemCode;
   slug: string;
   detail: string;
+  /** Absent means 'error', which is what every problem meant before. */
+  severity?: 'error' | 'warning';
+  /** The body path with indices: 'credits[2].artistGlobeId'. */
+  path?: string;
+  /** What the value names, as '<kind>:<slug>'. */
+  target?: string;
 }
+
+/** The body of a non-2xx response: `{ error, code?, ...details }`. */
+export interface ContentApiErrorBody {
+  error?: string;
+  code?: string;
+  [detail: string]: unknown;
+}
+
+/**
+ * A non-2xx answer from the content API, with its status and body intact.
+ *
+ * The message is the body's `error`, which is written to be shown to the user
+ * as it is, so existing `error.message` readers keep working; callers that
+ * need to branch (a 404 from /capabilities, a 409 SLUG_TAKEN) read `status`
+ * and `code`.
+ */
+export class ContentApiError extends Error {
+  readonly status: number;
+  readonly body: ContentApiErrorBody;
+
+  constructor(
+    status: number,
+    body: ContentApiErrorBody,
+    fallbackMessage = `Request failed: ${status}`,
+  ) {
+    super(
+      typeof body.error === 'string' && body.error
+        ? body.error
+        : fallbackMessage,
+    );
+    this.name = 'ContentApiError';
+    this.status = status;
+    this.body = body;
+  }
+
+  get code(): string | undefined {
+    return typeof this.body.code === 'string' ? this.body.code : undefined;
+  }
+}
+
+/** Build the error from a failed response; the body may not be JSON at all. */
+export const contentApiErrorFrom = async (
+  res: Response,
+  fallbackMessage?: string,
+): Promise<ContentApiError> => {
+  const parsed: unknown = await res.json().catch(() => ({}));
+  const body =
+    parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? (parsed as ContentApiErrorBody)
+      : {};
+  return new ContentApiError(res.status, body, fallbackMessage);
+};
 
 /**
  * The same authed fetch the hooks use, for the one caller that cannot be a
@@ -135,9 +264,28 @@ export const contentRequest = <T = unknown>(
 ): Promise<T> => fetchWithAuth<T>(contentPath(path), token, options);
 
 function contentPath(path: string) {
-  const apiBase = Env.get('VITE_MUSIC_ATLAS_API_URL', { nullable: true }) ?? '';
+  // DEV only: repo mode's server, same origin on the dev server
+  // (mockSwitch.ts). The literal `import.meta.env.DEV` folds the branch,
+  // and its path, out of a production build.
+  const apiBase =
+    import.meta.env.DEV && CONTENT_REPO
+      ? (REPO_CONTENT_BASE ?? '')
+      : (Env.get('VITE_MUSIC_ATLAS_API_URL', { nullable: true }) ?? '');
   return `${apiBase}/api/admin/content${path}`;
 }
+
+/**
+ * The artifacts version the server reported in `/capabilities`, or null when
+ * it reported none (or has no such endpoint). The contract says to send ours
+ * only to a server that reported one: the API is cross-origin, and a header
+ * its CORS allow-list does not name would fail every request's preflight.
+ */
+let serverArtifactsVersion: number | null = null;
+
+/** Set by useCapabilities from what `/capabilities` said. */
+export const noteServerArtifactsVersion = (version: number | null) => {
+  serverArtifactsVersion = version;
+};
 
 async function fetchWithAuth<T = unknown>(
   url: string,
@@ -145,28 +293,46 @@ async function fetchWithAuth<T = unknown>(
   options?: RequestInit,
 ): Promise<T> {
   const appSessionId = getCurrentAppSessionId();
-  const res = await fetch(url, {
+  const init: RequestInit = {
     ...options,
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
       ...(appSessionId ? { 'X-App-Session': appSessionId } : {}),
+      ...(serverArtifactsVersion !== null
+        ? { 'X-Content-Artifacts': String(CLIENT_ARTIFACTS_VERSION) }
+        : {}),
       ...options?.headers,
     },
-  });
+  };
 
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(
-      (body as { error?: string }).error ?? `Request failed: ${res.status}`,
-    );
-  }
+  // DEV only: the offline mock answers instead of the network. The literal
+  // `import.meta.env.DEV` has to be here, at the import, and not only inside
+  // CONTENT_MOCK: the bundler drops a dead import() call either way, but it
+  // still emits the imported chunk unless the branch is dead in this module.
+  const res =
+    import.meta.env.DEV && CONTENT_MOCK
+      ? await (
+          await import('@/features/admin/content/mock/handleMockRequest')
+        ).handleMockRequest(url, init)
+      : await fetch(url, init);
+
+  if (!res.ok) throw await contentApiErrorFrom(res);
 
   const text = await res.text();
   return text ? (SuperJSON.parse(text) as T) : (undefined as T);
 }
 
-const CONTENT_KEY = ['admin', 'content'] as const;
+/**
+ * Every content query lives under this key, the exports the Table, the mind
+ * map and Integrity build their working graph from included
+ * (`useContentExport.ts`). So every write here — save, delete, approve,
+ * reject, discard, publish — invalidates the whole of it rather than guessing
+ * which queries a write can move: a save can move another item's row (a song
+ * and its globe event), and the working graph's fingerprint makes an
+ * unchanged refetch rebuild nothing.
+ */
+export const CONTENT_KEY = ['admin', 'content'] as const;
 
 export const useContentOverview = () => {
   const { token } = useAuthContext();
@@ -183,7 +349,19 @@ export interface DerivationHealth {
   matched: number;
   defaultedToNewYork: number;
   artistLocationCount: number;
-  unmatchedArtists: { artist: string; songCount: number; songs: string[] }[];
+  /** How the placed songs were placed; from servers on the contract. */
+  placedBy?: {
+    basedInPlace: number;
+    artistLocation: number;
+    defaulted: number;
+  };
+  unmatchedArtists: {
+    /** The artist slug each row groups by; from servers on the contract. */
+    slug?: string;
+    artist: string;
+    songCount: number;
+    songs: string[];
+  }[];
 }
 
 /**
@@ -256,26 +434,67 @@ export const useContentItem = (id: string | undefined) => {
   });
 };
 
+export interface SaveContentInput {
+  kind: ContentKind;
+  /** Equals `body[identity]`: `id` for today's kinds, `slug` for the records. */
+  slug: string;
+  body: unknown;
+  status?: ContentStatus;
+  note?: string;
+  overrides?: unknown;
+  /**
+   * Create only: the server answers 409 SLUG_TAKEN instead of overwriting.
+   * Send it only when `/capabilities` reports `features.create`; a server
+   * that drops the unknown key would run its upsert.
+   */
+  create?: true;
+  /**
+   * The item's `revision` the edit started from (contract 5b): the server
+   * writes nothing, and answers 409 `REVISION_CONFLICT` with its current
+   * `revision`, when the item has moved since. Left out, today's upsert.
+   */
+  expectedRevision?: number;
+}
+
+export interface SaveContentResult {
+  item: ContentItemDetail;
+  /** Problems that did not block the save, such as a link to a draft. */
+  warnings: ValidationProblem[];
+}
+
+/**
+ * A PUT's 2xx body. Servers on the contract answer `{ item, warnings }`;
+ * today's answer with the bare item. A detail never has an `item` key, so its
+ * presence tells the two apart.
+ */
+export const unwrapSaveResponse = (raw: unknown): SaveContentResult => {
+  if (raw && typeof raw === 'object' && 'item' in raw) {
+    const { item, warnings } = raw as {
+      item: ContentItemDetail;
+      warnings?: unknown;
+    };
+    return {
+      item,
+      warnings: Array.isArray(warnings)
+        ? (warnings as ValidationProblem[])
+        : [],
+    };
+  }
+  return { item: raw as ContentItemDetail, warnings: [] };
+};
+
 export const useSaveContentItem = () => {
   const { token } = useAuthContext();
   const queryClient = useQueryClient();
 
-  return useMutation<
-    ContentItemDetail,
-    Error,
-    {
-      kind: ContentKind;
-      slug: string;
-      body: unknown;
-      status?: ContentStatus;
-      note?: string;
-    }
-  >({
-    mutationFn: (input) =>
-      fetchWithAuth(contentPath('/items'), token!, {
-        method: 'PUT',
-        body: JSON.stringify(input),
-      }),
+  return useMutation<SaveContentResult, Error, SaveContentInput>({
+    mutationFn: async (input) =>
+      unwrapSaveResponse(
+        await fetchWithAuth(contentPath('/items'), token!, {
+          method: 'PUT',
+          body: JSON.stringify(input),
+        }),
+      ),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: CONTENT_KEY });
     },

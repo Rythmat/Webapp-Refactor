@@ -4,7 +4,7 @@ export const air: Song = {
   id: 'air',
   title: 'Air',
   artist: 'Talking Heads',
-  year: undefined,
+  year: 1979,
 
   historicalDescription:
     "Talking Heads release 'Air' on their landmark album 'Fear of Music', a track that captures the band at their most anxious and cerebral. David Byrne's paranoid lyricism pairs with the band's tightly coiled funk-inflected rock, reflecting New York's late-70s art scene at its most restless and inventive. The album cements Talking Heads as intellectual architects of the new wave movement.",
@@ -17,6 +17,27 @@ export const air: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'the-record-plant-mobile-studio' },
+  credits: [
+    { name: 'Rod O’Brien', role: 'engineer' },
+    {
+      name: 'The Sweetbreathes',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      ensemble: true,
+    },
+    {
+      name: 'Talking Heads',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'talking-heads',
+    },
+    { name: 'Brian Eno', role: 'producer', artistGlobeId: 'brian-eno' },
+    { name: 'Ari Up', role: 'performer', instrument: 'congas' },
+    { name: 'Gene Wilder', role: 'performer', instrument: 'congas' },
+    { name: 'David Byrne', role: 'songwriter', artistGlobeId: 'david-byrne' },
+  ],
+  releases: [{ releaseId: 'talking-heads-fear-of-music' }],
 
   sections: [
     {

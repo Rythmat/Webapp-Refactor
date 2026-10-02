@@ -4,7 +4,7 @@ export const midnight_train_to_georgia: Song = {
   id: 'midnight_train_to_georgia',
   title: 'Midnight Train To Georgia',
   artist: 'Gladys Knight and the Pips',
-  year: undefined,
+  year: 1973,
 
   historicalDescription:
     "Gladys Knight and the Pips release 'Midnight Train to Georgia', a soulful story of love and sacrifice that becomes one of the defining recordings of 1970s R&B. Knight's powerhouse vocal — aching with conviction — and the Pips' silky counterpoint elevate a tale of leaving Los Angeles behind into something universally human. The song wins the Grammy for Best R&B Song and cements the group's legacy.",

@@ -468,7 +468,7 @@ export function GlobeCdn({
           >
             <span
               style={{
-                fontFamily: 'monospace',
+                fontFamily: "'Glacial Indifference', system-ui, sans-serif",
                 fontSize: '0.55rem',
                 color: '#fff',
                 background: 'rgba(0, 0, 0, 0.65)',

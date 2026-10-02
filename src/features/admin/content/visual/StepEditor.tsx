@@ -11,6 +11,7 @@ import type {
   StyleSubProfile,
   TargetNote,
 } from '@/curriculum/types/activity.v2';
+import { CONSOLE_LABEL, CONSOLE_PANEL, consoleTabClass } from '../../ui/styles';
 import {
   DetailCell,
   IconButton,
@@ -90,20 +91,14 @@ export const StepEditor: FC<{
     <div className="flex flex-col gap-5 border-t border-white/[0.06] bg-black/20 p-4">
       {/* ── What kind of activity this is ── */}
       <section>
-        <h4 className="mb-2 text-xs font-medium uppercase tracking-wide text-white/40">
-          Activity
-        </h4>
+        <h4 className={`mb-2 ${CONSOLE_LABEL}`}>Activity</h4>
         <div className="flex flex-wrap gap-1.5">
           {ACTIVITY_PRESETS.map((option) => (
             <button
               key={option.id}
               type="button"
               aria-pressed={option.id === presetId}
-              className={`rounded-lg border px-3 py-1.5 text-xs transition-colors ${
-                option.id === presetId
-                  ? 'border-[#60a5fa66] bg-[#60a5fa1a] text-[#93c5fd]'
-                  : 'border-white/10 bg-white/[0.03] text-white/50 hover:border-white/25 hover:text-white'
-              }`}
+              className={consoleTabClass(option.id === presetId, 'sm')}
               onClick={() =>
                 onChange(applyPreset(step, option.id as ActivityPresetId))
               }
@@ -112,7 +107,7 @@ export const StepEditor: FC<{
             </button>
           ))}
         </div>
-        <p className="mt-2 text-xs leading-relaxed text-white/35">
+        <p className="mt-2 text-xs leading-relaxed text-white/45">
           {preset.blurb}
         </p>
       </section>
@@ -128,7 +123,7 @@ export const StepEditor: FC<{
             onChange={(value) => patch({ activity: value })}
             placeholder="A1.1: D Minor Pentatonic Ascending (Out of Time)"
             ariaLabel="Step name"
-            className="text-base font-medium text-white"
+            className="text-base font-medium tracking-[-0.01em] text-white"
           />
         </DetailCell>
         <DetailCell label="Subsection">
@@ -172,7 +167,7 @@ export const StepEditor: FC<{
             onChange={(value) => patch({ tag: value })}
             placeholder="funk_l1_a1_1"
             ariaLabel="Tag"
-            className="font-mono text-xs"
+            className="text-xs"
           />
         </DetailCell>
         <DetailCell label="Style ref">
@@ -181,16 +176,14 @@ export const StepEditor: FC<{
             onChange={(value) => patch({ styleRef: value })}
             placeholder="l1a"
             ariaLabel="Style ref"
-            className="font-mono text-xs"
+            className="text-xs"
           />
         </DetailCell>
       </section>
 
       {/* ── The material: a scale, explicit notes, or both ── */}
       <section>
-        <h4 className="mb-2 text-xs font-medium uppercase tracking-wide text-white/40">
-          Notes &amp; scale
-        </h4>
+        <h4 className={`mb-2 ${CONSOLE_LABEL}`}>Notes &amp; scale</h4>
 
         <div className="mb-3 flex flex-wrap items-center gap-x-6 gap-y-2">
           <DetailCell label="Scale">
@@ -208,7 +201,7 @@ export const StepEditor: FC<{
               {step.scaleId && (
                 <button
                   type="button"
-                  className="text-xs text-white/30 transition-colors hover:text-white/70"
+                  className="text-xs text-white/45 transition-colors hover:text-white/80"
                   onClick={() =>
                     patch({ scaleId: undefined, scaleIntervals: undefined })
                   }
@@ -219,7 +212,7 @@ export const StepEditor: FC<{
             </div>
           </DetailCell>
           <DetailCell label="Intervals">
-            <span className="font-mono text-xs text-white/50">
+            <span className="text-xs tabular-nums text-white/55">
               {(step.scaleIntervals ?? []).join(' · ') || '—'}
             </span>
           </DetailCell>
@@ -241,7 +234,7 @@ export const StepEditor: FC<{
               }
               placeholder="inherit"
               ariaLabel="Groove id"
-              className="font-mono text-xs"
+              className="text-xs"
             />
           </DetailCell>
         </div>
@@ -257,9 +250,7 @@ export const StepEditor: FC<{
       {/* ── Engine settings the chosen activity brought with it ── */}
       {step.backing_parts && (
         <section>
-          <h4 className="mb-2 text-xs font-medium uppercase tracking-wide text-white/40">
-            Backing band
-          </h4>
+          <h4 className={`mb-2 ${CONSOLE_LABEL}`}>Backing band</h4>
           <div className="flex flex-wrap gap-x-8 gap-y-2">
             <PartToggles
               label="Engine plays"
@@ -295,9 +286,7 @@ export const StepEditor: FC<{
 
       {step.instrument_config && (
         <section>
-          <h4 className="mb-2 text-xs font-medium uppercase tracking-wide text-white/40">
-            Hands
-          </h4>
+          <h4 className={`mb-2 ${CONSOLE_LABEL}`}>Hands</h4>
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <DetailCell label="Hand config">
               <InlineSelect
@@ -378,9 +367,7 @@ const PartToggles: FC<{
   onChange: (values: string[]) => void;
 }> = ({ label, options, selected, onChange }) => (
   <div>
-    <div className="text-[10px] uppercase tracking-wide text-white/30">
-      {label}
-    </div>
+    <div className={CONSOLE_LABEL}>{label}</div>
     <div className="mt-1 flex gap-1">
       {options.map((option) => {
         const on = selected.includes(option);
@@ -389,11 +376,7 @@ const PartToggles: FC<{
             key={option}
             type="button"
             aria-pressed={on}
-            className={`rounded-full border px-2.5 py-0.5 text-xs transition-colors ${
-              on
-                ? 'border-[#60a5fa66] bg-[#60a5fa1a] text-[#93c5fd]'
-                : 'border-white/10 text-white/35 hover:text-white/80'
-            }`}
+            className={consoleTabClass(on, 'sm')}
             onClick={() =>
               onChange(
                 on
@@ -449,25 +432,25 @@ const TargetNoteEditor: FC<{
   };
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
+    <div className={`${CONSOLE_PANEL} p-3`}>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <span className="text-[10px] uppercase tracking-wide text-white/30">
+        <span className={CONSOLE_LABEL}>
           Target notes — click the keyboard to add
         </span>
         <div className="flex items-center gap-3">
-          <label className="flex cursor-pointer items-center gap-1.5 text-xs text-white/40">
+          <label className="flex cursor-pointer items-center gap-1.5 text-xs text-white/55">
             <input
               type="checkbox"
               checked={asChord}
               onChange={(e) => setAsChord(e.target.checked)}
-              className="size-3 accent-[#60a5fa]"
+              className="size-3 accent-white"
             />
             add as chord (same onset)
           </label>
           {notes.length > 0 && (
             <button
               type="button"
-              className="text-xs text-white/30 transition-colors hover:text-red-400"
+              className="text-xs text-white/45 transition-colors hover:text-red-400"
               onClick={() => onChange([])}
             >
               clear all
@@ -487,7 +470,7 @@ const TargetNoteEditor: FC<{
       </div>
 
       {notes.length === 0 ? (
-        <p className="mt-2 text-xs text-white/25">
+        <p className="mt-2 text-xs text-white/45">
           No explicit notes — the engine generates material from the scale
           above.
         </p>
@@ -502,7 +485,7 @@ const TargetNoteEditor: FC<{
                 {midiToNoteLabel(note.midi)}
               </span>
               <span className="inline-flex items-center gap-1">
-                <span className="text-white/30">start</span>
+                <span className="text-white/45">start</span>
                 <InlineNumber
                   value={note.onset}
                   onChange={(value) =>
@@ -519,7 +502,7 @@ const TargetNoteEditor: FC<{
                 <span className="text-white/25">({tickLabel(note.onset)})</span>
               </span>
               <span className="inline-flex items-center gap-1">
-                <span className="text-white/30">length</span>
+                <span className="text-white/45">length</span>
                 <InlineNumber
                   value={note.duration}
                   onChange={(value) =>

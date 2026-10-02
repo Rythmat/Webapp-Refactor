@@ -1,6 +1,6 @@
-import type { HistoricalEvent } from '@/components/atlas/types';
+import type { GlobeEventRecord } from '@/content/records/types';
 
-export const JAZZ_EVENTS: HistoricalEvent[] = [
+export const JAZZ_EVENTS: GlobeEventRecord[] = [
   {
     id: 'evt-jazz-nola-1923',
     year: 1923,
@@ -23,6 +23,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'brass',
     ],
     videoId: 'QW6YOUIcVlo',
+    artistIds: ['louis-armstrong'],
+    placeId: 'new-orleans',
   },
   {
     id: 'evt-bebop-nyc-1945',
@@ -48,6 +50,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'bebop',
     ],
     videoId: 'XIwhV-xGFAg',
+    artistIds: ['charlie-parker', 'dizzy-gillespie'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-cape-jazz-capetown-1974',
@@ -73,6 +77,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'shebeen',
     ],
     videoId: 'udBEC15_ALc',
+    artistIds: ['abdullah-ibrahim'],
+    placeId: 'cape-town',
   },
   {
     id: 'evt-swing-nyc-1938',
@@ -98,6 +104,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'jazz concert',
     ],
     videoId: 'FS0JOTmiieo',
+    artistIds: ['benny-goodman'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-ethiojazz-addis-1970',
@@ -123,6 +131,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'golden age',
     ],
     videoId: '0ApwZaao0Q8',
+    artistIds: ['mulatu-astatke', 'ethiopiques'],
+    placeId: 'addis-ababa',
   },
   {
     id: 'evt-kc-jazz-kansascity-1936',
@@ -148,6 +158,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'riff',
     ],
     videoId: 'oq7EPxMf-eo',
+    artistIds: ['count-basie', 'charlie-parker'],
+    placeId: 'kansas-city',
   },
   {
     id: 'evt-jazz-age-paris-1925',
@@ -167,6 +179,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'expatriate',
     ],
     videoId: 'duZ9XdqHLrc',
+    artistIds: ['josephine-baker'],
+    placeId: 'paris',
   },
   {
     id: 'evt-waaberi-mogadishu-1972',
@@ -192,6 +206,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'awesome tapes',
     ],
     videoId: 'd9sEVJpyoJI',
+    artistIds: ['waaberi'],
+    placeId: 'mogadishu',
   },
   {
     id: 'evt-jazz-copenhagen-1979',
@@ -215,6 +231,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'scandinavian jazz',
     ],
     videoId: 'eZE2ZZ79Yos',
+    placeId: 'copenhagen',
   },
   {
     id: 'evt-jazzfest-montreal-1980',
@@ -238,6 +255,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'quebec',
     ],
     videoId: 'YR4Fe3N4Uzc',
+    artistIds: ['miles-davis'],
+    placeId: 'montreal',
   },
   {
     id: 'evt-sask-jazz-saskatoon-1987',
@@ -261,6 +280,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'prairie jazz',
     ],
     videoId: 'kHh6t9OWF-w',
+    placeId: 'saskatoon',
   },
   {
     id: 'evt-sunra-birmingham-1914',
@@ -286,6 +306,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'pioneer',
     ],
     videoId: 'H1ToFXHW5pg',
+    artistIds: ['sun-ra'],
+    placeId: 'birmingham-al',
   },
   {
     id: 'evt-wesmontgomery-indianapolis-1955',
@@ -311,6 +333,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'self-taught',
     ],
     videoId: 'RLIgJ7t_O2k',
+    artistIds: ['wes-montgomery'],
+    placeId: 'indianapolis',
   },
   {
     id: 'evt-jazztouring-wichita-1936',
@@ -331,6 +355,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'count basie',
     ],
     videoId: 'VQxWSlDVtaA',
+    artistIds: ['count-basie'],
+    placeId: 'wichita',
   },
   {
     id: 'evt-ratpack-lasvegas-1960',
@@ -356,6 +382,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'residency',
     ],
     videoId: '8in4UfwFmR8',
+    artistIds: ['frank-sinatra'],
+    placeId: 'las-vegas',
   },
   {
     id: 'evt-jazzheritage-newark-1967',
@@ -376,6 +404,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'jazz heritage',
     ],
     videoId: 'sbQgp_apfUA',
+    artistIds: ['sarah-vaughan'],
+    placeId: 'newark',
   },
   {
     id: 'evt-charlestondance-charleston-1923',
@@ -401,6 +431,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'south carolina',
     ],
     videoId: '4ajtCKLTOiM',
+    placeId: 'charleston',
   },
   {
     id: 'evt-diaspora-nyc-afrocuban-jazz-1947',
@@ -428,6 +459,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'diaspora',
     ],
     videoId: 'KRAUJsITYLw',
+    artistIds: ['dizzy-gillespie', 'chano-pozo'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-diaspora-accra-armstrong-1956',
@@ -450,6 +483,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'congo square',
     ],
     videoId: 'V2XrVX-pUJQ',
+    artistIds: ['louis-armstrong', 'congo-square'],
+    placeId: 'accra',
   },
   {
     id: 'evt-jazz-recording-nola-1917',
@@ -474,6 +509,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'storyville',
     ],
     videoId: '5WojNaU4-kI',
+    artistIds: ['original-dixieland-jass-band'],
+    placeId: 'new-orleans',
   },
   {
     id: 'evt-jugband-memphis-1928',
@@ -495,6 +532,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'vaudeville',
     ],
     videoId: 'JlfIEpdrUhI',
+    placeId: 'memphis',
   },
   {
     id: 'evt-swing-nyc-1935',
@@ -520,6 +558,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'integration',
     ],
     videoId: 'WVx8qf8PVLI',
+    artistIds: ['benny-goodman'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-jazz-la-1942',
@@ -546,6 +586,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'south la',
     ],
     videoId: 'S2FV91K6Ylw',
+    artistIds: ['charles-mingus'],
+    placeId: 'los-angeles',
   },
 
   // ── Afro-Caribbean lineage ──────────────────────────────────────────
@@ -573,6 +615,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'diaspora',
     ],
     videoId: 'UMbLUDee41E',
+    artistIds: ['congo-square'],
+    placeId: 'new-orleans',
   },
   {
     id: 'evt-jazz-lil-hardin-chicago-1925',
@@ -599,6 +643,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'bandleader',
     ],
     videoId: 'w5GjYVh3QTU',
+    artistIds: ['lil-hardin-armstrong'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-jazz-armstrong-hotfive-chicago-1925',
@@ -624,6 +670,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'solo',
     ],
     videoId: 'xO3k-S_pqK4',
+    artistIds: ['louis-armstrong', 'hot-seven'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-jazz-jelly-roll-morton-chicago-1926',
@@ -649,6 +697,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'victor records',
     ],
     videoId: 'lyoFaPZHeos',
+    placeId: 'chicago',
   },
   {
     id: 'evt-jazz-ellington-cotton-club-1927',
@@ -674,6 +723,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'orchestra',
     ],
     videoId: '7zU_Y3B-6WA',
+    artistIds: ['duke-ellington'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-billie-holiday-nyc-1939',
@@ -699,6 +750,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'civil rights',
     ],
     videoId: '-0ltdvFtGxs',
+    artistIds: ['billie-holiday'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-mary-lou-williams-nyc-1945',
@@ -724,6 +777,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'mentor',
     ],
     videoId: 'JdljUTK8WUw',
+    artistIds: ['mary-lou-williams'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-parker-savoy-nyc-1945',
@@ -749,6 +804,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'bird',
     ],
     videoId: 'x14Q-jrLafM',
+    artistIds: ['charlie-parker'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-tito-puente-machito-nyc-1949',
@@ -775,6 +832,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'diaspora',
     ],
     videoId: 'H4hwEtEpTX0',
+    artistIds: ['tito-puente', 'machito'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-chet-baker-la-1952',
@@ -800,6 +859,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'lyrical',
     ],
     videoId: '3kFjz8YbaRU',
+    artistIds: ['chet-baker'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-jazz-sarah-vaughan-clifford-brown-1954',
@@ -825,6 +886,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'jazz standard',
     ],
     videoId: 'AUIhTB8fnYc',
+    artistIds: ['sarah-vaughan'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-art-blakey-messengers-nyc-1955',
@@ -850,6 +913,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'gospel',
     ],
     videoId: 'Cv9NSR-2DwM',
+    artistIds: ['art-blakey'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-ella-fitzgerald-songbooks-la-1956',
@@ -875,6 +940,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'standards',
     ],
     videoId: 'EzNbt6Ufcv4',
+    artistIds: ['ella-fitzgerald'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-jazz-monk-brilliant-corners-nyc-1956',
@@ -900,6 +967,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'pianist',
     ],
     videoId: 'AwlbjCzO9KU',
+    artistIds: ['thelonious-monk'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-sunra-arkestra-chicago-1956',
@@ -925,6 +994,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'electronic',
     ],
     videoId: 'YzxZPeYyE-k',
+    artistIds: ['sun-ra'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-jazz-melba-liston-nyc-1958',
@@ -950,6 +1021,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'big band',
     ],
     videoId: '-khsJ6L-Xbc',
+    artistIds: ['melba-liston', 'dizzy-gillespie', 'quincy-jones'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-ahmad-jamal-chicago-1958',
@@ -975,6 +1048,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'restraint',
     ],
     videoId: 'o0xv_Decyn8',
+    artistIds: ['ahmad-jamal'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-jazz-brubeck-time-out-1959',
@@ -1000,6 +1075,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'cool jazz',
     ],
     videoId: 'afuKcc65QwE',
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-miles-kind-of-blue-nyc-1959',
@@ -1026,6 +1102,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       '30th street studio',
     ],
     videoId: 'zqNTltOGh5c',
+    artistIds: ['miles-davis', 'john-coltrane', 'bill-evans'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-ornette-coleman-shape-nyc-1959',
@@ -1051,6 +1129,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'controversy',
     ],
     videoId: 'fRCyGJdec_k',
+    artistIds: ['ornette-coleman'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-mingus-ah-um-nyc-1959',
@@ -1076,6 +1156,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'protest',
     ],
     videoId: '4MXsJ9j23oo',
+    artistIds: ['charles-mingus'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-wes-montgomery-indianapolis-1960',
@@ -1101,6 +1183,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'influential',
     ],
     videoId: 'Z0lUADbznCA',
+    artistIds: ['wes-montgomery'],
+    placeId: 'indianapolis',
   },
   {
     id: 'evt-jazz-bill-evans-vanguard-1961',
@@ -1126,6 +1210,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'live recording',
     ],
     videoId: 'ylm1osX60os',
+    artistIds: ['bill-evans'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-shirley-scott-philly-1961',
@@ -1151,6 +1237,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'eddie lockjaw davis',
     ],
     videoId: 'C7jqe1GHFE4',
+    artistIds: ['shirley-scott'],
+    placeId: 'philadelphia',
   },
   {
     id: 'evt-jazz-nina-simone-mississippi-goddam-1964',
@@ -1176,6 +1264,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'pianist',
     ],
     videoId: 'teqWnF-HD1M',
+    artistIds: ['nina-simone'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-stan-getz-bossa-nova-nyc-1964',
@@ -1201,6 +1291,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'crossover',
     ],
     videoId: 'sVdaFQhS86E',
+    artistIds: ['stan-getz', 'joao-gilberto'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-coltrane-love-supreme-1965',
@@ -1226,6 +1318,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'saxophone',
     ],
     videoId: '-J9Dj1AFZvg',
+    artistIds: ['john-coltrane', 'mccoy-tyner'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-wayne-shorter-speak-no-evil-1966',
@@ -1251,6 +1345,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'saxophone',
     ],
     videoId: 'Vdc3KJVopU4',
+    artistIds: ['wayne-shorter', 'freddie-hubbard', 'herbie-hancock'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-mccoy-tyner-real-mccoy-1967',
@@ -1276,6 +1372,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'coltrane quartet',
     ],
     videoId: '8p00o_7di_M',
+    artistIds: ['mccoy-tyner'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-miles-bitches-brew-1970',
@@ -1301,6 +1399,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'columbia records',
     ],
     videoId: 'PDjMAhzZP7w',
+    artistIds: ['miles-davis'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-carla-bley-escalator-nyc-1971',
@@ -1326,6 +1426,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'triple album',
     ],
     videoId: 'YzPmmqwZGSk',
+    artistIds: ['carla-bley'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-chick-corea-return-to-forever-1972',
@@ -1352,6 +1454,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'electric',
     ],
     videoId: '5Y4dNtZ-hbA',
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-herbie-hancock-headhunters-la-1973',
@@ -1377,6 +1480,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'groove',
     ],
     videoId: 'iqomTAiRnVM',
+    artistIds: ['herbie-hancock'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-jazz-keith-jarrett-koln-1975',
@@ -1402,6 +1507,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'best seller',
     ],
     videoId: 'Pd_Kti6jvy8',
+    artistIds: ['keith-jarrett'],
+    placeId: 'cologne',
   },
   {
     id: 'evt-jazz-pat-metheny-bright-size-life-1976',
@@ -1427,6 +1534,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'lyrical',
     ],
     videoId: 'ObOVQvsHE2Y',
+    artistIds: ['pat-metheny'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-weather-report-heavy-weather-la-1977',
@@ -1452,6 +1561,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'fretless bass',
     ],
     videoId: 'HEU-m_KVuYI',
+    artistIds: ['weather-report', 'wayne-shorter'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-jazz-wynton-marsalis-black-codes-1985',
@@ -1477,6 +1588,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'trumpet',
     ],
     videoId: '8Rw9bgGPfPU',
+    artistIds: ['wynton-marsalis'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-brad-mehldau-largo-la-2002',
@@ -1503,6 +1616,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'post-bop',
     ],
     videoId: 'aXCFcXQ8src',
+    artistIds: ['brad-mehldau', 'jon-brion', 'radiohead'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-jazz-maria-schneider-concert-garden-nyc-2004',
@@ -1528,6 +1643,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'orchestral jazz',
     ],
     videoId: '3Kcqo39814U',
+    artistIds: ['maria-schneider'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jazz-terri-lyne-carrington-boston-2011',
@@ -1554,6 +1671,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'women in jazz',
     ],
     videoId: 'zRhG6RwLpEU',
+    artistIds: ['terri-lyne-carrington', 'esperanza-spalding'],
+    placeId: 'boston',
   },
   {
     id: 'evt-jazz-kamasi-washington-the-epic-la-2015',
@@ -1580,6 +1699,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'new generation',
     ],
     videoId: '0YbPSIXQ4q4',
+    artistIds: ['kamasi-washington', 'kendrick-lamar'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-jazz-esperanza-spalding-portland-2016',
@@ -1605,6 +1726,8 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'art pop',
     ],
     videoId: 'uHLxn8MEjLA',
+    artistIds: ['esperanza-spalding'],
+    placeId: 'portland',
   },
   {
     id: 'evt-jazz-artemis-nyc-2017',
@@ -1630,5 +1753,7 @@ export const JAZZ_EVENTS: HistoricalEvent[] = [
       'female pioneer',
     ],
     videoId: 'UwniiL80rNo',
+    artistIds: ['artemis'],
+    placeId: 'new-york',
   },
 ];

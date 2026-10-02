@@ -8,11 +8,6 @@ export interface TechniqueItem {
   route: string;
   image: string;
   interactive: boolean;
-  /**
-   * Saved-items id. Piano tiles are saved by title (as they always were);
-   * guitar tiles share piano's titles, so they carry their own id.
-   */
-  savedId?: string;
 }
 
 export const PIANO_TECHNIQUE_DATA: readonly TechniqueItem[] = [
@@ -30,17 +25,9 @@ export const PIANO_TECHNIQUE_DATA: readonly TechniqueItem[] = [
   },
 ];
 
-// The Guitar Atlas has no Guitar Fundamentals pages yet, so guitar starts with
-// its key centers: the guitar Applied Theory Fundamentals.
-export const GUITAR_TECHNIQUE_DATA: readonly TechniqueItem[] = [
-  {
-    title: 'Applied Theory Fundamentals',
-    savedId: 'guitar:applied-theory-fundamentals',
-    route: CurriculumRoutes.guitarAppliedTheoryFundamentals(),
-    image: '/learn-tiles/beginner-hex.svg',
-    interactive: true,
-  },
-];
+// Guitar has no Technique lessons yet: The Guitar Atlas's key centers are
+// Theory → Ionian (Major) on guitar, and the Technique tab is hidden there.
+const GUITAR_TECHNIQUE_DATA: readonly TechniqueItem[] = [];
 
 export function techniqueDataFor(
   instrument: LearnInstrument,

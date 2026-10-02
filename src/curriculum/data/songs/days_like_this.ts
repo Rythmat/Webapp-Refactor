@@ -16,6 +16,41 @@ export const days_like_this: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'the-wool-hall' },
+  credits: [
+    { name: 'Van Morrison', role: 'songwriter', artistGlobeId: 'van-morrison' },
+    { name: 'Teena Lyle', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Leo Green', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Pee Wee Ellis', role: 'arranger' },
+    { name: 'Pee Wee Ellis', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Geoff Dunn', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'Ronnie Johnson',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    { name: 'Nicky Scott', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Walter Samuel', role: 'engineer' },
+    { name: 'Brian Kennedy', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Van Morrison', role: 'producer', artistGlobeId: 'van-morrison' },
+    {
+      name: 'Van Morrison',
+      role: 'vocals',
+      artistGlobeId: 'van-morrison',
+      primary: true,
+    },
+    { name: 'Kate St John', role: 'performer', instrument: 'alto-sax' },
+    { name: 'Matthew Holland', role: 'performer', instrument: 'trumpet' },
+    { name: 'Mick Glossop', role: 'engineer' },
+    {
+      name: 'Van Morrison',
+      role: 'performer',
+      instrument: 'alto-sax',
+      artistGlobeId: 'van-morrison',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'van-morrison-days-like-this', track: 8 }],
 
   sections: [
     {

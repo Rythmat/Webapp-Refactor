@@ -16,6 +16,58 @@ export const all_day_sucker: Song = {
   difficulty: 3,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+    { name: 'Stevie Wonder', role: 'arranger', artistGlobeId: 'stevie-wonder' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'clavinet',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Michael Sembello',
+      role: 'performer',
+      artistGlobeId: 'michael-sembello',
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Ben Bridges', role: 'performer' },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    { name: 'Carolyn Dennis', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'W.G. Snuffy Walden', role: 'performer' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'synth-bass',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-songs-in-the-key-of-life' }],
 
   sections: [
     {

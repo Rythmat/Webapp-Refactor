@@ -149,7 +149,7 @@ function StringIndicator({
         return (
           <span
             key={`${s.note}${s.octave}`}
-            className="text-[9px] font-mono font-semibold px-1 py-0.5 rounded"
+            className="text-[9px] font-semibold tabular-nums px-1 py-0.5 rounded"
             style={{
               color: isActive ? GREEN : 'var(--color-text-dim)',
               backgroundColor: isActive ? `${GREEN}15` : 'transparent',
@@ -310,14 +310,14 @@ export const TunerDisplay = memo(function TunerDisplay({
       <div className="flex items-center justify-center gap-2 pb-0.5">
         {hasNote && (
           <span
-            className="text-[10px] font-mono font-semibold"
+            className="inline-block min-w-11 text-right text-[10px] font-semibold tabular-nums"
             style={{ color: inTune ? GREEN : YELLOW }}
           >
             {centsText}
           </span>
         )}
         <span
-          className="text-[10px] font-mono"
+          className="inline-block min-w-[3.75rem] text-left text-[10px] tabular-nums"
           style={{ color: hasNote ? 'var(--color-text-dim)' : 'transparent' }}
         >
           {hasNote && frequency > 0 ? `${frequency} Hz` : '\u00A0'}
@@ -328,7 +328,7 @@ export const TunerDisplay = memo(function TunerDisplay({
       {active && Math.abs(globalTuningCents) >= 2 && (
         <div className="text-center">
           <span
-            className="text-[9px] font-mono"
+            className="text-[9px] tabular-nums"
             style={{ color: 'var(--color-text-dim)' }}
           >
             A4 ≈ {Math.round(440 * Math.pow(2, globalTuningCents / 1200))} Hz (

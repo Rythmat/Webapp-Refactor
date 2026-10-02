@@ -358,7 +358,7 @@ export function JamDrumMachine({
           >
             +
           </button>
-          <span className="text-[10px] text-zinc-300 font-mono leading-tight">
+          <span className="text-[10px] text-zinc-300 tabular-nums leading-tight">
             {bpm}
           </span>
           <button
@@ -463,7 +463,7 @@ export function JamDrumMachine({
             {Array.from({ length: STEPS }, (_, step) => (
               <div
                 key={step}
-                className={`flex-1 text-center text-[8px] font-mono ${
+                className={`flex-1 text-center text-[8px] tabular-nums ${
                   step % 4 === 0 && step > 0 ? 'ml-0.5' : ''
                 } ${step % 4 === 0 ? 'text-zinc-500' : 'text-zinc-700'}`}
               >

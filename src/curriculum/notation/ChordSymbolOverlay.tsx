@@ -2,7 +2,7 @@ import type { StaffLayout } from '@/components/notation/StaffView';
 import type { LessonChordSymbol } from './lessonChordSymbols';
 
 /**
- * Lead-sheet type: the same 16px bold serif Studio's lead sheet draws, so a
+ * Lead-sheet type: the same 16px bold Glacial Studio's lead sheet draws, so a
  * chord looks the same wherever the student reads it.
  */
 const CHORD_FONT_SIZE = 16;
@@ -113,7 +113,7 @@ export function ChordSymbolOverlay({
                 inBar,
                 layout.scale,
               ),
-              fontFamily: 'serif',
+              fontFamily: "'Glacial Indifference', system-ui, sans-serif",
               fontSize: `${fontSize}px`,
               fontWeight: 700,
               lineHeight: 1,

@@ -4,7 +4,7 @@ export const say_something_timberlake: Song = {
   id: 'say_something_timberlake',
   title: 'Say Something',
   artist: 'Justin Timberlake, Chris Stapleton',
-  year: undefined,
+  year: 2018,
 
   historicalDescription:
     "Justin Timberlake and Chris Stapleton join forces on 'Say Something', a soulful collision of pop polish and raw country grit. The collaboration bridges two worlds rarely occupying the same space, with Stapleton's weathered voice grounding Timberlake's sleek R&B instincts in something earthier and more urgent.",
@@ -17,6 +17,50 @@ export const say_something_timberlake: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Justin Timberlake',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'justin-timberlake',
+    },
+    {
+      name: 'Justin Timberlake',
+      role: 'producer',
+      artistGlobeId: 'justin-timberlake',
+    },
+    {
+      name: 'Chris Stapleton',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'chris-stapleton',
+    },
+    {
+      name: 'James Fauntleroy',
+      role: 'songwriter',
+      artistGlobeId: 'james-fauntleroy',
+    },
+    {
+      name: 'Chris Stapleton',
+      role: 'songwriter',
+      artistGlobeId: 'chris-stapleton',
+    },
+    { name: 'Timbaland', role: 'songwriter', artistGlobeId: 'timbaland' },
+    { name: 'Danja', role: 'producer', artistGlobeId: 'danja' },
+    { name: 'Timbaland', role: 'producer', artistGlobeId: 'timbaland' },
+    {
+      name: 'Justin Timberlake',
+      role: 'songwriter',
+      artistGlobeId: 'justin-timberlake',
+    },
+    { name: 'Danja', role: 'songwriter', artistGlobeId: 'danja' },
+    {
+      name: 'Larrance Dopson',
+      role: 'songwriter',
+      artistGlobeId: 'larrance-dopson',
+    },
+  ],
+  releases: [{ releaseId: 'justin-timberlake-man-of-the-woods', track: 9 }],
 
   sections: [
     {

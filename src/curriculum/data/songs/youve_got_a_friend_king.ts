@@ -16,6 +16,42 @@ export const youve_got_a_friend_king: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Joni Mitchell',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'joni-mitchell',
+    },
+    {
+      name: 'James Taylor',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'james-taylor',
+      primary: true,
+    },
+    { name: 'Danny Kortchmar', role: 'performer', instrument: 'congas' },
+    { name: 'Russ Kunkel', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+    { name: 'Leland Sklar', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Richard Sanford Orshoff', role: 'engineer' },
+    {
+      name: 'Danny Kortchmar',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+    },
+    { name: 'Russ Kunkel', role: 'performer' },
+    { name: 'Peter Asher', role: 'producer', artistGlobeId: 'peter-asher' },
+    {
+      name: 'James Taylor',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'james-taylor',
+      primary: true,
+    },
+    { name: 'Russ Kunkel', role: 'performer', instrument: 'congas' },
+  ],
+  releases: [{ releaseId: 'james-taylor-mud-slide-slim-and-the-blue-horizon' }],
 
   sections: [
     {

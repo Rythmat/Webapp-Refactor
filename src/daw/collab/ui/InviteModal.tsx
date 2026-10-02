@@ -116,7 +116,7 @@ export function InviteModal({ open, onClose }: InviteModalProps) {
                 </span>
                 <div className="flex items-center gap-1.5">
                   <div
-                    className="flex-1 rounded-md px-3 py-2 text-center font-mono text-base font-semibold tracking-[0.3em]"
+                    className="flex-1 rounded-md px-3 py-2 text-center text-base font-semibold tracking-[0.3em]"
                     style={{
                       backgroundColor: 'var(--color-surface)',
                       color: 'var(--color-text)',

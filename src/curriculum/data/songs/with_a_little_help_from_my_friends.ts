@@ -16,6 +16,15 @@ export const with_a_little_help_from_my_friends: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Paul McCartney',
+      role: 'songwriter',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'John Lennon', role: 'songwriter', artistGlobeId: 'john-lennon' },
+  ],
+  releases: [{ releaseId: 'joe-cocker-with-a-little-help-from-my-friends' }],
 
   sections: [
     {

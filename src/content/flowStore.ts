@@ -92,8 +92,8 @@ const loadContent = async (): Promise<{
 
 let hydration: Promise<void> | null = null;
 
-export const ensureFlowContent = (): Promise<void> => {
-  hydration ??= loadContent().then(({ flows, piano, from }) => {
+const hydrate = () =>
+  loadContent().then(({ flows, piano, from }) => {
     FLOWS.clear();
     for (const flow of flows) {
       // Prefer the published id, but tolerate a row whose id was hand-edited
@@ -105,6 +105,20 @@ export const ensureFlowContent = (): Promise<void> => {
     flowGeneration += 1;
   });
 
+export const ensureFlowContent = (): Promise<void> => {
+  hydration ??= hydrate();
+  return hydration;
+};
+
+/**
+ * Load the published bundle again and swap it in place, bumping the
+ * generation so every derived cache rebuilds. For the console's publish (the
+ * DEV content mock): readers keep the previous data until the new data lands,
+ * and the generation only ever rises — resetting it to 0 and hydrating again
+ * would land back on 1, which caches built at 1 would take for "unchanged".
+ */
+export const refreshFlowContent = (): Promise<void> => {
+  hydration = hydrate();
   return hydration;
 };
 

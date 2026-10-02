@@ -16,6 +16,12 @@ export const my_type: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Aaron Sharp', role: 'songwriter', artistGlobeId: 'aaron-sharp' },
+    { name: 'Greg Erwin', role: 'songwriter', artistGlobeId: 'greg-erwin' },
+    { name: 'A/J Jackson', role: 'songwriter', artistGlobeId: 'a-j-jackson' },
+    { name: 'Dak', role: 'songwriter', artistGlobeId: 'dak' },
+  ],
 
   sections: [
     {

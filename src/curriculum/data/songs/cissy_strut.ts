@@ -16,6 +16,35 @@ export const cissy_strut: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Allen Toussaint',
+      role: 'producer',
+      artistGlobeId: 'allen-toussaint',
+    },
+    {
+      name: 'Marshall E. Sehorn',
+      role: 'producer',
+      artistGlobeId: 'marshall-e-sehorn',
+    },
+    {
+      name: 'Ziggy Modeliste',
+      role: 'songwriter',
+      artistGlobeId: 'ziggy-modeliste',
+    },
+    {
+      name: 'George Porter, Jr.',
+      role: 'songwriter',
+      artistGlobeId: 'george-porter-jr',
+    },
+    {
+      name: 'Leo Nocentelli',
+      role: 'songwriter',
+      artistGlobeId: 'leo-nocentelli',
+    },
+    { name: 'Art Neville', role: 'songwriter', artistGlobeId: 'art-neville' },
+  ],
+  releases: [{ releaseId: 'the-meters-the-meters' }],
 
   sections: [
     {

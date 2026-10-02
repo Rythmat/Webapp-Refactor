@@ -471,7 +471,7 @@ function JamRoomInner() {
               <span className="text-[10px] text-zinc-500 uppercase tracking-wider">
                 Room code
               </span>
-              <span className="px-2 py-0.5 rounded bg-zinc-800 text-[12px] font-mono text-zinc-200">
+              <span className="px-2 py-0.5 rounded bg-zinc-800 text-[12px] tracking-wider text-zinc-200">
                 {studioInvite.roomCode}
               </span>
             </div>
@@ -625,7 +625,7 @@ function JamRoomInner() {
 
           {/* Latency */}
           {latencyMs > 0 && (
-            <span className="text-[10px] text-zinc-600 font-mono">
+            <span className="inline-block min-w-[5.5ch] text-right text-[10px] text-zinc-600 tabular-nums">
               {latencyMs}ms
             </span>
           )}
@@ -633,7 +633,7 @@ function JamRoomInner() {
           {/* Room code + copy */}
           <button
             onClick={copyRoomCode}
-            className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] text-zinc-500 hover:text-zinc-300 bg-zinc-800/50 hover:bg-zinc-800 transition-colors font-mono"
+            className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] tracking-wider text-zinc-500 hover:text-zinc-300 bg-zinc-800/50 hover:bg-zinc-800 transition-colors"
           >
             <Copy size={8} />
             {copied ? 'Copied!' : shareCode}

@@ -16,6 +16,63 @@ export const love_the_one_youre_with: Song = {
   difficulty: 2,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  session: { studioId: 'basing-street-studios' },
+  credits: [
+    { name: 'John Sebastian', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Jeff Whittaker', role: 'performer', instrument: 'congas' },
+    {
+      name: 'Priscilla Coolidge',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'David Crosby', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Rita Coolidge', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Bill Halverson',
+      role: 'producer',
+      artistGlobeId: 'bill-halverson',
+    },
+    {
+      name: 'Stephen Stills',
+      role: 'songwriter',
+      artistGlobeId: 'stephen-stills',
+    },
+    {
+      name: 'Stephen Stills',
+      role: 'producer',
+      artistGlobeId: 'stephen-stills',
+    },
+    {
+      name: 'Stephen Stills',
+      role: 'vocals',
+      artistGlobeId: 'stephen-stills',
+      primary: true,
+    },
+    { name: 'Graham Nash', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Stephen Stills',
+      role: 'performer',
+      instrument: 'organ',
+      artistGlobeId: 'stephen-stills',
+      primary: true,
+    },
+    {
+      name: 'Stephen Stills',
+      role: 'performer',
+      artistGlobeId: 'stephen-stills',
+      primary: true,
+    },
+    {
+      name: 'Stephen Stills',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'stephen-stills',
+      primary: true,
+    },
+    { name: 'Calvin Samuels', role: 'performer' },
+    { name: 'Andy Johns', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'stephen-stills-stephen-stills' }],
 
   sections: [
     {

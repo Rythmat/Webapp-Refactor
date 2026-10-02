@@ -16,6 +16,14 @@ export const car_wash: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Norman Whitfield',
+      role: 'songwriter',
+      artistGlobeId: 'norman-whitfield',
+    },
+  ],
+  releases: [{ releaseId: 'rose-royce-car-wash', track: 1 }],
 
   sections: [
     {

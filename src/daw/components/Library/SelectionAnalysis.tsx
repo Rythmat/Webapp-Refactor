@@ -425,7 +425,7 @@ function VoiceLeading({
             }}
           />
         </div>
-        <span className="font-mono text-[8px]" style={labelStyle}>
+        <span className="text-[8px] tabular-nums" style={labelStyle}>
           {Math.round(summary.avgSmoothness * 100)}%
         </span>
       </div>

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { SONG_LIBRARY_EVENTS } from '@/components/atlas/data/events/songLibrary';
+import {
+  SONG_EVENT_ALIASES,
+  songIdForEvent,
+} from '@/components/atlas/data/songEventAliases';
 import { GENRES } from '@/content/graph/genres';
 import type { Song } from '@/curriculum/types/songLibrary';
 
@@ -47,15 +51,13 @@ const eventIds = new Set(SONG_LIBRARY_EVENTS.map((e) => e.id));
  */
 const KNOWN_WITHOUT_EVENT = new Set(['hard_to_handle_black_crowes']);
 
-/**
- * Song events with no song of their own.
- *
- * `song-valerie_bbc_live_version` is Amy Winehouse's BBC live version — a real
- * historical event with three influence links pointing at it, but no chart in
- * the library. It stays, which means the lead-sheet button on the globe must
- * not assume every `song-` event has somewhere to go.
+/*
+ * Song events without a chart of their own id have no exception list: a
+ * second recording of a charted song that keeps its own pin names that song
+ * in `songEventAliases.ts` (`song-valerie_bbc_live_version`, Amy Winehouse's
+ * BBC live version, is `valerie`). The lead-sheet button and the console's
+ * graph read the same alias, so every `song-` event has somewhere to go.
  */
-const KNOWN_WITHOUT_SONG = new Set(['song-valerie_bbc_live_version']);
 
 describe('song → globe event links', () => {
   it('loads both sides', () => {
@@ -82,14 +84,30 @@ describe('song → globe event links', () => {
 
   it('gives every song event a song to open', () => {
     // The other direction: the globe's lead-sheet button turns `song-<id>`
-    // back into a chart link, so an event whose song does not exist would
-    // offer a button that goes nowhere.
+    // (or an alias) back into a chart link, so an event whose song does not
+    // exist would offer a button that goes nowhere.
     const ids = new Set(songs.map((s) => s.id));
     const orphans = SONG_LIBRARY_EVENTS.filter(
-      (e) =>
-        !KNOWN_WITHOUT_SONG.has(e.id) && !ids.has(e.id.replace(/^song-/, '')),
-    ).map((e) => e.id);
+      (e) => !ids.has(songIdForEvent(e.id) ?? ''),
+    ).map((e) => `${e.id} → ${songIdForEvent(e.id)} does not exist`);
     expect(orphans).toEqual([]);
+  });
+
+  it('keeps the aliases honest', () => {
+    // Each names a song event that exists and a song that exists. One whose
+    // event has a chart of its own id is stale: it would send the button past
+    // the chart the event was made from.
+    const ids = new Set(songs.map((s) => s.id));
+    const problems = [...SONG_EVENT_ALIASES].flatMap(([event, song]) => [
+      ...(event.startsWith('song-') && eventIds.has(event)
+        ? []
+        : [`${event} is not a song event on the globe`]),
+      ...(ids.has(song) ? [] : [`${event} → ${song}, which does not exist`]),
+      ...(ids.has(event.slice('song-'.length))
+        ? [`${event} has a song of its own id`]
+        : []),
+    ]);
+    expect(problems).toEqual([]);
   });
 
   it('gives every song event a unique id', () => {

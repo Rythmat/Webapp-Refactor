@@ -16,6 +16,40 @@ export const blurred_lines: Song = {
   difficulty: 1,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Robin Thicke',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'robin-thicke',
+    },
+    {
+      name: 'Pharrell Williams',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'pharrell-williams',
+    },
+    { name: 'Robin Thicke', role: 'songwriter', artistGlobeId: 'robin-thicke' },
+    {
+      name: 'Pharrell Williams',
+      role: 'songwriter',
+      artistGlobeId: 'pharrell-williams',
+    },
+    {
+      name: 'T.I.',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 't-i',
+    },
+    {
+      name: 'Pharrell Williams',
+      role: 'producer',
+      artistGlobeId: 'pharrell-williams',
+    },
+    { name: 'T.I.', role: 'songwriter', artistGlobeId: 't-i' },
+    { name: 'Marvin Gaye', role: 'songwriter', artistGlobeId: 'marvin-gaye' },
+  ],
+  releases: [{ releaseId: 'robin-thicke-blurred-lines', track: 1 }],
 
   sections: [
     {

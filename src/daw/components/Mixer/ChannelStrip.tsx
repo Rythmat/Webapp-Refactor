@@ -12,6 +12,7 @@ import {
 import { useStore, useTrack } from '@/daw/store';
 import { getTrackAudioState } from '@/daw/hooks/usePlaybackEngine';
 import { useMeterLevel } from '@/daw/hooks/useMeterLevel';
+import { FixedDigits } from '@/components/common/FixedDigits';
 
 // ── Props ───────────────────────────────────────────────────────────────
 
@@ -206,14 +207,15 @@ export const ChannelStrip = memo(function ChannelStrip({
       </div>
 
       {/* Volume readout (dB) */}
-      <span
-        className="text-[9px] font-mono tabular-nums mt-1"
+      <FixedDigits
+        text={
+          track.volume === 0
+            ? '-\u221E'
+            : `${(20 * Math.log10(track.volume)).toFixed(1)}`
+        }
+        className="mt-1 text-[9px]"
         style={{ color: 'var(--color-text-dim)' }}
-      >
-        {track.volume === 0
-          ? '-\u221E'
-          : `${(20 * Math.log10(track.volume)).toFixed(1)}`}
-      </span>
+      />
 
       {/* Pan knob (circular rotary control) */}
       <div className="flex items-center justify-center mt-1 mb-1">

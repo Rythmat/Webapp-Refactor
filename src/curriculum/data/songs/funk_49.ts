@@ -16,6 +16,7 @@ export const funk_49: Song = {
   difficulty: 2,
   genreTags: ['funk', 'rock'],
   techniques: [],
+  releases: [{ releaseId: 'the-james-gang-james-gang-rides-again' }],
 
   sections: [
     {

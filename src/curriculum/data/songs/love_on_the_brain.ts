@@ -4,7 +4,7 @@ export const love_on_the_brain: Song = {
   id: 'love_on_the_brain',
   title: 'Love On The Brain',
   artist: 'Rihanna',
-  year: undefined,
+  year: 2016,
 
   historicalDescription:
     "Rihanna releases 'Love On The Brain', a raw, gospel-drenched soul ballad that stuns listeners expecting club anthems. Channeling the fervor of 1960s soul singers, she delivers one of the most vocally demanding performances of her career — a sharp departure that reveals the full range of her artistry and silences doubters who questioned her vocal depth.",
@@ -17,6 +17,33 @@ export const love_on_the_brain: Song = {
   difficulty: 2,
   genreTags: ['hip-hop', 'rnb'],
   techniques: [],
+  session: { studioId: 'windmark-recording' },
+  credits: [
+    { name: 'Kuk Harrell', role: 'engineer', artistGlobeId: 'kuk-harrell' },
+    { name: 'Joseph Angel', role: 'songwriter', artistGlobeId: 'joseph-angel' },
+    { name: 'Fred Ball', role: 'performer', artistGlobeId: 'fred-ball' },
+    { name: 'Fred Ball', role: 'producer', artistGlobeId: 'fred-ball' },
+    { name: 'Kuk Harrell', role: 'producer', artistGlobeId: 'kuk-harrell' },
+    { name: 'Marcos Tovar', role: 'engineer' },
+    { name: 'Manny Marroquin', role: 'engineer' },
+    { name: 'Rihanna', role: 'songwriter', artistGlobeId: 'rihanna' },
+    { name: 'Joseph Angel', role: 'arranger', artistGlobeId: 'joseph-angel' },
+    {
+      name: 'Joseph Angel',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'joseph-angel',
+    },
+    {
+      name: 'Fred Ball',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'fred-ball',
+    },
+    { name: 'Joseph Angel', role: 'performer', artistGlobeId: 'joseph-angel' },
+    { name: 'Fred Ball', role: 'songwriter', artistGlobeId: 'fred-ball' },
+  ],
+  releases: [{ releaseId: 'rihanna-anti', track: 11 }],
 
   sections: [
     {

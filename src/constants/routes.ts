@@ -90,6 +90,65 @@ export const AuthRoutes = {
 
 const adminPrefix = '/console';
 
+/**
+ * The Table's query: search, sort, filters and status. The same on a table
+ * and on an open row, so opening a row keeps the table as it was.
+ */
+type TableQuery = { q?: string; sort?: string; f?: string; status?: string };
+
+/**
+ * Cortex's query (the graph of the Atlas), the same on the graph and on a
+ * row opened beside it, so opening a row keeps the graph as it was.
+ *
+ *  - `focus` — the item a local graph is centred on; without it the page
+ *    shows the whole Atlas (the global graph);
+ *  - `depth` — how many steps the local graph walks out, 1 to 5, left out
+ *    when it is 1;
+ *  - `list` — `1` while the accessible List view shows instead of the map;
+ *  - `node` — an item with no row in the Table (a vibe, an era, a teach
+ *    day), open beside the graph read-only.
+ *
+ * Old links may still say `hops`, which is read as `depth`, and `off`, `on`,
+ * `guesses`, `unconfirmed` or `hubs`, which mean nothing now; the graph
+ * reads past them and drops them the first time it changes the URL
+ * (features/admin/content/graph/map/useGraphUrlState.ts). None of these
+ * names is one the Table's query uses, so a row panel reading its own
+ * never finds the graph's there.
+ */
+type GraphQuery = {
+  focus?: string;
+  depth?: string;
+  list?: string;
+  node?: string;
+};
+
+/**
+ * Tesseract's query (the map of progression openings), the same on the map
+ * and on a row opened beside it:
+ *
+ *  - `key` — the major key chords are named and coloured in (`Eb`), left
+ *    out for C;
+ *  - `notation` — `hybrid` or `roman` to name chords that way, left out for
+ *    the map's default, Jazz letter names;
+ *  - `list` — `1` while the accessible list shows instead of the map;
+ *  - `depth` — how many chords deep the trees show (`1` to `7`, or `all`),
+ *    always written by the map, so a URL it wrote is never bare;
+ *  - `open`, `fold` — the openings opened beyond that depth and folded
+ *    within it, comma-separated (`1 major7|2 minor7`).
+ *
+ * A bare URL restores the last view the browser showed. None of these is a
+ * name the Table's query uses
+ * (features/admin/content/graph/tesseract/tesseractLinks.ts).
+ */
+type TesseractQuery = {
+  key?: string;
+  notation?: string;
+  list?: string;
+  depth?: string;
+  open?: string;
+  fold?: string;
+};
+
 export const AdminRoutes = {
   /**
    * The root route for the admin console.
@@ -97,12 +156,14 @@ export const AdminRoutes = {
   root: createRouteDefinition(adminPrefix),
 
   /**
-   * The route to the users page (view all users + subscription status).
+   * The route to the users page: all users + subscription status, with
+   * insider (free) access managed from the Subscription column. Takes
+   * `?subscription=` to open filtered.
    */
   users: createRouteDefinition('/users', { prefix: adminPrefix }),
 
   /**
-   * The route to the free access management page.
+   * Legacy: redirects to the users page filtered to insider access.
    */
   freeAccess: createRouteDefinition('/free-access', { prefix: adminPrefix }),
 
@@ -154,15 +215,18 @@ export const AdminRoutes = {
   }),
 
   /**
-   * Content back office — list view for a content kind.
+   * Content — the app as students see it, mirrored inside the console. Any
+   * app path appended to it is that page (`/console/content/songs/africa`);
+   * see features/admin/content/mirror/mirrorPaths.ts.
    */
   content: createRouteDefinition('/content', { prefix: adminPrefix }),
 
   /**
-   * Content back office — list filtered to one kind (globe_event, song, …).
+   * Content records — the table of one kind (globe_event, song, …). Under
+   * `records/` so a kind's name can never shadow an app segment in the mirror.
    */
   contentKind: createRouteDefinition<{ kind: string }, { q?: string }>(
-    '/content/:kind',
+    '/content/records/:kind',
     { prefix: adminPrefix },
   ),
 
@@ -170,7 +234,7 @@ export const AdminRoutes = {
    * Content back office — editor for one item. `id` is 'new' when creating.
    */
   contentItem: createRouteDefinition<{ kind: string; id: string }>(
-    '/content/:kind/:id',
+    '/content/records/:kind/:id',
     { prefix: adminPrefix },
   ),
 
@@ -186,22 +250,134 @@ export const AdminRoutes = {
   ),
 
   /**
-   * Publish pipeline — release history, publish, and rollback.
+   * Publishing — the review queue, per-kind publish and "publish everything
+   * that changed". Replaces the old /console/releases page.
    */
-  releases: createRouteDefinition('/releases', { prefix: adminPrefix }),
+  contentPublishing: createRouteDefinition('/content/publishing', {
+    prefix: adminPrefix,
+  }),
+
+  /** Publishing — release history: restore and cancel. */
+  contentPublishingHistory: createRouteDefinition(
+    '/content/publishing/history',
+    { prefix: adminPrefix },
+  ),
 
   /**
-   * Content back office — bring the repo's chord charts into the store. A
-   * one-off migration, not a routine: the store is the source of truth once
-   * it has run.
+   * Publishing — bring the repo's chord charts into the store. Temporary: a
+   * migration that hides once the store matches the repo. Replaces the old
+   * /console/import-songs page.
    */
-  songImport: createRouteDefinition('/import-songs', { prefix: adminPrefix }),
+  contentPublishingImport: createRouteDefinition('/content/publishing/import', {
+    prefix: adminPrefix,
+  }),
+
+  /**
+   * Cortex — the console's section for the Atlas as a graph and as tables
+   * (owner, 1 Oct 2026: the sidebar's "Table" renamed "Cortex", and the
+   * mind map renamed "Cortex" too). Its home, and the section's default
+   * view, is the graph: the whole Atlas as one map, or with
+   * `?focus=song:africa` the local graph around one item (`&depth=2` to walk
+   * further out). The tables stay at their own `/console/table/…` URLs,
+   * inside the same section. The graph used to live at
+   * `/console/content/graph`; those links redirect here, query and all.
+   */
+  cortex: createRouteDefinition<void, GraphQuery>('/cortex', {
+    prefix: adminPrefix,
+  }),
+
+  /**
+   * Cortex with an item's Table row open beside the graph (a dot clicked).
+   * A child of the graph's route, so the map stays mounted while rows open
+   * and close; the row lives in the path so that leaving it with unsaved
+   * edits is caught by the unsaved-changes guard, as in the Table. The
+   * static `integrity` and `links` pages are one segment shorter, so they
+   * never read as a row.
+   */
+  cortexRow: createRouteDefinition<{ table: string; row: string }, GraphQuery>(
+    '/cortex/:table/:row',
+    { prefix: adminPrefix },
+  ),
+
+  /** Cortex — integrity: coverage and every problem row. */
+  cortexIntegrity: createRouteDefinition<
+    void,
+    { check?: string; severity?: string }
+  >('/cortex/integrity', { prefix: adminPrefix }),
+
+  /** Cortex — link the songs' artist names to records, in bulk. */
+  cortexLinks: createRouteDefinition('/cortex/links', {
+    prefix: adminPrefix,
+  }),
+
+  /**
+   * Cortex — Tesseract (owner, 1 Oct 2026): the map of progression
+   * openings, one tidy tree per starting chord, named and coloured in the
+   * key the query picks. Its own pill, second in the Cortex bar. Static and
+   * one segment long, so it is never read as `cortexRow`.
+   */
+  cortexTesseract: createRouteDefinition<void, TesseractQuery>(
+    '/cortex/tesseract',
+    { prefix: adminPrefix },
+  ),
+
+  /**
+   * Tesseract with a progression's Table row open beside the map (an end
+   * clicked). A child of the map's route, so the map stays mounted while
+   * rows open and close, as Cortex's does.
+   */
+  cortexTesseractRow: createRouteDefinition<
+    { table: string; row: string },
+    TesseractQuery
+  >('/cortex/tesseract/:table/:row', { prefix: adminPrefix }),
+
+  /**
+   * Where the graph lived before it became Cortex. Only the route tree uses
+   * it, to send old links (bookmarks, review notes) on to `cortex`.
+   */
+  legacyGraph: createRouteDefinition('/content/graph', {
+    prefix: adminPrefix,
+  }),
 
   /**
    * The Atlas's vocabularies — genres, instruments, and the globe tags nothing
-   * has placed yet. Read-only; these lists live in code.
+   * has placed yet. Read-only; these lists live in code. Beside the records
+   * because that is what they are: the fixed lists records point at.
    */
-  vocabulary: createRouteDefinition('/vocabulary', { prefix: adminPrefix }),
+  contentVocabulary: createRouteDefinition('/content/records/vocabulary', {
+    prefix: adminPrefix,
+  }),
+
+  /**
+   * The Table — the Atlas as rows and columns, one table per category
+   * (artists, songs, genres…), inside the Cortex section beside the graph,
+   * not under the mirror. The bare URL names no table and opens the
+   * section's default view, the graph (`cortex`), its query kept; a link
+   * meant for a table uses `tableList`.
+   */
+  table: createRouteDefinition('/table', { prefix: adminPrefix }),
+
+  /**
+   * The Table — one table (`artists`, `records`, `years`…; the ids are in
+   * features/admin/table/tablePaths.ts). The query holds the search, sort,
+   * filters and status, so a table can be linked as it was left.
+   */
+  tableList: createRouteDefinition<{ table: string }, TableQuery>(
+    '/table/:table',
+    { prefix: adminPrefix },
+  ),
+
+  /**
+   * The Table — one table with a row open. The row lives in the path so that
+   * leaving it with unsaved edits is caught by the unsaved-changes guard, and
+   * Back closes it. A second generator rather than an optional `:row?`, which
+   * would print an absent row as "undefined"; the route tree matches both
+   * with one `:table/:row?` so the table keeps its scroll when the row changes.
+   */
+  tableRow: createRouteDefinition<{ table: string; row: string }, TableQuery>(
+    '/table/:table/:row',
+    { prefix: adminPrefix },
+  ),
 };
 
 /**
@@ -596,6 +772,22 @@ export const LearnRoutes = {
   parallelOverview: createRouteDefinition<{
     key: string;
   }>('/parallel/:key', { prefix: learnPrefix }),
+
+  // Guitar (The Guitar Atlas): its key centers are Theory → Ionian (Major) on
+  // guitar. Static first segment, so these outrank '/:mode' and '/:mode/:key'.
+  /** Bare '/learn/guitar': not a page; sends the student to Theory. */
+  guitar: createRouteDefinition('/guitar', { prefix: learnPrefix }),
+
+  /** A mode's guitar overview: the keys, the book's scale box. */
+  guitarOverview: createRouteDefinition<{
+    mode: string;
+  }>('/guitar/:mode', { prefix: learnPrefix }),
+
+  /** A key's guitar lesson; `?section=A|B|D` opens that chapter. */
+  guitarLesson: createRouteDefinition<{
+    mode: string;
+    key: string;
+  }>('/guitar/:mode/:key', { prefix: learnPrefix }),
 };
 
 const connectPrefix = '/connect';
@@ -674,8 +866,10 @@ export const CurriculumRoutes = {
     { prefix: curriculumPrefix },
   ),
 
-  // Guitar twin of Applied Theory Fundamentals (The Guitar Atlas: Book One).
-  // Static segments, so they rank above '/:genre/:level'.
+  // Legacy: guitar lived here as a twin of Applied Theory Fundamentals. It is
+  // now Learn → Theory → Ionian (Major) on guitar (LearnRoutes.guitarOverview /
+  // guitarLesson); these paths only redirect there, so old links keep
+  // working. Static segments, so they rank above '/:genre/:level'.
   guitarAppliedTheoryFundamentals: createRouteDefinition(
     '/guitar/applied-theory-fundamentals',
     { prefix: curriculumPrefix },

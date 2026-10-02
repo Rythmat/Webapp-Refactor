@@ -14,9 +14,7 @@ export function StartScreen({
 }: StartScreenProps) {
   return (
     <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center z-20">
-      <h2 className="text-4xl font-serif italic text-white mb-2">
-        Ready to Play?
-      </h2>
+      <h2 className="text-4xl text-white mb-2">Ready to Play?</h2>
       <p className="text-zinc-400 mb-6 max-w-md text-center">
         Connect your MIDI keyboard or use keys A-L to begin the rhythm training
         session.
@@ -75,9 +73,7 @@ export function GameOverScreen({
 
   return (
     <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center z-20">
-      <h2 className="text-5xl font-serif italic text-white mb-2">
-        Session Complete
-      </h2>
+      <h2 className="text-5xl text-white mb-2">Session Complete</h2>
 
       <div className="grid grid-cols-3 gap-x-12 gap-y-6 mt-10 mb-10">
         <div className="text-center">
@@ -119,9 +115,7 @@ export function GameOverScreen({
           <div className="text-xs text-zinc-500 uppercase tracking-wider mb-2">
             Hold Accuracy
           </div>
-          <div className="text-2xl text-amber-400 font-light">
-            {holdAccuracy}%
-          </div>
+          <div className="text-2xl text-white font-light">{holdAccuracy}%</div>
         </div>
       </div>
 

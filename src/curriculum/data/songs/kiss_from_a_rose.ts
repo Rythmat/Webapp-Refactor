@@ -16,6 +16,14 @@ export const kiss_from_a_rose: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  session: { studioId: 'sarm-west-studios' },
+  credits: [
+    { name: 'Trevor Horn', role: 'producer', artistGlobeId: 'trevor-horn' },
+    { name: 'Seal', role: 'songwriter', artistGlobeId: 'seal' },
+    { name: 'Seal', role: 'vocals', artistGlobeId: 'seal', primary: true },
+    { name: 'Steve Fitzmaurice', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'seal-seal', track: 6 }],
 
   sections: [
     {

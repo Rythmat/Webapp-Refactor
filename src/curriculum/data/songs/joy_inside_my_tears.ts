@@ -16,6 +16,57 @@ export const joy_inside_my_tears: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'synth-bass',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Susaye Greene',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'susaye-greene',
+    },
+    { name: 'Greg Phillinganes', role: 'performer' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Stevie Wonder', role: 'arranger', artistGlobeId: 'stevie-wonder' },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-songs-in-the-key-of-life' }],
 
   sections: [
     {

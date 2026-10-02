@@ -16,6 +16,21 @@ export const cosmic_girl: Song = {
   difficulty: 2,
   genreTags: ['funk', 'pop'],
   techniques: [],
+  session: { studioId: 'great-linford-manor' },
+  credits: [
+    {
+      name: 'Derrick McKenzie',
+      role: 'songwriter',
+      artistGlobeId: 'derrick-mckenzie',
+    },
+    { name: 'Jay Kay', role: 'arranger', artistGlobeId: 'jay-kay' },
+    { name: 'Jay Kay', role: 'songwriter', artistGlobeId: 'jay-kay' },
+    { name: 'Jay Kay', role: 'producer', artistGlobeId: 'jay-kay' },
+    { name: 'Al Stone', role: 'producer', artistGlobeId: 'al-stone' },
+    { name: 'Simon Katz', role: 'performer', artistGlobeId: 'simon-katz' },
+    { name: 'Al Stone', role: 'engineer', artistGlobeId: 'al-stone' },
+  ],
+  releases: [{ releaseId: 'jamiroquai-travelling-without-moving', track: 2 }],
 
   sections: [
     {

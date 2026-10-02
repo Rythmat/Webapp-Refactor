@@ -16,6 +16,50 @@ export const beauty_and_the_beast: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'hansa-studios' },
+  credits: [
+    { name: 'George Murray', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Dennis Davis', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'Tony Visconti',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'tony-visconti',
+    },
+    {
+      name: 'Carlos Alomar',
+      role: 'performer',
+      artistGlobeId: 'carlos-alomar',
+    },
+    {
+      name: 'David Bowie',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'David Bowie', role: 'producer', artistGlobeId: 'david-bowie' },
+    { name: 'Colin Thurston', role: 'engineer' },
+    {
+      name: 'Brian Eno',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'brian-eno',
+    },
+    { name: 'David Bowie', role: 'songwriter', artistGlobeId: 'david-bowie' },
+    { name: 'Tony Visconti', role: 'producer', artistGlobeId: 'tony-visconti' },
+    { name: 'Robert Fripp', role: 'performer' },
+    {
+      name: 'David Bowie',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'Antonia Maass', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Tony Visconti', role: 'engineer', artistGlobeId: 'tony-visconti' },
+  ],
+  releases: [{ releaseId: 'david-bowie-heroes', track: 10 }],
 
   sections: [
     {

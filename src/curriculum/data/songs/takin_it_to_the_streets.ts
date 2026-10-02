@@ -16,6 +16,12 @@ export const takin_it_to_the_streets: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Ted Templeman', role: 'producer', artistGlobeId: 'ted-templeman' },
+    { name: 'Jesse Butler', role: 'performer', instrument: 'organ' },
+    { name: 'Michael McDonald', role: 'songwriter' },
+  ],
+  releases: [{ releaseId: 'the-doobie-brothers-takin-it-to-the-streets' }],
 
   sections: [
     {

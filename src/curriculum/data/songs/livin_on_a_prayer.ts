@@ -16,6 +16,19 @@ export const livin_on_a_prayer: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Jon Bon Jovi', role: 'songwriter', artistGlobeId: 'jon-bon-jovi' },
+    {
+      name: 'Desmond Child',
+      role: 'songwriter',
+      artistGlobeId: 'desmond-child',
+    },
+    {
+      name: 'Richie Sambora',
+      role: 'songwriter',
+      artistGlobeId: 'richie-sambora',
+    },
+  ],
 
   sections: [
     {

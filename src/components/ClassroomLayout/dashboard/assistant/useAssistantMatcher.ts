@@ -332,11 +332,14 @@ const ACTIVITY_CATALOG: ActivityEntry[] = [
   },
 ];
 
-/** Guitar (The Guitar Atlas): offered while its rollout flag is on. */
+/**
+ * Guitar (The Guitar Atlas): its key centers are Theory → Ionian (Major) on
+ * guitar. Offered while its rollout flag is on.
+ */
 const GUITAR_ACTIVITY: ActivityEntry = {
-  label: 'Guitar: Applied Theory Fundamentals',
-  description: 'The Guitar Atlas',
-  route: CurriculumRoutes.guitarAppliedTheoryFundamentals(),
+  label: 'Guitar: Ionian (Major)',
+  description: 'Theory · The Guitar Atlas',
+  route: LearnRoutes.guitarOverview({ mode: 'ionian' }),
   keywords: [
     'guitar',
     'guitar atlas',
@@ -346,7 +349,7 @@ const GUITAR_ACTIVITY: ActivityEntry = {
     'key centers',
     'music maps',
   ],
-  category: 'section',
+  category: 'mode',
 };
 
 // ── Intent words that boost specific categories ──

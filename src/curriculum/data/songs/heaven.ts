@@ -16,6 +16,46 @@ export const heaven: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'the-record-plant-mobile-studio' },
+  credits: [
+    { name: 'Neal Teeman', role: 'engineer' },
+    { name: 'Joe Barbaria', role: 'engineer' },
+    { name: 'David Byrne', role: 'songwriter', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Chris Frantz',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'chris-frantz',
+    },
+    { name: 'Rod O’Brien', role: 'engineer' },
+    { name: 'David Byrne', role: 'vocals', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Jerry Harrison',
+      role: 'songwriter',
+      artistGlobeId: 'jerry-harrison',
+    },
+    { name: 'Brian Eno', role: 'performer', artistGlobeId: 'brian-eno' },
+    {
+      name: 'Talking Heads',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'talking-heads',
+    },
+    { name: 'David Byrne', role: 'performer', artistGlobeId: 'david-byrne' },
+    { name: 'Brian Eno', role: 'producer', artistGlobeId: 'brian-eno' },
+    { name: 'Jerry Harrison', role: 'vocals', artistGlobeId: 'jerry-harrison' },
+    {
+      name: 'Jerry Harrison',
+      role: 'performer',
+      artistGlobeId: 'jerry-harrison',
+    },
+    {
+      name: 'Tina Weymouth',
+      role: 'performer',
+      artistGlobeId: 'tina-weymouth',
+    },
+  ],
+  releases: [{ releaseId: 'talking-heads-fear-of-music' }],
 
   sections: [
     {

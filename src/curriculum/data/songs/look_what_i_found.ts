@@ -16,6 +16,73 @@ export const look_what_i_found: Song = {
   difficulty: 3,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'the-village' },
+  credits: [
+    {
+      name: 'Mark Nilan, Jr.',
+      role: 'songwriter',
+      artistGlobeId: 'mark-nilan-jr',
+    },
+    { name: 'Andy Martin', role: 'performer', instrument: 'trombone' },
+    {
+      name: 'Lady Gaga',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'lady-gaga',
+      primary: true,
+    },
+    { name: 'Lukas Nelson', role: 'performer', artistGlobeId: 'lukas-nelson' },
+    { name: 'Benjamin Rice', role: 'engineer' },
+    { name: 'Lady Gaga', role: 'producer', artistGlobeId: 'lady-gaga' },
+    {
+      name: 'Mark Nilan, Jr.',
+      role: 'performer',
+      artistGlobeId: 'mark-nilan-jr',
+    },
+    { name: 'Tom Elmhirst', role: 'engineer' },
+    { name: 'Lady Gaga', role: 'songwriter', artistGlobeId: 'lady-gaga' },
+    { name: 'Nick Monson', role: 'performer', artistGlobeId: 'nick-monson' },
+    { name: 'Gary Grant', role: 'performer', instrument: 'trumpet' },
+    { name: 'Nick Monson', role: 'producer', artistGlobeId: 'nick-monson' },
+    { name: 'Nick Monson', role: 'songwriter', artistGlobeId: 'nick-monson' },
+    {
+      name: 'Mark Nilan, Jr.',
+      role: 'arranger',
+      artistGlobeId: 'mark-nilan-jr',
+    },
+    { name: 'Joel Peskin', role: 'performer', instrument: 'baritone-sax' },
+    { name: 'Lady Gaga', role: 'arranger', artistGlobeId: 'lady-gaga' },
+    { name: 'Chris Johnson', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Lukas Nelson', role: 'songwriter', artistGlobeId: 'lukas-nelson' },
+    {
+      name: 'Mark Nilan, Jr.',
+      role: 'producer',
+      artistGlobeId: 'mark-nilan-jr',
+    },
+    {
+      name: 'DJ White Shadow',
+      role: 'producer',
+      artistGlobeId: 'dj-white-shadow',
+    },
+    {
+      name: 'Aaron Raitiere',
+      role: 'songwriter',
+      artistGlobeId: 'aaron-raitiere',
+    },
+    { name: 'Tom Scott', role: 'performer', instrument: 'tenor-sax' },
+    {
+      name: 'Mark Nilan, Jr.',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'mark-nilan-jr',
+    },
+    { name: 'Nick Monson', role: 'arranger', artistGlobeId: 'nick-monson' },
+    {
+      name: 'DJ White Shadow',
+      role: 'songwriter',
+      artistGlobeId: 'dj-white-shadow',
+    },
+  ],
 
   sections: [
     {

@@ -16,6 +16,50 @@ export const shower_the_people: Song = {
   difficulty: 3,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'James Taylor', role: 'songwriter', artistGlobeId: 'james-taylor' },
+    { name: 'Nick de Caro', role: 'arranger' },
+    { name: 'Carly Simon', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Victor Feldman', role: 'performer' },
+    {
+      name: 'Clarence McDonald',
+      role: 'performer',
+      instrument: 'fender-rhodes',
+      artistGlobeId: 'clarence-mcdonald',
+    },
+    {
+      name: 'James Taylor',
+      role: 'vocals',
+      artistGlobeId: 'james-taylor',
+      primary: true,
+    },
+    {
+      name: 'Clarence McDonald',
+      role: 'performer',
+      artistGlobeId: 'clarence-mcdonald',
+    },
+    { name: 'Leland Sklar', role: 'performer', instrument: 'electric-bass' },
+    {
+      name: 'James Taylor',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'james-taylor',
+      primary: true,
+    },
+    { name: 'Russ Kunkel', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Nick de Caro', role: 'performer', instrument: 'organ' },
+    {
+      name: 'James Taylor',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'james-taylor',
+      primary: true,
+    },
+    { name: 'Victor Feldman', role: 'performer', instrument: 'vibraphone' },
+    { name: 'Russ Kunkel', role: 'performer', instrument: 'percussion' },
+    { name: 'Nick de Caro', role: 'conductor' },
+  ],
+  releases: [{ releaseId: 'james-taylor-in-the-pocket' }],
 
   sections: [
     {

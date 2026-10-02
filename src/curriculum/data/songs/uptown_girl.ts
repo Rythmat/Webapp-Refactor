@@ -16,6 +16,28 @@ export const uptown_girl: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Billy Joel',
+      role: 'vocals',
+      artistGlobeId: 'billy-joel',
+      primary: true,
+    },
+    { name: 'Doug Stegmeyer', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Billy Joel', role: 'songwriter', artistGlobeId: 'billy-joel' },
+    { name: 'Liberty DeVitto', role: 'performer', instrument: 'drum-kit' },
+    { name: 'David Brown', role: 'performer', instrument: 'electric-guitar' },
+    {
+      name: 'Billy Joel',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'billy-joel',
+      primary: true,
+    },
+    { name: 'Phil Ramone', role: 'producer', artistGlobeId: 'phil-ramone' },
+    { name: 'Jim Boyer', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'billy-joel-an-innocent-man', track: 6 }],
 
   sections: [
     {

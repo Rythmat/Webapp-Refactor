@@ -4,7 +4,7 @@ export const sing_a_simple_song: Song = {
   id: 'sing_a_simple_song',
   title: 'Sing a Simple Song',
   artist: 'Sly and the Family Stone',
-  year: undefined,
+  year: 1968,
 
   historicalDescription:
     "Sly and the Family Stone release 'Sing a Simple Song', a deceptively modest title hiding one of the most influential funk grooves ever recorded. The track's interlocking rhythms and raw, communal energy capture the spirit of a band that breaks every racial and gender barrier in popular music — proving that funk is not just a genre but a philosophy.",
@@ -17,6 +17,10 @@ export const sing_a_simple_song: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Sly Stone', role: 'songwriter', artistGlobeId: 'sly-stone' },
+  ],
+  releases: [{ releaseId: 'sly-and-the-family-stone-stand' }],
 
   sections: [
     {

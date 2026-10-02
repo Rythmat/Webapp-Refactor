@@ -68,7 +68,6 @@ export function FxMeter({
         style={{
           fontSize: 7,
           color: 'rgba(255, 255, 255, 0.4)',
-          fontFamily: 'system-ui',
           fontWeight: 600,
         }}
       >

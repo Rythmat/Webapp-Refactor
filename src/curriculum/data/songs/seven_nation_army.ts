@@ -16,6 +16,29 @@ export const seven_nation_army: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'toe-rag-studios' },
+  credits: [
+    { name: 'Jack White', role: 'vocals', artistGlobeId: 'jack-white' },
+    { name: 'Jack White', role: 'engineer', artistGlobeId: 'jack-white' },
+    {
+      name: 'Meg White',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'meg-white',
+    },
+    {
+      name: 'Jack White',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'jack-white',
+    },
+    { name: 'Meg White', role: 'vocals', artistGlobeId: 'meg-white' },
+    { name: 'Jack White', role: 'performer', artistGlobeId: 'jack-white' },
+    { name: 'Jack White', role: 'songwriter', artistGlobeId: 'jack-white' },
+    { name: 'Liam Watson', role: 'engineer' },
+    { name: 'Jack White', role: 'producer', artistGlobeId: 'jack-white' },
+  ],
+  releases: [{ releaseId: 'white-stripes-elephant', track: 1 }],
 
   sections: [
     {

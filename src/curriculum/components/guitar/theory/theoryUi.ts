@@ -111,6 +111,20 @@ export function sectionBCardBarreCare(
 }
 
 /**
+ * Marks the Section B card seen for this key, and the hand-care note with it
+ * where the card carries that note (it was read on the card).
+ */
+export function markSectionBCardSeen(
+  dismissNote: (id: string) => void,
+  flow: ActivityFlowV2,
+  key: GuitarKeyName,
+): void {
+  dismissNote(sectionBCardSeenId(key));
+  const barreCare = sectionBCardBarreCare(flow, key);
+  if (barreCare) dismissNote(noteSeenId(barreCare.id, key));
+}
+
+/**
  * The (i) drawer order, most relevant first: notes whose condition picked
  * this step, map or shape come before the ones every step of the
  * subsection shows; list order otherwise.
@@ -151,6 +165,42 @@ export function toTheoryStep(
     sections: [{ id: step.section, name: '', steps: [step] }],
   });
   return single[0];
+}
+
+/** One lesson step's theory notes, as the About this step sheet shows them. */
+export interface StepTheoryNotes {
+  prefix: GuitarSubsectionPrefix | null;
+  theoryStep: TheoryStep;
+  /** Shown expanded, in list order. */
+  intro: ResolvedTheoryNote[];
+  /** "More notes", most relevant first. */
+  info: ResolvedTheoryNote[];
+  /** The practice-tool tips (pt.*), for while the student practises. */
+  practice: ResolvedTheoryNote[];
+}
+
+/** The notes for a step: the same notes, in the same order, as the theory panel. */
+export function stepTheoryNotes(
+  flow: ActivityFlowV2,
+  step: ActivityStepV2,
+  key: GuitarKeyName,
+  showRomanNumerals = false,
+): StepTheoryNotes {
+  const steps = theoryStepsFor(flow);
+  const theoryStep = toTheoryStep(flow, steps, step);
+  const prefix = stepPrefix(theoryStep.id);
+  if (!prefix) return { prefix, theoryStep, intro: [], info: [], practice: [] };
+  const center = GUITAR_ATLAS_BOOK_ONE[key];
+  const settings = { showRomanNumerals, accidentals: 'unicode' as const };
+  const own = notesFor(prefix, { center, step: theoryStep, steps, settings });
+  const practice = notesFor('PRACTICE', { center, settings });
+  return {
+    prefix,
+    theoryStep,
+    intro: own.intro,
+    info: rankInfoNotes(own.info),
+    practice: [...practice.info, ...practice.popover],
+  };
 }
 
 // ── The key's chord family ─────────────────────────────────────────────────

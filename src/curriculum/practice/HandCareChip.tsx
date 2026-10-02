@@ -50,14 +50,10 @@ export function HandCareChip({ loopingMsOnBarreSteps }: HandCareChipProps) {
   return (
     <div
       role="status"
-      className="flex items-center gap-2 rounded-full px-3 py-1 text-[12px]"
-      style={{
-        border: '1px solid var(--color-border, rgba(255,255,255,0.12))',
-        background: 'rgba(25,25,25,0.95)',
-        color: 'var(--color-text, #eee)',
-      }}
+      className="flex items-center gap-1 rounded-full border border-white/15 bg-white/[0.04] py-0.5 pl-3 text-xs leading-4 text-[#e8e8f0]"
     >
       <span>{theoryString('pt.break')}</span>
+      {/* 36px to hit (44px on a phone), for a 12px ✕. */}
       <button
         type="button"
         aria-label="Dismiss break reminder"
@@ -65,8 +61,7 @@ export function HandCareChip({ loopingMsOnBarreSteps }: HandCareChipProps) {
           session.dismissed = HAND_CARE.oncePerSession;
           setDismissed(true);
         }}
-        className="rounded-full px-1 hover:bg-white/10"
-        style={{ color: 'var(--color-text-dim, #9a9aab)' }}
+        className="inline-flex size-9 shrink-0 items-center justify-center rounded-full text-white/55 transition-colors duration-150 hover:bg-white/[0.08] hover:text-[#e8e8f0] max-[639px]:size-11"
       >
         ✕
       </button>

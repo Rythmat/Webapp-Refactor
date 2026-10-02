@@ -16,6 +16,42 @@ export const everybody_wants_to_rule_the_world: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'David Bascombe', role: 'engineer' },
+    {
+      name: 'Roland Orzabal',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'roland-orzabal',
+    },
+    { name: 'Chris Hughes', role: 'producer', artistGlobeId: 'chris-hughes' },
+    { name: 'Ian Stanley', role: 'performer', artistGlobeId: 'ian-stanley' },
+    { name: 'Curt Smith', role: 'vocals', artistGlobeId: 'curt-smith' },
+    {
+      name: 'Curt Smith',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'curt-smith',
+    },
+    { name: 'Chris Hughes', role: 'songwriter', artistGlobeId: 'chris-hughes' },
+    { name: 'Ian Stanley', role: 'songwriter', artistGlobeId: 'ian-stanley' },
+    { name: 'Steven Wilson', role: 'engineer' },
+    {
+      name: 'Roland Orzabal',
+      role: 'songwriter',
+      artistGlobeId: 'roland-orzabal',
+    },
+    { name: 'Neil Taylor', role: 'performer' },
+    {
+      name: 'Manny Elias',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'manny-elias',
+    },
+  ],
+  releases: [
+    { releaseId: 'tears-for-fears-songs-from-the-big-chair', track: 3 },
+  ],
 
   sections: [
     {

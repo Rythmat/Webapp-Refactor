@@ -16,6 +16,89 @@ export const the_chain: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Ken Caillat', role: 'producer', artistGlobeId: 'ken-caillat' },
+    {
+      name: 'Richard Dashut',
+      role: 'engineer',
+      artistGlobeId: 'richard-dashut',
+    },
+    {
+      name: 'Christine McVie',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'christine-mcvie',
+    },
+    {
+      name: 'Mick Fleetwood',
+      role: 'songwriter',
+      artistGlobeId: 'mick-fleetwood',
+    },
+    { name: 'Ken Caillat', role: 'engineer', artistGlobeId: 'ken-caillat' },
+    {
+      name: 'Lindsey Buckingham',
+      role: 'performer',
+      artistGlobeId: 'lindsey-buckingham',
+    },
+    {
+      name: 'Mick Fleetwood',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'mick-fleetwood',
+    },
+    {
+      name: 'Christine McVie',
+      role: 'vocals',
+      artistGlobeId: 'christine-mcvie',
+    },
+    {
+      name: 'Lindsey Buckingham',
+      role: 'vocals',
+      artistGlobeId: 'lindsey-buckingham',
+    },
+    {
+      name: 'John McVie',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'john-mcvie',
+    },
+    { name: 'Stevie Nicks', role: 'vocals', artistGlobeId: 'stevie-nicks' },
+    {
+      name: 'Christine McVie',
+      role: 'performer',
+      artistGlobeId: 'christine-mcvie',
+    },
+    {
+      name: 'Lindsey Buckingham',
+      role: 'songwriter',
+      artistGlobeId: 'lindsey-buckingham',
+    },
+    { name: 'John McVie', role: 'songwriter', artistGlobeId: 'john-mcvie' },
+    {
+      name: 'Mick Fleetwood',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'mick-fleetwood',
+    },
+    {
+      name: 'Fleetwood Mac',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'fleetwood-mac',
+    },
+    {
+      name: 'Christine McVie',
+      role: 'songwriter',
+      artistGlobeId: 'christine-mcvie',
+    },
+    { name: 'Stevie Nicks', role: 'songwriter', artistGlobeId: 'stevie-nicks' },
+    {
+      name: 'Richard Dashut',
+      role: 'producer',
+      artistGlobeId: 'richard-dashut',
+    },
+  ],
+  releases: [{ releaseId: 'fleetwood-mac-rumours' }],
 
   sections: [
     {

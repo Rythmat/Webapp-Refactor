@@ -8,11 +8,23 @@ import {
 import { measureAt, tickX } from './staffLayoutBars';
 
 // ── Mistake markers ────────────────────────────────────────────────────────
-// After a take, a marker under each target that didn't land: its glyph says
-// what went wrong, so the marker reads without its colour. Each one loops
-// its bar.
+// After a take, a marker under each target that didn't land. They are
+// monochrome — a red, orange or blue would read as a key colour (C, G, D♭) —
+// and told apart by shape and glyph: missed is a filled disc with ✗, wrong a
+// white/60 ring with ≠, early / late a faint ring with ◀ / ▶, unclear a
+// dashed ring with ?. Each one loops its bar; the hit area is larger than the
+// mark so it can be tapped.
 
-const MARKER_SIZE = 18;
+/** The mark as drawn. */
+const MARKER_SIZE = 24;
+/** The button round it: what a finger or pointer has to hit. */
+const HIT_SIZE = 36;
+/**
+ * Gap between the mark and the foot of its bar's box. Mark and hit area both
+ * stay inside the box: on a TAB that shows one line at a time, anything
+ * hanging below a line shows at the top of the next page.
+ */
+const MARKER_INSET = 1;
 const TICKS_PER_BEAT = 480;
 
 /** First wins when several targets share a tick (a chord's notes). */
@@ -24,14 +36,46 @@ const KIND_ORDER: readonly MistakeKind[] = [
   'unclear',
 ];
 
+/** How a marker is drawn: its shape carries the kind, not a colour. */
+export type MistakeMarkerShape = 'disc' | 'ring' | 'faintRing' | 'dashedRing';
+
 export const MISTAKE_MARKERS: Readonly<
-  Record<MistakeKind, { glyph: string; word: string; color: string }>
+  Record<
+    MistakeKind,
+    { glyph: string; word: string; shape: MistakeMarkerShape }
+  >
 > = {
-  missed: { glyph: '✗', word: 'missed', color: '#f87171' },
-  wrong: { glyph: '≠', word: 'wrong', color: '#fb923c' },
-  early: { glyph: '◀', word: 'early', color: '#60a5fa' },
-  late: { glyph: '▶', word: 'late', color: '#60a5fa' },
-  unclear: { glyph: '?', word: 'unclear', color: '#9a9aab' },
+  missed: { glyph: '✗', word: 'missed', shape: 'disc' },
+  wrong: { glyph: '≠', word: 'wrong', shape: 'ring' },
+  early: { glyph: '◀', word: 'early', shape: 'faintRing' },
+  late: { glyph: '▶', word: 'late', shape: 'faintRing' },
+  unclear: { glyph: '?', word: 'unclear', shape: 'dashedRing' },
+};
+
+const INK = '#e8e8f0';
+/** The mark's paint, by shape: fill (the panel's own grey unless a disc), edge, glyph. */
+const SHAPE_PAINT: Readonly<
+  Record<
+    MistakeMarkerShape,
+    { background: string; border: string; color: string }
+  >
+> = {
+  disc: { background: INK, border: `1.5px solid ${INK}`, color: '#101012' },
+  ring: {
+    background: 'var(--ma-tab-gap, #151518)',
+    border: '1.5px solid rgba(255, 255, 255, 0.6)',
+    color: INK,
+  },
+  faintRing: {
+    background: 'var(--ma-tab-gap, #151518)',
+    border: '1.5px solid rgba(255, 255, 255, 0.3)',
+    color: INK,
+  },
+  dashedRing: {
+    background: 'var(--ma-tab-gap, #151518)',
+    border: '1.5px dashed rgba(255, 255, 255, 0.6)',
+    color: INK,
+  },
 };
 
 export interface MistakeMarkersOverlayProps {
@@ -100,31 +144,41 @@ export function MistakeMarkersOverlay({
         const box = measureAt(layout, tick);
         if (!box) return null;
         const kind = KIND_ORDER.find((k) => kinds.includes(k))!;
-        const { glyph, color } = MISTAKE_MARKERS[kind];
+        const { glyph, shape } = MISTAKE_MARKERS[kind];
         const label = `${describe(kinds)} at bar ${bar + 1}, beat ${beat}. Loop bar ${bar + 1}`;
         return (
           <button
             key={tick}
             type="button"
             data-mistake={kind}
+            data-shape={shape}
             data-bar={bar}
             aria-label={label}
             title={label}
             onClick={() => onLoopBar(bar)}
-            className="pointer-events-auto absolute flex -translate-x-1/2 items-center justify-center rounded-full p-0 text-[11px] font-bold leading-none hover:brightness-125 focus-visible:outline focus-visible:outline-2"
+            className="group pointer-events-auto absolute flex -translate-x-1/2 items-end justify-center rounded-full bg-transparent p-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60"
             style={{
               left: tickX(layout, box, tick),
-              // In the room under the stems, clear of the fret digits.
-              top: box.y + box.height - MARKER_SIZE + 4,
-              width: MARKER_SIZE,
-              height: MARKER_SIZE,
-              background: 'rgba(25,25,25,0.95)',
-              border: `1.5px solid ${color}`,
-              color,
-              outlineColor: color,
+              // At the foot of the stems, clear of the fret digits, and
+              // never below its own line.
+              top: box.y + box.height - HIT_SIZE,
+              width: HIT_SIZE,
+              height: HIT_SIZE,
+              paddingBottom: MARKER_INSET,
             }}
           >
-            <span aria-hidden="true">{glyph}</span>
+            <span
+              aria-hidden="true"
+              data-mark
+              className="flex items-center justify-center rounded-full text-xs font-bold leading-none transition-opacity group-hover:opacity-80"
+              style={{
+                width: MARKER_SIZE,
+                height: MARKER_SIZE,
+                ...SHAPE_PAINT[shape],
+              }}
+            >
+              {glyph}
+            </span>
           </button>
         );
       })}

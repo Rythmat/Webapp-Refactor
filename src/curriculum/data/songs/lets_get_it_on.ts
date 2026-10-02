@@ -17,6 +17,14 @@ export const lets_get_it_on: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    { name: 'Marvin Gaye', role: 'producer', artistGlobeId: 'marvin-gaye' },
+    { name: 'Marvin Gaye', role: 'songwriter', artistGlobeId: 'marvin-gaye' },
+    { name: 'Ed Townsend', role: 'producer', artistGlobeId: 'ed-townsend' },
+    { name: 'Ed Townsend', role: 'songwriter', artistGlobeId: 'ed-townsend' },
+    { name: 'Emil Richards', role: 'performer', instrument: 'percussion' },
+  ],
+  releases: [{ releaseId: 'marvin-gaye-lets-get-it-on', track: 1 }],
 
   sections: [
     {

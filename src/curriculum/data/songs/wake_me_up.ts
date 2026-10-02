@@ -16,6 +16,29 @@ export const wake_me_up: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'interscope-studios' },
+  credits: [
+    { name: 'Tim Bergling', role: 'producer', artistGlobeId: 'tim-bergling' },
+    {
+      name: 'Mike Einziger',
+      role: 'songwriter',
+      artistGlobeId: 'mike-einziger',
+    },
+    { name: 'Tim Bergling', role: 'songwriter', artistGlobeId: 'tim-bergling' },
+    { name: 'Peter Dyer', role: 'performer' },
+    { name: 'Kyle VandeKerkhoff', role: 'engineer' },
+    {
+      name: 'Mike Einziger',
+      role: 'performer',
+      artistGlobeId: 'mike-einziger',
+    },
+    { name: 'Mike Einziger', role: 'engineer', artistGlobeId: 'mike-einziger' },
+    { name: 'Chris Cheney', role: 'engineer' },
+    { name: 'Aloe Blacc', role: 'vocals', artistGlobeId: 'aloe-blacc' },
+    { name: 'Tim Bergling', role: 'engineer', artistGlobeId: 'tim-bergling' },
+    { name: 'Aloe Blacc', role: 'songwriter', artistGlobeId: 'aloe-blacc' },
+  ],
+  releases: [{ releaseId: 'avicii-true', track: 1 }],
 
   sections: [
     {

@@ -16,6 +16,53 @@ export const im_a_believer: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Richard Romoff', role: 'performer' },
+    { name: 'Jeff Barry', role: 'producer', artistGlobeId: 'jeff-barry' },
+    {
+      name: 'Jeff Barry',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'jeff-barry',
+    },
+    { name: 'Neil Diamond', role: 'songwriter', artistGlobeId: 'neil-diamond' },
+    { name: 'Jeff Barry', role: 'arranger', artistGlobeId: 'jeff-barry' },
+    { name: 'Sal DiTroia', role: 'performer' },
+    {
+      name: 'Neil Diamond',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'neil-diamond',
+    },
+    {
+      name: 'Davy Jones',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'davy-jones',
+    },
+    { name: 'Al Gorgoni', role: 'performer' },
+    {
+      name: 'Peter Tork',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'peter-tork',
+    },
+    { name: 'Artie Butler', role: 'performer', instrument: 'organ' },
+    { name: 'Buddy Salzman', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'Jeff Barry',
+      role: 'performer',
+      instrument: 'tambourine',
+      artistGlobeId: 'jeff-barry',
+    },
+    {
+      name: 'Micky Dolenz',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'micky-dolenz',
+    },
+  ],
+  releases: [{ releaseId: 'the-monkees-more-of-the-monkees' }],
 
   sections: [
     {

@@ -16,6 +16,27 @@ export const after_midnight: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'the-village' },
+  credits: [
+    {
+      name: 'Delaney Bramlett',
+      role: 'producer',
+      artistGlobeId: 'delaney-bramlett',
+    },
+    { name: 'Tom Dowd', role: 'engineer', artistGlobeId: 'tom-dowd' },
+    {
+      name: 'Delaney Bramlett',
+      role: 'arranger',
+      artistGlobeId: 'delaney-bramlett',
+    },
+    {
+      name: 'Bill Halverson',
+      role: 'engineer',
+      artistGlobeId: 'bill-halverson',
+    },
+    { name: 'JJ Cale', role: 'songwriter', artistGlobeId: 'jj-cale' },
+  ],
+  releases: [{ releaseId: 'eric-clapton-eric-clapton' }],
 
   sections: [
     {

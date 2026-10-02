@@ -16,6 +16,10 @@ export const what_is_and_what_should_never_be: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Robert Plant', role: 'songwriter', artistGlobeId: 'robert-plant' },
+    { name: 'Jimmy Page', role: 'songwriter', artistGlobeId: 'jimmy-page' },
+  ],
 
   sections: [
     {

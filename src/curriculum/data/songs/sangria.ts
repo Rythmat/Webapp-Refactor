@@ -16,6 +16,26 @@ export const sangria: Song = {
   difficulty: 2,
   genreTags: ['folk'],
   techniques: [],
+  credits: [
+    { name: 'Bryan Sutton', role: 'performer', instrument: 'acoustic-guitar' },
+    { name: 'Trevor Rosen', role: 'songwriter', artistGlobeId: 'trevor-rosen' },
+    { name: 'Derek Wells', role: 'performer', instrument: 'electric-guitar' },
+    { name: 'Justin Niebank', role: 'engineer' },
+    { name: 'Charles Judge', role: 'performer', instrument: 'synthesizer' },
+    { name: 'Josh Osborne', role: 'songwriter', artistGlobeId: 'josh-osborne' },
+    { name: 'JT Harding', role: 'songwriter', artistGlobeId: 'jt-harding' },
+    { name: 'Aubrey Haynie', role: 'performer', instrument: 'violin' },
+    { name: 'Ben Phillips', role: 'engineer' },
+    { name: 'Derek Wells', role: 'performer', instrument: 'acoustic-guitar' },
+    {
+      name: 'Scott Hendricks',
+      role: 'producer',
+      artistGlobeId: 'scott-hendricks',
+    },
+  ],
+  releases: [
+    { releaseId: 'blake-shelton-bringing-back-the-sunshine', track: 6 },
+  ],
 
   sections: [
     {

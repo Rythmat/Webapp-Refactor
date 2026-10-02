@@ -16,6 +16,86 @@ export const burning_down_the_house: Song = {
   difficulty: 1,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Steve Scales', role: 'performer', instrument: 'percussion' },
+    { name: 'David Byrne', role: 'performer', artistGlobeId: 'david-byrne' },
+    { name: 'Alex Sadkin', role: 'engineer' },
+    { name: 'Butch Jones', role: 'engineer' },
+    {
+      name: 'Jerry Harrison',
+      role: 'performer',
+      artistGlobeId: 'jerry-harrison',
+    },
+    { name: 'Wally Badarou', role: 'performer', instrument: 'synthesizer' },
+    {
+      name: 'Jerry Harrison',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'jerry-harrison',
+    },
+    {
+      name: 'Chris Frantz',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'chris-frantz',
+    },
+    {
+      name: 'Tina Weymouth',
+      role: 'songwriter',
+      artistGlobeId: 'tina-weymouth',
+    },
+    { name: 'David Byrne', role: 'vocals', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Chris Frantz',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'chris-frantz',
+    },
+    {
+      name: 'Tina Weymouth',
+      role: 'performer',
+      instrument: 'synth-bass',
+      artistGlobeId: 'tina-weymouth',
+    },
+    { name: 'David Byrne', role: 'songwriter', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Talking Heads',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'talking-heads',
+    },
+    {
+      name: 'David Byrne',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'david-byrne',
+    },
+    {
+      name: 'Chris Frantz',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'chris-frantz',
+    },
+    {
+      name: 'Jerry Harrison',
+      role: 'songwriter',
+      artistGlobeId: 'jerry-harrison',
+    },
+    { name: 'Chris Frantz', role: 'songwriter', artistGlobeId: 'chris-frantz' },
+    {
+      name: 'Tina Weymouth',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'tina-weymouth',
+    },
+    {
+      name: 'David Byrne',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'david-byrne',
+    },
+  ],
+  releases: [{ releaseId: 'talking-heads-speaking-in-tongues', track: 1 }],
 
   sections: [
     {

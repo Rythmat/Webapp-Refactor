@@ -16,6 +16,22 @@ export const fresh_eyes: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Ian Kirkpatrick',
+      role: 'producer',
+      artistGlobeId: 'ian-kirkpatrick',
+    },
+    { name: 'Andy Grammer', role: 'songwriter', artistGlobeId: 'andy-grammer' },
+    { name: 'Ross Golan', role: 'songwriter', artistGlobeId: 'ross-golan' },
+    { name: 'Manny Marroquin', role: 'engineer' },
+    {
+      name: 'Ian Kirkpatrick',
+      role: 'songwriter',
+      artistGlobeId: 'ian-kirkpatrick',
+    },
+  ],
+  releases: [{ releaseId: 'andy-grammer-the-good-parts', track: 5 }],
 
   sections: [
     {

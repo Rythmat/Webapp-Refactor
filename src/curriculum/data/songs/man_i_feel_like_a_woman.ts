@@ -16,6 +16,30 @@ export const man_i_feel_like_a_woman: Song = {
   difficulty: 2,
   genreTags: ['folk', 'pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Robert John “Mutt” Lange',
+      role: 'arranger',
+      artistGlobeId: 'robert-john-mutt-lange',
+    },
+    { name: 'Rob Hajacos', role: 'performer', instrument: 'violin' },
+    { name: 'Shania Twain', role: 'songwriter', artistGlobeId: 'shania-twain' },
+    { name: 'Joe Spivey', role: 'performer', instrument: 'violin' },
+    { name: 'Glen Duncan', role: 'performer', instrument: 'violin' },
+    {
+      name: 'Robert John “Mutt” Lange',
+      role: 'songwriter',
+      artistGlobeId: 'robert-john-mutt-lange',
+    },
+    {
+      name: 'Robert John “Mutt” Lange',
+      role: 'producer',
+      artistGlobeId: 'robert-john-mutt-lange',
+    },
+    { name: 'Olle Romo', role: 'engineer' },
+    { name: 'Aubrey Haynie', role: 'performer', instrument: 'violin' },
+  ],
+  releases: [{ releaseId: 'shania-twain-come-on-over', track: 1 }],
 
   sections: [
     {

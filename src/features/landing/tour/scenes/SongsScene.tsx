@@ -376,7 +376,7 @@ export const SongsScene = ({
                 {section.label && (
                   <span
                     className={cn(
-                      'mb-1 w-fit rounded-sm border border-white/25 px-1.5 font-serif text-[11px] text-white/60',
+                      'mb-1 w-fit rounded-sm border border-white/25 px-1.5 text-[11px] text-white/60',
                       i > 0 && 'mt-2',
                     )}
                   >
@@ -413,7 +413,7 @@ export const SongsScene = ({
                               }}
                             >
                               <span
-                                className="font-serif text-[15px] leading-none transition-colors duration-200"
+                                className="text-[15px] leading-none transition-colors duration-200"
                                 style={{
                                   color:
                                     isActive && active === h && showColors
@@ -486,7 +486,7 @@ export const SongsScene = ({
             {active && showColors ? (
               <>
                 <span className="flex items-baseline gap-2">
-                  <span className="font-serif text-xl">
+                  <span className="text-xl">
                     {displayAccidentals(active.name)}
                   </span>
                   <span className="text-[11px] text-white/45">

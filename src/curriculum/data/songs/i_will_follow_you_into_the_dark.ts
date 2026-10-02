@@ -16,6 +16,18 @@ export const i_will_follow_you_into_the_dark: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'long-view-farm-studios' },
+  credits: [
+    { name: 'Chris Walla', role: 'producer', artistGlobeId: 'chris-walla' },
+    { name: 'Beau Sorenson', role: 'engineer' },
+    { name: 'Chris Walla', role: 'engineer', artistGlobeId: 'chris-walla' },
+    {
+      name: 'Benjamin Gibbard',
+      role: 'songwriter',
+      artistGlobeId: 'benjamin-gibbard',
+    },
+  ],
+  releases: [{ releaseId: 'death-cab-for-cutie-plans' }],
 
   sections: [
     {

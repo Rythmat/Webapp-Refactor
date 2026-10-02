@@ -4,7 +4,7 @@ export const september: Song = {
   id: 'september',
   title: 'September',
   artist: 'Earth, Wind & Fire',
-  year: undefined,
+  year: 1978,
 
   historicalDescription:
     "Earth, Wind & Fire release 'September', a euphoric burst of funk, soul, and disco that becomes one of the most instantly recognizable opening riffs in pop history. Written by Maurice White, Al McKay, and Allee Willis, the song captures a kind of pure, uncontainable joy — the kind that makes it impossible to stand still. Decades later, it remains a universal anthem for celebration.",
@@ -17,7 +17,16 @@ export const september: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
-
+  credits: [
+    { name: 'Allee Willis', role: 'songwriter', artistGlobeId: 'allee-willis' },
+    {
+      name: 'Maurice White',
+      role: 'songwriter',
+      artistGlobeId: 'maurice-white',
+    },
+    { name: 'Maurice White', role: 'producer', artistGlobeId: 'maurice-white' },
+    { name: 'Al McKay', role: 'songwriter', artistGlobeId: 'al-mckay' },
+  ],
   sections: [
     {
       id: 'intro',

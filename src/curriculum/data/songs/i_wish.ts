@@ -16,6 +16,57 @@ export const i_wish: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Steve Madaio', role: 'performer', instrument: 'trumpet' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Stevie Wonder', role: 'arranger', artistGlobeId: 'stevie-wonder' },
+    { name: 'Nathan Watts', role: 'performer', instrument: 'electric-bass' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'vocoder',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+    { name: 'Renee Hardaway', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Hank Redd', role: 'performer', instrument: 'alto-sax' },
+    { name: 'Trevor Lawrence', role: 'performer', instrument: 'tenor-sax' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'fender-rhodes',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Raymond Pounds', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Ray Maldonado', role: 'performer', instrument: 'trumpet' },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-songs-in-the-key-of-life' }],
 
   sections: [
     {

@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type QueryClient,
+} from '@tanstack/react-query';
 import SuperJSON from 'superjson';
 import { getCurrentAppSessionId } from '@/auth/app-session-store';
 import { Env } from '@/constants/env';
@@ -37,8 +42,13 @@ async function fetchWithAuth<T = unknown>(
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(
-      (body as { error?: string }).error ?? `Request failed: ${res.status}`,
+    // The status rides along so callers can tell a 404 from a 500 — the
+    // server's messages alone don't (a duplicate rule is a raw 500).
+    throw Object.assign(
+      new Error(
+        (body as { error?: string }).error ?? `Request failed: ${res.status}`,
+      ),
+      { status: res.status },
     );
   }
 
@@ -47,6 +57,18 @@ async function fetchWithAuth<T = unknown>(
 }
 
 const FREE_ACCESS_KEY = ['admin', 'free-access'] as const;
+
+/**
+ * A rule decides which accounts read as `insider_access`, so changing one
+ * also stales the users list it's managed from. Returned from `onSuccess`, so
+ * a mutation stays pending until both lists show the change — no "granted"
+ * toast beside a row that still says Free.
+ */
+const invalidateAccess = (queryClient: QueryClient) =>
+  Promise.all([
+    queryClient.invalidateQueries({ queryKey: FREE_ACCESS_KEY }),
+    queryClient.invalidateQueries({ queryKey: ['admin', 'users'] }),
+  ]);
 
 export const useFreeAccessRules = () => {
   const { token } = useAuthContext();
@@ -78,9 +100,7 @@ export const useCreateFreeAccessRule = () => {
         method: 'POST',
         body: JSON.stringify(body),
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: FREE_ACCESS_KEY });
-    },
+    onSuccess: () => invalidateAccess(queryClient),
   });
 };
 
@@ -102,9 +122,7 @@ export const useUpdateFreeAccessRule = () => {
         method: 'PATCH',
         body: JSON.stringify(body),
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: FREE_ACCESS_KEY });
-    },
+    onSuccess: () => invalidateAccess(queryClient),
   });
 };
 
@@ -119,8 +137,6 @@ export const useDeleteFreeAccessRule = () => {
         token!,
         { method: 'DELETE' },
       ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: FREE_ACCESS_KEY });
-    },
+    onSuccess: () => invalidateAccess(queryClient),
   });
 };

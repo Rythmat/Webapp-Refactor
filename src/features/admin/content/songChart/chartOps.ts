@@ -249,3 +249,16 @@ export const coerceSongForPreview = (body: Record<string, unknown>): Song => {
     artistImageSource: str(body.artistImageSource, 'none') as ArtistImageSource,
   };
 };
+
+/**
+ * The whole draft as a `Song` for the song page itself (`SongDetailView`):
+ * every field the body carries — credits, session, origin, writer, image —
+ * with the ones the page cannot render without made sound, as
+ * `coerceSongForPreview` makes them.
+ *
+ * Render-only. The editor patches the raw body, never this, so a default
+ * filled in here (a 4/4 metre, a C major key) is never saved on a song that
+ * did not have it.
+ */
+export const coerceSongDraft = (body: Record<string, unknown>): Song =>
+  ({ ...body, ...coerceSongForPreview(body) }) as Song;

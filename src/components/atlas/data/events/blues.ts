@@ -1,6 +1,6 @@
-import type { HistoricalEvent } from '@/components/atlas/types';
+import type { GlobeEventRecord } from '@/content/records/types';
 
-export const BLUES_EVENTS: HistoricalEvent[] = [
+export const BLUES_EVENTS: GlobeEventRecord[] = [
   {
     id: 'evt-blues-memphis-1951',
     year: 1951,
@@ -17,6 +17,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'rock and roll origins',
     ],
     videoId: 'Gbfnh1oVTk0',
+    artistIds: ['ike-turner'],
+    placeId: 'memphis',
   },
   {
     id: 'evt-blues-mississippi-1936',
@@ -40,6 +42,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'acoustic blues',
     ],
     videoId: 'LChYrY6yRQs',
+    artistIds: ['robert-johnson'],
+    placeId: 'clarksdale-ms',
   },
   {
     id: 'evt-rnb-chicago-1955',
@@ -59,6 +63,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'maxwell street',
     ],
     videoId: 'bSfqNEvykv0',
+    artistIds: ['muddy-waters', 'howlin-wolf', 'little-walter'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-handy-memphis-1912',
@@ -78,6 +84,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'tutwiler',
     ],
     videoId: 'WWfMKFQjonY',
+    placeId: 'memphis',
   },
   {
     id: 'evt-mdou-moctar-niamey-2019',
@@ -98,6 +105,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'sahara',
     ],
     videoId: 'GZvPoE0EH1o',
+    artistIds: ['mdou-moctar'],
+    placeId: 'niamey',
   },
   {
     id: 'evt-blues-jackson-1930',
@@ -118,6 +127,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'jackson',
     ],
     videoId: 'WIUuB2xLDK8',
+    placeId: 'jackson-ms',
   },
   {
     id: 'evt-piedmontblues-charlotte-1940',
@@ -138,6 +148,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'north carolina',
     ],
     videoId: 'HkKH3tPNun0',
+    placeId: 'charlotte',
   },
   {
     id: 'evt-blues-clarksdale-1903',
@@ -163,6 +174,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'crossroads',
     ],
     videoId: 'cSuTTSOctGw',
+    placeId: 'clarksdale-ms',
   },
   {
     id: 'evt-blues-recording-nyc-1920',
@@ -187,17 +199,19 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'harlem',
     ],
     videoId: 'OiJrBgbwsJw',
+    artistIds: ['mamie-smith'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-british-blues-london-1962',
     year: 1962,
     location: { lat: 51.5074, lng: -0.1278, city: 'London', country: 'UK' },
     genre: ['British Blues', 'Rock'],
-    title: 'Rolling Stones & the British Blues Boom',
+    title: 'The Rolling Stones & the British Blues Boom',
     description:
       "Drawing on the electric Chicago blues of Muddy Waters and Howlin' Wolf, the Rolling Stones and the Yardbirds ignited a British Blues Boom that repackaged African-American music for a global audience. This transatlantic feedback loop laid the groundwork for hard rock, heavy metal, and the broader British Invasion that reshaped American pop culture.",
     tags: [
-      'rolling stones',
+      'the rolling stones',
       'yardbirds',
       'british blues',
       'chicago blues',
@@ -205,6 +219,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'transatlantic',
     ],
     videoId: 'OT8ES0wHPH8',
+    artistIds: ['the-rolling-stones'],
+    placeId: 'london',
   },
   {
     id: 'evt-desert-blues-bamako-1980',
@@ -225,6 +241,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'guitar',
     ],
     videoId: '4mnAUe4c08o',
+    artistIds: ['ali-farka-toure'],
+    placeId: 'bamako',
   },
   {
     id: 'evt-blues-chicago-1958',
@@ -243,6 +261,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'hoochie coochie man',
     ],
     videoId: 'w9bXPxMTKl4',
+    artistIds: ['muddy-waters'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-blues-chicago-1965-bking',
@@ -261,6 +281,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'live album',
     ],
     videoId: '7HFfiFfj5Sc',
+    placeId: 'chicago',
   },
   {
     id: 'evt-blues-chicago-1956-wolf',
@@ -279,6 +300,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'chester burnett',
     ],
     videoId: 'VMUt8KdDtTY',
+    artistIds: ['howlin-wolf'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-blues-detroit-1948',
@@ -297,6 +320,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'hypnotic',
     ],
     videoId: 'DEFseT_UuoA',
+    artistIds: ['john-lee-hooker'],
+    placeId: 'detroit',
   },
   {
     id: 'evt-blues-chicago-1968-buddy',
@@ -315,6 +340,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'influence',
     ],
     videoId: '4bBQzRgsNeg',
+    artistIds: ['buddy-guy'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-blues-memphis-1967-albert',
@@ -333,6 +360,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'flying v',
     ],
     videoId: 'SyVhBfIFbiQ',
+    artistIds: ['albert-king'],
+    placeId: 'memphis',
   },
   {
     id: 'evt-blues-dallas-1961',
@@ -351,6 +380,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'dallas',
     ],
     videoId: '2901LXCUXrs',
+    artistIds: ['freddie-king'],
+    placeId: 'dallas',
   },
   {
     id: 'evt-blues-austin-1983',
@@ -369,6 +400,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'double trouble',
     ],
     videoId: 'MrbAaQ3BXgA',
+    artistIds: ['stevie-ray-vaughan'],
+    placeId: 'austin',
   },
   {
     id: 'evt-blues-burbank-1989',
@@ -392,6 +425,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'capitol records',
     ],
     videoId: '6FbPxp0me7Y',
+    artistIds: ['bonnie-raitt'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-blues-la-1968-taj',
@@ -415,6 +450,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'los angeles',
     ],
     videoId: 'oz3HZCGMzqU',
+    artistIds: ['taj-mahal'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-blues-la-1994-keb',
@@ -438,6 +475,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'contemporary blues',
     ],
     videoId: 'pBtmZJFJGck',
+    artistIds: ['keb-mo'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-blues-austin-2012',
@@ -456,6 +495,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'genre fusion',
     ],
     videoId: 'WgRPv99Tt44',
+    artistIds: ['gary-clark-jr'],
+    placeId: 'austin',
   },
   {
     id: 'evt-blues-utica-2000',
@@ -474,6 +515,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'bb king',
     ],
     videoId: 'YgrbQCaOXaQ',
+    artistIds: ['joe-bonamassa'],
+    placeId: 'utica',
   },
   {
     id: 'evt-blues-boston-1998',
@@ -492,6 +535,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'grammy nominated',
     ],
     videoId: 'jIrqRGXqsdc',
+    artistIds: ['susan-tedeschi'],
+    placeId: 'boston',
   },
   {
     id: 'evt-blues-statesboro-1928',
@@ -515,6 +560,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'allman brothers',
     ],
     videoId: 'fnWxZtI3ONY',
+    artistIds: ['blind-willie-mctell'],
+    placeId: 'statesboro',
   },
   {
     id: 'evt-blues-rochester-1965',
@@ -533,6 +580,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'rochester',
     ],
     videoId: 'NdgrQoZHnNY',
+    artistIds: ['son-house'],
+    placeId: 'rochester',
   },
   {
     id: 'evt-blues-angola-1933',
@@ -553,6 +602,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'field recordings',
     ],
     videoId: 'Gx9gah7owl4',
+    artistIds: ['lead-belly'],
+    placeId: 'angola',
   },
   {
     id: 'evt-blues-nyc-1923-bessie',
@@ -576,6 +627,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'vaudeville',
     ],
     videoId: 'DZv0-L099eE',
+    artistIds: ['bessie-smith'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-blues-nola-1968',
@@ -600,6 +653,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'mac rebennack',
     ],
     videoId: 'c3vI-K4pIgg',
+    artistIds: ['dr-john'],
+    placeId: 'new-orleans',
   },
   {
     id: 'evt-blues-memphis-1929-minnie',
@@ -618,6 +673,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'prewar blues',
     ],
     videoId: 'jGnnR_kzfZk',
+    artistIds: ['memphis-minnie'],
+    placeId: 'memphis',
   },
   {
     id: 'evt-blues-la-1952-thornton',
@@ -641,6 +698,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'elvis presley',
     ],
     videoId: 'JHhx1m69icU',
+    artistIds: ['big-mama-thornton', 'elvis-presley'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-blues-chicago-1966-koko',
@@ -659,6 +718,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'chicago',
     ],
     videoId: 'X4xum7FVPh8',
+    artistIds: ['koko-taylor', 'willie-dixon'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-blues-atlanta-1923-rainey',
@@ -678,6 +739,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'bessie smith',
     ],
     videoId: 'qNUy5q2StPY',
+    artistIds: ['ma-rainey', 'bessie-smith'],
+    placeId: 'atlanta',
   },
   {
     id: 'evt-blues-clarksdale-1929-patton',
@@ -702,6 +765,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'founding father',
     ],
     videoId: 'EyIquE0izAg',
+    artistIds: ['charley-patton'],
+    placeId: 'clarksdale-ms',
   },
   {
     id: 'evt-blues-grafton-1931',
@@ -721,6 +786,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'folk revival',
     ],
     videoId: 'lo3vEehd-dE',
+    artistIds: ['skip-james'],
+    placeId: 'grafton',
   },
   {
     id: 'evt-blues-como-1959',
@@ -740,6 +807,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'north mississippi',
     ],
     videoId: 'Nqpm3sCWRPM',
+    placeId: 'como',
   },
   {
     id: 'evt-blues-hollysprings-1996',
@@ -764,6 +832,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'juke joint',
     ],
     videoId: 'OR2U8FxdizU',
+    placeId: 'holly-springs',
   },
   {
     id: 'evt-blues-hollysprings-1992',
@@ -788,6 +857,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'the black keys',
     ],
     videoId: 'QSJEIihIOsw',
+    artistIds: ['junior-kimbrough', 'the-black-keys'],
+    placeId: 'holly-springs',
   },
   {
     id: 'evt-blues-chicago-1961-etta',
@@ -807,6 +878,9 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'vocal performance',
     ],
     videoId: '1qJU8G7gR_g',
+    artistIds: ['etta-james'],
+    songIds: ['at_last'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-blues-canton-1951',
@@ -826,6 +900,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'electric blues',
     ],
     videoId: '5jcGY7NbaQw',
+    artistIds: ['elmore-james', 'robert-johnson'],
+    placeId: 'canton',
   },
   {
     id: 'evt-blues-chicago-1952-walter',
@@ -845,6 +921,8 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'number one',
     ],
     videoId: 'kWLQSplVP3Y',
+    artistIds: ['little-walter'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-blues-houston-1946',
@@ -863,5 +941,7 @@ export const BLUES_EVENTS: HistoricalEvent[] = [
       'third ward',
     ],
     videoId: 'L7L2DAumDaE',
+    artistIds: ['lightnin-hopkins'],
+    placeId: 'houston',
   },
 ];

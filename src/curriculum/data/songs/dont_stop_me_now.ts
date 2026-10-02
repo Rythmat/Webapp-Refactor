@@ -16,6 +16,54 @@ export const dont_stop_me_now: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Roger Taylor', role: 'vocals', artistGlobeId: 'roger-taylor' },
+    {
+      name: 'Roger Taylor',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'roger-taylor',
+    },
+    { name: 'Queen', role: 'producer', ensemble: true, artistGlobeId: 'queen' },
+    { name: 'Brian May', role: 'vocals', artistGlobeId: 'brian-may' },
+    {
+      name: 'John Deacon',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'john-deacon',
+    },
+    { name: 'John Etchells', role: 'engineer' },
+    {
+      name: 'Freddie Mercury',
+      role: 'vocals',
+      artistGlobeId: 'freddie-mercury',
+    },
+    { name: 'Geoff Workman', role: 'engineer' },
+    {
+      name: 'Freddie Mercury',
+      role: 'songwriter',
+      artistGlobeId: 'freddie-mercury',
+    },
+    {
+      name: 'Brian May',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'brian-may',
+    },
+    {
+      name: 'Roy Thomas Baker',
+      role: 'producer',
+      artistGlobeId: 'roy-thomas-baker',
+    },
+    { name: 'Queen', role: 'arranger', ensemble: true, artistGlobeId: 'queen' },
+    {
+      name: 'Freddie Mercury',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'freddie-mercury',
+    },
+  ],
+  releases: [{ releaseId: 'queen-jazz', track: 12 }],
 
   sections: [
     {

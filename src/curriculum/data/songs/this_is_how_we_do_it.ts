@@ -16,6 +16,32 @@ export const this_is_how_we_do_it: Song = {
   difficulty: 2,
   genreTags: ['hip-hop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Montell Jordan',
+      role: 'songwriter',
+      artistGlobeId: 'montell-jordan',
+    },
+    {
+      name: 'Montell Jordan',
+      role: 'vocals',
+      artistGlobeId: 'montell-jordan',
+      primary: true,
+    },
+    {
+      name: 'Montell Jordan',
+      role: 'producer',
+      artistGlobeId: 'montell-jordan',
+    },
+    {
+      name: 'Richard Walters',
+      role: 'songwriter',
+      artistGlobeId: 'richard-walters',
+    },
+    { name: 'Oji Pierce', role: 'songwriter', artistGlobeId: 'oji-pierce' },
+    { name: 'Oji Pierce', role: 'producer', artistGlobeId: 'oji-pierce' },
+  ],
+  releases: [{ releaseId: 'montell-jordan-this-is-how-we-do-it', track: 3 }],
 
   sections: [
     {

@@ -1,6 +1,6 @@
-import type { HistoricalEvent } from '@/components/atlas/types';
+import type { GlobeEventRecord } from '@/content/records/types';
 
-export const WORLD_EVENTS: HistoricalEvent[] = [
+export const WORLD_EVENTS: GlobeEventRecord[] = [
   {
     id: 'evt-maluf-tripoli-1960',
     year: 1960,
@@ -20,6 +20,8 @@ export const WORLD_EVENTS: HistoricalEvent[] = [
       'arabic classical',
     ],
     videoId: 'Os5R1dYf9bo',
+    artistIds: ['hassan-araibi'],
+    placeId: 'tripoli',
   },
   {
     id: 'evt-reggae-espanol-panamacity-1985',
@@ -45,6 +47,8 @@ export const WORLD_EVENTS: HistoricalEvent[] = [
       'reggaeton origins',
     ],
     videoId: 'EMc0tq0HwVM',
+    artistIds: ['el-general'],
+    placeId: 'panama-city',
   },
   {
     id: 'evt-nueva-cancion-santiago-1969',
@@ -71,6 +75,8 @@ export const WORLD_EVENTS: HistoricalEvent[] = [
       'estadio chile',
     ],
     videoId: 'uAi8hK6_2z4',
+    artistIds: ['victor-jara', 'violeta-parra'],
+    placeId: 'santiago',
   },
   // source: wiki/topics/andalusian-music.md · Filip Holm — https://youtu.be/_RoV2A4_FK4
   {
@@ -97,6 +103,8 @@ export const WORLD_EVENTS: HistoricalEvent[] = [
       'arabic classical',
     ],
     videoId: '_RoV2A4_FK4',
+    artistIds: ['ziryab'],
+    placeId: 'cordoba',
   },
   // source: wiki/topics/middle-eastern-music.md · Filip Holm — https://youtu.be/JIEmnNiXBCk
   {
@@ -119,5 +127,6 @@ export const WORLD_EVENTS: HistoricalEvent[] = [
       'music notation',
     ],
     videoId: 'JIEmnNiXBCk',
+    placeId: 'baghdad',
   },
 ];

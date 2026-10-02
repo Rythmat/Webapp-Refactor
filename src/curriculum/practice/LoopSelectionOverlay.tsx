@@ -8,9 +8,17 @@ import { drawingHeight, stepBarBoxes, type BarBox } from './staffLayoutBars';
 // its own target. A tap or click loops one bar. Keyboard: arrows move between
 // bars, Shift+Arrow extends the loop, Enter or Space loops the focused bar,
 // Escape clears.
+//
+// Neutral, so the key colour keeps meaning "now / played": looped bars take a
+// faint white wash between white/40 edges, the handles are white, and the
+// chip (loop · pad · clear) is the panel's own grey. A host that shows the
+// loop's controls elsewhere hides the chip (`showChip={false}`).
 
 const CHIP_HEIGHT = 20;
 const HANDLE_WIDTH = 6;
+const EDGE = '1px solid rgba(255, 255, 255, 0.4)';
+const INK = '#e8e8f0';
+const DIM = 'rgba(255, 255, 255, 0.55)';
 
 export interface LoopSelectionOverlayProps {
   layout: StaffLayout | null;
@@ -18,13 +26,16 @@ export interface LoopSelectionOverlayProps {
   bars: number;
   loop: LoopRange | null;
   onChange: (loop: LoopRange | null) => void;
-  keyColor: string;
+  /** Unused: the loop is drawn in neutral white. Kept so callers need not change. */
+  keyColor?: string;
   padBars?: 0 | 1;
   /** Shows the pad as a switch on the chip; without it the pad is only read. */
   onPadChange?: (padBars: 0 | 1) => void;
   /** Ticks before the step's bar 1 on the drawing: the count-in bar in time. */
   countInOffset?: number;
   ticksPerBar?: number;
+  /** The chip under the loop (default); off when the host shows the loop's controls itself. */
+  showChip?: boolean;
 }
 
 const span = (a: number, b: number): LoopRange => ({
@@ -40,11 +51,11 @@ export function LoopSelectionOverlay({
   bars,
   loop,
   onChange,
-  keyColor,
   padBars = 0,
   onPadChange,
   countInOffset = 0,
   ticksPerBar = 1920,
+  showChip = true,
 }: LoopSelectionOverlayProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonsRef = useRef(new Map<number, HTMLButtonElement>());
@@ -174,21 +185,16 @@ export function LoopSelectionOverlay({
           key={`shade-${bar}`}
           aria-hidden="true"
           data-loop-shade={bar}
-          className="absolute motion-safe:animate-in motion-safe:fade-in-0"
+          className="absolute bg-white/[0.06] motion-safe:animate-in motion-safe:fade-in-0"
           style={{
             left: box.x,
             top: box.y,
             width: box.width,
             height: box.height,
-            borderTop: `2px solid ${keyColor}`,
-            borderBottom: `2px solid ${keyColor}`,
+            borderTop: EDGE,
+            borderBottom: EDGE,
           }}
-        >
-          <div
-            className="absolute inset-0"
-            style={{ background: keyColor, opacity: 0.16 }}
-          />
-        </div>
+        />
       ))}
 
       {boxes.map(({ bar, box }, index) => (
@@ -203,14 +209,13 @@ export function LoopSelectionOverlay({
           aria-label={`Bar ${bar + 1}`}
           aria-pressed={contains(loop, bar)}
           tabIndex={bar === tabStop ? 0 : -1}
-          className="pointer-events-auto absolute cursor-pointer rounded-sm bg-transparent p-0 focus-visible:outline focus-visible:outline-2"
+          className="pointer-events-auto absolute cursor-pointer rounded-sm bg-transparent p-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60"
           style={{
             left: box.x,
             top: box.y,
             width: box.width,
             height: box.height,
             border: 'none',
-            outlineColor: keyColor,
             // Vertical swipes still scroll the TAB on touch screens.
             touchAction: 'pan-y',
           }}
@@ -243,32 +248,32 @@ export function LoopSelectionOverlay({
               key={edge}
               aria-hidden="true"
               data-loop-handle={edge}
-              className="pointer-events-auto absolute cursor-ew-resize rounded-full"
+              className="pointer-events-auto absolute cursor-ew-resize rounded-full bg-white"
               style={{
                 left: x - HANDLE_WIDTH / 2,
                 top: box.y - 4,
                 width: HANDLE_WIDTH,
                 height: box.height + 8,
-                background: keyColor,
                 touchAction: 'none',
               }}
               onPointerDown={(event) => startDrag(anchor, true, event)}
               {...dragHandlers}
             />
           ))}
-          <LoopChip
-            loop={loop}
-            padBars={padBars}
-            onPadChange={onPadChange}
-            onClear={() => change(null)}
-            keyColor={keyColor}
-            // Under the loop's last bar, inside the drawing.
-            top={Math.min(
-              last.y + last.height,
-              drawingHeight(layout) - CHIP_HEIGHT,
-            )}
-            right={last.x + last.width}
-          />
+          {showChip && (
+            <LoopChip
+              loop={loop}
+              padBars={padBars}
+              onPadChange={onPadChange}
+              onClear={() => change(null)}
+              // Under the loop's last bar, inside the drawing.
+              top={Math.min(
+                last.y + last.height,
+                drawingHeight(layout) - CHIP_HEIGHT,
+              )}
+              right={last.x + last.width}
+            />
+          )}
         </>
       )}
     </div>
@@ -280,7 +285,6 @@ interface LoopChipProps {
   padBars: 0 | 1;
   onPadChange?: (padBars: 0 | 1) => void;
   onClear: () => void;
-  keyColor: string;
   top: number;
   /** x of the chip's right edge. */
   right: number;
@@ -292,30 +296,24 @@ function LoopChip({
   padBars,
   onPadChange,
   onClear,
-  keyColor,
   top,
   right,
 }: LoopChipProps) {
   const dot = (
-    <span
-      aria-hidden="true"
-      style={{ color: 'var(--color-text-dim, #9a9aab)' }}
-    >
+    <span aria-hidden="true" style={{ color: DIM }}>
       ·
     </span>
   );
   return (
     <div
       data-loop-chip
-      className="pointer-events-auto absolute flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 text-[11px] motion-safe:animate-in motion-safe:fade-in-0"
+      className="pointer-events-auto absolute flex items-center gap-1.5 whitespace-nowrap rounded-full border border-white/15 bg-[#141416] px-2 text-xs motion-safe:animate-in motion-safe:fade-in-0"
       style={{
         top,
         // Not a transform: the fade-in animates transform.
         right: `calc(100% - ${right}px)`,
         height: CHIP_HEIGHT,
-        background: 'rgba(25,25,25,0.95)',
-        border: `1px solid ${keyColor}`,
-        color: 'var(--color-text, #eee)',
+        color: INK,
       }}
     >
       <span>{loopLabel(loop)}</span>
@@ -327,11 +325,8 @@ function LoopChip({
             aria-pressed={padBars === 1}
             onClick={() => onPadChange(padBars === 1 ? 0 : 1)}
             title="Add a bar before and after the loop"
-            className="rounded-full px-1 hover:bg-white/10"
-            style={{
-              color:
-                padBars === 1 ? keyColor : 'var(--color-text-dim, #9a9aab)',
-            }}
+            className="rounded-full px-1 transition-colors hover:bg-white/10"
+            style={{ color: padBars === 1 ? INK : DIM }}
           >
             pad 1 bar
           </button>
@@ -349,7 +344,7 @@ function LoopChip({
         type="button"
         aria-label="Clear loop"
         onClick={onClear}
-        className="rounded-full px-1 hover:bg-white/10"
+        className="rounded-full px-1 transition-colors hover:bg-white/10"
       >
         ✕
       </button>

@@ -72,6 +72,26 @@ const fretboardRoles = (host: Element) =>
     )
     .sort();
 
+/**
+ * Every lesson cell measures `width` × `height` (jsdom lays nothing out, so
+ * the ResizeObserver reports what the layout would).
+ */
+function stubCellSize(width: number, height: number) {
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      constructor(private readonly callback: ResizeObserverCallback) {}
+      observe() {
+        this.callback(
+          [{ contentRect: { width, height } } as ResizeObserverEntry],
+          this as unknown as ResizeObserver,
+        );
+      }
+      disconnect() {}
+    },
+  );
+}
+
 /** The x a diagram's geometry puts an element at. */
 function xOf(el: Element | null): number {
   const match = /translate\(([-\d.]+)/.exec(
@@ -545,5 +565,247 @@ describe('useGuitarTabLayers', () => {
     // Chord tones are a chord-step choice: a scale step shows nothing for it.
     useGuitarDisplaySettings.setState({ scaleLabels: 'notes' });
     expect(layers('major_scale_ascending_oot').result.current).toEqual({});
+  });
+});
+
+describe('GuitarLessonVisuals without controls (the lesson layout)', () => {
+  it('shows only the diagrams: no chip row, legend, input or hint', () => {
+    useGuitarDisplaySettings.setState({ showSteps: true });
+    const { container } = renderVisuals('major_scale_ascending_oot', {
+      controls: false,
+      inputStatus: <span>Mic · ready</span>,
+      diagnostics: { missingPcs: [], extraPcs: [], hint: 'Try this' },
+    });
+    expect(screen.queryByRole('button', { name: 'Left-handed' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Show steps' })).toBeNull();
+    expect(screen.queryByRole('radiogroup', { name: 'Dot labels' })).toBeNull();
+    expect(screen.queryByText('Mic · ready')).toBeNull();
+    expect(container.querySelector('[data-label-legend]')).toBeNull();
+    expect(container.querySelector('[data-chord-hint]')).toBeNull();
+    expect(screen.queryByRole('status')).toBeNull();
+    // What the settings sheet chose still shows: the half steps.
+    expect(container.querySelectorAll('[data-bracket="H"]')).toHaveLength(2);
+  });
+
+  it('sets a scale step’s box beside the fretboard, each centred, in the lesson look', () => {
+    const { container } = renderVisuals('major_scale_ascending_oot', {
+      controls: false,
+    });
+    const root = container.querySelector('[data-guitar-visuals]')!;
+    expect(root.getAttribute('data-variant')).toBe('lesson');
+    expect(root.className).toContain('sm:grid-cols-[auto_minmax(0,1fr)]');
+    const box = container.querySelector('[data-scale-box]')!;
+    expect(box.getAttribute('data-variant')).toBe('lesson');
+    // Centred up and down in the tall area — safely, so in a cell shorter
+    // than the box its title stays in view.
+    const boxCell = box.parentElement!.className.split(/\s+/);
+    expect(boxCell).toEqual(
+      expect.arrayContaining(['flex', '[align-items:safe_center]']),
+    );
+    expect(boxCell).not.toContain('items-center');
+    expect(box.querySelector('[data-title]')?.textContent).toBe(
+      'C major scale',
+    );
+    expect(box.querySelector('[data-position]')?.textContent).toBe(
+      'Position 7 · finger 1 on fret 7',
+    );
+    // Still rings the note to play next, and marks it on the neck.
+    expect(
+      screen
+        .getByRole('img', { name: /^C Major Scale: 8 notes/ })
+        .getAttribute('aria-label'),
+    ).toContain('next: string 6 fret 8');
+    expect(fretboardRoles(container)).toContain('target 6:8');
+    const board = container.querySelector('svg[aria-label^="Fretboard"]')!;
+    expect(board.getAttribute('data-variant')).toBe('lesson');
+    // No width cap: the neck draws centred in its whole cell.
+    const cell = board.closest('[data-fretboard-cell]')!;
+    expect(cell.innerHTML).not.toMatch(/max-w-/);
+    expect(cell.className).toContain('items-center');
+    expect(board.getAttribute('preserveAspectRatio')).toBe('xMidYMid meet');
+    // 208px until the cell can be measured.
+    expect(board.getAttribute('height')).toBe('208');
+  });
+
+  it('sets a chord step’s strip beside a slightly wider fretboard column, the boxes playing their chords', () => {
+    const onHearShape = vi.fn();
+    const { container } = renderVisuals('play_chords_oot', {
+      controls: false,
+      onHearShape,
+    });
+    const root = container.querySelector('[data-guitar-visuals]')!;
+    expect(root.className).toContain(
+      'sm:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]',
+    );
+    const strip = screen.getByRole('list', { name: 'Chords' });
+    expect(strip.getAttribute('data-variant')).toBe('lesson');
+    // The boxes sit centred up and down in the tall area — safely: taller
+    // than a short area, they keep their names in view (the strip clips).
+    const stripClasses = strip.className.split(/\s+/);
+    expect(stripClasses).toContain('[align-items:safe_center]');
+    expect(stripClasses).not.toContain('items-center');
+    expect(stripClasses).not.toContain('items-start');
+    const boxes = chordItems().map((li) =>
+      li.querySelector('[data-chord-box]')!.getAttribute('data-variant'),
+    );
+    expect(boxes).toEqual(['lesson', 'lesson', 'lesson', 'lesson']);
+    // The chord to play is framed in the key colour; the rest are not.
+    const frames = chordItems().map((li) =>
+      li.querySelector('[data-frame]')!.getAttribute('stroke'),
+    );
+    expect(frames[0]).toBe(RED);
+    expect(frames.slice(1).every((stroke) => stroke !== RED)).toBe(true);
+    // Hear: the diagram itself.
+    fireEvent.click(screen.getByRole('button', { name: 'Hear D minor' }));
+    expect(onHearShape).toHaveBeenCalledWith('X-X-0-2-3-1');
+    expect(screen.queryByText('Hear it')).toBeNull();
+    // The formula lives in the (i).
+    expect(chordItems()[0].querySelector('[data-formula]')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'About C major' }));
+    expect(
+      screen
+        .getByRole('dialog', { name: 'About C major' })
+        .querySelector('[data-formula]')?.textContent,
+    ).toBe('R 3 5');
+  });
+
+  it('draws at the larger lesson size in the desktop band', () => {
+    const { container } = renderVisuals('play_chords_oot', {
+      controls: false,
+    });
+    // 'md': 1.2px a unit, so a 10-unit fret number is 12px.
+    const label = chordItems()[0].querySelector('[data-fret-label]')!;
+    expect(Number(label.getAttribute('font-size')) * 1.2).toBeCloseTo(12);
+    expect(container.querySelector('[data-guitar-visuals]')).toBeTruthy();
+  });
+
+  it('fits a short area: smaller diagrams and a shorter neck at 168px', () => {
+    // Every cell measures what the area gives it.
+    stubCellSize(400, 168);
+    const { container } = renderVisuals('play_chords_oot', {
+      controls: false,
+    });
+    // 'sm': 1px a unit, so a 12px fret number is 12 units.
+    const label = chordItems()[0].querySelector('[data-fret-label]')!;
+    expect(Number(label.getAttribute('font-size'))).toBeCloseTo(12);
+    const board = container.querySelector('svg[aria-label^="Fretboard"]')!;
+    expect(board.getAttribute('height')).toBe('168');
+  });
+
+  it('keeps the smaller chord boxes until the larger fit whole (207px), then draws the larger', () => {
+    /** A diagram's fret-number size in its own units: 12 'sm', 10 'md'. */
+    const fretUnits = (step: string, diagram: string, height: number) => {
+      stubCellSize(1100, height);
+      const { container } = renderVisuals(step, { controls: false });
+      const size = Number(
+        container
+          .querySelector(`${diagram} [data-fret-label]`)!
+          .getAttribute('font-size'),
+      );
+      cleanup();
+      return size;
+    };
+    const chordBox = (height: number) =>
+      fretUnits('play_chords_oot', '[data-chord-box]', height);
+    // A 200px area (a short window while practising) would clip the 207px
+    // larger boxes in the strip: the smaller ones, which fit.
+    expect(chordBox(200)).toBeCloseTo(12);
+    expect(chordBox(207)).toBeCloseTo(12);
+    expect(chordBox(208)).toBeCloseTo(10);
+    expect(chordBox(361)).toBeCloseTo(10);
+    // The scale box (199px) isn't clipped: it keeps the larger size from 196.
+    const scaleBox = (height: number) =>
+      fretUnits('major_scale_ascending_oot', '[data-scale-box]', height);
+    expect(scaleBox(195)).toBeCloseTo(12);
+    expect(scaleBox(200)).toBeCloseTo(10);
+  });
+
+  describe('draws the neck as large as its cell allows, the whole window in view', () => {
+    /** The neck's height, and its natural width at that height, in px. */
+    const neck = (step: string) => {
+      const { container } = renderVisuals(step, { controls: false });
+      const board = container.querySelector<SVGSVGElement>(
+        'svg[aria-label^="Fretboard"]',
+      )!;
+      return {
+        height: Number(board.getAttribute('height')),
+        width: parseFloat(board.style.minWidth),
+      };
+    };
+
+    it('in a tall, wide cell: as tall as the cell', () => {
+      // C major chords: frets 0-5 with the open strings, 252 units wide.
+      stubCellSize(1100, 377);
+      const { height, width } = neck('play_chords_oot');
+      expect(height).toBe(377);
+      expect(width).toBeLessThanOrEqual(1100);
+    });
+
+    it('in a narrow cell: as tall as the whole window fits across it', () => {
+      stubCellSize(400, 377);
+      const { height, width } = neck('play_chords_oot');
+      // 400 × 151 / 252 = 239.7, rounded down: the width limits it.
+      expect(height).toBe(239);
+      expect(width).toBeLessThanOrEqual(400);
+      expect(width).toBeGreaterThan(395);
+    });
+
+    it('fits a scale step’s six frets (no open strings) the same way', () => {
+      stubCellSize(500, 377);
+      // Frets 6-11: 264 units; 500 × 151 / 264 = 285.98, rounded down.
+      expect(neck('major_scale_ascending_oot').height).toBe(285);
+    });
+
+    it('in a huge cell: 440px at most', () => {
+      stubCellSize(3000, 900);
+      expect(neck('play_chords_oot').height).toBe(440);
+    });
+
+    it('keeps 150px and scrolls sideways when a wide window would draw smaller', () => {
+      // The sevenths climb frets 2-17: 664 units; at 600px wide it would
+      // fit only 136px tall, its labels under 12px.
+      stubCellSize(600, 377);
+      const { height, width } = neck('play_sevenths_oot');
+      expect(height).toBe(150);
+      expect(width).toBeGreaterThan(600);
+    });
+  });
+
+  it('holds its row to the band, whatever the diagrams measure', () => {
+    // The cells are measured to size the diagrams; a row sized by its
+    // content would feed that back (a short band keeping the larger boxes,
+    // a scrollbar growing the neck). jsdom lays nothing out, so the grid's
+    // own rules are what's checked.
+    for (const step of ['play_chords_oot', 'major_scale_ascending_oot']) {
+      const { container } = renderVisuals(step, { controls: false });
+      const root = container.querySelector('[data-guitar-visuals]')!;
+      expect(root.className).toContain('sm:grid-rows-[minmax(0,1fr)]');
+      for (const cell of root.children) {
+        expect(cell.className).toContain('sm:h-full');
+        expect(cell.className).toContain('sm:min-h-0');
+      }
+      // The neck scrolls sideways without a bar under it.
+      expect(
+        container.querySelector('[data-fretboard-scroller]')!.className,
+      ).toContain('[scrollbar-width:none]');
+      cleanup();
+    }
+  });
+
+  it('keeps left-handed mirroring and the dot labels from the settings', () => {
+    useInstrumentStore.setState({ leftHanded: true });
+    useGuitarDisplaySettings.setState({ scaleLabels: 'keyNumbers' });
+    const { container } = renderVisuals('major_scale_ascending_oot', {
+      controls: false,
+    });
+    expect(container.querySelector('svg[data-mirrored]')).toBeTruthy();
+    const lowString = container.querySelector(
+      '[data-scale-box] [data-dot][data-string="6"][data-fret="8"]',
+    );
+    const highString = container.querySelector(
+      '[data-scale-box] [data-dot][data-string="4"][data-fret="7"]',
+    );
+    expect(xOf(lowString)).toBeGreaterThan(xOf(highString));
+    expect(fretMarker(container, 6, 8)?.textContent).toBe('1');
   });
 });

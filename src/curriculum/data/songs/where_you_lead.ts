@@ -16,6 +16,48 @@ export const where_you_lead: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'a-m-studios' },
+  credits: [
+    { name: 'Toni Stern', role: 'songwriter', artistGlobeId: 'toni-stern' },
+    {
+      name: 'Danny Kortchmar',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    { name: 'Merry Clayton', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+    { name: 'Russ Kunkel', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'Carole King',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    { name: 'Lou Adler', role: 'producer', artistGlobeId: 'lou-adler' },
+    { name: 'Hank Cicalo', role: 'engineer' },
+    {
+      name: 'Ralph Schuckett',
+      role: 'performer',
+      instrument: 'electric-piano',
+    },
+    {
+      name: 'Carole King',
+      role: 'vocals',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    { name: 'Charles Larkey', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Julia Waters', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Carole King',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'carole-king-tapestry' }],
 
   sections: [
     {

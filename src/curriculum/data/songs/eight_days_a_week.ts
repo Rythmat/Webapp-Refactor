@@ -16,6 +16,69 @@ export const eight_days_a_week: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'abbey-road-studios' },
+  credits: [
+    { name: 'George Martin', role: 'producer' },
+    { name: 'George Harrison', role: 'performer', instrument: 'handclaps' },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    { name: 'John Lennon', role: 'vocals', artistGlobeId: 'john-lennon' },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'songwriter',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'john-lennon',
+    },
+    { name: 'Norman Smith', role: 'engineer' },
+    { name: 'Ringo Starr', role: 'performer', instrument: 'handclaps' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'Mike Stone', role: 'engineer', artistGlobeId: 'mike-stone' },
+    { name: 'John Lennon', role: 'songwriter', artistGlobeId: 'john-lennon' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'handclaps',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'handclaps',
+      artistGlobeId: 'john-lennon',
+    },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Ken Scott', role: 'engineer', artistGlobeId: 'ken-scott' },
+    { name: 'Ringo Starr', role: 'performer', instrument: 'drum-kit' },
+  ],
+  releases: [{ releaseId: 'the-beatles-beatles-for-sale' }],
 
   sections: [
     {

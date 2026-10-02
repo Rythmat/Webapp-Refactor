@@ -12,6 +12,7 @@ import {
   type BarFlag,
 } from '@/lib/chartEditor/roadmapOps';
 import type { BarRef } from '@/lib/chartEditor/selection';
+import { CONSOLE_LABEL, consoleTabClass } from '../../ui/styles';
 
 /**
  * Everything a bar can say about how the chart is read, and nowhere to say it
@@ -55,12 +56,10 @@ const ENDINGS: Array<{ passes: number[]; label: string }> = [
   { passes: [1, 2], label: '1, 2.' },
 ];
 
-const PILL =
-  'rounded border px-2 py-1 text-xs transition-colors disabled:opacity-40';
-const ON = 'border-[#7ecfcf]/60 bg-[#7ecfcf]/15 text-[#7ecfcf]';
-const OFF = 'border-white/15 text-white/60 hover:border-white/35';
+const PILL = (on: boolean) =>
+  `${consoleTabClass(on, 'sm')} disabled:opacity-40`;
 const FIELD =
-  'w-full rounded border border-white/15 bg-transparent px-2 py-1 text-xs text-white/80 outline-none focus:border-white/35';
+  'w-full rounded-md border border-white/15 bg-white/[0.04] px-2 py-1 text-xs text-white/80 outline-none focus:border-white/40';
 
 export const BarInspector: FC<{
   sections: SongSection[];
@@ -70,7 +69,7 @@ export const BarInspector: FC<{
   const n = refs.length;
   if (n === 0)
     return (
-      <p className="text-xs text-white/35">
+      <p className="text-xs text-white/45">
         Click a bar&apos;s staff to select it. Shift-click for a run, or ⌘-click
         to add one.
       </p>
@@ -89,9 +88,7 @@ export const BarInspector: FC<{
 
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs">
-      <span className="font-semibold uppercase tracking-wide text-white/45">
-        {n === 1 ? `Bar` : `${n} bars`}
-      </span>
+      <span className={CONSOLE_LABEL}>{n === 1 ? `Bar` : `${n} bars`}</span>
 
       <div className="flex flex-wrap gap-1">
         {FLAGS.map(({ flag, label, hint }) => (
@@ -100,7 +97,7 @@ export const BarInspector: FC<{
             type="button"
             title={hint}
             aria-pressed={flagState(sections, refs, flag)}
-            className={`${PILL} ${flagState(sections, refs, flag) ? ON : OFF}`}
+            className={PILL(flagState(sections, refs, flag))}
             onClick={() => toggle(flag, hint)}
           >
             {label}
@@ -111,13 +108,13 @@ export const BarInspector: FC<{
       {/* A volta covers the bars it is on, so this is a property of the
           selection and not of one bar. */}
       <div className="flex items-center gap-1">
-        <span className="text-white/35">Ending</span>
+        <span className="text-white/45">Ending</span>
         {ENDINGS.map(({ passes, label }) => (
           <button
             key={label}
             type="button"
             aria-pressed={sameEnding(passes)}
-            className={`${PILL} ${sameEnding(passes) ? ON : OFF}`}
+            className={PILL(sameEnding(passes))}
             onClick={() =>
               onChange(
                 setEnding(sections, refs, sameEnding(passes) ? [] : passes),
@@ -131,7 +128,7 @@ export const BarInspector: FC<{
       </div>
 
       <label className="flex items-center gap-1">
-        <span className="text-white/35">Cue</span>
+        <span className="text-white/45">Cue</span>
         <input
           className={`${FIELD} w-28`}
           value={value('cue') ?? ''}
@@ -147,7 +144,7 @@ export const BarInspector: FC<{
       </label>
 
       <label className="flex items-center gap-1">
-        <span className="text-white/35">Key</span>
+        <span className="text-white/45">Key</span>
         <input
           className={`${FIELD} w-24`}
           value={value('keyChange') ?? ''}
@@ -162,7 +159,7 @@ export const BarInspector: FC<{
       </label>
 
       <label className="flex items-center gap-1">
-        <span className="text-white/35">Metre</span>
+        <span className="text-white/45">Metre</span>
         <input
           key={refs.map((r) => `${r.section}.${r.bar}`).join()}
           className={`${FIELD} w-14`}
@@ -187,7 +184,7 @@ export const BarInspector: FC<{
       </label>
 
       <label className="flex items-center gap-1">
-        <span className="text-white/35">Jump</span>
+        <span className="text-white/45">Jump</span>
         <select
           className={`${FIELD} w-28`}
           value={value('jump') ?? ''}
@@ -203,11 +200,11 @@ export const BarInspector: FC<{
             )
           }
         >
-          <option value="" className="bg-[#161618]">
+          <option value="" className="bg-[#151518]">
             —
           </option>
           {JUMPS.map((j) => (
-            <option key={j} value={j} className="bg-[#161618]">
+            <option key={j} value={j} className="bg-[#151518]">
               {j}
             </option>
           ))}
@@ -215,7 +212,7 @@ export const BarInspector: FC<{
       </label>
 
       <label className="flex items-center gap-1">
-        <span className="text-white/35">×</span>
+        <span className="text-white/45">×</span>
         <input
           className={`${FIELD} w-12`}
           type="number"
@@ -244,7 +241,7 @@ export const BarInspector: FC<{
           type="button"
           title="This bar starts a new system"
           aria-pressed={flagState(sections, refs, 'systemBreak')}
-          className={`${PILL} ${flagState(sections, refs, 'systemBreak') ? ON : OFF}`}
+          className={PILL(flagState(sections, refs, 'systemBreak'))}
           onClick={() => toggle('systemBreak', 'System break')}
         >
           Break
@@ -254,7 +251,7 @@ export const BarInspector: FC<{
           title="These bars are one system, however many they are"
           aria-pressed={isOwnSystem(sections, refs)}
           disabled={refs.some((r) => r.section !== refs[0].section)}
-          className={`${PILL} ${isOwnSystem(sections, refs) ? ON : OFF}`}
+          className={PILL(isOwnSystem(sections, refs))}
           onClick={() =>
             onChange(fitIntoSystem(sections, refs), 'Fit into system')
           }
@@ -265,7 +262,7 @@ export const BarInspector: FC<{
 
       <button
         type="button"
-        className="ml-auto text-[11px] text-white/35 hover:text-white/70"
+        className="ml-auto text-[11px] text-white/45 transition-colors hover:text-white/80"
         onClick={() => onChange(clearRoadmap(sections, refs), 'Clear marks')}
       >
         Clear marks

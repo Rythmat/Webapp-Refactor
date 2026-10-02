@@ -16,6 +16,41 @@ export const raging: Song = {
   difficulty: 3,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Miles Walker', role: 'engineer' },
+    {
+      name: 'Kygo',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'kygo',
+    },
+    { name: 'Kygo', role: 'producer', artistGlobeId: 'kygo' },
+    { name: 'Kygo', role: 'songwriter', artistGlobeId: 'kygo' },
+    {
+      name: 'Derek Fuhrmann',
+      role: 'songwriter',
+      artistGlobeId: 'derek-fuhrmann',
+    },
+    {
+      name: 'Mark Williams',
+      role: 'songwriter',
+      artistGlobeId: 'mark-williams',
+    },
+    {
+      name: 'Kodaline',
+      role: 'performer',
+      ensemble: true,
+      primary: true,
+      artistGlobeId: 'kodaline',
+    },
+    {
+      name: 'Derek Fuhrmann',
+      role: 'engineer',
+      artistGlobeId: 'derek-fuhrmann',
+    },
+    { name: 'James Bay', role: 'songwriter', artistGlobeId: 'james-bay' },
+  ],
+  releases: [{ releaseId: 'kygo-cloud-nine', track: 4 }],
 
   sections: [
     {

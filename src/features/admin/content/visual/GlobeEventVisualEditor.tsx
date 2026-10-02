@@ -2,6 +2,7 @@
 import { Calendar, MapPin } from 'lucide-react';
 import { type FC } from 'react';
 import { GenreBadge } from '@/components/atlas/components/UI/GenreBadge';
+import { CONSOLE_PANEL } from '../../ui/styles';
 import {
   DetailCell,
   InlineNumber,
@@ -18,6 +19,12 @@ import { YouTubeLinkField, extractYouTubeId } from './YouTubeLinkField';
  * description and video — clicking any of them edits it in place. The
  * coordinates and id sit in a strip beneath, because they steer the pin and the
  * references from arcs and pathways but never appear on the card itself.
+ *
+ * Each part carries a `data-field` anchor naming the body paths it edits, so
+ * the Table's row panel can scroll to it. `lockId` shows the id without
+ * letting it change: the row panel edits a stored event, and a save under a
+ * new id would make a second event rather than rename this one. `narrow`
+ * keeps the strip beneath in two columns, for the panel's 440 px.
  */
 
 export interface GlobeEventBody {
@@ -34,7 +41,9 @@ export interface GlobeEventBody {
 export const GlobeEventVisualEditor: FC<{
   event: GlobeEventBody;
   onChange: (event: GlobeEventBody) => void;
-}> = ({ event, onChange }) => {
+  lockId?: boolean;
+  narrow?: boolean;
+}> = ({ event, onChange, lockId = false, narrow = false }) => {
   const patch = (next: Partial<GlobeEventBody>) =>
     onChange({ ...event, ...next });
 
@@ -51,8 +60,11 @@ export const GlobeEventVisualEditor: FC<{
     <div className="flex flex-col gap-4">
       {/* ── The card as it appears on the globe ── */}
       <div className="max-w-2xl rounded-2xl border border-white/10 bg-black/20 p-4 shadow-2xl backdrop-blur-md">
-        <div className="rounded-xl border border-[#60a5fa66] bg-[#60a5fa1a] p-4">
-          <h4 className="text-lg font-semibold leading-snug text-white">
+        <div className="rounded-xl border border-white/15 bg-white/[0.04] p-4">
+          <h4
+            data-field="title"
+            className="text-lg leading-snug tracking-[-0.01em] text-white"
+          >
             <InlineText
               value={event.title}
               onChange={(value) => patch({ title: value })}
@@ -62,7 +74,7 @@ export const GlobeEventVisualEditor: FC<{
           </h4>
 
           <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-white/60">
-            <span className="flex items-center gap-1">
+            <span data-field="year" className="flex items-center gap-1">
               <Calendar className="size-3" />
               <InlineNumber
                 value={event.year}
@@ -72,7 +84,10 @@ export const GlobeEventVisualEditor: FC<{
                 ariaLabel="Year"
               />
             </span>
-            <span className="flex items-center gap-1">
+            <span
+              data-field="location location.city location.country"
+              className="flex items-center gap-1"
+            >
               <MapPin className="size-3" />
               <InlineText
                 value={location.city}
@@ -90,25 +105,29 @@ export const GlobeEventVisualEditor: FC<{
             </span>
           </div>
 
-          <InlineTagList
-            values={event.genre ?? []}
-            onChange={(values) => patch({ genre: values })}
-            renderTag={(genre) => <GenreBadge genre={genre} />}
-            addLabel="Genre"
-            ariaLabel="Genres"
-            className="mt-2"
-          />
+          <div data-field="genre">
+            <InlineTagList
+              values={event.genre ?? []}
+              onChange={(values) => patch({ genre: values })}
+              renderTag={(genre) => <GenreBadge genre={genre} />}
+              addLabel="Genre"
+              ariaLabel="Genres"
+              className="mt-2"
+            />
+          </div>
 
-          <InlineTextarea
-            value={event.description}
-            onChange={(value) => patch({ description: value })}
-            placeholder="Describe what happened here, and why it mattered."
-            ariaLabel="Description"
-            rows={5}
-            className="mt-2 text-sm leading-relaxed text-white/70"
-          />
+          <div data-field="description">
+            <InlineTextarea
+              value={event.description}
+              onChange={(value) => patch({ description: value })}
+              placeholder="Describe what happened here, and why it mattered."
+              ariaLabel="Description"
+              rows={5}
+              className="mt-2 text-sm leading-relaxed text-white/70"
+            />
+          </div>
 
-          <div className="mt-3">
+          <div data-field="videoId" className="mt-3">
             <YouTubeLinkField
               value={event.videoId ?? ''}
               onChange={(raw) =>
@@ -122,21 +141,28 @@ export const GlobeEventVisualEditor: FC<{
       </div>
 
       {/* ── Fields that steer the pin but never show on the card ── */}
-      <div className="grid max-w-2xl grid-cols-2 gap-x-6 gap-y-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 md:grid-cols-4">
-        <DetailCell label="Id / slug" className="col-span-2">
-          <InlineText
-            value={event.id}
-            onChange={(value) => patch({ id: value.trim() })}
-            placeholder="evt-slug"
-            ariaLabel="Event id"
-            className="font-mono text-xs"
-          />
-          <p className="mt-0.5 text-[10px] text-white/25">
-            Referenced by influence arcs and pathways — renaming is checked at
-            publish time.
+      <div
+        className={`${CONSOLE_PANEL} grid max-w-2xl grid-cols-2 gap-x-6 gap-y-3 p-4 ${narrow ? '' : 'md:grid-cols-4'}`}
+      >
+        <DetailCell label="Id / slug" field="id" className="col-span-2">
+          {lockId ? (
+            <span className="text-xs">{event.id}</span>
+          ) : (
+            <InlineText
+              value={event.id}
+              onChange={(value) => patch({ id: value.trim() })}
+              placeholder="evt-slug"
+              ariaLabel="Event id"
+              className="text-xs"
+            />
+          )}
+          <p className="mt-0.5 text-[10px] text-white/45">
+            {lockId
+              ? 'Referenced by influence arcs and pathways, so it stays as it is.'
+              : 'Referenced by influence arcs and pathways — renaming is checked at publish time.'}
           </p>
         </DetailCell>
-        <DetailCell label="Latitude">
+        <DetailCell label="Latitude" field="location.lat">
           <InlineNumber
             value={location.lat}
             onChange={(value) => patchLocation({ lat: value ?? 0 })}
@@ -146,7 +172,7 @@ export const GlobeEventVisualEditor: FC<{
             ariaLabel="Latitude"
           />
         </DetailCell>
-        <DetailCell label="Longitude">
+        <DetailCell label="Longitude" field="location.lng">
           <InlineNumber
             value={location.lng}
             onChange={(value) => patchLocation({ lng: value ?? 0 })}
@@ -156,7 +182,11 @@ export const GlobeEventVisualEditor: FC<{
             ariaLabel="Longitude"
           />
         </DetailCell>
-        <DetailCell label="Tags" className="col-span-2 md:col-span-4">
+        <DetailCell
+          label="Tags"
+          field="tags"
+          className={narrow ? 'col-span-2' : 'col-span-2 md:col-span-4'}
+        >
           <InlineTagList
             values={event.tags ?? []}
             onChange={(values) => patch({ tags: values })}

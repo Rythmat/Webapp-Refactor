@@ -16,6 +16,17 @@ export const boogie_on_reggae_woman: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+    { name: 'Rocky', role: 'performer', instrument: 'congas' },
+    { name: 'Stevie Wonder', role: 'arranger', artistGlobeId: 'stevie-wonder' },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-fulfillingness-first-finale' }],
 
   sections: [
     {

@@ -16,6 +16,52 @@ export const hey_soul_sister: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Espen Lind',
+      role: 'performer',
+      instrument: 'ukulele',
+      artistGlobeId: 'espen-lind',
+    },
+    { name: 'Jerry Becker', role: 'performer', instrument: 'hammond-organ' },
+    {
+      name: 'Amund Bjørklund',
+      role: 'songwriter',
+      artistGlobeId: 'amund-bj-rklund',
+    },
+    { name: 'Espen Lind', role: 'performer', artistGlobeId: 'espen-lind' },
+    {
+      name: 'Gregg Wattenberg',
+      role: 'producer',
+      artistGlobeId: 'gregg-wattenberg',
+    },
+    {
+      name: 'Martin Terefe',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'martin-terefe',
+    },
+    { name: 'Dyre Gormsen', role: 'engineer' },
+    { name: 'Bryan Cook', role: 'engineer' },
+    {
+      name: 'Amund Bjørklund',
+      role: 'engineer',
+      artistGlobeId: 'amund-bj-rklund',
+    },
+    {
+      name: 'Espionage',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'espionage',
+    },
+    { name: 'Espen Lind', role: 'engineer', artistGlobeId: 'espen-lind' },
+    { name: 'Espen Lind', role: 'songwriter', artistGlobeId: 'espen-lind' },
+    { name: 'Pat Monahan', role: 'songwriter', artistGlobeId: 'pat-monahan' },
+    { name: 'Claes Björklund', role: 'performer' },
+    { name: 'Martin Terefe', role: 'producer', artistGlobeId: 'martin-terefe' },
+    { name: 'Ross Petersen', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'train-save-me-san-francisco', track: 2 }],
 
   sections: [
     {

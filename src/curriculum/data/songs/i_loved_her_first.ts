@@ -16,6 +16,7 @@ export const i_loved_her_first: Song = {
   difficulty: 2,
   genreTags: ['folk'],
   techniques: [],
+  releases: [{ releaseId: 'heartland-i-loved-her-first', track: 9 }],
 
   sections: [
     {

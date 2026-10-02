@@ -16,6 +16,42 @@ export const ebony_eyes: Song = {
   difficulty: 3,
   genreTags: ['funk', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'Jim Horn', role: 'performer' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Stevie Wonder', role: 'arranger', artistGlobeId: 'stevie-wonder' },
+    { name: 'Nathan Watts', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+    {
+      name: 'Stevie Wonder',
+      role: 'vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Sneaky Pete Kleinow',
+      role: 'performer',
+      instrument: 'pedal-steel',
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-songs-in-the-key-of-life' }],
 
   sections: [
     {

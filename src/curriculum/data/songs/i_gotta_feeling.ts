@@ -16,6 +16,19 @@ export const i_gotta_feeling: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'David Guetta', role: 'songwriter', artistGlobeId: 'david-guetta' },
+    { name: 'apl.de.ap', role: 'songwriter', artistGlobeId: 'apl-de-ap' },
+    {
+      name: 'Frédéric Riesterer',
+      role: 'songwriter',
+      artistGlobeId: 'frederic-riesterer',
+    },
+    { name: 'Taboo', role: 'songwriter', artistGlobeId: 'taboo' },
+    { name: 'Fergie', role: 'songwriter', artistGlobeId: 'fergie' },
+    { name: 'will.i.am', role: 'songwriter', artistGlobeId: 'will-i-am' },
+  ],
+  releases: [{ releaseId: 'black-eyed-peas-the-e-n-d' }],
 
   sections: [
     {

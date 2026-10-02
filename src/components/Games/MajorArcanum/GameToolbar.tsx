@@ -63,8 +63,8 @@ export function GameToolbar({
         >
           -
         </button>
-        <span className="text-xs text-zinc-500 font-mono">BPM</span>
-        <span className="text-sm text-zinc-200 font-mono w-8 text-center">
+        <span className="text-xs text-zinc-500">BPM</span>
+        <span className="text-sm text-zinc-200 tabular-nums w-8 text-center">
           {bpm}
         </span>
         <button

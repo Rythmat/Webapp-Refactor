@@ -14,9 +14,7 @@ export const ChallengeBoostBadge = () => {
 
   if (isActive) {
     return (
-      <span
-        className={`${PILL} border border-amber-400/30 bg-amber-400/10 text-amber-300`}
-      >
+      <span className={`${PILL} border border-white/20 bg-white/10 text-white`}>
         <Zap className="h-4 w-4" fill="currentColor" />
         {multiplier}× XP active
       </span>
@@ -27,7 +25,7 @@ export const ChallengeBoostBadge = () => {
       <button
         type="button"
         onClick={() => claim.mutate()}
-        className={`${PILL} border border-amber-400/40 bg-amber-400/15 text-amber-300 transition-colors hover:bg-amber-400/25`}
+        className={`${PILL} border border-white bg-white text-[#101012] transition-colors hover:bg-white/90`}
       >
         <Zap className="h-4 w-4" fill="currentColor" />
         Claim your {multiplier}× XP

@@ -16,6 +16,76 @@ export const wonderwall: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'rockfield-studios' },
+  credits: [
+    {
+      name: 'Noel Gallagher',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'noel-gallagher',
+    },
+    {
+      name: 'Noel Gallagher',
+      role: 'songwriter',
+      artistGlobeId: 'noel-gallagher',
+    },
+    { name: 'Liam Gallagher', role: 'vocals', artistGlobeId: 'liam-gallagher' },
+    {
+      name: 'Alan White',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'alan-white',
+    },
+    {
+      name: 'Alan White',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'alan-white',
+    },
+    {
+      name: 'Noel Gallagher',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'noel-gallagher',
+    },
+    {
+      name: 'Liam Gallagher',
+      role: 'performer',
+      instrument: 'tambourine',
+      artistGlobeId: 'liam-gallagher',
+    },
+    {
+      name: 'Noel Gallagher',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'noel-gallagher',
+    },
+    {
+      name: 'Noel Gallagher',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'noel-gallagher',
+    },
+    {
+      name: 'Paul Arthurs',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'paul-arthurs',
+    },
+    { name: 'Owen Morris', role: 'engineer', artistGlobeId: 'owen-morris' },
+    {
+      name: 'Noel Gallagher',
+      role: 'producer',
+      artistGlobeId: 'noel-gallagher',
+    },
+    { name: 'Owen Morris', role: 'producer', artistGlobeId: 'owen-morris' },
+    {
+      name: 'Noel Gallagher',
+      role: 'performer',
+      artistGlobeId: 'noel-gallagher',
+    },
+  ],
+  releases: [{ releaseId: 'oasis-whats-the-story-morning-glory', track: 3 }],
 
   sections: [
     {

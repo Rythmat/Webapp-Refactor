@@ -16,6 +16,32 @@ export const we_found_love: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Marcos Tovar', role: 'engineer' },
+    { name: 'Calvin Harris', role: 'producer', artistGlobeId: 'calvin-harris' },
+    { name: 'Kuk Harrell', role: 'producer', artistGlobeId: 'kuk-harrell' },
+    { name: 'Calvin Harris', role: 'engineer', artistGlobeId: 'calvin-harris' },
+    {
+      name: 'Calvin Harris',
+      role: 'songwriter',
+      artistGlobeId: 'calvin-harris',
+    },
+    {
+      name: 'Rihanna',
+      role: 'vocals',
+      primary: true,
+      artistGlobeId: 'rihanna',
+    },
+    { name: 'Kuk Harrell', role: 'engineer', artistGlobeId: 'kuk-harrell' },
+    { name: 'Phil Tan', role: 'engineer' },
+    {
+      name: 'Calvin Harris',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'calvin-harris',
+    },
+  ],
+  releases: [{ releaseId: 'rihanna-talk-that-talk', track: 3 }],
 
   sections: [
     {

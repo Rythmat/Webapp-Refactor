@@ -117,7 +117,6 @@ export function DelayTaps({
         y={height - 2}
         fill="rgba(255,255,255,0.25)"
         fontSize={7}
-        fontFamily="system-ui"
       >
         dry
       </text>
@@ -127,7 +126,7 @@ export function DelayTaps({
           y={height - 2}
           fill="rgba(255,255,255,0.25)"
           fontSize={7}
-          fontFamily="system-ui"
+          style={{ fontVariantNumeric: 'tabular-nums' }}
           textAnchor="middle"
         >
           {time < 1 ? `${Math.round(time * 1000)}ms` : `${time.toFixed(2)}s`}

@@ -16,6 +16,66 @@ export const when_im_sixty_four: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'abbey-road-studios' },
+  credits: [
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'Ringo Starr', role: 'performer' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'John Lennon', role: 'songwriter', artistGlobeId: 'john-lennon' },
+    { name: 'Ringo Starr', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'john-lennon',
+    },
+    { name: 'Dave Harries', role: 'engineer', artistGlobeId: 'dave-harries' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'Paul McCartney', role: 'vocals', artistGlobeId: 'paul-mccartney' },
+    {
+      name: 'Paul McCartney',
+      role: 'songwriter',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Geoff Emerick', role: 'engineer' },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'john-lennon',
+    },
+    { name: 'George Martin', role: 'producer' },
+    { name: 'Robert Burns', role: 'performer', instrument: 'clarinet' },
+    { name: 'Frank Reidy', role: 'performer', instrument: 'clarinet' },
+    { name: 'Dave Harries', role: 'producer', artistGlobeId: 'dave-harries' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'Henry McKenzie', role: 'performer', instrument: 'clarinet' },
+  ],
+  releases: [{ releaseId: 'the-beatles-sgt-peppers-lonely-hearts-club-band' }],
 
   sections: [
     {

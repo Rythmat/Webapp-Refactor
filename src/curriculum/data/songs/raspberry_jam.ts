@@ -16,6 +16,19 @@ export const raspberry_jam: Song = {
   difficulty: 2,
   genreTags: ['jazz'],
   techniques: [],
+  session: { studioId: 'crystal-sound' },
+  credits: [
+    { name: 'Toni Stern', role: 'songwriter', artistGlobeId: 'toni-stern' },
+    { name: 'Andrew Berliner', role: 'engineer' },
+    { name: 'Gerry Goffin', role: 'engineer', artistGlobeId: 'gerry-goffin' },
+    {
+      name: 'John Fischbach',
+      role: 'producer',
+      artistGlobeId: 'john-fischbach',
+    },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+  ],
+  releases: [{ releaseId: 'carole-king-writer' }],
 
   sections: [
     {

@@ -16,6 +16,46 @@ export const will_you_love_me_tomorrow: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  session: { studioId: 'a-m-studios' },
+  credits: [
+    { name: 'Lou Adler', role: 'producer', artistGlobeId: 'lou-adler' },
+    {
+      name: 'Carole King',
+      role: 'vocals',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    {
+      name: 'James Taylor',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'james-taylor',
+    },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+    {
+      name: 'Carole King',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    { name: 'Hank Cicalo', role: 'engineer' },
+    {
+      name: 'The Mitchell / Taylor Boy-and-Girl Choir',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      ensemble: true,
+    },
+    {
+      name: 'Danny Kortchmar',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+    },
+    { name: 'Russ Kunkel', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Gerry Goffin', role: 'songwriter', artistGlobeId: 'gerry-goffin' },
+    { name: 'Charles Larkey', role: 'performer', instrument: 'upright-bass' },
+  ],
+  releases: [{ releaseId: 'carole-king-tapestry' }],
 
   sections: [
     {

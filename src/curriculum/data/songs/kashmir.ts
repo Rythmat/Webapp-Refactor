@@ -16,6 +16,16 @@ export const kashmir: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'olympic-studios' },
+  credits: [
+    { name: 'Ron Nevison', role: 'engineer' },
+    { name: 'Jimmy Page', role: 'producer', artistGlobeId: 'jimmy-page' },
+    { name: 'John Bonham', role: 'songwriter', artistGlobeId: 'john-bonham' },
+    { name: 'Jimmy Page', role: 'songwriter', artistGlobeId: 'jimmy-page' },
+    { name: 'Keith Harwood', role: 'engineer' },
+    { name: 'Robert Plant', role: 'songwriter', artistGlobeId: 'robert-plant' },
+  ],
+  releases: [{ releaseId: 'led-zeppelin-physical-graffiti' }],
 
   sections: [
     {

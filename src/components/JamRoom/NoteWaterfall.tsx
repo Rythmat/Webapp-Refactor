@@ -402,7 +402,7 @@ export const NoteWaterfall = forwardRef<WaterfallHandle, NoteWaterfallProps>(
             const octave = Math.floor(note.midi / 12) - 1;
             ctx.globalAlpha = 0.9;
             ctx.fillStyle = note.color;
-            ctx.font = '9px monospace';
+            ctx.font = "9px 'Glacial Indifference', system-ui, sans-serif";
             ctx.textAlign = 'center';
             ctx.fillText(`${noteName}${octave}`, x + barWidth / 2, drawTop - 3);
           }

@@ -16,6 +16,12 @@ export const just_like_a_woman: Song = {
   difficulty: 2,
   genreTags: ['folk'],
   techniques: [],
+  session: { studioId: 'columbia-studios-nashville' },
+  credits: [
+    { name: 'Bob Johnston', role: 'producer', artistGlobeId: 'bob-johnston' },
+    { name: 'Bob Dylan', role: 'songwriter', artistGlobeId: 'bob-dylan' },
+  ],
+  releases: [{ releaseId: 'bob-dylan-blonde-on-blonde' }],
 
   sections: [
     {

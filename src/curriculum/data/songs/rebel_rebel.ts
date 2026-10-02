@@ -16,6 +16,34 @@ export const rebel_rebel: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Mike Garson', role: 'performer', instrument: 'harpsichord' },
+    { name: 'David Bowie', role: 'producer', artistGlobeId: 'david-bowie' },
+    { name: 'Alan Parker', role: 'performer' },
+    { name: 'David Bowie', role: 'engineer', artistGlobeId: 'david-bowie' },
+    { name: 'Herbie Flowers', role: 'performer' },
+    { name: 'Aynsley Dunbar', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Mike Garson', role: 'performer' },
+    {
+      name: 'David Bowie',
+      role: 'performer',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'Tony Newman', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Mike Garson', role: 'performer', instrument: 'piano' },
+    {
+      name: 'David Bowie',
+      role: 'vocals',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'David Bowie', role: 'songwriter', artistGlobeId: 'david-bowie' },
+    { name: 'David Bowie', role: 'arranger', artistGlobeId: 'david-bowie' },
+    { name: 'Mike Garson', role: 'performer', instrument: 'synthesizer' },
+    { name: 'Keith Harwood', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'david-bowie-diamond-dogs' }],
 
   sections: [
     {

@@ -16,6 +16,55 @@ export const this_love: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Mickey Madden',
+      role: 'songwriter',
+      artistGlobeId: 'mickey-madden',
+    },
+    {
+      name: 'James Valentine',
+      role: 'performer',
+      artistGlobeId: 'james-valentine',
+    },
+    { name: 'Matt Wallace', role: 'producer', artistGlobeId: 'matt-wallace' },
+    { name: 'Adam Levine', role: 'vocals', artistGlobeId: 'adam-levine' },
+    {
+      name: 'James Valentine',
+      role: 'songwriter',
+      artistGlobeId: 'james-valentine',
+    },
+    { name: 'Ryan Dusick', role: 'songwriter', artistGlobeId: 'ryan-dusick' },
+    { name: 'Adam Levine', role: 'performer', artistGlobeId: 'adam-levine' },
+    { name: 'Mike Landolt', role: 'engineer' },
+    {
+      name: 'Ryan Dusick',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'ryan-dusick',
+    },
+    { name: 'Adam Levine', role: 'songwriter', artistGlobeId: 'adam-levine' },
+    {
+      name: 'Mickey Madden',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'mickey-madden',
+    },
+    {
+      name: 'Jesse Carmichael',
+      role: 'songwriter',
+      artistGlobeId: 'jesse-carmichael',
+    },
+    { name: 'Mark Endert', role: 'engineer', artistGlobeId: 'mark-endert' },
+    { name: 'Matt Wallace', role: 'engineer', artistGlobeId: 'matt-wallace' },
+    {
+      name: 'Jesse Carmichael',
+      role: 'performer',
+      artistGlobeId: 'jesse-carmichael',
+    },
+    { name: 'Mark Endert', role: 'producer', artistGlobeId: 'mark-endert' },
+  ],
+  releases: [{ releaseId: 'maroon-5-songs-about-jane', track: 2 }],
 
   sections: [
     {

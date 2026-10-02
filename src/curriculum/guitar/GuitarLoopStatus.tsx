@@ -1,10 +1,18 @@
-import { Repeat } from 'lucide-react';
+import { Repeat, X } from 'lucide-react';
 import { HandCareChip, loopLabel, type LoopRange } from '@/curriculum/practice';
 
 // ── Guitar loop status ─────────────────────────────────────────────────────
-// Sits in the TAB's header strip while practising on guitar, beside the bars
-// it's about: which bars are looping and which pass this is, the one-bar pad,
-// a way out of the loop — or, with no loop, how to make one.
+// In the guitar lesson's action bar while practising: which bars are looping
+// and which pass this is, the one-bar pad, a way out of the loop — or, with
+// no loop, how to make one. Nothing sits over the TAB.
+
+/** The bar's secondary pill: 36px, 44px on a phone. */
+const PILL =
+  'inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-full border border-white/15 bg-white/[0.04] px-3 text-sm font-normal text-[#e8e8f0] transition-colors duration-150 hover:bg-white/[0.08] aria-pressed:border-white/40 aria-pressed:bg-white/[0.08] max-[639px]:h-11';
+
+/** The same pill, round, for the ✕ that ends the loop. */
+const ICON_PILL =
+  'inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/[0.04] text-[#e8e8f0] transition-colors duration-150 hover:bg-white/[0.08] max-[639px]:size-11';
 
 export interface GuitarLoopStatusProps {
   loop: LoopRange | null;
@@ -25,28 +33,35 @@ export function GuitarLoopStatus({
   return (
     <div
       data-guitar-loop-status
-      className="flex items-center gap-2 whitespace-nowrap text-[12px] text-white/70"
+      className="flex min-w-0 flex-wrap items-center gap-2 text-[15px] leading-5 text-[#e8e8f0]"
     >
       {loop ? (
         <>
-          <span role="status" className="flex items-center gap-1.5 text-white">
-            <Repeat size={13} aria-hidden />
+          <span
+            role="status"
+            className="mr-1 flex items-center gap-2 whitespace-nowrap"
+          >
+            <Repeat aria-hidden className="size-4 shrink-0 text-white/55" />
             {loopLabel(loop)} · pass {passCount + 1}
           </span>
           <button
             type="button"
             aria-pressed={padBars === 1}
             onClick={() => onPadChange(padBars === 1 ? 0 : 1)}
-            className="rounded-full border border-white/20 px-2.5 py-0.5 text-white/80 hover:bg-white/10"
+            className={PILL}
           >
             {padBars === 1 ? '✓ ' : ''}A bar either side
           </button>
+          {/* A ✕ rather than words: the loop's row stays one line, even
+              on a phone. */}
           <button
             type="button"
             onClick={onClear}
-            className="rounded-full border border-white/20 px-2.5 py-0.5 text-white/80 hover:bg-white/10"
+            aria-label="Stop looping"
+            title="Stop looping"
+            className={ICON_PILL}
           >
-            Stop looping
+            <X aria-hidden className="size-4" />
           </button>
         </>
       ) : (
@@ -64,8 +79,8 @@ export interface GuitarPracticeNotesProps {
 }
 
 /**
- * Under the practice controls: why the guide is quiet, and the barre-chord
- * break reminder. Renders nothing when neither applies.
+ * Beside the speed trainer in the action bar: why the guide is quiet, and
+ * the barre-chord break reminder. Renders nothing when neither applies.
  */
 export function GuitarPracticeNotes({
   handCareMs,
@@ -74,10 +89,10 @@ export function GuitarPracticeNotes({
   return (
     <div
       data-guitar-practice-notes
-      className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-[12px] text-white/70 empty:hidden"
+      className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs leading-4 text-white/55 empty:hidden"
     >
       {guideMuted && (
-        <span className="text-center">
+        <span>
           The guide is off: your microphone can hear the speakers. Use
           headphones to hear it while you play.
         </span>

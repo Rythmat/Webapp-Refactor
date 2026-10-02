@@ -16,6 +16,12 @@ export const shes_no_lady: Song = {
   difficulty: 2,
   genreTags: ['jazz'],
   techniques: [],
+  credits: [
+    { name: 'Lyle Lovett', role: 'producer', artistGlobeId: 'lyle-lovett' },
+    { name: 'Lyle Lovett', role: 'songwriter', artistGlobeId: 'lyle-lovett' },
+    { name: 'Tony Brown', role: 'producer', artistGlobeId: 'tony-brown' },
+  ],
+  releases: [{ releaseId: 'lyle-lovett-pontiac' }],
 
   sections: [
     {

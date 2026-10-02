@@ -16,6 +16,25 @@ export const no_scrubs: Song = {
   difficulty: 3,
   genreTags: ['hip-hop', 'rnb'],
   techniques: [],
+  credits: [
+    { name: 'Kandi', role: 'songwriter', artistGlobeId: 'kandi' },
+    {
+      name: 'Kevin “She’kspere” Briggs',
+      role: 'songwriter',
+      artistGlobeId: 'kevin-shekspere-briggs',
+    },
+    {
+      name: 'Lisa “Left Eye” Lopes',
+      role: 'songwriter',
+      artistGlobeId: 'lisa-left-eye-lopes',
+    },
+    {
+      name: 'Tameka “Tiny” Cottle',
+      role: 'songwriter',
+      artistGlobeId: 'tameka-tiny-cottle',
+    },
+  ],
+  releases: [{ releaseId: 'tlc-fanmail', track: 5 }],
 
   sections: [
     {

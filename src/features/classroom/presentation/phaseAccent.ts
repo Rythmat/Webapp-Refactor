@@ -11,12 +11,12 @@ import type { PhaseKey } from '../phases';
  *
  * Tones mirror `SlideStrip.PHASE_ACCENT` (which uses Tailwind class strings, not
  * reusable as CSS values): connect→sky, practice→teal, create→violet,
- * share→amber, reflect→emerald.
+ * share→orange, reflect→emerald.
  */
 export const PHASE_ACCENT_HEX: Record<PhaseKey, string> = {
   connectRegulate: '#38bdf8', // sky-400
   groupPractice: '#7ecfcf', // teal (the deck accent)
   creativeProjects: '#a78bfa', // violet-400
-  presentPerform: '#fbbf24', // amber-400
+  presentPerform: '#fb923c', // orange-400
   respondReflectReset: '#34d399', // emerald-400
 };

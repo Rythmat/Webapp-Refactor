@@ -16,6 +16,17 @@ export const walkin_after_midnight: Song = {
   difficulty: 2,
   genreTags: ['folk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Patsy Cline',
+      role: 'vocals',
+      artistGlobeId: 'patsy-cline',
+      primary: true,
+    },
+    { name: 'Alan Block', role: 'songwriter', artistGlobeId: 'alan-block' },
+    { name: 'Don Hecht', role: 'songwriter', artistGlobeId: 'don-hecht' },
+  ],
+  releases: [{ releaseId: 'patsy-cline-patsy-cline' }],
 
   sections: [
     {

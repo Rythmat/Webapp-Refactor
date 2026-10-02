@@ -16,6 +16,49 @@ export const dynamite: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Dr. Luke',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'dr-luke',
+    },
+    { name: 'benny blanco', role: 'songwriter', artistGlobeId: 'benny-blanco' },
+    {
+      name: 'Taio Cruz',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'taio-cruz',
+      primary: true,
+    },
+    { name: 'Dr. Luke', role: 'performer', artistGlobeId: 'dr-luke' },
+    {
+      name: 'Łukasz Gottwald',
+      role: 'songwriter',
+      artistGlobeId: 'ukasz-gottwald',
+    },
+    { name: 'benny blanco', role: 'performer', artistGlobeId: 'benny-blanco' },
+    { name: 'Bonnie McKee', role: 'songwriter', artistGlobeId: 'bonnie-mckee' },
+    {
+      name: 'Taio Cruz',
+      role: 'vocals',
+      artistGlobeId: 'taio-cruz',
+      primary: true,
+    },
+    { name: 'Max Martin', role: 'songwriter', artistGlobeId: 'max-martin' },
+    { name: 'benny blanco', role: 'producer', artistGlobeId: 'benny-blanco' },
+    { name: 'Taio Cruz', role: 'songwriter', artistGlobeId: 'taio-cruz' },
+    { name: 'Emily Wright', role: 'engineer' },
+    { name: 'Serban Ghenea', role: 'engineer' },
+    {
+      name: 'benny blanco',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'benny-blanco',
+    },
+    { name: 'Dr. Luke', role: 'producer', artistGlobeId: 'dr-luke' },
+  ],
+  releases: [{ releaseId: 'taio-cruz-rokstarr', track: 1 }],
 
   sections: [
     {

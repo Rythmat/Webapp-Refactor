@@ -16,6 +16,24 @@ export const my_cherie_amour: Song = {
   difficulty: 3,
   genreTags: ['rnb'],
   techniques: [],
+  session: { studioId: 'hitsville' },
+  credits: [
+    { name: 'Henry Cosby', role: 'songwriter', artistGlobeId: 'henry-cosby' },
+    { name: 'Sylvia Moy', role: 'songwriter', artistGlobeId: 'sylvia-moy' },
+    { name: 'Henry Cosby', role: 'producer', artistGlobeId: 'henry-cosby' },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-my-cherie-amour', track: 1 }],
 
   sections: [
     {

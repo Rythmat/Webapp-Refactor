@@ -16,6 +16,17 @@ export const listen_to_the_music: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Tom Johnston', role: 'songwriter', artistGlobeId: 'tom-johnston' },
+    { name: 'Marty Cohn', role: 'producer', artistGlobeId: 'marty-cohn' },
+    { name: 'Ted Templeman', role: 'producer', artistGlobeId: 'ted-templeman' },
+    {
+      name: 'Stephen Barncard',
+      role: 'producer',
+      artistGlobeId: 'stephen-barncard',
+    },
+  ],
+  releases: [{ releaseId: 'the-doobie-brothers-toulouse-street' }],
 
   sections: [
     {

@@ -16,6 +16,23 @@ export const little_lion_man: Song = {
   difficulty: 2,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Ben Lovett', role: 'producer', artistGlobeId: 'ben-lovett' },
+    { name: 'Ted Dwane', role: 'songwriter', artistGlobeId: 'ted-dwane' },
+    { name: 'Ben Lovett', role: 'songwriter', artistGlobeId: 'ben-lovett' },
+    {
+      name: 'Marcus Mumford',
+      role: 'songwriter',
+      artistGlobeId: 'marcus-mumford',
+    },
+    {
+      name: 'Winston Marshall',
+      role: 'songwriter',
+      artistGlobeId: 'winston-marshall',
+    },
+    { name: 'Ben Lovett', role: 'engineer', artistGlobeId: 'ben-lovett' },
+  ],
+  releases: [{ releaseId: 'mumford-and-sons-sigh-no-more', track: 7 }],
 
   sections: [
     {

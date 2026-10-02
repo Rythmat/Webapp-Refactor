@@ -126,7 +126,7 @@ export function UserList({ open, onClose }: UserListProps) {
                 </span>
                 <div className="flex items-center gap-1.5">
                   <span
-                    className="flex-1 truncate font-mono text-xs font-semibold tracking-[0.2em]"
+                    className="flex-1 truncate text-xs font-semibold tracking-[0.2em]"
                     style={{ color: 'var(--color-text)' }}
                   >
                     {roomCode}

@@ -63,6 +63,10 @@ describe('SpeedTrainerControl', () => {
     expect(note.textContent).toContain(
       'A clean pass misses no more than one note.',
     );
+    // It opens upward: the control lives in the lesson's bottom bar, where
+    // a note hung below the (i) would be cut off by the screen's edge.
+    expect(note.className).toMatch(/(^| )bottom-full( |$)/);
+    expect(note.className).not.toMatch(/(^| )top-full( |$)/);
     fireEvent.keyDown(info, { key: 'Escape' });
     expect(screen.queryByRole('note')).toBeNull();
   });
@@ -70,6 +74,40 @@ describe('SpeedTrainerControl', () => {
   it('says when it has slowed down', () => {
     renderControl({ currentPct: 70, lastStep: 'back' });
     expect(screen.getByText('Slowing to 70% for a few passes.')).toBeTruthy();
+  });
+
+  it('is the app’s white switch, with 12px type and nothing blue', () => {
+    renderControl();
+    const toggle = screen.getByRole('switch', { name: 'Speed trainer' });
+    // ui/switch: white when on, drawn by its state.
+    expect(toggle.getAttribute('data-state')).toBe('checked');
+    expect(toggle.className).toContain('data-[state=checked]:bg-primary');
+    const html = document.body.innerHTML;
+    expect(html).not.toMatch(/4a9eff|74, 158, 255/i);
+    expect(html).not.toMatch(/text-\[(9|10|11)px\]/);
+    expect(html).not.toMatch(/font-(semibold|medium)/);
+  });
+
+  it('takes taps the row’s height round the 20px switch: 44px on a phone, 36px from sm', () => {
+    renderControl();
+    const toggle = screen.getByRole('switch', { name: 'Speed trainer' });
+    // The switch's 16px inside its 2px border, reached 14px (10px from sm)
+    // above and below by its ::before.
+    expect(toggle.className).toMatch(/(^| )before:-inset-y-3\.5( |$)/);
+    expect(toggle.className).toMatch(/(^| )sm:before:-inset-y-2\.5( |$)/);
+    expect(toggle.className).toContain('relative');
+    expect(toggle.className).toContain('before:absolute');
+    // The label takes the gap between them.
+    const label = screen.getByText('Speed trainer');
+    expect(label.tagName).toBe('LABEL');
+    expect(label.className).toContain('pl-2');
+    expect(label.parentElement!.className).not.toMatch(/(^| )gap-/);
+  });
+
+  it('switches from its label too', () => {
+    const { onToggle } = renderControl({ enabled: false });
+    fireEvent.click(screen.getByText('Speed trainer'));
+    expect(onToggle).toHaveBeenCalledOnce();
   });
 
   it("doesn't mention slowing down after a step up", () => {

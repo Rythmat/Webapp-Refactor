@@ -16,6 +16,20 @@ export const miss_you: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'The Glimmer Twins',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'the-glimmer-twins',
+    },
+    { name: 'Mick Jagger', role: 'songwriter', artistGlobeId: 'mick-jagger' },
+    {
+      name: 'Keith Richards',
+      role: 'songwriter',
+      artistGlobeId: 'keith-richards',
+    },
+  ],
 
   sections: [
     {

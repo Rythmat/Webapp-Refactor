@@ -16,6 +16,7 @@ export const homegrown: Song = {
   difficulty: 2,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  releases: [{ releaseId: 'zac-brown-band-jekyll-hyde', track: 4 }],
 
   sections: [
     {

@@ -16,6 +16,32 @@ export const change_the_world: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Brad Gilderman', role: 'engineer' },
+    { name: 'Kyle Bess', role: 'engineer' },
+    {
+      name: 'Gordon Kennedy',
+      role: 'songwriter',
+      artistGlobeId: 'gordon-kennedy',
+    },
+    { name: 'Babyface', role: 'producer', artistGlobeId: 'babyface' },
+    { name: 'Thomas Russo', role: 'engineer' },
+    { name: 'Mick Guzauski', role: 'engineer' },
+    { name: 'Bill Kinsley', role: 'engineer' },
+    {
+      name: 'Wayne Kirkpatrick',
+      role: 'songwriter',
+      artistGlobeId: 'wayne-kirkpatrick',
+    },
+    {
+      name: 'Babyface',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'babyface',
+    },
+    { name: 'Tommy Sims', role: 'songwriter', artistGlobeId: 'tommy-sims' },
+  ],
+  releases: [{ releaseId: 'eric-clapton-pilgrim', track: 1 }],
 
   sections: [
     {

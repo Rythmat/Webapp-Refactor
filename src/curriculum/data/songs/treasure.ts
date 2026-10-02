@@ -16,6 +16,42 @@ export const treasure: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Ari Levine', role: 'songwriter', artistGlobeId: 'ari-levine' },
+    { name: 'Ari Levine', role: 'engineer', artistGlobeId: 'ari-levine' },
+    { name: 'Breakbot', role: 'songwriter', artistGlobeId: 'breakbot' },
+    { name: 'Manny Marroquin', role: 'engineer' },
+    { name: 'Bruno Mars', role: 'songwriter', artistGlobeId: 'bruno-mars' },
+    { name: 'Charles Moniz', role: 'engineer' },
+    {
+      name: 'Christopher Irfane Khan-Acito',
+      role: 'songwriter',
+      artistGlobeId: 'christopher-irfane-khan-acito',
+    },
+    {
+      name: 'Bruno Mars',
+      role: 'vocals',
+      artistGlobeId: 'bruno-mars',
+      primary: true,
+    },
+    {
+      name: 'The Smeezingtons',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'the-smeezingtons',
+    },
+    {
+      name: 'Philip Lawrence',
+      role: 'songwriter',
+      artistGlobeId: 'philip-lawrence',
+    },
+    {
+      name: 'Phredley Brown',
+      role: 'songwriter',
+      artistGlobeId: 'phredley-brown',
+    },
+  ],
+  releases: [{ releaseId: 'bruno-mars-unorthodox-jukebox', track: 4 }],
 
   sections: [
     {

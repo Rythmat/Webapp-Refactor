@@ -16,6 +16,36 @@ export const the_bones: Song = {
   difficulty: 2,
   genreTags: ['folk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Greg Kurstin',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'greg-kurstin',
+    },
+    {
+      name: 'Jimmy Robbins',
+      role: 'songwriter',
+      artistGlobeId: 'jimmy-robbins',
+    },
+    { name: 'Maren Morris', role: 'songwriter', artistGlobeId: 'maren-morris' },
+    {
+      name: 'Laura Veltz',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'laura-veltz',
+    },
+    {
+      name: 'Maren Morris',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'maren-morris',
+      primary: true,
+    },
+    { name: 'Greg Kurstin', role: 'producer', artistGlobeId: 'greg-kurstin' },
+    { name: 'Laura Veltz', role: 'songwriter', artistGlobeId: 'laura-veltz' },
+  ],
+  releases: [{ releaseId: 'maren-morris-girl', track: 12 }],
 
   sections: [
     {

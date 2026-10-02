@@ -718,7 +718,6 @@ function KeyBox({
         fontWeight: 700,
         letterSpacing: 2,
         color,
-        fontFamily: 'monospace',
         cursor: onSelect ? 'pointer' : 'default',
         transition: 'color 0.15s ease, border-color 0.15s ease',
       }}
@@ -1497,7 +1496,7 @@ export default function Foli({ onCorrect, onWrong }: FoliProps = {}) {
                 style={{
                   color: '#ddd6fe',
                   fontWeight: 700,
-                  fontFamily: 'monospace',
+                  fontVariantNumeric: 'tabular-nums',
                 }}
               >
                 {score}

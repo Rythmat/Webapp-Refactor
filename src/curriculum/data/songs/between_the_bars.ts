@@ -16,6 +16,25 @@ export const between_the_bars: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Rob Schnapf', role: 'engineer', artistGlobeId: 'rob-schnapf' },
+    { name: 'Elliott Smith', role: 'producer', artistGlobeId: 'elliott-smith' },
+    { name: 'Tom Rothrock', role: 'producer', artistGlobeId: 'tom-rothrock' },
+    { name: 'Rob Schnapf', role: 'producer', artistGlobeId: 'rob-schnapf' },
+    { name: 'Tom Rothrock', role: 'engineer', artistGlobeId: 'tom-rothrock' },
+    {
+      name: 'Elliott Smith',
+      role: 'songwriter',
+      artistGlobeId: 'elliott-smith',
+    },
+    {
+      name: 'Elliott Smith',
+      role: 'performer',
+      artistGlobeId: 'elliott-smith',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'elliott-smith-either-or', track: 4 }],
 
   sections: [
     {

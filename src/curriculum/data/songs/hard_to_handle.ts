@@ -16,6 +16,42 @@ export const hard_to_handle: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Jeff Cease', role: 'performer', artistGlobeId: 'jeff-cease' },
+    {
+      name: 'George Drakoulias',
+      role: 'producer',
+      artistGlobeId: 'george-drakoulias',
+    },
+    { name: 'Johnny Colt', role: 'performer', artistGlobeId: 'johnny-colt' },
+    { name: 'Otis Redding', role: 'songwriter', artistGlobeId: 'otis-redding' },
+    {
+      name: 'Alvertis Isbell',
+      role: 'songwriter',
+      artistGlobeId: 'alvertis-isbell',
+    },
+    {
+      name: 'Brendan O’Brien',
+      role: 'engineer',
+      artistGlobeId: 'brendan-obrien',
+    },
+    {
+      name: 'Rich Robinson',
+      role: 'performer',
+      artistGlobeId: 'rich-robinson',
+    },
+    {
+      name: 'Steve Gorman',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'steve-gorman',
+    },
+    { name: 'Chris Robinson', role: 'vocals', artistGlobeId: 'chris-robinson' },
+    { name: 'Allen Jones', role: 'songwriter', artistGlobeId: 'allen-jones' },
+  ],
+  releases: [
+    { releaseId: 'the-black-crowes-shake-your-money-maker', track: 6 },
+  ],
 
   sections: [
     {

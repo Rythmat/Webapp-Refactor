@@ -16,6 +16,25 @@ export const take_back_the_night: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'J‐Roc', role: 'songwriter', artistGlobeId: 'j-roc' },
+    { name: 'Chris Godbey', role: 'songwriter', artistGlobeId: 'chris-godbey' },
+    { name: 'Timbaland', role: 'songwriter', artistGlobeId: 'timbaland' },
+    { name: 'Daniel Jones', role: 'songwriter', artistGlobeId: 'daniel-jones' },
+    {
+      name: 'James Fauntleroy',
+      role: 'songwriter',
+      artistGlobeId: 'james-fauntleroy',
+    },
+    {
+      name: 'Justin Timberlake',
+      role: 'songwriter',
+      artistGlobeId: 'justin-timberlake',
+    },
+  ],
+  releases: [
+    { releaseId: 'justin-timberlake-the-20-20-experience-2-of-2', track: 5 },
+  ],
 
   sections: [
     {

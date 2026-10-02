@@ -16,6 +16,93 @@ export const landslide: Song = {
   difficulty: 2,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'John McVie',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'john-mcvie',
+    },
+    {
+      name: 'Mick Fleetwood',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'mick-fleetwood',
+    },
+    { name: 'Stevie Nicks', role: 'songwriter', artistGlobeId: 'stevie-nicks' },
+    {
+      name: 'Christine McVie',
+      role: 'vocals',
+      artistGlobeId: 'christine-mcvie',
+    },
+    {
+      name: 'Lindsey Buckingham',
+      role: 'producer',
+      artistGlobeId: 'lindsey-buckingham',
+    },
+    { name: 'Stevie Nicks', role: 'producer', artistGlobeId: 'stevie-nicks' },
+    { name: 'Keith Olsen', role: 'engineer', artistGlobeId: 'keith-olsen' },
+    {
+      name: 'Christine McVie',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'christine-mcvie',
+    },
+    {
+      name: 'Christine McVie',
+      role: 'performer',
+      artistGlobeId: 'christine-mcvie',
+    },
+    {
+      name: 'Lindsey Buckingham',
+      role: 'vocals',
+      artistGlobeId: 'lindsey-buckingham',
+    },
+    {
+      name: 'Mick Fleetwood',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'mick-fleetwood',
+    },
+    {
+      name: 'Lindsey Buckingham',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'lindsey-buckingham',
+    },
+    { name: 'Stevie Nicks', role: 'vocals', artistGlobeId: 'stevie-nicks' },
+    { name: 'John McVie', role: 'producer', artistGlobeId: 'john-mcvie' },
+    {
+      name: 'Lindsey Buckingham',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'lindsey-buckingham',
+    },
+    {
+      name: 'Mick Fleetwood',
+      role: 'producer',
+      artistGlobeId: 'mick-fleetwood',
+    },
+    { name: 'Keith Olsen', role: 'producer', artistGlobeId: 'keith-olsen' },
+    { name: 'David DeVore', role: 'engineer' },
+    {
+      name: 'Lindsey Buckingham',
+      role: 'performer',
+      instrument: 'banjo',
+      artistGlobeId: 'lindsey-buckingham',
+    },
+    {
+      name: 'Lindsey Buckingham',
+      role: 'performer',
+      artistGlobeId: 'lindsey-buckingham',
+    },
+    {
+      name: 'Christine McVie',
+      role: 'producer',
+      artistGlobeId: 'christine-mcvie',
+    },
+  ],
+  releases: [{ releaseId: 'fleetwood-mac-fleetwood-mac' }],
 
   sections: [
     {

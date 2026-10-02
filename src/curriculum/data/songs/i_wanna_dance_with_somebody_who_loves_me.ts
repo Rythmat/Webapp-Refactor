@@ -16,6 +16,63 @@ export const i_wanna_dance_with_somebody_who_loves_me: Song = {
   difficulty: 3,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Kitty Beethoven',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Corrado Rustici', role: 'performer' },
+    { name: 'Kevin Dorsey', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'George Merrill',
+      role: 'songwriter',
+      artistGlobeId: 'george-merrill',
+    },
+    { name: 'Maureen Droney', role: 'engineer' },
+    { name: 'Walter Afanasieff', role: 'performer', instrument: 'synthesizer' },
+    {
+      name: 'Narada Michael Walden',
+      role: 'producer',
+      artistGlobeId: 'narada-michael-walden',
+    },
+    {
+      name: 'Narada Michael Walden',
+      role: 'arranger',
+      artistGlobeId: 'narada-michael-walden',
+    },
+    { name: 'Ken Kessie', role: 'engineer' },
+    { name: 'Gordon Lyon', role: 'engineer' },
+    { name: 'David Frazer', role: 'engineer' },
+    {
+      name: 'Narada Michael Walden',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'narada-michael-walden',
+    },
+    { name: 'Marc Russo', role: 'performer', instrument: 'alto-sax' },
+    { name: 'Sterling Smith', role: 'performer', instrument: 'synthesizer' },
+    { name: 'Randy Jackson', role: 'performer', instrument: 'synth-bass' },
+    { name: 'Lincoln Clapp', role: 'engineer' },
+    { name: 'Jay Rifkin', role: 'engineer' },
+    { name: 'Jennifer Hall', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Jim Gilstrap', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Shannon Rubicam',
+      role: 'songwriter',
+      artistGlobeId: 'shannon-rubicam',
+    },
+    { name: 'Greg “Gigi” Gonaway', role: 'performer' },
+    {
+      name: 'Whitney Houston',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'whitney-houston',
+      primary: true,
+    },
+    { name: 'Myrna Matthews', role: 'performer', instrument: 'backing-vocals' },
+  ],
+  releases: [{ releaseId: 'whitney-houston-whitney', track: 1 }],
 
   sections: [
     {

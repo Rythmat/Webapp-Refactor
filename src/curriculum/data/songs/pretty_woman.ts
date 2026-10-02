@@ -16,6 +16,23 @@ export const pretty_woman: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Roy Orbison',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'roy-orbison',
+    },
+    {
+      name: 'The Candymen',
+      role: 'performer',
+      ensemble: true,
+      primary: true,
+      artistGlobeId: 'the-candymen',
+    },
+    { name: 'Bill Dees', role: 'songwriter', artistGlobeId: 'bill-dees' },
+    { name: 'Roy Orbison', role: 'songwriter', artistGlobeId: 'roy-orbison' },
+  ],
 
   sections: [
     {

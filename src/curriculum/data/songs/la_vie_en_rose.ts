@@ -16,6 +16,24 @@ export const la_vie_en_rose: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Louiguy', role: 'songwriter', artistGlobeId: 'louiguy' },
+    { name: 'Guy Luypaerts', role: 'conductor' },
+    {
+      name: 'Édith Piaf',
+      role: 'vocals',
+      artistGlobeId: 'edith-piaf',
+      primary: true,
+    },
+    {
+      name: 'Guy Luypaert and His Orchestra',
+      role: 'performer',
+      ensemble: true,
+    },
+    { name: 'Robert Chauvigny', role: 'performer', instrument: 'piano' },
+    { name: 'Édith Piaf', role: 'songwriter', artistGlobeId: 'edith-piaf' },
+  ],
+  releases: [{ releaseId: 'edith-piaf-chansons-parisiennes' }],
 
   sections: [
     {

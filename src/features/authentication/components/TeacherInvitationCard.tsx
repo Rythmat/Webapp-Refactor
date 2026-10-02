@@ -102,7 +102,7 @@ export const TeacherInvitationCard = ({
           ))}
         </div>
         <div className="absolute -left-7 top-1/2 -translate-y-1/2 -rotate-90 select-none">
-          <div className="font-mono text-lg tracking-wider text-primary/70 opacity-50">
+          <div className="text-lg tracking-wider text-primary/70 opacity-50">
             {code}
           </div>
         </div>

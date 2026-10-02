@@ -9,12 +9,15 @@ import { LANDING_MODULES } from './modules';
  * link that scrolls to the module's section below, flush with the label.
  * Neutral white UI — color on this page is reserved for the music color
  * system (key centers / chords) and the rainbow brand motif.
+ *
+ * Hidden below `sm` (phones held upright): there the module sections' pill
+ * bar makes the same jumps, without five stacked cards to scroll past first.
  */
 export const ModuleBentoRow = () => {
   return (
     <nav
       aria-label="Modules overview"
-      className="relative z-10 grid grid-cols-1 gap-px border-y border-white/[0.08] bg-white/[0.08] sm:grid-cols-2 lg:grid-cols-5"
+      className="relative z-10 hidden gap-px border-y border-white/[0.08] bg-white/[0.08] sm:grid sm:grid-cols-2 lg:grid-cols-5"
     >
       {LANDING_MODULES.map((m, i) => (
         <div

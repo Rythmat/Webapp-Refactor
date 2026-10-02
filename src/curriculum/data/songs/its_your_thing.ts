@@ -16,6 +16,23 @@ export const its_your_thing: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Ronald Isley', role: 'songwriter', artistGlobeId: 'ronald-isley' },
+    { name: 'O’Kelly Isley', role: 'producer', artistGlobeId: 'okelly-isley' },
+    { name: 'Rudolph Isley', role: 'producer', artistGlobeId: 'rudolph-isley' },
+    {
+      name: 'O’Kelly Isley',
+      role: 'songwriter',
+      artistGlobeId: 'okelly-isley',
+    },
+    { name: 'Ronald Isley', role: 'producer', artistGlobeId: 'ronald-isley' },
+    {
+      name: 'Rudolph Isley',
+      role: 'songwriter',
+      artistGlobeId: 'rudolph-isley',
+    },
+  ],
+  releases: [{ releaseId: 'isley-brothers-its-our-thing' }],
 
   sections: [
     {

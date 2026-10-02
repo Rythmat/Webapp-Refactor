@@ -4,7 +4,7 @@ export const ill_make_love_to_you: Song = {
   id: 'ill_make_love_to_you',
   title: 'I’ll Make Love To You',
   artist: 'Boyz II Men',
-  year: undefined,
+  year: 1994,
 
   historicalDescription:
     "Boyz II Men release 'I'll Make Love To You', a silky R&B ballad that becomes one of the best-selling singles of all time. The track holds the number one spot on the Billboard Hot 100 for 14 consecutive weeks, cementing the Philadelphia quartet's dominance of 1990s slow-jam culture and setting a commercial benchmark few acts would ever match.",
@@ -17,6 +17,20 @@ export const ill_make_love_to_you: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Brad Gilderman', role: 'engineer' },
+    { name: 'Babyface', role: 'songwriter', artistGlobeId: 'babyface' },
+    { name: 'Babyface', role: 'producer', artistGlobeId: 'babyface' },
+    {
+      name: 'Babyface',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'babyface',
+    },
+    { name: 'Mick Guzauski', role: 'engineer' },
+    { name: 'Reggie Hamilton', role: 'performer' },
+  ],
+  releases: [{ releaseId: 'boyz-ii-men-ii', track: 9 }],
 
   sections: [
     {

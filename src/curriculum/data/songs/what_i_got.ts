@@ -16,6 +16,32 @@ export const what_i_got: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'total-access-recording' },
+  credits: [
+    { name: 'Bud Gaugh', role: 'songwriter', artistGlobeId: 'bud-gaugh' },
+    { name: 'Eric Wilson', role: 'songwriter', artistGlobeId: 'eric-wilson' },
+    { name: 'Eddie Ashworth', role: 'engineer' },
+    { name: 'Marshall Goodman', role: 'performer', instrument: 'turntables' },
+    {
+      name: 'Michael "Miguel" Happoldt',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+    },
+    { name: 'David Kahne', role: 'producer', artistGlobeId: 'david-kahne' },
+    {
+      name: 'David Kahne',
+      role: 'performer',
+      instrument: 'organ',
+      artistGlobeId: 'david-kahne',
+    },
+    {
+      name: 'Bradley Nowell',
+      role: 'songwriter',
+      artistGlobeId: 'bradley-nowell',
+    },
+    { name: 'David Kahne', role: 'engineer', artistGlobeId: 'david-kahne' },
+  ],
+  releases: [{ releaseId: 'sublime-sublime', track: 2 }],
 
   sections: [
     {

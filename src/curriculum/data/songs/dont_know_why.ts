@@ -16,6 +16,42 @@ export const dont_know_why: Song = {
   difficulty: 2,
   genreTags: ['jazz', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'Jay Newland', role: 'producer', artistGlobeId: 'jay-newland' },
+    { name: 'Dan Rieser', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Norah Jones', role: 'producer', artistGlobeId: 'norah-jones' },
+    {
+      name: 'Norah Jones',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'norah-jones',
+      primary: true,
+    },
+    {
+      name: 'Jesse Harris',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'jesse-harris',
+    },
+    { name: 'Jay Newland', role: 'engineer', artistGlobeId: 'jay-newland' },
+    {
+      name: 'Jesse Harris',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'jesse-harris',
+    },
+    { name: 'Arif Mardin', role: 'engineer', artistGlobeId: 'arif-mardin' },
+    { name: 'Lee Alexander', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Jesse Harris', role: 'songwriter', artistGlobeId: 'jesse-harris' },
+    {
+      name: 'Norah Jones',
+      role: 'vocals',
+      artistGlobeId: 'norah-jones',
+      primary: true,
+    },
+    { name: 'Arif Mardin', role: 'producer', artistGlobeId: 'arif-mardin' },
+  ],
+  releases: [{ releaseId: 'norah-jones-come-away-with-me', track: 1 }],
 
   sections: [
     {

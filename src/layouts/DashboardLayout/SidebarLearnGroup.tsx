@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/tooltip';
 import { cn } from '@/components/utilities';
 import { LearnRoutes, SongRoutes } from '@/constants/routes';
+import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
 
 interface SubItem {
   slug: string; // ?tab= value this icon activates
@@ -60,10 +61,18 @@ const TOOLTIP_CLASS =
  * Learn Home hub (no ?tab); otherwise the pill sits on the active sub-tab. It
  * renders the Learn icon inline (rather than via SidebarMainNavItem) so the icon
  * and its tabs can live inside a single panel <li>.
+ *
+ * Technique is left out while guitar is the Learn instrument: guitar has no
+ * Technique lessons yet (its key centers are Theory → Ionian (Major)).
  */
 export const SidebarLearnGroup = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const instrument = useLearnInstrument();
+  const items =
+    instrument === 'guitar'
+      ? ITEMS.filter((item) => item.slug !== 'Technique')
+      : ITEMS;
 
   const learnRoot = LearnRoutes.root();
   const inSetLists = location.pathname.startsWith(SongRoutes.setLists());
@@ -133,7 +142,7 @@ export const SidebarLearnGroup = () => {
         >
           <div className="overflow-hidden" aria-hidden={!showTabs}>
             <ul className="flex flex-col gap-1 pt-1">
-              {ITEMS.map(
+              {items.map(
                 (
                   {
                     slug,

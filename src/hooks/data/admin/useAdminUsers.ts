@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import SuperJSON from 'superjson';
 import { getCurrentAppSessionId } from '@/auth/app-session-store';
 import { Env } from '@/constants/env';
@@ -42,8 +47,13 @@ async function fetchWithAuth<T = unknown>(
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(
-      (body as { error?: string }).error ?? `Request failed: ${res.status}`,
+    // The status rides along so callers can tell a 404 from a 500 — the
+    // server's messages alone don't (a duplicate rule is a raw 500).
+    throw Object.assign(
+      new Error(
+        (body as { error?: string }).error ?? `Request failed: ${res.status}`,
+      ),
+      { status: res.status },
     );
   }
 
@@ -57,13 +67,22 @@ export const useAdminUsers = (params?: {
 }) => {
   const { token } = useAuthContext();
 
+  // One key shape for every call: `()`, `{}` and `{ search: '' }` all mean
+  // "everyone", and the page asks for that list twice (table and stats).
+  const filters = {
+    search: params?.search?.trim() || undefined,
+    role: params?.role,
+  };
   const searchParams = new URLSearchParams();
-  if (params?.search) searchParams.set('search', params.search);
-  if (params?.role) searchParams.set('role', params.role);
+  if (filters.search) searchParams.set('search', filters.search);
+  if (filters.role) searchParams.set('role', filters.role);
   const qs = searchParams.toString();
 
   return useQuery<AdminUser[]>({
-    queryKey: ['admin', 'users', params],
+    queryKey: ['admin', 'users', filters],
+    // Keep showing the last results while a new search loads, rather than
+    // dropping back to skeletons on every keystroke.
+    placeholderData: keepPreviousData,
     queryFn: () =>
       fetchWithAuth<AdminUser[]>(
         adminPath(`/users${qs ? `?${qs}` : ''}`),

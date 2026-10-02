@@ -16,6 +16,58 @@ export const they_long_to_be_close_to_you: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Richard Carpenter',
+      role: 'vocals',
+      artistGlobeId: 'richard-carpenter',
+    },
+    {
+      name: 'Richard Carpenter',
+      role: 'arranger',
+      artistGlobeId: 'richard-carpenter',
+    },
+    {
+      name: 'Richard Carpenter',
+      role: 'performer',
+      instrument: 'wurlitzer',
+      artistGlobeId: 'richard-carpenter',
+    },
+    {
+      name: 'Bob Messenger',
+      role: 'performer',
+      artistGlobeId: 'bob-messenger',
+    },
+    { name: 'Karen Carpenter', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Joe Osborn', role: 'performer' },
+    { name: 'Jim Horn', role: 'performer' },
+    {
+      name: 'Douglass Strawn',
+      role: 'performer',
+      artistGlobeId: 'douglass-strawn',
+    },
+    { name: 'Karen Carpenter', role: 'vocals' },
+    { name: 'Hal David', role: 'songwriter', artistGlobeId: 'hal-david' },
+    {
+      name: 'Danny Woodhams',
+      role: 'performer',
+      artistGlobeId: 'danny-woodhams',
+    },
+    { name: 'Hal Blaine', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'Jack Daugherty',
+      role: 'producer',
+      artistGlobeId: 'jack-daugherty',
+    },
+    { name: 'Dick Bogert', role: 'engineer' },
+    { name: 'Ray Gerhardt', role: 'engineer' },
+    {
+      name: 'Burt Bacharach',
+      role: 'songwriter',
+      artistGlobeId: 'burt-bacharach',
+    },
+  ],
+  releases: [{ releaseId: 'the-carpenters-close-to-you' }],
 
   sections: [
     {

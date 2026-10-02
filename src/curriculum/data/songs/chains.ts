@@ -16,6 +16,53 @@ export const chains: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'abbey-road-studios' },
+  credits: [
+    { name: 'John Lennon', role: 'vocals', artistGlobeId: 'john-lennon' },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'john-lennon',
+    },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'john-lennon',
+    },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    { name: 'George Harrison', role: 'vocals' },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'harmonica',
+      artistGlobeId: 'john-lennon',
+    },
+    { name: 'Gerry Goffin', role: 'songwriter', artistGlobeId: 'gerry-goffin' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'Paul McCartney', role: 'vocals', artistGlobeId: 'paul-mccartney' },
+    { name: 'George Martin', role: 'producer' },
+    { name: 'Ringo Starr', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Norman Smith', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'the-beatles-please-please-me' }],
 
   sections: [
     {

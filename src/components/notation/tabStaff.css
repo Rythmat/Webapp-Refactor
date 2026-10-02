@@ -3,10 +3,19 @@
    VexFlow clears a white box behind each fret digit so the string line
    doesn't run through it; repainted in currentColor that box would cover the
    digit. It takes the panel's own colour instead, which is why the panel is
-   solid rather than translucent. */
+   solid rather than translucent.
+
+   The ink is quiet so the digits read first: strings and barlines white/20,
+   the rhythm (stems, beams, flags, rests) white/45, the labels (string
+   names, bar numbers, clef and time) white/45, and the fret digits in the
+   text colour until a note is lit. Everything is set in Glacial. */
 
 .ma-tab-staff {
   background: var(--ma-tab-gap, #141416);
+}
+
+.ma-tab-staff svg {
+  color: #e8e8f0;
 }
 
 /* (0,2,2) — outranks the theme's `svg:not(.ma-marks) *` at (0,2,1). */
@@ -21,6 +30,29 @@
     opacity 120ms ease;
 }
 
-.ma-tab-staff svg .vf-string-names {
-  color: var(--color-text-dim, #6b6b80);
+.ma-tab-staff svg .vf-tabnote text {
+  font-family: 'Glacial Indifference', system-ui, sans-serif;
+}
+
+.ma-tab-staff svg .vf-stave,
+.ma-tab-staff svg .vf-stavebarline {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.ma-tab-staff svg .vf-stem,
+.ma-tab-staff svg .vf-beam,
+.ma-tab-staff svg .vf-flag,
+.ma-tab-staff svg .vf-tuplet,
+.ma-tab-staff svg .vf-stavenote,
+.ma-tab-staff svg .vf-clef,
+.ma-tab-staff svg .vf-timesignature,
+.ma-tab-staff svg .vf-string-names,
+.ma-tab-staff svg .vf-measure-number {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ma-tab-staff svg .vf-tabnote {
+    transition: none;
+  }
 }

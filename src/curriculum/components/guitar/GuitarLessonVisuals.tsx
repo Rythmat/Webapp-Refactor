@@ -1,9 +1,13 @@
 import {
   memo,
   useCallback,
+  useLayoutEffect,
   useMemo,
+  useRef,
+  useState,
   type MutableRefObject,
   type ReactNode,
+  type RefObject,
 } from 'react';
 import {
   Fretboard,
@@ -11,6 +15,10 @@ import {
   type ChordDiagnostics,
   type ScaleBoxLabelMode,
 } from '@/components/guitar';
+import {
+  FRETBOARD_HEIGHT_UNITS,
+  fretboardWidthUnits,
+} from '@/components/guitar/Fretboard';
 import { GUITAR_ATLAS_BOOK_ONE } from '@/curriculum/data/guitar/bookOne';
 import { theoryString } from '@/curriculum/data/guitar/theoryNotes';
 import type { GuitarKeyName } from '@/curriculum/data/guitar/types';
@@ -52,6 +60,15 @@ import { useTickRefSelector } from './useTickRefSelector';
 // (fingers, notes, key numbers or chord tones) with its one-line legend, the
 // scale box's octave hairline and pentatonic ghosts, half-step brackets with
 // "Show steps" on A1, and the chord boxes' own formula, family and popover.
+//
+// The guitar lesson layout passes `controls={false}`: its settings sheet has
+// the label, steps and left-handed choices and its action bar the input and
+// the missed-strum hint, so the big area above the TAB is the diagrams alone,
+// in their lesson look — a scale step's box on the left beside the
+// fretboard, a chord step's strip beside a fretboard column a little wider
+// than it, each diagram centred in its cell. The neck is drawn as large as
+// its cell allows with the whole fret window in view (440px tall at most);
+// on a phone they stack, the strip or box over a 150px neck.
 
 /**
  * Height the lesson container gives this block (the keyboard's is 120): a
@@ -64,6 +81,71 @@ export const GUITAR_VISUALS_HEIGHT = 228;
 const CHIP_ROW = 26;
 /** Room under the fretboard for the label legend (two short lines). */
 const LEGEND_ROW = 26;
+/** A lesson cell's size when it can't be measured: 208px tall, width free. */
+const LESSON_CELL: Size = { width: Infinity, height: 208 };
+/**
+ * From these heights the lesson diagrams draw at their larger size. A chord
+ * strip clips what doesn't fit, so its boxes (up to 207px tall at the larger
+ * size, 181px at the smaller) wait until they fit whole. The scale box
+ * (199px) may overhang its cell a little into the gaps round it.
+ */
+const LESSON_MD_MIN = { chords: 208, scale: 196 } as const;
+/** The lesson neck is never drawn taller than this, however large its cell. */
+const LESSON_NECK_MAX = 440;
+/**
+ * Nor shorter than this to fit a wide window (B's sevenths span 16 frets):
+ * its labels would drop under 12px. It scrolls sideways instead.
+ */
+const LESSON_NECK_MIN = 150;
+
+interface Size {
+  width: number;
+  height: number;
+}
+
+/** An element's size as it lays out, or `fallback` until it can be measured. */
+function useMeasuredSize(
+  ref: RefObject<HTMLElement>,
+  enabled: boolean,
+  fallback: Size,
+): Size {
+  const [size, setSize] = useState(fallback);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!enabled || !el || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(([entry]) => {
+      // Whole pixels, rounded down: what's drawn to fit never overflows.
+      const width = Math.floor(entry.contentRect.width);
+      const height = Math.floor(entry.contentRect.height);
+      if (width <= 0 || height <= 0) return;
+      setSize((prev) =>
+        prev.width === width && prev.height === height
+          ? prev
+          : { width, height },
+      );
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref, enabled]);
+  return size;
+}
+
+/**
+ * The lesson neck's height in its cell: the cell's height, unless the whole
+ * fret window would then be wider than the cell — then the height at which
+ * it fits exactly — and 440px at most. A window too wide to fit at 150px
+ * keeps 150px and scrolls sideways.
+ */
+function lessonNeckHeight(
+  cell: Size,
+  window: { min: number; max: number },
+): number {
+  const fit =
+    (cell.width * FRETBOARD_HEIGHT_UNITS) / fretboardWidthUnits(window);
+  return Math.floor(
+    Math.min(cell.height, LESSON_NECK_MAX, Math.max(fit, LESSON_NECK_MIN)),
+  );
+}
 
 /**
  * The TAB's theory layers for a step, from the device settings: W / H chips
@@ -167,6 +249,12 @@ export interface GuitarLessonVisualsProps {
    * decides; omitted, the strip follows the device setting.
    */
   showRomanNumerals?: boolean;
+  /**
+   * The chip row (dot labels, Show steps, input, Left-handed) and the legend
+   * or hint line (default). Off, the diagrams take the whole band in their
+   * lesson look; the host shows those choices and the hint elsewhere.
+   */
+  controls?: boolean;
 }
 
 export const GuitarLessonVisuals = memo(function GuitarLessonVisuals({
@@ -189,7 +277,17 @@ export const GuitarLessonVisuals = memo(function GuitarLessonVisuals({
   inputStatus,
   onHearShape,
   showRomanNumerals,
+  controls = true,
 }: GuitarLessonVisualsProps) {
+  const lesson = !controls;
+  const diagramsRef = useRef<HTMLDivElement>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
+  const diagramsHeight = useMeasuredSize(
+    diagramsRef,
+    lesson,
+    LESSON_CELL,
+  ).height;
+  const boardCell = useMeasuredSize(boardRef, lesson, LESSON_CELL);
   const leftHanded = useInstrumentStore((s) => s.leftHanded);
   const setLeftHanded = useInstrumentStore((s) => s.setLeftHanded);
   const showSteps = useGuitarDisplaySettings((s) => s.showSteps);
@@ -199,6 +297,11 @@ export const GuitarLessonVisuals = memo(function GuitarLessonVisuals({
     () => guitarVisualModel(step, keyCenter),
     [step, keyCenter],
   );
+  const lessonSize =
+    diagramsHeight >=
+    LESSON_MD_MIN[model.chords.length > 0 ? 'chords' : 'scale']
+      ? 'md'
+      : 'sm';
   const labelKind = model.labelKind ?? 'scale';
   const labelMode = useGuitarLabelMode(labelKind);
   const labelOf = useMemo(
@@ -317,6 +420,103 @@ export const GuitarLessonVisuals = memo(function GuitarLessonVisuals({
         )
       : -1;
 
+  const map = step.guitar?.musicMap
+    ? GUITAR_ATLAS_BOOK_ONE[keyCenter].musicMaps[
+        step.guitar.musicMap.example - 1
+      ]
+    : undefined;
+
+  if (lesson) {
+    const isChordStep = model.chords.length > 0;
+    // The row is the area's height, never its content's: the cells are
+    // measured to size what they draw, so a row that grew to fit its content
+    // would feed back — a short area would keep the larger diagrams, and a
+    // sideways scrollbar under the fretboard would grow the neck without end.
+    return (
+      <div
+        data-guitar-visuals
+        data-variant="lesson"
+        className={
+          isChordStep
+            ? 'flex h-full min-w-0 flex-col gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] sm:grid-rows-[minmax(0,1fr)] sm:gap-6'
+            : 'flex h-full min-w-0 flex-col gap-4 sm:grid sm:grid-cols-[auto_minmax(0,1fr)] sm:grid-rows-[minmax(0,1fr)] sm:gap-6'
+        }
+      >
+        <div
+          ref={diagramsRef}
+          // The strip centres its own boxes; the scale box is centred here,
+          // safely (in a shorter cell its title stays at the top).
+          className={
+            isChordStep
+              ? 'h-[208px] min-w-0 shrink-0 sm:h-full sm:min-h-0'
+              : 'flex h-[208px] min-w-0 shrink-0 [align-items:safe_center] sm:h-full sm:min-h-0'
+          }
+        >
+          {isChordStep ? (
+            <GuitarChordStrip
+              chords={model.chords}
+              currentIndex={chordIndex}
+              keyColor={keyColor}
+              heard={heardChord?.matchesCurrent ?? false}
+              diagnostics={diagnostics ?? undefined}
+              mirrored={leftHanded}
+              onHearShape={onHearShape}
+              keyCenter={keyCenter}
+              stepPrefix={model.prefix}
+              map={map}
+              showRomanNumerals={showRomanNumerals}
+              variant="lesson"
+              size={lessonSize}
+            />
+          ) : (
+            model.scale && (
+              <ScaleBox
+                playOrder={model.scale.position.playOrder}
+                fretStart={model.scale.position.fretStart}
+                fretEnd={model.scale.position.fretEnd}
+                unusedStrings={model.scale.position.unusedStrings}
+                name={model.scale.name}
+                tonicPc={model.tonicPc}
+                keyColor={keyColor}
+                activeIndex={scaleIndex >= 0 ? scaleIndex : undefined}
+                size={lessonSize}
+                mirrored={leftHanded}
+                labelMode={scaleMode}
+                showOctave={model.showOctave}
+                ghosts={model.scale.ghosts}
+                about={model.scaleAbout}
+                variant="lesson"
+              />
+            )
+          )}
+        </div>
+        <div
+          ref={boardRef}
+          data-fretboard-cell
+          className="flex h-[150px] min-w-0 shrink-0 items-center sm:h-full sm:min-h-0"
+        >
+          {/* The neck draws centred in the full width (the SVG keeps its
+              aspect ratio). */}
+          <div className="w-full min-w-0">
+            <Fretboard
+              window={model.window}
+              markers={markers}
+              keyColor={keyColor}
+              height={lessonNeckHeight(boardCell, model.window)}
+              mirrored={leftHanded}
+              labelShape={
+                labelOf && labelMode === 'keyNumbers' ? 'chip' : 'dot'
+              }
+              brackets={stepsOn ? model.scale?.halfSteps : undefined}
+              scrollable
+              variant="lesson"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       data-guitar-visuals
@@ -334,13 +534,7 @@ export const GuitarLessonVisuals = memo(function GuitarLessonVisuals({
             onHearShape={onHearShape}
             keyCenter={keyCenter}
             stepPrefix={model.prefix}
-            map={
-              step.guitar?.musicMap
-                ? GUITAR_ATLAS_BOOK_ONE[keyCenter].musicMaps[
-                    step.guitar.musicMap.example - 1
-                  ]
-                : undefined
-            }
+            map={map}
             showRomanNumerals={showRomanNumerals}
           />
         </div>

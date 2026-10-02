@@ -1,4 +1,4 @@
-import { ChevronDown, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { memo, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { cn } from '@/components/utilities';
 import {
@@ -22,6 +22,7 @@ import type {
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
 import { GuitarTheoryToggles } from './GuitarTheoryToggles';
 import { SameRootCompare } from './SameRootCompare';
+import { InfoItem, NoteCard } from './noteParts';
 import {
   CHANGE_PREFIXES,
   isSectionBCardDue,
@@ -63,86 +64,6 @@ export interface GuitarTheoryPanelProps {
   /** Offer the teacher setting "Show Roman numerals" beside the layer switches. */
   allowRomanToggle?: boolean;
   className?: string;
-}
-
-function NoteCard({
-  note,
-  keyColor,
-  onClose,
-}: {
-  note: ResolvedTheoryNote;
-  keyColor: string;
-  onClose: () => void;
-}) {
-  const titleId = useId();
-  return (
-    <div
-      data-theory-note={note.id}
-      data-open-intro
-      role="group"
-      aria-labelledby={titleId}
-      tabIndex={-1}
-      className="flex flex-col gap-1 rounded-lg py-1.5 pl-3 pr-2 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1"
-      style={{
-        borderLeft: `3px solid ${keyColor}`,
-        background: 'rgba(255,255,255,0.04)',
-      }}
-    >
-      <h4 id={titleId} className="text-sm font-semibold">
-        {note.title}
-      </h4>
-      <p
-        className="text-[13px] leading-snug"
-        style={{ color: 'var(--color-text-dim, #b4b4c2)' }}
-      >
-        {note.body}
-      </p>
-      <button
-        type="button"
-        onClick={onClose}
-        className="self-end rounded-full px-2 py-0.5 text-xs hover:bg-white/10"
-        style={{
-          border: '1px solid var(--color-border, rgba(255,255,255,0.12))',
-        }}
-      >
-        Got it
-      </button>
-    </div>
-  );
-}
-
-function InfoItem({ note }: { note: ResolvedTheoryNote }) {
-  const [open, setOpen] = useState(false);
-  const bodyId = useId();
-  return (
-    <li data-info-note={note.id}>
-      <button
-        type="button"
-        aria-expanded={open}
-        aria-controls={bodyId}
-        onClick={() => setOpen(!open)}
-        className="flex w-full items-center gap-1 rounded px-1 py-0.5 text-left text-[13px] font-medium hover:bg-white/5"
-      >
-        <ChevronDown
-          aria-hidden
-          className={cn(
-            'h-3.5 w-3.5 shrink-0 motion-safe:transition-transform',
-            open ? 'rotate-0' : '-rotate-90',
-          )}
-        />
-        {note.title}
-      </button>
-      {open && (
-        <p
-          id={bodyId}
-          className="pb-1 pl-5 text-[13px] leading-snug"
-          style={{ color: 'var(--color-text-dim, #b4b4c2)' }}
-        >
-          {note.body}
-        </p>
-      )}
-    </li>
-  );
 }
 
 export const GuitarTheoryPanel = memo(function GuitarTheoryPanel({

@@ -16,6 +16,43 @@ export const motownphilly: Song = {
   difficulty: 3,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    {
+      name: 'Michael Bivins',
+      role: 'songwriter',
+      artistGlobeId: 'michael-bivins',
+    },
+    { name: 'Dallas Austin', role: 'engineer', artistGlobeId: 'dallas-austin' },
+    { name: 'Michael Bivins', role: 'vocals', artistGlobeId: 'michael-bivins' },
+    { name: 'Nathan Morris', role: 'arranger', artistGlobeId: 'nathan-morris' },
+    {
+      name: 'Shawn Stockman',
+      role: 'arranger',
+      artistGlobeId: 'shawn-stockman',
+    },
+    {
+      name: 'Shawn Stockman',
+      role: 'songwriter',
+      artistGlobeId: 'shawn-stockman',
+    },
+    {
+      name: 'Michael Bivins',
+      role: 'arranger',
+      artistGlobeId: 'michael-bivins',
+    },
+    { name: 'Dallas Austin', role: 'producer', artistGlobeId: 'dallas-austin' },
+    {
+      name: 'Dallas Austin',
+      role: 'songwriter',
+      artistGlobeId: 'dallas-austin',
+    },
+    {
+      name: 'Nathan Morris',
+      role: 'songwriter',
+      artistGlobeId: 'nathan-morris',
+    },
+  ],
+  releases: [{ releaseId: 'boyz-ii-men-cooleyhighharmony', track: 6 }],
 
   sections: [
     {

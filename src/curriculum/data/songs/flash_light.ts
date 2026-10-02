@@ -16,6 +16,24 @@ export const flash_light: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Bernie Worrell',
+      role: 'songwriter',
+      artistGlobeId: 'bernie-worrell',
+    },
+    {
+      name: 'George Clinton',
+      role: 'songwriter',
+      artistGlobeId: 'george-clinton',
+    },
+    {
+      name: 'Bootsy Collins',
+      role: 'songwriter',
+      artistGlobeId: 'bootsy-collins',
+    },
+  ],
+  releases: [{ releaseId: 'parliament-funkentelechy-vs-the-placebo-syndrome' }],
 
   sections: [
     {

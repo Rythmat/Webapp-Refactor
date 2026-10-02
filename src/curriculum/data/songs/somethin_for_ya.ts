@@ -16,6 +16,7 @@ export const somethin_for_ya: Song = {
   difficulty: 2,
   genreTags: ['jam-band'],
   techniques: [],
+  releases: [{ releaseId: 'pigeons-playing-ping-pong-pizazz', track: 2 }],
 
   sections: [
     {

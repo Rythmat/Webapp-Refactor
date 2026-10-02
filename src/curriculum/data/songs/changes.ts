@@ -16,6 +16,41 @@ export const changes: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'trident-studios' },
+  credits: [
+    {
+      name: 'David Bowie',
+      role: 'vocals',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'Mick Ronson', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'David Bowie',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'Mick Ronson', role: 'performer', instrument: 'electric-guitar' },
+    { name: 'Trevor Bolder', role: 'performer', instrument: 'electric-bass' },
+    { name: 'BBC Symphony Orchestra', role: 'performer', ensemble: true },
+    {
+      name: 'David Bowie',
+      role: 'performer',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'Mick Woodmansey', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Rick Wakeman', role: 'performer', instrument: 'piano' },
+    { name: 'Ken Scott', role: 'producer', artistGlobeId: 'ken-scott' },
+    { name: 'Daniel Licht', role: 'songwriter', artistGlobeId: 'daniel-licht' },
+    { name: 'Mick Ronson', role: 'arranger' },
+    { name: 'David Bowie', role: 'producer', artistGlobeId: 'david-bowie' },
+    { name: 'Ken Scott', role: 'engineer', artistGlobeId: 'ken-scott' },
+    { name: 'David Bowie', role: 'songwriter', artistGlobeId: 'david-bowie' },
+  ],
+  releases: [{ releaseId: 'david-bowie-hunky-dory' }],
 
   sections: [
     {

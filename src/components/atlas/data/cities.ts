@@ -1,6 +1,6 @@
-import type { City } from '@/components/atlas/types';
+import type { PlaceRecord } from '@/content/records/types';
 
-export const CITIES: City[] = [
+export const CITIES: PlaceRecord[] = [
   {
     id: 'new-orleans',
     name: 'New Orleans',

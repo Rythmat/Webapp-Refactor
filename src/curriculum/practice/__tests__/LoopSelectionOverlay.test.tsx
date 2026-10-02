@@ -320,6 +320,44 @@ describe('LoopSelectionOverlay', () => {
     }
   });
 
+  it('hides the chip when the host shows the loop elsewhere, keeping the loop', () => {
+    const onChange = vi.fn();
+    const { container } = render(
+      <Harness
+        onChange={onChange}
+        showChip={false}
+        initial={{ startBar: 1, endBar: 2 }}
+        onPadChange={() => {}}
+      />,
+    );
+    expect(container.querySelector('[data-loop-chip]')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Clear loop' })).toBeNull();
+    // The shades, the handles and the bars still work.
+    expect(container.querySelectorAll('[data-loop-shade]')).toHaveLength(2);
+    expect(container.querySelectorAll('[data-loop-handle]')).toHaveLength(2);
+    fireEvent.keyDown(bar(2), { key: 'Escape' });
+    expect(onChange).toHaveBeenLastCalledWith(null);
+  });
+
+  it('draws the loop in neutral white, never in the key colour', () => {
+    const { container } = render(
+      <Harness initial={{ startBar: 1, endBar: 2 }} padBars={1} />,
+    );
+    const shade = container.querySelector<HTMLElement>('[data-loop-shade]')!;
+    expect(shade.className).toContain('bg-white/[0.06]');
+    expect(shade.style.borderTop).toBe('1px solid rgba(255, 255, 255, 0.4)');
+    expect(shade.style.borderBottom).toBe('1px solid rgba(255, 255, 255, 0.4)');
+    for (const handle of container.querySelectorAll('[data-loop-handle]')) {
+      expect(handle.className).toContain('bg-white');
+    }
+    // The key colour (#D2404A = rgb(210, 64, 74)) is nowhere in the overlay.
+    expect(container.innerHTML).not.toMatch(/d2404a|210, 64, 74/i);
+    // The chip's type is 12px.
+    const chip = container.querySelector('[data-loop-chip]')!;
+    expect(chip.className).toContain('text-xs');
+    expect(chip.className).not.toMatch(/text-\[1[01]px\]/);
+  });
+
   it('draws nothing without a layout', () => {
     const { container } = render(<Harness layout={null} />);
     expect(container.innerHTML).toBe('');

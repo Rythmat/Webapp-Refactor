@@ -4,7 +4,7 @@ export const hard_rock_cafe: Song = {
   id: 'hard_rock_cafe',
   title: 'Hard Rock Cafe',
   artist: 'Carole King / Rob Galloway',
-  year: undefined,
+  year: 1977,
 
   historicalDescription:
     "Carole King co-writes 'Hard Rock Cafe' with Rob Galloway, a driving rock track that marks a shift in her sound from the intimate singer-songwriter confessions of 'Tapestry' toward a harder-edged style. The song reflects the mid-1970s moment when many soft rock artists experimented with more muscular arrangements, testing the boundaries of their established identities.",
@@ -17,6 +17,14 @@ export const hard_rock_cafe: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Norm Kinney', role: 'producer', artistGlobeId: 'norm-kinney' },
+    { name: 'Norm Kinney', role: 'engineer', artistGlobeId: 'norm-kinney' },
+    { name: 'Milt Calice', role: 'engineer' },
+    { name: 'Carole King', role: 'producer', artistGlobeId: 'carole-king' },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+  ],
+  releases: [{ releaseId: 'carole-king-simple-things' }],
 
   sections: [
     {

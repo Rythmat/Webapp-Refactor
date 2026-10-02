@@ -16,6 +16,57 @@ export const try_a_little_tenderness: Song = {
   difficulty: 3,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    {
+      name: 'James Campbell',
+      role: 'songwriter',
+      artistGlobeId: 'james-campbell',
+    },
+    {
+      name: 'Donald “Duck” Dunn',
+      role: 'performer',
+      instrument: 'electric-bass',
+    },
+    {
+      name: 'Otis Redding',
+      role: 'vocals',
+      artistGlobeId: 'otis-redding',
+      primary: true,
+    },
+    { name: 'Steve Cropper', role: 'producer', artistGlobeId: 'steve-cropper' },
+    {
+      name: 'Steve Cropper',
+      role: 'performer',
+      artistGlobeId: 'steve-cropper',
+    },
+    {
+      name: 'Harry M. Woods',
+      role: 'songwriter',
+      artistGlobeId: 'harry-m-woods',
+    },
+    { name: 'Wayne Jackson', role: 'performer', instrument: 'trumpet' },
+    { name: 'Andrew Love', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Jim Stewart', role: 'producer', artistGlobeId: 'jim-stewart' },
+    {
+      name: 'Al Jackson, Jr.',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'al-jackson-jr',
+    },
+    { name: 'Otis Redding', role: 'producer', artistGlobeId: 'otis-redding' },
+    { name: 'Gilbert Caples', role: 'performer', instrument: 'tenor-sax' },
+    {
+      name: 'Reginald Connelly',
+      role: 'songwriter',
+      artistGlobeId: 'reginald-connelly',
+    },
+  ],
+  releases: [
+    {
+      releaseId:
+        'otis-redding-complete-unbelievable-the-otis-redding-dictionary-of-soul',
+    },
+  ],
 
   sections: [
     {

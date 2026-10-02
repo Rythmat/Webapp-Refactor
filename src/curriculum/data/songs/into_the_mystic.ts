@@ -16,6 +16,13 @@ export const into_the_mystic: Song = {
   difficulty: 1,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  session: { studioId: 'a-r-recording-studio-1958-1989' },
+  credits: [
+    { name: 'Elliot Scheiner', role: 'engineer' },
+    { name: 'Van Morrison', role: 'producer', artistGlobeId: 'van-morrison' },
+    { name: 'Van Morrison', role: 'songwriter', artistGlobeId: 'van-morrison' },
+  ],
+  releases: [{ releaseId: 'van-morrison-moondance' }],
 
   sections: [
     {

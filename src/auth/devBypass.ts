@@ -1,6 +1,7 @@
 import type {
   AuthAppUser,
   AuthContextData,
+  UserRole,
 } from '@/contexts/AuthContext/types';
 import type { SubscriptionStatus } from '@/features/settings/subscription/subscriptionUtils';
 
@@ -24,12 +25,20 @@ export const DEV_AUTH_BYPASS =
   import.meta.env.DEV && import.meta.env.VITE_DEV_AUTH_BYPASS === '1';
 
 /** Synthetic signed-in user. `role` is 'teacher' so ProtectedPage's
- *  admin-redirect and student/teacher-only guards all pass. `null` in prod. */
+ *  admin-redirect and student/teacher-only guards all pass. Set
+ *  `VITE_DEV_AUTH_BYPASS_ROLE=admin` (or `editor`) to open /console instead —
+ *  its API calls still need a real backend, so pages show their error states.
+ *  `null` in prod. */
+const DEV_BYPASS_ROLE: UserRole =
+  (['admin', 'editor', 'student'] as const).find(
+    (role) => role === import.meta.env.VITE_DEV_AUTH_BYPASS_ROLE,
+  ) ?? 'teacher';
+
 const DEV_BYPASS_USER: AuthAppUser | null = import.meta.env.DEV
   ? {
       id: 'dev-bypass-user',
       auth0Sub: 'dev|bypass',
-      role: 'teacher',
+      role: DEV_BYPASS_ROLE,
       email: 'dev@localhost',
       fullName: 'Dev Bypass',
       nickname: 'Dev',

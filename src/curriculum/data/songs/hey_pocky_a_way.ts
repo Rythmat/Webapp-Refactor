@@ -16,6 +16,36 @@ export const hey_pocky_a_way: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Ziggy Modeliste',
+      role: 'songwriter',
+      artistGlobeId: 'ziggy-modeliste',
+    },
+    {
+      name: 'Leo Nocentelli',
+      role: 'songwriter',
+      artistGlobeId: 'leo-nocentelli',
+    },
+    {
+      name: 'The Meters',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'the-meters',
+    },
+    {
+      name: 'George Porter, Jr.',
+      role: 'songwriter',
+      artistGlobeId: 'george-porter-jr',
+    },
+    {
+      name: 'Allen Toussaint',
+      role: 'producer',
+      artistGlobeId: 'allen-toussaint',
+    },
+    { name: 'Art Neville', role: 'songwriter', artistGlobeId: 'art-neville' },
+  ],
+  releases: [{ releaseId: 'the-meters-rejuvenation' }],
 
   sections: [
     {

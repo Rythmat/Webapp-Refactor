@@ -16,6 +16,24 @@ export const handclap: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Fitz and the Tantrums',
+      role: 'songwriter',
+      ensemble: true,
+      artistGlobeId: 'fitz-and-the-tantrums',
+    },
+    { name: 'Ricky Reed', role: 'producer', artistGlobeId: 'ricky-reed' },
+    { name: 'Ricky Reed', role: 'songwriter', artistGlobeId: 'ricky-reed' },
+    {
+      name: 'Sam Hollander',
+      role: 'songwriter',
+      artistGlobeId: 'sam-hollander',
+    },
+  ],
+  releases: [
+    { releaseId: 'fitz-and-the-tantrums-fitz-and-the-tantrums', track: 1 },
+  ],
 
   sections: [
     {

@@ -16,6 +16,32 @@ export const aint_no_other_man: Song = {
   difficulty: 3,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Harold Beatty',
+      role: 'songwriter',
+      artistGlobeId: 'harold-beatty',
+    },
+    { name: 'Charles Roane', role: 'producer', artistGlobeId: 'charles-roane' },
+    { name: 'DJ Premier', role: 'songwriter', artistGlobeId: 'dj-premier' },
+    {
+      name: 'Charles Roane',
+      role: 'songwriter',
+      artistGlobeId: 'charles-roane',
+    },
+    {
+      name: 'Kara DioGuardi',
+      role: 'songwriter',
+      artistGlobeId: 'kara-dioguardi',
+    },
+    { name: 'DJ Premier', role: 'producer', artistGlobeId: 'dj-premier' },
+    {
+      name: 'Christina Aguilera',
+      role: 'songwriter',
+      artistGlobeId: 'christina-aguilera',
+    },
+  ],
+  releases: [{ releaseId: 'christina-aguilera-back-to-basics', track: 4 }],
 
   sections: [
     {

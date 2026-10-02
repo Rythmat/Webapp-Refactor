@@ -16,6 +16,16 @@ export const doo_wop_that_thing: Song = {
   difficulty: 2,
   genreTags: ['hip-hop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Lauryn Hill',
+      role: 'songwriter',
+      artistGlobeId: 'lauryn-hill',
+    },
+  ],
+  releases: [
+    { releaseId: 'lauryn-hill-the-miseducation-of-lauryn-hill', track: 5 },
+  ],
 
   sections: [
     {

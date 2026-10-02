@@ -4,7 +4,7 @@ export const come_and_get_your_love: Song = {
   id: 'come_and_get_your_love',
   title: 'Come And Get Your Love',
   artist: 'Redbone',
-  year: undefined,
+  year: 1973,
 
   historicalDescription:
     "Redbone, the pioneering Native American rock band led by brothers Pat and Lolly Vegas, releases 'Come And Get Your Love' — a sun-drenched, irresistibly funky pop anthem that becomes one of the defining grooves of 1974. The song breaks the band into mainstream consciousness and stands as a rare moment of Indigenous visibility at the top of the charts. Decades later, its jubilant hook finds a new generation through its placement in 'Guardians of the Galaxy.'",
@@ -17,6 +17,9 @@ export const come_and_get_your_love: Song = {
   difficulty: 2,
   genreTags: ['funk', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'Lolly Vegas', role: 'songwriter', artistGlobeId: 'lolly-vegas' },
+  ],
 
   sections: [
     {

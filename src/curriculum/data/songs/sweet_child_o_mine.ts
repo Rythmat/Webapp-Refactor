@@ -16,6 +16,67 @@ export const sweet_child_o_mine: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Izzy Stradlin',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'izzy-stradlin',
+    },
+    {
+      name: 'Duff McKagan',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'duff-mckagan',
+    },
+    { name: 'Axl Rose', role: 'songwriter', artistGlobeId: 'axl-rose' },
+    { name: 'Mike Clink', role: 'engineer', artistGlobeId: 'mike-clink' },
+    {
+      name: 'Slash',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'slash',
+    },
+    {
+      name: 'Steve Thompson',
+      role: 'engineer',
+      artistGlobeId: 'steve-thompson',
+    },
+    { name: 'Steven Adler', role: 'songwriter', artistGlobeId: 'steven-adler' },
+    { name: 'Slash', role: 'songwriter', artistGlobeId: 'slash' },
+    {
+      name: 'Steven Adler',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'steven-adler',
+    },
+    {
+      name: 'Izzy Stradlin',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'izzy-stradlin',
+    },
+    {
+      name: 'Michael Barbiero',
+      role: 'engineer',
+      artistGlobeId: 'michael-barbiero',
+    },
+    {
+      name: 'Duff McKagan',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'duff-mckagan',
+    },
+    {
+      name: 'Izzy Stradlin',
+      role: 'songwriter',
+      artistGlobeId: 'izzy-stradlin',
+    },
+    { name: 'Mike Clink', role: 'producer', artistGlobeId: 'mike-clink' },
+    { name: 'Duff McKagan', role: 'songwriter', artistGlobeId: 'duff-mckagan' },
+    { name: 'Axl Rose', role: 'vocals', artistGlobeId: 'axl-rose' },
+  ],
+  releases: [{ releaseId: 'guns-n-roses-appetite-for-destruction', track: 9 }],
 
   sections: [
     {

@@ -12,7 +12,7 @@ import {
   getGuitarTonePrefs,
   setGuitarTonePrefs,
 } from '@/learn/audio/guitar/guitarTonePrefs';
-import { GuitarToneMenu } from '../GuitarToneMenu';
+import { GuitarToneMenu, GuitarToneSettings } from '../GuitarToneMenu';
 
 const voice = vi.hoisted(() => ({
   load: vi.fn(async () => {}),
@@ -193,5 +193,88 @@ describe('GuitarToneMenu', () => {
         name: 'Monitor my guitar through the amp',
       }),
     ).toHaveAttribute('aria-checked', 'true');
+  });
+});
+
+describe('GuitarToneSettings', () => {
+  function renderRows(
+    props: Partial<Parameters<typeof GuitarToneSettings>[0]> = {},
+  ) {
+    const onMonitorChange = vi.fn();
+    render(
+      <GuitarToneSettings
+        inputActive={false}
+        monitor={false}
+        onMonitorChange={onMonitorChange}
+        {...props}
+      />,
+    );
+    return { onMonitorChange };
+  }
+
+  it('offers the same tones as the menu, as a select named by its row', () => {
+    renderRows();
+    const select = screen.getByRole('combobox', { name: 'Guitar tone' });
+    expect(select).toHaveValue('nam-clean-twin');
+    const clean = within(select)
+      .getAllByRole('group')
+      .find((g) => g.getAttribute('label') === 'Clean')!;
+    expect(
+      within(clean)
+        .getAllByRole('option')
+        .map((o) => o.textContent),
+    ).toEqual(['Quartz', 'Amber', 'Aquamarine', 'Celestite', 'Emerald']);
+    expect(
+      within(select).getByRole('option', { name: 'Acoustic (no amp)' }),
+    ).toBeInTheDocument();
+    expect(
+      within(select).queryByRole('option', { name: 'Diamond' }),
+    ).toBeNull();
+  });
+
+  it('saves a new tone and strums it, after telling the lesson', async () => {
+    const onPreview = vi.fn(() => {
+      expect(voice.strumGuitarChord).not.toHaveBeenCalled();
+    });
+    renderRows({ onPreview });
+    await act(async () => {
+      fireEvent.change(screen.getByRole('combobox', { name: 'Guitar tone' }), {
+        target: { value: 'nam-vox-ac15' },
+      });
+    });
+    expect(getGuitarTonePrefs()).toEqual({
+      tone: 'amp',
+      ampModelId: 'nam-vox-ac15',
+    });
+    expect(onPreview).toHaveBeenCalledTimes(1);
+    expect(voice.strumGuitarChord).toHaveBeenCalled();
+    expect(screen.getByRole('combobox', { name: 'Guitar tone' })).toHaveValue(
+      'nam-vox-ac15',
+    );
+  });
+
+  it('switches monitoring only while audio input is on', () => {
+    const off = renderRows({ inputActive: false });
+    const disabled = screen.getByRole('switch', {
+      name: 'Monitor through amp',
+    });
+    expect(disabled).toBeDisabled();
+    expect(disabled).toHaveAccessibleDescription(
+      'Turn on audio input to hear yourself.',
+    );
+    fireEvent.click(disabled);
+    expect(off.onMonitorChange).not.toHaveBeenCalled();
+    cleanup();
+
+    const on = renderRows({ inputActive: true, monitor: true });
+    const monitor = screen.getByRole('switch', {
+      name: 'Monitor through amp',
+    });
+    expect(monitor).toHaveAttribute('aria-checked', 'true');
+    expect(monitor).toHaveAccessibleDescription(
+      'Headphones only: speakers feed back into the mic.',
+    );
+    fireEvent.click(monitor);
+    expect(on.onMonitorChange).toHaveBeenCalledWith(false);
   });
 });

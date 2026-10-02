@@ -621,7 +621,7 @@ export default function WaveSculptor({
                       }
                       className="flex-1 accent-purple-500 h-1"
                     />
-                    <span className="text-[10px] text-zinc-400 font-mono w-10 text-right">
+                    <span className="text-[10px] text-zinc-400 tabular-nums w-10 text-right">
                       {slot.frequency}Hz
                     </span>
                   </div>
@@ -644,7 +644,7 @@ export default function WaveSculptor({
                       }
                       className="flex-1 accent-cyan-500 h-1"
                     />
-                    <span className="text-[10px] text-zinc-400 font-mono w-10 text-right">
+                    <span className="text-[10px] text-zinc-400 tabular-nums w-10 text-right">
                       {Math.round(slot.amplitude * 100)}%
                     </span>
                   </div>
@@ -690,7 +690,7 @@ export default function WaveSculptor({
                 />
               </div>
               <span
-                className="text-sm font-mono w-12 text-right"
+                className="text-sm tabular-nums w-12 text-right"
                 style={{ color: similarityColor }}
               >
                 {similarityPct}%

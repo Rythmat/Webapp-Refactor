@@ -4,6 +4,10 @@ import { FullScreenLoading } from '@/components/FullScreenLoading';
 import { Button } from '@/components/ui/button';
 import { AdminRoutes, AuthRoutes } from '@/constants/routes';
 import { isConsoleRole } from '@/features/admin/consoleRoles';
+import {
+  isMirroredPrefix,
+  toConsolePath,
+} from '@/features/admin/content/mirror/mirrorPaths';
 import { useAuthContext } from './hooks/useAuthContext';
 
 interface ProtectedPageProps {
@@ -87,8 +91,20 @@ export const ProtectedPage = ({
   // Console users have no business in the student/teacher app — send them home.
   // This covers editors as well as admins; an editor with no branch here would
   // be able to wander into a teacher surface their role does not cover.
+  // A page the console mirrors opens there instead (a pasted /songs/africa
+  // lands on /console/content/songs/africa), so a link never strands them.
   if (!adminOnly && isConsoleRole(role)) {
-    return <Navigate replace to={AdminRoutes.root()} />;
+    const { pathname, search, hash } = location;
+    return (
+      <Navigate
+        replace
+        to={
+          isMirroredPrefix(pathname)
+            ? toConsolePath(`${pathname}${search}${hash}`)
+            : AdminRoutes.root()
+        }
+      />
+    );
   }
 
   return <>{children}</>;

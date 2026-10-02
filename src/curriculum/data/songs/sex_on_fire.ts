@@ -16,6 +16,81 @@ export const sex_on_fire: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'blackbird-studio' },
+  credits: [
+    {
+      name: 'Nathan Followill',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'nathan-followill',
+    },
+    {
+      name: 'Matthew Followill',
+      role: 'performer',
+      artistGlobeId: 'matthew-followill',
+    },
+    { name: 'Jacquire King', role: 'engineer', artistGlobeId: 'jacquire-king' },
+    {
+      name: 'Jared Followill',
+      role: 'performer',
+      artistGlobeId: 'jared-followill',
+    },
+    {
+      name: 'Matthew Followill',
+      role: 'songwriter',
+      artistGlobeId: 'matthew-followill',
+    },
+    {
+      name: 'Jared Followill',
+      role: 'songwriter',
+      artistGlobeId: 'jared-followill',
+    },
+    { name: 'Jacquire King', role: 'producer', artistGlobeId: 'jacquire-king' },
+    {
+      name: 'Nathan Followill',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'nathan-followill',
+    },
+    {
+      name: 'Jared Followill',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'jared-followill',
+    },
+    {
+      name: 'Angelo Petraglia',
+      role: 'producer',
+      artistGlobeId: 'angelo-petraglia',
+    },
+    {
+      name: 'Caleb Followill',
+      role: 'vocals',
+      artistGlobeId: 'caleb-followill',
+    },
+    {
+      name: 'Nathan Followill',
+      role: 'songwriter',
+      artistGlobeId: 'nathan-followill',
+    },
+    {
+      name: 'Caleb Followill',
+      role: 'performer',
+      artistGlobeId: 'caleb-followill',
+    },
+    {
+      name: 'Matthew Followill',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'matthew-followill',
+    },
+    {
+      name: 'Caleb Followill',
+      role: 'songwriter',
+      artistGlobeId: 'caleb-followill',
+    },
+  ],
+  releases: [{ releaseId: 'kings-of-leon-only-by-the-night', track: 3 }],
 
   sections: [
     {

@@ -16,6 +16,47 @@ export const psycho_killer: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'sundragon-studios' },
+  credits: [
+    { name: 'Lance Quinn', role: 'producer', artistGlobeId: 'lance-quinn' },
+    { name: 'David Byrne', role: 'songwriter', artistGlobeId: 'david-byrne' },
+    { name: 'Ed Stasium', role: 'engineer' },
+    { name: 'Matt Cohen', role: 'engineer' },
+    { name: 'Jerry Harrison', role: 'vocals', artistGlobeId: 'jerry-harrison' },
+    {
+      name: 'Jerry Harrison',
+      role: 'performer',
+      artistGlobeId: 'jerry-harrison',
+    },
+    { name: 'Chris Frantz', role: 'songwriter', artistGlobeId: 'chris-frantz' },
+    { name: 'David Byrne', role: 'performer', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Tina Weymouth',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'tina-weymouth',
+    },
+    { name: 'Tony Bongiovi', role: 'producer', artistGlobeId: 'tony-bongiovi' },
+    { name: 'David Byrne', role: 'vocals', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Talking Heads',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'talking-heads',
+    },
+    {
+      name: 'Tina Weymouth',
+      role: 'songwriter',
+      artistGlobeId: 'tina-weymouth',
+    },
+    {
+      name: 'Chris Frantz',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'chris-frantz',
+    },
+  ],
+  releases: [{ releaseId: 'talking-heads-talking-heads-77' }],
 
   sections: [
     {

@@ -16,6 +16,40 @@ export const im_gonna_be_500_miles: Song = {
   difficulty: 2,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  session: { studioId: 'chipping-norton-recording-studios' },
+  credits: [
+    { name: 'Dave Whetstone', role: 'performer', instrument: 'accordion' },
+    { name: 'Craig Reid', role: 'vocals', artistGlobeId: 'craig-reid' },
+    { name: 'Stuart Nisbet', role: 'performer' },
+    { name: 'Craig Reid', role: 'songwriter', artistGlobeId: 'craig-reid' },
+    { name: 'Gerry Hogan', role: 'performer', instrument: 'pedal-steel' },
+    {
+      name: 'Pete Wingfield',
+      role: 'performer',
+      artistGlobeId: 'pete-wingfield',
+    },
+    { name: 'Steve Shaw', role: 'performer', instrument: 'violin' },
+    { name: 'Phil Cranham', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Charlie Reid', role: 'vocals', artistGlobeId: 'charlie-reid' },
+    { name: 'Stuart Nisbet', role: 'performer', instrument: 'mandolin' },
+    { name: 'Paul Robinson', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Jerry Donahue', role: 'performer', instrument: 'acoustic-guitar' },
+    {
+      name: 'Pete Wingfield',
+      role: 'producer',
+      artistGlobeId: 'pete-wingfield',
+    },
+    { name: 'Charlie Reid', role: 'songwriter', artistGlobeId: 'charlie-reid' },
+    { name: 'Barry Hammond', role: 'engineer' },
+    {
+      name: 'Charlie Reid',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'charlie-reid',
+    },
+    { name: 'Jerry Donahue', role: 'performer', instrument: 'electric-guitar' },
+  ],
+  releases: [{ releaseId: 'the-proclaimers-sunshine-on-leith', track: 1 }],
 
   sections: [
     {

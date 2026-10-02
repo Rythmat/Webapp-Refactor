@@ -230,7 +230,7 @@ export function PianoKeyboard({
               {/* Show note name only on C keys */}
               {isC && (
                 <div
-                  className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-mono"
+                  className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[8px]"
                   style={{ color: '#9ca3af' }}
                 >
                   {key.name}

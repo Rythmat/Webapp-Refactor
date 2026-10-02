@@ -16,6 +16,19 @@ export const eventually: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  session: { studioId: 'crystal-sound' },
+  credits: [
+    { name: 'Andrew Berliner', role: 'engineer' },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+    { name: 'Gerry Goffin', role: 'songwriter', artistGlobeId: 'gerry-goffin' },
+    { name: 'Gerry Goffin', role: 'engineer', artistGlobeId: 'gerry-goffin' },
+    {
+      name: 'John Fischbach',
+      role: 'producer',
+      artistGlobeId: 'john-fischbach',
+    },
+  ],
+  releases: [{ releaseId: 'carole-king-writer' }],
 
   sections: [
     {

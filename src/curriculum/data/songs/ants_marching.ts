@@ -16,6 +16,42 @@ export const ants_marching: Song = {
   difficulty: 2,
   genreTags: ['jam-band'],
   techniques: [],
+  session: { studioId: 'bearsville-studios' },
+  credits: [
+    { name: 'Dave Matthews', role: 'vocals', artistGlobeId: 'dave-matthews' },
+    {
+      name: 'Stefan Lessard',
+      role: 'performer',
+      artistGlobeId: 'stefan-lessard',
+    },
+    {
+      name: 'Dave Matthews',
+      role: 'songwriter',
+      artistGlobeId: 'dave-matthews',
+    },
+    {
+      name: 'Dave Matthews',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'dave-matthews',
+    },
+    {
+      name: 'Carter Beauford',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'carter-beauford',
+    },
+    { name: 'Tom Lord‐Alge', role: 'engineer' },
+    { name: 'Chris Dickie', role: 'engineer' },
+    {
+      name: 'Steve Lillywhite',
+      role: 'producer',
+      artistGlobeId: 'steve-lillywhite',
+    },
+  ],
+  releases: [
+    { releaseId: 'dave-matthews-band-under-the-table-and-dreaming', track: 7 },
+  ],
 
   sections: [
     {

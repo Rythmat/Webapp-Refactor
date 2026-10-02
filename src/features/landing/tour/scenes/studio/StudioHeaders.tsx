@@ -1,5 +1,6 @@
 import { motion, useTransform, type MotionValue } from 'framer-motion';
 import { Circle, Headphones, Plus, Sparkles } from 'lucide-react';
+import { MotionFixedDigits } from '@/components/common/FixedDigits';
 import { cn } from '@/components/utilities';
 import type { StudioState, TrackId } from './studioScript';
 import {
@@ -49,12 +50,11 @@ const Meter = ({
         />
       </span>
       {!compact && (
-        <motion.span
-          className="w-7 text-right font-mono text-[9px]"
+        <MotionFixedDigits
+          value={db}
+          className="w-7 text-right text-[9px]"
           style={{ color: STUDIO.textDim }}
-        >
-          {db}
-        </motion.span>
+        />
       )}
     </span>
   );

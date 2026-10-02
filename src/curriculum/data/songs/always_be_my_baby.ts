@@ -16,6 +16,53 @@ export const always_be_my_baby: Song = {
   difficulty: 3,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Jermaine Dupri',
+      role: 'songwriter',
+      artistGlobeId: 'jermaine-dupri',
+    },
+    { name: 'Kelly Price', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Melonie Daniels',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Mick Guzauski', role: 'engineer' },
+    { name: 'Mariah Carey', role: 'producer', artistGlobeId: 'mariah-carey' },
+    {
+      name: 'Mariah Carey',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'mariah-carey',
+      primary: true,
+    },
+    { name: 'Mariah Carey', role: 'arranger', artistGlobeId: 'mariah-carey' },
+    { name: 'Glen Marchese', role: 'engineer' },
+    { name: 'Manuel Seal', role: 'producer', artistGlobeId: 'manuel-seal' },
+    { name: 'Kurt Lundvall', role: 'engineer' },
+    { name: 'Mike Scott', role: 'engineer' },
+    { name: 'Mariah Carey', role: 'songwriter', artistGlobeId: 'mariah-carey' },
+    { name: 'Phil Tan', role: 'engineer' },
+    { name: 'Andy Smith', role: 'engineer' },
+    {
+      name: 'Jermaine Dupri',
+      role: 'arranger',
+      artistGlobeId: 'jermaine-dupri',
+    },
+    {
+      name: 'Jermaine Dupri',
+      role: 'producer',
+      artistGlobeId: 'jermaine-dupri',
+    },
+    {
+      name: 'Shanrae Cheree Price',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Jay Healy', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'mariah-carey-daydream', track: 5 }],
 
   sections: [
     {

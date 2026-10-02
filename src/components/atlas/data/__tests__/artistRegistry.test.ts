@@ -8,6 +8,7 @@ import {
 import { CITIES } from '@/components/atlas/data/cities';
 import { BUNDLED_MUSIC_HISTORY } from '@/components/atlas/data/events';
 import { MUSIC_HISTORY } from '@/content/contentStore';
+import { placeAndGenreNames } from '@/content/graph/deriveGraph';
 
 /**
  * The registry is the artist SET. It replaced a heuristic that inferred who
@@ -22,23 +23,30 @@ import { MUSIC_HISTORY } from '@/content/contentStore';
 
 MUSIC_HISTORY.push(...BUNDLED_MUSIC_HISTORY);
 
-const placeNames = (() => {
-  const places = new Set<string>();
-  for (const city of CITIES) {
-    places.add(normalizeArtistName(city.name));
-    places.add(normalizeArtistName(city.country));
-    if (city.subdivision) places.add(normalizeArtistName(city.subdivision));
-  }
-  for (const event of MUSIC_HISTORY) {
-    places.add(normalizeArtistName(event.location.city));
-    places.add(normalizeArtistName(event.location.country));
-  }
-  return places;
+/**
+ * Every name a tag can mean a place or a genre by: the lists the console's
+ * graph refuses on a tag alone (`placeAndGenreNames`), so the registry and
+ * the graph are held to the same names. They include a city with its state
+ * or country as one name ('Portland, Maine') and the scenes the cities name
+ * ('Manila Sound'), as well as every event's city, country and genres.
+ */
+const { placeNames, genreNames } = (() => {
+  const names = placeAndGenreNames({ places: CITIES, events: MUSIC_HISTORY });
+  const fold = (all: Set<string>) => new Set([...all].map(normalizeArtistName));
+  return {
+    placeNames: fold(names.placeNames),
+    genreNames: fold(names.genreNames),
+  };
 })();
 
-const genreNames = new Set(
-  MUSIC_HISTORY.flatMap((e) => e.genre).map(normalizeArtistName),
-);
+/**
+ * Entries that are a place or a scene by those lists, waiting on the owner:
+ * taking one out of the registry changes a chip students see on the globe.
+ * The console's graph already refuses each on a tag of its own. Once one is
+ * decided, it leaves its list here too.
+ */
+const PLACES_AWAITING_OWNER = ['Portland, Maine'];
+const GENRES_AWAITING_OWNER = ['Manila Sound'];
 
 describe('artist registry', () => {
   it('holds the artists the atlas knows', () => {
@@ -63,14 +71,23 @@ describe('artist registry', () => {
     const collisions = ARTIST_REGISTRY.filter((a) =>
       placeNames.has(normalizeArtistName(a.name)),
     ).map((a) => a.name);
-    expect(collisions).toEqual([]);
+    expect(collisions).toEqual(PLACES_AWAITING_OWNER);
   });
 
   it('never registers a name that is also a genre', () => {
     const collisions = ARTIST_REGISTRY.filter((a) =>
       genreNames.has(normalizeArtistName(a.name)),
     ).map((a) => a.name);
-    expect(collisions).toEqual([]);
+    expect(collisions).toEqual(GENRES_AWAITING_OWNER);
+  });
+
+  it('holds no titles captured as names', () => {
+    // The derivation once read film and TV titles as artists, each with a
+    // stray opening quote ('"Mad Men'). A real name never starts with one.
+    const quoted = ARTIST_REGISTRY.filter((a) => /^["“”']/.test(a.name)).map(
+      (a) => a.name,
+    );
+    expect(quoted).toEqual([]);
   });
 
   it('leaves no name blank', () => {

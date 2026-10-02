@@ -16,6 +16,28 @@ export const feeling_alright: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Brenda Holloway',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    {
+      name: 'Patrice Holloway',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Dave Mason', role: 'songwriter', artistGlobeId: 'dave-mason' },
+    { name: 'Laudir de Oliveira', role: 'performer' },
+    { name: 'Artie Butler', role: 'performer', instrument: 'piano' },
+    { name: 'Paul Humphries', role: 'performer' },
+    { name: 'Merry Clayton', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Tony Visconti', role: 'engineer', artistGlobeId: 'tony-visconti' },
+    { name: 'Denny Cordell', role: 'producer', artistGlobeId: 'denny-cordell' },
+    { name: 'Carol Kaye', role: 'performer' },
+    { name: 'David Cohen', role: 'performer' },
+  ],
+  releases: [{ releaseId: 'joe-cocker-with-a-little-help-from-my-friends' }],
 
   sections: [
     {

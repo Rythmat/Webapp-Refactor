@@ -16,6 +16,57 @@ export const firework: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'roc-the-mic-studios' },
+  credits: [
+    { name: 'Carlos Oyanedel', role: 'engineer' },
+    { name: 'Ester Dean', role: 'songwriter', artistGlobeId: 'ester-dean' },
+    { name: 'Sandy Vee', role: 'producer', artistGlobeId: 'sandy-vee' },
+    {
+      name: 'Tor Erik Hermansen',
+      role: 'songwriter',
+      artistGlobeId: 'tor-erik-hermansen',
+    },
+    {
+      name: 'StarGate',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'stargate',
+    },
+    {
+      name: 'Katy Perry',
+      role: 'vocals',
+      artistGlobeId: 'katy-perry',
+      primary: true,
+    },
+    { name: 'Katy Perry', role: 'songwriter', artistGlobeId: 'katy-perry' },
+    { name: 'Erik Hermansen', role: 'performer' },
+    { name: 'Miles Walker', role: 'engineer' },
+    {
+      name: 'Sandy Wilhelm',
+      role: 'songwriter',
+      artistGlobeId: 'sandy-wilhelm',
+    },
+    {
+      name: 'Mikkel Storleer Eriksen',
+      role: 'songwriter',
+      artistGlobeId: 'mikkel-storleer-eriksen',
+    },
+    {
+      name: 'Mikkel Storleer Eriksen',
+      role: 'engineer',
+      artistGlobeId: 'mikkel-storleer-eriksen',
+    },
+    {
+      name: 'Mikkel Storleer Eriksen',
+      role: 'performer',
+      artistGlobeId: 'mikkel-storleer-eriksen',
+    },
+    { name: 'Sandy Vee', role: 'performer', artistGlobeId: 'sandy-vee' },
+    { name: 'Damien Lewis', role: 'engineer' },
+    { name: 'Phil Tan', role: 'engineer' },
+    { name: 'Sandy Vee', role: 'engineer', artistGlobeId: 'sandy-vee' },
+  ],
+  releases: [{ releaseId: 'katy-perry-teenage-dream' }],
 
   sections: [
     {

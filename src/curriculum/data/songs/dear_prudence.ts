@@ -16,6 +16,93 @@ export const dear_prudence: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'trident-studios' },
+  credits: [
+    {
+      name: 'Paul McCartney',
+      role: 'songwriter',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'john-lennon',
+    },
+    { name: 'Barry Sheffield', role: 'engineer' },
+    { name: 'John McCartney', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'George Martin', role: 'producer' },
+    { name: 'Jackie Lomax', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    { name: 'John Lennon', role: 'songwriter', artistGlobeId: 'john-lennon' },
+    { name: 'John McCartney', role: 'performer', instrument: 'handclaps' },
+    { name: 'Mal Evans', role: 'performer', instrument: 'tambourine' },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'tambourine',
+      artistGlobeId: 'john-lennon',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'john-lennon',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'handclaps',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'Mal Evans', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'Jackie Lomax', role: 'performer', instrument: 'handclaps' },
+    { name: 'George Harrison', role: 'performer', instrument: 'handclaps' },
+  ],
+  releases: [{ releaseId: 'the-beatles-the-beatles' }],
 
   sections: [
     {

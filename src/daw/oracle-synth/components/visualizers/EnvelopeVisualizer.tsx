@@ -102,7 +102,7 @@ export const EnvelopeVisualizer: React.FC<EnvelopeVisualizerProps> = React.memo(
 
       // Phase labels
       ctx.fillStyle = '#555';
-      ctx.font = '8px Inter, sans-serif';
+      ctx.font = "8px 'Glacial Indifference', system-ui, sans-serif";
       ctx.textAlign = 'center';
 
       // Dot markers at key points

@@ -65,8 +65,8 @@ export const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-amber-100">
-            <Sparkles className="size-6 text-amber-600" />
+          <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-white/10">
+            <Sparkles className="size-6 text-white" />
           </div>
           <DialogTitle className="text-center">Out of credits</DialogTitle>
           <DialogDescription className="text-center">

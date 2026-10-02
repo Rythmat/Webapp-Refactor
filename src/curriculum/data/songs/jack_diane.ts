@@ -4,7 +4,7 @@ export const jack_diane: Song = {
   id: 'jack_diane',
   title: 'Jack & Diane',
   artist: 'John Cougar Mellencamp',
-  year: undefined,
+  year: 1982,
 
   historicalDescription:
     "John Cougar Mellencamp releases 'Jack & Diane', a sun-drenched snapshot of American teenage life in the heartland. The song's irresistible chorus and plainspoken storytelling strike a nerve across the country, becoming an anthem for ordinary youth growing up far from the coasts. It cements Mellencamp as the voice of working-class Middle America.",
@@ -17,6 +17,33 @@ export const jack_diane: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Michael B. Wanchic', role: 'performer' },
+    { name: 'Kenny Aronoff', role: 'performer', instrument: 'drum-kit' },
+    { name: 'George Tutko', role: 'engineer' },
+    { name: 'Larry Crane', role: 'performer' },
+    {
+      name: 'John Cougar Mellencamp',
+      role: 'producer',
+      artistGlobeId: 'john-cougar-mellencamp',
+    },
+    { name: 'Don Gehman', role: 'engineer', artistGlobeId: 'don-gehman' },
+    { name: 'George Perry', role: 'performer', instrument: 'electric-bass' },
+    {
+      name: 'John Cougar Mellencamp',
+      role: 'vocals',
+      artistGlobeId: 'john-cougar-mellencamp',
+      primary: true,
+    },
+    { name: 'Don Gehman', role: 'producer', artistGlobeId: 'don-gehman' },
+    {
+      name: 'John Cougar Mellencamp',
+      role: 'songwriter',
+      artistGlobeId: 'john-cougar-mellencamp',
+    },
+    { name: 'Mark Stebbeds', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'john-cougar-mellencamp-american-fool', track: 2 }],
 
   sections: [
     {

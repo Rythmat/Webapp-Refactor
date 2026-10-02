@@ -207,3 +207,60 @@ describe('GuitarChordStrip: theory layer', () => {
     ).toBe('b8.octaveNew');
   });
 });
+
+describe('GuitarChordStrip: lesson variant', () => {
+  it('draws the lesson chord boxes, at the size it is given', () => {
+    renderStrip('C', 'B2.1', { variant: 'lesson', size: 'md' });
+    const list = screen.getByRole('list', { name: 'Chords' });
+    expect(list.getAttribute('data-variant')).toBe('lesson');
+    // The edges fade where boxes scroll past.
+    expect(list.className).toContain('[mask-image:linear-gradient(');
+    for (const li of items()) {
+      expect(
+        li.querySelector('[data-chord-box]')?.getAttribute('data-variant'),
+      ).toBe('lesson');
+      expect(li.className).toContain('snap-center');
+    }
+    // 'md' lesson boxes: 1.2px a unit.
+    const svg = items()[0].querySelector('[data-diagram-state] > svg')!;
+    expect(Number(svg.getAttribute('width'))).toBeCloseTo(128 * 1.2);
+  });
+
+  it('sets the cues in 12px white/55, with no key colour', () => {
+    useGuitarDisplaySettings.setState({ showSharedNotes: true });
+    renderStrip('C', 'B8.1', { variant: 'lesson' });
+    const cues = [...document.querySelectorAll('[data-strip-cues]')];
+    expect(cues.length).toBeGreaterThan(0);
+    for (const cue of cues) {
+      expect(cue.innerHTML).not.toMatch(/text-\[10px\]/);
+      expect((cue as HTMLElement).style.color).toBe(
+        'rgba(255, 255, 255, 0.55)',
+      );
+    }
+    // The climbing top line was in the key colour; now it is neutral.
+    const topLine = screen.getByRole('button', { name: 'Listen to the top' });
+    expect(topLine.className).toContain('text-xs');
+    expect(topLine.style.color).toBe('rgba(255, 255, 255, 0.55)');
+    for (const mark of document.querySelectorAll<HTMLElement>(
+      '[data-top-line-continue]',
+    )) {
+      expect(mark.style.color).toBe('rgba(255, 255, 255, 0.55)');
+    }
+    // A tappable cue reaches past its text.
+    expect(topLine.className).toContain("before:content-['']");
+    // Only the chord being played carries the key colour: its frame.
+    const html = screen.getByRole('list', { name: 'Chords' }).innerHTML;
+    expect(html.match(/#D2404A|210, 64, 74/gi)).toHaveLength(1);
+  });
+
+  it('keeps its book look by default', () => {
+    renderStrip('C', 'B8.1');
+    const topLine = screen.getByRole('button', { name: 'Listen to the top' });
+    expect(topLine.className).toContain('text-[10px]');
+    expect(
+      items()[0]
+        .querySelector('[data-chord-box]')
+        ?.hasAttribute('data-variant'),
+    ).toBe(false);
+  });
+});

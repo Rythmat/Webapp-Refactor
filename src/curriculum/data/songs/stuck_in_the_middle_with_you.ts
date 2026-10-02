@@ -16,6 +16,35 @@ export const stuck_in_the_middle_with_you: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Rod Coombes', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'Gerry Rafferty',
+      role: 'performer',
+      artistGlobeId: 'gerry-rafferty',
+    },
+    {
+      name: 'Tony Williams',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'tony-williams',
+    },
+    {
+      name: 'Gerry Rafferty',
+      role: 'songwriter',
+      artistGlobeId: 'gerry-rafferty',
+    },
+    { name: 'Jerry Leiber', role: 'producer', artistGlobeId: 'jerry-leiber' },
+    { name: 'Joe Egan', role: 'songwriter', artistGlobeId: 'joe-egan' },
+    { name: 'Gerry Rafferty', role: 'vocals', artistGlobeId: 'gerry-rafferty' },
+    { name: 'Geoff Emerick', role: 'engineer' },
+    { name: 'Joe Egan', role: 'performer', artistGlobeId: 'joe-egan' },
+    { name: 'Joe Egan', role: 'vocals', artistGlobeId: 'joe-egan' },
+    { name: 'John Mills', role: 'engineer' },
+    { name: 'Paul Pilnick', role: 'performer', artistGlobeId: 'paul-pilnick' },
+    { name: 'Mike Stoller', role: 'producer', artistGlobeId: 'mike-stoller' },
+  ],
+  releases: [{ releaseId: 'stealers-wheel-stealers-wheel' }],
 
   sections: [
     {

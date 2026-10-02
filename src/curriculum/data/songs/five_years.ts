@@ -16,6 +16,40 @@ export const five_years: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'trident-studios' },
+  credits: [
+    { name: 'Mick Ronson', role: 'performer', instrument: 'piano' },
+    { name: 'Mick Ronson', role: 'performer', instrument: 'electric-guitar' },
+    {
+      name: 'David Bowie',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'David Bowie', role: 'arranger', artistGlobeId: 'david-bowie' },
+    { name: 'Mick Ronson', role: 'performer' },
+    { name: 'Mick Ronson', role: 'arranger' },
+    { name: 'David Bowie', role: 'songwriter', artistGlobeId: 'david-bowie' },
+    { name: 'Ken Scott', role: 'producer', artistGlobeId: 'ken-scott' },
+    { name: 'Mick Ronson', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'David Bowie',
+      role: 'vocals',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'Mick Woodmansey', role: 'performer', instrument: 'drum-kit' },
+    { name: 'David Bowie', role: 'producer', artistGlobeId: 'david-bowie' },
+    { name: 'Dennis MacKay', role: 'engineer' },
+    { name: 'Trevor Bolder', role: 'performer', instrument: 'electric-bass' },
+  ],
+  releases: [
+    {
+      releaseId:
+        'david-bowie-the-rise-and-fall-of-ziggy-stardust-and-the-spiders-from-mars',
+    },
+  ],
 
   sections: [
     {

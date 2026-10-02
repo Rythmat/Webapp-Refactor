@@ -1,14 +1,13 @@
 import { format } from 'date-fns';
-import { AlertTriangle, Link2, Pencil, Plus, Search } from 'lucide-react';
+import { Link2, Pencil, Plus, Search } from 'lucide-react';
 import { useState } from 'react';
 import {
   Link,
-  NavLink,
+  Navigate,
   useNavigate,
   useParams,
   useSearchParams,
 } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -27,24 +26,35 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { cn } from '@/components/utilities';
 import { AdminRoutes } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import {
   useContentItems,
   useValidateContent,
-  type ContentKind,
   type ContentStatus,
 } from '@/hooks/data/admin/useAdminContent';
+import { useCapabilities } from '@/hooks/data/admin/useCapabilities';
 import { isContentEditor } from '../consoleRoles';
-import { CONTENT_KINDS, isContentKind, KIND_ORDER } from './kinds';
+// The first table: the bare /console/table now opens Cortex's graph.
+import { firstTableHref } from '../table/tablePaths';
+import { CONTENT_STATUS_TONE, ConsoleBadge } from '../ui/ConsoleBadge';
+import { ConsoleCallout } from '../ui/ConsoleCallout';
+import { ConsolePageHeader } from '../ui/ConsolePageHeader';
+import { ConsoleTabs } from '../ui/ConsoleTabs';
+import { CONSOLE_TABLE_HEAD } from '../ui/styles';
+import { CONTENT_KINDS } from './kinds';
+import {
+  isOtherRecordKind,
+  OTHER_RECORD_KINDS,
+  type OtherRecordKind,
+} from './otherRecords';
+import {
+  repoNotServedNote,
+  repoReadOnlyFile,
+  repoReadOnlyNote,
+} from './repo/repoCopy';
+import { useRepoMode } from './repo/useRepoMode';
 import { EditStateBadge } from './review/EditReview';
-
-const STATUS_STYLES: Record<ContentStatus, string> = {
-  published: 'bg-emerald-600/20 text-emerald-400 border-emerald-600/30',
-  draft: 'bg-amber-600/20 text-amber-400 border-amber-600/30',
-  archived: 'bg-zinc-600/20 text-zinc-400 border-zinc-600/30',
-};
 
 /**
  * A lesson item's slug is `<genre>-l<level>`, and lessons are edited a whole
@@ -58,16 +68,67 @@ const lessonCourseLink = (slug: string) => {
     : null;
 };
 
+/**
+ * "Other records": the lists of the content kinds the Table has no category
+ * for — lessons, fundamentals, artist locations. The other kinds' lists
+ * redirect into the Table before they get here (`RecordsKindRoute`), and
+ * anything else that arrives is sent to the Table too, visibly, rather than
+ * quietly opening some other kind's list.
+ */
 export const AdminContentListPage = () => {
-  const params = useParams();
+  const { kind } = useParams();
+  if (!isOtherRecordKind(kind))
+    return <Navigate replace to={firstTableHref()} />;
+  return <OtherRecords kind={kind} />;
+};
+
+/** The other records' tabs, the same over a list and over a notice. */
+const OtherRecordsTabs = () => (
+  <ConsoleTabs
+    items={OTHER_RECORD_KINDS.map((entry) => ({
+      to: AdminRoutes.contentKind({ kind: entry }),
+      label: CONTENT_KINDS[entry].label,
+    }))}
+  />
+);
+
+/**
+ * Repo mode (DEV only) serves neither lessons nor fundamentals: they live
+ * in the content API alone. Their tabs then say so, rather than showing a
+ * list that failed to load.
+ */
+const OtherRecords = ({ kind }: { kind: OtherRecordKind }) => {
+  const repoMode = useRepoMode();
+  const repo = import.meta.env.DEV && repoMode;
+  const caps = useCapabilities();
+  if (repo && caps.capabilities && !caps.isServed(kind)) {
+    return (
+      <div className="flex flex-col gap-6">
+        <OtherRecordsTabs />
+        <ConsolePageHeader title="Other records" />
+        <ConsoleCallout tone="info">
+          {repoNotServedNote(CONTENT_KINDS[kind].label)}
+        </ConsoleCallout>
+      </div>
+    );
+  }
+  return <OtherRecordsList kind={kind} repo={repo} />;
+};
+
+const OtherRecordsList = ({
+  kind,
+  repo,
+}: {
+  kind: OtherRecordKind;
+  /** Repo mode: what it serves of these kinds (the artist locations) is read-only. */
+  repo: boolean;
+}) => {
   const navigate = useNavigate();
-  const kind: ContentKind = isContentKind(params.kind)
-    ? params.kind
-    : 'activity_flow';
   const spec = CONTENT_KINDS[kind];
   const isLessons = kind === 'activity_flow';
   const { role } = useAuthContext();
   const isEditor = isContentEditor(role);
+  const readOnlyFile = repo ? repoReadOnlyFile(kind) : null;
 
   // `?q=` so a list can be linked to, not only browsed to. The repair
   // worklist points at a song by title, and the item route wants a content
@@ -99,92 +160,93 @@ export const AdminContentListPage = () => {
   const items = data?.items ?? [];
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <nav className="flex flex-wrap gap-1 border-b border-white/[0.08] pb-3">
-        {KIND_ORDER.map((entry) => (
-          <NavLink
-            key={entry}
-            to={AdminRoutes.contentKind({ kind: entry })}
-            className={({ isActive }) =>
-              cn(
-                'rounded-md px-3 py-1.5 text-sm transition-colors',
-                isActive
-                  ? 'bg-white/10 text-white'
-                  : 'text-muted-foreground hover:bg-white/5 hover:text-white',
-              )
-            }
-          >
-            {CONTENT_KINDS[entry].label}
-          </NavLink>
-        ))}
-      </nav>
+    <div className="flex flex-col gap-6">
+      <OtherRecordsTabs />
 
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="max-w-3xl">
-          <h1 className="text-2xl font-semibold">{spec.label}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{spec.blurb}</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {isEditor
-              ? 'Your edits are submitted for review. The live version is unchanged until an admin approves them, and reaches students at the next publish.'
-              : 'Edits save to the database immediately, but only reach students when you publish from the Publishing page.'}
-          </p>
-        </div>
-        {isLessons ? (
-          // A course is addressed by genre, not by item id, so creating one
-          // starts with the genre rather than with a blank item.
-          <form
-            className="flex items-end gap-2"
-            onSubmit={(event) => {
-              event.preventDefault();
-              const genre = newGenre
-                .trim()
-                .toLowerCase()
-                .replace(/[\s_-]/g, '');
-              if (genre) navigate(AdminRoutes.lessonCourse({ genre }));
-            }}
-          >
-            <div>
-              <label
-                className="mb-1 block text-xs text-muted-foreground"
-                htmlFor="new-course-genre"
+      <ConsolePageHeader
+        title="Other records"
+        description={
+          <>
+            <p>{spec.blurb}</p>
+            <p>
+              {readOnlyFile
+                ? repoReadOnlyNote(readOnlyFile)
+                : isEditor
+                  ? 'Your edits are submitted for review. The live version is unchanged until an admin approves them, and reaches students at the next publish.'
+                  : 'Edits save to the database immediately, but only reach students when you publish from the Publishing page.'}
+            </p>
+            <p>
+              <Link
+                to={firstTableHref()}
+                className="text-white/80 underline-offset-4 hover:text-white hover:underline"
               >
-                New course
-              </label>
-              <Input
-                id="new-course-genre"
-                className="w-44"
-                placeholder="Genre, e.g. funk"
-                value={newGenre}
-                onChange={(event) => setNewGenre(event.target.value)}
-              />
-            </div>
-            <Button type="submit" disabled={!newGenre.trim()}>
-              <Plus className="mr-2 size-4" />
-              Open
+                Everything else is in the Table
+              </Link>
+              : songs, events, artists, places, records and the rest.
+            </p>
+          </>
+        }
+        actions={
+          isLessons ? (
+            // A course is addressed by genre, not by item id, so creating one
+            // starts with the genre rather than with a blank item.
+            <form
+              className="flex items-end gap-2"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const genre = newGenre
+                  .trim()
+                  .toLowerCase()
+                  .replace(/[\s_-]/g, '');
+                if (genre) navigate(AdminRoutes.lessonCourse({ genre }));
+              }}
+            >
+              <div>
+                <label
+                  className="mb-1 block text-xs text-muted-foreground"
+                  htmlFor="new-course-genre"
+                >
+                  New course
+                </label>
+                <Input
+                  id="new-course-genre"
+                  className="w-44"
+                  placeholder="Genre, e.g. funk"
+                  value={newGenre}
+                  onChange={(event) => setNewGenre(event.target.value)}
+                />
+              </div>
+              <Button type="submit" disabled={!newGenre.trim()}>
+                <Plus className="mr-2 size-4" />
+                Open
+              </Button>
+            </form>
+          ) : readOnlyFile ? null : (
+            <Button asChild>
+              <Link to={AdminRoutes.contentItem({ kind, id: 'new' })}>
+                <Plus className="mr-2 size-4" />
+                New {spec.singular}
+              </Link>
             </Button>
-          </form>
-        ) : (
-          <Button asChild>
-            <Link to={AdminRoutes.contentItem({ kind, id: 'new' })}>
-              <Plus className="mr-2 size-4" />
-              New {spec.singular}
-            </Link>
-          </Button>
-        )}
-      </div>
+          )
+        }
+      />
 
       {validation.data && !validation.data.ok && (
-        <div className="rounded-lg border border-amber-600/30 bg-amber-600/10 p-4">
-          <div className="flex items-center gap-2 font-medium text-amber-400">
-            <AlertTriangle className="size-4" />
-            {validation.data.problems.length} problem
-            {validation.data.problems.length === 1 ? '' : 's'} would block a
-            publish
-          </div>
-          <ul className="mt-2 space-y-1 text-sm text-amber-200/80">
+        <ConsoleCallout
+          tone="warning"
+          title={
+            <span>
+              {validation.data.problems.length} problem
+              {validation.data.problems.length === 1 ? '' : 's'} would block a
+              publish
+            </span>
+          }
+        >
+          <ul className="space-y-1">
             {validation.data.problems.slice(0, 5).map((problem) => (
               <li key={`${problem.code}-${problem.slug}`}>
-                <span className="font-mono">{problem.slug}</span> —{' '}
+                <span className="text-white/90">{problem.slug}</span> —{' '}
                 {problem.detail}
               </li>
             ))}
@@ -192,7 +254,7 @@ export const AdminContentListPage = () => {
               <li>…and {validation.data.problems.length - 5} more</li>
             )}
           </ul>
-        </div>
+        </ConsoleCallout>
       )}
 
       <div className="flex flex-wrap gap-3">
@@ -222,18 +284,17 @@ export const AdminContentListPage = () => {
       </div>
 
       {!token ? (
-        <div className="rounded-lg border border-white/10 bg-white/5 p-6 text-center text-sm text-muted-foreground">
+        <ConsoleCallout tone="neutral" className="p-6 text-center">
           Sign in as an admin to load content. This page reads from the content
           database — a blank list here means either you’re not authenticated or
           the database has no {spec.label.toLowerCase()} yet.
-        </div>
+        </ConsoleCallout>
       ) : isError ? (
-        <div className="rounded-lg border border-red-600/30 bg-red-600/10 p-4">
-          <div className="flex items-center gap-2 font-medium text-red-400">
-            <AlertTriangle className="size-4" />
-            Couldn’t load {spec.label.toLowerCase()}
-          </div>
-          <p className="mt-1 text-sm text-red-200/80">
+        <ConsoleCallout
+          tone="danger"
+          title={<span>Couldn’t load {spec.label.toLowerCase()}</span>}
+        >
+          <p>
             {error instanceof Error
               ? error.message
               : 'The content API request failed.'}
@@ -242,7 +303,7 @@ export const AdminContentListPage = () => {
             This is a backend/connectivity issue — the list can’t be populated
             from the app.
           </p>
-        </div>
+        </ConsoleCallout>
       ) : isLoading ? (
         <div className="space-y-2">
           {Array.from({ length: 8 }, (_, i) => (
@@ -251,7 +312,7 @@ export const AdminContentListPage = () => {
         </div>
       ) : (
         <Table>
-          <TableHeader>
+          <TableHeader className={CONSOLE_TABLE_HEAD}>
             <TableRow>
               <TableHead>Title</TableHead>
               <TableHead>Slug</TableHead>
@@ -276,7 +337,7 @@ export const AdminContentListPage = () => {
                     </span>
                   )}
                 </TableCell>
-                <TableCell className="font-mono text-xs text-muted-foreground">
+                <TableCell className="text-xs text-muted-foreground">
                   {item.slug}
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
@@ -284,9 +345,9 @@ export const AdminContentListPage = () => {
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <Badge className={STATUS_STYLES[item.status]}>
+                    <ConsoleBadge tone={CONTENT_STATUS_TONE[item.status]}>
                       {item.status}
-                    </Badge>
+                    </ConsoleBadge>
                     {/* An unreviewed proposal sits beside the live body, so the
                         status alone would say nothing about it. */}
                     <EditStateBadge state={item.editState} />

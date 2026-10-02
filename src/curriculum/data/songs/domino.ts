@@ -16,6 +16,24 @@ export const domino: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Łukasz Gottwald',
+      role: 'songwriter',
+      artistGlobeId: 'ukasz-gottwald',
+    },
+    { name: 'Claude Kelly', role: 'songwriter', artistGlobeId: 'claude-kelly' },
+    { name: 'Cirkut', role: 'producer', artistGlobeId: 'cirkut' },
+    { name: 'Cirkut', role: 'songwriter', artistGlobeId: 'cirkut' },
+    { name: 'Dr. Luke', role: 'producer', artistGlobeId: 'dr-luke' },
+    { name: 'Emily Wright', role: 'engineer' },
+    { name: 'Max Martin', role: 'songwriter', artistGlobeId: 'max-martin' },
+    { name: 'Jessie J', role: 'songwriter', artistGlobeId: 'jessie-j' },
+    { name: 'John Hanes', role: 'engineer' },
+    { name: 'Claude Kelly', role: 'vocals', artistGlobeId: 'claude-kelly' },
+    { name: 'Serban Ghenea', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'jessie-j-who-you-are', track: 14 }],
 
   sections: [
     {

@@ -16,6 +16,58 @@ export const play_that_funky_music: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Ronald Beitle',
+      role: 'performer',
+      artistGlobeId: 'ronald-beitle',
+    },
+    {
+      name: 'Robert W. Parissi',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'robert-w-parissi',
+    },
+    {
+      name: 'Robert W. Parissi',
+      role: 'vocals',
+      artistGlobeId: 'robert-w-parissi',
+    },
+    {
+      name: 'Robert W. Parissi',
+      role: 'engineer',
+      artistGlobeId: 'robert-w-parissi',
+    },
+    { name: 'Bryan Bassett', role: 'vocals', artistGlobeId: 'bryan-bassett' },
+    {
+      name: 'Allen Wentz',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'allen-wentz',
+    },
+    { name: 'Ronald Beitle', role: 'vocals', artistGlobeId: 'ronald-beitle' },
+    {
+      name: 'Allen Wentz',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'allen-wentz',
+    },
+    { name: 'Carl Maduri', role: 'engineer' },
+    { name: 'Kenneth Hamann', role: 'engineer' },
+    { name: 'Allen Wentz', role: 'vocals', artistGlobeId: 'allen-wentz' },
+    {
+      name: 'Robert W. Parissi',
+      role: 'songwriter',
+      artistGlobeId: 'robert-w-parissi',
+    },
+    {
+      name: 'Bryan Bassett',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'bryan-bassett',
+    },
+  ],
+  releases: [{ releaseId: 'wild-cherry-wild-cherry' }],
 
   sections: [
     {

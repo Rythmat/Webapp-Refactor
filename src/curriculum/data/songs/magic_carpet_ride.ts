@@ -16,6 +16,20 @@ export const magic_carpet_ride: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Rushton Moreve',
+      role: 'songwriter',
+      artistGlobeId: 'rushton-moreve',
+    },
+    {
+      name: 'Gabriel Mekler',
+      role: 'producer',
+      artistGlobeId: 'gabriel-mekler',
+    },
+    { name: 'John Kay', role: 'songwriter', artistGlobeId: 'john-kay' },
+  ],
+  releases: [{ releaseId: 'steppenwolf-the-second' }],
 
   sections: [
     {

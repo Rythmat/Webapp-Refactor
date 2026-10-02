@@ -2,6 +2,19 @@ src/contexts/MusicAtlasContext/musicAtlas.generated.ts
 
 # Generated caches and audit dumps (large, machine-written)
 src/scripts/enrichment/_*.json
+# The importer's artifacts, its calibration sheet and the Table's
+# decisions.json: written one row per line on purpose, so a review session
+# reads as the lines it added
+src/scripts/enrichment/suggestions/
+src/scripts/enrichment/calibration/
+# The genre and instrument vocabularies the console edits: one record per
+# line, so a save reads as the line it changed
+src/content/vocabulary/*.json
+# The console's records with no TypeScript home (artists.json, releases,
+# studios, labels, unpinned places), which the repo store writes through
+# src/scripts/repoContent/jsonLines.ts: one record per line on purpose, so
+# a save reads as the line it changed
+src/content/data/
 src/curriculum/data/songs/_*.json
 src/scripts/artistLocations.json
 src/curriculum/data/harmonyKB.generated.ts
@@ -12,3 +25,5 @@ docs/optimization/**/bundle.html
 
 # Vendored third-party build (SpessaSynth audio worklet, minified upstream)
 public/daw-assets/spessasynth_processor.min.js
+# Generated DOM snapshots; reformatting them breaks the comparison
+**/__snapshots__/**/*.html

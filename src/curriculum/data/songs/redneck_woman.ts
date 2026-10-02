@@ -16,6 +16,20 @@ export const redneck_woman: Song = {
   difficulty: 3,
   genreTags: ['folk', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'Bart Pursley', role: 'engineer' },
+    { name: 'Mark Wright', role: 'producer', artistGlobeId: 'mark-wright' },
+    { name: 'Todd Gunnerson', role: 'engineer' },
+    { name: 'Joe Scaife', role: 'producer', artistGlobeId: 'joe-scaife' },
+    { name: 'John Rich', role: 'songwriter', artistGlobeId: 'john-rich' },
+    {
+      name: 'Gretchen Wilson',
+      role: 'songwriter',
+      artistGlobeId: 'gretchen-wilson',
+    },
+    { name: 'Steve Marcantonio', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'gretchen-wilson-here-for-the-party', track: 2 }],
 
   sections: [
     {

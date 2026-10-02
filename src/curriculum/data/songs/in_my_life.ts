@@ -16,6 +16,52 @@ export const in_my_life: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'abbey-road-studios' },
+  credits: [
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Norman Smith', role: 'engineer' },
+    { name: 'Ken Scott', role: 'engineer', artistGlobeId: 'ken-scott' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'songwriter',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'George Martin', role: 'performer', instrument: 'piano' },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'john-lennon',
+    },
+    { name: 'George Martin', role: 'producer' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    { name: 'Mike Stone', role: 'engineer', artistGlobeId: 'mike-stone' },
+    { name: 'Ringo Starr', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Ringo Starr', role: 'performer', instrument: 'tambourine' },
+    { name: 'John Lennon', role: 'songwriter', artistGlobeId: 'john-lennon' },
+    { name: 'John Lennon', role: 'vocals', artistGlobeId: 'john-lennon' },
+  ],
+  releases: [{ releaseId: 'the-beatles-rubber-soul' }],
 
   sections: [
     {

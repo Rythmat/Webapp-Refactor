@@ -16,6 +16,35 @@ export const cardova: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Art Neville', role: 'songwriter', artistGlobeId: 'art-neville' },
+    {
+      name: 'Ziggy Modeliste',
+      role: 'songwriter',
+      artistGlobeId: 'ziggy-modeliste',
+    },
+    {
+      name: 'Marshall E. Sehorn',
+      role: 'producer',
+      artistGlobeId: 'marshall-e-sehorn',
+    },
+    {
+      name: 'George Porter, Jr.',
+      role: 'songwriter',
+      artistGlobeId: 'george-porter-jr',
+    },
+    {
+      name: 'Allen Toussaint',
+      role: 'producer',
+      artistGlobeId: 'allen-toussaint',
+    },
+    {
+      name: 'Leo Nocentelli',
+      role: 'songwriter',
+      artistGlobeId: 'leo-nocentelli',
+    },
+  ],
+  releases: [{ releaseId: 'the-meters-the-meters' }],
 
   sections: [
     {

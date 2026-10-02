@@ -16,6 +16,19 @@ export const all_of_me: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Dave Tozer', role: 'performer', artistGlobeId: 'dave-tozer' },
+    { name: 'John Legend', role: 'songwriter', artistGlobeId: 'john-legend' },
+    {
+      name: 'John Legend',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'john-legend',
+      primary: true,
+    },
+    { name: 'Toby Gad', role: 'songwriter', artistGlobeId: 'toby-gad' },
+  ],
+  releases: [{ releaseId: 'john-legend-love-in-the-future', track: 6 }],
 
   sections: [
     {

@@ -16,6 +16,52 @@ export const the_ocean: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Eddie Kramer', role: 'engineer' },
+    { name: 'George Chkiantz', role: 'engineer' },
+    {
+      name: 'John Paul Jones',
+      role: 'songwriter',
+      artistGlobeId: 'john-paul-jones',
+    },
+    { name: 'Jimmy Page', role: 'producer', artistGlobeId: 'jimmy-page' },
+    { name: 'Keith Harwood', role: 'engineer' },
+    {
+      name: 'John Bonham',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'john-bonham',
+    },
+    { name: 'Robert Plant', role: 'vocals', artistGlobeId: 'robert-plant' },
+    {
+      name: 'Robert Plant',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'robert-plant',
+    },
+    {
+      name: 'John Paul Jones',
+      role: 'performer',
+      artistGlobeId: 'john-paul-jones',
+    },
+    {
+      name: 'John Bonham',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'john-bonham',
+    },
+    { name: 'Robert Plant', role: 'songwriter', artistGlobeId: 'robert-plant' },
+    {
+      name: 'John Paul Jones',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'john-paul-jones',
+    },
+    { name: 'John Bonham', role: 'songwriter', artistGlobeId: 'john-bonham' },
+    { name: 'Jimmy Page', role: 'performer', artistGlobeId: 'jimmy-page' },
+    { name: 'Jimmy Page', role: 'songwriter', artistGlobeId: 'jimmy-page' },
+  ],
+  releases: [{ releaseId: 'led-zeppelin-houses-of-the-holy' }],
 
   sections: [
     {

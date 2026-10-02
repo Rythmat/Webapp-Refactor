@@ -337,9 +337,9 @@ export function ExportAudioDialog({
                       className="flex flex-1 flex-col items-center gap-0.5 rounded-lg px-2 py-2 transition-colors"
                       style={{
                         backgroundColor: active
-                          ? 'rgba(245, 158, 11, 0.15)'
+                          ? 'rgba(255, 255, 255, 0.08)'
                           : 'var(--color-surface-2)',
-                        border: `1px solid ${active ? '#f59e0b' : 'var(--color-border)'}`,
+                        border: `1px solid ${active ? 'rgba(255, 255, 255, 0.6)' : 'var(--color-border)'}`,
                         cursor: unavailable ? 'not-allowed' : 'pointer',
                         opacity: unavailable ? 0.4 : 1,
                       }}
@@ -488,7 +488,7 @@ export function ExportAudioDialog({
                     className="h-full rounded-full transition-all duration-200"
                     style={{
                       width: `${barPct}%`,
-                      backgroundColor: '#f59e0b',
+                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
                     }}
                   />
                 </div>
@@ -500,7 +500,7 @@ export function ExportAudioDialog({
               <button
                 onClick={() => onOpenChange(false)}
                 disabled={busy}
-                className="rounded-lg px-4 py-2 text-xs font-medium transition-colors hover:bg-white/5"
+                className="rounded-full px-4 py-2 text-xs font-medium transition-colors hover:bg-white/5"
                 style={{
                   color: 'var(--color-text-dim)',
                   border: '1px solid var(--color-border)',

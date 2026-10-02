@@ -201,7 +201,7 @@ const Bar: FC<{
       <span
         aria-label={`${timeSignature[0]}/${timeSignature[1]} time`}
         className="mr-1.5 inline-flex flex-shrink-0 flex-col items-center leading-[0.85]"
-        style={{ fontFamily: 'serif', fontSize: 17, fontWeight: 700 }}
+        style={{ fontSize: 17, fontWeight: 700 }}
       >
         <span>{timeSignature[0]}</span>
         <span>{timeSignature[1]}</span>
@@ -290,7 +290,6 @@ const BarMarks: FC<{ bar: ChordBar; size: string }> = ({ bar, size }) => {
         height: MARKS_HEIGHT,
         fontSize: size,
         lineHeight: 1,
-        fontFamily: 'serif',
         // A volta is a bracket over the bars it covers, as it is on paper.
         borderTop: volta ? THIN : undefined,
         borderLeft: volta ? THIN : undefined,
@@ -360,7 +359,7 @@ const GridSection: FC<{
         <div className="flex items-baseline gap-2 leading-none">
           <span
             className="font-bold text-white/60"
-            style={{ fontFamily: 'serif', fontSize: type.label }}
+            style={{ fontSize: type.label }}
           >
             {section.label}
           </span>

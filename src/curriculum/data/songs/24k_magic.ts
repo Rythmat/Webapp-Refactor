@@ -17,6 +17,65 @@ export const _24k_magic: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  session: { studioId: 'glenwood-place-studios' },
+  credits: [
+    { name: 'Bruno Mars', role: 'songwriter', artistGlobeId: 'bruno-mars' },
+    {
+      name: 'Shampoo Press & Curl',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'shampoo-press-and-curl',
+    },
+    { name: 'Byron “Mr. Talkbox” Chambers', role: 'performer' },
+    {
+      name: 'Bruno Mars',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'bruno-mars',
+      primary: true,
+    },
+    { name: 'Brody Brown', role: 'songwriter', artistGlobeId: 'brody-brown' },
+    {
+      name: 'The Stereotypes',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'the-stereotypes',
+    },
+    { name: 'Dave Foreman', role: 'performer' },
+    {
+      name: 'Bruno Mars',
+      role: 'performer',
+      artistGlobeId: 'bruno-mars',
+      primary: true,
+    },
+    {
+      name: 'Philip Lawrence',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'philip-lawrence',
+    },
+    {
+      name: 'Philip Lawrence',
+      role: 'songwriter',
+      artistGlobeId: 'philip-lawrence',
+    },
+    { name: 'Charles Moniz', role: 'engineer' },
+    { name: 'Serban Ghenea', role: 'engineer' },
+    {
+      name: 'James Fauntleroy',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'james-fauntleroy',
+    },
+    { name: 'John Hanes', role: 'engineer' },
+    {
+      name: 'Brody Brown',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'brody-brown',
+    },
+  ],
+  releases: [{ releaseId: 'bruno-mars-24k-magic' }],
 
   sections: [
     {

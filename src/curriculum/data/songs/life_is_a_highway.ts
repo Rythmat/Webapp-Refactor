@@ -16,6 +16,18 @@ export const life_is_a_highway: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Dann Huff', role: 'producer', artistGlobeId: 'dann-huff' },
+    { name: 'Justin Niebank', role: 'engineer' },
+    { name: 'Tom Cochrane', role: 'songwriter', artistGlobeId: 'tom-cochrane' },
+    {
+      name: 'Rascal Flatts',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'rascal-flatts',
+    },
+  ],
+  releases: [{ releaseId: 'rascal-flatts-still-feels-good', track: 4 }],
 
   sections: [
     {

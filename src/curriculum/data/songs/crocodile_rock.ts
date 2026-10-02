@@ -16,6 +16,46 @@ export const crocodile_rock: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'chateau-dherouville' },
+  credits: [
+    { name: 'Dee Murray', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Gus Dudgeon', role: 'producer', artistGlobeId: 'gus-dudgeon' },
+    { name: 'Nigel Olsson', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'Elton John',
+      role: 'vocals',
+      artistGlobeId: 'elton-john',
+      primary: true,
+    },
+    {
+      name: 'Davey Johnstone',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    { name: 'Elton John', role: 'songwriter', artistGlobeId: 'elton-john' },
+    {
+      name: 'Elton John',
+      role: 'performer',
+      artistGlobeId: 'elton-john',
+      primary: true,
+    },
+    {
+      name: 'Bernie Taupin',
+      role: 'songwriter',
+      artistGlobeId: 'bernie-taupin',
+    },
+    { name: 'Ken Scott', role: 'engineer', artistGlobeId: 'ken-scott' },
+    {
+      name: 'Elton John',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'elton-john',
+      primary: true,
+    },
+  ],
+  releases: [
+    { releaseId: 'elton-john-dont-shoot-me-im-only-the-piano-player' },
+  ],
 
   sections: [
     {

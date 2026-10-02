@@ -16,6 +16,7 @@ import type { PlaybackEvent } from '@/contexts/PlaybackContext';
 import type { SpelledNote } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import { chordNameToMidi } from '@/curriculum/songLibrary/chordParser';
 import type { ChordHit, SongMode } from '@/curriculum/types/songLibrary';
+import { CONSOLE_LABEL } from '../../ui/styles';
 import { normalizeAccidentals } from '../songChart/chartOps';
 import { degreeFromChord } from './chordDegree';
 import {
@@ -136,17 +137,15 @@ export const ChordEditorPopup = ({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-[#1a1a1a]"
+        className="w-full max-w-md overflow-hidden rounded-2xl border border-white/[0.08] bg-[#151518]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between px-5 pt-5">
           <div>
-            <h3 className="font-serif text-xl font-bold text-white">
+            <h3 className="text-xl font-bold text-white">
               {chord.chordName || 'New chord'}
             </h3>
-            <p className="font-serif text-sm text-white/40">
-              {chord.degree || '—'}
-            </p>
+            <p className="text-sm text-white/45">{chord.degree || '—'}</p>
           </div>
           <Button
             size="icon"
@@ -187,7 +186,7 @@ export const ChordEditorPopup = ({
 
         <div className="space-y-3 p-5">
           <div>
-            <Label className="mb-1.5 block text-xs text-muted-foreground">
+            <Label className={`mb-1.5 block ${CONSOLE_LABEL}`}>
               Chord name
             </Label>
             <Input
@@ -199,9 +198,7 @@ export const ChordEditorPopup = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label className="mb-1.5 block text-xs text-muted-foreground">
-                Root
-              </Label>
+              <Label className={`mb-1.5 block ${CONSOLE_LABEL}`}>Root</Label>
               <Select value={root} onValueChange={(v) => setName(v + suffix)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -216,7 +213,7 @@ export const ChordEditorPopup = ({
               </Select>
             </div>
             <div>
-              <Label className="mb-1.5 block text-xs text-muted-foreground">
+              <Label className={`mb-1.5 block ${CONSOLE_LABEL}`}>
                 Chord type
               </Label>
               <Select
@@ -242,9 +239,7 @@ export const ChordEditorPopup = ({
 
           {options.length > 0 && (
             <div>
-              <Label className="mb-1.5 block text-xs text-muted-foreground">
-                Voicing
-              </Label>
+              <Label className={`mb-1.5 block ${CONSOLE_LABEL}`}>Voicing</Label>
               <Select
                 value={currentVoicing?.id ?? options[0].id}
                 onValueChange={(id) => {
@@ -267,7 +262,7 @@ export const ChordEditorPopup = ({
           )}
 
           <div>
-            <Label className="mb-1.5 block text-xs text-muted-foreground">
+            <Label className={`mb-1.5 block ${CONSOLE_LABEL}`}>
               Analyze MIDI notes
             </Label>
             <div className="flex gap-2">
@@ -291,9 +286,7 @@ export const ChordEditorPopup = ({
           <div className="flex items-center justify-between pt-1">
             <span className="text-xs text-muted-foreground">
               Degree:{' '}
-              <span className="font-mono text-white/80">
-                {chord.degree || '—'}
-              </span>
+              <span className="text-white/80">{chord.degree || '—'}</span>
             </span>
             <Button size="sm" onClick={onClose}>
               Done

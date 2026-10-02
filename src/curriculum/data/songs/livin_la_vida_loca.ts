@@ -16,6 +16,47 @@ export const livin_la_vida_loca: Song = {
   difficulty: 2,
   genreTags: ['latin', 'pop'],
   techniques: [],
+  session: { studioId: 'the-gentlemens-club' },
+  credits: [
+    { name: 'Rusty Anderson', role: 'performer' },
+    { name: 'Craig Lozowick', role: 'engineer' },
+    { name: 'Iris Aponte', role: 'producer', artistGlobeId: 'iris-aponte' },
+    { name: 'Tony Concepción', role: 'performer', instrument: 'trumpet' },
+    { name: 'Draco Rosa', role: 'songwriter', artistGlobeId: 'draco-rosa' },
+    { name: 'Charles Dye', role: 'engineer' },
+    {
+      name: 'Ricky Martin',
+      role: 'vocals',
+      artistGlobeId: 'ricky-martin',
+      primary: true,
+    },
+    {
+      name: 'Draco Rosa',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'draco-rosa',
+    },
+    {
+      name: 'Desmond Child',
+      role: 'songwriter',
+      artistGlobeId: 'desmond-child',
+    },
+    { name: 'Desmond Child', role: 'producer', artistGlobeId: 'desmond-child' },
+    { name: 'Randy Cantor', role: 'arranger' },
+    { name: 'Randy Cantor', role: 'performer' },
+    { name: 'Draco Rosa', role: 'producer', artistGlobeId: 'draco-rosa' },
+    {
+      name: 'Draco Rosa',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'draco-rosa',
+    },
+    { name: 'Brian Coleman', role: 'producer', artistGlobeId: 'brian-coleman' },
+    { name: 'Rafael Solano', role: 'performer', instrument: 'percussion' },
+    { name: 'Tony Concepción', role: 'performer' },
+    { name: 'Nathan Malki', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'ricky-martin-ricky-martin', track: 1 }],
 
   sections: [
     {

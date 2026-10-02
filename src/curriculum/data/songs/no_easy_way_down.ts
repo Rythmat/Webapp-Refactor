@@ -16,6 +16,36 @@ export const no_easy_way_down: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Bobby Emmons', role: 'performer', instrument: 'organ' },
+    { name: 'Gerry Goffin', role: 'songwriter', artistGlobeId: 'gerry-goffin' },
+    { name: 'Ed Kollis', role: 'engineer' },
+    { name: 'Gene Chrisman', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Tom Dowd', role: 'arranger', artistGlobeId: 'tom-dowd' },
+    { name: 'Reggie Young', role: 'performer', instrument: 'sitar' },
+    { name: 'Tommy Cogbill', role: 'performer', instrument: 'electric-bass' },
+    {
+      name: 'The Sweet Inspirations',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      ensemble: true,
+    },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+    {
+      name: 'Dusty Springfield',
+      role: 'vocals',
+      artistGlobeId: 'dusty-springfield',
+      primary: true,
+    },
+    { name: 'Tom Dowd', role: 'producer', artistGlobeId: 'tom-dowd' },
+    { name: 'Jerry Wexler', role: 'producer', artistGlobeId: 'jerry-wexler' },
+    { name: 'Arif Mardin', role: 'arranger', artistGlobeId: 'arif-mardin' },
+    { name: 'Reggie Young', role: 'performer' },
+    { name: 'Gene Orloff', role: 'conductor' },
+    { name: 'Bobby Emmons', role: 'performer', instrument: 'electric-piano' },
+    { name: 'Arif Mardin', role: 'producer', artistGlobeId: 'arif-mardin' },
+  ],
+  releases: [{ releaseId: 'dusty-springfield-dusty-in-memphis' }],
 
   sections: [
     {

@@ -16,6 +16,32 @@ export const graceland: Song = {
   difficulty: 2,
   genreTags: ['funk', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'Paul Simon', role: 'producer', artistGlobeId: 'paul-simon' },
+    { name: 'Tau Ea Matsekha', role: 'performer', ensemble: true },
+    { name: 'Roy Halee', role: 'engineer' },
+    { name: 'Chikapa “Ray” Phiri', role: 'performer' },
+    { name: 'Demola Adepoju', role: 'performer', instrument: 'pedal-steel' },
+    {
+      name: 'Paul Simon',
+      role: 'vocals',
+      artistGlobeId: 'paul-simon',
+      primary: true,
+    },
+    {
+      name: 'Paul Simon',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'paul-simon',
+      primary: true,
+    },
+    { name: 'Bakithi Kumalo', role: 'performer', instrument: 'electric-bass' },
+    { name: 'The Everly Brothers', role: 'vocals', ensemble: true },
+    { name: 'Paul Simon', role: 'songwriter', artistGlobeId: 'paul-simon' },
+    { name: 'Vusi Khumalo', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Makhaya Mahlangu', role: 'performer', instrument: 'percussion' },
+  ],
+  releases: [{ releaseId: 'paul-simon-graceland', track: 2 }],
 
   sections: [
     {

@@ -16,6 +16,34 @@ export const china_girl: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'power-station-at-berkleenyc' },
+  credits: [
+    { name: 'David Bowie', role: 'songwriter', artistGlobeId: 'david-bowie' },
+    {
+      name: 'Stevie Ray Vaughan',
+      role: 'performer',
+      artistGlobeId: 'stevie-ray-vaughan',
+    },
+    { name: 'Bob Clearmountain', role: 'engineer' },
+    { name: 'David Spinner', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Iggy Pop', role: 'songwriter', artistGlobeId: 'iggy-pop' },
+    { name: 'Carmine Rojas', role: 'performer' },
+    { name: 'George Simms', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Sammy Figueroa', role: 'performer', instrument: 'percussion' },
+    { name: 'Nile Rodgers', role: 'producer', artistGlobeId: 'nile-rodgers' },
+    { name: 'Omar Hakim', role: 'performer', instrument: 'drum-kit' },
+    { name: 'David Bowie', role: 'producer', artistGlobeId: 'david-bowie' },
+    { name: 'Frank Simms', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'David Bowie',
+      role: 'vocals',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'Nile Rodgers', role: 'performer', artistGlobeId: 'nile-rodgers' },
+    { name: 'Rob Sabino', role: 'performer' },
+  ],
+  releases: [{ releaseId: 'david-bowie-lets-dance' }],
 
   sections: [
     {

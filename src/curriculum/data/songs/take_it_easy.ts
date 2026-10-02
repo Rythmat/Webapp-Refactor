@@ -16,6 +16,67 @@ export const take_it_easy: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'olympic-studios' },
+  credits: [
+    { name: 'Glenn Frey', role: 'songwriter', artistGlobeId: 'glenn-frey' },
+    {
+      name: 'Bernie Leadon',
+      role: 'performer',
+      instrument: 'banjo',
+      artistGlobeId: 'bernie-leadon',
+    },
+    {
+      name: 'Glenn Frey',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'glenn-frey',
+    },
+    {
+      name: 'Don Henley',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'don-henley',
+    },
+    { name: 'Glyn Johns', role: 'producer', artistGlobeId: 'glyn-johns' },
+    {
+      name: 'Randy Meisner',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'randy-meisner',
+    },
+    {
+      name: 'Jackson Browne',
+      role: 'songwriter',
+      artistGlobeId: 'jackson-browne',
+    },
+    {
+      name: 'Bernie Leadon',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'bernie-leadon',
+    },
+    { name: 'Glyn Johns', role: 'engineer', artistGlobeId: 'glyn-johns' },
+    {
+      name: 'Don Henley',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'don-henley',
+    },
+    {
+      name: 'Bernie Leadon',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'bernie-leadon',
+    },
+    {
+      name: 'Randy Meisner',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'randy-meisner',
+    },
+    { name: 'Glenn Frey', role: 'vocals', artistGlobeId: 'glenn-frey' },
+  ],
+  releases: [{ releaseId: 'the-eagles-eagles' }],
 
   sections: [
     {

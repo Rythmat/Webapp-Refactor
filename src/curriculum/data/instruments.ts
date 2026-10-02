@@ -16,7 +16,18 @@
  * `section` is a practical grouping for ordering and colouring pills, not a
  * taxonomy. Add instruments freely as the corpus needs them; the guard test
  * checks that every `Credit.instrument` in the song library resolves here.
+ *
+ * The instruments are data, one per line in
+ * src/content/vocabulary/instruments.json, which the console edits (the
+ * owner's call, 30 Sep 2026). This module reads that file and nothing else
+ * of the vocabulary: the song page's pills load it, and the genre data
+ * (src/content/vocabulary/repo.ts) must never ride along into a student's
+ * download. So it maps the records here itself, leaving out `typicalIn`,
+ * which only the graph reads (instrumentGenres.ts). The section names and
+ * their blurbs stay code.
  */
+
+import INSTRUMENT_FILE from '@/content/vocabulary/instruments.json';
 
 export type InstrumentSection =
   | 'voice'
@@ -62,118 +73,18 @@ export const INSTRUMENT_SECTIONS: {
   { section: 'other', blurb: 'Everything else a credit might name' },
 ];
 
-export const SESSION_INSTRUMENTS: readonly SessionInstrument[] = [
-  // ── Voice ──
-  { id: 'lead-vocals', name: 'Lead Vocals', section: 'voice' },
-  { id: 'backing-vocals', name: 'Backing Vocals', section: 'voice' },
-
-  // ── Keys ──
-  { id: 'piano', name: 'Piano', section: 'keys' },
-  { id: 'electric-piano', name: 'Electric Piano', section: 'keys' },
-  { id: 'fender-rhodes', name: 'Fender Rhodes', section: 'keys' },
-  { id: 'wurlitzer', name: 'Wurlitzer', section: 'keys' },
-  { id: 'clavinet', name: 'Clavinet', section: 'keys' },
-  { id: 'hammond-organ', name: 'Hammond Organ', section: 'keys' },
-  { id: 'organ', name: 'Organ', section: 'keys' },
-  { id: 'harpsichord', name: 'Harpsichord', section: 'keys' },
-  { id: 'accordion', name: 'Accordion', section: 'keys' },
-  { id: 'celesta', name: 'Celesta', section: 'keys' },
-
-  // ── Guitar ──
-  {
-    id: 'electric-guitar',
-    name: 'Electric Guitar',
-    section: 'guitar',
-    worldInstrumentId: 'electric-guitar',
-  },
-  { id: 'acoustic-guitar', name: 'Acoustic Guitar', section: 'guitar' },
-  { id: 'slide-guitar', name: 'Slide Guitar', section: 'guitar' },
-  { id: 'pedal-steel', name: 'Pedal Steel Guitar', section: 'guitar' },
-  { id: 'banjo', name: 'Banjo', section: 'guitar' },
-  { id: 'mandolin', name: 'Mandolin', section: 'guitar' },
-  { id: 'ukulele', name: 'Ukulele', section: 'guitar' },
-  { id: 'sitar', name: 'Sitar', section: 'guitar', worldInstrumentId: 'sitar' },
-
-  // ── Bass ──
-  { id: 'electric-bass', name: 'Electric Bass', section: 'bass' },
-  { id: 'upright-bass', name: 'Upright Bass', section: 'bass' },
-  { id: 'synth-bass', name: 'Synth Bass', section: 'bass' },
-
-  // ── Drums ──
-  { id: 'drum-kit', name: 'Drum Kit', section: 'drums' },
-  { id: 'drum-machine', name: 'Drum Machine', section: 'drums' },
-
-  // ── Percussion ──
-  { id: 'percussion', name: 'Percussion', section: 'percussion' },
-  { id: 'tambourine', name: 'Tambourine', section: 'percussion' },
-  {
-    id: 'congas',
-    name: 'Congas',
-    section: 'percussion',
-    worldInstrumentId: 'conga',
-  },
-  { id: 'bongos', name: 'Bongos', section: 'percussion' },
-  { id: 'timbales', name: 'Timbales', section: 'percussion' },
-  { id: 'vibraphone', name: 'Vibraphone', section: 'percussion' },
-  {
-    id: 'marimba',
-    name: 'Marimba',
-    section: 'percussion',
-    worldInstrumentId: 'marimba',
-  },
-  { id: 'handclaps', name: 'Handclaps', section: 'percussion' },
-  { id: 'cowbell', name: 'Cowbell', section: 'percussion' },
-  { id: 'gong', name: 'Gong', section: 'percussion' },
-
-  // ── Brass ──
-  { id: 'trumpet', name: 'Trumpet', section: 'brass' },
-  { id: 'trombone', name: 'Trombone', section: 'brass' },
-  { id: 'french-horn', name: 'French Horn', section: 'brass' },
-  { id: 'tuba', name: 'Tuba', section: 'brass' },
-  { id: 'horn-section', name: 'Horn Section', section: 'brass' },
-
-  // ── Woodwind ──
-  { id: 'alto-sax', name: 'Alto Saxophone', section: 'woodwind' },
-  { id: 'tenor-sax', name: 'Tenor Saxophone', section: 'woodwind' },
-  { id: 'baritone-sax', name: 'Baritone Saxophone', section: 'woodwind' },
-  { id: 'soprano-sax', name: 'Soprano Saxophone', section: 'woodwind' },
-  { id: 'flute', name: 'Flute', section: 'woodwind' },
-  { id: 'clarinet', name: 'Clarinet', section: 'woodwind' },
-  { id: 'harmonica', name: 'Harmonica', section: 'woodwind' },
-
-  // ── Strings ──
-  { id: 'violin', name: 'Violin', section: 'strings' },
-  { id: 'viola', name: 'Viola', section: 'strings' },
-  { id: 'cello', name: 'Cello', section: 'strings' },
-  { id: 'harp', name: 'Harp', section: 'strings' },
-  { id: 'string-section', name: 'String Section', section: 'strings' },
-
-  // ── Electronic ──
-  {
-    id: 'synthesizer',
-    name: 'Synthesizer',
-    section: 'electronic',
-    worldInstrumentId: 'synthesizer',
-  },
-  { id: 'sampler', name: 'Sampler', section: 'electronic' },
-  {
-    id: 'turntables',
-    name: 'Turntables',
-    section: 'electronic',
-    worldInstrumentId: 'turntable',
-  },
-  { id: 'vocoder', name: 'Vocoder', section: 'electronic' },
-  {
-    id: 'theremin',
-    name: 'Theremin',
-    section: 'electronic',
-    worldInstrumentId: 'theremin',
-  },
-
-  // ── Other ──
-  { id: 'whistle', name: 'Whistle', section: 'other' },
-  { id: 'strings-and-horns', name: 'Strings and Horns', section: 'other' },
-];
+/**
+ * Every session instrument, in the file's order: by section, as the
+ * Vocabulary page and the pickers list them. `section` is cast from the
+ * file's plain string; the file's schema holds it to the sections above
+ * (src/content/vocabulary/schemas.ts, checked by files.test.ts).
+ */
+export const SESSION_INSTRUMENTS: readonly SessionInstrument[] =
+  INSTRUMENT_FILE.records.map(({ id, name, section, worldInstrumentId }) =>
+    worldInstrumentId === undefined
+      ? { id, name, section: section as InstrumentSection }
+      : { id, name, section: section as InstrumentSection, worldInstrumentId },
+  );
 
 const BY_ID = new Map(SESSION_INSTRUMENTS.map((i) => [i.id, i]));
 

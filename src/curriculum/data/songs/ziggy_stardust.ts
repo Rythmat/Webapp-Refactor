@@ -16,6 +16,46 @@ export const ziggy_stardust: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'trident-studios' },
+  credits: [
+    { name: 'Mick Woodmansey', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Mick Ronson', role: 'performer', instrument: 'electric-guitar' },
+    { name: 'Mick Ronson', role: 'arranger' },
+    { name: 'David Bowie', role: 'producer', artistGlobeId: 'david-bowie' },
+    { name: 'Mick Ronson', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'David Bowie', role: 'songwriter', artistGlobeId: 'david-bowie' },
+    { name: 'Mick Woodmansey', role: 'performer' },
+    { name: 'Ken Scott', role: 'producer', artistGlobeId: 'ken-scott' },
+    {
+      name: 'David Bowie',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'David Bowie', role: 'arranger', artistGlobeId: 'david-bowie' },
+    {
+      name: 'David Bowie',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'Trevor Bolder', role: 'performer', instrument: 'electric-bass' },
+    {
+      name: 'David Bowie',
+      role: 'vocals',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'Dennis MacKay', role: 'engineer' },
+  ],
+  releases: [
+    {
+      releaseId:
+        'david-bowie-the-rise-and-fall-of-ziggy-stardust-and-the-spiders-from-mars',
+    },
+  ],
 
   sections: [
     {

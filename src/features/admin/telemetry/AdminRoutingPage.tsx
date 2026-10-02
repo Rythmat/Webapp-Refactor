@@ -19,7 +19,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { cn } from '@/components/utilities';
 import { useAdminRoutingAnalytics } from '@/hooks/data/admin/useAdminTelemetry';
+import { ConsoleSectionTitle } from '../ui/ConsolePageHeader';
+import { CONSOLE_LABEL, CONSOLE_PANEL, CONSOLE_TABLE_HEAD } from '../ui/styles';
+import {
+  CHART_SERIES,
+  chartAxisProps,
+  chartGridProps,
+  chartTooltipProps,
+} from './chartTheme';
 import {
   TimeRangeSelect,
   useTimeRangeParams,
@@ -41,8 +50,8 @@ export const AdminRoutingPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Routing</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <ConsoleSectionTitle>Routing</ConsoleSectionTitle>
         <TimeRangeSelect value={range} onChange={setRange} />
       </div>
 
@@ -57,8 +66,8 @@ export const AdminRoutingPage = () => {
         </div>
       ) : (
         <>
-          <Card className="border border-white/10 bg-white/5 p-4">
-            <h3 className="mb-4 text-sm font-medium text-muted-foreground">
+          <Card className={cn(CONSOLE_PANEL, 'p-4')}>
+            <h3 className={cn(CONSOLE_LABEL, 'mb-4')}>
               Page Navigations Over Time
             </h3>
             <ResponsiveContainer width="100%" height={300}>
@@ -71,38 +80,33 @@ export const AdminRoutingPage = () => {
                     x2="0"
                     y2="1"
                   >
-                    <stop offset="5%" stopColor="#60a5fa" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#60a5fa" stopOpacity={0} />
+                    <stop
+                      offset="5%"
+                      stopColor={CHART_SERIES.blue}
+                      stopOpacity={0.3}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor={CHART_SERIES.blue}
+                      stopOpacity={0}
+                    />
                   </linearGradient>
                 </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="rgba(255,255,255,0.1)"
-                />
+                <CartesianGrid {...chartGridProps} />
                 <XAxis
+                  {...chartAxisProps}
                   dataKey="bucket"
-                  stroke="rgba(255,255,255,0.5)"
-                  tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
                   tickFormatter={formatBucketLabel}
                 />
-                <YAxis
-                  stroke="rgba(255,255,255,0.5)"
-                  tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
-                />
+                <YAxis {...chartAxisProps} />
                 <RechartsTooltip
-                  contentStyle={{
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 8,
-                  }}
-                  labelStyle={{ color: 'white' }}
-                  itemStyle={{ color: 'white' }}
+                  {...chartTooltipProps}
                   labelFormatter={(v) => formatBucketLabel(String(v))}
                 />
                 <Area
                   type="monotone"
                   dataKey="count"
-                  stroke="#60a5fa"
+                  stroke={CHART_SERIES.blue}
                   strokeWidth={2}
                   fill="url(#routingGradient)"
                   name="Navigations"
@@ -111,15 +115,13 @@ export const AdminRoutingPage = () => {
             </ResponsiveContainer>
           </Card>
 
-          <Card className="border border-white/10 bg-white/5 p-4">
-            <h3 className="mb-4 text-sm font-medium text-muted-foreground">
-              Top Routes
-            </h3>
+          <Card className={cn(CONSOLE_PANEL, 'p-4')}>
+            <h3 className={cn(CONSOLE_LABEL, 'mb-4')}>Top Routes</h3>
             {data.topRoutes.length === 0 ? (
               <p className="py-4 text-center text-muted-foreground">No data</p>
             ) : (
               <Table>
-                <TableHeader>
+                <TableHeader className={CONSOLE_TABLE_HEAD}>
                   <TableRow>
                     <TableHead>Route</TableHead>
                     <TableHead>Visits</TableHead>
@@ -128,9 +130,7 @@ export const AdminRoutingPage = () => {
                 <TableBody>
                   {data.topRoutes.map((row) => (
                     <TableRow key={row.route}>
-                      <TableCell className="font-mono text-sm">
-                        {row.route}
-                      </TableCell>
+                      <TableCell className="text-sm">{row.route}</TableCell>
                       <TableCell>{row.count.toLocaleString()}</TableCell>
                     </TableRow>
                   ))}

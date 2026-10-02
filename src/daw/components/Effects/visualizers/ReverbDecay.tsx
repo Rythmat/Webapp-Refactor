@@ -232,7 +232,7 @@ export function ReverbDecay({
         y={PADDING.top - 3}
         fill="rgba(126, 207, 207, 0.5)"
         fontSize={7}
-        fontFamily="system-ui"
+        fontFamily="'Glacial Indifference', 'Haskoy', system-ui, sans-serif"
         fontWeight={600}
         letterSpacing={0.5}
       >
@@ -246,7 +246,7 @@ export function ReverbDecay({
           y={ampToY(0) - 3}
           fill="rgba(126, 207, 207, 0.35)"
           fontSize={6}
-          fontFamily="system-ui"
+          fontFamily="'Glacial Indifference', 'Haskoy', system-ui, sans-serif"
           textAnchor="middle"
         >
           {Math.round(preDelay)}ms
@@ -259,7 +259,7 @@ export function ReverbDecay({
         y={height - 2}
         fill="rgba(255,255,255,0.25)"
         fontSize={7}
-        fontFamily="system-ui"
+        fontFamily="'Glacial Indifference', 'Haskoy', system-ui, sans-serif"
       >
         0s
       </text>
@@ -268,7 +268,7 @@ export function ReverbDecay({
         y={height - 2}
         fill="rgba(255,255,255,0.25)"
         fontSize={7}
-        fontFamily="system-ui"
+        fontFamily="'Glacial Indifference', 'Haskoy', system-ui, sans-serif"
         textAnchor="middle"
       >
         {midTime.toFixed(1)}s
@@ -278,7 +278,7 @@ export function ReverbDecay({
         y={height - 2}
         fill="rgba(255,255,255,0.25)"
         fontSize={7}
-        fontFamily="system-ui"
+        fontFamily="'Glacial Indifference', 'Haskoy', system-ui, sans-serif"
         textAnchor="end"
       >
         {totalTime.toFixed(1)}s

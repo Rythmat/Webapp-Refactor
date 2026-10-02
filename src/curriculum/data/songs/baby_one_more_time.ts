@@ -16,6 +16,37 @@ export const baby_one_more_time: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'cheiron-studios' },
+  credits: [
+    {
+      name: 'Max Martin',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'max-martin',
+    },
+    { name: 'Nana Hedin', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Max Martin', role: 'producer', artistGlobeId: 'max-martin' },
+    { name: 'Rami', role: 'engineer', artistGlobeId: 'rami' },
+    { name: 'Tomas Lindberg', role: 'performer', instrument: 'electric-bass' },
+    {
+      name: 'Britney Spears',
+      role: 'vocals',
+      artistGlobeId: 'britney-spears',
+      primary: true,
+    },
+    { name: 'Johan Carlberg', role: 'performer' },
+    { name: 'Rami', role: 'producer', artistGlobeId: 'rami' },
+    { name: 'Max Martin', role: 'engineer', artistGlobeId: 'max-martin' },
+    {
+      name: 'Britney Spears',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'britney-spears',
+      primary: true,
+    },
+    { name: 'Max Martin', role: 'songwriter', artistGlobeId: 'max-martin' },
+  ],
+  releases: [{ releaseId: 'britney-spears-baby-one-more-time', track: 1 }],
 
   sections: [
     {

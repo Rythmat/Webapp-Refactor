@@ -731,3 +731,53 @@ describe('GuitarInputSetup: lifecycle', () => {
     expect(props.onClose).toHaveBeenCalled();
   });
 });
+
+describe('GuitarInputSetup: the landing look', () => {
+  it('shows progress as one segment per step, the current one thicker', () => {
+    renderSetup();
+    press('Next');
+    const segments = within(
+      screen.getByRole('list', { name: 'Setup progress' }),
+    ).getAllByRole('listitem');
+    expect(segments).toHaveLength(10);
+    expect(segments[1]).toHaveAttribute('aria-current', 'step');
+    expect(segments[1]).toHaveClass('h-1');
+    expect(segments[0]).toHaveClass('h-0.5');
+    expect(segments[2]).toHaveClass('h-0.5');
+    expect(segments[1]).toHaveTextContent('Turn the microphone on');
+  });
+
+  it('draws Next as the white pill and Skip as the outlined one, never brand yellow', () => {
+    renderSetup();
+    const next = screen.getByRole('button', { name: 'Next' });
+    expect(next).toHaveClass('bg-white', 'text-[#101012]', 'font-normal');
+    expect(next).not.toHaveClass('bg-brand-base');
+    press('Next');
+    const skip = screen.getByRole('button', { name: 'Skip' });
+    expect(skip).toHaveClass('border-white/15', 'bg-white/[0.04]');
+    expect(skip).not.toHaveClass('bg-white');
+  });
+
+  it('fades without zooming under reduced motion, with a gutter on a phone', () => {
+    renderSetup();
+    expect(screen.getByRole('dialog')).toHaveClass(
+      'w-[calc(100%-2rem)]',
+      'max-w-[480px]',
+      'motion-reduce:data-[state=open]:zoom-in-100',
+      'motion-reduce:data-[state=open]:slide-in-from-top-1/2',
+    );
+  });
+
+  it('marks the chosen input with a brighter outline', () => {
+    renderSetup();
+    const option = (name: RegExp) =>
+      screen.getByRole('radio', { name }).closest('label');
+    expect(option(/Microphone or audio interface/)).toHaveClass(
+      'border-white/40',
+      'bg-white/[0.06]',
+    );
+    expect(option(/MIDI guitar/)).toHaveClass('border-white/10');
+    fireEvent.click(screen.getByRole('radio', { name: /MIDI guitar/ }));
+    expect(option(/MIDI guitar/)).toHaveClass('border-white/40');
+  });
+});

@@ -16,6 +16,59 @@ export const pastime_paradise: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Stevie Wonder', role: 'arranger', artistGlobeId: 'stevie-wonder' },
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+    { name: 'Ray Maldonado', role: 'performer', instrument: 'percussion' },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'West Angeles Church of God in Christ Mass Choir',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      ensemble: true,
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Bobbye Hall', role: 'performer', instrument: 'percussion' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Michael Wycoff', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Michael Gray', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Hare Krishna',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      ensemble: true,
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-songs-in-the-key-of-life' }],
 
   sections: [
     {

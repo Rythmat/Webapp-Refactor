@@ -97,7 +97,13 @@ export const LiveFeedbackOverlay: React.FC<LiveFeedbackOverlayProps> = ({
       )}
 
       {/* Accuracy */}
-      <div style={{ color: '#e2e8f0', fontSize: 14, fontFamily: 'monospace' }}>
+      <div
+        style={{
+          color: '#e2e8f0',
+          fontSize: 14,
+          fontVariantNumeric: 'tabular-nums',
+        }}
+      >
         {state.accuracy}%
       </div>
 

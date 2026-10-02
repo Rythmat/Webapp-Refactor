@@ -12,6 +12,12 @@ export {
   type GuitarSectionBCardProps,
 } from './GuitarSectionBCard';
 export {
+  GuitarKeyNotes,
+  GuitarStepNotes,
+  type GuitarKeyNotesProps,
+  type GuitarStepNotesProps,
+} from './GuitarStepNotes';
+export {
   GuitarTheoryPanel,
   type GuitarTheoryPanelProps,
 } from './GuitarTheoryPanel';
@@ -27,12 +33,14 @@ export {
   type MusicMapOverlayModel,
   type MusicMapOverlayProps,
 } from './MusicMapOverlay';
+export { BlockLabel, DisclosureHeading, InfoItem, NoteCard } from './noteParts';
 export { SameRootCompare, type SameRootCompareProps } from './SameRootCompare';
 export { TheoryPopover, type PopoverNote } from './TheoryPopover';
 export {
   CHANGE_PREFIXES,
   familyChips,
   isSectionBCardDue,
+  markSectionBCardSeen,
   noteSeenId,
   patternChipText,
   patternNoteId,
@@ -40,6 +48,8 @@ export {
   sectionBCardBarreCare,
   sectionBCardSeenId,
   sharedNotesText,
+  stepTheoryNotes,
   toTheoryStep,
   type FamilyChip,
+  type StepTheoryNotes,
 } from './theoryUi';

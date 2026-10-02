@@ -16,6 +16,44 @@ export const crazy_in_love: Song = {
   difficulty: 2,
   genreTags: ['hip-hop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Rich Harrison',
+      role: 'performer',
+      artistGlobeId: 'rich-harrison',
+    },
+    { name: 'Beyoncé', role: 'producer', artistGlobeId: 'beyonce' },
+    { name: 'Jay-Z', role: 'performer', artistGlobeId: 'jay-z' },
+    { name: 'Jay-Z', role: 'songwriter', artistGlobeId: 'jay-z' },
+    { name: 'Pat Thrall', role: 'engineer' },
+    {
+      name: 'Rich Harrison',
+      role: 'songwriter',
+      artistGlobeId: 'rich-harrison',
+    },
+    { name: 'Beyoncé', role: 'songwriter', artistGlobeId: 'beyonce' },
+    {
+      name: 'Eugene Record',
+      role: 'songwriter',
+      artistGlobeId: 'eugene-record',
+    },
+    {
+      name: 'Beyoncé',
+      role: 'vocals',
+      primary: true,
+      artistGlobeId: 'beyonce',
+    },
+    { name: 'Rich Harrison', role: 'producer', artistGlobeId: 'rich-harrison' },
+    { name: 'Tony Maserati', role: 'engineer' },
+    { name: 'Jim Caruana', role: 'engineer' },
+    {
+      name: 'Jay-Z',
+      role: 'vocals',
+      primary: true,
+      artistGlobeId: 'jay-z',
+    },
+  ],
+  releases: [{ releaseId: 'beyonce-dangerously-in-love' }],
 
   sections: [
     {

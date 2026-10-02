@@ -16,6 +16,30 @@ export const despacito: Song = {
   difficulty: 2,
   genreTags: ['latin', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'Erika Ender', role: 'songwriter', artistGlobeId: 'erika-ender' },
+    { name: 'Daddy Yankee', role: 'songwriter', artistGlobeId: 'daddy-yankee' },
+    {
+      name: 'Luis Fonsi',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'luis-fonsi',
+    },
+    {
+      name: 'Mauricio Rengifo',
+      role: 'producer',
+      artistGlobeId: 'mauricio-rengifo',
+    },
+    { name: 'Andrés Torres', role: 'producer', artistGlobeId: 'andres-torres' },
+    { name: 'Luis Fonsi', role: 'songwriter', artistGlobeId: 'luis-fonsi' },
+    {
+      name: 'Daddy Yankee',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'daddy-yankee',
+    },
+  ],
+  releases: [{ releaseId: 'luis-fonsi-vida', track: 9 }],
 
   sections: [
     {

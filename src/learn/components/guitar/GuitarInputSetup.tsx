@@ -38,6 +38,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { cn } from '@/components/utilities';
 import {
   getAudioInputs,
   probeDeviceChannelCount,
@@ -249,9 +250,25 @@ function useMountedRef() {
 
 // ── Shared bits ──────────────────────────────────────────────────────────
 
+// The landing look: the white pill for what to do next, the outlined pill
+// beside it, 36 px targets (44 px on a phone), Glacial 400 throughout.
+const TARGET = 'h-9 px-4 font-normal shadow-none max-sm:h-11';
+const PRIMARY = cn(
+  TARGET,
+  'bg-white text-[#101012] hover:bg-white/90 active:bg-white/80',
+);
+const SECONDARY = cn(
+  TARGET,
+  'border-white/15 bg-white/[0.04] text-[#e8e8f0] hover:bg-white/[0.08] active:bg-white/[0.12]',
+);
+const QUIET = cn(
+  TARGET,
+  'text-white/55 hover:bg-white/[0.06] hover:text-[#e8e8f0] active:bg-white/[0.08]',
+);
+
 function Note({ icon, children }: { icon: ReactNode; children: ReactNode }) {
   return (
-    <div className="flex items-start gap-2 rounded-lg border border-white/10 bg-white/5 p-3 text-sm text-white/80">
+    <div className="flex items-start gap-2 rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm text-[#e8e8f0]">
       <span aria-hidden className="mt-0.5 shrink-0">
         {icon}
       </span>
@@ -262,7 +279,7 @@ function Note({ icon, children }: { icon: ReactNode; children: ReactNode }) {
 
 function Passed({ children }: { children: ReactNode }) {
   return (
-    <p className="flex items-center gap-2 text-sm font-medium text-white">
+    <p className="flex items-center gap-2 text-sm text-[#e8e8f0]">
       <Check aria-hidden className="size-4 shrink-0" />
       {children}
     </p>
@@ -284,8 +301,11 @@ function Status({ children }: { children: ReactNode }) {
 
 function Busy({ children }: { children: ReactNode }) {
   return (
-    <p className="flex items-center gap-2 text-sm text-white/80">
-      <LoaderCircle aria-hidden className="size-4 shrink-0 animate-spin" />
+    <p className="flex items-center gap-2 text-sm text-[#e8e8f0]">
+      <LoaderCircle
+        aria-hidden
+        className="size-4 shrink-0 motion-safe:animate-spin"
+      />
       {children}
     </p>
   );
@@ -306,9 +326,9 @@ function LateOutputWarning() {
 
 function MicOffNotice({ onTurnOn }: { onTurnOn: () => void }) {
   return (
-    <div className="flex flex-col items-start gap-3 text-sm text-white/80">
+    <div className="flex flex-col items-start gap-3 text-sm text-[#e8e8f0]">
       <p>This check needs the microphone. It is off.</p>
-      <Button size="sm" onClick={onTurnOn}>
+      <Button size="sm" className={PRIMARY} onClick={onTurnOn}>
         Turn microphone on
       </Button>
     </div>
@@ -346,9 +366,12 @@ function SourceStep({
         {SOURCES.map(({ id, label, hint, Icon }) => (
           <label
             key={id}
-            className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 ${
-              source === id ? 'border-white/60 bg-white/10' : 'border-white/10'
-            }`}
+            className={cn(
+              'flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition-colors',
+              source === id
+                ? 'border-white/40 bg-white/[0.06]'
+                : 'border-white/10 hover:bg-white/[0.03]',
+            )}
           >
             <input
               type="radio"
@@ -356,18 +379,18 @@ function SourceStep({
               value={id}
               checked={source === id}
               onChange={() => onChange(id)}
-              className="accent-white"
+              className="accent-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60"
             />
             <Icon aria-hidden className="size-5 shrink-0" />
             <span className="flex flex-col">
-              <span className="text-sm font-medium">{label}</span>
-              <span className="text-xs text-white/60">{hint}</span>
+              <span className="text-sm text-[#e8e8f0]">{label}</span>
+              <span className="text-xs text-white/55">{hint}</span>
             </span>
           </label>
         ))}
       </fieldset>
       {source === 'audio' && (
-        <ul className="flex list-disc flex-col gap-1 pl-5 text-sm text-white/70">
+        <ul className="flex list-disc flex-col gap-1 pl-5 text-sm text-white/55">
           <li>
             Acoustic guitar: put the device 30 to 60 cm (1 to 2 feet) away. Prop
             it up so the mic faces the guitar.
@@ -434,11 +457,9 @@ function DeniedHelp({
 }) {
   const [browser] = useState(detectBrowser);
   return (
-    <div className="flex flex-col gap-3 text-sm text-white/80">
+    <div className="flex flex-col gap-3 text-sm text-[#e8e8f0]">
       <Note icon={<TriangleAlert className="size-4" />}>
-        <span className="font-medium text-white">
-          The microphone is blocked.
-        </span>
+        <span>The microphone is blocked.</span>
         <span>
           Your browser is not letting this site use it. Here is how to allow it.
         </span>
@@ -448,20 +469,23 @@ function DeniedHelp({
           <details
             key={id}
             open={id === browser}
-            className="rounded-lg border border-white/10 px-3 py-2"
+            className="rounded-xl border border-white/10 px-3 py-2"
           >
-            <summary className="cursor-pointer font-medium text-white">
-              {name}
-            </summary>
-            <p className="mt-1 text-white/70">{how}</p>
+            <summary className="cursor-pointer text-[#e8e8f0]">{name}</summary>
+            <p className="mt-1 text-white/55">{how}</p>
           </details>
         ))}
       </div>
       <div className="flex flex-wrap gap-2">
-        <Button size="sm" onClick={onRetry}>
+        <Button size="sm" className={PRIMARY} onClick={onRetry}>
           Try again
         </Button>
-        <Button size="sm" variant="outline" onClick={onUseMidi}>
+        <Button
+          size="sm"
+          variant="outline"
+          className={SECONDARY}
+          onClick={onUseMidi}
+        >
           Use MIDI guitar instead
         </Button>
       </div>
@@ -506,7 +530,7 @@ function MicStep({
     ) : status === 'error' || failure ? (
       <>
         <span>Something went wrong.</span>
-        {detail && <span className="text-white/60">{detail}</span>}
+        {detail && <span className="text-white/55">{detail}</span>}
       </>
     ) : null;
   return (
@@ -518,7 +542,7 @@ function MicStep({
       ) : status === 'denied' ? (
         <DeniedHelp onRetry={turnOn} onUseMidi={onUseMidi} />
       ) : (
-        <div className="flex flex-col items-start gap-3 text-sm text-white/80">
+        <div className="flex flex-col items-start gap-3 text-sm text-[#e8e8f0]">
           {problem ? (
             <Note icon={<TriangleAlert className="size-4" />}>{problem}</Note>
           ) : (
@@ -527,7 +551,7 @@ function MicStep({
               <p>Choose Allow. We use it only to hear your guitar.</p>
             </>
           )}
-          <Button onClick={turnOn}>
+          <Button className={PRIMARY} onClick={turnOn}>
             <Mic aria-hidden />
             {problem ? 'Try again' : 'Turn microphone on'}
           </Button>
@@ -583,9 +607,9 @@ function DevicePicker({ handle }: { handle: GuitarInputHandle }) {
   };
 
   const selectClass =
-    'rounded-md border border-white/10 bg-black/30 px-2 py-1.5 text-sm text-white';
+    'h-9 rounded-xl border border-white/15 bg-white/[0.04] px-3 text-sm text-[#e8e8f0] [color-scheme:dark] max-sm:h-11';
   return (
-    <div className="flex flex-col gap-2 text-sm text-white/80">
+    <div className="flex flex-col gap-2 text-sm text-[#e8e8f0]">
       <label className="flex flex-col gap-1">
         Input device
         <select
@@ -629,7 +653,7 @@ function TrimControl({ handle }: { handle: GuitarInputHandle }) {
     quietly(handle.restart({ trimDb: next }));
   };
   return (
-    <div className="flex flex-wrap items-center gap-2 text-sm text-white/80">
+    <div className="flex flex-wrap items-center gap-2 text-sm text-[#e8e8f0]">
       <span>
         Boost: {trimDb > 0 ? '+' : ''}
         {trimDb} dB
@@ -637,6 +661,7 @@ function TrimControl({ handle }: { handle: GuitarInputHandle }) {
       <Button
         size="sm"
         variant="outline"
+        className={SECONDARY}
         onClick={() => change(-TRIM_STEP_DB)}
         disabled={trimDb <= TRIM_MIN_DB}
       >
@@ -646,6 +671,7 @@ function TrimControl({ handle }: { handle: GuitarInputHandle }) {
       <Button
         size="sm"
         variant="outline"
+        className={SECONDARY}
         onClick={() => change(TRIM_STEP_DB)}
         disabled={trimDb >= TRIM_MAX_DB}
       >
@@ -660,7 +686,7 @@ function LevelStep({ handle }: { handle: GuitarInputHandle }) {
   return (
     <div className="flex flex-col gap-4">
       <DevicePicker handle={handle} />
-      <div className="flex flex-col gap-2 text-sm text-white/80">
+      <div className="flex flex-col gap-2 text-sm text-[#e8e8f0]">
         <p>Strum a few times. The bar should reach about halfway.</p>
         <InputLevelMeter handle={handle} width={240} height={10} />
       </div>
@@ -694,7 +720,7 @@ function QuietStep({
   };
 
   return (
-    <div className="flex flex-col items-start gap-3 text-sm text-white/80">
+    <div className="flex flex-col items-start gap-3 text-sm text-[#e8e8f0]">
       <p>Now we measure how quiet your room is.</p>
       <p>
         Press Start. Then stay quiet for 2 seconds. Rest a hand on the strings.
@@ -711,7 +737,7 @@ function QuietStep({
         )}
       </Status>
       {state !== 'measuring' && (
-        <Button size="sm" onClick={measure}>
+        <Button size="sm" className={PRIMARY} onClick={measure}>
           {state === 'ready' ? 'Start' : 'Measure again'}
         </Button>
       )}
@@ -723,7 +749,7 @@ function QuietStep({
 
 function TunerStep({ analyser }: { analyser: AnalyserNode }) {
   return (
-    <div className="flex flex-col gap-3 text-sm text-white/80">
+    <div className="flex flex-col gap-3 text-sm text-[#e8e8f0]">
       <p>Tune first. Strings out of tune sound like wrong notes.</p>
       <p>
         Switch the tuner on. Play one string at a time. Turn its peg until the
@@ -763,14 +789,15 @@ function StringRow({
           : 'Next';
   return (
     <li
-      className={`flex items-center justify-between gap-3 rounded-lg border p-3 text-sm ${
-        active ? 'border-white/60' : 'border-white/10'
-      }`}
+      className={cn(
+        'flex items-center justify-between gap-3 rounded-xl border p-3 text-sm transition-colors',
+        active ? 'border-white/40 bg-white/[0.06]' : 'border-white/10',
+      )}
     >
-      <span className="text-white">{label}</span>
+      <span className="text-[#e8e8f0]">{label}</span>
       <span
         role="status"
-        className="flex shrink-0 items-center gap-1 text-white/70"
+        className="flex shrink-0 items-center gap-1 text-white/55"
       >
         {state === 'heard' && <Check aria-hidden className="size-4" />}
         {status}
@@ -814,7 +841,7 @@ function StringsStep({
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-white/80">
+      <p className="text-sm text-[#e8e8f0]">
         Play each string on its own. Let it ring.
       </p>
       <ol className="flex flex-col gap-2">
@@ -832,9 +859,7 @@ function StringsStep({
       <Status>
         {lowAdvice && lowPending && (
           <Note icon={<TriangleAlert className="size-4" />}>
-            <span className="font-medium text-white">
-              We can't hear the low string yet.
-            </span>
+            <span>We can't hear the low string yet.</span>
             <span>Move the device closer to the guitar.</span>
             <span>Play a little louder, or turn the amp up.</span>
             <span>An audio interface hears low strings best.</span>
@@ -842,6 +867,7 @@ function StringsStep({
               <Button
                 size="sm"
                 variant="outline"
+                className={SECONDARY}
                 onClick={() => setLow('skipped')}
               >
                 Continue anyway
@@ -888,7 +914,7 @@ function ChordStep({
   }, [subscribeChord, passed]);
 
   return (
-    <div className="flex flex-col gap-3 text-sm text-white/80">
+    <div className="flex flex-col gap-3 text-sm text-[#e8e8f0]">
       <div className="flex items-start gap-4">
         <ChordBox
           shape={E_MINOR_SHAPE}
@@ -974,7 +1000,7 @@ function BleedStep({
   };
 
   return (
-    <div className="flex flex-col items-start gap-3 text-sm text-white/80">
+    <div className="flex flex-col items-start gap-3 text-sm text-[#e8e8f0]">
       <p>We will play a chord through your speakers.</p>
       <p>Keep your strings quiet. Rest a hand on them.</p>
       {state === 'playing' && <Busy>Playing. Keep quiet…</Busy>}
@@ -984,9 +1010,7 @@ function BleedStep({
         )}
         {state === 'bleed' && (
           <Note icon={<Headphones className="size-4" />}>
-            <span className="font-medium text-white">
-              The microphone heard the app's own sound.
-            </span>
+            <span>The microphone heard the app's own sound.</span>
             <span>
               Use headphones, or turn the speakers down. Then test again.
             </span>
@@ -998,11 +1022,11 @@ function BleedStep({
           </Note>
         )}
       </Status>
-      <p className="text-white/60">
+      <p className="text-white/55">
         Don't use the mic on a Bluetooth headset. It sounds poor and adds delay.
       </p>
       {state !== 'playing' && (
-        <Button size="sm" onClick={run}>
+        <Button size="sm" className={PRIMARY} onClick={run}>
           {state === 'ready' ? 'Play test chord' : 'Test again'}
         </Button>
       )}
@@ -1080,7 +1104,7 @@ function TimingStep({
   };
 
   return (
-    <div className="flex flex-col items-start gap-3 text-sm text-white/80">
+    <div className="flex flex-col items-start gap-3 text-sm text-[#e8e8f0]">
       <p>This one is optional.</p>
       <p>Strum on each click. There are {CLICKS} clicks. Any chord is fine.</p>
       {state === 'running' && (
@@ -1107,7 +1131,7 @@ function TimingStep({
       </Status>
       {outputLatencySec > HIGH_OUTPUT_LATENCY_SEC && <LateOutputWarning />}
       {state !== 'running' && (
-        <Button size="sm" onClick={run}>
+        <Button size="sm" className={PRIMARY} onClick={run}>
           {state === 'ready' ? 'Start' : 'Try again'}
         </Button>
       )}
@@ -1139,9 +1163,9 @@ function MidiCheckStep({
   return (
     <Status>
       {waiting ? (
-        <div className="flex flex-col gap-2 text-sm text-white/80">
+        <div className="flex flex-col gap-2 text-sm text-[#e8e8f0]">
           <p>Play any note on your MIDI guitar.</p>
-          <p className="text-white/60">
+          <p className="text-white/55">
             Nothing yet? Check the cable, and that the guitar is on.
           </p>
         </div>
@@ -1165,7 +1189,7 @@ function DoneStep({
   lateOutput: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-3 text-sm text-white/80">
+    <div className="flex flex-col gap-3 text-sm text-[#e8e8f0]">
       {micOff ? (
         <Note icon={<Mic className="size-4" />}>
           <span>The microphone is still off.</span>
@@ -1213,7 +1237,16 @@ export function GuitarInputSetup({
         if (!next) onClose();
       }}
     >
-      <DialogContent className="max-h-[90vh] max-w-md overflow-y-auto border-white/10 bg-[#101012] text-white">
+      <DialogContent
+        className={cn(
+          // A 16 px gutter on a phone.
+          'max-h-[90vh] w-[calc(100%-2rem)] max-w-[480px] overflow-y-auto rounded-2xl border-white/[0.08] bg-[#151518] text-[#e8e8f0] sm:rounded-2xl',
+          // Reduced motion: it fades, without the zoom and the drift.
+          'motion-reduce:data-[state=closed]:zoom-out-100 motion-reduce:data-[state=open]:zoom-in-100 motion-reduce:data-[state=closed]:slide-out-to-top-1/2 motion-reduce:data-[state=open]:slide-in-from-top-1/2',
+          // The close button: a 36 px round target (44 px on a phone).
+          '[&>button:last-child]:right-3 [&>button:last-child]:top-3 [&>button:last-child]:flex [&>button:last-child]:size-9 [&>button:last-child]:items-center [&>button:last-child]:justify-center [&>button:last-child]:rounded-full [&>button:last-child]:bg-transparent [&>button:last-child]:text-white/55 [&>button:last-child]:opacity-100 [&>button:last-child]:transition-colors hover:[&>button:last-child]:bg-white/[0.06] hover:[&>button:last-child]:text-[#e8e8f0] max-sm:[&>button:last-child]:size-11',
+        )}
+      >
         <SetupFlow {...flow} onClose={onClose} />
       </DialogContent>
     </Dialog>
@@ -1399,33 +1432,36 @@ function SetupFlow({
   return (
     <>
       {/* Right padding keeps the title clear of the close button. */}
-      <DialogHeader className="pr-6">
+      <DialogHeader className="pr-8 text-left">
+        <DialogDescription className="text-xs uppercase leading-4 tracking-[0.14em] text-white/45">
+          Step {index + 1} of {steps.length}
+        </DialogDescription>
         <DialogTitle
           ref={titleRef}
           tabIndex={-1}
-          className="text-xl text-white outline-none"
+          className="text-xl font-normal leading-7 text-[#e8e8f0] outline-none"
         >
           {STEP_TITLES[step]}
         </DialogTitle>
-        <DialogDescription className="text-xs text-white/50">
-          Step {index + 1} of {steps.length}
-        </DialogDescription>
-        {/* Shape tells current and done apart, not colour alone. */}
+        {/* A segment per step. Thickness tells the current one apart, not
+            brightness alone. */}
         <ol
           aria-label="Setup progress"
-          className="flex items-center justify-center gap-1.5 pt-1 sm:justify-start"
+          // Full width: past the close button's gutter above it.
+          className="-mr-8 flex items-center gap-1 pt-2"
         >
           {steps.map((s, i) => (
             <li
               key={s}
               aria-current={s === step ? 'step' : undefined}
-              className={`h-2 rounded-full ${
+              className={cn(
+                'flex-1 rounded-full transition-colors',
                 s === step
-                  ? 'w-5 bg-white'
+                  ? 'h-1 bg-[#e8e8f0]'
                   : i < index
-                    ? 'w-2 bg-white/60'
-                    : 'w-2 border border-white/40'
-              }`}
+                    ? 'h-0.5 bg-white/55'
+                    : 'h-0.5 bg-white/15',
+              )}
             >
               <span className="sr-only">{STEP_TITLES[s]}</span>
             </li>
@@ -1438,18 +1474,24 @@ function SetupFlow({
         {body}
       </div>
 
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-2 border-t border-white/[0.08] pt-4">
         {index > 0 ? (
-          <Button variant="ghost" size="sm" onClick={back}>
+          <Button variant="ghost" size="sm" className={QUIET} onClick={back}>
             Back
           </Button>
         ) : (
           <span />
         )}
         {step === 'done' ? (
-          <Button onClick={onClose}>Done</Button>
+          <Button className={PRIMARY} onClick={onClose}>
+            Done
+          </Button>
         ) : (
-          <Button variant={stepDone ? 'default' : 'outline'} onClick={next}>
+          <Button
+            variant={stepDone ? 'default' : 'outline'}
+            className={stepDone ? PRIMARY : SECONDARY}
+            onClick={next}
+          >
             {stepDone ? 'Next' : 'Skip'}
           </Button>
         )}

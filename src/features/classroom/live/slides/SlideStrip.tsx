@@ -28,7 +28,7 @@ const PHASE_ACCENT: Record<PhaseKey, string> = {
   connectRegulate: 'border-t-sky-400/70',
   groupPractice: 'border-t-[#7ecfcf]',
   creativeProjects: 'border-t-violet-400/70',
-  presentPerform: 'border-t-amber-400/70',
+  presentPerform: 'border-t-orange-400/70',
   respondReflectReset: 'border-t-emerald-400/70',
 };
 

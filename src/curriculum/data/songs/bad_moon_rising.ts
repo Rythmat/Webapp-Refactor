@@ -4,7 +4,7 @@ export const bad_moon_rising: Song = {
   id: 'bad_moon_rising',
   title: 'Bad Moon Rising',
   artist: 'Creedence Clearwater Revival',
-  year: undefined,
+  year: 1969,
 
   historicalDescription:
     "Creedence Clearwater Revival releases 'Bad Moon Rising', a deceptively bright, uptempo rocker wrapped around a dark omen of disaster. Written by John Fogerty and drawn from a scene in the 1941 film 'The Devil and Daniel Webster', it captures the dread and uncertainty of late-1960s America — Vietnam, social upheaval, and a nation on edge. It becomes one of CCR's signature songs and a rock standard.",
@@ -17,6 +17,40 @@ export const bad_moon_rising: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'John Fogerty', role: 'vocals', artistGlobeId: 'john-fogerty' },
+    {
+      name: 'Creedence Clearwater Revival',
+      role: 'performer',
+      ensemble: true,
+      artistGlobeId: 'creedence-clearwater-revival',
+      primary: true,
+    },
+    { name: 'John Fogerty', role: 'songwriter', artistGlobeId: 'john-fogerty' },
+    {
+      name: 'Doug Clifford',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'doug-clifford',
+    },
+    {
+      name: 'Stu Cook',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'stu-cook',
+    },
+    { name: 'John Fogerty', role: 'producer', artistGlobeId: 'john-fogerty' },
+    { name: 'John Fogerty', role: 'arranger', artistGlobeId: 'john-fogerty' },
+    {
+      name: 'John Fogerty',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'john-fogerty',
+    },
+    { name: 'Tom Fogerty', role: 'performer', artistGlobeId: 'tom-fogerty' },
+    { name: 'John Fogerty', role: 'performer', artistGlobeId: 'john-fogerty' },
+  ],
+  releases: [{ releaseId: 'creedence-clearwater-revival-green-river' }],
 
   sections: [
     {

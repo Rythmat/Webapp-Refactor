@@ -1,0 +1,3889 @@
+{
+  "about": "The owner's hand check of the importer's artist matching, on 100 artists that each have a song in the library. The sample is fixed for a scoring (a hash of each slug, drawn by stratum: mostly sure picks, which the gate is about); fill in `label` for each artist and run `calibrate` again to measure sure-tier precision. Until something is filled in, each `calibrate` draws the sheet again; after that it is kept.",
+  "howToLabel": [
+    "Open importer.pick.musicbrainz (and its wikidata link) beside the artist name and events.",
+    "label \"correct\": the pick is this artist.",
+    "label \"wrong\": the pick is another act. If one of `others` (or any MBID) is right, put its MBID in correctMbid.",
+    "label \"none\": MusicBrainz has no artist that is this one.",
+    "No pick (importer.pick is null): label \"none\" if MusicBrainz has no artist that is this one, or \"wrong\" with its MBID in correctMbid if it has.",
+    "Leave label empty to skip; every sure-tier pick must be labelled before precision counts."
+  ],
+  "sample": {
+    "rule": 2,
+    "size": 100,
+    "oneWord": 20,
+    "withSongs": 100,
+    "seed": "calibration-2026-09",
+    "strata": {
+      "sure-songs": {
+        "population": 275,
+        "withSongs": 275,
+        "sampled": 61
+      },
+      "sure-no-songs": {
+        "population": 79,
+        "withSongs": 7,
+        "sampled": 7
+      },
+      "likely": {
+        "population": 294,
+        "withSongs": 39,
+        "sampled": 20
+      },
+      "ambiguous": {
+        "population": 34,
+        "withSongs": 2,
+        "sampled": 2
+      },
+      "weak": {
+        "population": 166,
+        "withSongs": 5,
+        "sampled": 5
+      },
+      "no-candidate": {
+        "population": 35,
+        "withSongs": 16,
+        "sampled": 5
+      }
+    }
+  },
+  "artists": [
+    {
+      "slug": "al-green",
+      "name": "Al Green",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Let’s Stay Together — Al Green",
+        "Love And Happiness — Al Green",
+        "Al Green and Hi Records define Memphis soul's second act"
+      ],
+      "songPin": "Memphis, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.9,
+        "pick": {
+          "mbid": "fb7272ba-f130-4f0a-934d-6eeea4c18c9a",
+          "name": "Al Green",
+          "disambiguation": "US soul singer, songwriter, pastor and record producer",
+          "type": "Person",
+          "score": 0.9,
+          "musicbrainz": "https://musicbrainz.org/artist/fb7272ba-f130-4f0a-934d-6eeea4c18c9a",
+          "reasons": [
+            "name exact",
+            "song \"Let’s Stay Together\" credited to it on its own album or single",
+            "life-span 1946– covers 3 of 3 event and song years",
+            "MusicBrainz genres share funk"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q313260"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "alicia-keys-and-justin-timberlake",
+      "name": "Alicia Keys and Justin Timberlake",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "no-candidate",
+      "events": [
+        "How Come You Don’t Call Me — Alicia Keys and Justin Timberlake"
+      ],
+      "songPin": "New York, US",
+      "importer": {
+        "tier": "none",
+        "confidence": 0,
+        "pick": null,
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "amos-lee",
+      "name": "Amos Lee",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Sweet Pea — Amos Lee"
+      ],
+      "songPin": "Philadelphia, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.95,
+        "pick": {
+          "mbid": "332228ce-fe8c-4a5e-90e0-e1361553e5ff",
+          "name": "Amos Lee",
+          "type": "Person",
+          "score": 0.95,
+          "musicbrainz": "https://musicbrainz.org/artist/332228ce-fe8c-4a5e-90e0-e1361553e5ff",
+          "reasons": [
+            "name exact",
+            "song \"Sweet Pea\" credited to it on its own album or single",
+            "area Philadelphia is the song-pin city",
+            "life-span 1977– covers 1 of 1 event and song years"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q474280"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "andy-grammer",
+      "name": "Andy Grammer",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "Fresh Eyes — Andy Grammer"
+      ],
+      "songPin": "Los Angeles, US",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.8,
+        "pick": {
+          "mbid": "9e60ea29-9607-4f7d-aa96-2092ef41f0d3",
+          "name": "Andy Grammer",
+          "type": "Person",
+          "score": 0.8,
+          "musicbrainz": "https://musicbrainz.org/artist/9e60ea29-9607-4f7d-aa96-2092ef41f0d3",
+          "reasons": [
+            "name exact",
+            "song \"Fresh Eyes\" credited to it on compilations or promos only",
+            "area Los Angeles is the song-pin city",
+            "life-span 1983– covers 1 of 1 event and song years",
+            "MusicBrainz genres share pop, rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q4299814"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "average-white-band",
+      "name": "Average White Band",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "Pick Up The Pieces — Average White Band",
+        "Average White Band release \"Pick Up the Pieces\""
+      ],
+      "songPin": "Dundee, GB",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.8,
+        "pick": {
+          "mbid": "fb776bca-6139-4ff5-8d5e-5decd029cb96",
+          "name": "Average White Band",
+          "type": "Group",
+          "score": 0.8,
+          "musicbrainz": "https://musicbrainz.org/artist/fb776bca-6139-4ff5-8d5e-5decd029cb96",
+          "reasons": [
+            "name exact",
+            "song \"Pick Up The Pieces\" credited to it on compilations or promos only",
+            "area Dundee is the song-pin city",
+            "life-span 1971– covers 2 of 2 event and song years",
+            "MusicBrainz genres share funk, rnb"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q583556"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "bill-withers",
+      "name": "Bill Withers",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Ain’t No Sunshine — Bill Withers",
+        "Lean On Me — Bill Withers",
+        "Use Me — Bill Withers"
+      ],
+      "songPin": "Slab Fork, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "fd1a2d9d-9bb6-44de-83a3-41560658aba9",
+          "name": "Bill Withers",
+          "type": "Person",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/fd1a2d9d-9bb6-44de-83a3-41560658aba9",
+          "reasons": [
+            "name exact",
+            "song \"Ain’t No Sunshine\", \"Just The Two Of Us\", \"Lean On Me\" credited to it on its own album or single",
+            "area Slab Fork is the song-pin city",
+            "life-span 1938–2020 covers 5 of 5 event and song years",
+            "MusicBrainz genres share funk"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q346565"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "billy-idol",
+      "name": "Billy Idol",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "Mony Mony — Billy Idol"
+      ],
+      "songPin": "London, GB",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.7,
+        "pick": {
+          "mbid": "47c8f88b-987a-4b64-9175-2b1b57809727",
+          "name": "Billy Idol",
+          "disambiguation": "English rock singer‐songwriter",
+          "type": "Person",
+          "score": 0.7,
+          "musicbrainz": "https://musicbrainz.org/artist/47c8f88b-987a-4b64-9175-2b1b57809727",
+          "reasons": [
+            "name exact",
+            "song \"Mony Mony\" credited to it on compilations or promos only",
+            "life-span 1955– covers 1 of 1 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q73437"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "billy-preston",
+      "name": "Billy Preston",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Will It Go Round In Circles — Billy Preston"
+      ],
+      "songPin": "Houston, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "8a7cf497-dc5c-4523-932d-3fcbc9a69d38",
+          "name": "Billy Preston",
+          "type": "Person",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/8a7cf497-dc5c-4523-932d-3fcbc9a69d38",
+          "reasons": [
+            "name exact",
+            "song \"Will It Go Round In Circles\" credited to it on its own album or single",
+            "area Houston is the song-pin city",
+            "life-span 1946–2006 covers 1 of 1 event and song years",
+            "MusicBrainz genres share rnb"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q311450"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "blink-182",
+      "name": "Blink 182",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "All The Small Things — Blink 182"
+      ],
+      "songPin": "San Diego, US",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.65,
+        "pick": {
+          "mbid": "0743b15a-3c32-48c8-ad58-cb325350befa",
+          "name": "blink‐182",
+          "type": "Group",
+          "score": 0.65,
+          "musicbrainz": "https://musicbrainz.org/artist/0743b15a-3c32-48c8-ad58-cb325350befa",
+          "reasons": [
+            "name exact",
+            "release \"All the Small Things\" named in event song-all_the_small_things",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q482477"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "bob-marley",
+      "name": "Bob Marley",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-no-songs",
+      "events": [
+        "Bob Marley lives in Wilmington, absorbs American R&B",
+        "Bob Marley & the Wailers — Reggae Goes Global",
+        "I Shot The Sheriff — Bob Marley"
+      ],
+      "songPin": "Kingston, JM",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.95,
+        "pick": {
+          "mbid": "ed2ac1e9-d51d-4eff-a2c2-85e81abd6360",
+          "name": "Bob Marley",
+          "disambiguation": "Jamaican reggae artist",
+          "type": "Person",
+          "score": 0.95,
+          "musicbrainz": "https://musicbrainz.org/artist/ed2ac1e9-d51d-4eff-a2c2-85e81abd6360",
+          "reasons": [
+            "name exact",
+            "song \"Could You Be Loved\", \"Is This Love\", \"Stir It Up\" credited to it on compilations or promos only",
+            "release \"One Love\" named in event evt-reggae-kingston-1977",
+            "life-span 1945–1981 covers 8 of 9 event and song years",
+            "MusicBrainz genres share reggae"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q409"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "c33627c6-ef0d-49de-9ef0-c4804190040f",
+          "name": "Bob Marley",
+          "disambiguation": "comedian",
+          "type": "Person",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/c33627c6-ef0d-49de-9ef0-c4804190040f",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "bob-seger",
+      "name": "Bob Seger",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "Old Time Rock And Roll — Bob Seger"
+      ],
+      "songPin": "Detroit, US",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.7,
+        "pick": {
+          "mbid": "4382b934-64c3-47ac-98db-65f26d845c48",
+          "name": "Bob Seger",
+          "type": "Person",
+          "score": 0.7,
+          "musicbrainz": "https://musicbrainz.org/artist/4382b934-64c3-47ac-98db-65f26d845c48",
+          "reasons": [
+            "name exact",
+            "song \"Old Time Rock And Roll\" credited to it on compilations or promos only",
+            "life-span 1945– covers 1 of 1 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q364131"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "bonnie-raitt",
+      "name": "Bonnie Raitt",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Bonnie Raitt wins Album of the Year with \"Nick of Time\"",
+        "Something To Talk About — Bonnie Raitt"
+      ],
+      "songPin": "Los Angeles, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "0f0da09c-3940-4cb5-879f-4cea28907810",
+          "name": "Bonnie Raitt",
+          "type": "Person",
+          "score": 1.15,
+          "musicbrainz": "https://musicbrainz.org/artist/0f0da09c-3940-4cb5-879f-4cea28907810",
+          "reasons": [
+            "name exact",
+            "song \"Something To Talk About\" credited to it on its own album or single",
+            "release \"Nick of Time\" named in event evt-blues-burbank-1989",
+            "life-span 1949– covers 2 of 2 event and song years",
+            "MusicBrainz genres share blues, folk"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q234693"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "boyz-ii-men",
+      "name": "Boyz II Men",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Motownphilly — Boyz II Men",
+        "I’ll Make Love To You — Boyz II Men"
+      ],
+      "songPin": "Philadelphia, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "b42eca0f-9381-43db-badb-1cba080a7dc2",
+          "name": "Boyz II Men",
+          "type": "Group",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/b42eca0f-9381-43db-badb-1cba080a7dc2",
+          "reasons": [
+            "name exact",
+            "song \"Motownphilly\" credited to it on its own album or single",
+            "area Philadelphia is the song-pin city",
+            "life-span 1988– covers 1 of 1 event and song years",
+            "MusicBrainz genres share pop, rnb"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q651231"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "brian-setzer",
+      "name": "Brian Setzer",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "weak",
+      "events": [
+        "Jump, Jive An’ Wail — Brian Setzer"
+      ],
+      "songPin": "New York, US",
+      "importer": {
+        "tier": "weak",
+        "confidence": 0.5,
+        "pick": {
+          "mbid": "7878a1ce-1f6d-4e44-8a2c-39e7bc547dde",
+          "name": "Brian Setzer",
+          "type": "Person",
+          "score": 0.5,
+          "musicbrainz": "https://musicbrainz.org/artist/7878a1ce-1f6d-4e44-8a2c-39e7bc547dde",
+          "reasons": [
+            "name exact",
+            "life-span 1959– covers 1 of 1 event and song years",
+            "MusicBrainz genres share jazz"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q453074"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "ceelo-green",
+      "name": "CeeLo Green",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Forget You — CeeLo Green"
+      ],
+      "songPin": "Atlanta, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "2c69465c-0f76-45ce-90a2-1ed0fdacc997",
+          "name": "CeeLo Green",
+          "type": "Person",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/2c69465c-0f76-45ce-90a2-1ed0fdacc997",
+          "reasons": [
+            "name exact",
+            "song \"Forget You\" credited to it on its own album or single",
+            "area Atlanta is the song-pin city",
+            "life-span 1974– covers 1 of 1 event and song years",
+            "MusicBrainz genres share pop"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q4042"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "chaka-khan",
+      "name": "Chaka Khan",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-no-songs",
+      "events": [
+        "Rufus forms in Chicago with Chaka Khan",
+        "Chaka Khan releases \"I'm Every Woman\"",
+        "Every Little Thing — Chaka Khan"
+      ],
+      "songPin": "Chicago, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "900e9144-019d-4043-86cb-ec0e127c39d0",
+          "name": "Chaka Khan",
+          "type": "Person",
+          "score": 1.05,
+          "musicbrainz": "https://musicbrainz.org/artist/900e9144-019d-4043-86cb-ec0e127c39d0",
+          "reasons": [
+            "name exact",
+            "song \"Every Little Thing\" credited to it on compilations or promos only",
+            "release \"Chaka\" named in event evt-funk-chicago-1978-chaka-khan",
+            "area Chicago is the song-pin city",
+            "life-span 1953– covers 3 of 3 event and song years",
+            "MusicBrainz genres share funk, rnb"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q229498"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "chet-faker",
+      "name": "Chet Faker",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "No Diggity — Chet Faker"
+      ],
+      "songPin": "Melbourne, AU",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.75,
+        "pick": {
+          "mbid": "a21b2652-62ed-4767-a3d2-0aa802abf080",
+          "name": "Chet Faker",
+          "type": "Person",
+          "score": 0.75,
+          "musicbrainz": "https://musicbrainz.org/artist/a21b2652-62ed-4767-a3d2-0aa802abf080",
+          "reasons": [
+            "name exact",
+            "song \"No Diggity\" credited to it on compilations or promos only",
+            "area Melbourne is the song-pin city",
+            "life-span 1988– covers 1 of 1 event and song years"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q5094088"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "chic",
+      "name": "Chic",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Le Freak — Chic",
+        "Nile Rodgers & Chic release \"Le Freak\"",
+        "Good Times — Chic"
+      ],
+      "songPin": "New York, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "a4ed036b-5f18-439c-b1e1-96d205bab255",
+          "name": "Chic",
+          "disambiguation": "US disco group",
+          "type": "Group",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/a4ed036b-5f18-439c-b1e1-96d205bab255",
+          "reasons": [
+            "name exact",
+            "song \"Good Times\" credited to it on its own album or single",
+            "area New York is the song-pin city",
+            "life-span 1976– covers 3 of 3 event and song years",
+            "MusicBrainz genres share funk, rnb"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q516712"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "2cb0bcf1-63fb-4d20-8b3d-393bed88f681",
+          "name": "Chic",
+          "disambiguation": "1980's house music artist",
+          "type": null,
+          "score": 0.55,
+          "musicbrainz": "https://musicbrainz.org/artist/2cb0bcf1-63fb-4d20-8b3d-393bed88f681",
+          "reasons": [
+            "name exact",
+            "song \"Good Times\" credited to it on compilations or promos only"
+          ]
+        },
+        {
+          "mbid": "aef06d66-68f8-4507-a9eb-30013ed114b3",
+          "name": "Chic!",
+          "disambiguation": "Romanian Europop girl group",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/aef06d66-68f8-4507-a9eb-30013ed114b3",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "e11cfd72-6f44-4ce8-97e1-7ef657984290",
+          "name": "+CHIC",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/e11cfd72-6f44-4ce8-97e1-7ef657984290",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "chris-isaak",
+      "name": "Chris Isaak",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Wicked Game — Chris Isaak"
+      ],
+      "songPin": "San Francisco, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.9,
+        "pick": {
+          "mbid": "479497d4-e7c2-4e78-972e-56e78fac3995",
+          "name": "Chris Isaak",
+          "type": "Person",
+          "score": 0.9,
+          "musicbrainz": "https://musicbrainz.org/artist/479497d4-e7c2-4e78-972e-56e78fac3995",
+          "reasons": [
+            "name exact",
+            "song \"Wicked Game\" credited to it on its own album or single",
+            "life-span 1956– covers 1 of 1 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q313009"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "christina-aguilera-lil-kim-mya-pink",
+      "name": "Christina Aguilera, Lil’ Kim, Mya, Pink",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "no-candidate",
+      "events": [
+        "Lady Marmalade — Christina Aguilera, Lil’ Kim, Mya, Pink"
+      ],
+      "songPin": "New York, US",
+      "importer": {
+        "tier": "none",
+        "confidence": 0,
+        "pick": null,
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "christina-perri",
+      "name": "Christina Perri",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "A Thousand Years — Christina Perri"
+      ],
+      "songPin": "Philadelphia, US",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.8,
+        "pick": {
+          "mbid": "38d363c7-fdcb-4308-9474-a0d14ab8d9b7",
+          "name": "Christina Perri",
+          "type": "Person",
+          "score": 0.8,
+          "musicbrainz": "https://musicbrainz.org/artist/38d363c7-fdcb-4308-9474-a0d14ab8d9b7",
+          "reasons": [
+            "name exact",
+            "song \"A Thousand Years\" credited to it on compilations or promos only",
+            "area Philadelphia is the song-pin city",
+            "life-span 1986– covers 1 of 1 event and song years",
+            "MusicBrainz genres share pop"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q229341"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "corinne-bailey-rae",
+      "name": "Corinne Bailey Rae",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Put Your Records On — Corinne Bailey Rae"
+      ],
+      "songPin": "Leeds, GB",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.95,
+        "pick": {
+          "mbid": "bc85c6f6-6b06-44c1-8754-ef32c1e6b824",
+          "name": "Corinne Bailey Rae",
+          "type": "Person",
+          "score": 0.95,
+          "musicbrainz": "https://musicbrainz.org/artist/bc85c6f6-6b06-44c1-8754-ef32c1e6b824",
+          "reasons": [
+            "name exact",
+            "song \"Put Your Records On\" credited to it on its own album or single",
+            "area Leeds is the song-pin city",
+            "life-span 1979– covers 1 of 1 event and song years"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q231472"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "dangelo",
+      "name": "D'Angelo",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Cruisin' — D'Angelo",
+        "D'Angelo releases \"Brown Sugar\" — neo soul before it had a name",
+        "Feel Like Makin’ Love — D’Angelo"
+      ],
+      "songPin": "Richmond, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "b66771cc-45fa-4a32-b14f-5337d7223d7a",
+          "name": "D’Angelo",
+          "disambiguation": "US soul singer, songwriter & producer",
+          "type": "Person",
+          "score": 1.25,
+          "musicbrainz": "https://musicbrainz.org/artist/b66771cc-45fa-4a32-b14f-5337d7223d7a",
+          "reasons": [
+            "name exact",
+            "song \"Cruisin'\", \"Feel Like Makin’ Love\" credited to it on its own album or single",
+            "release \"Brown Sugar\" named in event song-cruisin_dangelo",
+            "area Richmond is the song-pin city",
+            "life-span 1974–2025 covers 4 of 4 event and song years",
+            "MusicBrainz genres share funk, hip-hop, rnb"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q933598"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "1e84ef87-440c-4857-ad46-2bfab071b5cb",
+          "name": "D’angelo",
+          "disambiguation": "Brazilian jazz/samba group",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/1e84ef87-440c-4857-ad46-2bfab071b5cb",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "41c38419-cd66-4c67-bffd-88767d49963b",
+          "name": "D'Angelo",
+          "disambiguation": "appears on AZUR's track",
+          "type": null,
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/41c38419-cd66-4c67-bffd-88767d49963b",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "darius-rucker-old-crow-medicine-show",
+      "name": "Darius Rucker/Old Crow Medicine Show",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "no-candidate",
+      "events": [
+        "Wagon Wheel — Darius Rucker/Old Crow Medicine Show"
+      ],
+      "songPin": "Charleston, US",
+      "importer": {
+        "tier": "none",
+        "confidence": 0,
+        "pick": null,
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "diana-ross",
+      "name": "Diana Ross",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "Motown Records hits its golden era",
+        "I’m Comin’ Out — Diana Ross"
+      ],
+      "songPin": "Detroit, US",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.6,
+        "pick": {
+          "mbid": "60d41417-feda-4734-bbbf-7dcc30e08a83",
+          "name": "Diana Ross",
+          "type": "Person",
+          "score": 0.6,
+          "musicbrainz": "https://musicbrainz.org/artist/60d41417-feda-4734-bbbf-7dcc30e08a83",
+          "reasons": [
+            "name exact",
+            "area Detroit is the song-pin city",
+            "life-span 1944– covers 1 of 1 event and song years",
+            "MusicBrainz genres share funk, pop, rnb"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q36290"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "dolly-parton",
+      "name": "Dolly Parton",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Jolene — Dolly Parton",
+        "Dolly Parton's crossover pop moment transcends Nashville"
+      ],
+      "songPin": "Sevierville, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "1d543e07-d0d2-4834-a8db-d65c50c2a856",
+          "name": "Dolly Parton",
+          "type": "Person",
+          "score": 1.15,
+          "musicbrainz": "https://musicbrainz.org/artist/1d543e07-d0d2-4834-a8db-d65c50c2a856",
+          "reasons": [
+            "name exact",
+            "song \"Jolene\" credited to it on its own album or single",
+            "release \"Here You Come Again\" named in event evt-pop-nashville-1977-dollyparton",
+            "life-span 1946–2026 covers 2 of 2 event and song years",
+            "MusicBrainz genres share folk, pop"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q180453"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "edward-sharpe-and-the-magnetic-zeros",
+      "name": "Edward Sharpe and the Magnetic Zeros",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Home — Edward Sharpe and the Magnetic Zeros"
+      ],
+      "songPin": "Los Angeles, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "4a069029-4f64-4946-b650-01aeb0b55d9d",
+          "name": "Edward Sharpe and the Magnetic Zeros",
+          "type": "Group",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/4a069029-4f64-4946-b650-01aeb0b55d9d",
+          "reasons": [
+            "name exact",
+            "song \"Home\" credited to it on its own album or single",
+            "area Los Angeles is the song-pin city",
+            "life-span 2005– covers 1 of 1 event and song years",
+            "MusicBrainz genres share folk, rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q555623"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "eli-young-band",
+      "name": "Eli Young Band",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Even If It Breaks Your Heart — Eli Young Band"
+      ],
+      "songPin": "Denton, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.9,
+        "pick": {
+          "mbid": "80737f69-60c5-4c0d-9562-88faf8d8f2f4",
+          "name": "Eli Young Band",
+          "type": "Group",
+          "score": 0.9,
+          "musicbrainz": "https://musicbrainz.org/artist/80737f69-60c5-4c0d-9562-88faf8d8f2f4",
+          "reasons": [
+            "name exact",
+            "song \"Even If It Breaks Your Heart\" credited to it on its own album or single",
+            "life-span 2000– covers 1 of 1 event and song years",
+            "MusicBrainz genres share folk"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q5360355"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "elliott-smith",
+      "name": "Elliott Smith",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Kill Rock Stars and Elliott Smith emerge from Portland",
+        "Between The Bars — Elliott Smith",
+        "Portland becomes America's indie music capital"
+      ],
+      "songPin": "Portland, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "03ad1736-b7c9-412a-b442-82536d63a5c4",
+          "name": "Elliott Smith",
+          "disambiguation": "US singer‐songwriter",
+          "type": "Person",
+          "score": 1.15,
+          "musicbrainz": "https://musicbrainz.org/artist/03ad1736-b7c9-412a-b442-82536d63a5c4",
+          "reasons": [
+            "name exact",
+            "song \"Between The Bars\" credited to it on its own album or single",
+            "release \"Either/Or\" named in event song-between_the_bars",
+            "life-span 1969–2003 covers 3 of 3 event and song years",
+            "MusicBrainz genres share folk, rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q210428"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "four-tops",
+      "name": "Four Tops",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-no-songs",
+      "events": [
+        "I Can’t Help Myself (Sugar Pie, Honey Bunch) — Four Tops",
+        "Reach Out, I’ll Be There — Four Tops"
+      ],
+      "songPin": "Detroit, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "0d21b01f-21f2-419b-8d98-4158ba0c0aa4",
+          "name": "Four Tops",
+          "disambiguation": "Motown",
+          "type": "Group",
+          "score": 1.05,
+          "musicbrainz": "https://musicbrainz.org/artist/0d21b01f-21f2-419b-8d98-4158ba0c0aa4",
+          "reasons": [
+            "name exact",
+            "song \"I Can’t Help Myself (Sugar Pie, Honey Bunch)\", \"Reach Out, I’ll Be There\" credited to it on compilations or promos only",
+            "release \"The Four Tops\" named in event song-i_cant_help_myself_sugar_pie_honey_bunch",
+            "area Detroit is the song-pin city",
+            "life-span 1956– covers 2 of 2 event and song years",
+            "MusicBrainz genres share rnb"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q653480"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "735ee6d8-d2c3-4ae1-a522-62b486dd59a8",
+          "name": "Four Tops",
+          "disambiguation": "Japanese",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/735ee6d8-d2c3-4ae1-a522-62b486dd59a8",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "gladys-knight-and-the-pips",
+      "name": "Gladys Knight and the Pips",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "weak",
+      "events": [
+        "Midnight Train To Georgia — Gladys Knight and the Pips"
+      ],
+      "songPin": "Atlanta, US",
+      "importer": {
+        "tier": "weak",
+        "confidence": 0.45,
+        "pick": {
+          "mbid": "ca825016-f7fd-4ccf-a523-6ee36ea88828",
+          "name": "Gladys Knight & the Pips",
+          "type": "Group",
+          "score": 0.45,
+          "musicbrainz": "https://musicbrainz.org/artist/ca825016-f7fd-4ccf-a523-6ee36ea88828",
+          "reasons": [
+            "name exact",
+            "area Atlanta is the song-pin city"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q1529105"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "gloria-gaynor",
+      "name": "Gloria Gaynor",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "I Will Survive — Gloria Gaynor"
+      ],
+      "songPin": "Newark, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "d5c51c36-ac67-4727-91ed-ee9f0df81a2d",
+          "name": "Gloria Gaynor",
+          "type": "Person",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/d5c51c36-ac67-4727-91ed-ee9f0df81a2d",
+          "reasons": [
+            "name exact",
+            "song \"I Will Survive\" credited to it on its own album or single",
+            "area Newark is the song-pin city",
+            "life-span 1943– covers 1 of 1 event and song years",
+            "MusicBrainz genres share funk"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q228918"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "grateful-dead",
+      "name": "Grateful Dead",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-no-songs",
+      "events": [
+        "Grateful Dead form in Palo Alto",
+        "Summer of Love transforms Haight-Ashbury",
+        "Summer of Love — San Francisco Psychedelia"
+      ],
+      "songPin": "San Francisco, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "6faa7ca7-0d99-4a5e-bfa6-1fd5037520c6",
+          "name": "Grateful Dead",
+          "type": "Group",
+          "score": 1.05,
+          "musicbrainz": "https://musicbrainz.org/artist/6faa7ca7-0d99-4a5e-bfa6-1fd5037520c6",
+          "reasons": [
+            "name exact",
+            "song \"Friend of the Devil\" credited to it on compilations or promos only",
+            "release \"American Beauty\" named in event evt-jamband-sf-1970-grateful-dead",
+            "area Palo Alto is the city of event evt-jamband-paloalto-1965-grateful-dead",
+            "life-span 1965–1995 covers 5 of 5 event and song years",
+            "MusicBrainz genres share folk, jam-band, rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q212533"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "grease",
+      "name": "Grease",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "ambiguous",
+      "events": [
+        "You’re The One That I Want — Grease"
+      ],
+      "songPin": "Los Angeles, US",
+      "importer": {
+        "tier": "ambiguous",
+        "confidence": 0.35,
+        "pick": {
+          "mbid": "1b5f315e-6227-48be-b728-e34f45e71622",
+          "name": "Grease",
+          "disambiguation": "rapper, alias of Ezra Sebastian",
+          "type": "Person",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/1b5f315e-6227-48be-b728-e34f45e71622",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        "notes": [
+          "runner-up \"Grease\" (invalid artist) scores 0.35, within 0.15 of 0.35"
+        ]
+      },
+      "others": [
+        {
+          "mbid": "60d9b971-4c0d-4ffd-8af2-06f1f53a51ff",
+          "name": "\"Grease\"",
+          "disambiguation": "invalid artist",
+          "type": null,
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/60d9b971-4c0d-4ffd-8af2-06f1f53a51ff",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "b12b32ce-aca9-49f1-b287-72b1971a3a11",
+          "name": "Grease",
+          "disambiguation": "Icelandic",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/b12b32ce-aca9-49f1-b287-72b1971a3a11",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "077417de-439b-4d2d-a0e8-557adf7985fa",
+          "name": "グリス",
+          "type": "Group",
+          "score": 0.3,
+          "musicbrainz": "https://musicbrainz.org/artist/077417de-439b-4d2d-a0e8-557adf7985fa",
+          "reasons": [
+            "alias \"GREASE\"",
+            "MusicBrainz genres share rock"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "harry-styles",
+      "name": "Harry Styles",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Watermelon Sugar — Harry Styles",
+        "Harry Styles' \"Harry's House\" crowns a post-boy-band pop king"
+      ],
+      "songPin": "London, GB",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "7eb1ce54-a355-41f9-8d68-e018b096d427",
+          "name": "Harry Styles",
+          "type": "Person",
+          "score": 1.15,
+          "musicbrainz": "https://musicbrainz.org/artist/7eb1ce54-a355-41f9-8d68-e018b096d427",
+          "reasons": [
+            "name exact",
+            "song \"Watermelon Sugar\" credited to it on its own album or single",
+            "release \"As It Was\" named in event evt-pop-losangeles-2022-harrystyles",
+            "life-span 1994– covers 2 of 2 event and song years",
+            "MusicBrainz genres share funk, pop, rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q3626966"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "heartland",
+      "name": "Heartland",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "I Loved Her First — Heartland"
+      ],
+      "songPin": "Nashville, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.9,
+        "pick": {
+          "mbid": "28606016-5601-45f1-92e4-3e633ec7298b",
+          "name": "Heartland",
+          "disambiguation": "Country and western band from Huntsville, AL, USA",
+          "type": "Group",
+          "score": 0.9,
+          "musicbrainz": "https://musicbrainz.org/artist/28606016-5601-45f1-92e4-3e633ec7298b",
+          "reasons": [
+            "name exact",
+            "song \"I Loved Her First\" credited to it on its own album or single",
+            "life-span 1994– covers 1 of 1 event and song years",
+            "MusicBrainz genres share folk"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q16841995"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "6817ae61-8b8d-4c25-8891-289cd7ecd04f",
+          "name": "Heartland",
+          "disambiguation": "Japanese singer from Chiba prefecture",
+          "type": "Person",
+          "score": 0.45,
+          "musicbrainz": "https://musicbrainz.org/artist/6817ae61-8b8d-4c25-8891-289cd7ecd04f",
+          "reasons": [
+            "name exact",
+            "life-span 987– covers 1 of 1 event and song years"
+          ]
+        },
+        {
+          "mbid": "2185112e-cb0f-4573-afca-92ded89d302a",
+          "name": "HeartLand",
+          "disambiguation": "german folk band",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/2185112e-cb0f-4573-afca-92ded89d302a",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "58783afa-0186-4807-9e5d-40b339fde51e",
+          "name": "Heartland",
+          "disambiguation": "British Hard Rock / AOR band, founded in 1990 by Chris Ousey & Gary Sharpe",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/58783afa-0186-4807-9e5d-40b339fde51e",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "huey-lewis-and-the-news",
+      "name": "Huey Lewis and The News",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-no-songs",
+      "events": [
+        "Power Of Love — Huey Lewis and The News"
+      ],
+      "songPin": "San Francisco, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "2be6ae30-d220-4419-80da-2a46813ed872",
+          "name": "Huey Lewis and the News",
+          "disambiguation": "American pop rock band",
+          "type": "Group",
+          "score": 1.05,
+          "musicbrainz": "https://musicbrainz.org/artist/2be6ae30-d220-4419-80da-2a46813ed872",
+          "reasons": [
+            "name exact",
+            "song \"Power Of Love\" credited to it on compilations or promos only",
+            "release \"Back to the Future\" named in event song-power_of_love",
+            "area San Francisco is the song-pin city",
+            "life-span 1978– covers 1 of 1 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q657093"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "jackie-wilson",
+      "name": "Jackie Wilson",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "(Your Love Keeps Lifting Me) Higher And Higher — Jackie Wilson"
+      ],
+      "songPin": "Detroit, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "f0bf4fa0-028e-452f-82d3-7d4375e105dd",
+          "name": "Jackie Wilson",
+          "disambiguation": "soul singer",
+          "type": "Person",
+          "score": 1.25,
+          "musicbrainz": "https://musicbrainz.org/artist/f0bf4fa0-028e-452f-82d3-7d4375e105dd",
+          "reasons": [
+            "name exact",
+            "song \"(Your Love Keeps Lifting Me) Higher And Higher\" credited to it on its own album or single",
+            "release \"Higher and Higher\" named in event song-your_love_keeps_lifting_me_higher_and_higher",
+            "area Detroit is the song-pin city",
+            "life-span 1934–1984 covers 1 of 1 event and song years",
+            "MusicBrainz genres share rnb"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q181483"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "jimi-hendrix",
+      "name": "Jimi Hendrix",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "weak",
+      "events": [
+        "Fire — Jimi Hendrix"
+      ],
+      "songPin": "Seattle, US",
+      "importer": {
+        "tier": "weak",
+        "confidence": 0.5,
+        "pick": {
+          "mbid": "06fb1c8b-566e-4cb2-985b-b467c90781d4",
+          "name": "Jimi Hendrix",
+          "type": "Person",
+          "score": 0.5,
+          "musicbrainz": "https://musicbrainz.org/artist/06fb1c8b-566e-4cb2-985b-b467c90781d4",
+          "reasons": [
+            "name exact",
+            "area Seattle is the song-pin city",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q5928"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "joan-jett-and-the-blackhearts",
+      "name": "Joan Jett & The Blackhearts",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "I Love Rock ‘N’ Roll — Joan Jett & The Blackhearts"
+      ],
+      "songPin": "Philadelphia, US",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.65,
+        "pick": {
+          "mbid": "46e63d3b-d91b-4791-bb73-e9f638a45ea0",
+          "name": "Joan Jett & The Blackhearts",
+          "disambiguation": "Joan Jett and the Blackhearts",
+          "type": "Group",
+          "score": 0.65,
+          "musicbrainz": "https://musicbrainz.org/artist/46e63d3b-d91b-4791-bb73-e9f638a45ea0",
+          "reasons": [
+            "name exact",
+            "release \"I Love Rock 'n' Roll\" named in event song-i_love_rock_n_roll",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q5931437"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "john-legend",
+      "name": "John Legend",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Ordinary People — John Legend",
+        "Stay With You — John Legend",
+        "All Of Me — John Legend"
+      ],
+      "songPin": "Springfield, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.95,
+        "pick": {
+          "mbid": "75a72702-a5ef-4513-bca5-c5b944903546",
+          "name": "John Legend",
+          "type": "Person",
+          "score": 0.95,
+          "musicbrainz": "https://musicbrainz.org/artist/75a72702-a5ef-4513-bca5-c5b944903546",
+          "reasons": [
+            "name exact",
+            "song \"All Of Me\", \"Stay With You\" credited to it on its own album or single",
+            "area Springfield is the song-pin city",
+            "life-span 1978– covers 2 of 2 event and song years"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q44857"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "john-scofield",
+      "name": "John Scofield",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "A Go Go — John Scofield"
+      ],
+      "songPin": "New York, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.9,
+        "pick": {
+          "mbid": "cbfd7f01-87c3-44bf-a3a2-fe4dbff20ad2",
+          "name": "John Scofield",
+          "disambiguation": "US guitarist/composer",
+          "type": "Person",
+          "score": 0.9,
+          "musicbrainz": "https://musicbrainz.org/artist/cbfd7f01-87c3-44bf-a3a2-fe4dbff20ad2",
+          "reasons": [
+            "name exact",
+            "song \"A Go Go\" credited to it on its own album or single",
+            "life-span 1951– covers 1 of 1 event and song years",
+            "MusicBrainz genres share jazz"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q357176"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "jon-bon-jovi",
+      "name": "Jon Bon Jovi",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "Livin’ On A Prayer — Jon Bon Jovi"
+      ],
+      "songPin": "Sayreville, US",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.8,
+        "pick": {
+          "mbid": "5ace9b0c-cc21-4d8f-8e08-a70234439f2a",
+          "name": "Jon Bon Jovi",
+          "type": "Person",
+          "score": 0.8,
+          "musicbrainz": "https://musicbrainz.org/artist/5ace9b0c-cc21-4d8f-8e08-a70234439f2a",
+          "reasons": [
+            "name exact",
+            "song \"Livin’ On A Prayer\" credited to it on compilations or promos only",
+            "area Sayreville is the song-pin city",
+            "life-span 1962– covers 1 of 1 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q150916"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "journey",
+      "name": "Journey",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "Don't Stop Believin' — Journey",
+        "Austin Wintory's \"Journey\" earns the first Grammy-nominated game score"
+      ],
+      "songPin": "San Francisco, US",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.84,
+        "pick": {
+          "mbid": "abd506e1-6f2b-4d6f-b937-92c267f6f88b",
+          "name": "Journey",
+          "disambiguation": "American rock band",
+          "type": "Group",
+          "score": 0.85,
+          "musicbrainz": "https://musicbrainz.org/artist/abd506e1-6f2b-4d6f-b937-92c267f6f88b",
+          "reasons": [
+            "name exact",
+            "release \"Don’t Stop Believin’\" named in event song-dont_stop_believin",
+            "area San Francisco is the song-pin city",
+            "life-span 1973– covers 2 of 2 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q464749"
+        },
+        "notes": [
+          "a one-word name is never sure without a song credited on its own record"
+        ]
+      },
+      "others": [
+        {
+          "mbid": "4d0a9084-841d-4777-8f90-b076e187836b",
+          "name": "Journey",
+          "disambiguation": "Hip-hop",
+          "type": null,
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/4d0a9084-841d-4777-8f90-b076e187836b",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "a26ff336-32ef-4adc-a800-3581c9a517a9",
+          "name": "Journey",
+          "disambiguation": "the trance project of Free-Spirit Records' founder Jay OM",
+          "type": "Person",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/a26ff336-32ef-4adc-a800-3581c9a517a9",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "a3f82a99-26cc-49da-9d81-6c2b3c53d654",
+          "name": "Journey",
+          "disambiguation": "Soca",
+          "type": null,
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/a3f82a99-26cc-49da-9d81-6c2b3c53d654",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "jr-walker-and-the-allstars",
+      "name": "Jr Walker and the Allstars",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "weak",
+      "events": [
+        "Shotgun — Jr Walker and the Allstars"
+      ],
+      "songPin": "Detroit, US",
+      "importer": {
+        "tier": "weak",
+        "confidence": 0.55,
+        "pick": {
+          "mbid": "07d78001-dde0-489c-9281-d2fa98a85de4",
+          "name": "Jr. Walker & The All Stars",
+          "type": "Group",
+          "score": 0.55,
+          "musicbrainz": "https://musicbrainz.org/artist/07d78001-dde0-489c-9281-d2fa98a85de4",
+          "reasons": [
+            "alias \"Jr Walker & the Allstars\"",
+            "release \"Shotgun\" named in event song-shotgun",
+            "MusicBrainz genres share rnb"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q1710284"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "jungle-book",
+      "name": "Jungle Book",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "ambiguous",
+      "events": [
+        "Bare Necessities — Jungle Book"
+      ],
+      "songPin": "Los Angeles, US",
+      "importer": {
+        "tier": "ambiguous",
+        "confidence": 0.35,
+        "pick": {
+          "mbid": "36ef3eab-0f62-4b9c-82ea-5bf579f54dc4",
+          "name": "Jungle Book",
+          "type": null,
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/36ef3eab-0f62-4b9c-82ea-5bf579f54dc4",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        "notes": [
+          "runner-up The Jungle Book (Disney franchise) scores 0.35, within 0.15 of 0.35"
+        ]
+      },
+      "others": [
+        {
+          "mbid": "93aa5212-1192-4803-b922-7d8ff1957d22",
+          "name": "The Jungle Book",
+          "disambiguation": "Disney franchise",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/93aa5212-1192-4803-b922-7d8ff1957d22",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "kenny-rogers",
+      "name": "Kenny Rogers",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "The Gambler — Kenny Rogers"
+      ],
+      "songPin": "Houston, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "c3d14b41-a48d-488f-bfed-ce0597bb0b1f",
+          "name": "Kenny Rogers",
+          "disambiguation": "US country singer, songwriter, actor, record producer & entrepreneur",
+          "type": "Person",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/c3d14b41-a48d-488f-bfed-ce0597bb0b1f",
+          "reasons": [
+            "name exact",
+            "song \"The Gambler\" credited to it on its own album or single",
+            "area Houston is the song-pin city",
+            "life-span 1938–2020 covers 1 of 1 event and song years",
+            "MusicBrainz genres share folk, pop"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q217160"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "kool-and-the-gang",
+      "name": "Kool And The Gang",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Let The Music Take Your Mind — Kool And The Gang",
+        "Jungle Boogie — Kool And The Gang",
+        "Celebration — Kool And The Gang"
+      ],
+      "songPin": "Jersey City, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "2469950a-f0ca-425a-bfbc-baf55ea3afde",
+          "name": "Kool & the Gang",
+          "type": "Group",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/2469950a-f0ca-425a-bfbc-baf55ea3afde",
+          "reasons": [
+            "name exact",
+            "song \"Celebration\", \"Get Down On It\", \"Let The Music Take Your Mind\" credited to it on its own album or single",
+            "area Jersey City is the song-pin city",
+            "life-span 1964– covers 1 of 1 event and song years",
+            "MusicBrainz genres share funk, rnb"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q850290"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "lady-gaga",
+      "name": "Lady Gaga",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Just Dance — Lady Gaga",
+        "Lady Gaga's \"The Fame\" revives art-pop spectacle",
+        "Look What I Found — Lady Gaga"
+      ],
+      "songPin": "New York, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "650e7db6-b795-4eb5-a702-5ea2fc46c848",
+          "name": "Lady Gaga",
+          "type": "Person",
+          "score": 1.15,
+          "musicbrainz": "https://musicbrainz.org/artist/650e7db6-b795-4eb5-a702-5ea2fc46c848",
+          "reasons": [
+            "name exact",
+            "song \"Just Dance\" credited to it on its own album or single",
+            "release \"Poker Face\" named in event evt-pop-nyc-2008-ladygaga",
+            "life-span 1986– covers 3 of 3 event and song years",
+            "MusicBrainz genres share electronic, pop, rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q19848"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "lake-street-dive",
+      "name": "Lake Street Dive",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "Still The One — Lake Street Dive"
+      ],
+      "songPin": "Boston, US",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.6,
+        "pick": {
+          "mbid": "584758b2-306b-4aea-8694-3876943c9968",
+          "name": "Lake Street Dive",
+          "type": "Group",
+          "score": 0.6,
+          "musicbrainz": "https://musicbrainz.org/artist/584758b2-306b-4aea-8694-3876943c9968",
+          "reasons": [
+            "name exact",
+            "area Boston is the song-pin city",
+            "life-span 2004– covers 1 of 1 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q16065508"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "lauryn-hill",
+      "name": "Lauryn Hill",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Can’t Take My Eyes Off You — Lauryn Hill",
+        "Doo Wop (That Thing) — Lauryn Hill",
+        "Lauryn Hill releases \"The Miseducation of Lauryn Hill\""
+      ],
+      "songPin": "Newark, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "e8414012-4a1c-4ad4-be5e-fc55294e28cc",
+          "name": "Ms. Lauryn Hill",
+          "type": "Person",
+          "score": 1.05,
+          "musicbrainz": "https://musicbrainz.org/artist/e8414012-4a1c-4ad4-be5e-fc55294e28cc",
+          "reasons": [
+            "alias \"Lauryn Hill\"",
+            "song \"Can’t Take My Eyes Off You\", \"Doo Wop (That Thing)\" credited to it on its own album or single",
+            "release \"The Miseducation of Lauryn Hill\" named in event song-cant_take_my_eyes_off_you_valli",
+            "life-span 1975– covers 3 of 3 event and song years",
+            "MusicBrainz genres share funk, hip-hop, rnb"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q214226"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "led-zeppelin",
+      "name": "Led Zeppelin",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Ramble On — Led Zeppelin",
+        "Whole Lotta Love — Led Zeppelin",
+        "Black Dog — Led Zeppelin"
+      ],
+      "songPin": "London, GB",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "678d88b2-87b0-403b-b63d-5da7465aecc3",
+          "name": "Led Zeppelin",
+          "type": "Group",
+          "score": 1.25,
+          "musicbrainz": "https://musicbrainz.org/artist/678d88b2-87b0-403b-b63d-5da7465aecc3",
+          "reasons": [
+            "name exact",
+            "song \"Black Dog\", \"Ramble On\", \"The Ocean\" credited to it on its own album or single",
+            "release \"Houses of the Holy\" named in event song-the_ocean",
+            "area London is the song-pin city",
+            "life-span 1968–1980 covers 6 of 7 event and song years",
+            "MusicBrainz genres share blues, folk, rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q2331"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "leon-bridges",
+      "name": "Leon Bridges",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Coming Home — Leon Bridges",
+        "Leon Bridges leads a Dallas-Fort Worth soul revival",
+        "Beyond — Leon Bridges"
+      ],
+      "songPin": "Fort Worth, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.9,
+        "pick": {
+          "mbid": "69d9dfd7-19b7-4a75-8a53-9f733fb5d774",
+          "name": "Leon Bridges",
+          "disambiguation": "American soul singer‐songwriter",
+          "type": "Person",
+          "score": 0.9,
+          "musicbrainz": "https://musicbrainz.org/artist/69d9dfd7-19b7-4a75-8a53-9f733fb5d774",
+          "reasons": [
+            "name exact",
+            "song \"Beyond\", \"Coming Home\" credited to it on its own album or single",
+            "life-span 1989– covers 3 of 3 event and song years",
+            "MusicBrainz genres share funk, rnb"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q19364967"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "lionel-richie",
+      "name": "Lionel Richie",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-no-songs",
+      "events": [
+        "Commodores release \"Machine Gun\"",
+        "All Night Long — Lionel Richie"
+      ],
+      "songPin": "Tuskegee, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "3cb25fb2-5547-4b05-adec-1a5e37830d46",
+          "name": "Lionel Richie",
+          "type": "Person",
+          "score": 1.05,
+          "musicbrainz": "https://musicbrainz.org/artist/3cb25fb2-5547-4b05-adec-1a5e37830d46",
+          "reasons": [
+            "name exact",
+            "song \"All Night Long\" credited to it on compilations or promos only",
+            "release \"All Night Long (All Night)\" named in event song-all_night_long",
+            "area Tuskegee is the song-pin city",
+            "life-span 1949– covers 2 of 2 event and song years",
+            "MusicBrainz genres share funk, pop, rnb"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q26695"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "little-eva",
+      "name": "Little Eva",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "The Loco-Motion — Little Eva"
+      ],
+      "songPin": "New York, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.85,
+        "pick": {
+          "mbid": "531643e6-b3ba-4c7f-9d0d-f2831dc42317",
+          "name": "Little Eva",
+          "type": "Person",
+          "score": 0.85,
+          "musicbrainz": "https://musicbrainz.org/artist/531643e6-b3ba-4c7f-9d0d-f2831dc42317",
+          "reasons": [
+            "name exact",
+            "song \"The Loco-Motion\" credited to it on its own album or single",
+            "life-span 1943–2003 covers 1 of 1 event and song years"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q450080"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "luis-fonsi",
+      "name": "Luis Fonsi",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Despacito — Luis Fonsi"
+      ],
+      "songPin": "San Juan, PR",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "d68fda90-ab8d-4799-be56-317ba4ae700f",
+          "name": "Luis Fonsi",
+          "type": "Person",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/d68fda90-ab8d-4799-be56-317ba4ae700f",
+          "reasons": [
+            "name exact",
+            "song \"Despacito\" credited to it on its own album or single",
+            "area San Juan is the song-pin city",
+            "life-span 1978– covers 1 of 1 event and song years",
+            "MusicBrainz genres share latin, pop"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q1387726"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "madonna",
+      "name": "Madonna",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Madonna's \"Like a Virgin\" launches the Material Girl era",
+        "Like A Prayer — Madonna"
+      ],
+      "songPin": "Detroit, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "79239441-bfd5-4981-a70c-55c3f15c1287",
+          "name": "Madonna",
+          "disambiguation": "“Queen of Pop”",
+          "type": "Person",
+          "score": 1.15,
+          "musicbrainz": "https://musicbrainz.org/artist/79239441-bfd5-4981-a70c-55c3f15c1287",
+          "reasons": [
+            "name exact",
+            "song \"Like A Prayer\" credited to it on its own album or single",
+            "release \"Like a Virgin\" named in event evt-pop-nyc-1984-madonna",
+            "life-span 1958– covers 2 of 2 event and song years",
+            "MusicBrainz genres share pop"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q1744"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "3fd13140-6857-489a-9e53-a4e112b8354b",
+          "name": "Madonna",
+          "disambiguation": "Lebanese singer",
+          "type": "Person",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/3fd13140-6857-489a-9e53-a4e112b8354b",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "nathaniel-rateliff",
+      "name": "Nathaniel Rateliff",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "S.O.B. — Nathaniel Rateliff"
+      ],
+      "songPin": "Denver, US",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.7,
+        "pick": {
+          "mbid": "da54c619-9e9f-4e57-9cce-cddfa09345df",
+          "name": "Nathaniel Rateliff",
+          "disambiguation": "a.k.a. “Nathaniel Rateliff and the Wheel”",
+          "type": "Person",
+          "score": 0.7,
+          "musicbrainz": "https://musicbrainz.org/artist/da54c619-9e9f-4e57-9cce-cddfa09345df",
+          "reasons": [
+            "name exact",
+            "song \"S.O.B.\" credited to it on compilations or promos only",
+            "life-span 1978– covers 1 of 1 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q2104538"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "neil-young",
+      "name": "Neil Young",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Harvest Moon — Neil Young",
+        "Emmylou Harris releases 'Wrecking Ball'"
+      ],
+      "songPin": "Toronto, CA",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "75167b8b-44e4-407b-9d35-effe87b223cf",
+          "name": "Neil Young",
+          "disambiguation": "Canadian singer, songwriter & musician",
+          "type": "Person",
+          "score": 1.25,
+          "musicbrainz": "https://musicbrainz.org/artist/75167b8b-44e4-407b-9d35-effe87b223cf",
+          "reasons": [
+            "name exact",
+            "song \"Harvest Moon\" credited to it on its own album or single",
+            "release \"Harvest\" named in event song-harvest_moon",
+            "area Toronto is the song-pin city",
+            "life-span 1945– covers 2 of 2 event and song years",
+            "MusicBrainz genres share folk, rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q633"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "norah-jones",
+      "name": "Norah Jones",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Come Away With Me — Norah Jones",
+        "Don’t Know Why — Norah Jones"
+      ],
+      "songPin": "New York, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.9,
+        "pick": {
+          "mbid": "985c709c-7771-4de3-9024-7bda29ebe3f9",
+          "name": "Norah Jones",
+          "type": "Person",
+          "score": 0.9,
+          "musicbrainz": "https://musicbrainz.org/artist/985c709c-7771-4de3-9024-7bda29ebe3f9",
+          "reasons": [
+            "name exact",
+            "song \"Come Away With Me\", \"Don’t Know Why\" credited to it on its own album or single",
+            "life-span 1979– covers 2 of 2 event and song years",
+            "MusicBrainz genres share jazz, pop"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q549981"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "oasis",
+      "name": "Oasis",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Wonderwall — Oasis",
+        "Oasis vs Blur: the Battle of Britpop"
+      ],
+      "songPin": "Manchester, GB",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "39ab1aed-75e0-4140-bd47-540276886b60",
+          "name": "Oasis",
+          "disambiguation": "Noel & Liam Gallagher",
+          "type": "Group",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/39ab1aed-75e0-4140-bd47-540276886b60",
+          "reasons": [
+            "name exact",
+            "song \"Wonderwall\" credited to it on its own album or single",
+            "area Manchester is the song-pin city",
+            "life-span 1991– covers 2 of 2 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q382890"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "a7a848c3-515d-4486-9e69-dc7491dd3bd1",
+          "name": "Oasis",
+          "disambiguation": "’70s US rock band",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/a7a848c3-515d-4486-9e69-dc7491dd3bd1",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "ecf9f3a3-35e9-4c58-acaa-e707fba45060",
+          "name": "Oasis",
+          "disambiguation": "Omar-S and Shadow Ray",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/ecf9f3a3-35e9-4c58-acaa-e707fba45060",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "06cb9b8e-4dc7-453c-9564-d95731f2bf77",
+          "name": "Oasis",
+          "disambiguation": "released True Love",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/06cb9b8e-4dc7-453c-9564-d95731f2bf77",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "parliament",
+      "name": "Parliament",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Parliament-Funkadelic release \"Mothership Connection\"",
+        "Flash Light — Parliament"
+      ],
+      "songPin": "Newark, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "d1947987-9614-49ae-bd36-8000e6b6f7d0",
+          "name": "Parliament",
+          "type": "Group",
+          "score": 1.15,
+          "musicbrainz": "https://musicbrainz.org/artist/d1947987-9614-49ae-bd36-8000e6b6f7d0",
+          "reasons": [
+            "name exact",
+            "song \"Flash Light\" credited to it on its own album or single",
+            "release \"Mothership Connection\" named in event evt-funk-la-1975-parliament-mothership",
+            "life-span 1968–1980 covers 2 of 2 event and song years",
+            "MusicBrainz genres share funk"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q1892425"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "pharrell-williams",
+      "name": "Pharrell Williams",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Happy — Pharrell Williams"
+      ],
+      "songPin": "Virginia Beach, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "149f91ef-1287-46da-9a8e-87fee02f1471",
+          "name": "Pharrell Williams",
+          "type": "Person",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/149f91ef-1287-46da-9a8e-87fee02f1471",
+          "reasons": [
+            "name exact",
+            "song \"Happy\" credited to it on its own album or single",
+            "area Virginia Beach is the song-pin city",
+            "life-span 1973– covers 1 of 1 event and song years",
+            "MusicBrainz genres share pop"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q14313"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "queen",
+      "name": "Queen",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Queen releases \"A Night at the Opera\"",
+        "You’re My Best Friend — Queen",
+        "Don’t Stop Me Now — Queen"
+      ],
+      "songPin": "London, GB",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "0383dadf-2a4e-4d10-a46a-e9e041da8eb3",
+          "name": "Queen",
+          "disambiguation": "UK rock group",
+          "type": "Group",
+          "score": 1.25,
+          "musicbrainz": "https://musicbrainz.org/artist/0383dadf-2a4e-4d10-a46a-e9e041da8eb3",
+          "reasons": [
+            "name exact",
+            "song \"Don’t Stop Me Now\", \"You’re My Best Friend\" credited to it on its own album or single",
+            "release \"A Night at the Opera\" named in event evt-queen-london-1975",
+            "area London is the song-pin city",
+            "life-span 1970– covers 3 of 3 event and song years",
+            "MusicBrainz genres share pop, rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q15862"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "5eecaf18-02ec-47af-a4f2-7831db373419",
+          "name": "Queen",
+          "disambiguation": "US rapper",
+          "type": "Person",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/5eecaf18-02ec-47af-a4f2-7831db373419",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "ray-charles",
+      "name": "Ray Charles",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "I Got A Woman — Ray Charles",
+        "Ray Charles records \"I Got a Woman\" and invents soul music",
+        "Hallelujah I Love Her So — Ray Charles"
+      ],
+      "songPin": "Albany, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "2ce02909-598b-44ef-a456-151ba0a3bd70",
+          "name": "Ray Charles",
+          "disambiguation": "soul musician, singer and songwriter",
+          "type": "Person",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/2ce02909-598b-44ef-a456-151ba0a3bd70",
+          "reasons": [
+            "name exact",
+            "song \"Hallelujah I Love Her So\", \"Hit The Road Jack\", \"I Got A Woman\" credited to it on its own album or single",
+            "area Albany is the song-pin city",
+            "life-span 1930–2004 covers 6 of 6 event and song years",
+            "MusicBrainz genres share blues, funk, jazz, rnb"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q544387"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "redbone",
+      "name": "Redbone",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "Come And Get Your Love — Redbone"
+      ],
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.65,
+        "pick": {
+          "mbid": "b3fa0e6f-93db-4aa5-b76e-393e24de35ba",
+          "name": "Redbone",
+          "disambiguation": "1970s rock band",
+          "type": "Group",
+          "score": 0.65,
+          "musicbrainz": "https://musicbrainz.org/artist/b3fa0e6f-93db-4aa5-b76e-393e24de35ba",
+          "reasons": [
+            "name exact",
+            "release \"Come And Get Your Love (Re-Recorded - 2024 Remaster)\" named in event song-come_and_get_your_love",
+            "MusicBrainz genres share funk, pop"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q1751280"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "72c17dac-0a89-4992-913d-bd1ff9cc734d",
+          "name": "Redbone",
+          "disambiguation": "US rapper",
+          "type": "Person",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/72c17dac-0a89-4992-913d-bd1ff9cc734d",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "rick-springfield",
+      "name": "Rick Springfield",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Jessie’s Girl — Rick Springfield"
+      ],
+      "songPin": "Sydney, AU",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.9,
+        "pick": {
+          "mbid": "88543892-2eef-4a6a-a84c-5b8502b80421",
+          "name": "Rick Springfield",
+          "type": "Person",
+          "score": 0.9,
+          "musicbrainz": "https://musicbrainz.org/artist/88543892-2eef-4a6a-a84c-5b8502b80421",
+          "reasons": [
+            "name exact",
+            "song \"Jessie’s Girl\" credited to it on its own album or single",
+            "life-span 1949– covers 1 of 1 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q707446"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "rob-base-and-e-z-rock",
+      "name": "Rob Base and E-Z Rock",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "no-candidate",
+      "events": [
+        "It Takes Two — Rob Base and E-Z Rock"
+      ],
+      "songPin": "New York, US",
+      "importer": {
+        "tier": "none",
+        "confidence": 0,
+        "pick": null,
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "robin-thicke",
+      "name": "Robin Thicke",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Blurred Lines — Robin Thicke"
+      ],
+      "songPin": "Los Angeles, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "ddfd9b2f-186e-4b2c-ad09-01aa5380c225",
+          "name": "Robin Thicke",
+          "type": "Person",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/ddfd9b2f-186e-4b2c-ad09-01aa5380c225",
+          "reasons": [
+            "name exact",
+            "song \"Blurred Lines\" credited to it on its own album or single",
+            "area Los Angeles is the song-pin city",
+            "life-span 1977– covers 1 of 1 event and song years",
+            "MusicBrainz genres share pop"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q467423"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "rod-stewart",
+      "name": "Rod Stewart",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Forever Young — Rod Stewart"
+      ],
+      "songPin": "London, GB",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.9,
+        "pick": {
+          "mbid": "a35237a0-4f47-40a6-b6f3-1e786db23402",
+          "name": "Rod Stewart",
+          "type": "Person",
+          "score": 0.9,
+          "musicbrainz": "https://musicbrainz.org/artist/a35237a0-4f47-40a6-b6f3-1e786db23402",
+          "reasons": [
+            "name exact",
+            "song \"Forever Young\" credited to it on its own album or single",
+            "life-span 1945– covers 1 of 1 event and song years",
+            "MusicBrainz genres share pop, rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q182655"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "roy-orbison",
+      "name": "Roy Orbison",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-no-songs",
+      "events": [
+        "Pretty Woman — Roy Orbison"
+      ],
+      "songPin": "Wink, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.95,
+        "pick": {
+          "mbid": "0bbbc496-c7b5-4b3f-bb6d-bd312827d6e5",
+          "name": "Roy Orbison",
+          "type": "Person",
+          "score": 0.95,
+          "musicbrainz": "https://musicbrainz.org/artist/0bbbc496-c7b5-4b3f-bb6d-bd312827d6e5",
+          "reasons": [
+            "name exact",
+            "song \"Pretty Woman\" credited to it on compilations or promos only",
+            "release \"Oh Pretty Woman\" named in event song-pretty_woman",
+            "life-span 1936–1988 covers 1 of 1 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q188426"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "sade",
+      "name": "Sade",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Smooth Operator — Sade"
+      ],
+      "songPin": "London, GB",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "67930b3e-e00b-469f-8c74-fd69f20522ec",
+          "name": "Sade",
+          "disambiguation": "band led by the eponymous singer",
+          "type": "Group",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/67930b3e-e00b-469f-8c74-fd69f20522ec",
+          "reasons": [
+            "name exact",
+            "song \"Smooth Operator\" credited to it on its own album or single",
+            "area London is the song-pin city",
+            "life-span 1982– covers 1 of 1 event and song years",
+            "MusicBrainz genres share pop"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q658182"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "34179daf-b759-47a8-958e-056c858d8643",
+          "name": "Sade",
+          "disambiguation": "Turkish Alternative Rock Band",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/34179daf-b759-47a8-958e-056c858d8643",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "e68cd834-ba68-4ad2-847f-106dfdf79242",
+          "name": "Sade",
+          "disambiguation": "Brazil, Metal",
+          "type": null,
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/e68cd834-ba68-4ad2-847f-106dfdf79242",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "28d14946-320f-4b5c-b651-c689e31c5c32",
+          "name": "Sade",
+          "disambiguation": "Early 80s Spanish punk band from Valencia",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/28d14946-320f-4b5c-b651-c689e31c5c32",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "saint-motel",
+      "name": "Saint Motel",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "My Type — Saint Motel"
+      ],
+      "songPin": "Los Angeles, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.95,
+        "pick": {
+          "mbid": "5c2593bc-1621-4c4d-821b-b7bb6ff213b5",
+          "name": "Saint Motel",
+          "type": "Group",
+          "score": 0.95,
+          "musicbrainz": "https://musicbrainz.org/artist/5c2593bc-1621-4c4d-821b-b7bb6ff213b5",
+          "reasons": [
+            "name exact",
+            "song \"My Type\" credited to it on its own album or single",
+            "area Los Angeles is the song-pin city",
+            "life-span 2009– covers 1 of 1 event and song years"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q7401935"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "simple-minds",
+      "name": "Simple Minds",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "Don’t You Forget About Me — Simple Minds"
+      ],
+      "songPin": "Glasgow, GB",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.8,
+        "pick": {
+          "mbid": "f41490ce-fe39-435d-86c0-ab5ce098b423",
+          "name": "Simple Minds",
+          "disambiguation": "Scottish rock band",
+          "type": "Group",
+          "score": 0.8,
+          "musicbrainz": "https://musicbrainz.org/artist/f41490ce-fe39-435d-86c0-ab5ce098b423",
+          "reasons": [
+            "name exact",
+            "song \"Don’t You Forget About Me\" credited to it on compilations or promos only",
+            "area Glasgow is the song-pin city",
+            "life-span 1977– covers 1 of 1 event and song years",
+            "MusicBrainz genres share pop, rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q748836"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "sly-and-the-family-stone",
+      "name": "Sly And The Family Stone",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Sing a Simple Song — Sly and the Family Stone",
+        "If You Want Me To Stay — Sly And The Family Stone"
+      ],
+      "songPin": "San Francisco, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.9,
+        "pick": {
+          "mbid": "b7ec4c54-1f93-4bf2-957f-7b9921ab84ea",
+          "name": "Sly & the Family Stone",
+          "type": "Group",
+          "score": 0.9,
+          "musicbrainz": "https://musicbrainz.org/artist/b7ec4c54-1f93-4bf2-957f-7b9921ab84ea",
+          "reasons": [
+            "name exact",
+            "song \"If You Want Me To Stay\", \"Sing a Simple Song\" credited to it on its own album or single",
+            "area San Francisco is the song-pin city",
+            "MusicBrainz genres share funk"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q1133807"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "smokey-robinson-and-the-miracles",
+      "name": "Smokey Robinson & The Miracles",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "Tears Of A Clown — Smokey Robinson & The Miracles"
+      ],
+      "songPin": "Detroit, US",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.65,
+        "pick": {
+          "mbid": "6a4c2d34-7f7f-4f87-b17f-b5540aa840db",
+          "name": "The Miracles",
+          "disambiguation": "aka Smokey Robinson and The Miracles",
+          "type": "Group",
+          "score": 0.65,
+          "musicbrainz": "https://musicbrainz.org/artist/6a4c2d34-7f7f-4f87-b17f-b5540aa840db",
+          "reasons": [
+            "alias \"Smokey Robinson & The Miracles\"",
+            "release \"Tears of a Clown\" named in event song-tears_of_a_clown",
+            "area Detroit is the song-pin city",
+            "MusicBrainz genres share rnb"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q1761222"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "0ae9b8ce-fb3f-4488-898b-05f22b51a8ce",
+          "name": "Smokey Robinson and The Miracles",
+          "disambiguation": "Smokey Robinson & The Miracles",
+          "type": "Other",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/0ae9b8ce-fb3f-4488-898b-05f22b51a8ce",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "soulive",
+      "name": "Soulive",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "weak",
+      "events": [
+        "Cash’s Dreams — Soulive",
+        "Jesus Children — Soulive"
+      ],
+      "songPin": "New York, US",
+      "importer": {
+        "tier": "weak",
+        "confidence": 0.5,
+        "pick": {
+          "mbid": "8b1bdf8a-69dc-4c73-b6f9-0ae6f9cdcd31",
+          "name": "Soulive",
+          "type": "Group",
+          "score": 0.5,
+          "musicbrainz": "https://musicbrainz.org/artist/8b1bdf8a-69dc-4c73-b6f9-0ae6f9cdcd31",
+          "reasons": [
+            "name exact",
+            "life-span 1999– covers 1 of 1 event and song years",
+            "MusicBrainz genres share jazz"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q2719925"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "stevie-ray-vaughan",
+      "name": "Stevie Ray Vaughan",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "Pride And Joy — Stevie Ray Vaughan",
+        "Stevie Ray Vaughan releases \"Texas Flood\""
+      ],
+      "songPin": "Dallas, US",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.6,
+        "pick": {
+          "mbid": "f5426431-f490-4678-ad44-a75c71097bb4",
+          "name": "Stevie Ray Vaughan",
+          "type": "Person",
+          "score": 0.6,
+          "musicbrainz": "https://musicbrainz.org/artist/f5426431-f490-4678-ad44-a75c71097bb4",
+          "reasons": [
+            "name exact",
+            "area Dallas is the song-pin city",
+            "life-span 1954–1990 covers 1 of 1 event and song years",
+            "MusicBrainz genres share blues"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q202937"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "sublime",
+      "name": "Sublime",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Bad Fish — Sublime",
+        "Santeria — Sublime",
+        "What I Got — Sublime"
+      ],
+      "songPin": "Long Beach, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "95f5b748-d370-47fe-85bd-0af2dc450bc0",
+          "name": "Sublime",
+          "disambiguation": "ska punk",
+          "type": "Group",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/95f5b748-d370-47fe-85bd-0af2dc450bc0",
+          "reasons": [
+            "name exact",
+            "song \"Santeria\", \"What I Got\" credited to it on its own album or single",
+            "area Long Beach is the song-pin city",
+            "life-span 1986– covers 3 of 3 event and song years",
+            "MusicBrainz genres share reggae, rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q591691"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "0545e834-eca1-471d-b929-89d575904aaa",
+          "name": "Sublime",
+          "disambiguation": "mid 90s prog house/techno collab on Limbo Records",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/0545e834-eca1-471d-b929-89d575904aaa",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "c845a592-222e-4e0d-b441-9ad5516087fd",
+          "name": "Sublime",
+          "disambiguation": "Japan–based French female singer",
+          "type": "Person",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/c845a592-222e-4e0d-b441-9ad5516087fd",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "81216e07-e0db-4022-a385-e41dca2b9cd9",
+          "name": "Sublime",
+          "disambiguation": "no information provided on spotify",
+          "type": "Person",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/81216e07-e0db-4022-a385-e41dca2b9cd9",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "talking-heads",
+      "name": "Talking Heads",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Don’t Worry About The Government — Talking Heads",
+        "Love Goes Building On Fire — Talking Heads",
+        "Psycho Killer — Talking Heads"
+      ],
+      "songPin": "New York, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "a94a7155-c79d-4409-9fcf-220cb0e4dc3a",
+          "name": "Talking Heads",
+          "type": "Group",
+          "score": 1.25,
+          "musicbrainz": "https://musicbrainz.org/artist/a94a7155-c79d-4409-9fcf-220cb0e4dc3a",
+          "reasons": [
+            "name exact",
+            "song \"And She Was\", \"Burning Down The House\", \"Crosseyed and Painless\" credited to it on its own album or single",
+            "release \"Fear of Music\" named in event song-air",
+            "area New York is the song-pin city",
+            "life-span 1974–1991 covers 23 of 24 event and song years",
+            "MusicBrainz genres share funk, pop, rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q205001"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "taste-of-honey",
+      "name": "Taste Of Honey",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Boogie Oogie Oogie — Taste Of Honey"
+      ],
+      "songPin": "Los Angeles, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "8fb61843-e724-41b4-86bd-6e3b3dfe9c6e",
+          "name": "A Taste of Honey",
+          "type": "Group",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/8fb61843-e724-41b4-86bd-6e3b3dfe9c6e",
+          "reasons": [
+            "name exact",
+            "song \"Boogie Oogie Oogie\" credited to it on its own album or single",
+            "area Los Angeles is the song-pin city",
+            "life-span 1971–1982 covers 1 of 1 event and song years",
+            "MusicBrainz genres share funk"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q300585"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "0de30558-94c7-415f-b21a-70c849749a73",
+          "name": "Taste of Honey",
+          "type": null,
+          "score": 0.55,
+          "musicbrainz": "https://musicbrainz.org/artist/0de30558-94c7-415f-b21a-70c849749a73",
+          "reasons": [
+            "name exact",
+            "song \"Boogie Oogie Oogie\" credited to it on compilations or promos only"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "the-allman-brothers",
+      "name": "The Allman Brothers",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "One Way Out — The Allman Brothers"
+      ],
+      "songPin": "Macon, US",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.7,
+        "pick": {
+          "mbid": "72359492-22be-4ed9-aaa0-efa434fb2b01",
+          "name": "The Allman Brothers Band",
+          "type": "Group",
+          "score": 0.7,
+          "musicbrainz": "https://musicbrainz.org/artist/72359492-22be-4ed9-aaa0-efa434fb2b01",
+          "reasons": [
+            "alias \"Allman Brothers\"",
+            "song \"One Way Out\" credited to it on compilations or promos only",
+            "area Macon is the song-pin city",
+            "life-span 1969–2014 covers 1 of 1 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q507327"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "0ee9ee6d-d359-48bc-97b3-c2bca84abfe4",
+          "name": "The Allman Brothers",
+          "disambiguation": "specifically just Duane & Gregg",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/0ee9ee6d-d359-48bc-97b3-c2bca84abfe4",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "the-avett-brothers",
+      "name": "The Avett Brothers",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "I And Love And You — The Avett Brothers"
+      ],
+      "songPin": "Concord, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "0a176d0a-ef46-4e7f-b018-9f4d65614668",
+          "name": "The Avett Brothers",
+          "type": "Group",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/0a176d0a-ef46-4e7f-b018-9f4d65614668",
+          "reasons": [
+            "name exact",
+            "song \"I And Love And You\" credited to it on its own album or single",
+            "area Concord is the song-pin city",
+            "life-span 2000– covers 1 of 1 event and song years",
+            "MusicBrainz genres share folk"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q123320"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "the-beach-boys",
+      "name": "The Beach Boys",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "God Only Knows — The Beach Boys"
+      ],
+      "songPin": "Hawthorne, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "ebfc1398-8d96-47e3-82c3-f782abcdb13d",
+          "name": "The Beach Boys",
+          "disambiguation": "American rock band",
+          "type": "Group",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/ebfc1398-8d96-47e3-82c3-f782abcdb13d",
+          "reasons": [
+            "name exact",
+            "song \"God Only Knows\" credited to it on its own album or single",
+            "area Hawthorne is the song-pin city",
+            "life-span 1961– covers 1 of 1 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q183048"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "the-beatles",
+      "name": "The Beatles",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "All My Loving — The Beatles",
+        "Chains — The Beatles",
+        "She Loves You — The Beatles"
+      ],
+      "songPin": "Liverpool, GB",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+          "name": "The Beatles",
+          "disambiguation": "UK rock band, “The Fab Four”",
+          "type": "Group",
+          "score": 1.25,
+          "musicbrainz": "https://musicbrainz.org/artist/b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d",
+          "reasons": [
+            "name exact",
+            "song \"Across The Universe\", \"All My Loving\", \"And I Love Her\" credited to it on its own album or single",
+            "release \"Anthology 1\" named in event song-in_spite_of_all_the_danger",
+            "area Liverpool is the song-pin city",
+            "life-span 1960–1970 covers 24 of 25 event and song years",
+            "MusicBrainz genres share folk, pop, rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q1299"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "9d953ee6-4ea6-4b0e-aea6-7268d380bef1",
+          "name": "The Beatles",
+          "disambiguation": "SiIvaGunner collaboration",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/9d953ee6-4ea6-4b0e-aea6-7268d380bef1",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "daf68253-e023-4128-a92a-82896093c67f",
+          "name": "The Beatles",
+          "disambiguation": "punk/lofi; published on Wheelchair Full of Old Men",
+          "type": null,
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/daf68253-e023-4128-a92a-82896093c67f",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "5f3112ef-5325-437e-b875-d4c6eb6e2cbd",
+          "name": "The Beatles",
+          "disambiguation": "Ukrainian",
+          "type": "Other",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/5f3112ef-5325-437e-b875-d4c6eb6e2cbd",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "the-beatles-isley-brothers",
+      "name": "The Beatles/Isley Brothers",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "no-candidate",
+      "events": [
+        "Twist And Shout — The Beatles/Isley Brothers"
+      ],
+      "songPin": "Liverpool, GB",
+      "importer": {
+        "tier": "none",
+        "confidence": 0,
+        "pick": null,
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "the-darkness",
+      "name": "The Darkness",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "I Believe In A Thing Called Love — The Darkness"
+      ],
+      "songPin": "Lowestoft, GB",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "81df2271-03a1-46a3-bb30-cce187235312",
+          "name": "The Darkness",
+          "disambiguation": "UK rock band",
+          "type": "Group",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/81df2271-03a1-46a3-bb30-cce187235312",
+          "reasons": [
+            "name exact",
+            "song \"I Believe In A Thing Called Love\" credited to it on its own album or single",
+            "area Lowestoft is the song-pin city",
+            "life-span 2000– covers 1 of 1 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q421794"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "433fde8a-4025-48bd-a19c-7ca6e05a2396",
+          "name": "The Darkness",
+          "disambiguation": "IDM (Not the rock band!)",
+          "type": null,
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/433fde8a-4025-48bd-a19c-7ca6e05a2396",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "8cf45baf-8585-40d5-bff1-8e3b7173e596",
+          "name": "The Darkness",
+          "disambiguation": "Roger McKenzie alias",
+          "type": null,
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/8cf45baf-8585-40d5-bff1-8e3b7173e596",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "4dd43645-1d34-434e-b5ec-668522115b2e",
+          "name": "Darkness",
+          "disambiguation": "techno, released Don't Stop It",
+          "type": "Person",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/4dd43645-1d34-434e-b5ec-668522115b2e",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "the-dubliners",
+      "name": "The Dubliners",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "Whiskey In A Jar — The Dubliners"
+      ],
+      "songPin": "Dublin, IE",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.8,
+        "pick": {
+          "mbid": "d201e6c0-103d-4a9a-9969-909bd421ddad",
+          "name": "The Dubliners",
+          "type": "Group",
+          "score": 0.8,
+          "musicbrainz": "https://musicbrainz.org/artist/d201e6c0-103d-4a9a-9969-909bd421ddad",
+          "reasons": [
+            "name exact",
+            "song \"Whiskey In A Jar\" credited to it on compilations or promos only",
+            "area Dublin is the song-pin city",
+            "life-span 1962–2012 covers 1 of 1 event and song years",
+            "MusicBrainz genres share folk"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q478629"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "the-emotions",
+      "name": "The Emotions",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "likely",
+      "events": [
+        "Best Of My Love — The Emotions"
+      ],
+      "songPin": "Chicago, US",
+      "importer": {
+        "tier": "likely",
+        "confidence": 0.75,
+        "pick": {
+          "mbid": "6ff13427-08ff-4da2-bee8-892e1fa22d3c",
+          "name": "The Emotions",
+          "disambiguation": "Chicago soul, disco and R&B female vocal group",
+          "type": "Group",
+          "score": 0.75,
+          "musicbrainz": "https://musicbrainz.org/artist/6ff13427-08ff-4da2-bee8-892e1fa22d3c",
+          "reasons": [
+            "name exact",
+            "song \"Best Of My Love\" credited to it on compilations or promos only",
+            "area Chicago is the song-pin city",
+            "life-span 1968– covers 1 of 1 event and song years"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q837141"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "2aad558b-5718-40c7-bf61-08015b939ef9",
+          "name": "The Emotions",
+          "disambiguation": "Jamaican rocksteady/early reggae band",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/2aad558b-5718-40c7-bf61-08015b939ef9",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "7c666f69-3785-4b70-86df-b494e8a29bae",
+          "name": "The Emotions",
+          "disambiguation": "doo‐wop group from Brooklyn, New York",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/7c666f69-3785-4b70-86df-b494e8a29bae",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "23e81f0a-b203-4c3a-9c96-f7df00d7d20f",
+          "name": "The Emotions",
+          "disambiguation": "'60s California soul male vocal group, later renamed The Lovers",
+          "type": "Group",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/23e81f0a-b203-4c3a-9c96-f7df00d7d20f",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "the-foundations",
+      "name": "The Foundations",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Build Me Up Buttercup — The Foundations"
+      ],
+      "songPin": "London, GB",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.95,
+        "pick": {
+          "mbid": "5c316ada-0201-427f-8bb6-535ebe17cf85",
+          "name": "The Foundations",
+          "disambiguation": "British soul band, active from 1967 to 1970",
+          "type": "Group",
+          "score": 0.95,
+          "musicbrainz": "https://musicbrainz.org/artist/5c316ada-0201-427f-8bb6-535ebe17cf85",
+          "reasons": [
+            "name exact",
+            "song \"Build Me Up Buttercup\" credited to it on its own album or single",
+            "area London is the song-pin city",
+            "life-span 1967–1970 covers 1 of 1 event and song years"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q1421054"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "the-four-seasons",
+      "name": "The Four Seasons",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "December 1963, Oh What A Night — The Four Seasons"
+      ],
+      "songPin": "Newark, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "3f64d38c-1ad4-4fb0-941e-7f4b51d4c9e6",
+          "name": "The Four Seasons",
+          "disambiguation": "aka Frankie Valli and the Four Seasons",
+          "type": "Group",
+          "score": 1.25,
+          "musicbrainz": "https://musicbrainz.org/artist/3f64d38c-1ad4-4fb0-941e-7f4b51d4c9e6",
+          "reasons": [
+            "name exact",
+            "song \"December 1963, Oh What A Night\" credited to it on its own album or single",
+            "release \"Oh What a Night\" named in event song-december_1963_oh_what_a_night",
+            "area Newark is the song-pin city",
+            "life-span 1960– covers 1 of 1 event and song years",
+            "MusicBrainz genres share pop"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q687785"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "the-fugees",
+      "name": "The Fugees",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Killing Me Softly — The Fugees"
+      ],
+      "songPin": "South Orange, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "ea321799-9b1d-4e74-a074-a5facf597d82",
+          "name": "Fugees",
+          "type": "Group",
+          "score": 1.25,
+          "musicbrainz": "https://musicbrainz.org/artist/ea321799-9b1d-4e74-a074-a5facf597d82",
+          "reasons": [
+            "name exact",
+            "song \"Killing Me Softly\" credited to it on its own album or single",
+            "release \"The Score\" named in event song-killing_me_softly_flack",
+            "area South Orange is the song-pin city",
+            "life-span 1992– covers 1 of 1 event and song years",
+            "MusicBrainz genres share funk, rnb"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q159329"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "the-jackson-5",
+      "name": "The Jackson 5",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "I Want You Back — The Jackson 5"
+      ],
+      "songPin": "Gary, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.9,
+        "pick": {
+          "mbid": "e5257dc5-1edd-4fca-b7e6-1158e00522c8",
+          "name": "The Jacksons",
+          "disambiguation": "formerly “The Jackson 5”",
+          "type": "Group",
+          "score": 0.9,
+          "musicbrainz": "https://musicbrainz.org/artist/e5257dc5-1edd-4fca-b7e6-1158e00522c8",
+          "reasons": [
+            "alias \"Jackson 5\"",
+            "song \"I Want You Back\" credited to it on its own album or single",
+            "area Gary is the song-pin city",
+            "life-span 1966– covers 1 of 1 event and song years",
+            "MusicBrainz genres share rnb"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q43267"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "the-neville-brothers",
+      "name": "the Neville Brothers",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Yellow Moon — the Neville Brothers"
+      ],
+      "songPin": "New Orleans, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.95,
+        "pick": {
+          "mbid": "5464e20c-7dcb-4a3e-9b25-13bb959fadc9",
+          "name": "The Neville Brothers",
+          "type": "Group",
+          "score": 0.95,
+          "musicbrainz": "https://musicbrainz.org/artist/5464e20c-7dcb-4a3e-9b25-13bb959fadc9",
+          "reasons": [
+            "name exact",
+            "song \"Yellow Moon\" credited to it on its own album or single",
+            "area New Orleans is the song-pin city",
+            "life-span 1977– covers 1 of 1 event and song years"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q613059"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "the-spice-girls",
+      "name": "The Spice Girls",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Wannabe — The Spice Girls"
+      ],
+      "songPin": "London, GB",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "bf0caafc-2b20-4e07-ab85-87e14ff430ce",
+          "name": "Spice Girls",
+          "type": "Group",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/bf0caafc-2b20-4e07-ab85-87e14ff430ce",
+          "reasons": [
+            "name exact",
+            "song \"Wannabe\" credited to it on its own album or single",
+            "area London is the song-pin city",
+            "life-span 1994–2008 covers 1 of 1 event and song years",
+            "MusicBrainz genres share pop"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q55641"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "tom-petty",
+      "name": "Tom Petty",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "American Girl — Tom Petty",
+        "Free Fallin’ — Tom Petty",
+        "Runnin’ Down A Dream — Tom Petty"
+      ],
+      "songPin": "Gainesville, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "5ca3f318-d028-4151-ac73-78e2b2d6cdcc",
+          "name": "Tom Petty",
+          "type": "Person",
+          "score": 1.25,
+          "musicbrainz": "https://musicbrainz.org/artist/5ca3f318-d028-4151-ac73-78e2b2d6cdcc",
+          "reasons": [
+            "name exact",
+            "song \"Free Fallin’\", \"Runnin’ Down A Dream\", \"Yer So Bad\" credited to it on its own album or single",
+            "release \"Full Moon Fever\" named in event song-free_fallin",
+            "area Gainesville is the song-pin city",
+            "life-span 1950–2017 covers 4 of 4 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q311655"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "f93dbc64-6f08-4033-bcc7-8a0bb4689849",
+          "name": "Tom Petty and the Heartbreakers",
+          "type": "Group",
+          "score": 0.7,
+          "musicbrainz": "https://musicbrainz.org/artist/f93dbc64-6f08-4033-bcc7-8a0bb4689849",
+          "reasons": [
+            "alias \"Tom Petty\"",
+            "song \"Free Fallin’\", \"Runnin’ Down A Dream\", \"Yer So Bad\" credited to it on compilations or promos only",
+            "area Gainesville is the song-pin city",
+            "life-span 1976–2017 covers 4 of 4 event and song years",
+            "MusicBrainz genres share rock"
+          ]
+        },
+        {
+          "mbid": "c9b3bf7f-e237-4d43-be6b-02bf59b99f90",
+          "name": "Mudcrutch",
+          "disambiguation": "Tom Petty’s band",
+          "type": "Group",
+          "score": 0.5,
+          "musicbrainz": "https://musicbrainz.org/artist/c9b3bf7f-e237-4d43-be6b-02bf59b99f90",
+          "reasons": [
+            "alias \"Tom Petty\"",
+            "area Gainesville is the song-pin city",
+            "life-span 1970–2017 covers 4 of 4 event and song years",
+            "MusicBrainz genres share rock"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "tom-petty-and-the-heartbreakers",
+      "name": "Tom Petty and The Heartbreakers",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Mary Jane’s Last Dance — Tom Petty and The Heartbreakers"
+      ],
+      "songPin": "Gainesville, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "f93dbc64-6f08-4033-bcc7-8a0bb4689849",
+          "name": "Tom Petty and the Heartbreakers",
+          "type": "Group",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/f93dbc64-6f08-4033-bcc7-8a0bb4689849",
+          "reasons": [
+            "name exact",
+            "song \"Mary Jane’s Last Dance\" credited to it on its own album or single",
+            "area Gainesville is the song-pin city",
+            "life-span 1976–2017 covers 1 of 1 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q2117272"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "toto",
+      "name": "Toto",
+      "oneWord": true,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Africa — Toto"
+      ],
+      "songPin": "Los Angeles, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 0.9,
+        "pick": {
+          "mbid": "aab5c954-cabe-432e-899e-1c4f99757327",
+          "name": "Toto",
+          "disambiguation": "US rock group",
+          "type": "Group",
+          "score": 0.9,
+          "musicbrainz": "https://musicbrainz.org/artist/aab5c954-cabe-432e-899e-1c4f99757327",
+          "reasons": [
+            "name exact",
+            "song \"Africa\" credited to it on its own album or single",
+            "life-span 1977– covers 1 of 1 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q207472"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "0dd7fc06-7c97-477d-8974-e4d3fba62f06",
+          "name": "Toto",
+          "disambiguation": "DJ",
+          "type": null,
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/0dd7fc06-7c97-477d-8974-e4d3fba62f06",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "85931540-d20c-49bd-ba40-8b843f2a8b01",
+          "name": "TOTO",
+          "disambiguation": "addiction featuring",
+          "type": null,
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/85931540-d20c-49bd-ba40-8b843f2a8b01",
+          "reasons": [
+            "name exact"
+          ]
+        },
+        {
+          "mbid": "3d9ade55-3e15-4254-84e6-994a21baa16d",
+          "name": "toto",
+          "disambiguation": "Suika, totoとGOMESS",
+          "type": "Person",
+          "score": 0.35,
+          "musicbrainz": "https://musicbrainz.org/artist/3d9ade55-3e15-4254-84e6-994a21baa16d",
+          "reasons": [
+            "name exact"
+          ]
+        }
+      ],
+      "label": ""
+    },
+    {
+      "slug": "van-halen",
+      "name": "Van Halen",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Jump — Van Halen"
+      ],
+      "songPin": "Pasadena, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "b665b768-0d83-4363-950c-31ed39317c15",
+          "name": "Van Halen",
+          "disambiguation": "American hard rock band",
+          "type": "Group",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/b665b768-0d83-4363-950c-31ed39317c15",
+          "reasons": [
+            "name exact",
+            "song \"Jump\" credited to it on its own album or single",
+            "area Pasadena is the song-pin city",
+            "life-span 1972–2019 covers 1 of 1 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q190155"
+        },
+        "notes": []
+      },
+      "others": [],
+      "label": ""
+    },
+    {
+      "slug": "walk-the-moon",
+      "name": "Walk The Moon",
+      "oneWord": false,
+      "hasSongs": true,
+      "stratum": "sure-songs",
+      "events": [
+        "Shut Up And Dance — Walk The Moon"
+      ],
+      "songPin": "Cincinnati, US",
+      "importer": {
+        "tier": "sure",
+        "confidence": 1,
+        "pick": {
+          "mbid": "d4aad415-9cd0-4845-9b05-0416fdcc9fc4",
+          "name": "WALK THE MOON",
+          "disambiguation": "indie rock band 2008+",
+          "type": "Group",
+          "score": 1,
+          "musicbrainz": "https://musicbrainz.org/artist/d4aad415-9cd0-4845-9b05-0416fdcc9fc4",
+          "reasons": [
+            "name exact",
+            "song \"Shut Up And Dance\" credited to it on its own album or single",
+            "area Cincinnati is the song-pin city",
+            "life-span 2008– covers 1 of 1 event and song years",
+            "MusicBrainz genres share rock"
+          ],
+          "wikidata": "https://www.wikidata.org/wiki/Q3653206"
+        },
+        "notes": []
+      },
+      "others": [
+        {
+          "mbid": "4d6ca529-530e-480f-b4bc-18e78eb58a7d",
+          "name": "Walk the Moon",
+          "disambiguation": "80s rock band",
+          "type": "Group",
+          "score": 0.55,
+          "musicbrainz": "https://musicbrainz.org/artist/4d6ca529-530e-480f-b4bc-18e78eb58a7d",
+          "reasons": [
+            "name exact",
+            "song \"Shut Up And Dance\" credited to it on compilations or promos only"
+          ]
+        }
+      ],
+      "label": ""
+    }
+  ]
+}

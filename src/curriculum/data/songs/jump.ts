@@ -16,6 +16,55 @@ export const jump: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: '5150' },
+  credits: [
+    { name: 'Donn Landee', role: 'engineer' },
+    {
+      name: 'Alex Van Halen',
+      role: 'songwriter',
+      artistGlobeId: 'alex-van-halen',
+    },
+    {
+      name: 'Edward Van Halen',
+      role: 'songwriter',
+      artistGlobeId: 'edward-van-halen',
+    },
+    { name: 'Ted Templeman', role: 'producer', artistGlobeId: 'ted-templeman' },
+    {
+      name: 'Edward Van Halen',
+      role: 'performer',
+      artistGlobeId: 'edward-van-halen',
+    },
+    {
+      name: 'David Lee Roth',
+      role: 'songwriter',
+      artistGlobeId: 'david-lee-roth',
+    },
+    {
+      name: 'Alex Van Halen',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'alex-van-halen',
+    },
+    {
+      name: 'Michael Anthony',
+      role: 'performer',
+      artistGlobeId: 'michael-anthony',
+    },
+    {
+      name: 'Michael Anthony',
+      role: 'songwriter',
+      artistGlobeId: 'michael-anthony',
+    },
+    {
+      name: 'Alex Van Halen',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'alex-van-halen',
+    },
+    { name: 'David Lee Roth', role: 'vocals', artistGlobeId: 'david-lee-roth' },
+  ],
+  releases: [{ releaseId: 'van-halen-1984' }],
 
   sections: [
     {

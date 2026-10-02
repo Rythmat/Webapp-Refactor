@@ -45,6 +45,7 @@ export const africa: Song = {
     { name: 'Greg Ladanyi', role: 'engineer' },
     { name: 'Toto', role: 'producer', ensemble: true },
   ],
+  releases: [{ releaseId: 'toto-toto-iv' }],
 
   sections: [
     {

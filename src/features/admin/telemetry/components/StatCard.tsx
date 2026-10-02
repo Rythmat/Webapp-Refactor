@@ -1,4 +1,6 @@
 import { Card } from '@/components/ui/card';
+import { cn } from '@/components/utilities';
+import { CONSOLE_LABEL, CONSOLE_PANEL } from '../../ui/styles';
 
 export const StatCard = ({
   label,
@@ -19,12 +21,17 @@ export const StatCard = ({
         : 'text-white';
 
   return (
-    <Card className="border border-white/10 bg-white/5 p-4">
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className={`mt-1 text-2xl font-bold ${valueColor}`}>{value}</p>
-      {sublabel && (
-        <p className="mt-0.5 text-xs text-muted-foreground">{sublabel}</p>
-      )}
+    <Card className={cn(CONSOLE_PANEL, 'p-4')}>
+      <p className={CONSOLE_LABEL}>{label}</p>
+      <p
+        className={cn(
+          'mt-2 text-3xl tabular-nums tracking-[-0.02em]',
+          valueColor,
+        )}
+      >
+        {value}
+      </p>
+      {sublabel && <p className="mt-1 text-sm text-white/55">{sublabel}</p>}
     </Card>
   );
 };

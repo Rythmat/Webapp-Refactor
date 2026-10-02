@@ -16,6 +16,44 @@ export const get_up_i_feel_like_being_a_sex_machine: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'James Brown', role: 'songwriter', artistGlobeId: 'james-brown' },
+    { name: 'Bobby Byrd', role: 'songwriter', artistGlobeId: 'bobby-byrd' },
+    { name: 'James Brown', role: 'producer', artistGlobeId: 'james-brown' },
+    {
+      name: 'James Brown',
+      role: 'vocals',
+      artistGlobeId: 'james-brown',
+      primary: true,
+    },
+    { name: 'Catfish Collins', role: 'performer' },
+    { name: 'John Starks', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Darryl Hassan Jamison', role: 'performer', instrument: 'trumpet' },
+    { name: 'Robert McCollough', role: 'performer', instrument: 'tenor-sax' },
+    {
+      name: 'James Brown',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'james-brown',
+      primary: true,
+    },
+    {
+      name: 'Bobby Byrd',
+      role: 'performer',
+      instrument: 'organ',
+      artistGlobeId: 'bobby-byrd',
+    },
+    { name: 'Clayton Gunnells', role: 'performer', instrument: 'trumpet' },
+    { name: 'Bobby Byrd', role: 'vocals', artistGlobeId: 'bobby-byrd' },
+    {
+      name: 'Bootsy Collins',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'bootsy-collins',
+    },
+    { name: 'The J.B.’s', role: 'performer', ensemble: true },
+    { name: 'Ron Lenhoff', role: 'songwriter', artistGlobeId: 'ron-lenhoff' },
+  ],
 
   sections: [
     {

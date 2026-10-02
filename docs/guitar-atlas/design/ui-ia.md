@@ -1,5 +1,13 @@
 # Guitar in Learn: UI, Notation and Navigation Sub-plan
 
+> **Placement update (2026-09-29).** The guitar content now lives in **Learn → Theory → Ionian (Major)**, not in Technique as "Applied Theory Fundamentals". Where this plan says otherwise, this note wins.
+>
+> - Routes: `/learn/guitar/ionian` is the guitar overview (`GuitarModeOverview`: the piano `ModeOverview` page with the book's major-scale ScaleBox in place of the keyboard, key tiles in book order). `/learn/guitar/ionian/:key?section=A|B|D` is the lesson (`GuitarModeLesson`, replacing `GuitarAppliedTheoryFundamentalsLesson`). Bare `/learn/guitar` and any other mode go to `/learn?tab=Theory`.
+> - Access follows Theory: the overview and the C lesson are free; the other 11 keys need Premium (`RequirePremium`, as the piano `LessonRoute`).
+> - With Guitar selected, the Technique tab is hidden, and every Theory tile except Ionian (Major) is disabled with "Coming soon for guitar".
+> - The old `/curriculum/guitar/applied-theory-fundamentals[/:key]` paths only redirect (replace) to the new ones, keeping the key and query. The guitar key picker is gone; `AppliedTheoryFundamentalsKeyPicker` is piano-only again.
+> - Internal ids are unchanged (genre `guitar-applied-theory-fundamentals`, module, tags, builder), so saved progress carries over. The lesson breadcrumb reads Theory › Guitar · Ionian (Major), and the header shows the key ("C Major (Ionian)").
+
 ## Goals
 
 1. Guitar lessons show TAB where piano lessons show the piano roll. A guitar toggle switches between **TAB | Notation**. Notation is a treble staff with an 8 under the clef. There is no piano-roll option for guitar.

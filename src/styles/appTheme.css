@@ -1,0 +1,50 @@
+/* ── App theme: the landing look, everywhere ──────────────────────────────
+   Every `themed()` colour in src/constants/theme.ts reads `--ui-<name>` and
+   falls back to its hex only when the variable is unset. These values put the
+   whole app — student, teacher, console and landing — on the landing page's
+   look: neutral near-black #101012, #e8e8f0 text, white-opacity steps and
+   hairlines, and the white pill for primary actions instead of brand yellow.
+
+   They lived on `html.console-theme` while only the console used them; the
+   owner chose (29 Sep 2026) to move the app itself to this look rather than
+   exempt the console's mirror of it. Colour elsewhere is reserved for musical
+   meaning (key and chord colours), warnings, awards and data.
+
+   Values are HSL triplets. "white/N" notes the landing opacity step each solid
+   colour stands in for, measured over #101012.
+   ──────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Surfaces */
+  --ui-background: 240 5.88% 6.67%; /* #101012 */
+  --ui-surface-box: 240 5.88% 6.67%; /* #101012 */
+  --ui-card: 240 6.67% 8.82%; /* #151518 — landing raised surface */
+  --ui-card-foreground: 240 21.05% 92.55%;
+  --ui-popover: 240 4.76% 8.24%; /* #141416 — landing dropdown */
+  --ui-popover-foreground: 240 21.05% 92.55%;
+  --ui-muted: 240 3.23% 12.16%; /* white/6 */
+  --ui-muted-foreground: 240 0.47% 57.84%; /* white/55 */
+
+  /* Text */
+  --ui-foreground: 240 21.05% 92.55%; /* #e8e8f0 */
+
+  /* Actions: the landing's white pill, never brand yellow */
+  --ui-primary: 0 0% 100%;
+  --ui-primary-foreground: 240 5.88% 6.67%;
+  --ui-brand-lighter: 0 0% 100%;
+  --ui-brand-light: 0 0% 100%;
+  --ui-brand-base: 0 0% 100%;
+  --ui-brand-dark: 240 4.17% 90.59%; /* hover, white/90 */
+  --ui-brand-darker: 240 2.22% 82.35%; /* active */
+  --ui-secondary: 240 2.44% 16.08%; /* white/10 */
+  --ui-secondary-foreground: 240 21.05% 92.55%;
+  --ui-accent: 240 2.44% 16.08%; /* white/10 — menu item hover/focus */
+  --ui-accent-foreground: 0 0% 100%;
+  --ui-cream: 0 0% 100%;
+  --ui-cream-dark: 240 2.22% 82.35%;
+
+  /* Lines */
+  --ui-border: 240 2.78% 14.12%; /* white/8 hairline */
+  --ui-input: 240 1.89% 20.78%; /* white/15 outline */
+  --ui-ring: 240 0.52% 62.55%; /* white/60 */
+}

@@ -16,6 +16,39 @@ export const black_man: Song = {
   difficulty: 3,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    { name: 'Steve Madaio', role: 'performer', instrument: 'trumpet' },
+    { name: 'Glenn Ferris', role: 'performer', instrument: 'trombone' },
+    { name: 'George Bohanon', role: 'performer', instrument: 'trombone' },
+    { name: 'Hank Redd', role: 'performer', instrument: 'alto-sax' },
+    {
+      name: 'Stevie Wonder',
+      role: 'vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Hank Redd', role: 'performer', instrument: 'tenor-sax' },
+    {
+      name: 'Al Fann Theatrical Ensemble',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      ensemble: true,
+    },
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Gary Byrd', role: 'songwriter', artistGlobeId: 'gary-byrd' },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-songs-in-the-key-of-life' }],
 
   sections: [
     {

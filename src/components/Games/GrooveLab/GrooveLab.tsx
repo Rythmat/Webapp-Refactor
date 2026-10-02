@@ -491,8 +491,8 @@ export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
               >
                 -
               </button>
-              <span className="text-xs text-zinc-500 font-mono">BPM</span>
-              <span className="text-sm text-zinc-200 font-mono w-8 text-center">
+              <span className="text-xs text-zinc-500">BPM</span>
+              <span className="text-sm text-zinc-200 tabular-nums w-8 text-center">
                 {bpm}
               </span>
               <button
@@ -584,7 +584,7 @@ export default function GrooveLab({ onCorrect, onWrong }: GrooveLabProps = {}) {
                 {Array.from({ length: STEPS }, (_, step) => (
                   <div
                     key={step}
-                    className={`flex-1 text-center text-[10px] font-mono ${
+                    className={`flex-1 text-center text-[10px] tabular-nums ${
                       step % 4 === 0 ? 'text-zinc-400 ml-1' : 'text-zinc-600'
                     }`}
                   >

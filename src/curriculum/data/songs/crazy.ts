@@ -16,6 +16,25 @@ export const crazy: Song = {
   difficulty: 2,
   genreTags: ['funk', 'pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Gian Franco Reverberi',
+      role: 'songwriter',
+      artistGlobeId: 'gian-franco-reverberi',
+    },
+    {
+      name: 'Gian Piero Reverberi',
+      role: 'songwriter',
+      artistGlobeId: 'gian-piero-reverberi',
+    },
+    { name: 'Danger Mouse', role: 'engineer', artistGlobeId: 'danger-mouse' },
+    { name: 'Danger Mouse', role: 'producer', artistGlobeId: 'danger-mouse' },
+    { name: 'Kennie Takahashi', role: 'engineer' },
+    { name: 'Ben H. Allen', role: 'engineer' },
+    { name: 'Brian Burton', role: 'songwriter', artistGlobeId: 'brian-burton' },
+    { name: 'CeeLo Green', role: 'songwriter', artistGlobeId: 'ceelo-green' },
+  ],
+  releases: [{ releaseId: 'gnarls-barkley-st-elsewhere', track: 2 }],
 
   sections: [
     {

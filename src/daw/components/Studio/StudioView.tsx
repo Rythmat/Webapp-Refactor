@@ -7,6 +7,7 @@ import type { EffectSlotType, TrackEffectState } from '@/daw/audio/EffectChain';
 import { audioEngine } from '@/daw/audio/AudioEngine';
 import { getTrackAudioState } from '@/daw/hooks/usePlaybackEngine';
 import { useMeterLevel } from '@/daw/hooks/useMeterLevel';
+import { FixedDigits } from '@/components/common/FixedDigits';
 import { useCompressorMeters } from '@/daw/hooks/useCompressorMeters';
 import {
   FxChainRow,
@@ -145,7 +146,7 @@ function SpectrumAnalyzer({ isReady }: { isReady: boolean }) {
       ctx!.stroke();
 
       // Frequency tick marks & labels
-      ctx!.font = '9px system-ui, sans-serif';
+      ctx!.font = "9px 'Glacial Indifference', system-ui, sans-serif";
       ctx!.fillStyle = 'rgba(255, 255, 255, 0.3)';
       ctx!.textAlign = 'center';
       for (const { freq, label } of FREQ_LABELS) {
@@ -227,12 +228,11 @@ function LufsMeter({ isReady }: { isReady: boolean }) {
           );
         })}
       </div>
-      <span
-        className="whitespace-nowrap font-mono text-[9px] font-bold"
+      <FixedDigits
+        text={lufsText}
+        className="whitespace-nowrap text-[9px] font-bold"
         style={{ color: 'var(--color-text)' }}
-      >
-        {lufsText}
-      </span>
+      />
       <span
         className="text-[7px] font-semibold uppercase"
         style={{ color: 'var(--color-text-dim)' }}
@@ -425,12 +425,11 @@ function DbReadout({ level }: { level: number }) {
   const db = levelToDb(level);
   const text = db === -Infinity ? '-inf' : `${db.toFixed(1)} dB`;
   return (
-    <span
-      className="font-mono text-[11px] font-bold tabular-nums"
+    <FixedDigits
+      text={text}
+      className="text-[11px] font-bold"
       style={{ color: dbColor(db) }}
-    >
-      {text}
-    </span>
+    />
   );
 }
 
@@ -843,14 +842,15 @@ function MasterStrip({ isReady }: { isReady: boolean }) {
         </Slider.Root>
       </div>
 
-      <span
-        className="font-mono text-[10px] font-medium"
+      <FixedDigits
+        text={
+          masterVolume === 80
+            ? '0 dB'
+            : `${(levelToDb(masterVolume) + 1.9).toFixed(1)} dB`
+        }
+        className="text-[10px] font-medium"
         style={{ color: 'var(--color-text-dim)' }}
-      >
-        {masterVolume === 80
-          ? '0 dB'
-          : `${(levelToDb(masterVolume) + 1.9).toFixed(1)} dB`}
-      </span>
+      />
 
       <span
         className="text-[10px] font-bold uppercase tracking-wider"

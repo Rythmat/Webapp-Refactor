@@ -16,6 +16,10 @@ export const tequila: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Chuck Rio', role: 'songwriter', artistGlobeId: 'chuck-rio' },
+  ],
+  releases: [{ releaseId: 'the-champs-go-champs-go' }],
 
   sections: [
     {

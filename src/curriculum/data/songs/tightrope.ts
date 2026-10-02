@@ -4,7 +4,7 @@ export const tightrope: Song = {
   id: 'tightrope',
   title: 'Tightrope',
   artist: 'Janelle Monae',
-  year: undefined,
+  year: 2010,
 
   historicalDescription:
     "Janelle Monae releases 'Tightrope', a funk-drenched manifesto of balance and resilience featuring Big Boi of OutKast. The song becomes a defining moment in Monae's Metropolis saga, blending classic James Brown-style soul with her Afrofuturist vision — announcing an artist who refuses to be boxed in by genre or expectation.",
@@ -17,6 +17,48 @@ export const tightrope: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Nate “Rocket” Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'nate-rocket-wonder',
+    },
+    {
+      name: 'Nate “Rocket” Wonder',
+      role: 'producer',
+      artistGlobeId: 'nate-rocket-wonder',
+    },
+    {
+      name: 'Charles Joseph II',
+      role: 'songwriter',
+      artistGlobeId: 'charles-joseph-ii',
+    },
+    {
+      name: 'Janelle Monáe',
+      role: 'songwriter',
+      artistGlobeId: 'janelle-monae',
+    },
+    {
+      name: 'Janelle Monáe',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'janelle-monae',
+    },
+    {
+      name: 'Chuck Lightning',
+      role: 'producer',
+      artistGlobeId: 'chuck-lightning',
+    },
+    {
+      name: 'Big Boi',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'big-boi',
+    },
+    { name: 'Janelle Monáe', role: 'producer', artistGlobeId: 'janelle-monae' },
+    { name: 'Big Boi', role: 'songwriter', artistGlobeId: 'big-boi' },
+  ],
+  releases: [{ releaseId: 'janelle-monae-the-archandroid', track: 7 }],
 
   sections: [
     {

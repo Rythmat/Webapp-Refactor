@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const brick_house: Song = {
   id: 'brick_house',
   title: 'Brick House',
-  artist: 'The Commodores',
+  artist: 'Commodores',
   year: 1977,
   historicalDescription:
     "The Commodores release 'Brick House', a locomotive funk anthem built on one of the tightest rhythmic grooves of the decade. The song becomes a cornerstone of 1970s funk, showcasing the band's instrumental firepower before Lionel Richie's ballads would come to define their mainstream identity. Its relentless rhythm section and brass hits make it a staple of radio, dance floors, and sports arenas for generations.",
@@ -16,6 +16,40 @@ export const brick_house: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'William King', role: 'songwriter', artistGlobeId: 'william-king' },
+    {
+      name: 'Thomas McClary',
+      role: 'songwriter',
+      artistGlobeId: 'thomas-mcclary',
+    },
+    {
+      name: 'James Anthony Carmichael',
+      role: 'producer',
+      artistGlobeId: 'james-anthony-carmichael',
+    },
+    {
+      name: 'Walter Orange',
+      role: 'songwriter',
+      artistGlobeId: 'walter-orange',
+    },
+    {
+      name: 'Milan Williams',
+      role: 'songwriter',
+      artistGlobeId: 'milan-williams',
+    },
+    {
+      name: 'Lionel Richie',
+      role: 'songwriter',
+      artistGlobeId: 'lionel-richie',
+    },
+    {
+      name: 'Ronald LaPread',
+      role: 'songwriter',
+      artistGlobeId: 'ronald-lapread',
+    },
+  ],
+  releases: [{ releaseId: 'commodores-commodores' }],
 
   sections: [
     {

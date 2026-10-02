@@ -16,6 +16,22 @@ export const jessies_girl: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Rick Springfield',
+      role: 'arranger',
+      artistGlobeId: 'rick-springfield',
+    },
+    { name: 'Neil Giraldo', role: 'arranger' },
+    { name: 'Keith Olsen', role: 'arranger', artistGlobeId: 'keith-olsen' },
+    { name: 'Keith Olsen', role: 'producer', artistGlobeId: 'keith-olsen' },
+    {
+      name: 'Rick Springfield',
+      role: 'songwriter',
+      artistGlobeId: 'rick-springfield',
+    },
+  ],
+  releases: [{ releaseId: 'rick-springfield-working-class-dog' }],
 
   sections: [
     {

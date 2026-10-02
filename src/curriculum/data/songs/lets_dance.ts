@@ -17,6 +17,24 @@ export const lets_dance: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'power-station-at-berkleenyc' },
+  credits: [
+    {
+      name: 'Stevie Ray Vaughan',
+      role: 'performer',
+      artistGlobeId: 'stevie-ray-vaughan',
+    },
+    {
+      name: 'David Bowie',
+      role: 'vocals',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'Nile Rodgers', role: 'producer', artistGlobeId: 'nile-rodgers' },
+    { name: 'Bob Clearmountain', role: 'engineer' },
+    { name: 'David Bowie', role: 'producer', artistGlobeId: 'david-bowie' },
+    { name: 'David Bowie', role: 'songwriter', artistGlobeId: 'david-bowie' },
+  ],
 
   sections: [
     {

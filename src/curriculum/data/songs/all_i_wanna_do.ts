@@ -16,6 +16,28 @@ export const all_i_wanna_do: Song = {
   difficulty: 1,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Wyn Cooper', role: 'songwriter', artistGlobeId: 'wyn-cooper' },
+    { name: 'Sheryl Crow', role: 'songwriter', artistGlobeId: 'sheryl-crow' },
+    { name: 'Blair Lamb', role: 'engineer' },
+    {
+      name: 'Bill Bottrell',
+      role: 'songwriter',
+      artistGlobeId: 'bill-bottrell',
+    },
+    {
+      name: 'David Baerwald',
+      role: 'songwriter',
+      artistGlobeId: 'david-baerwald',
+    },
+    { name: 'Bill Bottrell', role: 'producer', artistGlobeId: 'bill-bottrell' },
+    {
+      name: 'Kevin Gilbert',
+      role: 'songwriter',
+      artistGlobeId: 'kevin-gilbert',
+    },
+  ],
+  releases: [{ releaseId: 'sheryl-crow-tuesday-night-music-club', track: 9 }],
 
   sections: [
     {

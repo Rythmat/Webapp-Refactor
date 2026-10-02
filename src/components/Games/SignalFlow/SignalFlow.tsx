@@ -88,7 +88,7 @@ const LevelSelectScreen = ({
             className="group relative bg-white/[0.03] border border-white/10 hover:border-indigo-500/50 rounded-2xl p-6 text-left transition-all hover:bg-white/[0.05] hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1"
           >
             <div className="flex items-start justify-between mb-6">
-              <div className="w-12 h-12 rounded-xl bg-white/[0.02] border border-white/10 group-hover:border-indigo-500/30 flex items-center justify-center text-zinc-500 group-hover:text-indigo-400 transition-colors font-mono font-bold text-lg">
+              <div className="w-12 h-12 rounded-xl bg-white/[0.02] border border-white/10 group-hover:border-indigo-500/30 flex items-center justify-center text-zinc-500 group-hover:text-indigo-400 transition-colors tabular-nums font-bold text-lg">
                 {level.id}
               </div>
               <div className="p-2 rounded-full bg-white/[0.02] text-zinc-600 group-hover:text-indigo-500 transition-colors">
@@ -174,7 +174,7 @@ const HexTile: React.FC<HexTileProps> = ({
         <div className="text-zinc-200 mb-1 transform scale-110">
           <ItemIcon item={item} />
         </div>
-        <div className="text-[9px] font-mono text-zinc-400 uppercase tracking-wide leading-tight px-1 text-center line-clamp-2">
+        <div className="text-[9px] text-zinc-400 uppercase tracking-wide leading-tight px-1 text-center line-clamp-2">
           {item.name}
         </div>
         <div className="absolute bottom-4 w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
@@ -865,7 +865,7 @@ export default function SignalFlow({ onComplete }: SignalFlowProps) {
           />
           {/* Power Rail */}
           <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-zinc-900 to-transparent flex items-end px-8 justify-between z-10 pb-4 pointer-events-none">
-            <div className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest pl-4">
+            <div className="text-[10px] text-zinc-600 uppercase tracking-widest pl-4">
               Power Distro
             </div>
             <div className="flex gap-24 mr-20 opacity-50">

@@ -4,7 +4,7 @@ export const get_down_on_it: Song = {
   id: 'get_down_on_it',
   title: 'Get Down On It',
   artist: 'Kool & the Gang',
-  year: undefined,
+  year: 1981,
 
   historicalDescription:
     "Kool and the Gang release 'Get Down On It', a sleek funk and R&B groove that captures the band's evolution from jazz-funk pioneers into polished mainstream stars. With its irresistible bassline and call-and-response vocals, the track cements their place at the heart of early 1980s dancefloor culture — bridging the gap between disco's decline and the rise of urban contemporary R&B.",
@@ -17,6 +17,21 @@ export const get_down_on_it: Song = {
   difficulty: 2,
   genreTags: ['hip-hop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Kool & the Gang',
+      role: 'songwriter',
+      ensemble: true,
+      artistGlobeId: 'kool-and-the-gang',
+    },
+    { name: 'Ronald Bell', role: 'songwriter', artistGlobeId: 'ronald-bell' },
+    {
+      name: 'James “J.T.” Taylor',
+      role: 'songwriter',
+      artistGlobeId: 'james-j-t-taylor',
+    },
+  ],
+  releases: [{ releaseId: 'kool-and-the-gang-something-special' }],
 
   sections: [
     {

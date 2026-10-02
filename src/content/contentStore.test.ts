@@ -9,6 +9,7 @@ import {
   ensureAtlasContent,
   isAtlasContentReady,
   MUSIC_HISTORY,
+  refreshAtlasContent,
   resetAtlasContent,
 } from './contentStore';
 
@@ -90,5 +91,25 @@ describe('eventConnections rebuilds its maps after hydration', () => {
       0,
     );
     expect(getArcsForEvent('evt-jazz-nola-1923').length).toBeGreaterThan(0);
+  });
+});
+
+describe('refreshing the published globe events', () => {
+  beforeEach(() => {
+    resetAtlasContent();
+  });
+
+  it('swaps the data in place and raises the generation', async () => {
+    await ensureAtlasContent();
+    const before = contentGeneration;
+    const array = MUSIC_HISTORY;
+    await refreshAtlasContent();
+    // The same array, refilled, at a generation no cache has seen: a reset
+    // and a fresh hydration would have landed back on 1, which caches built
+    // at 1 take for "unchanged".
+    expect(MUSIC_HISTORY).toBe(array);
+    expect(MUSIC_HISTORY.length).toBeGreaterThan(0);
+    expect(contentGeneration).toBe(before + 1);
+    expect(isAtlasContentReady()).toBe(true);
   });
 });

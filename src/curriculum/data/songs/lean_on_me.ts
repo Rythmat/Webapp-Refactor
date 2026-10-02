@@ -16,6 +16,71 @@ export const lean_on_me: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    {
+      name: 'Benorce Blackmon',
+      role: 'producer',
+      artistGlobeId: 'benorce-blackmon',
+    },
+    {
+      name: 'Melvin Dunlap',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'melvin-dunlap',
+    },
+    {
+      name: 'James Gadson',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'james-gadson',
+    },
+    {
+      name: 'Benorce Blackmon',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'benorce-blackmon',
+    },
+    {
+      name: 'Bill Withers',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'bill-withers',
+      primary: true,
+    },
+    { name: 'Melvin Dunlap', role: 'producer', artistGlobeId: 'melvin-dunlap' },
+    { name: 'Bill Withers', role: 'producer', artistGlobeId: 'bill-withers' },
+    { name: 'James Gadson', role: 'producer', artistGlobeId: 'james-gadson' },
+    {
+      name: 'Bill Withers',
+      role: 'vocals',
+      artistGlobeId: 'bill-withers',
+      primary: true,
+    },
+    { name: 'Bill Withers', role: 'songwriter', artistGlobeId: 'bill-withers' },
+    {
+      name: 'Raymond Jackson',
+      role: 'arranger',
+      artistGlobeId: 'raymond-jackson',
+    },
+    {
+      name: 'Raymond Jackson',
+      role: 'performer',
+      instrument: 'wurlitzer',
+      artistGlobeId: 'raymond-jackson',
+    },
+    {
+      name: 'Raymond Jackson',
+      role: 'producer',
+      artistGlobeId: 'raymond-jackson',
+    },
+    {
+      name: 'James Gadson',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'james-gadson',
+    },
+  ],
+  releases: [{ releaseId: 'bill-withers-still-bill' }],
 
   sections: [
     {

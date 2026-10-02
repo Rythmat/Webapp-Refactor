@@ -66,6 +66,14 @@ import { PrismModeSlug } from '@/hooks/data';
 import { ModeOverview } from '@/components/learn/ModeOverview';
 import { RelativeModesOverview } from '@/components/learn/RelativeModesOverview';
 import { ParallelModesOverview } from '@/components/learn/ParallelModesOverview';
+// Guitar's Theory pages load on demand: the book's data, the guitar views and
+// the lesson container stay out of the piano path's bundle.
+const GuitarModeOverview = lazy(
+  () => import('@/components/learn/GuitarModeOverview'),
+);
+const GuitarModeLesson = lazy(
+  () => import('@/curriculum/pages/GuitarModeLesson'),
+);
 
 const ClassroomPickerPage = lazy(() =>
   import('./ClassroomPickerPage').then(({ ClassroomPickerPage }) => ({
@@ -540,6 +548,20 @@ const OverviewRoute = () => {
   return mode === 'ionian' ? inner : <RequirePremium>{inner}</RequirePremium>;
 };
 
+const THEORY_TAB_ROUTE = LearnRoutes.root(undefined, { tab: 'Theory' });
+
+const GuitarLessonRoute = () => {
+  const { mode, key: keyParam } = useParams<{ mode: string; key: string }>();
+  // Guitar has Ionian (The Guitar Atlas: Book One) and nothing else yet; the
+  // Theory tab marks the other modes as coming soon.
+  if (mode !== 'ionian') return <Navigate replace to={THEORY_TAB_ROUTE} />;
+
+  // As on piano, free users can access C Ionian only
+  const isFreeLesson = mode === 'ionian' && keyParam?.toLowerCase() === 'c';
+  const inner = <GuitarModeLesson />;
+  return isFreeLesson ? inner : <RequirePremium>{inner}</RequirePremium>;
+};
+
 export const learnPages = () => {
   return {
     path: LearnRoutes.root.definition,
@@ -581,6 +603,22 @@ export const learnPages = () => {
             <ParallelModesOverview />
           </RequirePremium>
         ),
+      },
+      // Guitar: Theory → Ionian (Major). Static 'guitar' segment, so these
+      // outrank '/:mode' and '/:mode/:key'.
+      {
+        path: LearnRoutes.guitar.definition,
+        element: <Navigate replace to={THEORY_TAB_ROUTE} />,
+      },
+      {
+        // Free, like the piano Ionian overview; the page sends any other mode
+        // back to Theory.
+        path: LearnRoutes.guitarOverview.definition,
+        element: <GuitarModeOverview />,
+      },
+      {
+        path: LearnRoutes.guitarLesson.definition,
+        element: <GuitarLessonRoute />,
       },
     ],
   };

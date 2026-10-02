@@ -16,6 +16,68 @@ export const once_in_a_lifetime: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Jerry Harrison',
+      role: 'performer',
+      artistGlobeId: 'jerry-harrison',
+    },
+    { name: 'Jack Nuber', role: 'engineer' },
+    { name: 'Nona Hendryx', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'John Potoker', role: 'engineer' },
+    {
+      name: 'Chris Frantz',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'chris-frantz',
+    },
+    { name: 'Brian Eno', role: 'arranger', artistGlobeId: 'brian-eno' },
+    { name: 'David Byrne', role: 'arranger', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Tina Weymouth',
+      role: 'performer',
+      artistGlobeId: 'tina-weymouth',
+    },
+    { name: 'Brian Eno', role: 'engineer', artistGlobeId: 'brian-eno' },
+    { name: 'Chris Frantz', role: 'songwriter', artistGlobeId: 'chris-frantz' },
+    { name: 'Steven Stanley', role: 'engineer' },
+    { name: 'David Byrne', role: 'engineer', artistGlobeId: 'david-byrne' },
+    { name: 'Brian Eno', role: 'songwriter', artistGlobeId: 'brian-eno' },
+    { name: 'David Byrne', role: 'songwriter', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Talking Heads',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'talking-heads',
+    },
+    { name: 'Brian Eno', role: 'producer', artistGlobeId: 'brian-eno' },
+    { name: 'David Byrne', role: 'performer', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Brian Eno',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'brian-eno',
+    },
+    {
+      name: 'Tina Weymouth',
+      role: 'songwriter',
+      artistGlobeId: 'tina-weymouth',
+    },
+    {
+      name: 'Jerry Harrison',
+      role: 'songwriter',
+      artistGlobeId: 'jerry-harrison',
+    },
+    { name: 'Dave Jerden', role: 'engineer' },
+    { name: 'David Byrne', role: 'vocals', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Talking Heads',
+      role: 'arranger',
+      ensemble: true,
+      artistGlobeId: 'talking-heads',
+    },
+  ],
+  releases: [{ releaseId: 'talking-heads-remain-in-light' }],
 
   sections: [
     {

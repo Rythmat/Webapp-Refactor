@@ -16,6 +16,9 @@ export const johnny_b_goode: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Chuck Berry', role: 'songwriter', artistGlobeId: 'chuck-berry' },
+  ],
 
   sections: [
     {

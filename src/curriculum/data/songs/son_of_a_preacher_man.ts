@@ -16,6 +16,40 @@ export const son_of_a_preacher_man: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    {
+      name: 'Ronnie Wilkins',
+      role: 'songwriter',
+      artistGlobeId: 'ronnie-wilkins',
+    },
+    { name: 'John Hurley', role: 'songwriter', artistGlobeId: 'john-hurley' },
+    { name: 'Arif Mardin', role: 'producer', artistGlobeId: 'arif-mardin' },
+    { name: 'Gene Orloff', role: 'conductor' },
+    { name: 'Tom Dowd', role: 'arranger', artistGlobeId: 'tom-dowd' },
+    { name: 'Ed Kollis', role: 'engineer' },
+    { name: 'Reggie Young', role: 'performer', instrument: 'sitar' },
+    { name: 'Tommy Cogbill', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Bobby Emmons', role: 'performer', instrument: 'organ' },
+    { name: 'Tom Dowd', role: 'producer', artistGlobeId: 'tom-dowd' },
+    { name: 'Jerry Wexler', role: 'producer', artistGlobeId: 'jerry-wexler' },
+    { name: 'Arif Mardin', role: 'arranger', artistGlobeId: 'arif-mardin' },
+    { name: 'Reggie Young', role: 'performer' },
+    { name: 'Bobby Emmons', role: 'performer', instrument: 'electric-piano' },
+    {
+      name: 'Dusty Springfield',
+      role: 'vocals',
+      artistGlobeId: 'dusty-springfield',
+      primary: true,
+    },
+    { name: 'Gene Chrisman', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'The Sweet Inspirations',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      ensemble: true,
+    },
+  ],
+  releases: [{ releaseId: 'dusty-springfield-dusty-in-memphis' }],
 
   sections: [
     {

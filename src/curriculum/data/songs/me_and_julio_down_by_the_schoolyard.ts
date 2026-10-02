@@ -16,6 +16,28 @@ export const me_and_julio_down_by_the_schoolyard: Song = {
   difficulty: 2,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Paul Simon', role: 'producer', artistGlobeId: 'paul-simon' },
+    { name: 'Phil Ramone', role: 'engineer', artistGlobeId: 'phil-ramone' },
+    { name: 'Paul Simon', role: 'songwriter', artistGlobeId: 'paul-simon' },
+    { name: 'Russell George', role: 'performer' },
+    { name: 'Paul Simon', role: 'arranger', artistGlobeId: 'paul-simon' },
+    { name: 'Airto Moreira', role: 'performer', instrument: 'percussion' },
+    {
+      name: 'Paul Simon',
+      role: 'performer',
+      artistGlobeId: 'paul-simon',
+      primary: true,
+    },
+    { name: 'David Spinozza', role: 'performer' },
+    {
+      name: 'Paul Simon',
+      role: 'vocals',
+      artistGlobeId: 'paul-simon',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'paul-simon-paul-simon' }],
 
   sections: [
     {

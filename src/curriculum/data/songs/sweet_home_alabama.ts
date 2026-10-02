@@ -16,6 +16,61 @@ export const sweet_home_alabama: Song = {
   difficulty: 1,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  session: { studioId: 'studio-one' },
+  credits: [
+    {
+      name: 'Ed King',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'ed-king',
+    },
+    { name: 'Billy Powell', role: 'performer', artistGlobeId: 'billy-powell' },
+    { name: 'Clydie King', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Bob Burns',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'bob-burns',
+    },
+    { name: 'Al Kooper', role: 'producer', artistGlobeId: 'al-kooper' },
+    { name: 'Al Kooper', role: 'engineer', artistGlobeId: 'al-kooper' },
+    {
+      name: 'Ronnie Van Zant',
+      role: 'vocals',
+      artistGlobeId: 'ronnie-van-zant',
+    },
+    {
+      name: 'Gary Rossington',
+      role: 'songwriter',
+      artistGlobeId: 'gary-rossington',
+    },
+    { name: 'Merry Clayton', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Gary Rossington',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'gary-rossington',
+    },
+    {
+      name: 'Ronnie Van Zant',
+      role: 'songwriter',
+      artistGlobeId: 'ronnie-van-zant',
+    },
+    { name: 'Ed King', role: 'songwriter', artistGlobeId: 'ed-king' },
+    {
+      name: 'Leon Wilkeson',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'leon-wilkeson',
+    },
+    {
+      name: 'Allen Collins',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'allen-collins',
+    },
+  ],
+  releases: [{ releaseId: 'lynyrd-skynyrd-second-helping' }],
 
   sections: [
     {

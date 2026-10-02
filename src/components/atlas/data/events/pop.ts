@@ -1,6 +1,6 @@
-import type { HistoricalEvent } from '@/components/atlas/types';
+import type { GlobeEventRecord } from '@/content/records/types';
 
-export const POP_EVENTS: HistoricalEvent[] = [
+export const POP_EVENTS: GlobeEventRecord[] = [
   {
     id: 'evt-citypop-tokyo-1982',
     year: 1982,
@@ -19,6 +19,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'japanese funk',
     ],
     videoId: 'T_lC2O1oIew',
+    placeId: 'tokyo',
   },
   {
     id: 'evt-kpop-seoul-1996',
@@ -44,6 +45,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'boy band',
     ],
     videoId: 'P1tVl08S6S4',
+    artistIds: ['seo-taiji'],
+    placeId: 'seoul',
   },
   {
     id: 'evt-streaming-global-2015',
@@ -69,6 +72,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'swedish pop',
     ],
     videoId: 'mVEH19-ts_c',
+    artistIds: ['max-martin', 'abba'],
+    placeId: 'stockholm',
   },
   {
     id: 'evt-kpop-global-2020',
@@ -95,6 +100,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'dynamite',
     ],
     videoId: 'gdZLi9oWNZg',
+    artistIds: ['bts', 'blackpink'],
+    placeId: 'seoul',
   },
   {
     id: 'evt-swedish-pop-stockholm-2012',
@@ -120,6 +127,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'swedish pop',
     ],
     videoId: '1y6smkh6c-0',
+    artistIds: ['max-martin', 'avicii', 'shellback'],
+    placeId: 'stockholm',
   },
   {
     id: 'evt-city-pop-tokyo-1981',
@@ -140,6 +149,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'aor',
     ],
     videoId: 'T_lC2O1oIew',
+    placeId: 'tokyo',
   },
   {
     id: 'evt-rtl-luxembourg-1954',
@@ -164,6 +174,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'commercial radio',
     ],
     videoId: 'LMA9VBmRavc',
+    placeId: 'luxembourg-city',
   },
   {
     id: 'evt-eurovision-sanmarino-2011',
@@ -188,6 +199,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'national identity',
     ],
     videoId: 'd2J2Jn7ObPg',
+    placeId: 'san-marino-city',
   },
   {
     id: 'evt-ozone-chisinau-2003',
@@ -212,6 +224,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'viral hit',
     ],
     videoId: 'ILtz5nX3_fc',
+    placeId: 'chisinau',
   },
   {
     id: 'evt-persian-pop-tehran-1970',
@@ -230,6 +243,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'pre-revolution iran',
     ],
     videoId: 'm9l2TwkG0DU',
+    artistIds: ['googoosh'],
+    placeId: 'tehran',
   },
   {
     id: 'evt-opm-manila-1978',
@@ -253,6 +268,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'tagalog pop',
     ],
     videoId: 'fcJXbvGbhGQ',
+    placeId: 'manila',
   },
   {
     id: 'evt-hanson-tulsa-2007',
@@ -273,6 +289,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'arts district',
     ],
     videoId: 'aNirj7zJdN0',
+    artistIds: ['hanson'],
+    placeId: 'tulsa',
   },
   {
     id: 'evt-bollywood-mumbai-1960',
@@ -293,6 +311,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'funk',
     ],
     videoId: '94t1qMr-Pz4',
+    placeId: 'mumbai',
   },
   {
     id: 'evt-gangnam-style-seoul-2012',
@@ -318,6 +337,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'billion views',
     ],
     videoId: 'SW_iujvUAzQ',
+    placeId: 'seoul',
   },
   {
     id: 'evt-bts-seoul-2013',
@@ -343,6 +363,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'global pop',
     ],
     videoId: 'qPC5s_R6cfE',
+    artistIds: ['bts'],
+    placeId: 'seoul',
   },
   {
     id: 'evt-khaleeji-dubai-2005',
@@ -363,6 +385,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'fijiri',
     ],
     videoId: 'NS1tgSVwDl8',
+    placeId: 'dubai',
   },
   {
     id: 'evt-ymo-tokyo-1978',
@@ -383,6 +406,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'tokyo',
     ],
     videoId: 'di_L7O56ZXE',
+    artistIds: ['yellow-magic-orchestra'],
+    placeId: 'tokyo',
   },
   {
     id: 'evt-cantopop-beijing-1980',
@@ -408,6 +433,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'c-pop',
     ],
     videoId: 'hBaOGwQRdw0',
+    artistIds: ['teresa-teng'],
+    placeId: 'beijing',
   },
   {
     id: 'evt-pop-losangeles-1982-michaeljackson',
@@ -432,6 +459,9 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'king of pop',
     ],
     videoId: '4V90AmXnguw',
+    artistIds: ['michael-jackson', 'quincy-jones'],
+    songIds: ['thriller'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-pop-nyc-1984-madonna',
@@ -456,6 +486,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'pop icon',
     ],
     videoId: 's__rX_WL100',
+    artistIds: ['madonna', 'nile-rodgers'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-pop-newark-1985-whitneyhouston',
@@ -476,6 +508,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'newark',
     ],
     videoId: 'IYzlVDlE72w',
+    artistIds: ['whitney-houston'],
+    placeId: 'newark',
   },
   {
     id: 'evt-pop-minneapolis-1984-prince',
@@ -501,6 +535,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'jimmy jam',
     ],
     videoId: 'TvnYmWpD_T8',
+    artistIds: ['prince', 'the-revolution'],
+    placeId: 'minneapolis',
   },
   {
     id: 'evt-pop-stockholm-1976-abba',
@@ -526,6 +562,9 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'bjorn ulvaeus',
     ],
     videoId: 'z0QGBBYEYqE',
+    artistIds: ['abba'],
+    songIds: ['dancing_queen'],
+    placeId: 'stockholm',
   },
   {
     id: 'evt-pop-london-1973-eltonjohn',
@@ -546,6 +585,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'candle in the wind',
     ],
     videoId: 'wo1OwRTRKRk',
+    artistIds: ['elton-john', 'bernie-taupin'],
+    placeId: 'london',
   },
   {
     id: 'evt-pop-losangeles-1977-fleetwoodmac',
@@ -570,6 +611,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'heartbreak',
     ],
     videoId: '-uFU79MGj00',
+    artistIds: ['fleetwood-mac', 'stevie-nicks', 'lindsey-buckingham'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-pop-nyc-1990-mariahcarey',
@@ -594,6 +637,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'pop diva',
     ],
     videoId: 'tov22NtCMC4',
+    artistIds: ['mariah-carey'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-pop-nyc-1999-britneyspears',
@@ -619,6 +664,9 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'pop princess',
     ],
     videoId: 'C-u5WLJ9Yk4',
+    artistIds: ['britney-spears', 'max-martin'],
+    songIds: ['baby_one_more_time'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-pop-orlando-1995-nsync',
@@ -638,6 +686,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'no strings attached',
     ],
     videoId: 'is6gtilerPk',
+    artistIds: ['nsync', 'justin-timberlake'],
+    placeId: 'orlando',
   },
   {
     id: 'evt-pop-london-1996-spicegirls',
@@ -657,6 +707,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'pop phenomenon',
     ],
     videoId: 'SGsHGeospwA',
+    artistIds: ['victoria-beckham'],
+    placeId: 'london',
   },
   {
     id: 'evt-pop-losangeles-1986-janetjackson',
@@ -682,6 +734,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'a&m records',
     ],
     videoId: 'LH8xbDGv7oY',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-pop-london-1987-georgemichael',
@@ -702,6 +755,9 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'british pop',
     ],
     videoId: 'N61LHFFfiik',
+    artistIds: ['george-michael', 'wham'],
+    songIds: ['faith'],
+    placeId: 'london',
   },
   {
     id: 'evt-pop-london-1981-philcollins',
@@ -721,6 +777,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       '80s pop',
     ],
     videoId: 'YkADj0TPrJA',
+    artistIds: ['phil-collins'],
+    placeId: 'london',
   },
   {
     id: 'evt-pop-downey-1970-carpenters',
@@ -740,6 +798,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'a&m records',
     ],
     videoId: 'NpQRsXrduc8',
+    artistIds: ['karen-carpenter'],
+    placeId: 'downey',
   },
   {
     id: 'evt-pop-nashville-2008-taylorswift',
@@ -760,6 +820,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'big machine',
     ],
     videoId: 'aXzVF3XeS8M',
+    artistIds: ['taylor-swift'],
+    placeId: 'nashville',
   },
   {
     id: 'evt-pop-nyc-2014-taylorswift',
@@ -785,6 +847,9 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'streaming wars',
     ],
     videoId: 'KUInKQJ5xwM',
+    artistIds: ['taylor-swift', 'max-martin'],
+    songIds: ['shake_it_off', 'blank_space'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-pop-houston-2016-beyonce',
@@ -805,6 +870,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'destinys child',
     ],
     videoId: 'PeonBmeFR8o',
+    artistIds: ['beyonce'],
+    placeId: 'houston',
   },
   {
     id: 'evt-pop-london-2011-adele',
@@ -825,6 +892,9 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'xl recordings',
     ],
     videoId: 'at-_5h2r3Vc',
+    artistIds: ['adele'],
+    songIds: ['rolling_in_the_deep'],
+    placeId: 'london',
   },
   {
     id: 'evt-pop-nyc-2008-ladygaga',
@@ -849,6 +919,9 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'lower east side',
     ],
     videoId: '7Nr33m1zXVE',
+    artistIds: ['lady-gaga'],
+    songIds: ['just_dance'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-pop-london-2011-edsheeran',
@@ -868,6 +941,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'atlantic records',
     ],
     videoId: 'UAWcs5H-qgQ',
+    artistIds: ['ed-sheeran'],
+    placeId: 'london',
   },
   {
     id: 'evt-pop-losangeles-2019-billieeilish',
@@ -893,6 +968,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'highland park',
     ],
     videoId: 'V9PVRfjEBTI',
+    artistIds: ['billie-eilish'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-pop-losangeles-2019-arianagrande',
@@ -917,6 +994,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'republic records',
     ],
     videoId: 'gl1aHhXnN1k',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-pop-losangeles-2015-justinbieber',
@@ -942,6 +1020,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'skrillex',
     ],
     videoId: 'Ca1i6DZC3iY',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-pop-toronto-2020-theweeknd',
@@ -967,6 +1046,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'xo records',
     ],
     videoId: '8zHWTsdnC7A',
+    artistIds: ['the-weeknd', 'max-martin'],
+    placeId: 'toronto',
   },
   {
     id: 'evt-pop-london-2020-dualipa',
@@ -986,6 +1067,9 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'grammy',
     ],
     videoId: '8EJ-vZyBzOQ',
+    artistIds: ['dua-lipa'],
+    songIds: ['dont_start_now'],
+    placeId: 'london',
   },
   {
     id: 'evt-pop-losangeles-2021-oliviarodrigo',
@@ -1011,6 +1095,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'geffen records',
     ],
     videoId: 'Id5t-y_HvIA',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-pop-losangeles-2022-harrystyles',
@@ -1035,6 +1120,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'love on tour',
     ],
     videoId: 'WQrh16Q3FUM',
+    artistIds: ['harry-styles'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-pop-minneapolis-2019-lizzo',
@@ -1061,6 +1148,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'nice life',
     ],
     videoId: 'IXXxciRUMzE',
+    artistIds: ['lizzo'],
+    placeId: 'minneapolis',
   },
   {
     id: 'evt-pop-losangeles-2021-dojacat',
@@ -1085,6 +1174,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'rca records',
     ],
     videoId: '0EVVKs6DQLo',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-pop-auckland-2013-lorde',
@@ -1109,6 +1199,9 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'new zealand',
     ],
     videoId: 'nlcIKh6sBtc',
+    artistIds: ['lorde', 'joel-little'],
+    songIds: ['royals'],
+    placeId: 'auckland',
   },
   {
     id: 'evt-pop-stockholm-2010-robyn',
@@ -1133,6 +1226,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'electropop',
     ],
     videoId: 'CcNo07Xp8aQ',
+    placeId: 'stockholm',
   },
   {
     id: 'evt-pop-miami-2001-shakira',
@@ -1153,6 +1247,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'miami',
     ],
     videoId: 'weRHyjj34ZE',
+    artistIds: ['shakira'],
+    placeId: 'miami',
   },
   {
     id: 'evt-pop-nyc-2007-rihanna',
@@ -1179,6 +1275,9 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'caribbean pop',
     ],
     videoId: 'GIrrLGJKXtA',
+    artistIds: ['rihanna', 'jay-z'],
+    songIds: ['umbrella'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-pop-losangeles-2012-brunomars',
@@ -1204,6 +1303,9 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'super bowl',
     ],
     videoId: 'ekzHIouo8Q4',
+    artistIds: ['bruno-mars'],
+    songIds: ['locked_out_of_heaven'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-pop-losangeles-1976-steviewonder',
@@ -1229,6 +1331,9 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'social consciousness',
     ],
     videoId: 'lNmWgeseE9A',
+    artistIds: ['stevie-wonder'],
+    songIds: ['sir_duke', 'i_wish'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-pop-charlemagne-1996-celinedion',
@@ -1253,6 +1358,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'titanic',
     ],
     videoId: '8tWMCGRWr-Y',
+    artistIds: ['celine-dion'],
+    placeId: 'charlemagne',
   },
   {
     id: 'evt-pop-london-1984-tinaturner',
@@ -1273,6 +1380,8 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'capitol records',
     ],
     videoId: 'd4QnalIHlVc',
+    artistIds: ['tina-turner'],
+    placeId: 'london',
   },
   {
     id: 'evt-pop-nyc-1983-cyndilauper',
@@ -1298,6 +1407,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'mtv era',
     ],
     videoId: 'KFq4E9XTueY',
+    placeId: 'new-york',
   },
   {
     id: 'evt-pop-nashville-1977-dollyparton',
@@ -1317,5 +1427,7 @@ export const POP_EVENTS: HistoricalEvent[] = [
       'rca records',
     ],
     videoId: 'x87Zx3XAIsI',
+    artistIds: ['dolly-parton'],
+    placeId: 'nashville',
   },
 ];

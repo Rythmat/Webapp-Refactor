@@ -43,6 +43,7 @@ export const something: Song = {
     { artist: 'Frank Sinatra', year: 1970, relation: 'cover' },
     { artist: 'Joe Cocker', year: 1969, relation: 'cover' },
   ],
+  releases: [{ releaseId: 'the-beatles-abbey-road' }],
 
   sections: [
     {

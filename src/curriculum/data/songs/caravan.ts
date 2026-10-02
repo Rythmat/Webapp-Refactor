@@ -16,6 +16,19 @@ export const caravan: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'a-r-recording-studio-1958-1989' },
+  credits: [
+    { name: 'Van Morrison', role: 'producer', artistGlobeId: 'van-morrison' },
+    { name: 'Elliot Scheiner', role: 'engineer' },
+    { name: 'Van Morrison', role: 'songwriter', artistGlobeId: 'van-morrison' },
+    {
+      name: 'Van Morrison',
+      role: 'vocals',
+      artistGlobeId: 'van-morrison',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'van-morrison-moondance' }],
 
   sections: [
     {

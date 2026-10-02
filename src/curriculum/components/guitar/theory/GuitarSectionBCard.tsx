@@ -10,12 +10,12 @@ import type { GuitarKeyName } from '@/curriculum/data/guitar/types';
 import type { ActivityFlowV2 } from '@/curriculum/types/activity.v2';
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
 import { ChordFamilyStrip } from './ChordFamilyStrip';
+import { DisclosureHeading, FAMILY_STRIP_SHEET_LOOK } from './noteParts';
 import {
   displayText,
   familyChips,
-  noteSeenId,
+  markSectionBCardSeen,
   sectionBCardBarreCare,
-  sectionBCardSeenId,
 } from './theoryUi';
 
 // ── GuitarSectionBCard ─────────────────────────────────────────────────────
@@ -26,13 +26,26 @@ import {
 // seen, so the step panel does not show it again). The skip/take highlight
 // moves only when the student steps it, so it is static under
 // prefers-reduced-motion as everywhere else.
+//
+// variant 'card' (the default) is the card over the lesson, closed with ✕
+// or "Got it". 'section' is the same content as a block of the About this
+// step sheet: no frame, nothing to close, its title opens and closes it.
+// The sheet marks it seen when it opens (markSectionBCardSeen).
 
 export interface GuitarSectionBCardProps {
   flow: ActivityFlowV2;
   keyCenter: GuitarKeyName;
   keyColor: string;
-  /** Called after the card marks itself seen for this key. */
-  onClose: () => void;
+  /** Card: called after the card marks itself seen for this key. */
+  onClose?: () => void;
+  variant?: 'card' | 'section';
+  /** Section: whether it starts open (the sheet opens it while unseen). */
+  defaultOpen?: boolean;
+  /**
+   * Section: include the hand-care note the card carries in some keys.
+   * False when another block of the sheet shows it (the step's own notes).
+   */
+  withBarreCare?: boolean;
   className?: string;
 }
 
@@ -43,9 +56,11 @@ const ROW_LENGTH = 11;
 function SkipTakeRow({
   keyCenter,
   keyColor,
+  variant,
 }: {
   keyCenter: GuitarKeyName;
   keyColor: string;
+  variant: 'card' | 'section';
 }) {
   // 0-based degree the triad is built on.
   const [start, setStart] = useState(0);
@@ -66,6 +81,78 @@ function SkipTakeRow({
   });
   const taken = cells.filter((c) => c.role === 'take');
   const chip = chips[start];
+
+  if (variant === 'section') {
+    const stepButton =
+      'flex size-9 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/[0.04] transition-colors hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 disabled:opacity-40 max-sm:size-11';
+    return (
+      <div data-skip-take className="flex flex-col gap-2">
+        {/* One row at any sheet width: eleven equal columns. */}
+        <ol
+          aria-label="Scale notes"
+          className="grid grid-cols-11 gap-1 max-sm:gap-0.5"
+        >
+          {cells.map((cell) => (
+            <li
+              key={cell.i}
+              data-role={cell.role ?? 'none'}
+              className={cn(
+                'flex min-w-0 flex-col items-center rounded-lg py-1 leading-tight transition-colors',
+                cell.role === 'skip' && 'opacity-60',
+                cell.role === null && 'opacity-40',
+              )}
+              style={{
+                border:
+                  cell.role === 'take'
+                    ? `2px solid ${keyColor}`
+                    : cell.role === 'skip'
+                      ? '1px dashed rgba(255,255,255,0.3)'
+                      : '1px solid transparent',
+              }}
+            >
+              <span className="text-sm font-bold">{cell.name}</span>
+              <span className="text-xs text-white/55">{cell.degree}</span>
+              {/* Taken and skipped notes are named, not just coloured. */}
+              <span className="h-4 text-xs leading-4 text-white/55">
+                {cell.role ?? ''}
+              </span>
+            </li>
+          ))}
+        </ol>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            aria-label="Previous chord"
+            disabled={start === 0}
+            onClick={() => setStart(start - 1)}
+            className={stepButton}
+          >
+            <ChevronLeft aria-hidden className="size-4" />
+          </button>
+          <p
+            data-skip-take-result
+            aria-live="polite"
+            className="min-w-0 flex-1 text-[15px] leading-6"
+          >
+            <span className="font-bold">Chord {chip.degree}:</span>{' '}
+            {taken.map((c) => c.name).join(' ')}{' '}
+            <span className="text-white/55">
+              = {chip.symbol} ({chip.hybrid})
+            </span>
+          </p>
+          <button
+            type="button"
+            aria-label="Next chord"
+            disabled={start === 6}
+            onClick={() => setStart(start + 1)}
+            className={stepButton}
+          >
+            <ChevronRight aria-hidden className="size-4" />
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div data-skip-take className="flex flex-col gap-1.5">
@@ -144,11 +231,16 @@ export const GuitarSectionBCard = memo(function GuitarSectionBCard({
   keyCenter,
   keyColor,
   onClose,
+  variant = 'card',
+  defaultOpen = true,
+  withBarreCare = true,
   className,
 }: GuitarSectionBCardProps) {
   const titleId = useId();
   const laterId = useId();
+  const bodyId = useId();
   const [showLater, setShowLater] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const dismissNote = useGuitarDisplaySettings((s) => s.dismissNote);
   const showRomanNumerals = useGuitarDisplaySettings(
     (s) => s.showRomanNumerals,
@@ -171,11 +263,94 @@ export const GuitarSectionBCard = memo(function GuitarSectionBCard({
   const sevenLater = info.find((n) => n.id === 'b.sevenLater');
 
   const close = () => {
-    dismissNote(sectionBCardSeenId(keyCenter));
-    // Read here: the step panel keeps it as a "Why?" link from now on.
-    if (barreCare) dismissNote(noteSeenId(barreCare.id, keyCenter));
-    onClose();
+    // With it, hand care: read here, the step panel keeps it as a "Why?"
+    // link from now on.
+    markSectionBCardSeen(dismissNote, flow, keyCenter);
+    onClose?.();
   };
+
+  if (variant === 'section') {
+    return (
+      <section
+        data-guitar-section-b-card
+        data-variant="section"
+        aria-labelledby={titleId}
+        className={cn('flex flex-col text-left text-[#e8e8f0]', className)}
+      >
+        <DisclosureHeading
+          id={titleId}
+          open={open}
+          onToggle={() => setOpen(!open)}
+          controls={bodyId}
+        >
+          {fromScale?.title}
+        </DisclosureHeading>
+        {open && (
+          <div id={bodyId} className="flex flex-col gap-5 pt-2">
+            {fromScale && (
+              <p className="text-[15px] leading-6">{fromScale.body}</p>
+            )}
+            <SkipTakeRow
+              keyCenter={keyCenter}
+              keyColor={keyColor}
+              variant="section"
+            />
+            <div className={FAMILY_STRIP_SHEET_LOOK}>
+              <ChordFamilyStrip
+                keyCenter={keyCenter}
+                keyColor={keyColor}
+                showRomanNumerals={showRomanNumerals}
+              />
+            </div>
+            {pattern && (
+              <div className="flex flex-col gap-1">
+                <h4 className="text-[15px] font-bold leading-6">
+                  {pattern.title}
+                </h4>
+                <p className="text-[15px] leading-6">{pattern.body}</p>
+              </div>
+            )}
+            {sevenLater && (
+              <div>
+                <button
+                  type="button"
+                  aria-expanded={showLater}
+                  aria-controls={laterId}
+                  onClick={() => setShowLater(!showLater)}
+                  className="-mx-2 flex min-h-11 w-[calc(100%+1rem)] items-center justify-between gap-3 rounded-lg px-2 py-2 text-left text-[15px] leading-6 transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                >
+                  {sevenLater.title}
+                  <ChevronDown
+                    aria-hidden
+                    className={cn(
+                      'size-4 shrink-0 text-white/45',
+                      showLater && 'rotate-180',
+                    )}
+                  />
+                </button>
+                {showLater && (
+                  <p id={laterId} className="pb-1 text-[15px] leading-6">
+                    {sevenLater.body}
+                  </p>
+                )}
+              </div>
+            )}
+            {barreCare && withBarreCare && (
+              <div
+                data-theory-note={barreCare.id}
+                className="flex flex-col gap-1"
+              >
+                <h4 className="text-[15px] font-bold leading-6">
+                  {barreCare.title}
+                </h4>
+                <p className="text-[15px] leading-6">{barreCare.body}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+    );
+  }
 
   return (
     <section
@@ -204,7 +379,7 @@ export const GuitarSectionBCard = memo(function GuitarSectionBCard({
       {fromScale && (
         <p className="text-[13px] leading-snug">{fromScale.body}</p>
       )}
-      <SkipTakeRow keyCenter={keyCenter} keyColor={keyColor} />
+      <SkipTakeRow keyCenter={keyCenter} keyColor={keyColor} variant="card" />
 
       <ChordFamilyStrip
         keyCenter={keyCenter}

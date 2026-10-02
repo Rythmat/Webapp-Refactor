@@ -195,7 +195,7 @@ export const PlayAlongPlayer: React.FC<PlayAlongPlayerProps> = ({
           style={{
             color: COLORS.textDim,
             fontSize: 14,
-            fontFamily: 'monospace',
+            fontVariantNumeric: 'tabular-nums',
           }}
         >
           {state.isCountingIn
@@ -260,7 +260,7 @@ export const PlayAlongPlayer: React.FC<PlayAlongPlayerProps> = ({
           style={{
             color: COLORS.text,
             fontSize: 14,
-            fontFamily: 'monospace',
+            fontVariantNumeric: 'tabular-nums',
             minWidth: 60,
             textAlign: 'right',
           }}

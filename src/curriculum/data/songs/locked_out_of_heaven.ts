@@ -16,6 +16,53 @@ export const locked_out_of_heaven: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Mark Ronson', role: 'producer', artistGlobeId: 'mark-ronson' },
+    { name: 'Nick Movshon', role: 'performer' },
+    { name: 'Charles Moniz', role: 'engineer' },
+    {
+      name: 'Philip Lawrence',
+      role: 'songwriter',
+      artistGlobeId: 'philip-lawrence',
+    },
+    { name: 'Jeff Bhasker', role: 'producer', artistGlobeId: 'jeff-bhasker' },
+    { name: 'Emile Haynie', role: 'performer', artistGlobeId: 'emile-haynie' },
+    { name: 'Ari Levine', role: 'engineer', artistGlobeId: 'ari-levine' },
+    { name: 'Bruno Mars', role: 'songwriter', artistGlobeId: 'bruno-mars' },
+    { name: 'Ari Levine', role: 'songwriter', artistGlobeId: 'ari-levine' },
+    { name: 'Emile Haynie', role: 'producer', artistGlobeId: 'emile-haynie' },
+    { name: 'Jeff Bhasker', role: 'performer', artistGlobeId: 'jeff-bhasker' },
+    {
+      name: 'Bruno Mars',
+      role: 'performer',
+      artistGlobeId: 'bruno-mars',
+      primary: true,
+    },
+    { name: 'Homer Steinweiss', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'Emile Haynie',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'emile-haynie',
+    },
+    { name: 'Mark Ronson', role: 'engineer', artistGlobeId: 'mark-ronson' },
+    { name: 'Manny Marroquin', role: 'engineer' },
+    {
+      name: 'Bruno Mars',
+      role: 'vocals',
+      artistGlobeId: 'bruno-mars',
+      primary: true,
+    },
+    { name: 'Wayne Gordon', role: 'engineer' },
+    {
+      name: 'The Smeezingtons',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'the-smeezingtons',
+    },
+    { name: 'alalal', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'bruno-mars-unorthodox-jukebox', track: 2 }],
 
   sections: [
     {

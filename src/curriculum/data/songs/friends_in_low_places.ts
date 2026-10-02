@@ -16,6 +16,44 @@ export const friends_in_low_places: Song = {
   difficulty: 3,
   genreTags: ['folk', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'Bruce Bouton', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Steve Morley', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Rusty Jones', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Jim Rooney', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Dewayne Blackwell',
+      role: 'songwriter',
+      artistGlobeId: 'dewayne-blackwell',
+    },
+    { name: 'Rob Hajacos', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Bobby Wood', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Pam Lewis', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Charley Stefl', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Sandy Brooks', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Pat Alger', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Dewayne Blackwell',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'dewayne-blackwell',
+    },
+    { name: 'Earl Bud Lee', role: 'songwriter', artistGlobeId: 'earl-bud-lee' },
+    { name: 'Buddy Mondlock', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Allen Reynolds',
+      role: 'producer',
+      artistGlobeId: 'allen-reynolds',
+    },
+    {
+      name: 'Earl Bud Lee',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'earl-bud-lee',
+    },
+    { name: 'Mike Chapman', role: 'performer', instrument: 'backing-vocals' },
+  ],
+  releases: [{ releaseId: 'garth-brooks-no-fences', track: 5 }],
 
   sections: [
     {

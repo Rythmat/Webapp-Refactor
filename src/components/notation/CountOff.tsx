@@ -7,7 +7,13 @@
 // One bar counts "1 2 3 4". Two bars count "1 2 3 4 · 2 2 3 4": each bar opens
 // with its own number so the downbeat is unmistakable, and those downbeats are
 // drawn brighter and larger than the beats between them.
+//
+// Guitar TAB asks for a quieter count, set in the empty count-in bar so it
+// never covers a note: `placement="countInBar"` with that bar's box, and
+// `tone="neutral"` (64px regular, beat 1 in the text colour, the others
+// dimmer, a fade and no pop). Piano's staff and Studio keep the defaults.
 
+import { FixedDigits } from '@/components/common/FixedDigits';
 import './countOff.css';
 
 export interface CountOffBeat {
@@ -79,31 +85,79 @@ export function countOffBeatAtTime(
   return beat >= totalBeats ? null : beat;
 }
 
+/** A box in the parent's px: where the count-in bar is drawn. */
+export interface CountOffBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface CountOffProps {
   /** 0-based beat of the count-off, or null when nothing is being counted. */
   beatIndex: number | null;
   beatsPerBar: number;
+  /**
+   * 'under' (default): along the bottom of the parent, under the staff.
+   * 'countInBar': centred in `bar`, the empty count-in bar, so it never
+   * covers a note; centred in the parent while there is no box.
+   */
+  placement?: 'under' | 'countInBar';
+  /** The count-in bar's box, for `placement="countInBar"`. */
+  bar?: CountOffBox | null;
+  /**
+   * 'accent' (default): the downbeat larger and lit, each number popping in.
+   * 'neutral': every number 64px regular, beat 1 in the text colour and the
+   * others dimmer, fading in only.
+   */
+  tone?: 'accent' | 'neutral';
 }
 
 /**
  * The number itself. Absolutely placed, so it never reflows the staff above it
  * as it appears and goes; the parent supplies the positioning context.
  */
-export function CountOff({ beatIndex, beatsPerBar }: CountOffProps) {
+export function CountOff({
+  beatIndex,
+  beatsPerBar,
+  placement = 'under',
+  bar,
+  tone = 'accent',
+}: CountOffProps) {
   if (beatIndex === null) return null;
   const { label, isDownbeat } = countOffBeat(beatIndex, beatsPerBar);
+  const inBar = placement === 'countInBar';
+  const neutral = tone === 'neutral';
   return (
-    <div className="notation-countoff" aria-hidden>
+    <div
+      className={inBar ? 'notation-countoff is-in-bar' : 'notation-countoff'}
+      aria-hidden
+      style={
+        inBar && bar
+          ? {
+              left: bar.x,
+              top: bar.y,
+              width: bar.width,
+              height: bar.height,
+              right: 'auto',
+              bottom: 'auto',
+            }
+          : undefined
+      }
+    >
       {/* Keyed by beat so each number restarts the animation. */}
       <span
         key={beatIndex}
-        className={
-          isDownbeat
-            ? 'notation-countoff-number is-downbeat'
-            : 'notation-countoff-number'
-        }
+        className={[
+          'notation-countoff-number',
+          neutral && 'is-neutral',
+          isDownbeat && 'is-downbeat',
+        ]
+          .filter(Boolean)
+          .join(' ')}
       >
-        {label}
+        {/* Glacial's digits are proportional: a cell keeps each one centred. */}
+        {neutral ? <FixedDigits text={label} /> : label}
       </span>
     </div>
   );

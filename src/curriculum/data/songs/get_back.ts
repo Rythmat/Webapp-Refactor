@@ -16,6 +16,62 @@ export const get_back: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'apple-studios' },
+  credits: [
+    {
+      name: 'Paul McCartney',
+      role: 'songwriter',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'The Beatles',
+      role: 'performer',
+      ensemble: true,
+      primary: true,
+      artistGlobeId: 'the-beatles',
+    },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'john-lennon',
+    },
+    { name: 'George Martin', role: 'producer' },
+    { name: 'Paul McCartney', role: 'vocals', artistGlobeId: 'paul-mccartney' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'Billy Preston',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'billy-preston',
+    },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    {
+      name: 'Billy Preston',
+      role: 'performer',
+      instrument: 'electric-piano',
+      artistGlobeId: 'billy-preston',
+    },
+    { name: 'Ringo Starr', role: 'performer', instrument: 'drum-kit' },
+    { name: 'John Lennon', role: 'songwriter', artistGlobeId: 'john-lennon' },
+    { name: 'Glyn Johns', role: 'engineer', artistGlobeId: 'glyn-johns' },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'john-lennon',
+    },
+  ],
+  releases: [{ releaseId: 'the-beatles-let-it-be', track: 12 }],
 
   sections: [
     {

@@ -16,6 +16,79 @@ export const wish_you_were_here: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'abbey-road-studios' },
+  credits: [
+    { name: 'Brian Humphries', role: 'engineer' },
+    {
+      name: 'Roger Waters',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'roger-waters',
+    },
+    {
+      name: 'Richard Wright',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'richard-wright',
+    },
+    {
+      name: 'David Gilmour',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'david-gilmour',
+    },
+    {
+      name: 'Nick Mason',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'nick-mason',
+    },
+    { name: 'Nick Mason', role: 'performer', artistGlobeId: 'nick-mason' },
+    { name: 'Roger Waters', role: 'songwriter', artistGlobeId: 'roger-waters' },
+    {
+      name: 'Richard Wright',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'richard-wright',
+    },
+    {
+      name: 'David Gilmour',
+      role: 'performer',
+      artistGlobeId: 'david-gilmour',
+    },
+    { name: 'Roger Waters', role: 'performer', artistGlobeId: 'roger-waters' },
+    {
+      name: 'David Gilmour',
+      role: 'songwriter',
+      artistGlobeId: 'david-gilmour',
+    },
+    {
+      name: 'Carlena Williams',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    {
+      name: 'David Gilmour',
+      role: 'performer',
+      instrument: 'pedal-steel',
+      artistGlobeId: 'david-gilmour',
+    },
+    { name: 'Venetta Fields', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'David Gilmour',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'david-gilmour',
+    },
+    {
+      name: 'Pink Floyd',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'pink-floyd',
+    },
+    { name: 'David Gilmour', role: 'vocals', artistGlobeId: 'david-gilmour' },
+  ],
+  releases: [{ releaseId: 'pink-floyd-wish-you-were-here' }],
 
   sections: [
     {

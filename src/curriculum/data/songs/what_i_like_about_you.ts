@@ -16,6 +16,18 @@ export const what_i_like_about_you: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'coconut-recording' },
+  credits: [
+    { name: 'Wally Palmar', role: 'songwriter', artistGlobeId: 'wally-palmar' },
+    { name: 'Peter Solley', role: 'producer', artistGlobeId: 'peter-solley' },
+    { name: 'Mike Skill', role: 'songwriter', artistGlobeId: 'mike-skill' },
+    {
+      name: 'Jimmy Marinos',
+      role: 'songwriter',
+      artistGlobeId: 'jimmy-marinos',
+    },
+  ],
+  releases: [{ releaseId: 'the-romantics-the-romantics', track: 6 }],
 
   sections: [
     {

@@ -16,6 +16,71 @@ export const beast_of_burden: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Keith Richards',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'keith-richards',
+    },
+    {
+      name: 'Mick Jagger',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'mick-jagger',
+    },
+    { name: 'Mick Jagger', role: 'vocals', artistGlobeId: 'mick-jagger' },
+    {
+      name: 'Keith Richards',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'keith-richards',
+    },
+    {
+      name: 'Keith Richards',
+      role: 'songwriter',
+      artistGlobeId: 'keith-richards',
+    },
+    { name: 'Chris Kimsey', role: 'engineer' },
+    {
+      name: 'The Glimmer Twins',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'the-glimmer-twins',
+    },
+    {
+      name: 'Charlie Watts',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'charlie-watts',
+    },
+    {
+      name: 'Ronnie Wood',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'ronnie-wood',
+    },
+    {
+      name: 'Keith Richards',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'keith-richards',
+    },
+    { name: 'Mick Jagger', role: 'songwriter', artistGlobeId: 'mick-jagger' },
+    {
+      name: 'Ronnie Wood',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'ronnie-wood',
+    },
+    {
+      name: 'Bill Wyman',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'bill-wyman',
+    },
+  ],
+  releases: [{ releaseId: 'the-rolling-stones-some-girls' }],
 
   sections: [
     {

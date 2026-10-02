@@ -4,7 +4,7 @@ export const love_goes_building_on_fire: Song = {
   id: 'love_goes_building_on_fire',
   title: 'Love Goes Building On Fire',
   artist: 'Talking Heads',
-  year: undefined,
+  year: 1977,
 
   historicalDescription:
     "Talking Heads release 'Love Goes to Building on Fire', their debut single, capturing the nervous, art-damaged energy of the mid-1970s New York punk and new wave scene centered around CBGB. The track introduces David Byrne's twitchy, idiosyncratic vocal style and the band's cerebral take on rock — pointing toward a restless artistic ambition that will define their career.",

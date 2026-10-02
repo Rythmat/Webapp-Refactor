@@ -16,6 +16,31 @@ export const the_seed_2_0: Song = {
   difficulty: 2,
   genreTags: ['hip-hop'],
   techniques: [],
+  credits: [
+    {
+      name: 'The Roots',
+      role: 'performer',
+      ensemble: true,
+      primary: true,
+      artistGlobeId: 'the-roots',
+    },
+    {
+      name: 'Cody ChesnuTT',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'cody-chesnutt',
+    },
+    {
+      name: 'Black Thought',
+      role: 'songwriter',
+      artistGlobeId: 'black-thought',
+    },
+    {
+      name: 'Cody ChesnuTT',
+      role: 'songwriter',
+      artistGlobeId: 'cody-chesnutt',
+    },
+  ],
 
   sections: [
     {

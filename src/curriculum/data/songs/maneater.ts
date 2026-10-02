@@ -4,7 +4,7 @@ export const maneater: Song = {
   id: 'maneater',
   title: 'Maneater',
   artist: 'Hall & Oates',
-  year: undefined,
+  year: 1982,
 
   historicalDescription:
     "Hall & Oates release 'Maneater', a sleek, menacing portrait of urban temptation that becomes one of the defining hits of early MTV-era pop. The song's driving groove and Daryl Hall's cool vocal delivery capture the sharp-edged glamour of early 1980s New York — hungry, seductive, and impossible to look away from. It tops the Billboard Hot 100 and cements the duo as the best-selling act of the decade.",
@@ -17,6 +17,17 @@ export const maneater: Song = {
   difficulty: 3,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'John Oates', role: 'producer', artistGlobeId: 'john-oates' },
+    { name: 'Daryl Hall', role: 'producer', artistGlobeId: 'daryl-hall' },
+    { name: 'Hugh Padgham', role: 'engineer' },
+    { name: 'Neil Kernon', role: 'producer', artistGlobeId: 'neil-kernon' },
+    { name: 'John Oates', role: 'songwriter', artistGlobeId: 'john-oates' },
+    { name: 'Sara Allen', role: 'songwriter', artistGlobeId: 'sara-allen' },
+    { name: 'Neil Kernon', role: 'engineer', artistGlobeId: 'neil-kernon' },
+    { name: 'Daryl Hall', role: 'songwriter', artistGlobeId: 'daryl-hall' },
+  ],
+  releases: [{ releaseId: 'hall-and-oates-h-o', track: 1 }],
 
   sections: [
     {

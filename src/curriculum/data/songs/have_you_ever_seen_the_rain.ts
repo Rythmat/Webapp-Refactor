@@ -16,6 +16,29 @@ export const have_you_ever_seen_the_rain: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'wally-heider-studios' },
+  credits: [
+    { name: 'John Fogerty', role: 'arranger', artistGlobeId: 'john-fogerty' },
+    { name: 'John Fogerty', role: 'songwriter', artistGlobeId: 'john-fogerty' },
+    { name: 'Russ Gary', role: 'engineer' },
+    { name: 'John Fogerty', role: 'producer', artistGlobeId: 'john-fogerty' },
+    {
+      name: 'Stu Cook',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'stu-cook',
+    },
+    { name: 'John Fogerty', role: 'performer', artistGlobeId: 'john-fogerty' },
+    {
+      name: 'Doug Clifford',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'doug-clifford',
+    },
+    { name: 'John Fogerty', role: 'vocals', artistGlobeId: 'john-fogerty' },
+    { name: 'Tom Fogerty', role: 'performer', artistGlobeId: 'tom-fogerty' },
+  ],
+  releases: [{ releaseId: 'creedence-clearwater-revival-pendulum' }],
 
   sections: [
     {

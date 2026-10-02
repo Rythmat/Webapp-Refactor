@@ -16,6 +16,19 @@ export const tighten_up: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'the-bunker-studio' },
+  credits: [
+    { name: 'Tchad Blake', role: 'engineer' },
+    { name: 'Dan Auerbach', role: 'songwriter', artistGlobeId: 'dan-auerbach' },
+    { name: 'Kennie Takahashi', role: 'engineer' },
+    { name: 'Danger Mouse', role: 'producer', artistGlobeId: 'danger-mouse' },
+    {
+      name: 'Patrick Carney',
+      role: 'songwriter',
+      artistGlobeId: 'patrick-carney',
+    },
+  ],
+  releases: [{ releaseId: 'the-black-keys-brothers', track: 3 }],
 
   sections: [
     {

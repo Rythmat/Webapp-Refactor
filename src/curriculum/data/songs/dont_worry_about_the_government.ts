@@ -16,6 +16,21 @@ export const dont_worry_about_the_government: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'sundragon-studios' },
+  credits: [
+    { name: 'Ed Stasium', role: 'engineer' },
+    { name: 'Lance Quinn', role: 'producer', artistGlobeId: 'lance-quinn' },
+    {
+      name: 'Talking Heads',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'talking-heads',
+    },
+    { name: 'David Byrne', role: 'songwriter', artistGlobeId: 'david-byrne' },
+    { name: 'David Byrne', role: 'vocals', artistGlobeId: 'david-byrne' },
+    { name: 'Tony Bongiovi', role: 'producer', artistGlobeId: 'tony-bongiovi' },
+  ],
+  releases: [{ releaseId: 'talking-heads-talking-heads-77' }],
 
   sections: [
     {

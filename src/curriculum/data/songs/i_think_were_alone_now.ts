@@ -16,6 +16,33 @@ export const i_think_were_alone_now: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Tiffany',
+      role: 'vocals',
+      artistGlobeId: 'tiffany',
+      primary: true,
+    },
+    {
+      name: 'Ritchie Cordell',
+      role: 'songwriter',
+      artistGlobeId: 'ritchie-cordell',
+    },
+    { name: 'George Tobin', role: 'producer', artistGlobeId: 'george-tobin' },
+    { name: 'John Duarte', role: 'arranger' },
+    {
+      name: 'Tiffany',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'tiffany',
+      primary: true,
+    },
+    { name: 'John Kerns', role: 'engineer' },
+    { name: 'Bill Smith', role: 'engineer' },
+    { name: 'John Duarte', role: 'performer', instrument: 'synthesizer' },
+    { name: 'Chuck Yamek', role: 'performer' },
+  ],
+  releases: [{ releaseId: 'tiffany-tiffany' }],
 
   sections: [
     {

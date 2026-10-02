@@ -16,6 +16,71 @@ export const waterfalls: Song = {
   difficulty: 2,
   genreTags: ['hip-hop'],
   techniques: [],
+  credits: [
+    { name: 'Kenneth Wright', role: 'performer', instrument: 'wurlitzer' },
+    {
+      name: 'Organized Noize',
+      role: 'songwriter',
+      ensemble: true,
+      artistGlobeId: 'organized-noize',
+    },
+    { name: 'Ronnie Fitch', role: 'performer', instrument: 'horn-section' },
+    { name: 'Neal Pogue', role: 'engineer' },
+    { name: 'Jerry Lloyd', role: 'performer', instrument: 'horn-section' },
+    {
+      name: 'CeeLo Green',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'ceelo-green',
+    },
+    {
+      name: 'Organized Noize',
+      role: 'performer',
+      ensemble: true,
+      artistGlobeId: 'organized-noize',
+    },
+    { name: 'Charles Nix', role: 'performer', instrument: 'horn-section' },
+    { name: 'T‐Boz', role: 'vocals', artistGlobeId: 't-boz' },
+    { name: 'Edward Stroud', role: 'performer' },
+    {
+      name: 'Organized Noize',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'organized-noize',
+    },
+    { name: 'Debra Killings', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Shock', role: 'arranger' },
+    { name: 'Chilli', role: 'vocals', artistGlobeId: 'chilli' },
+    {
+      name: 'Lisa “Left Eye” Lopes',
+      role: 'vocals',
+      artistGlobeId: 'lisa-left-eye-lopes',
+    },
+    {
+      name: 'LaMarquis Jefferson',
+      role: 'performer',
+      instrument: 'electric-bass',
+    },
+    {
+      name: 'TLC',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      ensemble: true,
+      artistGlobeId: 'tlc',
+      primary: true,
+    },
+    {
+      name: 'Marqueze Ethridge',
+      role: 'songwriter',
+      artistGlobeId: 'marqueze-ethridge',
+    },
+    {
+      name: 'Lisa “Left Eye” Lopes',
+      role: 'songwriter',
+      artistGlobeId: 'lisa-left-eye-lopes',
+    },
+  ],
+  releases: [{ releaseId: 'tlc-crazysexycool', track: 8 }],
 
   sections: [
     {

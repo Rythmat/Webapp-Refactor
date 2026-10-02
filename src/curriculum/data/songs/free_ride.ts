@@ -16,6 +16,10 @@ export const free_ride: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Dan Hartman', role: 'songwriter', artistGlobeId: 'dan-hartman' },
+  ],
+  releases: [{ releaseId: 'edgar-winter-group-they-only-come-out-at-night' }],
 
   sections: [
     {

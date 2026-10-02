@@ -16,6 +16,45 @@ export const ring_of_fire: Song = {
   difficulty: 1,
   genreTags: ['folk'],
   techniques: [],
+  session: { studioId: 'columbia-studios-nashville' },
+  credits: [
+    { name: 'The Carter Family', role: 'performer', ensemble: true },
+    { name: 'Bill McElhiney', role: 'performer', instrument: 'trumpet' },
+    { name: 'Marshall Grant', role: 'performer' },
+    {
+      name: 'Johnny Cash',
+      role: 'vocals',
+      artistGlobeId: 'johnny-cash',
+      primary: true,
+    },
+    {
+      name: 'Johnny Cash',
+      role: 'performer',
+      artistGlobeId: 'johnny-cash',
+      primary: true,
+    },
+    {
+      name: 'Merle Kilgore',
+      role: 'songwriter',
+      artistGlobeId: 'merle-kilgore',
+    },
+    {
+      name: 'June Carter Cash',
+      role: 'songwriter',
+      artistGlobeId: 'june-carter-cash',
+    },
+    { name: 'Frank Jones', role: 'producer', artistGlobeId: 'frank-jones' },
+    { name: 'Bill Pursell', role: 'performer', instrument: 'piano' },
+    { name: 'Don Law', role: 'producer', artistGlobeId: 'don-law' },
+    {
+      name: 'Luther Perkins',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    { name: 'Jack Clement', role: 'performer' },
+    { name: 'W.S. Holland', role: 'performer', instrument: 'drum-kit' },
+    { name: 'The Carter Family', role: 'vocals', ensemble: true },
+  ],
 
   sections: [
     {

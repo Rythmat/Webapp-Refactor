@@ -16,6 +16,42 @@ export const thinking_out_loud: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Chris Leonard', role: 'performer', instrument: 'electric-guitar' },
+    { name: 'Geoff Swan', role: 'engineer' },
+    {
+      name: 'Ed Sheeran',
+      role: 'performer',
+      artistGlobeId: 'ed-sheeran',
+      primary: true,
+    },
+    { name: 'Chris Leonard', role: 'performer', instrument: 'hammond-organ' },
+    {
+      name: 'Jake Gosling',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'jake-gosling',
+    },
+    { name: 'Peter Gosling', role: 'performer', instrument: 'piano' },
+    { name: 'Amy Wadge', role: 'songwriter', artistGlobeId: 'amy-wadge' },
+    { name: 'Chris Leonard', role: 'performer' },
+    { name: 'Mark “Spike” Stent', role: 'engineer' },
+    { name: 'Jake Gosling', role: 'producer', artistGlobeId: 'jake-gosling' },
+    {
+      name: 'Jake Gosling',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'jake-gosling',
+    },
+    { name: 'Ed Sheeran', role: 'songwriter', artistGlobeId: 'ed-sheeran' },
+    { name: 'Jake Gosling', role: 'engineer', artistGlobeId: 'jake-gosling' },
+    {
+      name: 'Ed Sheeran',
+      role: 'vocals',
+      artistGlobeId: 'ed-sheeran',
+      primary: true,
+    },
+  ],
 
   sections: [
     {

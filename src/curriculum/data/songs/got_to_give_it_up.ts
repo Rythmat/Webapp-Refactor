@@ -16,6 +16,9 @@ export const got_to_give_it_up: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    { name: 'Marvin Gaye', role: 'songwriter', artistGlobeId: 'marvin-gaye' },
+  ],
 
   sections: [
     {

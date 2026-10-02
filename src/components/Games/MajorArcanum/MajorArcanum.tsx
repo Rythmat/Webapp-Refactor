@@ -807,11 +807,10 @@ export default function MajorArcanum({ onComplete }: MajorArcanumProps) {
 
           {/* Feedback overlay */}
           <div
-            className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl font-bold tracking-tight transition-opacity duration-200 pointer-events-none font-serif"
+            className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl font-bold tracking-tight transition-opacity duration-200 pointer-events-none"
             style={{
               opacity: uiState.feedbackVisible ? 1 : 0,
               color: uiState.feedbackColor,
-              fontStyle: 'italic',
               textShadow: '0 4px 20px rgba(0,0,0,0.5)',
               transform: uiState.feedbackVisible
                 ? 'translate(-50%, -50%) scale(1)'

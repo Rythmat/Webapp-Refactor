@@ -11,10 +11,11 @@ import {
   X,
 } from 'lucide-react';
 import { useMemo, useState, type FC } from 'react';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import type { ContentEditState } from '@/hooks/data/admin/useAdminContent';
+import { ConsoleBadge } from '../../ui/ConsoleBadge';
+import { ConsoleCallout } from '../../ui/ConsoleCallout';
 import { diffBodies, formatDiffValue } from './bodyDiff';
 
 /**
@@ -39,8 +40,10 @@ import { diffBodies, formatDiffValue } from './bodyDiff';
 export const ProposalDiff: FC<{
   before: Record<string, unknown> | null | undefined;
   after: Record<string, unknown> | null | undefined;
-}> = ({ before, after }) => {
-  const [open, setOpen] = useState(false);
+  /** Open on arrival: when the reader already asked to see the changes. */
+  defaultOpen?: boolean;
+}> = ({ before, after, defaultOpen = false }) => {
+  const [open, setOpen] = useState(defaultOpen);
   const { entries, truncated } = useMemo(
     () => diffBodies(before, after),
     [before, after],
@@ -52,7 +55,7 @@ export const ProposalDiff: FC<{
     <div className="mt-2">
       <button
         type="button"
-        className="inline-flex items-center gap-1 text-xs text-sky-300/80 transition-colors hover:text-sky-200"
+        className="inline-flex items-center gap-1 text-xs text-white/55 transition-colors hover:text-white"
         onClick={() => setOpen((value) => !value)}
       >
         {open ? (
@@ -69,7 +72,7 @@ export const ProposalDiff: FC<{
 
       {open && entries.length > 0 && (
         <div className="mt-1.5 max-h-72 overflow-auto rounded-md border border-white/10 bg-black/30 p-2">
-          <ul className="flex flex-col gap-1 font-mono text-[11px]">
+          <ul className="flex flex-col gap-1 text-[11px]">
             {entries.map((entry, index) => (
               <li key={`${entry.path}-${index}`}>
                 <span className="text-white/40">{entry.path}</span>
@@ -104,14 +107,12 @@ export const ProposalDiff: FC<{
 export const EditStateBadge: FC<{ state: ContentEditState }> = ({ state }) => {
   if (!state) return null;
   return state === 'pending' ? (
-    <Badge className="border-sky-600/30 bg-sky-600/20 text-sky-300">
-      <Clock className="mr-1 size-3" />
+    <ConsoleBadge tone="info">
+      <Clock className="size-3" />
       In review
-    </Badge>
+    </ConsoleBadge>
   ) : (
-    <Badge className="border-orange-600/30 bg-orange-600/20 text-orange-300">
-      Changes requested
-    </Badge>
+    <ConsoleBadge tone="warning">Changes requested</ConsoleBadge>
   );
 };
 
@@ -158,14 +159,12 @@ export const EditReviewBanner: FC<EditReviewBannerProps> = ({
 
   if (state === 'rejected') {
     return (
-      <div className="rounded-lg border border-orange-600/30 bg-orange-600/10 p-3 text-sm">
-        <div className="font-medium text-orange-300">
-          {isEditor ? 'Changes requested' : 'You sent this back'}
-        </div>
-        <p className="mt-1 text-orange-100/80">
-          {reviewNote || 'No reason was given.'}
-        </p>
-        <p className="mt-2 text-xs text-orange-200/60">
+      <ConsoleCallout
+        tone="warning"
+        title={isEditor ? 'Changes requested' : 'You sent this back'}
+      >
+        <p>{reviewNote || 'No reason was given.'}</p>
+        <p className="mt-2 text-xs text-white/45">
           {isEditor
             ? 'You are editing your submitted version — revise it and submit again.'
             : 'The editor’s proposed version is preserved so they can revise it. The live content is unchanged.'}
@@ -201,25 +200,28 @@ export const EditReviewBanner: FC<EditReviewBannerProps> = ({
             </Button>
           )}
         </div>
-      </div>
+      </ConsoleCallout>
     );
   }
 
   return (
-    <div className="rounded-lg border border-sky-600/30 bg-sky-600/10 p-3 text-sm">
-      <div className="flex flex-wrap items-center gap-2 font-medium text-sky-300">
-        <Clock className="size-4" />
-        {isEditor ? 'Submitted for review' : 'An editor proposed changes'}
-        {submittedAgo && (
-          <span className="text-xs font-normal text-sky-200/50">
-            {submittedAgo}
-          </span>
-        )}
-      </div>
+    <ConsoleCallout
+      tone="info"
+      icon={Clock}
+      title={
+        <>
+          {isEditor ? 'Submitted for review' : 'An editor proposed changes'}
+          {submittedAgo && (
+            <span className="text-xs font-normal text-white/45">
+              {submittedAgo}
+            </span>
+          )}
+        </>
+      }
+    >
+      {pendingNote && <p>“{pendingNote}”</p>}
 
-      {pendingNote && <p className="mt-1 text-sky-100/80">“{pendingNote}”</p>}
-
-      <p className="mt-2 text-xs text-sky-200/60">
+      <p className="mt-2 text-xs text-white/45">
         {isEditor
           ? 'The live version is unchanged until an admin approves this. You can keep editing and submit again — that replaces what is in the queue.'
           : 'Approving applies it to the item and marks the item published. It reaches students at the next Publish for this kind. Read the changes before you do.'}
@@ -267,7 +269,7 @@ export const EditReviewBanner: FC<EditReviewBannerProps> = ({
           }}
         />
       )}
-    </div>
+    </ConsoleCallout>
   );
 };
 

@@ -16,6 +16,96 @@ export const run_around: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'John Popper',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'john-popper',
+    },
+    {
+      name: 'Bobby Sheehan',
+      role: 'performer',
+      artistGlobeId: 'bobby-sheehan',
+    },
+    { name: 'Chuck Leavell', role: 'performer' },
+    { name: 'John Popper', role: 'songwriter', artistGlobeId: 'john-popper' },
+    {
+      name: 'Michael Barbiero',
+      role: 'arranger',
+      artistGlobeId: 'michael-barbiero',
+    },
+    {
+      name: 'Brendan Hill',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'brendan-hill',
+    },
+    {
+      name: 'Steve Thompson',
+      role: 'producer',
+      artistGlobeId: 'steve-thompson',
+    },
+    {
+      name: 'Brendan Hill',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'brendan-hill',
+    },
+    { name: 'Chuck Leavell', role: 'performer', instrument: 'piano' },
+    {
+      name: 'Chan Kinchla',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'chan-kinchla',
+    },
+    {
+      name: 'John Popper',
+      role: 'performer',
+      instrument: 'harmonica',
+      artistGlobeId: 'john-popper',
+    },
+    {
+      name: 'Blues Traveler',
+      role: 'arranger',
+      ensemble: true,
+      artistGlobeId: 'blues-traveler',
+    },
+    {
+      name: 'Chan Kinchla',
+      role: 'performer',
+      instrument: 'mandolin',
+      artistGlobeId: 'chan-kinchla',
+    },
+    {
+      name: 'Michael Barbiero',
+      role: 'producer',
+      artistGlobeId: 'michael-barbiero',
+    },
+    {
+      name: 'Chan Kinchla',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'chan-kinchla',
+    },
+    {
+      name: 'Michael Barbiero',
+      role: 'engineer',
+      artistGlobeId: 'michael-barbiero',
+    },
+    {
+      name: 'Steve Thompson',
+      role: 'arranger',
+      artistGlobeId: 'steve-thompson',
+    },
+    {
+      name: 'Steve Thompson',
+      role: 'engineer',
+      artistGlobeId: 'steve-thompson',
+    },
+    { name: 'Bashiri Johnson', role: 'performer', instrument: 'percussion' },
+  ],
+  releases: [{ releaseId: 'blues-traveler-four', track: 1 }],
 
   sections: [
     {

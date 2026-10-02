@@ -16,6 +16,25 @@ export const the_national_anthem: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Ed O’Brien', role: 'songwriter', artistGlobeId: 'ed-obrien' },
+    {
+      name: 'Jonny Greenwood',
+      role: 'songwriter',
+      artistGlobeId: 'jonny-greenwood',
+    },
+    { name: 'Thom Yorke', role: 'songwriter', artistGlobeId: 'thom-yorke' },
+    {
+      name: 'Colin Greenwood',
+      role: 'songwriter',
+      artistGlobeId: 'colin-greenwood',
+    },
+    {
+      name: 'Philip Selway',
+      role: 'songwriter',
+      artistGlobeId: 'philip-selway',
+    },
+  ],
 
   sections: [
     {

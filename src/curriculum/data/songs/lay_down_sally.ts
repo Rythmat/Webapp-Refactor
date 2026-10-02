@@ -16,6 +16,37 @@ export const lay_down_sally: Song = {
   difficulty: 2,
   genreTags: ['blues', 'rock'],
   techniques: [],
+  session: { studioId: 'olympic-studios' },
+  credits: [
+    { name: 'George Terry', role: 'performer', artistGlobeId: 'george-terry' },
+    { name: 'Dick Sims', role: 'performer' },
+    { name: 'Yvonne Elliman', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Marcy Levy', role: 'songwriter', artistGlobeId: 'marcy-levy' },
+    { name: 'Carl Radle', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Eric Clapton', role: 'songwriter', artistGlobeId: 'eric-clapton' },
+    {
+      name: 'Marcy Levy',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'marcy-levy',
+    },
+    { name: 'Jamie Oldaker', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Glyn Johns', role: 'producer', artistGlobeId: 'glyn-johns' },
+    { name: 'George Terry', role: 'songwriter', artistGlobeId: 'george-terry' },
+    {
+      name: 'Eric Clapton',
+      role: 'vocals',
+      artistGlobeId: 'eric-clapton',
+      primary: true,
+    },
+    {
+      name: 'Eric Clapton',
+      role: 'performer',
+      artistGlobeId: 'eric-clapton',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'eric-clapton-slowhand' }],
 
   sections: [
     {

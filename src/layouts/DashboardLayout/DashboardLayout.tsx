@@ -1,63 +1,33 @@
-import { Suspense, useState } from 'react';
+import { Suspense, useLayoutEffect } from 'react';
 import { Outlet } from 'react-router';
-import useLocalStorageState from 'use-local-storage-state';
-import { cn } from '@/components/utilities';
-import { useScrollGradient } from '@/hooks/useScrollGradient';
 import { Sidebar } from './Sidebar';
+import './console.css';
 
+/**
+ * The /console shell: the app's sidebar (see Sidebar.tsx) beside a column the
+ * routes fill. Each route group brings its own frame — `ConsolePage` for the
+ * padded, scrolling console pages (Users, Telemetry, Records…), the content
+ * area's layout for the mirrored app with its edit bar in the app's XP-bar
+ * slot — so the mirrored app is exactly the size students see.
+ */
 export const DashboardLayout = (props: { fallback?: React.ReactNode }) => {
-  const [mainRef, bottomGradientElement, topGradientElement] =
-    useScrollGradient({
-      topGradientClassName: 'top-1 z-10',
-      bottomGradientClassName: 'bottom-8 z-10',
-    });
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useLocalStorageState(
-    'state:sidebar_collapsed',
-    {
-      defaultValue: false,
-    },
-  );
-  const [isSidebarHovered, setIsSidebarHovered] = useState(false);
+  // On <html> rather than this root so Radix portals (selects, dialogs,
+  // tooltips) mounted on <body> get the console theme too. A layout effect so
+  // the first paint is already themed.
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    root.classList.add('console-theme');
+    return () => root.classList.remove('console-theme');
+  }, []);
 
   return (
-    <div className="flex h-screen w-screen flex-col">
-      <div className="flex w-full flex-1">
-        <div
-          className={cn(
-            'relative shrink-0 transition-all duration-300',
-            isSidebarCollapsed ? 'w-20' : 'w-64',
-          )}
-          onMouseEnter={() => {
-            if (isSidebarCollapsed) setIsSidebarHovered(true);
-          }}
-          onMouseLeave={() => setIsSidebarHovered(false)}
-        >
-          <Sidebar
-            className={cn(
-              'transition-all duration-300',
-              isSidebarCollapsed && !isSidebarHovered ? 'w-20' : 'w-64',
-              isSidebarCollapsed &&
-                isSidebarHovered &&
-                'absolute inset-y-0 left-0 z-50 shadow-2xl',
-            )}
-            isCollapsed={isSidebarCollapsed && !isSidebarHovered}
-            onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-          />
-        </div>
-
-        <main
-          ref={mainRef}
-          className="flex size-full max-h-screen flex-1 p-4 pl-0"
-        >
-          <div className="relative flex-1 overflow-auto rounded-xl bg-surface-box p-8">
-            <Suspense fallback={props.fallback}>
-              <Outlet />
-            </Suspense>
-            {bottomGradientElement}
-            {topGradientElement}
-          </div>
-        </main>
-      </div>
+    <div className="flex h-screen w-screen bg-background text-foreground">
+      <Sidebar className="shrink-0" />
+      <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <Suspense fallback={props.fallback}>
+          <Outlet />
+        </Suspense>
+      </main>
     </div>
   );
 };

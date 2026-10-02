@@ -16,6 +16,35 @@ export const come_away_with_me: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Jay Newland', role: 'engineer', artistGlobeId: 'jay-newland' },
+    {
+      name: 'Norah Jones',
+      role: 'vocals',
+      artistGlobeId: 'norah-jones',
+      primary: true,
+    },
+    { name: 'Lee Alexander', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Norah Jones', role: 'songwriter', artistGlobeId: 'norah-jones' },
+    { name: 'Dan Rieser', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'Norah Jones',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'norah-jones',
+      primary: true,
+    },
+    { name: 'Arif Mardin', role: 'producer', artistGlobeId: 'arif-mardin' },
+    {
+      name: 'Jesse Harris',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'jesse-harris',
+    },
+    { name: 'Adam Levy', role: 'performer', instrument: 'electric-guitar' },
+    { name: 'Arif Mardin', role: 'engineer', artistGlobeId: 'arif-mardin' },
+  ],
+  releases: [{ releaseId: 'norah-jones-come-away-with-me', track: 5 }],
 
   sections: [
     {

@@ -16,6 +16,101 @@ export const take_me_to_the_river: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'compass-point-studios' },
+  credits: [
+    {
+      name: 'Brian Eno',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'brian-eno',
+    },
+    { name: 'Rhett Davies', role: 'engineer' },
+    {
+      name: 'Brian Eno',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'brian-eno',
+    },
+    {
+      name: 'Jerry Harrison',
+      role: 'performer',
+      artistGlobeId: 'jerry-harrison',
+    },
+    {
+      name: 'Talking Heads',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'talking-heads',
+    },
+    {
+      name: 'David Byrne',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'david-byrne',
+    },
+    {
+      name: 'Jerry Harrison',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'jerry-harrison',
+    },
+    { name: 'Brian Eno', role: 'producer', artistGlobeId: 'brian-eno' },
+    {
+      name: 'Jerry Harrison',
+      role: 'performer',
+      instrument: 'organ',
+      artistGlobeId: 'jerry-harrison',
+    },
+    { name: 'David Byrne', role: 'vocals', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Tina Weymouth',
+      role: 'performer',
+      artistGlobeId: 'tina-weymouth',
+    },
+    {
+      name: 'Jerry Harrison',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'jerry-harrison',
+    },
+    {
+      name: 'Chris Frantz',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'chris-frantz',
+    },
+    { name: 'Al Green', role: 'songwriter', artistGlobeId: 'al-green' },
+    {
+      name: 'Brian Eno',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'brian-eno',
+    },
+    {
+      name: 'Chris Frantz',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'chris-frantz',
+    },
+    {
+      name: 'Jerry Harrison',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'jerry-harrison',
+    },
+    { name: 'David Byrne', role: 'performer', artistGlobeId: 'david-byrne' },
+    { name: 'Brian Eno', role: 'performer', artistGlobeId: 'brian-eno' },
+    { name: 'Mabon Hodges', role: 'songwriter', artistGlobeId: 'mabon-hodges' },
+    {
+      name: 'Brian Eno',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'brian-eno',
+    },
+  ],
+  releases: [
+    { releaseId: 'talking-heads-more-songs-about-buildings-and-food' },
+  ],
 
   sections: [
     {

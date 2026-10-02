@@ -418,7 +418,14 @@ export function NoteEditorBar({
               cursor: canAddChord ? 'pointer' : 'default',
             }}
           >
-            <span style={{ fontFamily: 'serif', fontWeight: 700 }}>C7</span>
+            <span
+              style={{
+                fontFamily: "'Glacial Indifference', system-ui, sans-serif",
+                fontWeight: 700,
+              }}
+            >
+              C7
+            </span>
             Chord
           </button>
         </div>

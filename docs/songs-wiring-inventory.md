@@ -98,7 +98,7 @@ CDN bundle** whenever `VITE_CONTENT_CDN_URL` is set
 per-song modules, so:
 
 - **Local dev and tests see every fix immediately.**
-- **Production sees whatever was last published** through the admin Releases page.
+- **Production sees whatever was last published** through the console's Publishing page (`/console/content/publishing`).
 - The admin song editor (`SongEditor`) edits **server-held content**, not these `.ts`
   files — it receives a `Song` through `StructuredEditorProps`.
 

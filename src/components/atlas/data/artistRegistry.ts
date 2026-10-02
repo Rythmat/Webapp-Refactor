@@ -19,6 +19,25 @@
  * Seeded 2026-09-26 from the derivation's own output (881 artists). `events` is
  * how many events it found at that moment, kept as a review aid: an artist with
  * one event and an unfamiliar name is the most likely mistake.
+ *
+ * 2026-09-29: five film and TV titles the derivation had read as artists
+ * ("Black Panther", "I Love Lucy", "La La Land", "Mad Men", "Tick, Tick...
+ * Boom!" — each captured with a stray opening quote) were removed; a guard
+ * test keeps quote-led names out.
+ *
+ * 2026-09-30: 23 duplicates merged per the owner: ten acts held both with
+ * and without "The", eleven misspelt names, a short form of Creedence
+ * Clearwater Revival, and "Rufus and Chaka Khan", the billing of the band
+ * Rufus (docs/console-content-graph-design.md lists each pair). Each act
+ * keeps its own billing, with MusicBrainz's name as the tie-breaker. The
+ * misspelt alias "Andy Grammar" and "Remind In Light" (the album title Remain
+ * in Light, read as an artist; its song is by Talking Heads) went the same
+ * way, and "Christina, Aguilera, Lil’ Kim, Mya, Pink" lost its stray comma.
+ * The old spellings were removed, not aliased, and the tags, titles and song
+ * billings that used them moved to the kept name, so nothing resolves
+ * through an old spelling any more. The one billing left as printed is
+ * "Rufus and Chaka Khan" on its two songs, which link to `rufus` through
+ * their `origin.artistGlobeId`.
  */
 
 export interface RegisteredArtist {
@@ -31,11 +50,6 @@ export interface RegisteredArtist {
 }
 
 export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
-  { slug: 'black-panther', name: '"Black Panther' },
-  { slug: 'i-love-lucy', name: '"I Love Lucy' },
-  { slug: 'la-la-land', name: '"La La Land' },
-  { slug: 'mad-men', name: '"Mad Men' },
-  { slug: 'tick-tick-boom', name: '"Tick, Tick... Boom!' },
   { slug: '4-non-blondes', name: '4 Non Blondes' },
   { slug: 'a-tribe-called-quest', name: 'A Tribe Called Quest' },
   { slug: 'a-ha', name: 'A-ha' },
@@ -63,12 +77,7 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'amos-lee', name: 'Amos Lee' },
   { slug: 'amy-winehouse', name: 'Amy Winehouse' },
   { slug: 'amalia-rodrigues', name: 'Amália Rodrigues' },
-  {
-    slug: 'andy-grammer',
-    name: 'Andy Grammer',
-    // The globe event titles him 'Andy Grammar'; the song library has it right.
-    aliases: ['Andy Grammar'],
-  },
+  { slug: 'andy-grammer', name: 'Andy Grammer' },
   { slug: 'angie-stone', name: 'Angie Stone' },
   { slug: 'angelique-kidjo', name: 'Angélique Kidjo' },
   { slug: 'ani-difranco', name: 'Ani DiFranco' },
@@ -92,7 +101,6 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'bad-bunny', name: 'Bad Bunny' },
   { slug: 'ballake-sissoko', name: 'Ballaké Sissoko' },
   { slug: 'barry-manilow', name: 'Barry Manilow' },
-  { slug: 'beatles', name: 'Beatles' },
   { slug: 'beenie-man', name: 'Beenie Man' },
   { slug: 'beethoven', name: 'Beethoven' },
   { slug: 'bella-bellow', name: 'Bella Bellow' },
@@ -136,7 +144,6 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'bon-iver', name: 'Bon Iver' },
   { slug: 'bonnie-raitt', name: 'Bonnie Raitt' },
   { slug: 'bootsy-collins', name: 'Bootsy Collins' },
-  { slug: 'boyz-2-men', name: 'Boyz 2 Men' },
   { slug: 'boyz-ii-men', name: 'Boyz II Men' },
   { slug: 'brad-mehldau', name: 'Brad Mehldau' },
   { slug: 'brahms', name: 'Brahms' },
@@ -172,7 +179,6 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'carole-king', name: 'Carole King' },
   { slug: 'carole-king-rob-galloway', name: 'Carole King / Rob Galloway' },
   { slug: 'cat-stevens', name: 'Cat Stevens' },
-  { slug: 'ccr', name: 'CCR' },
   { slug: 'ceelo-green', name: 'CeeLo Green' },
   { slug: 'celia-cruz', name: 'Celia Cruz' },
   { slug: 'celine-dion', name: 'Celine Dion' },
@@ -195,7 +201,7 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'christina-perri', name: 'Christina Perri' },
   {
     slug: 'christina-aguilera-lil-kim-mya-pink',
-    name: 'Christina, Aguilera, Lil’ Kim, Mya, Pink',
+    name: 'Christina Aguilera, Lil’ Kim, Mya, Pink',
   },
   { slug: 'chronixx', name: 'Chronixx' },
   { slug: 'chuck-berry', name: 'Chuck Berry' },
@@ -249,7 +255,6 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'dnce', name: 'DNCE' },
   { slug: 'doechii', name: 'Doechii' },
   { slug: 'dolly-parton', name: 'Dolly Parton' },
-  { slug: 'doobie-brothers', name: 'Doobie Brothers' },
   { slug: 'dopapod', name: 'Dopapod' },
   { slug: 'douk-saga', name: 'Douk Saga' },
   { slug: 'dr-john', name: 'Dr. John' },
@@ -290,7 +295,6 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'erykah-badu', name: 'Erykah Badu' },
   { slug: 'esperanza-spalding', name: 'Esperanza Spalding' },
   { slug: 'etta-james', name: 'Etta James' },
-  { slug: 'eurhythmics', name: 'Eurhythmics' },
   { slug: 'eve', name: 'Eve' },
   { slug: 'fairuz', name: 'Fairuz' },
   { slug: 'fania-all-stars', name: 'Fania All-Stars' },
@@ -333,7 +337,6 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'ginuwine', name: 'Ginuwine' },
   { slug: 'giorgio-moroder', name: 'Giorgio Moroder' },
   { slug: 'giveon', name: 'Giveon' },
-  { slug: 'gladys-night-and-the-pips', name: 'Gladys Night And The Pips' },
   { slug: 'glen-campbell', name: 'Glen Campbell' },
   { slug: 'gloria-gaynor', name: 'Gloria Gaynor' },
   { slug: 'gnarls-barkley', name: 'Gnarls Barkley' },
@@ -406,7 +409,6 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'jhene-aiko', name: 'Jhene Aiko' },
   { slug: 'jill-scott', name: 'Jill Scott' },
   { slug: 'jimmy-cliff', name: 'Jimmy Cliff' },
-  { slug: 'jimmy-hendrix', name: 'Jimmy Hendrix' },
   { slug: 'jj-cale', name: 'JJ Cale' },
   { slug: 'joan-baez', name: 'Joan Baez' },
   {
@@ -416,7 +418,6 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'joe-bonamassa', name: 'Joe Bonamassa' },
   { slug: 'joe-cocker', name: 'Joe Cocker' },
   { slug: 'joe-hisaishi', name: 'Joe Hisaishi' },
-  { slug: 'joe-legend', name: 'Joe Legend' },
   { slug: 'joe-walsh', name: 'Joe Walsh' },
   { slug: 'john-barry', name: 'John Barry' },
   { slug: 'john-cage', name: 'John Cage' },
@@ -485,7 +486,6 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'lauryn-hill', name: 'Lauryn Hill' },
   { slug: 'le-mystere', name: 'Le Mystère' },
   { slug: 'lead-belly', name: 'Lead Belly' },
-  { slug: 'leann-womack', name: 'Leann Womack' },
   { slug: 'led-zeppelin', name: 'Led Zeppelin' },
   { slug: 'lee-scratch-perry', name: 'Lee "Scratch" Perry' },
   { slug: 'leon-bridges', name: 'Leon Bridges' },
@@ -541,7 +541,6 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'maren-morris', name: 'Maren Morris' },
   { slug: 'maria-schneider', name: 'Maria Schneider' },
   { slug: 'mariah-carey', name: 'Mariah Carey' },
-  { slug: 'marivn-gaye', name: 'Marivn Gaye' },
   { slug: 'maroon-5', name: 'Maroon 5' },
   { slug: 'martha-and-the-vandellas', name: 'Martha and The Vandellas' },
   { slug: 'marvin-gaye', name: 'Marvin Gaye' },
@@ -671,9 +670,6 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'ray-lamontagne', name: 'Ray Lamontagne' },
   { slug: 'rebelution', name: 'Rebelution' },
   { slug: 'red-hot-chili-peppers', name: 'Red Hot Chili Peppers' },
-  { slug: 'redbone-pat-vegas', name: 'Redbone (Pat Vegas)' },
-  { slug: 'remind-in-light', name: 'Remind In Light' },
-  { slug: 'rhianna', name: 'Rhianna' },
   { slug: 'rhoma-irama', name: 'Rhoma Irama' },
   { slug: 'richie-havens', name: 'Richie Havens' },
   { slug: 'rick-astley', name: 'Rick Astley' },
@@ -692,14 +688,12 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'robert-palmer', name: 'Robert Palmer' },
   { slug: 'robin-thicke', name: 'Robin Thicke' },
   { slug: 'rod-stewart', name: 'Rod Stewart' },
-  { slug: 'rolling-stones', name: 'Rolling Stones' },
   { slug: 'ros-sereysothea', name: 'Ros Sereysothea' },
   { slug: 'rosalia', name: 'Rosalía' },
   { slug: 'rose-royce', name: 'Rose Royce' },
   { slug: 'roy-orbison', name: 'Roy Orbison' },
   { slug: 'ruben-blades', name: 'Rubén Blades' },
   { slug: 'rufus', name: 'Rufus' },
-  { slug: 'rufus-and-chaka-khan', name: 'Rufus and Chaka Khan' },
   { slug: 'rufus-wainwright', name: 'Rufus Wainwright' },
   { slug: 'run-dmc', name: 'Run-DMC' },
   { slug: 'rush', name: 'Rush' },
@@ -782,7 +776,6 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'steve-miller-band', name: 'Steve Miller Band' },
   { slug: 'stevie-nicks', name: 'Stevie Nicks' },
   { slug: 'stevie-ray-vaughan', name: 'Stevie Ray Vaughan' },
-  { slug: 'stevie-ray-vaughn', name: 'Stevie Ray Vaughn' },
   { slug: 'stevie-wonder', name: 'Stevie Wonder' },
   { slug: 'stevie-wonder-nathan-watts', name: 'Stevie Wonder / Nathan Watts' },
   { slug: 'stevie-wonder-chaka-khan', name: 'Stevie Wonder/Chaka Khan' },
@@ -814,13 +807,11 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'tears-for-fears', name: 'Tears For Fears' },
   { slug: 'tedeschi-trucks-band', name: 'Tedeschi Trucks Band' },
   { slug: 'tego-calderon', name: 'Tego Calderón' },
-  { slug: 'temptations', name: 'Temptations' },
   { slug: 'tems', name: 'Tems' },
   { slug: 'teresa-teng', name: 'Teresa Teng' },
   { slug: 'terrace-martin', name: 'Terrace Martin' },
   { slug: 'terri-lyne-carrington', name: 'Terri Lyne Carrington' },
   { slug: 'the-allman-brothers', name: 'The Allman Brothers' },
-  { slug: 'the-average-white-band', name: 'The Average White Band' },
   { slug: 'the-avett-brothers', name: 'The Avett Brothers' },
   { slug: 'the-b-52s', name: 'The B-52s' },
   { slug: 'the-band', name: 'The Band' },
@@ -838,7 +829,6 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'the-champs', name: 'The Champs' },
   { slug: 'the-chiffons', name: 'The Chiffons' },
   { slug: 'the-clash', name: 'The Clash' },
-  { slug: 'the-commodores', name: 'The Commodores' },
   { slug: 'the-cure', name: 'The Cure' },
   { slug: 'the-darkness', name: 'The Darkness' },
   { slug: 'the-dogg', name: 'The Dogg' },
@@ -850,7 +840,6 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'the-emotions', name: 'The Emotions' },
   { slug: 'the-foundations', name: 'The Foundations' },
   { slug: 'the-four-seasons', name: 'The Four Seasons' },
-  { slug: 'the-four-tops', name: 'The Four Tops' },
   { slug: 'the-fray', name: 'The Fray' },
   { slug: 'the-fugees', name: 'The Fugees' },
   { slug: 'the-internet', name: 'The Internet' },
@@ -864,7 +853,6 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'the-penguins', name: 'The Penguins' },
   { slug: 'the-pointer-sisters', name: 'The Pointer Sisters' },
   { slug: 'the-proclaimers', name: 'The Proclaimers' },
-  { slug: 'the-red-hot-chili-peppers', name: 'The Red Hot Chili Peppers' },
   { slug: 'the-rolling-stones', name: 'The Rolling Stones' },
   { slug: 'the-romantics', name: 'The Romantics' },
   { slug: 'the-roots', name: 'The Roots' },
@@ -873,12 +861,9 @@ export const ARTIST_REGISTRY: readonly RegisteredArtist[] = [
   { slug: 'the-spice-girls', name: 'The Spice Girls' },
   { slug: 'the-staple-singers', name: 'The Staple Singers' },
   { slug: 'the-statler-brothers', name: 'The Statler Brothers' },
-  { slug: 'the-steve-miller-band', name: 'The Steve Miller Band' },
   { slug: 'the-strokes', name: 'The Strokes' },
-  { slug: 'the-talking-heads', name: 'The Talking Heads' },
   { slug: 'the-temptations', name: 'The Temptations' },
   { slug: 'the-used', name: 'The Used' },
-  { slug: 'the-weekend', name: 'The Weekend' },
   { slug: 'the-weeknd', name: 'The Weeknd' },
   { slug: 'thelonious-monk', name: 'Thelonious Monk' },
   { slug: 'third-eye-blind', name: 'Third Eye Blind' },

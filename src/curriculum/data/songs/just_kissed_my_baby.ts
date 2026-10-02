@@ -16,6 +16,20 @@ export const just_kissed_my_baby: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'The Meters',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'the-meters',
+    },
+    {
+      name: 'Allen Toussaint',
+      role: 'producer',
+      artistGlobeId: 'allen-toussaint',
+    },
+  ],
+  releases: [{ releaseId: 'the-meters-rejuvenation' }],
 
   sections: [
     {

@@ -11,14 +11,25 @@
 // hollow neck inlays up the neck, and an (i) popover with the other names,
 // the family explainer, the hidden triad and the tone order. Display only:
 // nothing here changes what a step grades.
+//
+// The lesson variant keeps two short lines over the box — the name with its
+// (i), the Hybrid label under it — and moves the formula, family, badge,
+// shape string and other names into the (i). The box itself plays the chord.
 
 import { Info, Volume2 } from 'lucide-react';
-import { memo, useMemo, type ReactNode } from 'react';
+import {
+  memo,
+  useId,
+  useMemo,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { cn } from '@/components/utilities';
 import {
   GUITAR_ATLAS_BOOK_ONE,
   GUITAR_KEY_ORDER,
@@ -58,9 +69,14 @@ import {
 import { chordAliases } from '@/lib/guitar/theory/keyTheory';
 import type { ChordToneLabel, VoicingInfo } from '@/lib/guitar/theory/types';
 import { classifyVoicing } from '@/lib/guitar/theory/voicing';
-import type { GuitarStringNumber } from '@/lib/guitar/types';
+import type { GuitarBarre, GuitarStringNumber } from '@/lib/guitar/types';
 import { FretDiagram } from './FretDiagram';
-import type { ChordBoxProps, DiagramInfoNote, FretDiagramDot } from './types';
+import type {
+  ChordBoxProps,
+  DiagramInfoNote,
+  DiagramVariant,
+  FretDiagramDot,
+} from './types';
 
 /**
  * A pitch class spelled as an interval above the root `name` starts with, so
@@ -215,6 +231,19 @@ function chordBoxAria(
 // ── (i) popover ────────────────────────────────────────────────────────────
 
 /**
+ * The popover's open and close without its zoom and slide: the lesson's
+ * motion is colour and opacity only.
+ */
+const FADE_ONLY = {
+  '--tw-enter-scale': '1',
+  '--tw-exit-scale': '1',
+  '--tw-enter-translate-x': '0',
+  '--tw-enter-translate-y': '0',
+  '--tw-exit-translate-x': '0',
+  '--tw-exit-translate-y': '0',
+} as CSSProperties;
+
+/**
  * An (i) button that opens a small popover of theory notes. Shared by the
  * chord and scale boxes; the button sits outside the diagram's role="img".
  */
@@ -224,6 +253,8 @@ export function TheoryInfoButton({
   lead,
   notes,
   size = 'md',
+  variant = 'default',
+  details,
 }: {
   /** 'About C major': the button's and the popover's accessible name. */
   label: string;
@@ -232,7 +263,44 @@ export function TheoryInfoButton({
   lead?: string;
   notes: readonly DiagramInfoNote[];
   size?: 'sm' | 'md';
+  /** 'lesson': a 24px (i) with a 32px hit area, and the landing popover. */
+  variant?: DiagramVariant;
+  /** Lesson: lines under the heading, before the lead (family, shape). */
+  details?: ReactNode;
 }) {
+  if (variant === 'lesson') {
+    return (
+      <Popover>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            aria-label={label}
+            data-theory-info
+            // 24px to the eye, 32px to a finger.
+            className="relative inline-flex size-6 shrink-0 items-center justify-center rounded-full text-white/55 transition-colors before:absolute before:-inset-1 before:content-[''] hover:bg-white/[0.06] hover:text-[#e8e8f0]"
+          >
+            <Info aria-hidden className="size-4" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent
+          aria-label={label}
+          data-theory-popover
+          className="w-72 space-y-2 rounded-xl border-white/[0.08] bg-[#141416] p-3 text-xs leading-snug text-[#e8e8f0] motion-reduce:!animate-none"
+          style={FADE_ONLY}
+        >
+          {heading && <div className="text-sm font-bold">{heading}</div>}
+          {details}
+          {lead && <p className="text-white/55">{lead}</p>}
+          {notes.map((note) => (
+            <div key={note.id} data-note-id={note.id}>
+              <div className="font-bold">{note.title}</div>
+              <p className="text-white/55">{note.body}</p>
+            </div>
+          ))}
+        </PopoverContent>
+      </Popover>
+    );
+  }
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -298,6 +366,7 @@ export const ChordBox = memo(function ChordBox({
   keyName,
   labelMode: labelModeProp,
   theory: withTheory = true,
+  variant = 'default',
 }: ChordBoxProps) {
   const storedMode = useGuitarDisplaySettings((s) => s.chordBoxLabels);
   // A Book One chord shape carries its own degree and quality.
@@ -381,6 +450,23 @@ export const ChordBox = memo(function ChordBox({
     const barres = shape.barre ? [shape.barre] : undefined;
     return { muted, open, dots, barres, extras, label };
   }, [shape, name, rootPc, showFingers, diagnostics, theory, chordTones]);
+
+  if (variant === 'lesson') {
+    return (
+      <LessonChordBox
+        shape={shape}
+        name={name}
+        hybridLabel={hybridLabel}
+        keyColor={keyColor}
+        state={state}
+        size={size}
+        mirrored={mirrored}
+        onHear={onHear}
+        theory={theory}
+        model={model}
+      />
+    );
+  }
 
   const small = size === 'sm';
   const lineClass = small ? 'text-[10px]' : 'text-xs';
@@ -482,3 +568,140 @@ export const ChordBox = memo(function ChordBox({
     </div>
   );
 });
+
+/** What ChordBox works out for its box, handed to the lesson look. */
+interface ChordBoxModel {
+  muted: GuitarStringNumber[];
+  open: GuitarStringNumber[];
+  dots: FretDiagramDot[];
+  barres: GuitarBarre[] | undefined;
+  extras: string[];
+  label: string;
+}
+
+/**
+ * The lesson look: the name and its (i) on one line, the Hybrid label (and
+ * any extra tones after a missed strum) under it, then the box, which plays
+ * the chord when it can.
+ */
+function LessonChordBox({
+  shape,
+  name,
+  hybridLabel,
+  keyColor,
+  state,
+  size,
+  mirrored,
+  onHear,
+  theory,
+  model,
+}: Pick<
+  ChordBoxProps,
+  | 'shape'
+  | 'name'
+  | 'hybridLabel'
+  | 'keyColor'
+  | 'state'
+  | 'size'
+  | 'mirrored'
+  | 'onHear'
+> & { theory: ChordTheory | null; model: ChordBoxModel }) {
+  const descriptionId = useId();
+  const diagram = (
+    <FretDiagram
+      variant="lesson"
+      startFret={shape.diagramStartFret}
+      muted={model.muted}
+      open={model.open}
+      dots={model.dots}
+      barres={model.barres}
+      keyColor={keyColor}
+      size={size}
+      state={state}
+      mirrored={mirrored}
+      ariaLabel={model.label}
+      inlays={theory !== null}
+    />
+  );
+  return (
+    <div
+      data-chord-box
+      data-variant="lesson"
+      className={cn(
+        'inline-flex flex-col items-start gap-1',
+        state === 'done' && 'opacity-40',
+      )}
+    >
+      <div className="flex h-6 items-center gap-1">
+        <span
+          data-title
+          className="whitespace-nowrap text-sm font-bold leading-none text-[#e8e8f0]"
+        >
+          {name}
+        </span>
+        {theory && (
+          <TheoryInfoButton
+            variant="lesson"
+            label={`About ${name}`}
+            heading={
+              <>
+                {name}
+                <span
+                  data-formula
+                  className="ml-1.5 text-xs font-normal text-white/55"
+                >
+                  {theory.formula}
+                  {theory.nickname && <span> · {theory.nickname}</span>}
+                </span>
+              </>
+            }
+            details={
+              <div className="space-y-0.5 text-white/55">
+                <div data-family>
+                  {[theory.family, theory.badge].filter(Boolean).join(' · ')}
+                </div>
+                <div data-caption>Shape {shape.frets}</div>
+              </div>
+            }
+            lead={theory.aliases}
+            notes={theory.notes}
+          />
+        )}
+      </div>
+      {(hybridLabel || model.extras.length > 0) && (
+        <div className="flex h-4 items-center gap-1.5 whitespace-nowrap text-xs leading-4 text-white/55">
+          {hybridLabel && <span data-subtitle>{hybridLabel}</span>}
+          {/* After a missed strum: the tones it had that the chord hasn't. */}
+          {model.extras.length > 0 && (
+            <span
+              data-extra-badge
+              className="rounded-full border border-dashed border-white/40 px-1.5 text-[#e8e8f0]"
+            >
+              extra: {model.extras.join(', ')}
+            </span>
+          )}
+        </div>
+      )}
+      {onHear ? (
+        <>
+          <button
+            type="button"
+            onClick={onHear}
+            aria-label={`Hear ${name}`}
+            aria-describedby={descriptionId}
+            data-hear
+            className="rounded-lg bg-transparent p-0 transition-colors hover:bg-white/[0.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60"
+          >
+            {diagram}
+          </button>
+          {/* The box's own description: inside a button it isn't read. */}
+          <span id={descriptionId} className="sr-only">
+            {model.label}
+          </span>
+        </>
+      ) : (
+        diagram
+      )}
+    </div>
+  );
+}

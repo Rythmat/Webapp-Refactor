@@ -16,6 +16,20 @@ export const interstate_love_song: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Scott Weiland',
+      role: 'songwriter',
+      artistGlobeId: 'scott-weiland',
+    },
+    {
+      name: 'Brendan O’Brien',
+      role: 'producer',
+      artistGlobeId: 'brendan-obrien',
+    },
+    { name: 'Robert DeLeo', role: 'songwriter', artistGlobeId: 'robert-deleo' },
+  ],
+  releases: [{ releaseId: 'stone-temple-pilots-purple' }],
 
   sections: [
     {

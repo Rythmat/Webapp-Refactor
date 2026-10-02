@@ -1,4 +1,4 @@
-import { motion, useTransform, type MotionValue } from 'framer-motion';
+import { useTransform, type MotionValue } from 'framer-motion';
 import {
   Circle,
   Lock,
@@ -8,6 +8,7 @@ import {
   Repeat,
   Square,
 } from 'lucide-react';
+import { MotionFixedDigits } from '@/components/common/FixedDigits';
 import { RainbowBorderButton } from '@/components/ui/rainbow-borders-button';
 import { cn } from '@/components/utilities';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
@@ -165,17 +166,16 @@ export const StudioTransport = ({
         className="mx-1 h-4 w-px"
         style={{ background: STUDIO.border }}
       />
-      <motion.span
+      <MotionFixedDigits
+        value={counter}
         role="timer"
         aria-label="Position"
         className={cn(
-          'font-mono tabular-nums tracking-wider',
+          'tracking-wider',
           compact ? 'min-w-[64px] text-[15px]' : 'min-w-[52px] text-[12px]',
         )}
         style={{ color: STUDIO.text }}
-      >
-        {counter}
-      </motion.span>
+      />
     </div>
   );
 
@@ -214,14 +214,14 @@ export const StudioTransport = ({
           style={{ color: STUDIO.textDim }}
         >
           <span
-            className="rounded px-1.5 py-0.5 font-mono"
+            className="rounded px-1.5 py-0.5 tabular-nums"
             style={{ background: STUDIO.surface2 }}
           >
             4/4
           </span>
           <span className="uppercase">Bpm</span>
           <span
-            className="rounded border px-1.5 py-0.5 font-mono text-[11px]"
+            className="rounded border px-1.5 py-0.5 text-[11px] tabular-nums"
             style={{ borderColor: STUDIO.border, color: STUDIO.text }}
           >
             {BPM}

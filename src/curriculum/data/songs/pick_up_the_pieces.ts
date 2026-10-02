@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const pick_up_the_pieces: Song = {
   id: 'pick_up_the_pieces',
   title: 'Pick Up The Pieces',
-  artist: 'The Average White Band',
+  artist: 'Average White Band',
   year: 1974,
   historicalDescription:
     "The Average White Band's 'Pick Up The Pieces' stands as one of the great ironies of funk — a group of white Scottish musicians delivering one of the genre's most celebrated instrumental grooves. Originally released in 1974, the track becomes a defining statement that funk is a feeling, not a birthright, and its infectious horn riff and locked-in rhythm section continue to influence musicians and producers for decades.",
@@ -16,6 +16,35 @@ export const pick_up_the_pieces: Song = {
   difficulty: 3,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Alan Gorrie', role: 'songwriter', artistGlobeId: 'alan-gorrie' },
+    { name: 'Molly Duncan', role: 'songwriter', artistGlobeId: 'molly-duncan' },
+    {
+      name: 'Hamish Stuart',
+      role: 'songwriter',
+      artistGlobeId: 'hamish-stuart',
+    },
+    {
+      name: 'Owen McIntyre',
+      role: 'songwriter',
+      artistGlobeId: 'owen-mcintyre',
+    },
+    {
+      name: 'Robbie McIntosh',
+      role: 'songwriter',
+      artistGlobeId: 'robbie-mcintosh',
+    },
+    {
+      name: 'Average White Band',
+      role: 'arranger',
+      ensemble: true,
+      artistGlobeId: 'average-white-band',
+    },
+    { name: 'Roger Ball', role: 'songwriter', artistGlobeId: 'roger-ball' },
+    { name: 'Roger Ball', role: 'arranger', artistGlobeId: 'roger-ball' },
+    { name: 'Arif Mardin', role: 'producer', artistGlobeId: 'arif-mardin' },
+  ],
+  releases: [{ releaseId: 'average-white-band-awb' }],
 
   sections: [
     {

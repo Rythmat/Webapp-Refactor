@@ -16,6 +16,30 @@ export const hit_me_with_your_best_shot: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Chris Minto', role: 'engineer' },
+    { name: 'Roger Capps', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Eddie Schwartz',
+      role: 'songwriter',
+      artistGlobeId: 'eddie-schwartz',
+    },
+    { name: 'Scott St. Clair Sheets', role: 'performer' },
+    { name: 'Neil Giraldo', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Neil Giraldo', role: 'performer' },
+    { name: 'Keith Olsen', role: 'producer', artistGlobeId: 'keith-olsen' },
+    {
+      name: 'Pat Benatar',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'pat-benatar',
+      primary: true,
+    },
+    { name: 'Roger Capps', role: 'performer' },
+    { name: 'Keith Olsen', role: 'engineer', artistGlobeId: 'keith-olsen' },
+    { name: 'Myron Grombacher', role: 'performer', instrument: 'drum-kit' },
+  ],
+  releases: [{ releaseId: 'pat-benatar-crimes-of-passion' }],
 
   sections: [
     {

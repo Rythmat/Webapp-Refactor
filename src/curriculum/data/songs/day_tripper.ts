@@ -16,6 +16,62 @@ export const day_tripper: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'abbey-road-studios' },
+  credits: [
+    { name: 'Ringo Starr', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'john-lennon',
+    },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'john-lennon',
+    },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'tambourine',
+      artistGlobeId: 'john-lennon',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'songwriter',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Ken Scott', role: 'engineer', artistGlobeId: 'ken-scott' },
+    { name: 'John Lennon', role: 'songwriter', artistGlobeId: 'john-lennon' },
+    { name: 'Paul McCartney', role: 'vocals', artistGlobeId: 'paul-mccartney' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'Norman Smith', role: 'engineer' },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    { name: 'John Lennon', role: 'vocals', artistGlobeId: 'john-lennon' },
+    { name: 'George Martin', role: 'producer' },
+  ],
+  releases: [{ releaseId: 'the-beatles-yesterday-and-today' }],
 
   sections: [
     {

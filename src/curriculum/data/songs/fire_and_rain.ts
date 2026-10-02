@@ -16,6 +16,34 @@ export const fire_and_rain: Song = {
   difficulty: 2,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  session: { studioId: 'sunset-sound' },
+  credits: [
+    { name: 'Peter Asher', role: 'producer', artistGlobeId: 'peter-asher' },
+    {
+      name: 'James Taylor',
+      role: 'vocals',
+      artistGlobeId: 'james-taylor',
+      primary: true,
+    },
+    {
+      name: 'James Taylor',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'james-taylor',
+      primary: true,
+    },
+    { name: 'James Taylor', role: 'songwriter', artistGlobeId: 'james-taylor' },
+    { name: 'Bill Lazerus', role: 'engineer' },
+    { name: 'Bobby West', role: 'performer', instrument: 'upright-bass' },
+    { name: 'Russ Kunkel', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'Carole King',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'carole-king',
+    },
+  ],
+  releases: [{ releaseId: 'james-taylor-sweet-baby-james', track: 7 }],
 
   sections: [
     {

@@ -14,9 +14,9 @@ import {
 
 /**
  * Instrument picker — "Instrument: Piano ▾". Choosing an instrument stores it
- * for Learn on this device (useInstrumentStore); the Technique tab then shows
- * that instrument's lessons. Instruments without lessons yet are listed but
- * disabled, with a "Coming soon" label.
+ * for Learn on this device (useInstrumentStore); Learn then shows that
+ * instrument's lessons (guitar's are in Theory → Ionian (Major)). Instruments
+ * without lessons yet are listed but disabled, with a "Coming soon" label.
  */
 export const InstrumentSelector = ({
   onChange,

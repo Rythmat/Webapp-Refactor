@@ -16,6 +16,27 @@ export const twisted: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Pharrell Williams',
+      role: 'songwriter',
+      artistGlobeId: 'pharrell-williams',
+    },
+    {
+      name: 'Usher',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'usher',
+    },
+    { name: 'Usher', role: 'songwriter', artistGlobeId: 'usher' },
+    {
+      name: 'Pharrell Williams',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'pharrell-williams',
+    },
+  ],
+  releases: [{ releaseId: 'usher-looking-4-myself', track: 7 }],
 
   sections: [
     {

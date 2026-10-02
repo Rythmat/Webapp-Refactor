@@ -16,6 +16,29 @@ export const move_on_up: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Riley Hampton', role: 'arranger' },
+    {
+      name: 'Curtis Mayfield',
+      role: 'producer',
+      artistGlobeId: 'curtis-mayfield',
+    },
+    {
+      name: 'Curtis Mayfield',
+      role: 'vocals',
+      artistGlobeId: 'curtis-mayfield',
+      primary: true,
+    },
+    { name: 'Roger Anfinsen', role: 'engineer' },
+    { name: 'Tom Flye', role: 'engineer' },
+    {
+      name: 'Curtis Mayfield',
+      role: 'songwriter',
+      artistGlobeId: 'curtis-mayfield',
+    },
+    { name: 'Gary Slabo', role: 'arranger' },
+  ],
+  releases: [{ releaseId: 'curtis-mayfield-curtis' }],
 
   sections: [
     {

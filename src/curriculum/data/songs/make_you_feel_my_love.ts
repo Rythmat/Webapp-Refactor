@@ -16,6 +16,30 @@ export const make_you_feel_my_love: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  session: { studioId: 'the-town-house' },
+  credits: [
+    { name: 'Richard Wilkinson', role: 'engineer' },
+    { name: 'Jim Abbiss', role: 'producer', artistGlobeId: 'jim-abbiss' },
+    { name: 'Bob Dylan', role: 'songwriter', artistGlobeId: 'bob-dylan' },
+    { name: 'Rosie Danvers', role: 'arranger' },
+    { name: 'Neil Cowley', role: 'performer', instrument: 'piano' },
+    {
+      name: 'Adele',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'adele',
+      primary: true,
+    },
+    { name: 'Adele', role: 'vocals', artistGlobeId: 'adele', primary: true },
+    { name: 'Jim Abbiss', role: 'engineer', artistGlobeId: 'jim-abbiss' },
+    {
+      name: 'Wired Strings',
+      role: 'performer',
+      instrument: 'string-section',
+      ensemble: true,
+    },
+  ],
+  releases: [{ releaseId: 'adele-19' }],
 
   sections: [
     {

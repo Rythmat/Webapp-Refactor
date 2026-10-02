@@ -16,6 +16,37 @@ export const good_times: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Chic',
+      role: 'performer',
+      ensemble: true,
+      artistGlobeId: 'chic',
+      primary: true,
+    },
+    { name: 'Nile Rodgers', role: 'performer', artistGlobeId: 'nile-rodgers' },
+    { name: 'Nile Rodgers', role: 'songwriter', artistGlobeId: 'nile-rodgers' },
+    {
+      name: 'Bernard Edwards',
+      role: 'songwriter',
+      artistGlobeId: 'bernard-edwards',
+    },
+    {
+      name: 'Tony Thompson',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'tony-thompson',
+    },
+    { name: 'Rob Sabino', role: 'performer', instrument: 'piano' },
+    { name: 'Raymond Jones', role: 'performer', instrument: 'electric-piano' },
+    { name: 'Luci Martin', role: 'vocals', artistGlobeId: 'luci-martin' },
+    {
+      name: 'Bernard Edwards',
+      role: 'performer',
+      artistGlobeId: 'bernard-edwards',
+    },
+    { name: 'Alfa Anderson', role: 'vocals', artistGlobeId: 'alfa-anderson' },
+  ],
 
   sections: [
     {

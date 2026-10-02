@@ -237,13 +237,78 @@ describe('TAB renders through VexFlow', () => {
     });
     host = document.createElement('div');
     document.body.appendChild(host);
+    // A one-line step fills a tall panel at twice the size: ~24px digits.
     const tall = renderTabSystem(vf, host, score, 900, 600, {
       fitHeight: true,
     });
-    expect(tall.scale).toBe(1.6);
+    expect(tall.scale).toBe(2);
+    expect(tall.paged).toBe(false);
     const short = renderTabSystem(vf, host, score, 900, 150, {
       fitHeight: true,
     });
     expect(short.scale).toBeLessThan(1);
+    // One line: nothing to page through.
+    expect(short.paged).toBe(false);
+  });
+
+  it('pages a step whose lines do not all fit at scale 1, rather than shrinking it', async () => {
+    const vf = await import('vexflow/bravura');
+    const notes = Array.from({ length: 8 }, (_, bar) =>
+      strum('X-3-2-0-1-0', bar * BAR, BAR),
+    ).flat();
+    const score = buildTab(notes, { timeSignature: [4, 4], minMeasures: 8 });
+    host = document.createElement('div');
+    document.body.appendChild(host);
+    // 400px wide wraps eight bars onto several lines; 200px holds one.
+    const rendered = renderTabSystem(vf, host, score, 400, 200, {
+      fitHeight: true,
+    });
+    expect(rendered.systems.length).toBeGreaterThan(1);
+    expect(rendered.paged).toBe(true);
+    // Not shrunk: one line a page, drawn to fill the 200px (no part of the
+    // next line shows under it).
+    expect(rendered.scale).toBeGreaterThanOrEqual(1);
+    expect(rendered.systemHeight * rendered.scale).toBeLessThanOrEqual(200);
+    expect(rendered.systems[1].y * rendered.scale).toBeGreaterThan(200 - 9);
+    // Taller than the panel: the view turns a line at a time.
+    expect(rendered.height).toBeGreaterThan(200);
+  });
+
+  it('sets the string names and bar numbers in Glacial, never under 12px', async () => {
+    const vf = await import('vexflow/bravura');
+    const score = buildTab(strum('X-3-2-0-1-0', 0, BAR), {
+      timeSignature: [4, 4],
+      minMeasures: 1,
+    });
+    host = document.createElement('div');
+    document.body.appendChild(host);
+    const at = (height: number) => {
+      const rendered = renderTabSystem(vf, host, score, 900, height, {
+        fitHeight: true,
+      });
+      const texts = [
+        ...host.querySelectorAll(
+          '.vf-string-names text, .vf-measure-number text',
+        ),
+      ];
+      expect(texts.length).toBe(7);
+      // VexFlow writes a font on the text or, when it hasn't changed, only
+      // on the group around it.
+      const inherited = (el: Element, name: string) =>
+        el.closest(`[${name}]`)!.getAttribute(name)!;
+      return texts.map((text) => ({
+        family: inherited(text, 'font-family'),
+        // In px (VexFlow reads a bare number as pt), drawn at the TAB's scale.
+        px: /px$/.test(inherited(text, 'font-size'))
+          ? parseFloat(inherited(text, 'font-size')) * rendered.scale
+          : NaN,
+      }));
+    };
+    for (const height of [150, 250, 600]) {
+      for (const { family, px } of at(height)) {
+        expect(family).toBe('Glacial Indifference');
+        expect(px).toBeGreaterThanOrEqual(12 - 1e-9);
+      }
+    }
   });
 });

@@ -16,6 +16,53 @@ export const lets_stay_together: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    {
+      name: 'Willie Mitchell',
+      role: 'songwriter',
+      artistGlobeId: 'willie-mitchell',
+    },
+    {
+      name: 'Al Green',
+      role: 'vocals',
+      artistGlobeId: 'al-green',
+      primary: true,
+    },
+    { name: 'Wayne Jackson', role: 'performer', instrument: 'trumpet' },
+    { name: 'Donna Rhodes', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Sandra Rhodes', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Al Jackson, Jr.',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'al-jackson-jr',
+    },
+    {
+      name: 'Al Jackson, Jr.',
+      role: 'songwriter',
+      artistGlobeId: 'al-jackson-jr',
+    },
+    { name: 'Leroy Hodges', role: 'performer', instrument: 'electric-bass' },
+    {
+      name: 'Willie Mitchell',
+      role: 'producer',
+      artistGlobeId: 'willie-mitchell',
+    },
+    { name: 'Charles Hodges', role: 'performer', instrument: 'organ' },
+    {
+      name: 'Charles Chalmers',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Howard Grimes', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Mabon Hodges', role: 'performer', artistGlobeId: 'mabon-hodges' },
+    { name: 'Charles Hodges', role: 'performer', instrument: 'piano' },
+    { name: 'James Mitchell', role: 'performer' },
+    { name: 'Al Green', role: 'songwriter', artistGlobeId: 'al-green' },
+    { name: 'Ed Logan', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Jack Hale', role: 'performer', instrument: 'trombone' },
+  ],
+  releases: [{ releaseId: 'al-green-lets-stay-together' }],
 
   sections: [
     {

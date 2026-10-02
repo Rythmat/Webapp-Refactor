@@ -4,7 +4,7 @@ export const soul_man: Song = {
   id: 'soul_man',
   title: 'Soul Man',
   artist: 'Sam and Dave',
-  year: undefined,
+  year: 1967,
 
   historicalDescription:
     "Sam and Dave release 'Soul Man', a barnstorming anthem that distills the essence of Southern soul into two and a half minutes of pure fire. Recorded at Stax Studios in Memphis with Booker T. & the M.G.'s and the Memphis Horns driving the groove, it becomes one of the defining records of the genre — and gives soul music its unofficial name.",
@@ -17,6 +17,18 @@ export const soul_man: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    { name: 'Booker T. & the MG’s', role: 'performer', ensemble: true },
+    { name: 'David Porter', role: 'songwriter', artistGlobeId: 'david-porter' },
+    { name: 'Sam Moore', role: 'vocals', artistGlobeId: 'sam-moore' },
+    { name: 'Jim Stewart', role: 'producer', artistGlobeId: 'jim-stewart' },
+    { name: 'David Porter', role: 'producer', artistGlobeId: 'david-porter' },
+    { name: 'David Prater', role: 'vocals', artistGlobeId: 'david-prater' },
+    { name: 'Isaac Hayes', role: 'songwriter', artistGlobeId: 'isaac-hayes' },
+    { name: 'The Mar‐Keys', role: 'performer', ensemble: true },
+    { name: 'Isaac Hayes', role: 'producer', artistGlobeId: 'isaac-hayes' },
+  ],
+  releases: [{ releaseId: 'sam-and-dave-soul-men' }],
 
   sections: [
     {

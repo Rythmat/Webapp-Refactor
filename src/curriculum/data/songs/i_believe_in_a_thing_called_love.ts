@@ -16,6 +16,54 @@ export const i_believe_in_a_thing_called_love: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'chapel-studios' },
+  credits: [
+    {
+      name: 'Pedro Ferreira',
+      role: 'engineer',
+      artistGlobeId: 'pedro-ferreira',
+    },
+    { name: 'Justin Hawkins', role: 'vocals', artistGlobeId: 'justin-hawkins' },
+    {
+      name: 'Frankie Poullain',
+      role: 'performer',
+      artistGlobeId: 'frankie-poullain',
+    },
+    { name: 'Dan Hawkins', role: 'performer', artistGlobeId: 'dan-hawkins' },
+    {
+      name: 'Edwin James Graham',
+      role: 'songwriter',
+      artistGlobeId: 'edwin-james-graham',
+    },
+    {
+      name: 'Pedro Ferreira',
+      role: 'producer',
+      artistGlobeId: 'pedro-ferreira',
+    },
+    { name: 'Dan Hawkins', role: 'songwriter', artistGlobeId: 'dan-hawkins' },
+    {
+      name: 'Frankie Poullain',
+      role: 'songwriter',
+      artistGlobeId: 'frankie-poullain',
+    },
+    {
+      name: 'Justin Hawkins',
+      role: 'songwriter',
+      artistGlobeId: 'justin-hawkins',
+    },
+    {
+      name: 'Ed Graham',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'ed-graham',
+    },
+    {
+      name: 'Justin Hawkins',
+      role: 'performer',
+      artistGlobeId: 'justin-hawkins',
+    },
+  ],
+  releases: [{ releaseId: 'the-darkness-permission-to-land', track: 4 }],
 
   sections: [
     {

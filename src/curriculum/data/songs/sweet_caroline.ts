@@ -16,6 +16,15 @@ export const sweet_caroline: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Neil Diamond', role: 'songwriter', artistGlobeId: 'neil-diamond' },
+  ],
+  releases: [
+    {
+      releaseId: 'neil-diamond-brother-loves-travelling-salvation-show',
+      track: 13,
+    },
+  ],
 
   sections: [
     {

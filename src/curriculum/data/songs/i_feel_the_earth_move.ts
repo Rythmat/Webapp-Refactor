@@ -16,6 +16,32 @@ export const i_feel_the_earth_move: Song = {
   difficulty: 2,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  session: { studioId: 'a-m-studios' },
+  credits: [
+    { name: 'Lou Adler', role: 'producer', artistGlobeId: 'lou-adler' },
+    {
+      name: 'Carole King',
+      role: 'performer',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    { name: 'Charles Larkey', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+    {
+      name: 'Carole King',
+      role: 'vocals',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    {
+      name: 'Danny Kortchmar',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    { name: 'Hank Cicalo', role: 'engineer' },
+    { name: "Joel O'Brien", role: 'performer', instrument: 'drum-kit' },
+  ],
+  releases: [{ releaseId: 'carole-king-tapestry' }],
 
   sections: [
     {

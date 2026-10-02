@@ -16,6 +16,7 @@ export const beers_ago: Song = {
   difficulty: 2,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  releases: [{ releaseId: 'toby-keith-clancys-tavern', track: 6 }],
 
   sections: [
     {

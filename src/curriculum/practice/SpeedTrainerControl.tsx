@@ -1,4 +1,6 @@
+import { Info } from 'lucide-react';
 import { useId, useState } from 'react';
+import { Switch } from '@/components/ui/switch';
 import {
   GUITAR_THEORY_NOTES,
   theoryString,
@@ -7,10 +9,11 @@ import type { SpeedLadderState } from './useLessonPracticeTools';
 
 // ── Speed trainer ──────────────────────────────────────────────────────────
 // The ladder's switch and rule for the lesson's tempo bar: loops start slow
-// and climb after clean passes. The (i) says what counts as clean.
+// and climb after clean passes. The (i) says what counts as clean. The
+// switch is the app's white one; the rule reads in the text colour while the
+// trainer runs and dimmer while it is off.
 
 const CLEAN_NOTE = GUITAR_THEORY_NOTES.find((note) => note.id === 'pt.clean')!;
-const DIM = 'var(--color-text-dim, #888)';
 
 export interface SpeedTrainerControlProps {
   ladder: SpeedLadderState;
@@ -28,41 +31,36 @@ export function SpeedTrainerControl({
 }: SpeedTrainerControlProps) {
   const [infoOpen, setInfoOpen] = useState(false);
   const infoId = useId();
+  const switchId = useId();
   const { enabled } = ladder;
+  const tone = enabled ? 'text-[#e8e8f0]' : 'text-white/55';
 
   return (
-    <div className="flex min-w-0 items-center gap-2 text-[12px]">
-      <button
-        type="button"
-        role="switch"
-        aria-checked={enabled}
-        onClick={onToggle}
-        className="flex shrink-0 items-center gap-1.5 bg-transparent p-0"
-        style={{ color: enabled ? '#eee' : DIM }}
-      >
-        <span
-          aria-hidden="true"
-          className="relative inline-block h-3.5 w-6 rounded-full motion-safe:transition-colors"
-          style={{
-            background: enabled ? '#4a9eff' : 'rgba(255,255,255,0.12)',
-          }}
+    <div className="flex min-w-0 items-center gap-2 text-xs">
+      <div className="flex min-h-11 shrink-0 items-center sm:min-h-9">
+        <Switch
+          id={switchId}
+          checked={enabled}
+          onCheckedChange={onToggle}
+          // A 20px switch that takes taps the row's full height (44px on a
+          // phone, 36px from sm up). The thumb slides; under reduced motion
+          // it just moves.
+          className="relative before:absolute before:-inset-x-1 before:-inset-y-3.5 before:content-[''] sm:before:-inset-y-2.5 [&>span]:motion-reduce:transition-none"
+        />
+        {/* The label takes taps too, the gap included, so the target is the
+            whole row. */}
+        <label
+          htmlFor={switchId}
+          className={`flex min-h-11 cursor-pointer items-center pl-2 transition-colors sm:min-h-9 ${tone}`}
         >
-          <span
-            className="absolute top-0.5 size-2.5 rounded-full bg-white motion-safe:transition-[left]"
-            style={{ left: enabled ? 12 : 2 }}
-          />
-        </span>
-        Speed trainer
-      </button>
-      <span
-        aria-live="polite"
-        className="min-w-0 truncate"
-        style={{ color: enabled ? '#eee' : DIM }}
-      >
+          Speed trainer
+        </label>
+      </div>
+      <span aria-live="polite" className={`min-w-0 truncate ${tone}`}>
         {text}
       </span>
       {enabled && ladder.lastStep === 'back' && (
-        <span className="shrink-0" style={{ color: DIM }}>
+        <span className="shrink-0 text-white/55">
           {theoryString('pt.stepBack', { tempo: ladder.currentPct })}
         </span>
       )}
@@ -77,23 +75,22 @@ export function SpeedTrainerControl({
           onKeyDown={(event) => {
             if (event.key === 'Escape') setInfoOpen(false);
           }}
-          className="flex size-4 items-center justify-center rounded-full p-0 text-[10px] font-semibold italic leading-none"
-          style={{ border: `1px solid ${DIM}`, color: DIM }}
+          // 24px to the eye, 32px to a finger.
+          className="relative flex size-6 items-center justify-center rounded-full p-0 text-white/55 transition-colors before:absolute before:-inset-1 before:content-[''] hover:bg-white/[0.06] hover:text-[#e8e8f0]"
         >
-          i
+          <Info aria-hidden className="size-4" />
         </button>
         {infoOpen && (
+          // Above the (i): the control sits in the lesson's bottom bar, and
+          // a note hung below it would open off the screen.
           <span
             id={infoId}
             role="note"
-            className="absolute right-0 top-full z-50 mt-1.5 block w-60 rounded-lg p-2.5 text-[12px] leading-snug shadow-lg"
-            style={{
-              background: 'rgba(25,25,25,0.98)',
-              border: '1px solid #444',
-              color: '#ddd',
-            }}
+            className="absolute bottom-full right-0 z-50 mb-1.5 block w-60 rounded-xl border border-white/[0.08] bg-[#141416] p-3 text-xs leading-snug text-white/55 shadow-lg"
           >
-            <strong className="mb-0.5 block">{CLEAN_NOTE.title}</strong>
+            <strong className="mb-0.5 block font-bold text-[#e8e8f0]">
+              {CLEAN_NOTE.title}
+            </strong>
             {CLEAN_NOTE.body}
           </span>
         )}
@@ -104,8 +101,7 @@ export function SpeedTrainerControl({
           onClick={onReset}
           aria-label="Start the speed trainer again"
           title="Start again from the slowest tempo"
-          className="shrink-0 bg-transparent p-0 hover:text-white"
-          style={{ color: DIM }}
+          className="flex size-11 shrink-0 items-center justify-center rounded-full bg-transparent p-0 text-sm text-white/55 transition-colors hover:bg-white/[0.06] hover:text-[#e8e8f0] sm:size-9"
         >
           ↺
         </button>

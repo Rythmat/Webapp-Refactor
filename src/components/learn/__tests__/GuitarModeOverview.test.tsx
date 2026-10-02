@@ -184,8 +184,29 @@ describe('GuitarModeOverview', () => {
     expect(useInstrumentStore.getState().instrument).toBe('guitar');
   });
 
-  it('sends a mode with no guitar content back to Theory', () => {
+  it("shows a mode's own scale box, and its tiles open its lessons", () => {
     renderGuitarAt('/learn/guitar/dorian');
+    expect(screen.getByRole('heading', { name: 'Dorian' })).toBeInTheDocument();
+    expect(
+      screen.getByText('Guitar · Shapes from The Guitar Atlas, Book One'),
+    ).toBeInTheDocument();
+    // C Dorian from string 6, fret 8.
+    expect(
+      screen.getByRole('img', { name: /^C Dorian Scale/ }),
+    ).toHaveAccessibleName(/frets 7 to 11, next: string 6 fret 8/);
+    const tiles = screen
+      .getAllByRole('button')
+      .filter((b) => / Dorian/.test(b.textContent ?? ''));
+    expect(tiles.map((t) => t.textContent?.split(' Dorian')[0])).toEqual(
+      BOOK_ORDER,
+    );
+    fireEvent.click(tiles[6]);
+    expect(navigate).toHaveBeenCalledWith('/learn/guitar/dorian/fsharp');
+    expect(useInstrumentStore.getState().instrument).toBe('guitar');
+  });
+
+  it('sends a mode with no guitar content back to Theory', () => {
+    renderGuitarAt('/learn/guitar/harmonicMinor');
     expect(screen.getByTestId('location').textContent).toBe(
       '/learn?tab=Theory',
     );

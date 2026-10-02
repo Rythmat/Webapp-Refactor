@@ -22,6 +22,7 @@ import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
 import { LibraryInlet } from '@/components/Library/libraryInlet';
 import { LearnInlet } from '@/components/learn/LearnInlet';
+import { GUITAR_THEORY_MODES } from '@/components/learn/guitarTheory';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
 import { PlanPage } from '@/features/settings/PlanPage';
 import { SettingsHub } from '@/features/settings/SettingsHub';
@@ -550,12 +551,27 @@ const OverviewRoute = () => {
 
 const THEORY_TAB_ROUTE = LearnRoutes.root(undefined, { tab: 'Theory' });
 
+// Guitar has the seven diatonic modes (Ionian from The Guitar Atlas: Book
+// One); the Theory tab marks the other modes as coming soon, and their links
+// go back to it, ungated.
+const isGuitarTheoryMode = (mode: string | undefined) =>
+  !!mode && GUITAR_THEORY_MODES.includes(mode);
+
+const GuitarOverviewRoute = () => {
+  const { mode } = useParams<{ mode: string }>();
+  if (!isGuitarTheoryMode(mode)) {
+    return <Navigate replace to={THEORY_TAB_ROUTE} />;
+  }
+  // As on piano, free users can access the Ionian overview only
+  const inner = <GuitarModeOverview />;
+  return mode === 'ionian' ? inner : <RequirePremium>{inner}</RequirePremium>;
+};
+
 const GuitarLessonRoute = () => {
   const { mode, key: keyParam } = useParams<{ mode: string; key: string }>();
-  // Guitar has Ionian (The Guitar Atlas: Book One) and nothing else yet; the
-  // Theory tab marks the other modes as coming soon.
-  if (mode !== 'ionian') return <Navigate replace to={THEORY_TAB_ROUTE} />;
-
+  if (!isGuitarTheoryMode(mode)) {
+    return <Navigate replace to={THEORY_TAB_ROUTE} />;
+  }
   // As on piano, free users can access C Ionian only
   const isFreeLesson = mode === 'ionian' && keyParam?.toLowerCase() === 'c';
   const inner = <GuitarModeLesson />;
@@ -604,17 +620,15 @@ export const learnPages = () => {
           </RequirePremium>
         ),
       },
-      // Guitar: Theory → Ionian (Major). Static 'guitar' segment, so these
-      // outrank '/:mode' and '/:mode/:key'.
+      // Guitar: Theory → the diatonic modes. Static 'guitar' segment, so
+      // these outrank '/:mode' and '/:mode/:key'.
       {
         path: LearnRoutes.guitar.definition,
         element: <Navigate replace to={THEORY_TAB_ROUTE} />,
       },
       {
-        // Free, like the piano Ionian overview; the page sends any other mode
-        // back to Theory.
         path: LearnRoutes.guitarOverview.definition,
-        element: <GuitarModeOverview />,
+        element: <GuitarOverviewRoute />,
       },
       {
         path: LearnRoutes.guitarLesson.definition,

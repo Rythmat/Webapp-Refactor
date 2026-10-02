@@ -176,7 +176,7 @@ function boxForEachTarget(
 
 /** Half steps between neighbouring notes of a position that stay on one string. */
 /** The center's key-number labels, when they differ from the default. */
-function keyNumberLabelsOf(center: GuitarCenter): string[] | undefined {
+export function keyNumberLabelsOf(center: GuitarCenter): string[] | undefined {
   const own = degreeLabelsBySemitone(center);
   const labels = SCALE_DEGREE_LABELS.map((label, s) => own.get(s) ?? label);
   return labels.some((label, s) => label !== SCALE_DEGREE_LABELS[s])

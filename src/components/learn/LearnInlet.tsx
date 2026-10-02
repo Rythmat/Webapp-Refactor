@@ -20,6 +20,7 @@ import {
 import { SLUG_TO_CURRICULUM_GENRE } from '@/curriculum/bridge/genreIdMap';
 import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
+import { isGuitarMode } from '@/curriculum/data/guitar/modes/modeNames';
 import { buildCurriculumLessonId } from '@/curriculum/hooks/useCurriculumProgress';
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
@@ -48,7 +49,7 @@ import { LearnTabBar } from './LearnTabBar';
 import { WorldHarmony } from './WorldHarmony';
 import {
   COMING_SOON_FOR_GUITAR,
-  guitarIonianLessonRoute,
+  guitarLessonRoute,
   guitarTheoryChapters,
   isTheoryItemOnGuitar,
 } from './guitarTheory';
@@ -1343,8 +1344,8 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
           ? initialTab
           : 'Home';
   const [selectedTab, setSubTab] = useState(defaultTab);
-  // The instrument picker decides what Learn shows. Guitar's lessons (The
-  // Guitar Atlas's key centers) are Theory → Ionian (Major); it has no
+  // The instrument picker decides what Learn shows. Guitar's lessons are
+  // Theory's seven diatonic modes (Ionian from The Guitar Atlas); it has no
   // Technique tiles, so its Technique tab is hidden and opens Theory instead.
   const learnInstrument = useLearnInstrument();
   const onGuitar = learnInstrument === 'guitar';
@@ -1407,7 +1408,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   const savedLearnItems = useSavedItemsStore((s) => s.saved);
 
   const theorySections = useMemo(() => {
-    // On guitar only Ionian (Major) has lessons so far; the rest say so.
+    // On guitar the diatonic modes have lessons so far; the rest say so.
     const forInstrument = (items: ContentItem[]): ContentItem[] =>
       onGuitar
         ? items.map((item) =>
@@ -1558,12 +1559,12 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     // Guitar: the key's Guitar Atlas lesson. Its chapters come from the book,
     // loaded on demand; if keys are clicked quickly, the last one wins. No
     // percentages: the server's progress is the piano lessons'.
-    if (onGuitar && isTheoryItemOnGuitar({ mode })) {
+    if (onGuitar && isGuitarMode(mode)) {
       const request = ++guitarChaptersRequest.current;
       const label = `${keyLabel} ${modeTitle}`;
-      const route = guitarIonianLessonRoute(keyLabel);
+      const route = guitarLessonRoute(mode, keyLabel);
       setSelectedSubItem({ label, route, completionPct: 0, sections: [] });
-      guitarTheoryChapters(keyLabel)
+      guitarTheoryChapters(mode, keyLabel)
         .then((sections) => {
           if (request !== guitarChaptersRequest.current) return;
           setSelectedSubItem({ label, route, completionPct: 0, sections });

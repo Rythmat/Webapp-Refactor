@@ -187,9 +187,11 @@ export interface ScaleBoxProps {
    * Omitted: the scale degree in each dot, as before, with no legend layers.
    */
   labelMode?: ScaleBoxLabelMode;
+  /** Key-number labels by semitone above the tonic, when a mode's differ. */
+  keyNumberLabels?: readonly string[];
   /** A hairline, labelled 'octave', between the low and high tonic. */
   showOctave?: boolean;
-  /** Dashed outlines where the pentatonic leaves out 4 and 7. */
+  /** Dashed outlines where the pentatonic leaves out notes (4 and 7 in major). */
   ghosts?: readonly FretPosition[];
   /** Notes for an (i) popover beside the box (e.g. 'What is Ionian?'). */
   about?: readonly DiagramInfoNote[];

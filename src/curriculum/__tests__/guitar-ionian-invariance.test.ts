@@ -53,7 +53,8 @@ describe('guitar Ionian invariance', () => {
         familyChips: digest(familyChips(key)),
         barreCare: digest(sectionBCardBarreCare(flow, key)),
         prefixNotes: digest(
-          GUITAR_SUBSECTION_PREFIXES.map((p) => [
+          // A5 is a mode's second pentatonic; Book One has none.
+          GUITAR_SUBSECTION_PREFIXES.filter((p) => p !== 'A5').map((p) => [
             p,
             notesFor(p, { center, settings: { accidentals: 'unicode' } }),
           ]),

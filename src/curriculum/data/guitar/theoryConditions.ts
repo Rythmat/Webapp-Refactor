@@ -29,20 +29,31 @@ import {
   type VoicingInfo,
 } from '@/lib/guitar/theory';
 import type { ActivityFlowV2 } from '../../types/activity.v2';
-import { GUITAR_KEY_ORDER } from './bookOne';
+import { GUITAR_KEY_ORDER, keyScaleSpelling } from './bookOne';
 import {
   centerScalePosition,
   chordName,
   chordRootName,
   chordRootPc,
   chordSymbol,
+  degreeAccidental,
+  diatonicTriads,
   getGuitarShape,
 } from './centers';
+import {
+  COLOUR_CHORD,
+  COLOUR_DEGREE,
+  GUITAR_MODE_NAME,
+  MODE_COLOUR_TEXT,
+  isGuitarModalMode,
+} from './modes';
 import type {
   GuitarCenter,
   GuitarMusicMap,
+  GuitarPentatonic,
   GuitarScalePosition,
   GuitarScaleSlot,
+  ScaleDegree,
 } from './types';
 
 // ── Context ────────────────────────────────────────────────────────────────
@@ -155,6 +166,15 @@ function voicingOf(center: GuitarCenter, shape: BookShape): VoicingInfo {
 // ── Conditions ─────────────────────────────────────────────────────────────
 
 /**
+ * A mode whose notes take other names than its parent key's: D♭ Locrian
+ * sounds like D major from its 7, but spells E𝄫 where D major has E.
+ */
+function modeRespelled(center: GuitarCenter): boolean {
+  const parent = keyScaleSpelling(center.parentKey);
+  return center.spelling.some((name) => !parent.includes(name));
+}
+
+/**
  * The step is the first in this key whose shapes pass `test`. Steps before
  * it are read from `steps`; without them nothing counts as first.
  */
@@ -185,6 +205,9 @@ export const THEORY_CONDITIONS: Readonly<
     d.center.mode === 'ionian' && d.center.key === GUITAR_KEY_ORDER[0],
   notFirstKeyNoRespell: (d) => !!d.keyShift && !d.keyShift.respelled,
   isFlatSwitch: (d) => !!d.keyShift?.respelled,
+  modeSpelledLikeParent: (d) =>
+    d.center.mode !== 'ionian' && !modeRespelled(d.center),
+  modeRespelled: (d) => d.center.mode !== 'ionian' && modeRespelled(d.center),
   scaleHasOpenStrings: (d) => d.position.playOrder.some((p) => p.fret === 0),
   inTimeStep: (d) => !!d.step?.inTime,
   staccatoStep: (d) => d.step?.articulation === 'staccato',
@@ -245,7 +268,20 @@ export type TheoryToken =
   | 'dom7Chord'
   | 'seventhNote'
   | 'tonicThird'
-  | 'thirdNote';
+  | 'thirdNote'
+  // The modes
+  | 'mode'
+  | 'parentKey'
+  | 'parentDegree'
+  | 'colourText'
+  | 'colourNote'
+  | 'colourDegree'
+  | 'colourChord'
+  | 'halfSteps'
+  | 'pentDegrees'
+  | 'skipped'
+  | 'triadPattern'
+  | 'dimDegree';
 
 /** Tokens whose values are note or chord names (restyled for ♭ and ♯). */
 export const SPELLED_TOKENS: ReadonlySet<TheoryToken> = new Set([
@@ -262,6 +298,8 @@ export const SPELLED_TOKENS: ReadonlySet<TheoryToken> = new Set([
   'seventhNote',
   'tonicThird',
   'thirdNote',
+  'parentKey',
+  'colourNote',
 ]);
 
 const STRING_NAMES = ['', 'high E', 'B', 'G', 'D', 'A', 'low E'];
@@ -330,6 +368,26 @@ function dominantTones(d: DerivedTheoryContext) {
   return { dominant, tonic };
 }
 
+// ── The modes ──────────────────────────────────────────────────────────────
+
+/** A degree as the mode has it: '♭3' in Dorian, '♯4' in Lydian. */
+function degreeLabel(center: GuitarCenter, degree: number): string {
+  return `${degreeAccidental(center, degree as ScaleDegree)}${degree}`;
+}
+
+const TRIAD_WORD = { maj: 'major', min: 'minor', dim: 'diminished' } as const;
+
+/** The pentatonic the step plays (the first when it plays none). */
+function pentatonicOf(d: DerivedTheoryContext): GuitarPentatonic | undefined {
+  const { pentatonics } = d.center;
+  return d.position.id === 'pentatonic2' ? pentatonics[1] : pentatonics[0];
+}
+
+/** A modal center's mode, or undefined in Book One. */
+function modalMode(d: DerivedTheoryContext) {
+  return isGuitarModalMode(d.center.mode) ? d.center.mode : undefined;
+}
+
 export const THEORY_TOKENS: Readonly<
   Record<TheoryToken, (d: DerivedTheoryContext) => string | number | undefined>
 > = {
@@ -374,4 +432,58 @@ export const THEORY_TOKENS: Readonly<
   seventhNote: (d) => dominantTones(d)?.dominant[3],
   thirdNote: (d) => dominantTones(d)?.dominant[1],
   tonicThird: (d) => dominantTones(d)?.tonic[1],
+
+  mode: (d) => GUITAR_MODE_NAME[d.center.mode],
+  parentKey: (d) => modalMode(d) && d.center.parentKey,
+  parentDegree: (d) => modalMode(d) && d.center.parentDegree,
+  colourText: (d) => {
+    const mode = modalMode(d);
+    return mode && MODE_COLOUR_TEXT[mode];
+  },
+  colourNote: (d) => {
+    const mode = modalMode(d);
+    return mode && d.center.spelling[COLOUR_DEGREE[mode] - 1];
+  },
+  colourDegree: (d) => {
+    const mode = modalMode(d);
+    return mode && degreeLabel(d.center, COLOUR_DEGREE[mode]);
+  },
+  colourChord: (d) => {
+    const mode = modalMode(d);
+    return mode && COLOUR_CHORD[mode];
+  },
+  // 'from 2 to ♭3, and from 6 to ♭7'.
+  halfSteps: (d) => {
+    const { steps } = d.center;
+    const pairs = steps.flatMap((step, i) => {
+      const next = i === 6 ? 12 : steps[i + 1];
+      return next - step === 1
+        ? [
+            `from ${degreeLabel(d.center, i + 1)} to ${i === 6 ? 1 : degreeLabel(d.center, i + 2)}`,
+          ]
+        : [];
+    });
+    return pairs.join(', and ');
+  },
+  pentDegrees: (d) => {
+    const pentatonic = pentatonicOf(d);
+    return (
+      pentatonic &&
+      listText(pentatonic.degrees.map((n) => degreeLabel(d.center, n)))
+    );
+  },
+  skipped: (d) => {
+    const pentatonic = pentatonicOf(d);
+    if (!pentatonic) return undefined;
+    return listText(
+      [1, 2, 3, 4, 5, 6, 7]
+        .filter((n) => !pentatonic.degrees.includes(n as ScaleDegree))
+        .map((n) => degreeLabel(d.center, n)),
+    );
+  },
+  triadPattern: (d) =>
+    diatonicTriads(d.center)
+      .map((quality, i) => `${i + 1} ${TRIAD_WORD[quality]}`)
+      .join(', '),
+  dimDegree: (d) => diatonicTriads(d.center).indexOf('dim') + 1 || undefined,
 };

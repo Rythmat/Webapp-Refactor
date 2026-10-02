@@ -11,9 +11,13 @@ import {
   classifyVoicing,
   type GuitarSubsectionPrefix,
 } from '@/lib/guitar/theory';
-import { buildGuitarAppliedTheoryFundamentalsFlow } from '../../activityFlows/guitarAppliedTheoryFundamentals';
+import {
+  buildGuitarAppliedTheoryFundamentalsFlow,
+  buildGuitarModeFlow,
+} from '../../activityFlows/guitarAppliedTheoryFundamentals';
 import { GUITAR_KEY_ORDER } from '../bookOne';
-import { getGuitarCenter, getGuitarShape } from '../centers';
+import { centerId, getGuitarCenter, getGuitarShape } from '../centers';
+import { GUITAR_MODES, isGuitarModalMode } from '../modes';
 import {
   THEORY_CONDITIONS,
   THEORY_TOKENS,
@@ -33,7 +37,7 @@ import {
   theoryString,
   type ResolvedTheoryNote,
 } from '../theoryNotes';
-import type { GuitarKeyName } from '../types';
+import type { GuitarCenterId, GuitarKeyName } from '../types';
 
 const TOKEN = /\{(\w+)\}/g;
 
@@ -59,9 +63,13 @@ interface Surface {
  * card, the practice tools, and each step of the flow with each of its
  * shapes and each of its chord changes.
  */
-function surfaces(key: GuitarKeyName): Surface[] {
-  const center = getGuitarCenter(key);
-  const steps = theoryStepsFor(buildGuitarAppliedTheoryFundamentalsFlow(key));
+function surfaces(id: GuitarCenterId): Surface[] {
+  const center = getGuitarCenter(id);
+  const steps = theoryStepsFor(
+    center.mode === 'ionian'
+      ? buildGuitarAppliedTheoryFundamentalsFlow(center.key)
+      : buildGuitarModeFlow(center.key, center.mode),
+  );
   const out: Surface[] = [
     { prefix: 'KEY', ctx: { center } },
     { prefix: 'B', ctx: { center } },
@@ -80,7 +88,8 @@ function surfaces(key: GuitarKeyName): Surface[] {
     const shapes = step.shapeIds.map((id) => getGuitarShape(id)!);
     for (const shape of shapes) out.push({ prefix, ctx: { ...base, shape } });
     const changes = step.mapExample
-      ? analyzeMusicMap(center.musicMaps[step.mapExample - 1], 'ionian').changes
+      ? analyzeMusicMap(center.musicMaps[step.mapExample - 1], center.mode)
+          .changes
       : shapes
           .slice(1)
           .map((shape, i) => analyzeChange(shapes[i], shape, i, i + 1));
@@ -94,9 +103,19 @@ const SURFACES = Object.fromEntries(
   GUITAR_KEY_ORDER.map((key) => [key, surfaces(key)]),
 ) as Record<GuitarKeyName, Surface[]>;
 
+/** The other modes' lessons, every key. */
+const MODAL_SURFACES = new Map<GuitarCenterId, Surface[]>(
+  GUITAR_MODES.filter(isGuitarModalMode).flatMap((mode) =>
+    GUITAR_KEY_ORDER.map((key) => {
+      const id = centerId(key, mode);
+      return [id, surfaces(id)] as const;
+    }),
+  ),
+);
+
 describe('guitar theory notes: structure', () => {
-  it('has 72 notes with unique ids and 61 UI strings', () => {
-    expect(GUITAR_THEORY_NOTES).toHaveLength(72);
+  it('has 82 notes with unique ids and 61 UI strings', () => {
+    expect(GUITAR_THEORY_NOTES).toHaveLength(82);
     const ids = GUITAR_THEORY_NOTES.map((n) => n.id);
     expect(new Set(ids).size).toBe(ids.length);
     expect(Object.keys(GUITAR_THEORY_STRINGS)).toHaveLength(61);
@@ -144,33 +163,76 @@ describe('guitar theory notes: structure', () => {
   });
 });
 
-describe('guitar theory notes: resolution', () => {
-  it('resolves every token in all 12 keys and every applicable step', () => {
-    const shown = new Set<string>();
-    for (const key of GUITAR_KEY_ORDER) {
-      for (const { prefix, ctx } of SURFACES[key]) {
-        const d = deriveTheoryContext(ctx);
-        for (const note of GUITAR_THEORY_NOTES) {
-          if (!noteHasPrefix(note, prefix)) continue;
-          if (!THEORY_CONDITIONS[note.when](d)) continue;
-          const where = `${key} ${ctx.step?.id ?? prefix} ${note.id}`;
-          const resolved = resolveTheoryNote(note, ctx);
-          // Step-panel notes always fill in. A popover about a chord box
-          // only has to fill in on a surface that shows one; elsewhere
-          // (a change badge, a multi-chord step) it resolves fully or not
-          // at all.
-          if (note.placement !== 'popover' || d.shape) {
-            expect(resolved, where).not.toBeNull();
-          }
-          if (!resolved) continue;
-          expect(resolved.title, where).not.toContain('{');
-          expect(resolved.body, where).not.toContain('{');
-          expectStyle(resolved.body, where);
-          shown.add(note.id);
+/**
+ * Resolves every applicable note on each surface. Problems come back as
+ * text (one expect per note would be slow across 84 key centers); the notes
+ * that showed are added to `shown`.
+ */
+function resolveAll(
+  entries: readonly (readonly [string, Surface[]])[],
+  shown: Set<string>,
+): string[] {
+  const problems: string[] = [];
+  for (const [key, keySurfaces] of entries) {
+    for (const { prefix, ctx } of keySurfaces) {
+      const d = deriveTheoryContext(ctx);
+      const ionian = ctx.center.mode === 'ionian';
+      for (const note of GUITAR_THEORY_NOTES) {
+        if (!noteHasPrefix(note, prefix)) continue;
+        if (!THEORY_CONDITIONS[note.when](d)) continue;
+        const where = `${key} ${ctx.step?.id ?? prefix} ${note.id}`;
+        const resolved = resolveTheoryNote(note, ctx);
+        // Ionian's notes stay out of the modes and the modes' out of Ionian.
+        if (note.modes && (note.modes === 'ionian') !== ionian) {
+          if (resolved) problems.push(`${where}: shown in the wrong mode`);
+          continue;
         }
+        // Step-panel notes always fill in. A popover about a chord box
+        // only has to fill in on a surface that shows one; elsewhere
+        // (a change badge, a multi-chord step) it resolves fully or not
+        // at all.
+        if (!resolved) {
+          if (note.placement !== 'popover' || d.shape) {
+            problems.push(`${where}: did not resolve`);
+          }
+          continue;
+        }
+        if (`${resolved.title}${resolved.body}`.includes('{')) {
+          problems.push(`${where}: unfilled token`);
+        }
+        const list = sentences(resolved.body);
+        if (
+          list.length > 4 ||
+          list.some((sentence) => sentence.split(/\s+/).length > 20)
+        ) {
+          problems.push(`${where}: too long: ${resolved.body}`);
+        }
+        shown.add(note.id);
       }
     }
-    // Every note shows somewhere in the book.
+  }
+  return problems;
+}
+
+describe('guitar theory notes: resolution', () => {
+  const shown = new Set<string>();
+
+  it('resolves every token in all 12 keys and every applicable step', () => {
+    expect(resolveAll(Object.entries(SURFACES), shown)).toEqual([]);
+  });
+
+  it.each(GUITAR_MODES.filter(isGuitarModalMode))(
+    'resolves every token in every %s key and step',
+    (mode) => {
+      const entries = [...MODAL_SURFACES].filter(([id]) =>
+        id.endsWith(`:${mode}`),
+      );
+      expect(entries).toHaveLength(12);
+      expect(resolveAll(entries, shown)).toEqual([]);
+    },
+  );
+
+  it('shows every note somewhere', () => {
     expect([...shown].sort()).toEqual(
       GUITAR_THEORY_NOTES.map((n) => n.id).sort(),
     );
@@ -309,12 +371,17 @@ describe('guitar theory notes: resolution', () => {
 describe('guitar theory notes: conditions', () => {
   it('each condition holds somewhere and fails somewhere', () => {
     const outcomes = new Map<string, Set<boolean>>();
-    for (const key of GUITAR_KEY_ORDER) {
-      for (const { ctx } of SURFACES[key]) {
-        const d = deriveTheoryContext(ctx);
-        for (const [id, test] of Object.entries(THEORY_CONDITIONS)) {
-          outcomes.set(id, (outcomes.get(id) ?? new Set()).add(test(d)));
-        }
+    // Book One's every step, and each mode's key header.
+    const contexts = [
+      ...GUITAR_KEY_ORDER.flatMap((key) => SURFACES[key].map((s) => s.ctx)),
+      ...[...MODAL_SURFACES.keys()].map((id) => ({
+        center: getGuitarCenter(id),
+      })),
+    ];
+    for (const ctx of contexts) {
+      const d = deriveTheoryContext(ctx);
+      for (const [id, test] of Object.entries(THEORY_CONDITIONS)) {
+        outcomes.set(id, (outcomes.get(id) ?? new Set()).add(test(d)));
       }
     }
     const constant = [...outcomes]
@@ -374,5 +441,60 @@ describe('guitar theory UI strings', () => {
     expect(
       familyTag(classifyVoicing({ frets: 'X-3-5-3-4-X' }, 0, 'min')),
     ).toBeNull();
+  });
+});
+
+describe('guitar theory notes: the modes', () => {
+  const intro = (id: GuitarCenterId) =>
+    notesFor('KEY', {
+      center: getGuitarCenter(id),
+      settings: { accidentals: 'unicode' },
+    }).intro.map((n) => n.body);
+
+  it('introduces a mode by its parent key and its colour note', () => {
+    expect(intro('D:dorian')).toEqual([
+      'D Dorian uses the same notes as C major. It starts on note 2 instead of note 1, so D is home.',
+      'Dorian is a minor mode with a bright, raised 6. In D Dorian that note is B, the 6.',
+    ]);
+    expect(intro('Db:locrian')[0]).toBe(
+      'D♭ Locrian sounds like D major played from its note 7, so D♭ is home. Here its notes are spelled differently.',
+    );
+    expect(intro('Db:locrian')[1]).toMatch(/that note is A𝄫, the ♭5\.$/);
+  });
+
+  it('keeps Book One’s major-key notes out of the modes', () => {
+    const steps = theoryStepsFor(buildGuitarModeFlow('A', 'aeolian'));
+    const center = getGuitarCenter('A:aeolian');
+    const ids = new Set(
+      steps.flatMap((step) => {
+        const prefix = stepPrefix(step.id);
+        if (!prefix) return [];
+        const all = notesFor(prefix, { center, step, steps });
+        return [...all.intro, ...all.info, ...all.popover].map((n) => n.id);
+      }),
+    );
+    for (const note of GUITAR_THEORY_NOTES) {
+      if (note.modes === 'ionian')
+        expect(ids.has(note.id), note.id).toBe(false);
+    }
+    expect(ids.has('a1.modeSteps')).toBe(true);
+    expect(ids.has('a4.modeWhat')).toBe(true);
+    expect(ids.has('d3.modeColour')).toBe(true);
+  });
+
+  it('reads a mode’s pentatonics and half steps', () => {
+    const steps = theoryStepsFor(buildGuitarModeFlow('D', 'dorian'));
+    const center = getGuitarCenter('D:dorian');
+    const body = (stepId: string, noteId: string) => {
+      const step = steps.find((s) => s.id === stepId)!;
+      const all = notesFor(stepPrefix(stepId)!, { center, step, steps });
+      return [...all.intro, ...all.info].find((n) => n.id === noteId)?.body;
+    };
+    expect(body('A1.1', 'a1.modeSteps')).toMatch(
+      /from 2 to ♭3, and from 6 to ♭7\.$/,
+    );
+    expect(body('A4.1', 'a4.modeWhat')).toMatch(/takes 1, ♭3, 4, 5 and 6/);
+    expect(body('A5.1', 'a4.modeWhat')).toMatch(/takes 1, 2, ♭3, 5 and 6/);
+    expect(body('A5.1', 'a4.modeGhost')).toMatch(/where 4 and ♭7 would be/);
   });
 });

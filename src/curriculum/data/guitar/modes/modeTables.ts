@@ -87,3 +87,13 @@ export const COLOUR_CHORD: Readonly<Record<GuitarModalMode, ScaleDegree>> = {
   aeolian: 6,
   locrian: 2,
 };
+
+/** What each mode sounds like, in a sentence (the key's colour note). */
+export const MODE_COLOUR_TEXT: Readonly<Record<GuitarModalMode, string>> = {
+  dorian: 'Dorian is a minor mode with a bright, raised 6.',
+  phrygian: 'Phrygian is a minor mode with a dark ♭2 just above the root.',
+  lydian: 'Lydian is a major mode whose raised ♯4 sounds dreamy.',
+  mixolydian: 'Mixolydian is a major mode with a bluesy ♭7.',
+  aeolian: 'Aeolian is the natural minor scale. Its ♭6 gives it a sad sound.',
+  locrian: 'Locrian is the darkest mode. Its ♭5 makes even chord 1 diminished.',
+};

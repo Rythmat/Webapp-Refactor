@@ -1,10 +1,15 @@
-import { keyNoteName, keyNumberLabel } from '@/components/guitar/ScaleBox';
+import {
+  SCALE_DEGREE_LABELS,
+  keyNoteName,
+  keyNumberLabel,
+} from '@/components/guitar/ScaleBox';
 import type { DiagramInfoNote, FretBracket } from '@/components/guitar/types';
 import { hybridLabel } from '@/curriculum/data/guitar/bookOne';
 import {
   centerScaleName,
   centerScalePosition,
   chordName,
+  degreeLabelsBySemitone,
   chordRootPc,
   getGuitarCenter,
   getGuitarShape,
@@ -86,6 +91,11 @@ export type GuitarLabelKind = 'scale' | 'chord';
 
 export interface GuitarVisualModel {
   tonicPc: number;
+  /**
+   * Key numbers by semitone above the tonic, when the mode names a degree
+   * otherwise than the chromatic default (Locrian's ♭5); absent otherwise.
+   */
+  keyNumberLabels?: readonly string[];
   /** One box per chord the step names, in order; empty on scale steps. */
   chords: GuitarVisualChord[];
   /** For each of step.chordTargets, the index of its box in `chords`. */
@@ -165,6 +175,15 @@ function boxForEachTarget(
 }
 
 /** Half steps between neighbouring notes of a position that stay on one string. */
+/** The center's key-number labels, when they differ from the default. */
+function keyNumberLabelsOf(center: GuitarCenter): string[] | undefined {
+  const own = degreeLabelsBySemitone(center);
+  const labels = SCALE_DEGREE_LABELS.map((label, s) => own.get(s) ?? label);
+  return labels.some((label, s) => label !== SCALE_DEGREE_LABELS[s])
+    ? labels
+    : undefined;
+}
+
 function halfStepBrackets(position: GuitarScalePosition): FretBracket[] {
   return stepSizes(position.playOrder).flatMap(({ from, to, size }) =>
     size === 'H' && from.string === to.string
@@ -214,8 +233,10 @@ export function guitarVisualModel(
     ...chords.flatMap((chord) => chord.positions),
   ];
 
+  const keyNumberLabels = keyNumberLabelsOf(center);
   return {
     tonicPc: center.tonicPc,
+    ...(keyNumberLabels ? { keyNumberLabels } : {}),
     chords,
     chordIndexOfTarget: boxForEachTarget(chords, step.chordTargets ?? []),
     scale,
@@ -272,7 +293,7 @@ export function markerLabeler(
   if (mode === 'notes') return undefined;
   if (mode === 'keyNumbers') {
     return (_position, midi) => {
-      const text = keyNumberLabel(midi, model.tonicPc);
+      const text = keyNumberLabel(midi, model.tonicPc, model.keyNumberLabels);
       return { text, spoken: `key number ${text.replace('♭', 'flat ')}` };
     };
   }
@@ -365,11 +386,14 @@ export function tabStepChips(
 export function tabKeyNumberAnnotations(
   events: readonly TabEvent[],
   tonicPc: number,
+  labels?: readonly string[],
 ): Map<string, string> {
   const annotations = new Map<string, string>();
   for (const e of events) {
     const midi = eventMidi(e);
-    if (midi != null) annotations.set(e.id, keyNumberLabel(midi, tonicPc));
+    if (midi != null) {
+      annotations.set(e.id, keyNumberLabel(midi, tonicPc, labels));
+    }
   }
   return annotations;
 }

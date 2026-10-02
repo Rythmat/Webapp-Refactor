@@ -151,6 +151,8 @@ export type TheoryNoteCondition =
   | 'isFirstKey'
   | 'notFirstKeyNoRespell'
   | 'isFlatSwitch'
+  | 'modeSpelledLikeParent'
+  | 'modeRespelled'
   | 'scaleHasOpenStrings'
   | 'inTimeStep'
   | 'staccatoStep'

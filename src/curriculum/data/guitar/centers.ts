@@ -234,6 +234,18 @@ export function degreeAccidental(
   return diff < 0 ? '♭' : diff > 0 ? '♯' : '';
 }
 
+/** Each scale degree's label by its semitones above the tonic: 6 → '♭5' in Locrian. */
+export function degreeLabelsBySemitone(
+  center: GuitarCenter,
+): ReadonlyMap<number, string> {
+  return new Map(
+    center.steps.map((step, i) => [
+      step,
+      `${degreeAccidental(center, (i + 1) as ScaleDegree)}${i + 1}`,
+    ]),
+  );
+}
+
 // ── Shape ids ─────────────────────────────────────────────────────────────
 // Stable ids a lesson step can carry: '<center>/triad/1', '<center>/seventh/8',
 // '<center>/map/4/2' (example 4, bar 2). Book One's are 'C/triad/1' etc.

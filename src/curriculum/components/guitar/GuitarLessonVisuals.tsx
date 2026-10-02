@@ -182,13 +182,14 @@ export function useGuitarTabLayers({
     !!model && scaleLabels === 'keyNumbers' && model.labelKind === 'scale';
   const chordTargets = step?.chordTargets;
   const tonicPc = model?.tonicPc ?? 0;
+  const keyNumberLabels = model?.keyNumberLabels;
   return useMemo(() => {
     // A step is a chord step or a scale step, never both: one kind of text
     // sits under its notes.
     const noteAnnotations = wantTones
       ? tabChordToneAnnotations(events, chordTargets ?? [], countInOffset)
       : wantNumbers
-        ? tabKeyNumberAnnotations(events, tonicPc)
+        ? tabKeyNumberAnnotations(events, tonicPc, keyNumberLabels)
         : null;
     return {
       ...(wantChips ? { stepChips: tabStepChips(events, tonicPc) } : {}),
@@ -200,6 +201,7 @@ export function useGuitarTabLayers({
     wantNumbers,
     events,
     tonicPc,
+    keyNumberLabels,
     chordTargets,
     countInOffset,
   ]);
@@ -480,6 +482,7 @@ export const GuitarLessonVisuals = memo(function GuitarLessonVisuals({
                 size={lessonSize}
                 mirrored={leftHanded}
                 labelMode={scaleMode}
+                keyNumberLabels={model.keyNumberLabels}
                 showOctave={model.showOctave}
                 ghosts={model.scale.ghosts}
                 about={model.scaleAbout}
@@ -551,6 +554,7 @@ export const GuitarLessonVisuals = memo(function GuitarLessonVisuals({
               size="sm"
               mirrored={leftHanded}
               labelMode={scaleMode}
+              keyNumberLabels={model.keyNumberLabels}
               showOctave={model.showOctave}
               ghosts={model.scale.ghosts}
               about={model.scaleAbout}

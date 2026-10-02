@@ -23,8 +23,6 @@ import type { GuitarShapeDiagram } from '@/lib/guitar/types';
 import {
   GUITAR_ATLAS_BOOK_ONE,
   GUITAR_KEY_ORDER,
-  chordName,
-  chordRootPc,
   keyPitchClass,
   keyScaleSpelling,
   mapLabel,
@@ -32,6 +30,7 @@ import {
   toBookKey,
 } from '../bookOne';
 import { GUITAR_ATLAS_BOOK_ONE_ERRATA, getErratum } from '../bookOneErrata';
+import { chordName, chordRootPc, getGuitarCenter } from '../centers';
 import type {
   BookChordQuality,
   GuitarChordShape,
@@ -188,7 +187,7 @@ function expectSoundsChord(
   frets: string,
   where: string,
 ) {
-  const root = chordRootPc(key, degree);
+  const root = chordRootPc(getGuitarCenter(key), degree);
   expect(shapePitchClasses(frets), where).toEqual(chordPcs(root, quality));
   expect(shapeLowestMidi(frets) % 12, `${where}: root lowest`).toBe(root);
 }
@@ -362,7 +361,11 @@ describe('The Guitar Atlas: Book One data', () => {
               !printed.barre.startsWith('diagram draws'));
           if (differs) expect(cites(shape.erratumIds), where).toBe(true);
 
-          const name = chordName(key, shape.degree, shape.quality);
+          const name = chordName(
+            getGuitarCenter(key),
+            shape.degree,
+            shape.quality,
+          );
           if (normalizeName(name) !== normalizeName(printed.name)) {
             expect(cites(shape.erratumIds), `${where} name`).toBe(true);
           }
@@ -395,7 +398,11 @@ describe('The Guitar Atlas: Book One data', () => {
               expect(cites(map.erratumIds), at).toBe(true);
             }
             expect([...bar.rhythm], at).toEqual(printed.rhythmPerBar[b]);
-            const name = chordName(key, bar.degree, bar.quality);
+            const name = chordName(
+              getGuitarCenter(key),
+              bar.degree,
+              bar.quality,
+            );
             if (normalizeName(name) !== normalizeName(printed.chords[b])) {
               const nameErratum = bar.erratumIds
                 ?.map(getErratum)

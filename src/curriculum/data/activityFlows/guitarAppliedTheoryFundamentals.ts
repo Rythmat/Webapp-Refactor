@@ -1,6 +1,7 @@
 /**
- * Ionian (Major) on guitar (Learn → Theory, key-parameterized; C free, the
- * other keys Premium, as on piano).
+ * The guitar mode lessons (Learn → Theory, key-parameterized; C Ionian free,
+ * the rest Premium, as on piano): Ionian (Major) from The Guitar Atlas: Book
+ * One, and the other diatonic modes built from it (data/guitar/modes).
  *
  * The guitar twin of appliedTheoryFundamentals.ts, built from The Guitar
  * Atlas: Book One. It started out as guitar Applied Theory Fundamentals; its
@@ -24,6 +25,13 @@
  * One deliberate difference: B3's articulated chords sit one per beat. The
  * piano builder spaces them by their own length (staccato chords 140 ticks
  * apart), which a guitarist cannot strum and the chord detector cannot hear.
+ *
+ * The other modes run the same lesson on their own key center, with what a
+ * mode needs: its scale in A1, its pentatonic(s) in A4 (and A5), all seven
+ * triads (B5 adds 7, B6 plays 1-7, since the diminished triad belongs to the
+ * mode), the chord carrying the mode's colour note as the second of the
+ * two-chord drills, and Music Maps on the mode's own progressions. Ionian's
+ * steps, ids and words are exactly as they were.
  */
 
 import {
@@ -40,21 +48,25 @@ import type {
   DetectorChordQuality,
   TargetNote,
 } from '../../types/activity.v2';
+import { toBookKey } from '../guitar/bookOne';
 import {
-  GUITAR_ATLAS_BOOK_ONE,
+  centerId,
+  centerScalePosition,
   chordRootPc,
   chordSymbol,
+  getGuitarCenter,
   mapBarShapeId,
   seventhShapeId,
-  toBookKey,
   triadShapeId,
-} from '../guitar/bookOne';
+} from '../guitar/centers';
+import { COLOUR_CHORD, GUITAR_MODE_NAME } from '../guitar/modes';
 import type {
   BookChordQuality,
-  GuitarKeyCenter,
-  GuitarKeyName,
+  GuitarCenter,
+  GuitarMode,
   GuitarMusicMap,
   GuitarScalePosition,
+  GuitarScaleSlot,
   MusicMapRhythm,
   ScaleDegree,
 } from '../guitar/types';
@@ -75,6 +87,16 @@ import {
 } from './appliedTheoryFundamentals';
 
 export const GUITAR_APPLIED_THEORY_GENRE = 'guitar-applied-theory-fundamentals';
+
+/**
+ * Each mode's lessons keep their own progress: Ionian keeps the id it had as
+ * Applied Theory Fundamentals, the others are 'guitar-mode-dorian' etc.
+ */
+export function guitarModeGenre(mode: GuitarMode): string {
+  return mode === 'ionian'
+    ? GUITAR_APPLIED_THEORY_GENRE
+    : `guitar-mode-${mode}`;
+}
 const MODULE = 'applied_theory_guitar_l1';
 const OOT_SPACING = 960; // out-of-time chord spacing, as piano's B2.1/B4.1
 /** Music Maps are played twice: the book prints repeat signs around them. */
@@ -107,31 +129,31 @@ interface GuitarChord {
   symbol: string;
 }
 
-function triad(center: GuitarKeyCenter, degree: number): GuitarChord {
+function triad(center: GuitarCenter, degree: number): GuitarChord {
   const shape = center.triads[degree - 1];
   return {
-    shapeId: triadShapeId(center.key, degree),
+    shapeId: triadShapeId(center, degree),
     frets: shape.frets,
     degree: shape.degree,
     quality: shape.quality,
-    symbol: chordSymbol(center.key, shape.degree, shape.quality),
+    symbol: chordSymbol(center, shape.degree, shape.quality),
   };
 }
 
 /** A box from the 7th-chord page; box 8 is the closing "1". */
-function seventh(center: GuitarKeyCenter, box: number): GuitarChord {
+function seventh(center: GuitarCenter, box: number): GuitarChord {
   const shape = center.sevenths[box - 1];
   return {
-    shapeId: seventhShapeId(center.key, box),
+    shapeId: seventhShapeId(center, box),
     frets: shape.frets,
     degree: shape.degree,
     quality: shape.quality,
-    symbol: chordSymbol(center.key, shape.degree, shape.quality),
+    symbol: chordSymbol(center, shape.degree, shape.quality),
   };
 }
 
 function chordTarget(
-  key: GuitarKeyName,
+  center: GuitarCenter,
   chord: GuitarChord,
   onsetTick: number,
   durationTicks: number,
@@ -139,7 +161,7 @@ function chordTarget(
 ): ChordTarget {
   const notes = shapeNotes(chord.frets);
   return {
-    rootPc: chordRootPc(key, chord.degree),
+    rootPc: chordRootPc(center, chord.degree),
     quality: ENGINE_QUALITY[chord.quality],
     pitchClasses: shapePitchClasses(chord.frets),
     bassPc: Math.min(...notes.map((n) => n.midi)) % 12,
@@ -175,7 +197,7 @@ function strumNotes(chord: GuitarChord, onset: number, duration: number) {
  * chordBlockNotes does).
  */
 function chordSequence(
-  key: GuitarKeyName,
+  center: GuitarCenter,
   chords: readonly GuitarChord[],
   durations: readonly number[],
   sounding?: readonly number[],
@@ -187,14 +209,14 @@ function chordSequence(
     const spacing = durations[i] ?? durations[durations.length - 1];
     const length = sounding?.[i] ?? spacing - 20;
     targetNotes.push(...strumNotes(chord, onset, length));
-    chordTargets.push(chordTarget(key, chord, onset, length, 'strum'));
+    chordTargets.push(chordTarget(center, chord, onset, length, 'strum'));
     onset += spacing;
   });
   return { targetNotes, chordTargets };
 }
 
 /** Pick a shape string by string, lowest first, one note per beat. */
-function arpeggio(key: GuitarKeyName, chord: GuitarChord) {
+function arpeggio(center: GuitarCenter, chord: GuitarChord) {
   const notes = shapeNotes(chord.frets);
   const targetNotes = notes.map((n, i) =>
     note(n.position, i * TICKS_PER_BEAT, NORMAL_DURATION),
@@ -202,7 +224,7 @@ function arpeggio(key: GuitarKeyName, chord: GuitarChord) {
   return {
     targetNotes,
     chordTargets: [
-      chordTarget(key, chord, 0, notes.length * TICKS_PER_BEAT, 'arpeggio'),
+      chordTarget(center, chord, 0, notes.length * TICKS_PER_BEAT, 'arpeggio'),
     ],
   };
 }
@@ -223,7 +245,7 @@ function scaleNotes(position: GuitarScalePosition, direction: Direction) {
   return order.map((p, i) => note(p, i * TICKS_PER_BEAT, NORMAL_DURATION));
 }
 
-/** Scale degrees 1-7 of the major-scale position (degree 8 = its top note). */
+/** Scale degrees 1-7 of the center's scale position (degree 8 = its top note). */
 function contourNotes(
   position: GuitarScalePosition,
   degrees: readonly number[],
@@ -254,7 +276,7 @@ const RHYTHM: Record<MusicMapRhythm, { ticks: number; rest: boolean }> = {
 
 /** A map played `passes` times: every strum in its rhythm, rests silent. */
 function mapNotes(
-  center: GuitarKeyCenter,
+  center: GuitarCenter,
   map: GuitarMusicMap,
   passes = MUSIC_MAP_PASSES,
 ) {
@@ -264,11 +286,11 @@ function mapNotes(
   for (let pass = 0; pass < passes; pass++) {
     map.bars.forEach((bar, b) => {
       const chord: GuitarChord = {
-        shapeId: mapBarShapeId(center.key, map.example, b + 1),
+        shapeId: mapBarShapeId(center, map.example, b + 1),
         frets: bar.frets,
         degree: bar.degree,
         quality: bar.quality,
-        symbol: chordSymbol(center.key, bar.degree, bar.quality),
+        symbol: chordSymbol(center, bar.degree, bar.quality),
       };
       let onset = barStart;
       for (const value of bar.rhythm) {
@@ -276,7 +298,7 @@ function mapNotes(
         if (!rest) {
           targetNotes.push(...strumNotes(chord, onset, ticks - 20));
           chordTargets.push(
-            chordTarget(center.key, chord, onset, ticks - 20, 'strum'),
+            chordTarget(center, chord, onset, ticks - 20, 'strum'),
           );
         }
         onset += ticks;
@@ -403,39 +425,68 @@ const SCALE_STEPS: {
   },
 ];
 
-function buildScaleSteps(center: GuitarKeyCenter, step: Step) {
+/** 'Major Scale' (Book One), 'Dorian Scale'. */
+function scaleTitle(center: GuitarCenter): string {
+  return center.mode === 'ionian'
+    ? 'Major Scale'
+    : `${GUITAR_MODE_NAME[center.mode]} Scale`;
+}
+
+function buildScaleSteps(center: GuitarCenter, step: Step) {
+  const title = scaleTitle(center);
   return SCALE_STEPS.map((s, i) =>
     step({
       section: 'A',
-      subsection: 'A1: Major Scale',
-      activity: `A1.${i + 1}: Major Scale ${s.title}`,
+      subsection: `A1: ${title}`,
+      activity: `A1.${i + 1}: ${title} ${s.title}`,
       direction: s.majorDirection,
       suffix: `major_scale_${s.suffix}`,
       assessment: s.timed ? 'pitch_order_timing' : 'pitch_only',
       successFeedback: s.feedback,
       targetNotes: scaleNotes(center.majorScale, s.direction),
-      guitar: { keyCenter: center.key, scalePosition: 'major' },
+      guitar: { keyCenter: center.id, scalePosition: 'major' },
     }),
   );
 }
 
-function buildPentatonicSteps(center: GuitarKeyCenter, step: Step) {
-  return SCALE_STEPS.map((s, i) =>
-    step({
-      section: 'A',
-      subsection: 'A4: Major Pentatonic Scale',
-      activity: `A4.${i + 1}: Major Pentatonic ${s.title}`,
-      direction: s.pentatonicDirection,
-      suffix: `pentatonic_scale_${s.suffix}`,
-      assessment: s.timed ? 'pitch_order_timing' : 'pitch_only',
-      successFeedback: s.feedback.replace('scale', 'pentatonic scale'),
-      targetNotes: scaleNotes(center.pentatonic, s.direction),
-      guitar: { keyCenter: center.key, scalePosition: 'pentatonic' },
-    }),
-  );
+/**
+ * A4: the pentatonic (Book One's major pentatonic). A mode with a second
+ * pentatonic plays it in A5.
+ */
+function buildPentatonicSteps(center: GuitarCenter, step: Step) {
+  return center.pentatonics.flatMap((pentatonic, p) => {
+    const label = `A${4 + p}`;
+    const slot: GuitarScaleSlot = p === 0 ? 'pentatonic' : 'pentatonic2';
+    const subsection =
+      center.mode === 'ionian'
+        ? 'A4: Major Pentatonic Scale'
+        : `${label}: ${pentatonic.name}`;
+    const position = centerScalePosition(center, slot);
+    return SCALE_STEPS.map((s, i) =>
+      step({
+        section: 'A',
+        subsection,
+        activity: `${label}.${i + 1}: ${pentatonic.name} ${s.title}`,
+        direction: s.pentatonicDirection,
+        suffix: `${p === 0 ? 'pentatonic' : 'pentatonic2'}_scale_${s.suffix}`,
+        assessment: s.timed ? 'pitch_order_timing' : 'pitch_only',
+        successFeedback: s.feedback.replace('scale', 'pentatonic scale'),
+        targetNotes: scaleNotes(position, s.direction),
+        guitar: { keyCenter: center.id, scalePosition: slot },
+      }),
+    );
+  });
 }
 
-function buildMelodySteps(center: GuitarKeyCenter, step: Step) {
+/**
+ * The second chord of the two-chord drills (B3, D2): 4 in Book One; in a
+ * mode, the chord that carries its colour note (Dorian's IV, Lydian's II).
+ */
+function pairDegree(center: GuitarCenter): number {
+  return center.mode === 'ionian' ? 4 : COLOUR_CHORD[center.mode];
+}
+
+function buildMelodySteps(center: GuitarCenter, step: Step) {
   const position = center.majorScale;
   const normal3 = [NORMAL_DURATION, NORMAL_DURATION, NORMAL_DURATION];
   const normal6 = Array(6).fill(NORMAL_DURATION) as number[];
@@ -450,7 +501,7 @@ function buildMelodySteps(center: GuitarKeyCenter, step: Step) {
     STACCATO_DURATION,
     LEGATO_DURATION,
   ];
-  const guitar = { keyCenter: center.key, scalePosition: 'major' as const };
+  const guitar = { keyCenter: center.id, scalePosition: 'major' as const };
   const melody = (
     subsection: string,
     activity: string,
@@ -560,7 +611,7 @@ function buildMelodySteps(center: GuitarKeyCenter, step: Step) {
 // ── Section B: Chords ─────────────────────────────────────────────────────
 
 function arpeggioSteps(
-  center: GuitarKeyCenter,
+  center: GuitarCenter,
   step: Step,
   subsection: string,
   label: string,
@@ -571,7 +622,7 @@ function arpeggioSteps(
   let sub = 1;
   for (const { chord, degree, suffix } of chords) {
     for (const timed of [false, true]) {
-      const { targetNotes, chordTargets } = arpeggio(center.key, chord);
+      const { targetNotes, chordTargets } = arpeggio(center, chord);
       steps.push(
         step({
           section: 'B',
@@ -588,7 +639,7 @@ function arpeggioSteps(
           targetNotes,
           chordSymbols: [chord.symbol],
           chordTargets,
-          guitar: { keyCenter: center.key, shapeIds: [chord.shapeId] },
+          guitar: { keyCenter: center.id, shapeIds: [chord.shapeId] },
         }),
       );
     }
@@ -597,7 +648,7 @@ function arpeggioSteps(
 }
 
 function playChordSteps(
-  center: GuitarKeyCenter,
+  center: GuitarCenter,
   step: Step,
   subsection: string,
   label: string,
@@ -609,7 +660,7 @@ function playChordSteps(
   const symbols = chords.map((c) => c.symbol);
   const list = symbols.join(', ');
   const guitar = {
-    keyCenter: center.key,
+    keyCenter: center.id,
     shapeIds: chords.map((c) => c.shapeId),
   };
   const make = (
@@ -630,7 +681,7 @@ function playChordSteps(
       assessment,
       successFeedback,
       ...chordSequence(
-        center.key,
+        center,
         chords,
         chords.map(() => duration),
       ),
@@ -684,8 +735,8 @@ const PIANO_B2_FEEDBACK = {
   quarter: 'Quarter notes, clean and in time — great work.',
 };
 
-function buildArticulationSteps(center: GuitarKeyCenter, step: Step) {
-  const two = [1, 4].map((d) => triad(center, d));
+function buildArticulationSteps(center: GuitarCenter, step: Step) {
+  const two = [1, pairDegree(center)].map((d) => triad(center, d));
   const four = PROGRESSION_DEGREES.map((d) => triad(center, d));
   const twoList = two.map((c) => c.symbol).join(', ');
   const fourList = four.map((c) => c.symbol).join(', ');
@@ -711,9 +762,9 @@ function buildArticulationSteps(center: GuitarKeyCenter, step: Step) {
       suffix,
       assessment: 'pitch_order_timing_duration',
       successFeedback,
-      ...chordSequence(center.key, chords, beat(chords.length), sounding),
+      ...chordSequence(center, chords, beat(chords.length), sounding),
       chordSymbols: chords.map((c) => c.symbol),
-      guitar: { keyCenter: center.key, shapeIds: chords.map((c) => c.shapeId) },
+      guitar: { keyCenter: center.id, shapeIds: chords.map((c) => c.shapeId) },
     });
   return [
     make(
@@ -746,12 +797,12 @@ function buildArticulationSteps(center: GuitarKeyCenter, step: Step) {
   ];
 }
 
-function buildProgressionSteps(center: GuitarKeyCenter, step: Step) {
+function buildProgressionSteps(center: GuitarCenter, step: Step) {
   const chords = SHUFFLED_PROGRESSION_DEGREES.map((d) => triad(center, d));
   const symbols = chords.map((c) => c.symbol);
   const list = symbols.join(', ');
   const guitar = {
-    keyCenter: center.key,
+    keyCenter: center.id,
     shapeIds: chords.map((c) => c.shapeId),
   };
   const make = (
@@ -771,7 +822,7 @@ function buildProgressionSteps(center: GuitarKeyCenter, step: Step) {
       suffix,
       assessment,
       successFeedback,
-      ...chordSequence(center.key, chords, durations),
+      ...chordSequence(center, chords, durations),
       chordSymbols: symbols,
       guitar,
     });
@@ -825,7 +876,12 @@ function buildProgressionSteps(center: GuitarKeyCenter, step: Step) {
   ];
 }
 
-function buildChordSteps(center: GuitarKeyCenter, step: Step) {
+function buildChordSteps(center: GuitarCenter, step: Step) {
+  // Book One teaches triads 1-6; a mode teaches all seven, its diminished
+  // triad included.
+  const upper = center.mode === 'ionian' ? [5, 6] : [5, 6, 7];
+  const all =
+    center.mode === 'ionian' ? [1, 2, 3, 4, 5, 6] : [1, 2, 3, 4, 5, 6, 7];
   return [
     // B1: arpeggiate triads 1-4 (piano).
     ...arpeggioSteps(
@@ -854,28 +910,30 @@ function buildChordSteps(center: GuitarKeyCenter, step: Step) {
     // B3, B4 (piano).
     ...buildArticulationSteps(center, step),
     ...buildProgressionSteps(center, step),
-    // B5: arpeggiate triads 5-6 (book).
+    // B5: arpeggiate triads 5-6 (book), 5-7 (modes).
     ...arpeggioSteps(
       center,
       step,
-      'B5: Arpeggiate Chords 5 and 6 (Triads)',
+      center.mode === 'ionian'
+        ? 'B5: Arpeggiate Chords 5 and 6 (Triads)'
+        : 'B5: Arpeggiate Chords 5, 6 and 7 (Triads)',
       'B5',
-      [5, 6].map((d) => ({
+      upper.map((d) => ({
         chord: triad(center, d),
         degree: d,
         suffix: `arpeggio_degree${d}`,
       })),
       'Chord ',
     ),
-    // B6: play all six triads (book).
+    // B6: play all the triads: six (book), seven (modes).
     ...playChordSteps(
       center,
       step,
-      'B6: Play Chords 1-6 (Triads)',
+      `B6: Play Chords 1-${all.length} (Triads)`,
       'B6',
-      [1, 2, 3, 4, 5, 6].map((d) => triad(center, d)),
-      'Chords 1,2,3,4,5,6',
-      'play_chords_1to6',
+      all.map((d) => triad(center, d)),
+      `Chords ${all.join(',')}`,
+      `play_chords_1to${all.length}`,
       PIANO_B2_FEEDBACK,
     ),
     // B7: arpeggiate the 7th chords 1-7 (book).
@@ -907,13 +965,13 @@ function buildChordSteps(center: GuitarKeyCenter, step: Step) {
 
 // ── Section D: Play-Along ─────────────────────────────────────────────────
 
-function buildPlayAlongSteps(center: GuitarKeyCenter, step: Step) {
+function buildPlayAlongSteps(center: GuitarCenter, step: Step) {
   const position = center.majorScale;
   const guitarMelody = {
-    keyCenter: center.key,
+    keyCenter: center.id,
     scalePosition: 'major' as const,
   };
-  const two = [1, 4].map((d) => triad(center, d));
+  const two = [1, pairDegree(center)].map((d) => triad(center, d));
   const four = PROGRESSION_DEGREES.map((d) => triad(center, d));
 
   // Piano builds D1 with its melody builder, which files the steps under
@@ -962,9 +1020,9 @@ function buildPlayAlongSteps(center: GuitarKeyCenter, step: Step) {
       suffix: 'chords_playalong_two',
       assessment: 'pitch_order_timing_duration',
       successFeedback: 'Locked in with the track — nice work.',
-      ...chordSequence(center.key, two, [HALF_NOTE, HALF_NOTE]),
+      ...chordSequence(center, two, [HALF_NOTE, HALF_NOTE]),
       chordSymbols: two.map((c) => c.symbol),
-      guitar: { keyCenter: center.key, shapeIds: two.map((c) => c.shapeId) },
+      guitar: { keyCenter: center.id, shapeIds: two.map((c) => c.shapeId) },
     }),
     step({
       section: 'B',
@@ -974,14 +1032,14 @@ function buildPlayAlongSteps(center: GuitarKeyCenter, step: Step) {
       suffix: 'chords_playalong_four',
       assessment: 'pitch_order_timing_duration',
       successFeedback: 'Full progression, right in time with the track.',
-      ...chordSequence(center.key, four, [
+      ...chordSequence(center, four, [
         QUARTER_NOTE,
         QUARTER_NOTE,
         QUARTER_NOTE,
         QUARTER_NOTE,
       ]),
       chordSymbols: four.map((c) => c.symbol),
-      guitar: { keyCenter: center.key, shapeIds: four.map((c) => c.shapeId) },
+      guitar: { keyCenter: center.id, shapeIds: four.map((c) => c.shapeId) },
     }),
   ];
 
@@ -998,12 +1056,12 @@ function buildPlayAlongSteps(center: GuitarKeyCenter, step: Step) {
       successFeedback: 'Music Map complete — twice through, right in time.',
       ...mapNotes(center, map),
       chordSymbols: map.bars.map((bar) =>
-        chordSymbol(center.key, bar.degree, bar.quality),
+        chordSymbol(center, bar.degree, bar.quality),
       ),
       guitar: {
-        keyCenter: center.key,
+        keyCenter: center.id,
         shapeIds: map.bars.map((_, b) =>
-          mapBarShapeId(center.key, map.example, b + 1),
+          mapBarShapeId(center, map.example, b + 1),
         ),
         musicMap: { example: map.example, passes: MUSIC_MAP_PASSES },
       },
@@ -1016,16 +1074,19 @@ function buildPlayAlongSteps(center: GuitarKeyCenter, step: Step) {
 // ── Builder ───────────────────────────────────────────────────────────────
 
 /**
- * Builds the guitar Ionian (Major) flow for a key center.
+ * Builds a guitar mode lesson for a key.
  * @param keyName - ASCII key name, e.g. 'C', 'F#', 'Db'. Other spellings of a
  *   book key ('Gb', 'C#') resolve to it; anything else falls back to C, as
  *   the piano builder falls back to MIDI 60.
+ * @param mode - The mode; Ionian is Book One's lesson.
  */
-export function buildGuitarAppliedTheoryFundamentalsFlow(
+export function buildGuitarModeFlow(
   keyName: string,
+  mode: GuitarMode,
 ): ActivityFlowV2 {
-  const key: GuitarKeyName = toBookKey(keyName) ?? 'C';
-  const center = GUITAR_ATLAS_BOOK_ONE[key];
+  const key = toBookKey(keyName) ?? 'C';
+  const center = getGuitarCenter(centerId(key, mode));
+  const ionian = mode === 'ionian';
   const step = createStepFactory();
 
   const sectionA: ActivitySectionV2 = {
@@ -1049,14 +1110,18 @@ export function buildGuitarAppliedTheoryFundamentalsFlow(
   };
 
   return {
-    genre: GUITAR_APPLIED_THEORY_GENRE,
+    genre: guitarModeGenre(mode),
     level: 1,
     version: 'v2',
-    title: 'Ionian (Major) — Guitar',
+    title: ionian
+      ? 'Ionian (Major) — Guitar'
+      : `${GUITAR_MODE_NAME[mode]} — Guitar`,
     params: {
-      defaultKey: `${key} Major (Ionian)`,
-      defaultScale: MAJOR_SCALE_INTERVALS,
-      defaultScaleId: 'major',
+      defaultKey: ionian
+        ? `${key} Major (Ionian)`
+        : `${key} ${GUITAR_MODE_NAME[mode]}`,
+      defaultScale: ionian ? MAJOR_SCALE_INTERVALS : [...center.steps],
+      defaultScaleId: ionian ? 'major' : mode,
       tempoRange: [60, 100],
       swing: 0,
       grooves: [],
@@ -1064,4 +1129,11 @@ export function buildGuitarAppliedTheoryFundamentalsFlow(
     },
     sections: [sectionA, sectionB, sectionD],
   };
+}
+
+/** Builds the guitar Ionian (Major) lesson, Book One's, for a key. */
+export function buildGuitarAppliedTheoryFundamentalsFlow(
+  keyName: string,
+): ActivityFlowV2 {
+  return buildGuitarModeFlow(keyName, 'ionian');
 }

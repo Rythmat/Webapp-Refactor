@@ -15,10 +15,8 @@ import {
   stepTheoryNotes,
 } from '@/curriculum/components/guitar/theory/theoryUi';
 import { buildGuitarAppliedTheoryFundamentalsFlow } from '@/curriculum/data/activityFlows/guitarAppliedTheoryFundamentals';
-import {
-  GUITAR_ATLAS_BOOK_ONE,
-  GUITAR_KEY_ORDER,
-} from '@/curriculum/data/guitar/bookOne';
+import { GUITAR_KEY_ORDER } from '@/curriculum/data/guitar/bookOne';
+import { getGuitarCenter } from '@/curriculum/data/guitar/centers';
 import {
   GUITAR_SUBSECTION_PREFIXES,
   notesFor,
@@ -45,7 +43,7 @@ describe('guitar Ionian invariance', () => {
   for (const key of GUITAR_KEY_ORDER) {
     it(`keeps ${key} Ionian unchanged`, () => {
       const flow = buildGuitarAppliedTheoryFundamentalsFlow(key);
-      const center = GUITAR_ATLAS_BOOK_ONE[key];
+      const center = getGuitarCenter(key);
       const steps = flow.sections.flatMap((s) => s.steps);
       const { sections, ...head } = flow;
 

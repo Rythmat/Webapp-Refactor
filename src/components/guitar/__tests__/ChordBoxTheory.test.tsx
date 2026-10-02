@@ -7,12 +7,12 @@ import {
   within,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { hybridLabel } from '@/curriculum/data/guitar/bookOne';
 import {
-  GUITAR_ATLAS_BOOK_ONE,
   chordName,
   chordRootPc,
-  hybridLabel,
-} from '@/curriculum/data/guitar/bookOne';
+  getGuitarCenter,
+} from '@/curriculum/data/guitar/centers';
 import type {
   GuitarChordShape,
   GuitarKeyName,
@@ -30,14 +30,14 @@ const RED = '#D2404A';
 
 /** Book One shapes by id, with the name and label the lesson gives them. */
 function book(key: GuitarKeyName, kind: 'triads' | 'sevenths', n: number) {
-  const shape: GuitarChordShape = GUITAR_ATLAS_BOOK_ONE[key][kind][n - 1];
+  const shape: GuitarChordShape = getGuitarCenter(key)[kind][n - 1];
   return {
     shape,
     name: formatAccidentalsForDisplay(
-      chordName(key, shape.degree, shape.quality),
+      chordName(getGuitarCenter(key), shape.degree, shape.quality),
     ).replace('(b5)', '(♭5)'),
     hybridLabel: hybridLabel(shape.degree, shape.quality),
-    rootPc: chordRootPc(key, shape.degree),
+    rootPc: chordRootPc(getGuitarCenter(key), shape.degree),
   };
 }
 

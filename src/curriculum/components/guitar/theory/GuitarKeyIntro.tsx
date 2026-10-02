@@ -1,9 +1,9 @@
 import { ChevronDown } from 'lucide-react';
 import { memo, useId, useMemo, useState } from 'react';
 import { cn } from '@/components/utilities';
-import { GUITAR_ATLAS_BOOK_ONE } from '@/curriculum/data/guitar/bookOne';
+import { getGuitarCenter } from '@/curriculum/data/guitar/centers';
 import { notesFor } from '@/curriculum/data/guitar/theoryNotes';
-import type { GuitarKeyName } from '@/curriculum/data/guitar/types';
+import type { GuitarCenterId } from '@/curriculum/data/guitar/types';
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
 import { ChordFamilyStrip } from './ChordFamilyStrip';
 
@@ -14,7 +14,7 @@ import { ChordFamilyStrip } from './ChordFamilyStrip';
 // chord family. Collapsed until asked for.
 
 export interface GuitarKeyIntroProps {
-  keyCenter: GuitarKeyName;
+  keyCenter: GuitarCenterId;
   keyColor?: string;
   defaultOpen?: boolean;
   className?: string;
@@ -35,7 +35,7 @@ export const GuitarKeyIntro = memo(function GuitarKeyIntro({
 
   const notes = useMemo(() => {
     const all = notesFor('KEY', {
-      center: GUITAR_ATLAS_BOOK_ONE[keyCenter],
+      center: getGuitarCenter(keyCenter),
       settings: { accidentals: 'unicode' },
     });
     return [...all.intro, ...all.info];

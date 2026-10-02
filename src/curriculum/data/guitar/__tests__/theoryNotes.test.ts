@@ -12,11 +12,8 @@ import {
   type GuitarSubsectionPrefix,
 } from '@/lib/guitar/theory';
 import { buildGuitarAppliedTheoryFundamentalsFlow } from '../../activityFlows/guitarAppliedTheoryFundamentals';
-import {
-  GUITAR_ATLAS_BOOK_ONE,
-  GUITAR_KEY_ORDER,
-  getGuitarShape,
-} from '../bookOne';
+import { GUITAR_KEY_ORDER } from '../bookOne';
+import { getGuitarCenter, getGuitarShape } from '../centers';
 import {
   THEORY_CONDITIONS,
   THEORY_TOKENS,
@@ -63,7 +60,7 @@ interface Surface {
  * shapes and each of its chord changes.
  */
 function surfaces(key: GuitarKeyName): Surface[] {
-  const center = GUITAR_ATLAS_BOOK_ONE[key];
+  const center = getGuitarCenter(key);
   const steps = theoryStepsFor(buildGuitarAppliedTheoryFundamentalsFlow(key));
   const out: Surface[] = [
     { prefix: 'KEY', ctx: { center } },
@@ -83,7 +80,7 @@ function surfaces(key: GuitarKeyName): Surface[] {
     const shapes = step.shapeIds.map((id) => getGuitarShape(id)!);
     for (const shape of shapes) out.push({ prefix, ctx: { ...base, shape } });
     const changes = step.mapExample
-      ? analyzeMusicMap(center.musicMaps[step.mapExample - 1]).changes
+      ? analyzeMusicMap(center.musicMaps[step.mapExample - 1], 'ionian').changes
       : shapes
           .slice(1)
           .map((shape, i) => analyzeChange(shapes[i], shape, i, i + 1));
@@ -138,7 +135,7 @@ describe('guitar theory notes: structure', () => {
     expect(stepPrefix('D3.4')).toBe('D3');
     expect(stepPrefix('C1.1')).toBeNull();
     // The Section B card shows only the B notes, not B3's or B8's.
-    const card = notesFor('B', { center: GUITAR_ATLAS_BOOK_ONE.C });
+    const card = notesFor('B', { center: getGuitarCenter('C') });
     expect([...card.intro, ...card.info].map((n) => n.id)).toEqual([
       'b.fromScale',
       'b.pattern',
@@ -181,7 +178,7 @@ describe('guitar theory notes: resolution', () => {
 
   it('introduces each key with the note that changed', () => {
     const intro = (key: GuitarKeyName) =>
-      notesFor('KEY', { center: GUITAR_ATLAS_BOOK_ONE[key] }).intro.map(
+      notesFor('KEY', { center: getGuitarCenter(key) }).intro.map(
         (n) => n.body,
       );
     expect(intro('C')).toEqual([
@@ -194,7 +191,7 @@ describe('guitar theory notes: resolution', () => {
       'Db major sounds like F# major with one note changed. B becomes C. The other notes keep their sound but take flat names.',
     ]);
     const unicode = notesFor('KEY', {
-      center: GUITAR_ATLAS_BOOK_ONE.Db,
+      center: getGuitarCenter('Db'),
       settings: { accidentals: 'unicode' },
     });
     expect(unicode.intro[0].body).toMatch(/^D♭ major sounds like F♯ major/);
@@ -206,7 +203,7 @@ describe('guitar theory notes: resolution', () => {
   });
 
   it('fills shape, change and map tokens', () => {
-    const C = GUITAR_ATLAS_BOOK_ONE.C;
+    const C = getGuitarCenter('C');
     const cmaj7 = C.sevenths[0];
     const b7 = notesFor('B7', { center: C, shape: cmaj7 });
     const body = (id: string, list: ResolvedTheoryNote[]) =>
@@ -218,15 +215,15 @@ describe('guitar theory notes: resolution', () => {
     expect(body('b7.drop2', b7.popover)).toContain('Root on string 5,');
 
     const fmaj7 = notesFor('B7', {
-      center: GUITAR_ATLAS_BOOK_ONE.F,
-      shape: GUITAR_ATLAS_BOOK_ONE.F.sevenths[0],
+      center: getGuitarCenter('F'),
+      shape: getGuitarCenter('F').sevenths[0],
     });
     expect(body('b7.open', fmaj7.popover)).toBe(
       'The open strings are part of this chord. Open A is the 3. Open high E is the 7. Let them ring.',
     );
     const emaj7 = notesFor('B7', {
-      center: GUITAR_ATLAS_BOOK_ONE.E,
-      shape: GUITAR_ATLAS_BOOK_ONE.E.sevenths[0],
+      center: getGuitarCenter('E'),
+      shape: getGuitarCenter('E').sevenths[0],
     });
     expect(body('b7.open', emaj7.popover)).toContain(
       'Open low E and high E are the root. Open B is the 5.',
@@ -237,13 +234,13 @@ describe('guitar theory notes: resolution', () => {
       'This shape uses 5 strings but only three note names: C, E and G. Some notes appear twice, in different octaves.',
     );
 
-    const fSharp = GUITAR_ATLAS_BOOK_ONE['F#'];
+    const fSharp = getGuitarCenter('F#');
     const map = fSharp.musicMaps[3];
     const d3 = notesFor('D3', { center: fSharp, map });
     expect(body('d3.pull', d3.info)).toBe(
       'In C#7, B wants to step down to A#. E# wants to step up to F#. Those small steps make 1 sound like home.',
     );
-    const sameFret = analyzeMusicMap(map).changes.find(
+    const sameFret = analyzeMusicMap(map, 'ionian').changes.find(
       (c) => c.sameFretRootMove === 'r6-to-r5',
     );
     const popover = notesFor('D3', {
@@ -276,7 +273,7 @@ describe('guitar theory notes: resolution', () => {
       frets.startsWith(frets.split('-')[0] + '-X-');
     expect(drop3Keys).toEqual(
       GUITAR_KEY_ORDER.filter((key) => {
-        const center = GUITAR_ATLAS_BOOK_ONE[key];
+        const center = getGuitarCenter(key);
         return (
           center.sevenths.some((s) => isDrop3(s.frets)) ||
           center.musicMaps
@@ -353,7 +350,7 @@ describe('guitar theory notes: conditions', () => {
 
   it('reads the chord box', () => {
     const popovers = (key: GuitarKeyName, box: number) => {
-      const center = GUITAR_ATLAS_BOOK_ONE[key];
+      const center = getGuitarCenter(key);
       const shape = center.sevenths[box - 1];
       return notesFor('B7', { center, shape }).popover.map((n) => n.id);
     };

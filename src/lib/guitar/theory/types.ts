@@ -111,6 +111,7 @@ export interface ChangeInfo {
 
 export interface MusicMapAnalysis {
   degrees: KeyDegree[];
+  /** Each bar's job (home, away, tension); empty in a mode's maps. */
   functions: FunctionGroup[];
   patterns: MapPattern[];
   changes: ChangeInfo[];
@@ -127,6 +128,8 @@ export type GuitarSubsectionPrefix =
   | 'A2'
   | 'A3'
   | 'A4'
+  /** A mode's second pentatonic; its notes are A4's. */
+  | 'A5'
   | 'B'
   | 'B1'
   | 'B2'
@@ -162,7 +165,7 @@ export type TheoryNoteCondition =
   | 'familyDrop3'
   | 'familyOpenSeventh'
   | 'firstDrop3StepInKey'
-  | 'degreeIsNot5'
+  | 'hasHiddenTriad'
   | 'degreeIs7'
   // change
   | 'changeHasAnchor'
@@ -191,6 +194,11 @@ export interface GuitarTheoryNote {
   placement: 'intro' | 'info' | 'popover';
   kind: 'theory' | 'technique' | 'listening' | 'practice';
   when: TheoryNoteCondition;
+  /**
+   * Which lessons the note belongs to: 'ionian' (Book One's major keys) or
+   * 'modal' (the other modes). Absent: every lesson.
+   */
+  modes?: 'ionian' | 'modal';
   /** ≤ 5 words. */
   title: string;
   /** 1–4 sentences, ≤ 20 words each; {tokens} are resolved per key and step. */

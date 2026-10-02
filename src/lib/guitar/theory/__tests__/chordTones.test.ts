@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
-  GUITAR_ATLAS_BOOK_ONE,
   chordRootName,
-} from '@/curriculum/data/guitar/bookOne';
+  getGuitarCenter,
+} from '@/curriculum/data/guitar/centers';
 import { GUITAR_THEORY_STRINGS } from '@/curriculum/data/guitar/theoryNotes';
 import type {
   BookChordQuality,
@@ -107,7 +107,7 @@ describe('chord tones', () => {
     const flatKeys: GuitarKeyName[] = ['Db', 'Ab', 'Eb', 'Bb', 'F'];
     for (const key of flatKeys) {
       for (const degree of DEGREES) {
-        const root = chordRootName(key, degree);
+        const root = chordRootName(getGuitarCenter(key), degree);
         const triad = DIATONIC_TRIADS[degree - 1];
         const names = [
           ...(triad === 'dim' ? [] : spellChordTones(root, triad)),
@@ -115,11 +115,11 @@ describe('chord tones', () => {
         ];
         expect(names.join(' '), `${key} ${degree}`).not.toContain('#');
       }
-      const center = GUITAR_ATLAS_BOOK_ONE[key];
+      const center = getGuitarCenter(key);
       for (const shape of [...center.triads, ...center.sevenths]) {
         const tones = shapeTones(
           shape.frets,
-          chordRootName(key, shape.degree),
+          chordRootName(getGuitarCenter(key), shape.degree),
           shape.quality,
         );
         expect(tones, `${key} ${shape.frets}`).not.toBeNull();

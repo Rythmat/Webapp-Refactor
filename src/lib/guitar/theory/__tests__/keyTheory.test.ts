@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-  GUITAR_ATLAS_BOOK_ONE,
-  GUITAR_KEY_ORDER,
-} from '@/curriculum/data/guitar/bookOne';
+import { GUITAR_KEY_ORDER } from '@/curriculum/data/guitar/bookOne';
+import { getGuitarCenter } from '@/curriculum/data/guitar/centers';
 import {
   DIATONIC_SEVENTHS,
   DIATONIC_TRIADS,
@@ -17,6 +15,7 @@ import {
 import type { KeyDegree } from '../types';
 
 const DEGREES: KeyDegree[] = [1, 2, 3, 4, 5, 6, 7];
+const C = getGuitarCenter('C');
 
 describe('key theory', () => {
   it('changes one note per key, respelling only at Db', () => {
@@ -28,7 +27,7 @@ describe('key theory', () => {
         change
           ? `${change.oldNote} → ${change.newNote}${change.respelled ? ', respelled' : ''}`
           : 'none',
-        relativeMinor(GUITAR_ATLAS_BOOK_ONE[key]),
+        relativeMinor(getGuitarCenter(key)),
       ];
     });
     expect(table).toEqual([
@@ -52,7 +51,7 @@ describe('key theory', () => {
 
   it('matches the chord family the book prints in every key', () => {
     for (const key of GUITAR_KEY_ORDER) {
-      const center = GUITAR_ATLAS_BOOK_ONE[key];
+      const center = getGuitarCenter(key);
       expect(center.triads.map((t) => t.quality)).toEqual(
         DIATONIC_TRIADS.slice(0, 6),
       );
@@ -77,11 +76,13 @@ describe('key theory', () => {
 
   it('writes Roman numerals', () => {
     expect(
-      DEGREES.slice(0, 6).map((d) => romanNumeral(d, DIATONIC_TRIADS[d - 1])),
+      DEGREES.slice(0, 6).map((d) =>
+        romanNumeral(C, d, DIATONIC_TRIADS[d - 1]),
+      ),
     ).toEqual(['I', 'ii', 'iii', 'IV', 'V', 'vi']);
-    expect(romanNumeral(7, 'dim')).toBe('vii°');
+    expect(romanNumeral(C, 7, 'dim')).toBe('vii°');
     expect(
-      DEGREES.map((d) => romanNumeral(d, DIATONIC_SEVENTHS[d - 1])),
+      DEGREES.map((d) => romanNumeral(C, d, DIATONIC_SEVENTHS[d - 1])),
     ).toEqual(['Imaj7', 'ii7', 'iii7', 'IVmaj7', 'V7', 'vi7', 'viiø7']);
   });
 
@@ -100,7 +101,7 @@ describe('key theory', () => {
   });
 
   it('finds the triad hidden in each 7th chord, except on 5', () => {
-    expect(DEGREES.map(hiddenTriad)).toEqual([
+    expect(DEGREES.map((d) => hiddenTriad(C, d))).toEqual([
       { degree: 3, quality: 'min' },
       { degree: 4, quality: 'maj' },
       { degree: 5, quality: 'maj' },

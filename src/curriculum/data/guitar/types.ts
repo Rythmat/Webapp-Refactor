@@ -54,9 +54,16 @@ export type MusicMapRhythm =
   | 'quarter-rest'
   | 'eighth-rest';
 
+/**
+ * Which of a center's scale diagrams a step plays: 'major' is the center's
+ * 7-note scale (the major scale in Book One, the mode's scale otherwise),
+ * 'pentatonic' its pentatonic and 'pentatonic2' a mode's second pentatonic.
+ */
+export type GuitarScaleSlot = 'major' | 'pentatonic' | 'pentatonic2';
+
 /** A scale diagram: one position, played tonic to tonic. */
 export interface GuitarScalePosition {
-  id: 'major' | 'pentatonic';
+  id: GuitarScaleSlot;
   /** Fret printed on the diagram's top row. */
   fretStart: number;
   fretEnd: number;
@@ -74,6 +81,8 @@ export interface GuitarChordShape extends GuitarShapeDiagram {
   isOctaveRepeat?: true;
   /** Book errata this shape corrects (bookOneErrata.ts). */
   erratumIds?: readonly string[];
+  /** A modal center's shape: the Book One shape it was taken from. */
+  sourceShapeId?: string;
 }
 
 /** One bar of a Music Map: a chord, the voicing drawn, and its rhythm. */
@@ -110,6 +119,61 @@ export interface GuitarKeyCenter {
   sevenths: readonly GuitarChordShape[];
   /** Music Maps, Examples 1-5. */
   musicMaps: readonly GuitarMusicMap[];
+}
+
+// ── Modes ─────────────────────────────────────────────────────────────────
+
+/** The diatonic modes guitar Theory teaches, Ionian being Book One. */
+export type GuitarMode =
+  | 'ionian'
+  | 'dorian'
+  | 'phrygian'
+  | 'lydian'
+  | 'mixolydian'
+  | 'aeolian'
+  | 'locrian';
+
+export type GuitarModalMode = Exclude<GuitarMode, 'ionian'>;
+
+/**
+ * A key center as lessons, steps and shape ids name it: the book key alone
+ * for Ionian ('C', exactly as before modes existed), key and mode otherwise
+ * ('D:dorian').
+ */
+export type GuitarCenterId =
+  | GuitarKeyName
+  | `${GuitarKeyName}:${GuitarModalMode}`;
+
+/** A pentatonic a center teaches (A4, and A5 for a second one). */
+export interface GuitarPentatonic {
+  /** 'Major Pentatonic', 'Dorian Pentatonic (1 ♭3 4 5 6)'. */
+  name: string;
+  /** The center's scale degrees it uses, from the note it starts on. */
+  degrees: readonly ScaleDegree[];
+  position: GuitarScalePosition;
+  /** Spelled in the center, ASCII accidentals, from its first note. */
+  notes: readonly string[];
+}
+
+/**
+ * One key center in one mode: Book One's key center for Ionian, or one built
+ * from the parent major key's Book One shapes (data/guitar/modes). Every
+ * mode-dependent name, root and label is derived from this.
+ */
+export interface GuitarCenter extends GuitarKeyCenter {
+  id: GuitarCenterId;
+  mode: GuitarMode;
+  tonicPc: number;
+  /** The mode's semitone steps from the tonic, 7 of them. */
+  steps: readonly number[];
+  /** The mode spelled from its tonic, ASCII accidentals ('Ebb' when due). */
+  spelling: readonly string[];
+  /** The Book One key whose notes (and chord shapes) the mode uses. */
+  parentKey: GuitarKeyName;
+  /** The tonic's degree in the parent key: 1 Ionian, 2 Dorian … */
+  parentDegree: ScaleDegree;
+  /** A4 first; Dorian and Phrygian have a second (A5). */
+  pentatonics: readonly GuitarPentatonic[];
 }
 
 export type { GuitarBarre };

@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import type { GuitarKeyName } from '@/curriculum/data/guitar/types';
+import type { GuitarCenterId } from '@/curriculum/data/guitar/types';
 import { familyChips } from './theoryUi';
 
 // ── ChordFamilyStrip ───────────────────────────────────────────────────────
@@ -8,7 +8,7 @@ import { familyChips } from './theoryUi';
 // One plays it later, as a 7th chord.
 
 export interface ChordFamilyStripProps {
-  keyCenter: GuitarKeyName;
+  keyCenter: GuitarCenterId;
   keyColor: string;
   showRomanNumerals?: boolean;
   /** Accessible name of the list. */

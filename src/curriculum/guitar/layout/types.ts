@@ -1,5 +1,5 @@
 import type { ReactNode, RefObject } from 'react';
-import type { GuitarKeyName } from '@/curriculum/data/guitar/types';
+import type { GuitarCenterId } from '@/curriculum/data/guitar/types';
 import type { AssessmentResult } from '@/curriculum/hooks/useGenreAssessment';
 import type {
   NextStepSuggestion,
@@ -187,7 +187,7 @@ export interface TheoryModel {
   step: ActivityStepV2;
   /** The step as shown (a practice loop's chords). */
   displayStep: ActivityStepV2;
-  keyCenter: GuitarKeyName;
+  keyCenter: GuitarCenterId;
   keyColor: string;
   sectionId: ActivitySectionId;
   onHearShape: (frets: string) => void;

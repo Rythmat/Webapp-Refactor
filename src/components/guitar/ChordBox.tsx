@@ -31,11 +31,11 @@ import {
 } from '@/components/ui/popover';
 import { cn } from '@/components/utilities';
 import {
-  GUITAR_ATLAS_BOOK_ONE,
   GUITAR_KEY_ORDER,
   MAJOR_SCALE_STEPS,
   keyPitchClass,
 } from '@/curriculum/data/guitar/bookOne';
+import { getGuitarCenter } from '@/curriculum/data/guitar/centers';
 import {
   familyTag,
   notesFor,
@@ -43,6 +43,7 @@ import {
 } from '@/curriculum/data/guitar/theoryNotes';
 import type {
   BookChordQuality,
+  GuitarCenterId,
   GuitarKeyName,
   ScaleDegree,
 } from '@/curriculum/data/guitar/types';
@@ -149,14 +150,14 @@ export function chordTheory({
   rootPc,
   quality,
   degree,
-  keyName,
+  centerId,
 }: {
   shape: ChordBoxProps['shape'];
   name: string;
   rootPc: number;
   quality: BookChordQuality;
   degree?: ScaleDegree;
-  keyName?: GuitarKeyName;
+  centerId?: GuitarCenterId;
 }): ChordTheory {
   const voicing = classifyVoicing(shape, rootPc, quality);
   const toneByString = new Map<GuitarStringNumber, ChordToneLabel>();
@@ -182,12 +183,12 @@ export function chordTheory({
       ? theoryString('aliases.dom7', { symbol: `${root}7` })
       : theoryString('aliases', { aliases: orList(aliasList) });
 
-  const key = keyName ?? (degree ? bookKeyOf(rootPc, degree) : null);
+  const id = centerId ?? (degree ? bookKeyOf(rootPc, degree) : null);
   let notes: DiagramInfoNote[] = [];
-  if (key && degree) {
+  if (id && degree) {
     const seventh = quality !== 'maj' && quality !== 'min' && quality !== 'dim';
     const popover = notesFor(seventh ? 'B7' : 'B1', {
-      center: GUITAR_ATLAS_BOOK_ONE[key],
+      center: getGuitarCenter(id),
       shape: { ...shape, degree, quality },
       voicing,
       settings: { accidentals: 'unicode' },
@@ -363,7 +364,7 @@ export const ChordBox = memo(function ChordBox({
   onHear,
   quality: qualityProp,
   degree: degreeProp,
-  keyName,
+  centerId,
   labelMode: labelModeProp,
   theory: withTheory = true,
   variant = 'default',
@@ -377,9 +378,9 @@ export const ChordBox = memo(function ChordBox({
   const theory = useMemo(
     () =>
       withTheory && quality
-        ? chordTheory({ shape, name, rootPc, quality, degree, keyName })
+        ? chordTheory({ shape, name, rootPc, quality, degree, centerId })
         : null,
-    [withTheory, shape, name, rootPc, quality, degree, keyName],
+    [withTheory, shape, name, rootPc, quality, degree, centerId],
   );
   const chordTones =
     (labelModeProp ?? storedMode) === 'chordTones' && theory !== null;

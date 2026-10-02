@@ -4,12 +4,12 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { GUITAR_KEY_ORDER } from '@/curriculum/data/guitar/bookOne';
 import {
-  GUITAR_ATLAS_BOOK_ONE,
-  GUITAR_KEY_ORDER,
   chordRootName,
   chordSymbol,
-} from '@/curriculum/data/guitar/bookOne';
+  getGuitarCenter,
+} from '@/curriculum/data/guitar/centers';
 import type {
   GuitarKeyName,
   GuitarMusicMap,
@@ -31,11 +31,11 @@ interface Analyzed {
 }
 
 const MAPS: Analyzed[] = GUITAR_KEY_ORDER.flatMap((key) =>
-  GUITAR_ATLAS_BOOK_ONE[key].musicMaps.map((map) => ({
+  getGuitarCenter(key).musicMaps.map((map) => ({
     key,
     map,
     tag: `${key} Ex${map.example}`,
-    analysis: analyzeMusicMap(map),
+    analysis: analyzeMusicMap(map, 'ionian'),
   })),
 );
 
@@ -59,7 +59,7 @@ type DescribeChange = (m: Analyzed, c: ChangeInfo) => string;
 
 const chords: DescribeChange = ({ key, map, tag }, c) => {
   const name = (i: number) =>
-    chordSymbol(key, map.bars[i].degree, map.bars[i].quality);
+    chordSymbol(getGuitarCenter(key), map.bars[i].degree, map.bars[i].quality);
   return `${tag} ${name(c.fromBar)}→${name(c.toBar)}`;
 };
 
@@ -96,14 +96,14 @@ describe('Music Map analysis', () => {
       analysis.dom7ToOne.map((bar) => {
         const next = (bar + 1) % map.bars.length;
         const [, third, , seventh] = spellChordTones(
-          chordRootName(key, 5),
+          chordRootName(getGuitarCenter(key), 5),
           'dom7',
         );
         const [tonic, tonicThird] = spellChordTones(
-          chordRootName(key, 1),
+          chordRootName(getGuitarCenter(key), 1),
           'maj',
         );
-        return `${tag} ${chordSymbol(key, 5, 'dom7')} → ${chordSymbol(key, 1, map.bars[next].quality)}: ${seventh}→${tonicThird}, ${third}→${tonic}${wrap(next === 0)}`;
+        return `${tag} ${chordSymbol(getGuitarCenter(key), 5, 'dom7')} → ${chordSymbol(getGuitarCenter(key), 1, map.bars[next].quality)}: ${seventh}→${tonicThird}, ${third}→${tonic}${wrap(next === 0)}`;
       }),
     );
     expect(pulls).toEqual([
@@ -210,7 +210,7 @@ describe('Music Map analysis', () => {
     );
     expect(same).toContain('D Ex5 Dmaj7→Dmaj7');
     expect(same).toContain('F# Ex5 Bmaj7→Bmaj7');
-    const bar = GUITAR_ATLAS_BOOK_ONE.D.musicMaps[4].bars[0];
+    const bar = getGuitarCenter('D').musicMaps[4].bars[0];
     expect(analyzeChange(bar, bar, 0, 1).anchors).toEqual([]);
   });
 
@@ -228,7 +228,7 @@ describe('the 7th-chord page (B8)', () => {
     const runs = Object.fromEntries(
       GUITAR_KEY_ORDER.map((key) => [
         key,
-        topLineRuns(GUITAR_ATLAS_BOOK_ONE[key])
+        topLineRuns(getGuitarCenter(key))
           .map((r) => `${r.start + 1}-${r.end + 1}`)
           .join(' '),
       ]),
@@ -253,7 +253,7 @@ describe('the 7th-chord page (B8)', () => {
     const kinds = Object.fromEntries(
       GUITAR_KEY_ORDER.map((key) => [
         key,
-        octaveReturnKind(GUITAR_ATLAS_BOOK_ONE[key]),
+        octaveReturnKind(getGuitarCenter(key)),
       ]),
     );
     expect(kinds).toEqual({

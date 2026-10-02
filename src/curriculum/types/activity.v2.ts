@@ -1,3 +1,7 @@
+import type {
+  GuitarCenterId,
+  GuitarScaleSlot,
+} from '@/curriculum/data/guitar/types';
 import type { FretPosition } from '@/lib/guitar/types';
 import type {
   ActivityStep,
@@ -132,8 +136,9 @@ export interface ChordTarget {
 
 /** Guitar step metadata: which book material the step plays. Ids only. */
 export interface GuitarStepMeta {
-  keyCenter: string;
-  scalePosition?: 'major' | 'pentatonic';
+  /** 'C' (Book One's C, Ionian) or 'D:dorian' — see data/guitar/centers. */
+  keyCenter: GuitarCenterId;
+  scalePosition?: GuitarScaleSlot;
   shapeIds?: string[];
   musicMap?: { example: 1 | 2 | 3 | 4 | 5; passes: number };
 }

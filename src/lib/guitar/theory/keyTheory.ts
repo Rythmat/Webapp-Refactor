@@ -9,8 +9,13 @@ import {
   keyPitchClass,
   keyScaleSpelling,
 } from '@/curriculum/data/guitar/bookOne';
+import {
+  degreeAccidental,
+  diatonicTriads,
+} from '@/curriculum/data/guitar/centers';
 import type {
   BookChordQuality,
+  GuitarCenter,
   GuitarKeyCenter,
   GuitarKeyName,
 } from '@/curriculum/data/guitar/types';
@@ -113,14 +118,20 @@ const ROMAN_SUFFIX: Readonly<Record<DiatonicQuality, string>> = {
   dim: '°',
 };
 
-/** Uppercase for major-type chords, lowercase for minor-type: ii7, viiø7. */
+/**
+ * Uppercase for major-type chords, lowercase for minor-type: ii7, viiø7. In a
+ * mode, a degree that differs from major takes its accidental: Dorian's 3 is
+ * ♭III.
+ */
 export function romanNumeral(
+  center: GuitarCenter,
   degree: KeyDegree,
   quality: DiatonicQuality,
 ): string {
   const numeral = NUMERALS[degree - 1];
   const major = quality === 'maj' || quality === 'maj7' || quality === 'dom7';
-  return `${major ? numeral : numeral.toLowerCase()}${ROMAN_SUFFIX[quality]}`;
+  const accidental = degreeAccidental(center, degree);
+  return `${accidental}${major ? numeral : numeral.toLowerCase()}${ROMAN_SUFFIX[quality]}`;
 }
 
 /** Other ways charts write the chord. Dom7 has none (it uses `aliases.dom7`). */
@@ -142,15 +153,16 @@ export function chordAliases(
 
 /**
  * The triad left when a 7th chord loses its root: the triad two degrees up
- * (Cmaj7 without C = E minor, chord 3). Null on 5, whose leftover triad is
- * diminished and not taught.
+ * (Cmaj7 without C = E minor, chord 3). In Book One null on 5, whose leftover
+ * triad is diminished and not taught; the modes teach every triad.
  */
 export function hiddenTriad(
+  center: GuitarCenter,
   degree: KeyDegree,
-): { degree: KeyDegree; quality: 'maj' | 'min' } | null {
+): { degree: KeyDegree; quality: 'maj' | 'min' | 'dim' } | null {
   const hidden = (((degree + 1) % 7) + 1) as KeyDegree;
-  const quality = DIATONIC_TRIADS[hidden - 1];
-  return quality === 'maj' || quality === 'min'
-    ? { degree: hidden, quality }
-    : null;
+  const quality = diatonicTriads(center)[hidden - 1];
+  return quality === 'dim' && center.mode === 'ionian'
+    ? null
+    : { degree: hidden, quality };
 }

@@ -2,10 +2,11 @@ import { Info, Repeat } from 'lucide-react';
 import { memo, useMemo } from 'react';
 import type { MeasureBox, StaffLayout } from '@/components/notation/StaffView';
 import { MUSIC_MAP_PASSES } from '@/curriculum/data/activityFlows/guitarAppliedTheoryFundamentals';
-import { GUITAR_ATLAS_BOOK_ONE } from '@/curriculum/data/guitar/bookOne';
+import { getGuitarCenter } from '@/curriculum/data/guitar/centers';
 import { notesFor } from '@/curriculum/data/guitar/theoryNotes';
 import type {
-  GuitarKeyName,
+  GuitarCenter,
+  GuitarCenterId,
   GuitarMusicMap,
 } from '@/curriculum/data/guitar/types';
 import {
@@ -85,7 +86,8 @@ export interface MapBarMark {
   key: string;
   /** 0-based bar of the TAB's map bars (both passes). */
   bar: number;
-  group: FunctionGroup;
+  /** The chord's job; none in a mode's maps (jobs are a major-key idea). */
+  group: FunctionGroup | null;
   roman: string;
   /**
    * First pass only: the note about this bar itself — a triad in a 7th-chord
@@ -105,6 +107,8 @@ export interface MusicMapOverlayModel {
 
 interface ModelInput {
   layout: StaffLayout;
+  /** The map's key center: its Roman numerals and which bar notes apply. */
+  center: GuitarCenter;
   map: GuitarMusicMap;
   analysis: MusicMapAnalysis;
   passes: number;
@@ -131,6 +135,7 @@ function assignLanes(spans: readonly { start: number; end: number }[]) {
 /** Where the chips and bar marks go, from the TAB's drawn layout. */
 export function musicMapOverlayModel({
   layout,
+  center,
   map,
   analysis,
   passes,
@@ -213,12 +218,14 @@ export function musicMapOverlayModel({
     let noteId: MapBarMark['noteId'] = null;
     if (bar < n && analysis.triadBarsIn7thMap.includes(bar)) {
       noteId = 'd3.triadBar';
-    } else if (bar < n && mapBar.degree === 7) noteId = 'd3.seven';
+    } else if (bar < n && mapBar.degree === 7 && center.mode === 'ionian') {
+      noteId = 'd3.seven';
+    }
     bars.push({
       key: `bar|${bar}`,
       bar,
-      group: analysis.functions[bar % n],
-      roman: romanNumeral(mapBar.degree, mapBar.quality),
+      group: analysis.functions[bar % n] ?? null,
+      roman: romanNumeral(center, mapBar.degree, mapBar.quality),
       noteId,
       right: box.x + box.width - MARK_INSET * scale,
       top: box.y + MARK_TOP * scale,
@@ -230,9 +237,9 @@ export function musicMapOverlayModel({
 export interface MusicMapOverlayProps {
   /** From LearnTabView's `overlay(layout)`. */
   layout: StaffLayout | null;
-  keyCenter: GuitarKeyName;
+  keyCenter: GuitarCenterId;
   map: GuitarMusicMap;
-  /** Defaults to analyzeMusicMap(map). */
+  /** Defaults to analyzeMusicMap(map, the center's mode). */
   analysis?: MusicMapAnalysis;
   /** How many times the step plays the map (its repeat sign): 2. */
   passes?: number;
@@ -304,24 +311,26 @@ export const MusicMapOverlay = memo(function MusicMapOverlay({
   showChordJobs,
   showRomanNumerals,
 }: MusicMapOverlayProps) {
+  const center = getGuitarCenter(keyCenter);
   const analysis = useMemo(
-    () => analysisProp ?? analyzeMusicMap(map),
-    [analysisProp, map],
+    () => analysisProp ?? analyzeMusicMap(map, center.mode),
+    [analysisProp, map, center],
   );
   const noteById = useMemo(() => {
     const { popover } = notesFor('D3', {
-      center: GUITAR_ATLAS_BOOK_ONE[keyCenter],
+      center,
       map,
       analysis,
       settings: { accidentals: 'unicode' },
     });
     return new Map(popover.map((note) => [note.id, note]));
-  }, [keyCenter, map, analysis]);
+  }, [center, map, analysis]);
   const model = useMemo(
     () =>
       layout
         ? musicMapOverlayModel({
             layout,
+            center,
             map,
             analysis,
             passes,
@@ -329,7 +338,7 @@ export const MusicMapOverlay = memo(function MusicMapOverlay({
             ticksPerBar,
           })
         : null,
-    [layout, map, analysis, passes, countInOffset, ticksPerBar],
+    [layout, center, map, analysis, passes, countInOffset, ticksPerBar],
   );
   if (!model) return null;
   const { scale } = model;
@@ -415,7 +424,7 @@ export const MusicMapOverlay = memo(function MusicMapOverlay({
                 {mark.roman}
               </span>
             )}
-            {showChordJobs && (
+            {showChordJobs && mark.group && (
               // The map's chip look, not the badge's 10px one: the classes
               // win the merge, and clearing its inline border and colour
               // lets them show.

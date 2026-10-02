@@ -8,7 +8,7 @@
 import type { ReactNode } from 'react';
 import type {
   BookChordQuality,
-  GuitarKeyName,
+  GuitarCenterId,
   ScaleDegree,
 } from '@/curriculum/data/guitar/types';
 import type { LabelMode } from '@/lib/guitar/theory/types';
@@ -140,8 +140,11 @@ export interface ChordBoxProps {
   quality?: BookChordQuality;
   /** Degree in the key (defaults to `shape.degree`); needed for the popover notes. */
   degree?: ScaleDegree;
-  /** The book key (defaults to the key whose `degree` has `rootPc` as its root). */
-  keyName?: GuitarKeyName;
+  /**
+   * The key center the chord belongs to, 'C' or 'D:dorian' (defaults to the
+   * Book One major key whose `degree` has `rootPc` as its root).
+   */
+  centerId?: GuitarCenterId;
   /**
    * Fingers (the book) or chord tones (R 3 5 7). Defaults to the device
    * setting (useGuitarDisplaySettings.chordBoxLabels). `showFingers: false`

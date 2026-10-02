@@ -389,7 +389,7 @@ export const GUITAR_THEORY_NOTES: readonly GuitarTheoryNote[] = [
     subsectionPrefix: ['B7', 'B8'],
     placement: 'popover',
     kind: 'theory',
-    when: 'degreeIsNot5',
+    when: 'hasHiddenTriad',
     title: 'A chord inside a chord',
     body: 'Take away the root of {chord} and {hiddenTriad} is left. You already know it as chord {hiddenDegree}.',
   },

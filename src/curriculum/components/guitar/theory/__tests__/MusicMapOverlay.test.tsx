@@ -2,7 +2,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import type { MeasureBox, StaffLayout } from '@/components/notation/StaffView';
-import { GUITAR_ATLAS_BOOK_ONE } from '@/curriculum/data/guitar/bookOne';
+import { getGuitarCenter } from '@/curriculum/data/guitar/centers';
 import { analyzeMusicMap } from '@/lib/guitar/theory';
 import {
   MusicMapOverlay,
@@ -45,8 +45,8 @@ function tabLayout(bars: number, perLine: number, scale = 1): StaffLayout {
   };
 }
 
-const G_EX4 = GUITAR_ATLAS_BOOK_ONE.G.musicMaps[3]; // 1 6 2 5
-const C_EX4 = GUITAR_ATLAS_BOOK_ONE.C.musicMaps[3]; // 4 5 1 2
+const G_EX4 = getGuitarCenter('G').musicMaps[3]; // 1 6 2 5
+const C_EX4 = getGuitarCenter('C').musicMaps[3]; // 4 5 1 2
 
 function renderOverlay(over: Partial<MusicMapOverlayProps> = {}) {
   return render(
@@ -69,8 +69,9 @@ describe('musicMapOverlayModel', () => {
   it('brackets the turnaround and the wrapped 2-5-1 in both passes (G Example 4)', () => {
     const { chips } = musicMapOverlayModel({
       layout: tabLayout(9, 5), // count-in + bars 1-4 | bars 5-8
+      center: getGuitarCenter('G'),
       map: G_EX4,
-      analysis: analyzeMusicMap(G_EX4),
+      analysis: analyzeMusicMap(G_EX4, 'ionian'),
       passes: 2,
       countInOffset: BAR,
       ticksPerBar: BAR,
@@ -143,8 +144,9 @@ describe('musicMapOverlayModel', () => {
   it('marks 5 → 1 under bars 2-3 of each pass (C Example 4)', () => {
     const { chips } = musicMapOverlayModel({
       layout: tabLayout(9, 4),
+      center: getGuitarCenter('C'),
       map: C_EX4,
-      analysis: analyzeMusicMap(C_EX4),
+      analysis: analyzeMusicMap(C_EX4, 'ionian'),
       passes: 2,
       countInOffset: BAR,
       ticksPerBar: BAR,
@@ -166,8 +168,9 @@ describe('musicMapOverlayModel', () => {
   it('finds bar 1 at tick 0 out of time, and scales with the TAB', () => {
     const { chips, bars } = musicMapOverlayModel({
       layout: tabLayout(8, 8, 1.5),
+      center: getGuitarCenter('C'),
       map: C_EX4,
-      analysis: analyzeMusicMap(C_EX4),
+      analysis: analyzeMusicMap(C_EX4, 'ionian'),
       passes: 2,
       countInOffset: 0,
       ticksPerBar: BAR,
@@ -290,8 +293,8 @@ describe('MusicMapOverlay', () => {
   });
 
   it('marks a triad bar in a 7th map and chord 7, on the first pass', () => {
-    const dEx4 = GUITAR_ATLAS_BOOK_ONE.D.musicMaps[3];
-    const triadBars = analyzeMusicMap(dEx4).triadBarsIn7thMap;
+    const dEx4 = getGuitarCenter('D').musicMaps[3];
+    const triadBars = analyzeMusicMap(dEx4, 'ionian').triadBarsIn7thMap;
     expect(triadBars.length).toBeGreaterThan(0);
     const view = renderOverlay({ keyCenter: 'D', map: dEx4 });
     const marked = [...document.querySelectorAll('[data-bar-note]')].map((el) =>
@@ -306,7 +309,7 @@ describe('MusicMapOverlay', () => {
     expect(screen.getByText(/^This bar uses a triad\./)).toBeInTheDocument();
     view.unmount();
 
-    const bbEx4 = GUITAR_ATLAS_BOOK_ONE.Bb.musicMaps[3];
+    const bbEx4 = getGuitarCenter('Bb').musicMaps[3];
     const seven = bbEx4.bars.findIndex((b) => b.degree === 7);
     renderOverlay({ keyCenter: 'Bb', map: bbEx4 });
     fireEvent.click(
@@ -321,7 +324,7 @@ describe('MusicMapOverlay', () => {
     // 5 → 1 from bar 2 onto bar 1 again: the second pass ends the step.
     renderOverlay({
       keyCenter: 'D',
-      map: GUITAR_ATLAS_BOOK_ONE.D.musicMaps[2],
+      map: getGuitarCenter('D').musicMaps[2],
       layout: tabLayout(5, 5),
     });
     expect(
@@ -341,7 +344,7 @@ describe('MusicMapOverlay', () => {
     // G: pattern chips; D: a triad-bar note too.
     const cases = [
       { keyCenter: 'G' as const, map: G_EX4 },
-      { keyCenter: 'D' as const, map: GUITAR_ATLAS_BOOK_ONE.D.musicMaps[3] },
+      { keyCenter: 'D' as const, map: getGuitarCenter('D').musicMaps[3] },
     ];
     for (const [scale, { keyCenter, map }] of [
       [1, cases[0]],

@@ -1,12 +1,9 @@
 import { ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { memo, useId, useMemo, useState } from 'react';
 import { cn } from '@/components/utilities';
-import {
-  GUITAR_ATLAS_BOOK_ONE,
-  keyScaleSpelling,
-} from '@/curriculum/data/guitar/bookOne';
+import { getGuitarCenter } from '@/curriculum/data/guitar/centers';
 import { notesFor } from '@/curriculum/data/guitar/theoryNotes';
-import type { GuitarKeyName } from '@/curriculum/data/guitar/types';
+import type { GuitarCenterId } from '@/curriculum/data/guitar/types';
 import type { ActivityFlowV2 } from '@/curriculum/types/activity.v2';
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
 import { ChordFamilyStrip } from './ChordFamilyStrip';
@@ -34,7 +31,7 @@ import {
 
 export interface GuitarSectionBCardProps {
   flow: ActivityFlowV2;
-  keyCenter: GuitarKeyName;
+  keyCenter: GuitarCenterId;
   keyColor: string;
   /** Card: called after the card marks itself seen for this key. */
   onClose?: () => void;
@@ -58,14 +55,14 @@ function SkipTakeRow({
   keyColor,
   variant,
 }: {
-  keyCenter: GuitarKeyName;
+  keyCenter: GuitarCenterId;
   keyColor: string;
   variant: 'card' | 'section';
 }) {
   // 0-based degree the triad is built on.
   const [start, setStart] = useState(0);
   const names = useMemo(
-    () => keyScaleSpelling(keyCenter).map(displayText),
+    () => getGuitarCenter(keyCenter).spelling.map(displayText),
     [keyCenter],
   );
   const chips = useMemo(() => familyChips(keyCenter), [keyCenter]);
@@ -248,7 +245,7 @@ export const GuitarSectionBCard = memo(function GuitarSectionBCard({
 
   const { intro, info, barreCare } = useMemo(() => {
     const notes = notesFor('B', {
-      center: GUITAR_ATLAS_BOOK_ONE[keyCenter],
+      center: getGuitarCenter(keyCenter),
       settings: SETTINGS,
     });
     return {

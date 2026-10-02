@@ -7,6 +7,9 @@ import {
   restoreCachedSynthState,
   cacheSynthState,
   setActiveSynthTrack,
+  getActiveSynthTrack,
+  acquireSynthBridge,
+  releaseSynthBridge,
 } from '@/daw/oracle-synth/synthTrackState';
 import { useSynthStore } from '@/daw/oracle-synth/store';
 import { useStore } from '@/daw/store';
@@ -37,8 +40,11 @@ export function useStoreBridge(
     }
 
     // Restore incoming track's state (if cached — including patches seeded from
-    // a freshly loaded project)
-    if (trackId) {
+    // a freshly loaded project). Skip it when the track is already live: a
+    // second panel opening on it (the full-screen pop-out over the inline
+    // strip) would otherwise roll the store back to the stale cached patch and
+    // throw away the sound picked since.
+    if (trackId && trackId !== getActiveSynthTrack()) {
       restoreCachedSynthState(trackId);
     }
 
@@ -48,14 +54,16 @@ export function useStoreBridge(
     prevTrackIdRef.current = trackId;
   }, [trackId]);
 
-  // Save state on unmount so it persists when panel closes
+  // Save state on unmount so it persists when panel closes. Only the last
+  // panel to close clears the live track — another one may still be editing it.
   useEffect(() => {
+    acquireSynthBridge();
     return () => {
       const id = prevTrackIdRef.current;
       if (id) {
         cacheSynthState(id, captureSynthState());
       }
-      setActiveSynthTrack(null);
+      if (releaseSynthBridge()) setActiveSynthTrack(null);
     };
   }, []);
 

@@ -5,6 +5,8 @@ import { tickToPixel, pixelToTick } from '@/daw/utils/timelineScale';
 import { ALL_GRID_VALUES } from '@/daw/utils/quantize';
 import {
   AUTOMATION_PARAMS,
+  MASTER_AUTOMATION_ID,
+  MASTER_AUTOMATION_PARAMS,
   getAutomationParamDef,
 } from '@/daw/audio/automationParams';
 import type { AutomationPoint } from '@/daw/audio/automation';
@@ -13,6 +15,8 @@ import type { AutomationPoint } from '@/daw/audio/automation';
 // selected-param lane over the full timeline width, horizontally scroll-synced
 // with the timeline canvas (same tickToPixel + store zoom/scrollLeft), so it
 // avoids the timeline's fixed→variable row-height refactor entirely.
+// The same editor opens the Master bus lane (automationOpenTrackId ===
+// MASTER_AUTOMATION_ID), which reads/writes store.masterAutomation instead.
 
 const LANE_H = 132; // total panel height (px)
 const CANVAS_H = LANE_H - 4; // drawing area
@@ -31,8 +35,11 @@ export function AutomationLaneEditor() {
   const snapEnabled = useStore((s) => s.timelineSnapEnabled);
   // Subscribe to the tracks array so lane edits + activeEffects changes repaint.
   const tracks = useStore((s) => s.tracks);
-  const upsertPoint = useStore((s) => s.upsertAutomationPoint);
-  const removePoint = useStore((s) => s.removeAutomationPoint);
+  const masterAutomation = useStore((s) => s.masterAutomation);
+  const upsertTrackPoint = useStore((s) => s.upsertAutomationPoint);
+  const removeTrackPoint = useStore((s) => s.removeAutomationPoint);
+  const upsertMasterPoint = useStore((s) => s.upsertMasterAutomationPoint);
+  const removeMasterPoint = useStore((s) => s.removeMasterAutomationPoint);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -41,20 +48,44 @@ export function AutomationLaneEditor() {
   // window drag-listener effect re-binds the moment a drag begins.
   const [dragTick, setDragTick] = useState<number | null>(null);
 
-  const track = tracks.find((t) => t.id === openTrackId) ?? null;
+  const isMaster = openTrackId === MASTER_AUTOMATION_ID;
+  const track = isMaster
+    ? null
+    : (tracks.find((t) => t.id === openTrackId) ?? null);
 
   // Params available for this track: all mixer params + effect params whose slot
-  // is currently active on the track.
-  const options = AUTOMATION_PARAMS.filter(
-    (p) =>
-      p.group === 'Mixer' ||
-      (p.slot ? (track?.activeEffects.includes(p.slot) ?? false) : false),
-  );
+  // is currently active on the track. The Master offers volume only.
+  const options = isMaster
+    ? MASTER_AUTOMATION_PARAMS
+    : AUTOMATION_PARAMS.filter(
+        (p) =>
+          p.group === 'Mixer' ||
+          (p.slot ? (track?.activeEffects.includes(p.slot) ?? false) : false),
+      );
   const activeParamId = options.some((o) => o.id === paramId)
     ? paramId
     : 'volume';
   const def = getAutomationParamDef(activeParamId) ?? AUTOMATION_PARAMS[0];
-  const points: AutomationPoint[] = track?.automation?.[activeParamId] ?? [];
+  const points: AutomationPoint[] =
+    (isMaster
+      ? masterAutomation[activeParamId]
+      : track?.automation?.[activeParamId]) ?? [];
+
+  // One write path for both kinds of lane; the callers below stay lane-agnostic.
+  const upsertPoint = useCallback(
+    (laneId: string, paramId: string, point: AutomationPoint) =>
+      laneId === MASTER_AUTOMATION_ID
+        ? upsertMasterPoint(paramId, point)
+        : upsertTrackPoint(laneId, paramId, point),
+    [upsertMasterPoint, upsertTrackPoint],
+  );
+  const removePoint = useCallback(
+    (laneId: string, paramId: string, tick: number) =>
+      laneId === MASTER_AUTOMATION_ID
+        ? removeMasterPoint(paramId, tick)
+        : removeTrackPoint(laneId, paramId, tick),
+    [removeMasterPoint, removeTrackPoint],
+  );
 
   // ── coordinate mapping ──
   const yFromValue = useCallback(
@@ -221,7 +252,8 @@ export function AutomationLaneEditor() {
     };
   }, [dragTick, openTrackId, activeParamId, upsertPoint, valueFromY]);
 
-  if (!openTrackId || !track) return null;
+  if (!openTrackId || (!isMaster && !track)) return null;
+  const laneName = isMaster ? 'Master' : (track?.name ?? '');
 
   return (
     <div
@@ -242,9 +274,9 @@ export function AutomationLaneEditor() {
           <span
             className="truncate text-[11px] font-semibold"
             style={{ color: 'var(--color-text)' }}
-            title={track.name}
+            title={laneName}
           >
-            {track.name}
+            {laneName}
           </span>
           <button
             onClick={() => setOpen(null)}

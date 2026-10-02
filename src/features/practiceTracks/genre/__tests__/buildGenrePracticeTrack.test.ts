@@ -13,6 +13,7 @@ import {
   buildGenrePracticeTrack,
   chordOctaveShift,
   flowHasPracticeTracks,
+  loopChords,
   sectionHasContent,
 } from '../buildGenrePracticeTrack';
 
@@ -69,8 +70,26 @@ describe('buildGenrePracticeTrack — the loop', () => {
     }
   });
 
+  // Funk L2 as it was before it authored a Practice Track progression, for the
+  // tests of what a section falls back on.
+  const unauthored: ActivityFlowV2 = {
+    ...funkL2,
+    params: { ...funkL2.params, practiceTrack: undefined },
+  };
+
+  it('loops D3.1’s progression in every Funk L2 section', () => {
+    for (const section of SECTIONS) {
+      expect(buildGenrePracticeTrack(funkL2, section)!.chordCycle).toEqual([
+        'Am9',
+        'D13',
+        'Am9',
+        'E7#5',
+      ]);
+    }
+  });
+
   it('takes the chord cycle from the section that has one', () => {
-    expect(buildGenrePracticeTrack(funkL2, 'B')!.chordCycle).toEqual([
+    expect(buildGenrePracticeTrack(unauthored, 'B')!.chordCycle).toEqual([
       'Am9',
       'D13',
       'Am9',
@@ -80,7 +99,7 @@ describe('buildGenrePracticeTrack — the loop', () => {
 
   it('vamps the modal tonic where the section names no chords', () => {
     // Funk L2 Section A teaches scales and phrases; it has no chord symbols.
-    const track = buildGenrePracticeTrack(funkL2, 'A')!;
+    const track = buildGenrePracticeTrack(unauthored, 'A')!;
     expect(track.chordCycle).toEqual(['Am9']);
     expect(track.mode).toBe('dorian');
   });
@@ -171,9 +190,19 @@ describe('buildGenrePracticeTrack — register', () => {
     // Funk's own content header: chord voicings within C3(48)-C5(72), sweet
     // spot E3(52)-G4(67). The engine voices Am9 as G4-C5-E5, reaching F#5 on
     // its approach — outside the rule until the figure is moved.
-    const notes = chordNotes('A')!;
-    expect(Math.min(...notes)).toBeGreaterThanOrEqual(48);
-    expect(Math.max(...notes)).toBeLessThanOrEqual(72);
+    //
+    // The rule is about voicings. A 16th-note chromatic approach may sit a
+    // half step outside it, resolving in: under D3.1's progression (the level's
+    // Practice Track since 2026-09-30) D13's C3 is sometimes approached from B2.
+    const events = buildGenrePracticeTrack(funkL2, 'A')!.clips.chords!.events;
+    const voiced = events
+      .filter((e) => e.durationTicks > 120)
+      .map((e) => e.note);
+    const all = events.map((e) => e.note);
+    expect(Math.min(...voiced)).toBeGreaterThanOrEqual(48);
+    expect(Math.max(...voiced)).toBeLessThanOrEqual(72);
+    expect(Math.min(...all)).toBeGreaterThanOrEqual(47);
+    expect(Math.max(...all)).toBeLessThanOrEqual(73);
   });
 
   it('leaves the chords where the lesson voiced them when nobody is improvising', () => {
@@ -293,5 +322,63 @@ describe('buildGenrePracticeTrack — every fallback tonic is playable', () => {
     expect(track.chordCycle).toHaveLength(1);
     expect(chordSymbolTones(track.chordCycle[0])).not.toBeNull();
     expect(track.chordRegions).toHaveLength(16);
+  });
+});
+
+describe('loopChords — an activity’s phrase as a loop', () => {
+  it('drops a landing back on the first chord from an odd-length phrase', () => {
+    expect(loopChords(['Cm9', 'F13', 'Ab13', 'G7alt', 'Cm9'])).toEqual([
+      'Cm9',
+      'F13',
+      'Ab13',
+      'G7alt',
+    ]);
+  });
+
+  it('keeps an even-length progression that ends where it began', () => {
+    expect(loopChords(['Am9', 'D13', 'E7#5', 'Am9'])).toEqual([
+      'Am9',
+      'D13',
+      'E7#5',
+      'Am9',
+    ]);
+  });
+
+  it('reads a list written out twice as one turn', () => {
+    expect(loopChords(['C', 'G', 'Am', 'F', 'C', 'G', 'Am', 'F'])).toEqual([
+      'C',
+      'G',
+      'Am',
+      'F',
+    ]);
+    // …but never below four bars.
+    expect(loopChords(['Dm7', 'G9', 'Dm7', 'G9'])).toEqual([
+      'Dm7',
+      'G9',
+      'Dm7',
+      'G9',
+    ]);
+  });
+
+  it('Funk L3’s Performance track leads with its own four-chord direction', () => {
+    const direction = buildGenrePracticeTrack(funkL3, 'D')?.sourceDirection;
+    expect(direction).toContain('all four chords');
+    expect(direction).not.toMatch(/five/i);
+    // Other sections keep their activity's own direction.
+    expect(buildGenrePracticeTrack(funkL3, 'B')?.sourceDirection).toBe(
+      funkL3.sections
+        .find((s) => s.id === 'B')!
+        .steps.filter((st) => st.backing_parts?.engine_generates?.length)
+        .at(-1)?.direction,
+    );
+  });
+
+  it('Funk L3’s Performance track is a four-bar loop', () => {
+    expect(buildGenrePracticeTrack(funkL3, 'D')?.chordCycle).toEqual([
+      'Cm9',
+      'F13',
+      'Ab13',
+      'G7alt',
+    ]);
   });
 });

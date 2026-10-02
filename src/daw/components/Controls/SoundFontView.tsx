@@ -44,7 +44,13 @@ interface SoundFontViewProps {
 }
 
 export function SoundFontView({ trackId }: SoundFontViewProps) {
-  const [currentProgram, setCurrentProgram] = useState(0);
+  // The track is the source of truth for its GM sound: what's saved, exported,
+  // synced to collaborators and restored on reload. The playback engine keeps
+  // the live instrument in step with it.
+  const currentProgram = useStore(
+    (s) => s.tracks.find((t) => t.id === trackId)?.gmProgram ?? 0,
+  );
+  const updateTrack = useStore((s) => s.updateTrack);
   const [selectedCategory, setSelectedCategory] = useState<GMCategory>('Piano');
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [activeNotes, setActiveNotes] = useState<Set<number>>(new Set());
@@ -66,11 +72,7 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
         ? (state.trackEngine.getInstrument() as SoundFontAdapter)
         : null;
     if (adapter) {
-      const pgm = adapter.getProgram();
-      setCurrentProgram(pgm);
       setLoading(false);
-      const prog = GM_PROGRAMS.find((p) => p.number === pgm);
-      if (prog) setSelectedCategory(prog.category as GMCategory);
     } else {
       // Instrument might not be ready yet — poll until init completes
       const timer = setInterval(() => {
@@ -80,11 +82,7 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
             ? (s.trackEngine.getInstrument() as SoundFontAdapter)
             : null;
         if (a) {
-          const pgm = a.getProgram();
-          setCurrentProgram(pgm);
           setLoading(false);
-          const prog = GM_PROGRAMS.find((p) => p.number === pgm);
-          if (prog) setSelectedCategory(prog.category as GMCategory);
           clearInterval(timer);
         }
       }, 200);
@@ -92,15 +90,24 @@ export function SoundFontView({ trackId }: SoundFontViewProps) {
     }
   }, [trackId]);
 
+  // Open the list on the saved sound's category (per track, and again if the
+  // sound changes from elsewhere — undo, a collaborator, a preset).
+  useEffect(() => {
+    const prog = GM_PROGRAMS.find((p) => p.number === currentProgram);
+    if (prog) setSelectedCategory(prog.category as GMCategory);
+  }, [trackId, currentProgram]);
+
   const handleProgramChange = useCallback(
     (program: number) => {
+      // Save it on the track (this is what reloads); switch the live
+      // instrument right away too so the change is heard immediately.
+      updateTrack(trackId, { gmProgram: program });
       const state = trackEngineRegistry.get(trackId);
       if (state?.instrument instanceof SoundFontAdapter) {
         state.instrument.setProgram(program);
-        setCurrentProgram(program);
       }
     },
-    [trackId],
+    [trackId, updateTrack],
   );
 
   const handleNoteOn = useCallback(

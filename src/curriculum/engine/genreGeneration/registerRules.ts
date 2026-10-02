@@ -41,6 +41,12 @@
  * section otherwise (C = bass, B/D = chords, A = melody). Melody is never
  * touched — these rules are about accompaniment register, and a melody is
  * supposed to sit up there.
+ *
+ * HIP HOP SITS HIGHER
+ * Chords sit high in Hip Hop — a stylistic shift, in Aaron's words — so its
+ * chord activities start in C5–C6. For `genre: 'hip-hop'` the chord window
+ * moves up an octave: a chord may start as high as C6 and reach C7. Bass is
+ * unchanged. See `chordLimits`.
  */
 
 import type { ActivitySectionId } from '../../types/activity';
@@ -51,6 +57,23 @@ export const CHORD_REGISTER_CEILING = 72;
 
 /** C6. A chord reaching ABOVE this is too high, wherever it starts. */
 export const CHORD_REGISTER_TOP = 84;
+
+/** Genres whose chords sit an octave higher (see HIP HOP SITS HIGHER). */
+const HIGH_CHORD_GENRES = new Set(['hip-hop']);
+
+export interface ChordLimits {
+  /** A chord whose lowest note is ABOVE this is too high. */
+  floor: number;
+  /** A chord reaching ABOVE this is too high. */
+  top: number;
+}
+
+/** The chord window for a step's genre. */
+export function chordLimits(genre?: string): ChordLimits {
+  return genre && HIGH_CHORD_GENRES.has(genre)
+    ? { floor: CHORD_REGISTER_CEILING + 12, top: CHORD_REGISTER_TOP + 12 }
+    : { floor: CHORD_REGISTER_CEILING, top: CHORD_REGISTER_TOP };
+}
 
 /** C4. A bass note ABOVE this is too high. */
 export const BASS_REGISTER_CEILING = 60;
@@ -77,17 +100,22 @@ export interface RegisterNote {
 export interface RegisterContext {
   section?: ActivitySectionId;
   instrument_config?: InstrumentConfig;
+  /** The flow's genre; Hip Hop gets a higher chord window. */
+  genre?: string;
 }
 
 /**
  * Semitones to move a chord so its lowest note is no higher than C5.
  * Always 0 or a negative multiple of 12.
  */
-export function chordOctaveShift(midis: readonly number[]): number {
+export function chordOctaveShift(
+  midis: readonly number[],
+  floor: number = CHORD_REGISTER_CEILING,
+): number {
   if (midis.length === 0) return 0;
   const lowest = Math.min(...midis);
   let shift = 0;
-  while (lowest + shift > CHORD_REGISTER_CEILING) shift -= 12;
+  while (lowest + shift > floor) shift -= 12;
   return shift;
 }
 
@@ -95,11 +123,14 @@ export function chordOctaveShift(midis: readonly number[]): number {
  * Semitones to move a chord so its highest note is no higher than C6.
  * Always 0 or a negative multiple of 12.
  */
-export function chordCeilingShift(midis: readonly number[]): number {
+export function chordCeilingShift(
+  midis: readonly number[],
+  top: number = CHORD_REGISTER_TOP,
+): number {
   if (midis.length === 0) return 0;
   const highest = Math.max(...midis);
   let shift = 0;
-  while (highest + shift > CHORD_REGISTER_TOP) shift -= 12;
+  while (highest + shift > top) shift -= 12;
   return shift;
 }
 
@@ -179,7 +210,10 @@ export function registerShiftsFor(
     else if (role === 'bass') bassMidis.push(note.midi);
   }
 
-  const chord = chordOctaveShift(chords.map((n) => n.midi));
+  const chord = chordOctaveShift(
+    chords.map((n) => n.midi),
+    chordLimits(ctx.genre).floor,
+  );
   return {
     chord,
     bass: bassOctaveShift(bassMidis),
@@ -217,7 +251,7 @@ function ceilingShifts(
   }
 
   for (const [hand, midis] of byHand) {
-    const shift = chordCeilingShift(midis);
+    const shift = chordCeilingShift(midis, chordLimits(ctx.genre).top);
     if (shift === 0) continue;
     const bottom = Math.min(...midis);
     const otherTop = topOfOtherHand(all, hand, chordShift, ctx);

@@ -19,12 +19,12 @@ const funkL1SectionA: ActivitySectionV2 = {
   id: 'A',
   name: 'Melody',
   steps: [
-    // ── A1: Scale (6 steps) ──────────────────────────────────────────────
+    // ── A1: Scale (D Minor Pentatonic) ──────────────────────────────────
     {
       stepNumber: 1,
       module: 'funk_l1',
       section: 'A',
-      subsection: 'A1: Scale (D Minor Pentatonic / Blues)',
+      subsection: 'A1: Scale (D Minor Pentatonic)',
       activity: 'A1.1: D Minor Pentatonic Ascending (Out of Time)',
       direction: 'Play the D minor pentatonic scale going up.',
       assessment: 'pitch_only',
@@ -44,7 +44,7 @@ const funkL1SectionA: ActivitySectionV2 = {
       stepNumber: 2,
       module: 'funk_l1',
       section: 'A',
-      subsection: 'A1: Scale (D Minor Pentatonic / Blues)',
+      subsection: 'A1: Scale (D Minor Pentatonic)',
       activity: 'A1.2: D Minor Pentatonic Descending (Out of Time)',
       direction: 'Play the D minor pentatonic scale going down.',
       assessment: 'pitch_only',
@@ -64,7 +64,7 @@ const funkL1SectionA: ActivitySectionV2 = {
       stepNumber: 3,
       module: 'funk_l1',
       section: 'A',
-      subsection: 'A1: Scale (D Minor Pentatonic / Blues)',
+      subsection: 'A1: Scale (D Minor Pentatonic)',
       activity: 'A1.3: D Minor Pentatonic — Up & Down (In Time)',
       direction:
         'In a steady tempo, play the D minor pentatonic scale going up and then back down.',
@@ -87,91 +87,9 @@ const funkL1SectionA: ActivitySectionV2 = {
         { midi: 62, onset: 4800, duration: 480 }, // D4
       ],
     },
+    // ── A2: Melodic Phrases ─────────────────────────────────────────────
     {
       stepNumber: 4,
-      module: 'funk_l1',
-      section: 'A',
-      subsection: 'A1: Scale (D Minor Pentatonic / Blues)',
-      activity: 'A1.4: D Minor Blues Scale Ascending (Out of Time)',
-      scaleIntervals: [0, 3, 5, 6, 7, 10],
-      scaleId: 'minor_blues',
-      direction:
-        'Play the D minor blues scale going up. Listen for the blue note (Ab).',
-      assessment: 'pitch_only',
-      tag: 'funk:minor_blues_ascending_oot | funk',
-      styleRef: 'l1a',
-      successFeedback: 'Nice — that blue note adds the grit.',
-      targetNotes: [
-        { midi: 62, onset: 0, duration: 460 },
-        { midi: 65, onset: 480, duration: 460 },
-        { midi: 67, onset: 960, duration: 460 },
-        { midi: 68, onset: 1440, duration: 460 },
-        { midi: 69, onset: 1920, duration: 460 },
-        { midi: 72, onset: 2400, duration: 460 },
-        { midi: 74, onset: 2880, duration: 460 },
-      ],
-    },
-    {
-      stepNumber: 5,
-      module: 'funk_l1',
-      section: 'A',
-      subsection: 'A1: Scale (D Minor Pentatonic / Blues)',
-      activity: 'A1.5: D Minor Blues Scale Descending (Out of Time)',
-      scaleIntervals: [0, 3, 5, 6, 7, 10],
-      scaleId: 'minor_blues',
-      direction:
-        'Play the D minor blues scale going down. Listen for the blue note (Ab) on the way.',
-      assessment: 'pitch_only',
-      tag: 'funk:minor_blues_descending_oot | funk',
-      styleRef: 'l1a',
-      successFeedback: 'Down the blues scale — every note intentional.',
-      targetNotes: [
-        { midi: 74, onset: 0, duration: 460 },
-        { midi: 72, onset: 480, duration: 460 },
-        { midi: 69, onset: 960, duration: 460 },
-        { midi: 68, onset: 1440, duration: 460 },
-        { midi: 67, onset: 1920, duration: 460 },
-        { midi: 65, onset: 2400, duration: 460 },
-        { midi: 62, onset: 2880, duration: 460 },
-      ],
-    },
-    {
-      stepNumber: 6,
-      module: 'funk_l1',
-      section: 'A',
-      subsection: 'A1: Scale (D Minor Pentatonic / Blues)',
-      activity: 'A1.6: D Minor Blues Scale — Up & Down (In Time)',
-      scaleIntervals: [0, 3, 5, 6, 7, 10],
-      scaleId: 'minor_blues',
-      direction:
-        'In a steady tempo, play the D minor blues scale going up and then back down.',
-      assessment: 'pitch_order_timing',
-      tag: 'funk:minor_blues_up_down_it | funk',
-      styleRef: 'l1a',
-      successFeedback:
-        'Blues scale up and down in time — that blue note groove is locked in.',
-      contentGeneration:
-        'GCM v8: FUNK L1 melody scale_alt=minor_blues [0,3,5,6,7,10]. Key: D minor. Contour: ascending then descending stepwise. Register: C4-C5. Tempo: 88-96 BPM quarter-note pulse.',
-      targetNotes: [
-        { midi: 62, onset: 0, duration: 480 }, // D4 — up
-        { midi: 65, onset: 480, duration: 480 }, // F4
-        { midi: 67, onset: 960, duration: 480 }, // G4
-        { midi: 68, onset: 1440, duration: 480 }, // G#4 — blue note
-        { midi: 69, onset: 1920, duration: 480 }, // A4
-        { midi: 72, onset: 2400, duration: 480 }, // C5
-        { midi: 74, onset: 2880, duration: 480 }, // D5 — top
-        { midi: 72, onset: 3360, duration: 480 }, // C5 — down
-        { midi: 69, onset: 3840, duration: 480 }, // A4
-        { midi: 68, onset: 4320, duration: 480 }, // G#4 — blue note
-        { midi: 67, onset: 4800, duration: 480 }, // G4
-        { midi: 65, onset: 5280, duration: 480 }, // F4
-        { midi: 62, onset: 5760, duration: 480 }, // D4 — home
-      ],
-    },
-
-    // ── A2: Melodic Phrases (6 steps) ────────────────────────────────────
-    {
-      stepNumber: 7,
       module: 'funk_l1',
       section: 'A',
       subsection: 'A2: Melodic Phrases',
@@ -195,7 +113,7 @@ const funkL1SectionA: ActivitySectionV2 = {
       ],
     },
     {
-      stepNumber: 8,
+      stepNumber: 5,
       module: 'funk_l1',
       section: 'A',
       subsection: 'A2: Melodic Phrases',
@@ -218,7 +136,7 @@ const funkL1SectionA: ActivitySectionV2 = {
       ],
     },
     {
-      stepNumber: 9,
+      stepNumber: 6,
       module: 'funk_l1',
       section: 'A',
       subsection: 'A2: Melodic Phrases',
@@ -242,7 +160,7 @@ const funkL1SectionA: ActivitySectionV2 = {
       ],
     },
     {
-      stepNumber: 10,
+      stepNumber: 7,
       module: 'funk_l1',
       section: 'A',
       subsection: 'A2: Melodic Phrases',
@@ -265,7 +183,7 @@ const funkL1SectionA: ActivitySectionV2 = {
       ],
     },
     {
-      stepNumber: 11,
+      stepNumber: 8,
       module: 'funk_l1',
       section: 'A',
       subsection: 'A2: Melodic Phrases',
@@ -295,7 +213,7 @@ const funkL1SectionA: ActivitySectionV2 = {
       ],
     },
     {
-      stepNumber: 12,
+      stepNumber: 9,
       module: 'funk_l1',
       section: 'A',
       subsection: 'A2: Melodic Phrases',
@@ -321,10 +239,9 @@ const funkL1SectionA: ActivitySectionV2 = {
         { midi: 69, onset: 2880, duration: 960 },
       ],
     },
-
-    // ── A3: Melody Play-Along (2 steps) ──────────────────────────────────
+    // ── A3: Melody Play-Along ───────────────────────────────────────────
     {
-      stepNumber: 13,
+      stepNumber: 10,
       module: 'funk_l1',
       section: 'A',
       subsection: 'A3: Melody Play-Along',
@@ -358,7 +275,7 @@ const funkL1SectionA: ActivitySectionV2 = {
       },
     },
     {
-      stepNumber: 14,
+      stepNumber: 11,
       module: 'funk_l1',
       section: 'A',
       subsection: 'A3: Melody Play-Along',
@@ -390,12 +307,95 @@ const funkL1SectionA: ActivitySectionV2 = {
         student_plays: ['melody'],
       },
     },
+    // ── A4: Scale (D Minor Blues) ───────────────────────────────────────
+    {
+      stepNumber: 12,
+      module: 'funk_l1',
+      section: 'A',
+      subsection: 'A4: Scale (D Minor Blues)',
+      activity: 'A4.1: D Minor Blues Scale Ascending (Out of Time)',
+      scaleIntervals: [0, 3, 5, 6, 7, 10],
+      scaleId: 'minor_blues',
+      direction:
+        'Play the D minor blues scale going up. Listen for the blue note (Ab).',
+      assessment: 'pitch_only',
+      tag: 'funk:minor_blues_ascending_oot | funk',
+      styleRef: 'l1a',
+      successFeedback: 'Nice — that blue note adds the grit.',
+      targetNotes: [
+        { midi: 62, onset: 0, duration: 460 },
+        { midi: 65, onset: 480, duration: 460 },
+        { midi: 67, onset: 960, duration: 460 },
+        { midi: 68, onset: 1440, duration: 460 },
+        { midi: 69, onset: 1920, duration: 460 },
+        { midi: 72, onset: 2400, duration: 460 },
+        { midi: 74, onset: 2880, duration: 460 },
+      ],
+    },
+    {
+      stepNumber: 13,
+      module: 'funk_l1',
+      section: 'A',
+      subsection: 'A4: Scale (D Minor Blues)',
+      activity: 'A4.2: D Minor Blues Scale Descending (Out of Time)',
+      scaleIntervals: [0, 3, 5, 6, 7, 10],
+      scaleId: 'minor_blues',
+      direction:
+        'Play the D minor blues scale going down. Listen for the blue note (Ab) on the way.',
+      assessment: 'pitch_only',
+      tag: 'funk:minor_blues_descending_oot | funk',
+      styleRef: 'l1a',
+      successFeedback: 'Down the blues scale — every note intentional.',
+      targetNotes: [
+        { midi: 74, onset: 0, duration: 460 },
+        { midi: 72, onset: 480, duration: 460 },
+        { midi: 69, onset: 960, duration: 460 },
+        { midi: 68, onset: 1440, duration: 460 },
+        { midi: 67, onset: 1920, duration: 460 },
+        { midi: 65, onset: 2400, duration: 460 },
+        { midi: 62, onset: 2880, duration: 460 },
+      ],
+    },
     {
       stepNumber: 14,
       module: 'funk_l1',
       section: 'A',
-      subsection: 'A3: Melody Play-Along',
-      activity: 'A3.3: Blues Melody Play-Along (In Time)',
+      subsection: 'A4: Scale (D Minor Blues)',
+      activity: 'A4.3: D Minor Blues Scale — Up & Down (In Time)',
+      scaleIntervals: [0, 3, 5, 6, 7, 10],
+      scaleId: 'minor_blues',
+      direction:
+        'In a steady tempo, play the D minor blues scale going up and then back down.',
+      assessment: 'pitch_order_timing',
+      tag: 'funk:minor_blues_up_down_it | funk',
+      styleRef: 'l1a',
+      successFeedback:
+        'Blues scale up and down in time — that blue note groove is locked in.',
+      contentGeneration:
+        'GCM v8: FUNK L1 melody scale_alt=minor_blues [0,3,5,6,7,10]. Key: D minor. Contour: ascending then descending stepwise. Register: C4-C5. Tempo: 88-96 BPM quarter-note pulse.',
+      targetNotes: [
+        { midi: 62, onset: 0, duration: 480 }, // D4 — up
+        { midi: 65, onset: 480, duration: 480 }, // F4
+        { midi: 67, onset: 960, duration: 480 }, // G4
+        { midi: 68, onset: 1440, duration: 480 }, // G#4 — blue note
+        { midi: 69, onset: 1920, duration: 480 }, // A4
+        { midi: 72, onset: 2400, duration: 480 }, // C5
+        { midi: 74, onset: 2880, duration: 480 }, // D5 — top
+        { midi: 72, onset: 3360, duration: 480 }, // C5 — down
+        { midi: 69, onset: 3840, duration: 480 }, // A4
+        { midi: 68, onset: 4320, duration: 480 }, // G#4 — blue note
+        { midi: 67, onset: 4800, duration: 480 }, // G4
+        { midi: 65, onset: 5280, duration: 480 }, // F4
+        { midi: 62, onset: 5760, duration: 480 }, // D4 — home
+      ],
+    },
+    // ── A5: Blues Melody Play-Along ─────────────────────────────────────
+    {
+      stepNumber: 15,
+      module: 'funk_l1',
+      section: 'A',
+      subsection: 'A5: Blues Melody Play-Along',
+      activity: 'A5.1: Blues Melody Play-Along (In Time)',
       scaleIntervals: [0, 3, 5, 6, 7, 10],
       scaleId: 'minor_blues',
       direction:
@@ -1760,12 +1760,12 @@ const funkL2SectionA: ActivitySectionV2 = {
   id: 'A',
   name: 'Melody',
   steps: [
-    // ── A1: Dorian Scale + Blues (6 steps) ───────────────────────────────
+    // ── A1: C Dorian Scale ──────────────────────────────────────────────
     {
       stepNumber: 99,
       module: 'funk_l3',
       section: 'A',
-      subsection: 'A1: Dorian Scale + Blues',
+      subsection: 'A1: C Dorian Scale',
       activity: 'A1.1: C Dorian Scale Ascending (Out of Time)',
       direction:
         'Play the C Dorian scale going up. Listen for the natural 6 (A natural) — that is the Dorian fingerprint.',
@@ -1789,7 +1789,7 @@ const funkL2SectionA: ActivitySectionV2 = {
       stepNumber: 100,
       module: 'funk_l3',
       section: 'A',
-      subsection: 'A1: Dorian Scale + Blues',
+      subsection: 'A1: C Dorian Scale',
       activity: 'A1.2: C Dorian Scale Descending (Out of Time)',
       direction:
         'Play the C Dorian scale going down. Feel how the natural 6 (A) pulls you through the descent.',
@@ -1813,7 +1813,7 @@ const funkL2SectionA: ActivitySectionV2 = {
       stepNumber: 101,
       module: 'funk_l3',
       section: 'A',
-      subsection: 'A1: Dorian Scale + Blues',
+      subsection: 'A1: C Dorian Scale',
       activity: 'A1.3: C Dorian Scale — Up & Down (In Time)',
       direction:
         'In a steady tempo, play the C Dorian scale going up to C5 and back down. Listen for the natural 6 (A) both ways.',
@@ -1840,92 +1840,13 @@ const funkL2SectionA: ActivitySectionV2 = {
         { midi: 60, onset: 6720, duration: 480 }, // C4
       ],
     },
+    // ── A2: Melodic Phrases ─────────────────────────────────────────────
     {
       stepNumber: 102,
       module: 'funk_l3',
       section: 'A',
-      subsection: 'A1: Dorian Scale + Blues',
-      activity: 'A1.4: C Minor Blues Scale Ascending (Out of Time)',
-      direction:
-        'Play the C minor blues scale going up. The b5 (Gb) is the blue note — feel how it adds grit between the 4th and 5th.',
-      assessment: 'pitch_only',
-      tag: 'funk:minor_blues_ascending_oot_l3 | funk',
-      styleRef: 'l3a',
-      scaleId: 'minor_blues',
-      scaleIntervals: [0, 3, 5, 6, 7, 10],
-      successFeedback:
-        'Blues scale up — that Gb gives you the edge Dorian alone does not have.',
-      targetNotes: [
-        { midi: 60, onset: 0, duration: 480 }, // C4
-        { midi: 63, onset: 480, duration: 480 }, // Eb4
-        { midi: 65, onset: 960, duration: 480 }, // F4
-        { midi: 66, onset: 1440, duration: 480 }, // Gb4 — blue note
-        { midi: 67, onset: 1920, duration: 480 }, // G4
-        { midi: 70, onset: 2400, duration: 480 }, // Bb4
-        { midi: 72, onset: 2880, duration: 480 }, // C5
-      ],
-    },
-    {
-      stepNumber: 103,
-      module: 'funk_l3',
-      section: 'A',
-      subsection: 'A1: Dorian Scale + Blues',
-      activity: 'A1.5: C Minor Blues Scale Descending (Out of Time)',
-      direction:
-        'Play the C minor blues scale going down. Feel the Gb on the way back.',
-      assessment: 'pitch_only',
-      tag: 'funk:minor_blues_descending_oot_l3 | funk',
-      styleRef: 'l3a',
-      scaleId: 'minor_blues',
-      scaleIntervals: [0, 3, 5, 6, 7, 10],
-      successFeedback: 'Blues scale down — smooth and intentional.',
-      targetNotes: [
-        { midi: 72, onset: 0, duration: 480 }, // C5
-        { midi: 70, onset: 480, duration: 480 }, // Bb4
-        { midi: 67, onset: 960, duration: 480 }, // G4
-        { midi: 66, onset: 1440, duration: 480 }, // Gb4 — blue note
-        { midi: 65, onset: 1920, duration: 480 }, // F4
-        { midi: 63, onset: 2400, duration: 480 }, // Eb4
-        { midi: 60, onset: 2880, duration: 480 }, // C4
-      ],
-    },
-    {
-      stepNumber: 104,
-      module: 'funk_l3',
-      section: 'A',
-      subsection: 'A1: Dorian Scale + Blues',
-      activity: 'A1.6: C Minor Blues Scale — Up & Down (In Time)',
-      direction:
-        'In a steady tempo, play the C minor blues scale going up to C5 and back down. Listen for the Gb both ways.',
-      assessment: 'pitch_order_timing',
-      tag: 'funk:minor_blues_up_down_it_l3 | funk',
-      styleRef: 'l3a',
-      scaleId: 'minor_blues',
-      scaleIntervals: [0, 3, 5, 6, 7, 10],
-      successFeedback:
-        'Blues scale up and down in time — that blue note groove is locked in.',
-      targetNotes: [
-        { midi: 60, onset: 0, duration: 480 }, // C4  — up
-        { midi: 63, onset: 480, duration: 480 }, // Eb4
-        { midi: 65, onset: 960, duration: 480 }, // F4
-        { midi: 66, onset: 1440, duration: 480 }, // Gb4 — blue note
-        { midi: 67, onset: 1920, duration: 480 }, // G4
-        { midi: 70, onset: 2400, duration: 480 }, // Bb4
-        { midi: 72, onset: 2880, duration: 480 }, // C5  — top
-        { midi: 70, onset: 3360, duration: 480 }, // Bb4 — down
-        { midi: 67, onset: 3840, duration: 480 }, // G4
-        { midi: 66, onset: 4320, duration: 480 }, // Gb4 — blue note
-        { midi: 65, onset: 4800, duration: 480 }, // F4
-        { midi: 63, onset: 5280, duration: 480 }, // Eb4
-        { midi: 60, onset: 5760, duration: 480 }, // C4
-      ],
-    },
-    {
-      stepNumber: 105,
-      module: 'funk_l3',
-      section: 'A',
-      subsection: 'A1: Dorian Scale + Blues',
-      activity: 'A1.7: Natural 6 (A♮) Emphasis Exercise (Out of Time)',
+      subsection: 'A2: Melodic Phrases',
+      activity: 'A2.1: Natural 6 (A♮) Emphasis Exercise (Out of Time)',
       direction:
         'Play this ornamental descent: B♭→A→G (b7→♮6→5). The A natural is the Dorian character note — it is what separates Dorian from natural minor. This three-note phrase is the L3 melodic signature.',
       assessment: 'pitch_only',
@@ -1941,14 +1862,12 @@ const funkL2SectionA: ActivitySectionV2 = {
         { midi: 67, onset: 960, duration: 960 }, // G4 — 5th (long resolve)
       ],
     },
-
-    // ── A2: Melodic Phrases (6 steps) ────────────────────────────────────
     {
-      stepNumber: 106,
+      stepNumber: 103,
       module: 'funk_l3',
       section: 'A',
       subsection: 'A2: Melodic Phrases',
-      activity: "A2.1: 2-Bar Phrase — Motivic Repetition (A-A') (Out of Time)",
+      activity: "A2.2: 2-Bar Phrase — Motivic Repetition (A-A') (Out of Time)",
       direction:
         'Learn a 2-bar phrase where bar 2 repeats bar 1 with a small variation. Same rhythm, one note changed.',
       assessment: 'pitch_only',
@@ -1971,11 +1890,11 @@ const funkL2SectionA: ActivitySectionV2 = {
       ],
     },
     {
-      stepNumber: 107,
+      stepNumber: 104,
       module: 'funk_l3',
       section: 'A',
       subsection: 'A2: Melodic Phrases',
-      activity: 'A2.2: 2-Bar Phrase — Motivic Repetition (In Time)',
+      activity: 'A2.3: 2-Bar Phrase — Motivic Repetition (In Time)',
       direction: 'Play the motivic repetition phrase in time.',
       assessment: 'pitch_order_timing',
       tag: 'funk:phrase_motivic_repetition_2bar_it | funk',
@@ -1995,11 +1914,11 @@ const funkL2SectionA: ActivitySectionV2 = {
       ],
     },
     {
-      stepNumber: 108,
+      stepNumber: 105,
       module: 'funk_l3',
       section: 'A',
       subsection: 'A2: Melodic Phrases',
-      activity: 'A2.3: 2-Bar Phrase — Call + Varied Answer (Out of Time)',
+      activity: 'A2.4: 2-Bar Phrase — Call + Varied Answer (Out of Time)',
       direction:
         'Learn a 2-bar call-and-answer: bar 1 calls, bar 2 answers with a different rhythm but lands on the same target note. The answer should include the b7→♮6 descent (B♭→A) — the Dorian signature.',
       assessment: 'pitch_only',
@@ -2023,11 +1942,11 @@ const funkL2SectionA: ActivitySectionV2 = {
       ],
     },
     {
-      stepNumber: 109,
+      stepNumber: 106,
       module: 'funk_l3',
       section: 'A',
       subsection: 'A2: Melodic Phrases',
-      activity: 'A2.4: 2-Bar Phrase — Call + Varied Answer (In Time)',
+      activity: 'A2.5: 2-Bar Phrase — Call + Varied Answer (In Time)',
       direction:
         'Play the call-and-varied-answer phrase in time. Feel the Bb→A pull in the answer bar.',
       assessment: 'pitch_order_timing',
@@ -2049,11 +1968,11 @@ const funkL2SectionA: ActivitySectionV2 = {
       ],
     },
     {
-      stepNumber: 110,
+      stepNumber: 107,
       module: 'funk_l3',
       section: 'A',
       subsection: 'A2: Melodic Phrases',
-      activity: 'A2.5: 4-Bar Phrase — Density Arc (Out of Time)',
+      activity: 'A2.6: 4-Bar Phrase — Density Arc (Out of Time)',
       direction:
         'Learn a 4-bar phrase that builds in density: bars 1-2 are sparse, bar 3 picks up, bar 4 is the densest run resolving to a long held note.',
       assessment: 'pitch_only',
@@ -2083,11 +2002,11 @@ const funkL2SectionA: ActivitySectionV2 = {
       ],
     },
     {
-      stepNumber: 111,
+      stepNumber: 108,
       module: 'funk_l3',
       section: 'A',
       subsection: 'A2: Melodic Phrases',
-      activity: 'A2.6: 4-Bar Phrase — Density Arc (In Time)',
+      activity: 'A2.7: 4-Bar Phrase — Density Arc (In Time)',
       direction:
         'Play the 4-bar density arc in time. Feel how the tension builds to bar 4.',
       assessment: 'pitch_order_timing',
@@ -2112,10 +2031,9 @@ const funkL2SectionA: ActivitySectionV2 = {
         { midi: 67, onset: 6240, duration: 1440 },
       ],
     },
-
-    // ── A3: Melody Play-Along (2 steps) ──────────────────────────────────
+    // ── A3: Melody Play-Along ───────────────────────────────────────────
     {
-      stepNumber: 113,
+      stepNumber: 109,
       module: 'funk_l3',
       section: 'A',
       subsection: 'A3: Melody Play-Along',
@@ -2150,7 +2068,7 @@ const funkL2SectionA: ActivitySectionV2 = {
       },
     },
     {
-      stepNumber: 114,
+      stepNumber: 110,
       module: 'funk_l3',
       section: 'A',
       subsection: 'A3: Melody Play-Along',
@@ -2183,6 +2101,87 @@ const funkL2SectionA: ActivitySectionV2 = {
         engine_generates: ['drums', 'bass', 'chords'],
         student_plays: ['melody'],
       },
+    },
+    // ── A4: C Minor Blues Scale ─────────────────────────────────────────
+    {
+      stepNumber: 111,
+      module: 'funk_l3',
+      section: 'A',
+      subsection: 'A4: C Minor Blues Scale',
+      activity: 'A4.1: C Minor Blues Scale Ascending (Out of Time)',
+      direction:
+        'Play the C minor blues scale going up. The b5 (Gb) is the blue note — feel how it adds grit between the 4th and 5th.',
+      assessment: 'pitch_only',
+      tag: 'funk:minor_blues_ascending_oot_l3 | funk',
+      styleRef: 'l3a',
+      scaleId: 'minor_blues',
+      scaleIntervals: [0, 3, 5, 6, 7, 10],
+      successFeedback:
+        'Blues scale up — that Gb gives you the edge Dorian alone does not have.',
+      targetNotes: [
+        { midi: 60, onset: 0, duration: 480 }, // C4
+        { midi: 63, onset: 480, duration: 480 }, // Eb4
+        { midi: 65, onset: 960, duration: 480 }, // F4
+        { midi: 66, onset: 1440, duration: 480 }, // Gb4 — blue note
+        { midi: 67, onset: 1920, duration: 480 }, // G4
+        { midi: 70, onset: 2400, duration: 480 }, // Bb4
+        { midi: 72, onset: 2880, duration: 480 }, // C5
+      ],
+    },
+    {
+      stepNumber: 112,
+      module: 'funk_l3',
+      section: 'A',
+      subsection: 'A4: C Minor Blues Scale',
+      activity: 'A4.2: C Minor Blues Scale Descending (Out of Time)',
+      direction:
+        'Play the C minor blues scale going down. Feel the Gb on the way back.',
+      assessment: 'pitch_only',
+      tag: 'funk:minor_blues_descending_oot_l3 | funk',
+      styleRef: 'l3a',
+      scaleId: 'minor_blues',
+      scaleIntervals: [0, 3, 5, 6, 7, 10],
+      successFeedback: 'Blues scale down — smooth and intentional.',
+      targetNotes: [
+        { midi: 72, onset: 0, duration: 480 }, // C5
+        { midi: 70, onset: 480, duration: 480 }, // Bb4
+        { midi: 67, onset: 960, duration: 480 }, // G4
+        { midi: 66, onset: 1440, duration: 480 }, // Gb4 — blue note
+        { midi: 65, onset: 1920, duration: 480 }, // F4
+        { midi: 63, onset: 2400, duration: 480 }, // Eb4
+        { midi: 60, onset: 2880, duration: 480 }, // C4
+      ],
+    },
+    {
+      stepNumber: 113,
+      module: 'funk_l3',
+      section: 'A',
+      subsection: 'A4: C Minor Blues Scale',
+      activity: 'A4.3: C Minor Blues Scale — Up & Down (In Time)',
+      direction:
+        'In a steady tempo, play the C minor blues scale going up to C5 and back down. Listen for the Gb both ways.',
+      assessment: 'pitch_order_timing',
+      tag: 'funk:minor_blues_up_down_it_l3 | funk',
+      styleRef: 'l3a',
+      scaleId: 'minor_blues',
+      scaleIntervals: [0, 3, 5, 6, 7, 10],
+      successFeedback:
+        'Blues scale up and down in time — that blue note groove is locked in.',
+      targetNotes: [
+        { midi: 60, onset: 0, duration: 480 }, // C4  — up
+        { midi: 63, onset: 480, duration: 480 }, // Eb4
+        { midi: 65, onset: 960, duration: 480 }, // F4
+        { midi: 66, onset: 1440, duration: 480 }, // Gb4 — blue note
+        { midi: 67, onset: 1920, duration: 480 }, // G4
+        { midi: 70, onset: 2400, duration: 480 }, // Bb4
+        { midi: 72, onset: 2880, duration: 480 }, // C5  — top
+        { midi: 70, onset: 3360, duration: 480 }, // Bb4 — down
+        { midi: 67, onset: 3840, duration: 480 }, // G4
+        { midi: 66, onset: 4320, duration: 480 }, // Gb4 — blue note
+        { midi: 65, onset: 4800, duration: 480 }, // F4
+        { midi: 63, onset: 5280, duration: 480 }, // Eb4
+        { midi: 60, onset: 5760, duration: 480 }, // C4
+      ],
     },
   ],
 };
@@ -5937,6 +5936,17 @@ export const funkL3: ActivityFlowV2 = {
     tempoRange: [85, 110],
     swing: 0,
     grooves: ['groove_funk_03', 'groove_funk_04'],
+    practiceTrack: {
+      // The capstone's own direction counts the five bars of its phrase,
+      // landing included; the Practice Track loops the four chords.
+      directions: {
+        D:
+          'Level 3 capstone: the full progression. ' +
+          'LH alternates octave pop (Cm, F) and 1-5-8 (Ab, G). ' +
+          'RH plays the voicings through all four chords. ' +
+          'Four chords, full groove — this is the complete Funk L3 feel.',
+      },
+    },
   },
   sections: [funkL2SectionA, funkL2SectionB, funkL2SectionC, funkL2SectionD],
 };
@@ -5957,6 +5967,9 @@ export const funkL2: ActivityFlowV2 = {
     tempoRange: [95, 108],
     swing: 0, // v2 note: swing not used at ActivityFlow level — defined per sub-profile in styleDna/funk.v2.ts
     grooves: ['groove_funk_01', 'groove_funk_02', 'groove_funk_03'],
+    // Every section's Practice Track loops D3.1's progression (Aaron,
+    // 2026-09-30) — the level's integrated LH bass + RH chords performance.
+    practiceTrack: { chords: ['Am9', 'D13', 'Am9', 'E7#5'] },
   },
   sections: [funkL3SectionA, funkL3SectionB, funkL3SectionC, funkL3SectionD],
 };

@@ -10,6 +10,7 @@ import { resetUndoHistory } from '@/daw/store/undoMiddleware';
 import { defaultReturns, type ReturnBus } from '@/daw/store/returnsSlice';
 import type { MidiNoteEvent } from '@/daw/prism-engine/types';
 import { guessTrackRole } from '@/daw/utils/trackRole';
+import type { AutomationLanes } from '@/daw/audio/automation';
 import {
   getTrackSynthState,
   setTrackSynthState,
@@ -28,7 +29,10 @@ export interface SerializedTrackSettings {
   drumPads?: Track['drumPads'];
   automation?: Track['automation'];
   drumKit?: Track['drumKit'];
+  bassVoice?: Track['bassVoice'];
   samplerSample?: Track['samplerSample'];
+  organState?: Track['organState'];
+  presetName?: Track['presetName'];
   sends?: Track['sends'];
   // The track's own id at save time, so cross-track references inside effects
   // (the ducker's keyTrackId) can be remapped when deserialize remints ids
@@ -38,6 +42,10 @@ export interface SerializedTrackSettings {
   // shared store + per-track cache (see synthTrackState.ts), not on the Track,
   // so this is pulled from there at save time and seeded back on load.
   oracleSynth?: SynthTrackState;
+  // Cloud saves only: the Master bus automation lanes. The API stores this
+  // settings blob opaquely but has no project-level field for them, so they
+  // ride on the first track's settings (see masterAutomationFromCloud).
+  masterAutomation?: AutomationLanes;
 }
 
 /** Build the persisted settings blob from a track (undefined fields are dropped on JSON encode). */
@@ -50,7 +58,10 @@ function trackSettings(t: Track): SerializedTrackSettings {
     drumPads: t.drumPads,
     automation: t.automation,
     drumKit: t.drumKit,
+    bassVoice: t.bassVoice,
     samplerSample: t.samplerSample,
+    organState: t.organState,
+    presetName: t.presetName,
     sends: t.sends,
     sourceTrackId: t.id,
     oracleSynth:
@@ -69,7 +80,10 @@ function applyTrackSettings(
   | 'guitarChain'
   | 'drumPads'
   | 'drumKit'
+  | 'bassVoice'
   | 'samplerSample'
+  | 'organState'
+  | 'presetName'
   | 'sends'
   | 'automation'
 > {
@@ -86,10 +100,13 @@ function applyTrackSettings(
     drumPads: settings?.drumPads,
     automation: settings?.automation,
     drumKit: settings?.drumKit,
+    bassVoice: settings?.bassVoice,
     // ensure: saves written before sampleId existed get a deterministic one.
     samplerSample: settings?.samplerSample
       ? ensureSamplerSampleId(settings.samplerSample)
       : undefined,
+    organState: settings?.organState,
+    presetName: settings?.presetName,
     sends: settings?.sends,
   };
 }
@@ -225,6 +242,8 @@ export interface SessionData {
     // Global aux return buses (Phase 4). Optional — older saves predate it and
     // fall back to defaultReturns() on load.
     returns?: ReturnBus[];
+    // Master bus automation lanes. Optional — older saves load with none.
+    masterAutomation?: AutomationLanes;
   };
 }
 
@@ -312,6 +331,7 @@ export function serializeSession(): SessionData {
       },
       chordRegions: state.chordRegions,
       returns: state.returns,
+      masterAutomation: state.masterAutomation,
     },
   };
 }
@@ -450,6 +470,16 @@ export function serializeSessionForCloud(
       audioClips,
     };
   });
+
+  // Master automation rides on the first track's settings (see
+  // SerializedTrackSettings.masterAutomation). A project with no tracks has
+  // nothing to automate, so nothing is lost there.
+  if (tracks.length > 0 && Object.keys(state.masterAutomation).length > 0) {
+    tracks[0].settings = {
+      ...tracks[0].settings,
+      masterAutomation: state.masterAutomation,
+    };
+  }
 
   if (droppedAudioClipCount > 0) {
     console.warn(
@@ -593,8 +623,20 @@ export function deserializeCloudProject(project: CloudProjectDetail): void {
     genre: project.prism.genre,
     swing: project.prism.swing,
     returns: restoreReturns(project.returns),
+    masterAutomation: masterAutomationFromCloud(project),
   });
   resetUndoHistory();
+}
+
+/** The Master automation a cloud save carried on a track's settings (the
+ *  first track at save time; searched for, so track order can't lose it). */
+function masterAutomationFromCloud(
+  project: CloudProjectDetail,
+): AutomationLanes {
+  return (
+    project.tracks.find((t) => t.settings?.masterAutomation)?.settings
+      ?.masterAutomation ?? {}
+  );
 }
 
 /**
@@ -623,6 +665,7 @@ export function resetSessionToEmpty(): void {
     tracks: [],
     nextColorIndex: 0,
     pitchData: {},
+    masterAutomation: {},
 
     // Prism
     ...freshProjectHarmony(),
@@ -746,6 +789,7 @@ export function deserializeSession(session: SessionData): void {
 
     // Aux return buses
     returns: restoreReturns(d.returns),
+    masterAutomation: d.masterAutomation ?? {},
   });
   resetUndoHistory();
 }

@@ -1947,6 +1947,15 @@ export const popL1: ActivityFlowV2 = {
     tempoRange: [70, 110],
     swing: 0,
     grooves: ['groove_pop_01', 'groove_pop_02', 'groove_ballad_01'],
+    // The level ends its Chords section on power chords over a moving bass,
+    // but its triad play-along is what a Practice Track should open on.
+    practiceTrack: {
+      voicings: [
+        { id: 'power', label: 'Power Chords', activity: 'B5.6' },
+        { id: 'triads', label: 'Triads', activity: 'B5.4' },
+      ],
+      defaultVoicing: 'triads',
+    },
   },
   sections: [popL1SectionA, popL1SectionB, popL1SectionC, popL1SectionD],
 };
@@ -1958,13 +1967,13 @@ export const popL1: ActivityFlowV2 = {
 // Bass: G2=43 A2=45 B2=47 C3=48 D3=50 E3=52 F#3=54 G3=55
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ── Section A: Melody (steps 1–11) ──────────────────────────────────────────
+// ── Section A: Melody (steps 1–9) ───────────────────────────────────────────
 
 const popL2SectionA: ActivitySectionV2 = {
   id: 'A',
   name: 'Melody',
   steps: [
-    // ── A1: G Ionian Scale (steps 1–4) ──────────────────────────────────────
+    // ── A1: G Ionian Scale ──────────────────────────────────────────────
     {
       stepNumber: 1,
       module: 'pop_l2',
@@ -2018,39 +2027,7 @@ const popL2SectionA: ActivitySectionV2 = {
       module: 'pop_l2',
       section: 'A',
       subsection: 'A1: G Ionian Scale',
-      activity: 'A1.3: G Ionian — Ascending + Descending (Out of Time)',
-      direction: 'Play the G major scale up and back down.',
-      assessment: 'pitch_order',
-      tag: 'pop:scale_ionian_asc_desc_oot | pop',
-      styleRef: 'l2a',
-      successFeedback:
-        'Full scale in both directions — feel the resolution back to G.',
-      scaleIntervals: [0, 2, 4, 5, 7, 9, 11],
-      scaleId: 'ionian',
-      targetNotes: [
-        { midi: 67, onset: 0, duration: 460 },
-        { midi: 69, onset: 480, duration: 460 },
-        { midi: 71, onset: 960, duration: 460 },
-        { midi: 72, onset: 1440, duration: 460 },
-        { midi: 74, onset: 1920, duration: 460 },
-        { midi: 76, onset: 2400, duration: 460 },
-        { midi: 78, onset: 2880, duration: 460 },
-        { midi: 79, onset: 3360, duration: 460 },
-        { midi: 78, onset: 3840, duration: 460 },
-        { midi: 76, onset: 4320, duration: 460 },
-        { midi: 74, onset: 4800, duration: 460 },
-        { midi: 72, onset: 5280, duration: 460 },
-        { midi: 71, onset: 5760, duration: 460 },
-        { midi: 69, onset: 6240, duration: 460 },
-        { midi: 67, onset: 6720, duration: 120 },
-      ],
-    },
-    {
-      stepNumber: 4,
-      module: 'pop_l2',
-      section: 'A',
-      subsection: 'A1: G Ionian Scale',
-      activity: 'A1.4: G Ionian — Ascending + Descending (In Time)',
+      activity: 'A1.3: G Ionian — Ascending + Descending (In Time)',
       direction: 'Play the G major scale up and back down in a steady tempo.',
       assessment: 'pitch_order_timing',
       tag: 'pop:scale_ionian_asc_desc_it | pop',
@@ -2077,13 +2054,81 @@ const popL2SectionA: ActivitySectionV2 = {
         { midi: 67, onset: 6720, duration: 120 },
       ],
     },
-    // ── A2: E Aeolian Scale (steps 5–8) ─────────────────────────────────────
+    // ── A2: POP Melody with Play-Along ──────────────────────────────────
+    {
+      stepNumber: 4,
+      module: 'pop_l2',
+      section: 'A',
+      subsection: 'A2: POP Melody with Play-Along',
+      activity: 'A2.1: 3-Note Melody (Play-Along)',
+      direction: 'Play this short melody along with the backing track.',
+      assessment: 'pitch_order_timing',
+      tag: 'pop:melody_playalong_3note | pop',
+      styleRef: 'l2a',
+      successFeedback: 'Three notes, one phrase — pop melody distilled.',
+      backing_parts: {
+        engine_generates: ['drums', 'bass', 'chords'],
+        student_plays: ['melody'],
+      },
+      targetNotes: [
+        { midi: 74, onset: 0, duration: 460 }, // D5
+        { midi: 76, onset: 480, duration: 460 }, // E5
+        { midi: 74, onset: 960, duration: 1820 }, // D5 (long)
+      ],
+    },
     {
       stepNumber: 5,
       module: 'pop_l2',
       section: 'A',
-      subsection: 'A2: E Aeolian Scale',
-      activity: 'A2.1: E Aeolian — Ascending (Out of Time)',
+      subsection: 'A2: POP Melody with Play-Along',
+      activity: 'A2.2: 4-Note Melody (Play-Along)',
+      direction: 'Play this four-note melodic phrase with the band.',
+      assessment: 'pitch_order_timing',
+      tag: 'pop:melody_playalong_4note | pop',
+      styleRef: 'l2a',
+      successFeedback: 'Four notes with rhythm — a real melodic hook.',
+      backing_parts: {
+        engine_generates: ['drums', 'bass', 'chords'],
+        student_plays: ['melody'],
+      },
+      targetNotes: [
+        { midi: 71, onset: 0, duration: 480 }, // B4
+        { midi: 69, onset: 480, duration: 480 }, // A4
+        { midi: 67, onset: 960, duration: 240 }, // G4 (short)
+        { midi: 71, onset: 1200, duration: 720 }, // B4 (long)
+      ],
+    },
+    {
+      stepNumber: 6,
+      module: 'pop_l2',
+      section: 'A',
+      subsection: 'A2: POP Melody with Play-Along',
+      activity: 'A2.3: 6-Note Melody (Play-Along)',
+      direction: 'Play this six-note melody over the full progression.',
+      assessment: 'pitch_order_timing',
+      tag: 'pop:melody_playalong_6note | pop',
+      styleRef: 'l2b',
+      successFeedback: 'Six notes over four bars — the arc of a pop melody.',
+      backing_parts: {
+        engine_generates: ['drums', 'bass', 'chords'],
+        student_plays: ['melody'],
+      },
+      targetNotes: [
+        { midi: 79, onset: 0, duration: 480 }, // G5
+        { midi: 76, onset: 480, duration: 480 }, // E5
+        { midi: 74, onset: 960, duration: 960 }, // D5 (half)
+        { midi: 72, onset: 1920, duration: 480 }, // C5
+        { midi: 71, onset: 2400, duration: 480 }, // B4
+        { midi: 67, onset: 2880, duration: 960 }, // G4 (half)
+      ],
+    },
+    // ── A3: E Aeolian Scale ─────────────────────────────────────────────
+    {
+      stepNumber: 7,
+      module: 'pop_l2',
+      section: 'A',
+      subsection: 'A3: E Aeolian Scale',
+      activity: 'A3.1: E Aeolian — Ascending (Out of Time)',
       direction: 'Play the E natural minor scale up.',
       assessment: 'pitch_order',
       tag: 'pop:scale_aeolian_asc_oot | pop',
@@ -2103,11 +2148,11 @@ const popL2SectionA: ActivitySectionV2 = {
       ],
     },
     {
-      stepNumber: 6,
+      stepNumber: 8,
       module: 'pop_l2',
       section: 'A',
-      subsection: 'A2: E Aeolian Scale',
-      activity: 'A2.2: E Aeolian — Descending (Out of Time)',
+      subsection: 'A3: E Aeolian Scale',
+      activity: 'A3.2: E Aeolian — Descending (Out of Time)',
       direction: 'Play the E natural minor scale down.',
       assessment: 'pitch_order',
       tag: 'pop:scale_aeolian_desc_oot | pop',
@@ -2127,42 +2172,11 @@ const popL2SectionA: ActivitySectionV2 = {
       ],
     },
     {
-      stepNumber: 7,
+      stepNumber: 9,
       module: 'pop_l2',
       section: 'A',
-      subsection: 'A2: E Aeolian Scale',
-      activity: 'A2.3: E Aeolian — Ascending + Descending (Out of Time)',
-      direction: 'Play the E minor scale up and back down.',
-      assessment: 'pitch_order',
-      tag: 'pop:scale_aeolian_asc_desc_oot | pop',
-      styleRef: 'l2a',
-      successFeedback: 'Full minor scale — feel the tension and release.',
-      scaleIntervals: [0, 2, 3, 5, 7, 8, 10],
-      scaleId: 'aeolian',
-      targetNotes: [
-        { midi: 64, onset: 0, duration: 460 },
-        { midi: 66, onset: 480, duration: 460 },
-        { midi: 67, onset: 960, duration: 460 },
-        { midi: 69, onset: 1440, duration: 460 },
-        { midi: 71, onset: 1920, duration: 460 },
-        { midi: 72, onset: 2400, duration: 460 },
-        { midi: 74, onset: 2880, duration: 460 },
-        { midi: 76, onset: 3360, duration: 460 },
-        { midi: 74, onset: 3840, duration: 460 },
-        { midi: 72, onset: 4320, duration: 460 },
-        { midi: 71, onset: 4800, duration: 460 },
-        { midi: 69, onset: 5280, duration: 460 },
-        { midi: 67, onset: 5760, duration: 460 },
-        { midi: 66, onset: 6240, duration: 460 },
-        { midi: 64, onset: 6720, duration: 120 },
-      ],
-    },
-    {
-      stepNumber: 8,
-      module: 'pop_l2',
-      section: 'A',
-      subsection: 'A2: E Aeolian Scale',
-      activity: 'A2.4: E Aeolian — Ascending + Descending (In Time)',
+      subsection: 'A3: E Aeolian Scale',
+      activity: 'A3.3: E Aeolian — Ascending + Descending (In Time)',
       direction: 'Play the E minor scale up and back down in a steady tempo.',
       assessment: 'pitch_order_timing',
       tag: 'pop:scale_aeolian_asc_desc_it | pop',
@@ -2186,74 +2200,6 @@ const popL2SectionA: ActivitySectionV2 = {
         { midi: 67, onset: 5760, duration: 460 },
         { midi: 66, onset: 6240, duration: 460 },
         { midi: 64, onset: 6720, duration: 120 },
-      ],
-    },
-    // ── A3: POP Melody with Play-Along (steps 9–11) ──────────────────────────
-    {
-      stepNumber: 9,
-      module: 'pop_l2',
-      section: 'A',
-      subsection: 'A3: POP Melody with Play-Along',
-      activity: 'A3.1: 3-Note Melody (Play-Along)',
-      direction: 'Play this short melody along with the backing track.',
-      assessment: 'pitch_order_timing',
-      tag: 'pop:melody_playalong_3note | pop',
-      styleRef: 'l2a',
-      successFeedback: 'Three notes, one phrase — pop melody distilled.',
-      backing_parts: {
-        engine_generates: ['drums', 'bass', 'chords'],
-        student_plays: ['melody'],
-      },
-      targetNotes: [
-        { midi: 74, onset: 0, duration: 460 }, // D5
-        { midi: 76, onset: 480, duration: 460 }, // E5
-        { midi: 74, onset: 960, duration: 1820 }, // D5 (long)
-      ],
-    },
-    {
-      stepNumber: 10,
-      module: 'pop_l2',
-      section: 'A',
-      subsection: 'A3: POP Melody with Play-Along',
-      activity: 'A3.2: 4-Note Melody (Play-Along)',
-      direction: 'Play this four-note melodic phrase with the band.',
-      assessment: 'pitch_order_timing',
-      tag: 'pop:melody_playalong_4note | pop',
-      styleRef: 'l2a',
-      successFeedback: 'Four notes with rhythm — a real melodic hook.',
-      backing_parts: {
-        engine_generates: ['drums', 'bass', 'chords'],
-        student_plays: ['melody'],
-      },
-      targetNotes: [
-        { midi: 71, onset: 0, duration: 480 }, // B4
-        { midi: 69, onset: 480, duration: 480 }, // A4
-        { midi: 67, onset: 960, duration: 240 }, // G4 (short)
-        { midi: 71, onset: 1200, duration: 720 }, // B4 (long)
-      ],
-    },
-    {
-      stepNumber: 11,
-      module: 'pop_l2',
-      section: 'A',
-      subsection: 'A3: POP Melody with Play-Along',
-      activity: 'A3.3: 6-Note Melody (Play-Along)',
-      direction: 'Play this six-note melody over the full progression.',
-      assessment: 'pitch_order_timing',
-      tag: 'pop:melody_playalong_6note | pop',
-      styleRef: 'l2b',
-      successFeedback: 'Six notes over four bars — the arc of a pop melody.',
-      backing_parts: {
-        engine_generates: ['drums', 'bass', 'chords'],
-        student_plays: ['melody'],
-      },
-      targetNotes: [
-        { midi: 79, onset: 0, duration: 480 }, // G5
-        { midi: 76, onset: 480, duration: 480 }, // E5
-        { midi: 74, onset: 960, duration: 960 }, // D5 (half)
-        { midi: 72, onset: 1920, duration: 480 }, // C5
-        { midi: 71, onset: 2400, duration: 480 }, // B4
-        { midi: 67, onset: 2880, duration: 960 }, // G4 (half)
       ],
     },
   ],
@@ -4249,13 +4195,13 @@ export const popL2: ActivityFlowV2 = {
 // copy-pasted B2.8's min6 interval array by mistake.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ── Section A: Melody (steps 1–22) ──────────────────────────────────────────
+// ── Section A: Melody (steps 1–13) ──────────────────────────────────────────
 
 const popL3SectionA: ActivitySectionV2 = {
   id: 'A',
   name: 'Melody',
   steps: [
-    // ── A1: Scale (Ionian) — steps 1–6 ──────────────────────────────────────
+    // ── A1: Scale (Ionian) ──────────────────────────────────────────────
     {
       stepNumber: 1,
       module: 'pop_l3',
@@ -4287,33 +4233,7 @@ const popL3SectionA: ActivitySectionV2 = {
       module: 'pop_l3',
       section: 'A',
       subsection: 'A1: Scale (Ionian)',
-      activity: 'A1.2: Ascending (In Time)',
-      direction: 'In a steady tempo, play the Ionian scale going up.',
-      assessment: 'pitch_order_timing',
-      tag: 'pop:ionian_ascending_it | pop',
-      styleRef: 'l3a',
-      successFeedback: 'Locked to the click — Bb Ionian in time.',
-      contentGeneration:
-        'GCM v8: POP L3 scale=ionian [0,2,4,5,7,9,11]. Key: Bb major. Contour: ascending stepwise. Register: Bb4–Bb5. Tempo: 70–130 BPM quarter-note pulse.',
-      scaleIntervals: [0, 2, 4, 5, 7, 9, 11],
-      scaleId: 'ionian',
-      targetNotes: [
-        { midi: 70, onset: 0, duration: 480 },
-        { midi: 72, onset: 480, duration: 480 },
-        { midi: 74, onset: 960, duration: 480 },
-        { midi: 75, onset: 1440, duration: 480 },
-        { midi: 77, onset: 1920, duration: 480 },
-        { midi: 79, onset: 2400, duration: 480 },
-        { midi: 81, onset: 2880, duration: 480 },
-        { midi: 82, onset: 3360, duration: 480 },
-      ],
-    },
-    {
-      stepNumber: 3,
-      module: 'pop_l3',
-      section: 'A',
-      subsection: 'A1: Scale (Ionian)',
-      activity: 'A1.3: Descending (Out of Time)',
+      activity: 'A1.2: Descending (Out of Time)',
       direction: 'Play the Ionian scale going down.',
       assessment: 'pitch_order',
       tag: 'pop:ionian_descending_oot | pop',
@@ -4335,70 +4255,11 @@ const popL3SectionA: ActivitySectionV2 = {
       ],
     },
     {
-      stepNumber: 4,
+      stepNumber: 3,
       module: 'pop_l3',
       section: 'A',
       subsection: 'A1: Scale (Ionian)',
-      activity: 'A1.4: Descending (In Time)',
-      direction: 'In a steady tempo, play the Ionian scale going down.',
-      assessment: 'pitch_order_timing',
-      tag: 'pop:ionian_descending_it | pop',
-      styleRef: 'l3a',
-      successFeedback: 'Steady all the way down — Bb Ionian in time.',
-      contentGeneration:
-        'GCM v8: POP L3 scale=ionian [0,2,4,5,7,9,11]. Key: Bb major. Contour: descending stepwise. Register: Bb5–Bb4. Tempo: 70–130 BPM quarter-note pulse.',
-      scaleIntervals: [0, 2, 4, 5, 7, 9, 11],
-      scaleId: 'ionian',
-      targetNotes: [
-        { midi: 82, onset: 0, duration: 480 },
-        { midi: 81, onset: 480, duration: 480 },
-        { midi: 79, onset: 960, duration: 480 },
-        { midi: 77, onset: 1440, duration: 480 },
-        { midi: 75, onset: 1920, duration: 480 },
-        { midi: 74, onset: 2400, duration: 480 },
-        { midi: 72, onset: 2880, duration: 480 },
-        { midi: 70, onset: 3360, duration: 480 },
-      ],
-    },
-    {
-      stepNumber: 5,
-      module: 'pop_l3',
-      section: 'A',
-      subsection: 'A1: Scale (Ionian)',
-      activity: 'A1.5: Ascending & Descending (Out of Time)',
-      direction: 'Play the Ionian scale going up and down.',
-      assessment: 'pitch_order',
-      tag: 'pop:ionian_asc_desc_oot | pop',
-      styleRef: 'l3a',
-      successFeedback: 'Up and back — the full Bb Ionian shape.',
-      contentGeneration:
-        'GCM v8: POP L3 scale=ionian [0,2,4,5,7,9,11]. Key: Bb major. Contour: ascending then descending. Register: Bb4–Bb5.',
-      scaleIntervals: [0, 2, 4, 5, 7, 9, 11],
-      scaleId: 'ionian',
-      targetNotes: [
-        { midi: 70, onset: 0, duration: 460 },
-        { midi: 72, onset: 480, duration: 460 },
-        { midi: 74, onset: 960, duration: 460 },
-        { midi: 75, onset: 1440, duration: 460 },
-        { midi: 77, onset: 1920, duration: 460 },
-        { midi: 79, onset: 2400, duration: 460 },
-        { midi: 81, onset: 2880, duration: 460 },
-        { midi: 82, onset: 3360, duration: 460 }, // top
-        { midi: 81, onset: 3840, duration: 460 },
-        { midi: 79, onset: 4320, duration: 460 },
-        { midi: 77, onset: 4800, duration: 460 },
-        { midi: 75, onset: 5280, duration: 460 },
-        { midi: 74, onset: 5760, duration: 460 },
-        { midi: 72, onset: 6240, duration: 460 },
-        { midi: 70, onset: 6720, duration: 460 }, // resolve
-      ],
-    },
-    {
-      stepNumber: 6,
-      module: 'pop_l3',
-      section: 'A',
-      subsection: 'A1: Scale (Ionian)',
-      activity: 'A1.6: Ascending & Descending (In Time)',
+      activity: 'A1.3: Ascending & Descending (In Time)',
       direction: 'In a steady tempo, play the Ionian scale going up and down.',
       assessment: 'pitch_order_timing',
       tag: 'pop:ionian_asc_desc_it | pop',
@@ -4426,14 +4287,137 @@ const popL3SectionA: ActivitySectionV2 = {
         { midi: 70, onset: 6720, duration: 480 },
       ],
     },
-
-    // ── A2: Scale (Dorian) — steps 7–12 ─────────────────────────────────────
+    // ── A2: POP Melody with Play-Along ──────────────────────────────────
+    // NOTE: spec gave a generation pipeline (contour/rhythm library queries),
+    // not concrete notes — these 4 melodies are a first-pass proposal in Bb
+    // Ionian for review, not a literal transcription of the spec.
+    {
+      stepNumber: 4,
+      module: 'pop_l3',
+      section: 'A',
+      subsection: 'A2: POP Melody with Play-Along',
+      activity: 'A2.1: 4-Note POP Melody',
+      direction: 'Play this pop melody along with the track!',
+      assessment: 'pitch_order_timing_duration',
+      tag: 'pop:melody_4note_playalong | pop',
+      styleRef: 'l3a',
+      successFeedback: "Four notes, full of space — that's the Artistry sound.",
+      contentGeneration:
+        'SELECT 4-note contour (Melody_Contour_Library, tier IN [2,3,4]) → SELECT phrase rhythm (Melody_Phrase_Rhythm_Library, genre=pop, note_count=4, bars=2) → RESOLVE through Ionian [0,2,4,5,7,9,11] in Bb major → ZIP. Proposed: root-3rd-5th-octave arpeggio, half notes across 2 bars.',
+      scaleIntervals: [0, 2, 4, 5, 7, 9, 11],
+      scaleId: 'ionian',
+      grooveId: 'groove_pop_01',
+      backing_parts: {
+        engine_generates: ['drums', 'bass', 'chords'],
+        student_plays: ['melody'],
+      },
+      // Bb4(1) - D5(3) - F5(5) - Bb5(8), half notes, 2 bars
+      targetNotes: [
+        { midi: 70, onset: 0, duration: 960 }, // Bb4
+        { midi: 74, onset: 960, duration: 960 }, // D5
+        { midi: 77, onset: 1920, duration: 960 }, // F5
+        { midi: 82, onset: 2880, duration: 960 }, // Bb5
+      ],
+    },
+    {
+      stepNumber: 5,
+      module: 'pop_l3',
+      section: 'A',
+      subsection: 'A2: POP Melody with Play-Along',
+      activity: 'A2.2: 6-Note POP Melody',
+      direction: 'Play this longer pop melody along with the track!',
+      assessment: 'pitch_order_timing_duration',
+      tag: 'pop:melody_6note_playalong | pop',
+      styleRef: 'l3a',
+      successFeedback: 'Two bars, one long phrase — that resolve lands clean.',
+      contentGeneration:
+        'SELECT 6-note contour (Melody_Contour_Library, tier IN [2,3,4]) → SELECT phrase rhythm (Melody_Phrase_Rhythm_Library, genre=pop, note_count=4, bars=2) → RESOLVE through Ionian [0,2,4,5,7,9,11] in Bb major → ZIP. Proposed: bar1 quarter+quarter+half (6-5-4), bar2 quarter+quarter+half (3-2-1, resolve).',
+      scaleIntervals: [0, 2, 4, 5, 7, 9, 11],
+      scaleId: 'ionian',
+      grooveId: 'groove_pop_01',
+      backing_parts: {
+        engine_generates: ['drums', 'bass', 'chords'],
+        student_plays: ['melody'],
+      },
+      // Bar 1: G5-F5-Eb5(half) | Bar 2: D5-C5-Bb4(half, resolve)
+      targetNotes: [
+        { midi: 79, onset: 0, duration: 480 }, // G5
+        { midi: 77, onset: 480, duration: 480 }, // F5
+        { midi: 75, onset: 960, duration: 960 }, // Eb5
+        { midi: 74, onset: 1920, duration: 480 }, // D5
+        { midi: 72, onset: 2400, duration: 480 }, // C5
+        { midi: 70, onset: 2880, duration: 960 }, // Bb4 — resolve
+      ],
+    },
+    {
+      stepNumber: 6,
+      module: 'pop_l3',
+      section: 'A',
+      subsection: 'A2: POP Melody with Play-Along',
+      activity: 'A2.3: 8-Note POP Melody',
+      direction: 'Play this pop melody along with the track!',
+      assessment: 'pitch_order_timing_duration',
+      tag: 'pop:melody_8note_playalong | pop',
+      styleRef: 'l3a',
+      successFeedback: 'Eight notes, one flowing line — the full phrase.',
+      contentGeneration:
+        'SELECT 2× 4-note contours (Melody_Contour_Library) → SELECT 8-note phrase rhythm (Melody_Phrase_Rhythm_Library, genre=pop, bars=2) or chain 2× shorter rhythms → RESOLVE through Ionian [0,2,4,5,7,9,11] in Bb major → ZIP. Proposed: straight quarter notes, 1-2-3-4-5-6-5-3 (turn back to the 3rd).',
+      scaleIntervals: [0, 2, 4, 5, 7, 9, 11],
+      scaleId: 'ionian',
+      grooveId: 'groove_pop_01',
+      backing_parts: {
+        engine_generates: ['drums', 'bass', 'chords'],
+        student_plays: ['melody'],
+      },
+      targetNotes: [
+        { midi: 70, onset: 0, duration: 480 }, // Bb4 — 1
+        { midi: 72, onset: 480, duration: 480 }, // C5 — 2
+        { midi: 74, onset: 960, duration: 480 }, // D5 — 3
+        { midi: 75, onset: 1440, duration: 480 }, // Eb5 — 4
+        { midi: 77, onset: 1920, duration: 480 }, // F5 — 5
+        { midi: 79, onset: 2400, duration: 480 }, // G5 — 6
+        { midi: 77, onset: 2880, duration: 480 }, // F5 — 5
+        { midi: 74, onset: 3360, duration: 960 }, // D5 — 3 (half-cadence)
+      ],
+    },
     {
       stepNumber: 7,
       module: 'pop_l3',
       section: 'A',
-      subsection: 'A2: Scale (Dorian)',
-      activity: 'A2.1: Ascending (Out of Time)',
+      subsection: 'A2: POP Melody with Play-Along',
+      activity: 'A2.4: 8-Note POP Melody',
+      direction: 'Play this pop melody along with the track!',
+      assessment: 'pitch_order_timing_duration',
+      tag: 'pop:melody_8note_playalong | pop',
+      styleRef: 'l3a',
+      successFeedback: 'That chromatic touch is the tabasco sauce — nice.',
+      contentGeneration:
+        'SELECT 2× 4-note contours (Melody_Contour_Library) → SELECT 8-note phrase rhythm (Melody_Phrase_Rhythm_Library, genre=pop, bars=2) or chain 2× shorter rhythms → RESOLVE through Ionian [0,2,4,5,7,9,11] in Bb major, chromatic passing tone (b3) → ZIP. Proposed: 1-2-b3-3-5-4-3-1, straight quarter notes with a chromatic passing tone into the 3rd.',
+      scaleIntervals: [0, 2, 4, 5, 7, 9, 11],
+      scaleId: 'ionian',
+      grooveId: 'groove_pop_01',
+      backing_parts: {
+        engine_generates: ['drums', 'bass', 'chords'],
+        student_plays: ['melody'],
+      },
+      targetNotes: [
+        { midi: 70, onset: 0, duration: 480 }, // Bb4 — 1
+        { midi: 72, onset: 480, duration: 480 }, // C5 — 2
+        { midi: 73, onset: 960, duration: 480 }, // Db5 — chromatic passing (b3)
+        { midi: 74, onset: 1440, duration: 480 }, // D5 — 3
+        { midi: 77, onset: 1920, duration: 480 }, // F5 — 5
+        { midi: 75, onset: 2400, duration: 480 }, // Eb5 — 4
+        { midi: 74, onset: 2880, duration: 480 }, // D5 — 3
+        { midi: 70, onset: 3360, duration: 960 }, // Bb4 — 1 (resolve)
+      ],
+    },
+    // ── A3: Scale (Dorian) ──────────────────────────────────────────────
+    {
+      stepNumber: 8,
+      module: 'pop_l3',
+      section: 'A',
+      subsection: 'A3: Scale (Dorian)',
+      activity: 'A3.1: Ascending (Out of Time)',
       direction: 'Play the Dorian scale going up.',
       assessment: 'pitch_order',
       tag: 'pop:dorian_ascending_oot | pop',
@@ -4455,37 +4439,11 @@ const popL3SectionA: ActivitySectionV2 = {
       ],
     },
     {
-      stepNumber: 8,
-      module: 'pop_l3',
-      section: 'A',
-      subsection: 'A2: Scale (Dorian)',
-      activity: 'A2.2: Ascending (In Time)',
-      direction: 'In a steady tempo, play the Dorian scale going up.',
-      assessment: 'pitch_order_timing',
-      tag: 'pop:dorian_ascending_it | pop',
-      styleRef: 'l3a',
-      successFeedback: 'Bb Dorian, locked to the click.',
-      contentGeneration:
-        'GCM v8: POP L3 scale=dorian [0,2,3,5,7,9,10]. Key: Bb major (relative Dorian). Contour: ascending stepwise. Register: Bb4–Bb5. Tempo: 70–130 BPM quarter-note pulse.',
-      scaleIntervals: [0, 2, 3, 5, 7, 9, 10],
-      scaleId: 'dorian',
-      targetNotes: [
-        { midi: 70, onset: 0, duration: 480 },
-        { midi: 72, onset: 480, duration: 480 },
-        { midi: 73, onset: 960, duration: 480 },
-        { midi: 75, onset: 1440, duration: 480 },
-        { midi: 77, onset: 1920, duration: 480 },
-        { midi: 79, onset: 2400, duration: 480 },
-        { midi: 80, onset: 2880, duration: 480 },
-        { midi: 82, onset: 3360, duration: 480 },
-      ],
-    },
-    {
       stepNumber: 9,
       module: 'pop_l3',
       section: 'A',
-      subsection: 'A2: Scale (Dorian)',
-      activity: 'A2.3: Descending (Out of Time)',
+      subsection: 'A3: Scale (Dorian)',
+      activity: 'A3.2: Descending (Out of Time)',
       direction: 'Play the Dorian scale going down.',
       assessment: 'pitch_order',
       tag: 'pop:dorian_descending_oot | pop',
@@ -4510,67 +4468,8 @@ const popL3SectionA: ActivitySectionV2 = {
       stepNumber: 10,
       module: 'pop_l3',
       section: 'A',
-      subsection: 'A2: Scale (Dorian)',
-      activity: 'A2.4: Descending (In Time)',
-      direction: 'In a steady tempo, play the Dorian scale going down.',
-      assessment: 'pitch_order_timing',
-      tag: 'pop:dorian_descending_it | pop',
-      styleRef: 'l3a',
-      successFeedback: 'Steady down through Bb Dorian.',
-      contentGeneration:
-        'GCM v8: POP L3 scale=dorian [0,2,3,5,7,9,10]. Key: Bb major (relative Dorian). Contour: descending stepwise. Register: Bb5–Bb4. Tempo: 70–130 BPM quarter-note pulse.',
-      scaleIntervals: [0, 2, 3, 5, 7, 9, 10],
-      scaleId: 'dorian',
-      targetNotes: [
-        { midi: 82, onset: 0, duration: 480 },
-        { midi: 80, onset: 480, duration: 480 },
-        { midi: 79, onset: 960, duration: 480 },
-        { midi: 77, onset: 1440, duration: 480 },
-        { midi: 75, onset: 1920, duration: 480 },
-        { midi: 73, onset: 2400, duration: 480 },
-        { midi: 72, onset: 2880, duration: 480 },
-        { midi: 70, onset: 3360, duration: 480 },
-      ],
-    },
-    {
-      stepNumber: 11,
-      module: 'pop_l3',
-      section: 'A',
-      subsection: 'A2: Scale (Dorian)',
-      activity: 'A2.5: Ascending & Descending (Out of Time)',
-      direction: 'Play the Dorian scale going up and down.',
-      assessment: 'pitch_order',
-      tag: 'pop:dorian_asc_desc_oot | pop',
-      styleRef: 'l3a',
-      successFeedback: 'Up and back through Bb Dorian.',
-      contentGeneration:
-        'GCM v8: POP L3 scale=dorian [0,2,3,5,7,9,10]. Key: Bb major (relative Dorian). Contour: ascending then descending. Register: Bb4–Bb5.',
-      scaleIntervals: [0, 2, 3, 5, 7, 9, 10],
-      scaleId: 'dorian',
-      targetNotes: [
-        { midi: 70, onset: 0, duration: 460 },
-        { midi: 72, onset: 480, duration: 460 },
-        { midi: 73, onset: 960, duration: 460 },
-        { midi: 75, onset: 1440, duration: 460 },
-        { midi: 77, onset: 1920, duration: 460 },
-        { midi: 79, onset: 2400, duration: 460 },
-        { midi: 80, onset: 2880, duration: 460 },
-        { midi: 82, onset: 3360, duration: 460 }, // top
-        { midi: 80, onset: 3840, duration: 460 },
-        { midi: 79, onset: 4320, duration: 460 },
-        { midi: 77, onset: 4800, duration: 460 },
-        { midi: 75, onset: 5280, duration: 460 },
-        { midi: 73, onset: 5760, duration: 460 },
-        { midi: 72, onset: 6240, duration: 460 },
-        { midi: 70, onset: 6720, duration: 460 }, // resolve
-      ],
-    },
-    {
-      stepNumber: 12,
-      module: 'pop_l3',
-      section: 'A',
-      subsection: 'A2: Scale (Dorian)',
-      activity: 'A2.6: Ascending & Descending (In Time)',
+      subsection: 'A3: Scale (Dorian)',
+      activity: 'A3.3: Ascending & Descending (In Time)',
       direction: 'In a steady tempo, play the Dorian scale going up and down.',
       assessment: 'pitch_order_timing',
       tag: 'pop:dorian_asc_desc_it | pop',
@@ -4598,14 +4497,13 @@ const popL3SectionA: ActivitySectionV2 = {
         { midi: 70, onset: 6720, duration: 480 },
       ],
     },
-
-    // ── A3: Scale (Aeolian) — steps 13–18 ───────────────────────────────────
+    // ── A4: Scale (Aeolian) ─────────────────────────────────────────────
     {
-      stepNumber: 13,
+      stepNumber: 11,
       module: 'pop_l3',
       section: 'A',
-      subsection: 'A3: Scale (Aeolian)',
-      activity: 'A3.1: Ascending (Out of Time)',
+      subsection: 'A4: Scale (Aeolian)',
+      activity: 'A4.1: Ascending (Out of Time)',
       direction: 'Play the Aeolian scale going up.',
       assessment: 'pitch_order',
       tag: 'pop:aeolian_ascending_oot | pop',
@@ -4627,37 +4525,11 @@ const popL3SectionA: ActivitySectionV2 = {
       ],
     },
     {
-      stepNumber: 14,
+      stepNumber: 12,
       module: 'pop_l3',
       section: 'A',
-      subsection: 'A3: Scale (Aeolian)',
-      activity: 'A3.2: Ascending (In Time)',
-      direction: 'In a steady tempo, play the Aeolian scale going up.',
-      assessment: 'pitch_order_timing',
-      tag: 'pop:aeolian_ascending_it | pop',
-      styleRef: 'l3a',
-      successFeedback: 'Bb Aeolian, locked to the click.',
-      contentGeneration:
-        'GCM v8: POP L3 scale=aeolian [0,2,3,5,7,8,10]. Key: Bb major (relative Aeolian). Contour: ascending stepwise. Register: Bb4–Bb5. Tempo: 70–130 BPM quarter-note pulse.',
-      scaleIntervals: [0, 2, 3, 5, 7, 8, 10],
-      scaleId: 'aeolian',
-      targetNotes: [
-        { midi: 70, onset: 0, duration: 480 },
-        { midi: 72, onset: 480, duration: 480 },
-        { midi: 73, onset: 960, duration: 480 },
-        { midi: 75, onset: 1440, duration: 480 },
-        { midi: 77, onset: 1920, duration: 480 },
-        { midi: 78, onset: 2400, duration: 480 },
-        { midi: 80, onset: 2880, duration: 480 },
-        { midi: 82, onset: 3360, duration: 480 },
-      ],
-    },
-    {
-      stepNumber: 15,
-      module: 'pop_l3',
-      section: 'A',
-      subsection: 'A3: Scale (Aeolian)',
-      activity: 'A3.3: Descending (Out of Time)',
+      subsection: 'A4: Scale (Aeolian)',
+      activity: 'A4.2: Descending (Out of Time)',
       direction: 'Play the Aeolian scale going down.',
       assessment: 'pitch_order',
       tag: 'pop:aeolian_descending_oot | pop',
@@ -4679,70 +4551,11 @@ const popL3SectionA: ActivitySectionV2 = {
       ],
     },
     {
-      stepNumber: 16,
+      stepNumber: 13,
       module: 'pop_l3',
       section: 'A',
-      subsection: 'A3: Scale (Aeolian)',
-      activity: 'A3.4: Descending (In Time)',
-      direction: 'In a steady tempo, play the Aeolian scale going down.',
-      assessment: 'pitch_order_timing',
-      tag: 'pop:aeolian_descending_it | pop',
-      styleRef: 'l3a',
-      successFeedback: 'Steady down through Bb Aeolian.',
-      contentGeneration:
-        'GCM v8: POP L3 scale=aeolian [0,2,3,5,7,8,10]. Key: Bb major (relative Aeolian). Contour: descending stepwise. Register: Bb5–Bb4. Tempo: 70–130 BPM quarter-note pulse.',
-      scaleIntervals: [0, 2, 3, 5, 7, 8, 10],
-      scaleId: 'aeolian',
-      targetNotes: [
-        { midi: 82, onset: 0, duration: 480 },
-        { midi: 80, onset: 480, duration: 480 },
-        { midi: 78, onset: 960, duration: 480 },
-        { midi: 77, onset: 1440, duration: 480 },
-        { midi: 75, onset: 1920, duration: 480 },
-        { midi: 73, onset: 2400, duration: 480 },
-        { midi: 72, onset: 2880, duration: 480 },
-        { midi: 70, onset: 3360, duration: 480 },
-      ],
-    },
-    {
-      stepNumber: 17,
-      module: 'pop_l3',
-      section: 'A',
-      subsection: 'A3: Scale (Aeolian)',
-      activity: 'A3.5: Ascending & Descending (Out of Time)',
-      direction: 'Play the Aeolian scale going up and down.',
-      assessment: 'pitch_order',
-      tag: 'pop:aeolian_asc_desc_oot | pop',
-      styleRef: 'l3a',
-      successFeedback: 'Up and back through Bb Aeolian.',
-      contentGeneration:
-        'GCM v8: POP L3 scale=aeolian [0,2,3,5,7,8,10]. Key: Bb major (relative Aeolian). Contour: ascending then descending. Register: Bb4–Bb5.',
-      scaleIntervals: [0, 2, 3, 5, 7, 8, 10],
-      scaleId: 'aeolian',
-      targetNotes: [
-        { midi: 70, onset: 0, duration: 460 },
-        { midi: 72, onset: 480, duration: 460 },
-        { midi: 73, onset: 960, duration: 460 },
-        { midi: 75, onset: 1440, duration: 460 },
-        { midi: 77, onset: 1920, duration: 460 },
-        { midi: 78, onset: 2400, duration: 460 },
-        { midi: 80, onset: 2880, duration: 460 },
-        { midi: 82, onset: 3360, duration: 460 }, // top
-        { midi: 80, onset: 3840, duration: 460 },
-        { midi: 78, onset: 4320, duration: 460 },
-        { midi: 77, onset: 4800, duration: 460 },
-        { midi: 75, onset: 5280, duration: 460 },
-        { midi: 73, onset: 5760, duration: 460 },
-        { midi: 72, onset: 6240, duration: 460 },
-        { midi: 70, onset: 6720, duration: 460 }, // resolve
-      ],
-    },
-    {
-      stepNumber: 18,
-      module: 'pop_l3',
-      section: 'A',
-      subsection: 'A3: Scale (Aeolian)',
-      activity: 'A3.6: Ascending & Descending (In Time)',
+      subsection: 'A4: Scale (Aeolian)',
+      activity: 'A4.3: Ascending & Descending (In Time)',
       direction: 'In a steady tempo, play the Aeolian scale going up and down.',
       assessment: 'pitch_order_timing',
       tag: 'pop:aeolian_asc_desc_it | pop',
@@ -4768,131 +4581,6 @@ const popL3SectionA: ActivitySectionV2 = {
         { midi: 73, onset: 5760, duration: 480 },
         { midi: 72, onset: 6240, duration: 480 },
         { midi: 70, onset: 6720, duration: 480 },
-      ],
-    },
-
-    // ── A4: POP Melody with Play-Along — steps 19–22 ────────────────────────
-    // NOTE: spec gave a generation pipeline (contour/rhythm library queries),
-    // not concrete notes — these 4 melodies are a first-pass proposal in Bb
-    // Ionian for review, not a literal transcription of the spec.
-    {
-      stepNumber: 19,
-      module: 'pop_l3',
-      section: 'A',
-      subsection: 'A4: POP Melody with Play-Along',
-      activity: 'A4.1: 4-Note POP Melody',
-      direction: 'Play this pop melody along with the track!',
-      assessment: 'pitch_order_timing_duration',
-      tag: 'pop:melody_4note_playalong | pop',
-      styleRef: 'l3a',
-      successFeedback: "Four notes, full of space — that's the Artistry sound.",
-      contentGeneration:
-        'SELECT 4-note contour (Melody_Contour_Library, tier IN [2,3,4]) → SELECT phrase rhythm (Melody_Phrase_Rhythm_Library, genre=pop, note_count=4, bars=2) → RESOLVE through Ionian [0,2,4,5,7,9,11] in Bb major → ZIP. Proposed: root-3rd-5th-octave arpeggio, half notes across 2 bars.',
-      scaleIntervals: [0, 2, 4, 5, 7, 9, 11],
-      scaleId: 'ionian',
-      grooveId: 'groove_pop_01',
-      backing_parts: {
-        engine_generates: ['drums', 'bass', 'chords'],
-        student_plays: ['melody'],
-      },
-      // Bb4(1) - D5(3) - F5(5) - Bb5(8), half notes, 2 bars
-      targetNotes: [
-        { midi: 70, onset: 0, duration: 960 }, // Bb4
-        { midi: 74, onset: 960, duration: 960 }, // D5
-        { midi: 77, onset: 1920, duration: 960 }, // F5
-        { midi: 82, onset: 2880, duration: 960 }, // Bb5
-      ],
-    },
-    {
-      stepNumber: 20,
-      module: 'pop_l3',
-      section: 'A',
-      subsection: 'A4: POP Melody with Play-Along',
-      activity: 'A4.2: 6-Note POP Melody',
-      direction: 'Play this longer pop melody along with the track!',
-      assessment: 'pitch_order_timing_duration',
-      tag: 'pop:melody_6note_playalong | pop',
-      styleRef: 'l3a',
-      successFeedback: 'Two bars, one long phrase — that resolve lands clean.',
-      contentGeneration:
-        'SELECT 6-note contour (Melody_Contour_Library, tier IN [2,3,4]) → SELECT phrase rhythm (Melody_Phrase_Rhythm_Library, genre=pop, note_count=4, bars=2) → RESOLVE through Ionian [0,2,4,5,7,9,11] in Bb major → ZIP. Proposed: bar1 quarter+quarter+half (6-5-4), bar2 quarter+quarter+half (3-2-1, resolve).',
-      scaleIntervals: [0, 2, 4, 5, 7, 9, 11],
-      scaleId: 'ionian',
-      grooveId: 'groove_pop_01',
-      backing_parts: {
-        engine_generates: ['drums', 'bass', 'chords'],
-        student_plays: ['melody'],
-      },
-      // Bar 1: G5-F5-Eb5(half) | Bar 2: D5-C5-Bb4(half, resolve)
-      targetNotes: [
-        { midi: 79, onset: 0, duration: 480 }, // G5
-        { midi: 77, onset: 480, duration: 480 }, // F5
-        { midi: 75, onset: 960, duration: 960 }, // Eb5
-        { midi: 74, onset: 1920, duration: 480 }, // D5
-        { midi: 72, onset: 2400, duration: 480 }, // C5
-        { midi: 70, onset: 2880, duration: 960 }, // Bb4 — resolve
-      ],
-    },
-    {
-      stepNumber: 21,
-      module: 'pop_l3',
-      section: 'A',
-      subsection: 'A4: POP Melody with Play-Along',
-      activity: 'A4.3: 8-Note POP Melody',
-      direction: 'Play this pop melody along with the track!',
-      assessment: 'pitch_order_timing_duration',
-      tag: 'pop:melody_8note_playalong | pop',
-      styleRef: 'l3a',
-      successFeedback: 'Eight notes, one flowing line — the full phrase.',
-      contentGeneration:
-        'SELECT 2× 4-note contours (Melody_Contour_Library) → SELECT 8-note phrase rhythm (Melody_Phrase_Rhythm_Library, genre=pop, bars=2) or chain 2× shorter rhythms → RESOLVE through Ionian [0,2,4,5,7,9,11] in Bb major → ZIP. Proposed: straight quarter notes, 1-2-3-4-5-6-5-3 (turn back to the 3rd).',
-      scaleIntervals: [0, 2, 4, 5, 7, 9, 11],
-      scaleId: 'ionian',
-      grooveId: 'groove_pop_01',
-      backing_parts: {
-        engine_generates: ['drums', 'bass', 'chords'],
-        student_plays: ['melody'],
-      },
-      targetNotes: [
-        { midi: 70, onset: 0, duration: 480 }, // Bb4 — 1
-        { midi: 72, onset: 480, duration: 480 }, // C5 — 2
-        { midi: 74, onset: 960, duration: 480 }, // D5 — 3
-        { midi: 75, onset: 1440, duration: 480 }, // Eb5 — 4
-        { midi: 77, onset: 1920, duration: 480 }, // F5 — 5
-        { midi: 79, onset: 2400, duration: 480 }, // G5 — 6
-        { midi: 77, onset: 2880, duration: 480 }, // F5 — 5
-        { midi: 74, onset: 3360, duration: 960 }, // D5 — 3 (half-cadence)
-      ],
-    },
-    {
-      stepNumber: 22,
-      module: 'pop_l3',
-      section: 'A',
-      subsection: 'A4: POP Melody with Play-Along',
-      activity: 'A4.4: 8-Note POP Melody',
-      direction: 'Play this pop melody along with the track!',
-      assessment: 'pitch_order_timing_duration',
-      tag: 'pop:melody_8note_playalong | pop',
-      styleRef: 'l3a',
-      successFeedback: 'That chromatic touch is the tabasco sauce — nice.',
-      contentGeneration:
-        'SELECT 2× 4-note contours (Melody_Contour_Library) → SELECT 8-note phrase rhythm (Melody_Phrase_Rhythm_Library, genre=pop, bars=2) or chain 2× shorter rhythms → RESOLVE through Ionian [0,2,4,5,7,9,11] in Bb major, chromatic passing tone (b3) → ZIP. Proposed: 1-2-b3-3-5-4-3-1, straight quarter notes with a chromatic passing tone into the 3rd.',
-      scaleIntervals: [0, 2, 4, 5, 7, 9, 11],
-      scaleId: 'ionian',
-      grooveId: 'groove_pop_01',
-      backing_parts: {
-        engine_generates: ['drums', 'bass', 'chords'],
-        student_plays: ['melody'],
-      },
-      targetNotes: [
-        { midi: 70, onset: 0, duration: 480 }, // Bb4 — 1
-        { midi: 72, onset: 480, duration: 480 }, // C5 — 2
-        { midi: 73, onset: 960, duration: 480 }, // Db5 — chromatic passing (b3)
-        { midi: 74, onset: 1440, duration: 480 }, // D5 — 3
-        { midi: 77, onset: 1920, duration: 480 }, // F5 — 5
-        { midi: 75, onset: 2400, duration: 480 }, // Eb5 — 4
-        { midi: 74, onset: 2880, duration: 480 }, // D5 — 3
-        { midi: 70, onset: 3360, duration: 960 }, // Bb4 — 1 (resolve)
       ],
     },
   ],

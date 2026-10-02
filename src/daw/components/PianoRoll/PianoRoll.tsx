@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, useState } from 'react';
+import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MousePointer2,
@@ -346,6 +346,17 @@ export function PianoRoll({
   // the clip, so it's the clip's timeline start plus the editor's origin tick.
   const songOffset = timelineStartTick + clipStartTick;
 
+  // Pitches with a selected note — their rows light up in the key column, so a
+  // row picked there (see handleKeysMouseDown) reads as selected.
+  const selectedPitches = useMemo(() => {
+    const pitches = new Set<number>();
+    for (const i of selectedIndices) {
+      const ev = events[i];
+      if (ev) pitches.add(ev.note);
+    }
+    return pitches;
+  }, [selectedIndices, events]);
+
   // ── Draw Piano Keys ─────────────────────────────────────────────────────
   const drawPiano = useCallback(() => {
     const canvas = pianoCanvasRef.current;
@@ -391,6 +402,13 @@ export function PianoRoll({
 
       ctx.fillStyle = pianoRollLaneBackground(midiNote);
       ctx.fillRect(0, rowY, w, rowH);
+      const rowSelected = selectedPitches.has(midiNote);
+      if (rowSelected) {
+        ctx.fillStyle = `rgba(${colors.selectionRgb}, 0.28)`;
+        ctx.fillRect(0, rowY, w, rowH);
+        ctx.fillStyle = `rgb(${colors.selectionRgb})`;
+        ctx.fillRect(0, rowY, 3, rowH);
+      }
       ctx.fillStyle = PIANO_ROLL_LANE_COLORS.separator;
       ctx.fillRect(0, rowY + rowH - 1, w, 1);
 
@@ -407,14 +425,51 @@ export function PianoRoll({
             )
           : undefined;
       if (label) {
-        ctx.fillStyle = PIANO_ROLL_LANE_COLORS.label;
+        ctx.fillStyle = rowSelected ? '#ffffff' : PIANO_ROLL_LANE_COLORS.label;
         ctx.font = `${pianoRollLabelFontSize(rowH)}px ${labelFont}`;
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'right';
         ctx.fillText(label, w - 8, rowY + rowH / 2);
       }
     }
-  }, [gridH, rowH, vZoom, rootNote, mode, noteLabels]);
+  }, [gridH, rowH, vZoom, rootNote, mode, noteLabels, selectedPitches]);
+
+  // ── Key column click: select every note on that pitch ───────────────────
+  // Click a key / drum name to select all of the clip's notes at that pitch
+  // (and hear it). Shift- or ⌘-click adds the row to the selection, or takes
+  // it back out if the whole row is already selected.
+  const handleKeysMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      if (e.button !== 0) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const pitch = VIEW_MAX - Math.floor((e.clientY - rect.top) / rowH);
+      if (pitch < VIEW_MIN || pitch > VIEW_MAX) return;
+
+      const rowIndices: number[] = [];
+      events.forEach((ev, i) => {
+        if (ev.note === pitch) rowIndices.push(i);
+      });
+
+      const additive = e.shiftKey || e.metaKey || e.ctrlKey;
+      if (additive) {
+        setSelectedIndices((prev) => {
+          const next = new Set(prev);
+          const allIn =
+            rowIndices.length > 0 && rowIndices.every((i) => prev.has(i));
+          for (const i of rowIndices) {
+            if (allIn) next.delete(i);
+            else next.add(i);
+          }
+          return next;
+        });
+      } else {
+        setSelectedIndices(new Set(rowIndices));
+      }
+
+      onAuditionNote?.(pitch, events[rowIndices[0]]?.velocity ?? 100);
+    },
+    [rowH, events, onAuditionNote],
+  );
 
   // ── Draw Ruler ──────────────────────────────────────────────────────────
   const drawRuler = useCallback(() => {
@@ -1709,7 +1764,13 @@ export function PianoRoll({
               ref={pianoScrollRef}
               style={{ flex: 1, overflowY: 'hidden', overflowX: 'hidden' }}
             >
-              <canvas ref={pianoCanvasRef} className="block" />
+              <canvas
+                ref={pianoCanvasRef}
+                className="block"
+                style={{ cursor: 'pointer' }}
+                onMouseDown={handleKeysMouseDown}
+                title="Click to select every note on this row · Shift-click to add rows"
+              />
             </div>
           </div>
 

@@ -30,13 +30,29 @@ function withTimeout<T>(
 let sharedSynth: WorkletSynth | null = null;
 let synthReady = false;
 let synthInitPromise: Promise<void> | null = null;
+// Channels held by live SoundFont tracks. Each track's GM program lives on its
+// channel in the shared synth, so two tracks on one channel overwrite each
+// other's sound — channels are handed back on dispose and reused.
+const channelsInUse = new Set<number>();
 let nextChannel = 0;
 
-/** Allocate a MIDI channel, skipping channel 9 (GM drums). */
+/** Allocate a free MIDI channel, skipping channel 9 (GM drums). With all 15
+ *  taken (16+ SoundFont tracks), channels are shared round-robin. */
 function allocateChannel(): number {
+  for (let i = 0; i < 16; i++) {
+    const ch = (nextChannel + i) % 16;
+    if (ch === 9 || channelsInUse.has(ch)) continue;
+    channelsInUse.add(ch);
+    nextChannel = (ch + 1) % 16;
+    return ch;
+  }
   let ch = nextChannel++ % 16;
   if (ch === 9) ch = nextChannel++ % 16;
   return ch;
+}
+
+function releaseChannel(ch: number): void {
+  channelsInUse.delete(ch);
 }
 
 // ---------------------------------------------------------------------------
@@ -45,6 +61,7 @@ function allocateChannel(): number {
 
 export class SoundFontAdapter implements InstrumentAdapter {
   private channel = 0;
+  private hasChannel = false;
   private program: number;
   private outputNode: AudioNode | null = null;
   private activator: ConstantSourceNode | null = null;
@@ -55,6 +72,7 @@ export class SoundFontAdapter implements InstrumentAdapter {
 
   async init(ctx: AudioContext, outputNode: AudioNode): Promise<void> {
     this.channel = allocateChannel();
+    this.hasChannel = true;
 
     if (!synthInitPromise) {
       synthInitPromise = initSharedSynth(ctx);
@@ -139,6 +157,17 @@ export class SoundFontAdapter implements InstrumentAdapter {
     );
   }
 
+  pitchBend(value: number, time?: number): void {
+    if (!sharedSynth || !synthReady) return;
+    // -1…+1 → 14-bit MIDI pitch wheel (0…16383, centre 8192)
+    const raw = Math.min(16383, Math.max(0, Math.round((value + 1) * 8192)));
+    sharedSynth.pitchWheel(
+      this.channel,
+      raw,
+      time !== undefined ? { time } : undefined,
+    );
+  }
+
   allNotesOff(): void {
     if (sharedSynth) sharedSynth.controllerChange(this.channel, 123, 0);
   }
@@ -149,6 +178,10 @@ export class SoundFontAdapter implements InstrumentAdapter {
 
   dispose(): void {
     this.allNotesOff();
+    if (this.hasChannel) {
+      releaseChannel(this.channel);
+      this.hasChannel = false;
+    }
     if (this.activator) {
       try {
         this.activator.stop();

@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import * as Tone from 'tone';
 import { showError } from '@/components/utils/toast';
 import { useStore, type InstrumentType, type Track } from '@/daw/store';
+import type { StudioBassVoice } from '@/daw/store/tracksSlice';
 import { audioEngine } from '@/daw/audio/AudioEngine';
 import { isTrackAudible } from '@/daw/audio/trackAudibility';
 import { getPlaybackLoop } from '@/daw/store/transportSlice';
@@ -9,6 +10,10 @@ import { TrackEngine } from '@/daw/audio/TrackEngine';
 import { MidiScheduler } from '@/daw/audio/MidiScheduler';
 import { AudioClipScheduler } from '@/daw/audio/AudioClipScheduler';
 import { AutomationScheduler } from '@/daw/audio/AutomationScheduler';
+import {
+  MASTER_AUTOMATION_ID,
+  resolveMasterAutomationTargets,
+} from '@/daw/audio/automationParams';
 import { MetronomeEngine } from '@/daw/audio/MetronomeEngine';
 import { AudioRecorder } from '@/daw/audio/AudioRecorder';
 import {
@@ -41,7 +46,9 @@ import {
   ELECTRIC_PIANO_CONFIG,
   CELLO_CONFIG,
   ORGAN_CONFIG,
+  bassVoiceSamplerConfig,
 } from '@/daw/instruments/sampleConfigs';
+import { EightOhEightInstrument } from '@/daw/instruments/EightOhEightInstrument';
 import {
   DrumMachineEngine,
   DRUM_PADS,
@@ -104,6 +111,7 @@ export function createInstrument(
   type: InstrumentType,
   gmProgram?: number,
   drumKit?: DrumKitId,
+  bassVoice?: StudioBassVoice,
 ): InstrumentAdapter | null {
   switch (type) {
     case 'oracle-synth':
@@ -113,7 +121,10 @@ export function createInstrument(
     case 'electric-piano':
       return new SamplerInstrument(ELECTRIC_PIANO_CONFIG);
     case 'bass-electric':
-      return new SamplerInstrument(BASS_ELECTRIC_CONFIG);
+      if (bassVoice === '808') return new EightOhEightInstrument();
+      return new SamplerInstrument(
+        bassVoice ? bassVoiceSamplerConfig(bassVoice) : BASS_ELECTRIC_CONFIG,
+      );
     case 'cello':
       return new SamplerInstrument(CELLO_CONFIG);
     case 'organ':
@@ -193,6 +204,40 @@ function reassertAutomationIfPlaying(
     Tone.getTransport().ticks,
     s.bpm,
   );
+}
+
+/** Bring an organ engine to the track's saved settings, if they differ. */
+function applyOrganState(engine: TonewheelOrganEngine, track: Track): void {
+  if (!track.organState) return;
+  if (JSON.stringify(engine.getState()) === JSON.stringify(track.organState))
+    return;
+  engine.setState(track.organState);
+}
+
+/** Ride the Master bus automation lanes on the master gain from `tick`. */
+function scheduleMasterAutomation(
+  automationScheduler: AutomationScheduler,
+  tick: number,
+  bpm: number,
+): void {
+  const masterGain = audioEngine.getMasterGain();
+  automationScheduler.scheduleLanes(
+    MASTER_AUTOMATION_ID,
+    useStore.getState().masterAutomation,
+    (paramId) => resolveMasterAutomationTargets(paramId, masterGain),
+    tick,
+    bpm,
+  );
+}
+
+/** Set the master gain to the Master fader's (static) value. */
+function applyStaticMasterVolume(masterVolume: number): void {
+  const gain = audioEngine.getMasterGain();
+  // setTargetAtTime throws on a non-finite target and would leave the master
+  // gain unset; coerce a bad masterVolume (its store clamp lets NaN through)
+  // to unity so the master can never be silenced by a corrupt value.
+  const vol = Number.isFinite(masterVolume) ? masterVolume : 1;
+  gain.gain.setTargetAtTime(vol, gain.context.currentTime, 0.01);
 }
 
 /** Apply a Chops track's sample + envelope to its engine. Idempotent (the
@@ -327,6 +372,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   const loopEnabled = useStore((s) => getPlaybackLoop(s).enabled);
   const masteringEffects = useStore((s) => s.masteringEffects);
   const masterVolume = useStore((s) => s.masterVolume);
+  const masterAutomation = useStore((s) => s.masterAutomation);
   const returns = useStore((s) => s.returns);
 
   // ── Sync TrackEngine instances with store tracks ───────────────────────
@@ -397,6 +443,17 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
                 });
             }
           }
+          // The track is the source of truth for the GM sound and the organ
+          // settings, so undo, project load and collab peers land here too.
+          if (existing.instrument instanceof SoundFontAdapter) {
+            const program = track.gmProgram ?? 0;
+            if (existing.instrument.getProgram() !== program) {
+              existing.instrument.setProgram(program);
+            }
+          }
+          if (existing.instrument instanceof TonewheelOrganEngine) {
+            applyOrganState(existing.instrument, track);
+          }
           // Sampler sample/root/envelope changes likewise sync in place.
           if (existing.instrument instanceof ChopsSampler) {
             applySamplerState(existing.instrument, track);
@@ -440,6 +497,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
         track.instrument,
         track.gmProgram,
         track.drumKit,
+        track.bassVoice,
       );
 
       if (instrument) {
@@ -466,6 +524,13 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
             // constructor, so init() already loaded the right samples).
             if (instrument instanceof DrumMachineEngine) {
               applyDrumPads(instrument, track);
+            }
+            // …and saved organ settings (drawbars, Leslie, percussion, …).
+            if (instrument instanceof TonewheelOrganEngine) {
+              const current = useStore
+                .getState()
+                .tracks.find((t) => t.id === track.id);
+              applyOrganState(instrument, current ?? track);
             }
             // Chops: the sample buffer may already be decoded (drop/demo) or
             // still fetching (project load) — apply what's available now, the
@@ -546,15 +611,24 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   }, [isReady, masteringEffects]);
 
   // ── Sync master output volume with audio engine ──────────────────────
+  // Same order as reassertAutomationIfPlaying: clear the Master's ramps, set
+  // the fader value, then (while playing) re-ride the lanes over it — so a
+  // fader move or a lane edit mid-play takes effect without stopping, and a
+  // deleted lane snaps back to the fader.
   useEffect(() => {
     if (!isReady) return;
-    const gain = audioEngine.getMasterGain();
-    // setTargetAtTime throws on a non-finite target and would leave the master
-    // gain unset; coerce a bad masterVolume (its store clamp lets NaN through)
-    // to unity so the master can never be silenced by a corrupt value.
-    const vol = Number.isFinite(masterVolume) ? masterVolume : 1;
-    gain.gain.setTargetAtTime(vol, gain.context.currentTime, 0.01);
-  }, [isReady, masterVolume]);
+    const automationScheduler = automationSchedulerRef.current;
+    automationScheduler.clearTrack(MASTER_AUTOMATION_ID);
+    applyStaticMasterVolume(masterVolume);
+    const s = useStore.getState();
+    if (s.isPlaying) {
+      scheduleMasterAutomation(
+        automationScheduler,
+        Tone.getTransport().ticks,
+        s.bpm,
+      );
+    }
+  }, [isReady, masterVolume, masterAutomation]);
 
   // ── Sync return-bus effects + volume with audio engine ───────────────
   useEffect(() => {
@@ -652,6 +726,9 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
           bpm,
         );
       }
+
+      // Master bus automation (master volume).
+      scheduleMasterAutomation(automationScheduler, currentTick, bpm);
     } else {
       // Immediately silence all notes, then hand automated params back to their
       // static store values (fader/knob positions) so stopping resets the mix.
@@ -661,6 +738,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
         const track = stopState.tracks.find((t) => t.id === trackId);
         if (track) applyStaticTrackParams(state.trackEngine, track);
       }
+      applyStaticMasterVolume(stopState.masterVolume);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady, isPlaying]);
@@ -823,6 +901,7 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
           bpm,
         );
       }
+      scheduleMasterAutomation(automationScheduler, loopStart, bpm);
     };
 
     transport.on('loop', handleLoop);

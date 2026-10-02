@@ -5,6 +5,8 @@ import { useMidiRecording } from './useMidiRecording';
 import { midiDeviceManager } from '@/daw/midi/MidiDeviceManager';
 import { trackEngineRegistry } from './usePlaybackEngine';
 import { studioRealtime } from '@/daw/collab/studioRealtime';
+import { useSynthStore } from '@/daw/oracle-synth/store';
+import { getActiveSynthTrack } from '@/daw/oracle-synth/synthTrackState';
 
 /** Track ids this user's live MIDI is currently driving (monitored, else selected). */
 function liveMidiTargets(): string[] {
@@ -16,9 +18,22 @@ function liveMidiTargets(): string[] {
   return selectedTrackId ? [selectedTrackId] : [];
 }
 
+/**
+ * When the Oracle synth panel is open on one of the live tracks, mirror a
+ * hardware wheel into its store so the on-screen PITCH/MOD wheels follow
+ * (the store→engine sync then re-sends the same value — harmless).
+ */
+function mirrorToOracleWheels(
+  targets: string[],
+  apply: (s: ReturnType<typeof useSynthStore.getState>) => void,
+): void {
+  const active = getActiveSynthTrack();
+  if (active && targets.includes(active)) apply(useSynthStore.getState());
+}
+
 // ── useMidiInputRouting ──────────────────────────────────────────────────
-// Subscribes to ALL available MIDI input devices and routes note events
-// to monitored (or selected) tracks. Also feeds the MidiRecorder when
+// Subscribes to ALL available MIDI input devices and routes note, CC and
+// pitch-bend events to monitored (or selected) tracks. Also feeds the MidiRecorder when
 // recording is active.
 
 export function useMidiInputRouting() {
@@ -174,7 +189,20 @@ export function useMidiInputRouting() {
         if (hasArmed) midiRecorderRef.current.captureCC(cc, value);
       }
 
-      if (cc !== 64) return; // Only handle sustain pedal for live routing
+      // Everything but sustain goes straight to the live instruments (mod
+      // wheel, volume, Oracle macros CC20–27, GM controllers on SoundFont…).
+      // Sustain is held here instead, so every instrument gets the same
+      // pedal behaviour whether or not it implements CC64 itself.
+      if (cc !== 64) {
+        const targets = liveMidiTargets();
+        for (const id of targets) {
+          trackEngineRegistry.get(id)?.trackEngine.cc(cc, value);
+        }
+        if (cc === 1) {
+          mirrorToOracleWheels(targets, (s) => s.setModWheel(value / 127));
+        }
+        return;
+      }
 
       if (value >= 64) {
         sustainActive = true;
@@ -188,6 +216,14 @@ export function useMidiInputRouting() {
       }
     };
 
+    const onPitchBend = (value: number) => {
+      const targets = liveMidiTargets();
+      for (const id of targets) {
+        trackEngineRegistry.get(id)?.trackEngine.pitchBend(value);
+      }
+      mirrorToOracleWheels(targets, (s) => s.setPitchBend(value));
+    };
+
     // Subscribe to ALL inputs (not just the first — virtual ports may occupy index 0)
     for (const input of inputs) {
       const unsub = midiDeviceManager.subscribeToInput(
@@ -195,6 +231,7 @@ export function useMidiInputRouting() {
         onNoteOn,
         onNoteOff,
         onCC,
+        onPitchBend,
       );
       unsubsRef.current.push(unsub);
     }

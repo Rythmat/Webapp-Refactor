@@ -14,7 +14,7 @@ import { reggaeProfile } from './reggae';
 import { rnbProfile } from './rnb';
 import { rockProfile } from './rock';
 
-const GENRE_PROFILES: Record<string, GenreProfile> = {
+export const GENRE_PROFILES: Record<string, GenreProfile> = {
   funk: funkProfile,
   jazz: jazzProfile,
   pop: popProfile,

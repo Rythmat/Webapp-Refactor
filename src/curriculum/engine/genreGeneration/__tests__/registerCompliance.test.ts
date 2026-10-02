@@ -17,8 +17,7 @@ import type { ActivityFlow } from '@/curriculum/types/activity';
 import type { ActivityStepV2 } from '@/curriculum/types/activity.v2';
 import {
   BASS_REGISTER_CEILING,
-  CHORD_REGISTER_CEILING,
-  CHORD_REGISTER_TOP,
+  chordLimits,
   classifyNote,
   type RegisterContext,
 } from '../registerRules';
@@ -55,6 +54,7 @@ describe('the lesson library obeys the register rules', () => {
     for (const { flow, step } of await authoredSteps()) {
       const ctx: RegisterContext = {
         section: step.section,
+        genre: flow.genre,
         ...(step.instrument_config
           ? { instrument_config: step.instrument_config }
           : {}),
@@ -66,14 +66,16 @@ describe('the lesson library obeys the register rules', () => {
           tempo: 90,
           timeSignature: [4, 4],
           tpb: 480,
+          genre: flow.genre,
         }) ?? [];
+      const limits = chordLimits(flow.genre);
 
       const chords = notes.filter((n) => classifyNote(n, ctx) === 'chord');
       const bass = notes.filter((n) => classifyNote(n, ctx) === 'bass');
 
       if (chords.length > 0) {
         const lowest = Math.min(...chords.map((n) => n.midi));
-        if (lowest > CHORD_REGISTER_CEILING) {
+        if (lowest > limits.floor) {
           offenders.push(`${where(flow, step)}: chords start at ${lowest}`);
         }
         // Rule 2 is per hand, so check it per hand.
@@ -81,7 +83,7 @@ describe('the lesson library obeys the register rules', () => {
           const inHand = chords.filter((n) => n.hand === hand);
           if (inHand.length === 0) continue;
           const highest = Math.max(...inHand.map((n) => n.midi));
-          if (highest > CHORD_REGISTER_TOP) {
+          if (highest > limits.top) {
             offenders.push(
               `${where(flow, step)}: ${hand ?? 'untagged'} chords reach ${highest}`,
             );

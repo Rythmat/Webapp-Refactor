@@ -17,6 +17,7 @@ import {
   type AutomationLanes,
 } from '@/daw/audio/automation';
 import type { SamplerSampleRef } from '@/daw/instruments/samplerChops';
+import type { OrganState } from '@/daw/instruments/TonewheelOrganEngine';
 import type { PitchSegment } from '@/daw/audio/pitch-analysis/PitchAnalyzer';
 import { toast } from '@/hooks/use-toast';
 
@@ -106,6 +107,8 @@ export type InstrumentType =
   | 'vocal-fx'
   | 'none';
 
+export type StudioBassVoice = 'fretless' | 'finger' | 'upright' | '808';
+
 export type AudioInputChannel =
   | { mode: 'mono'; channel: number }
   | { mode: 'stereo'; left: number; right: number };
@@ -190,8 +193,20 @@ export interface Track {
   drumPads?: Record<number, { volume: number; pan: number }>;
   /** Selected drum kit for drum-machine tracks ('natural' when unset). */
   drumKit?: DrumKitId;
+  /**
+   * The bass sound on a bass-electric track: a lesson bass voice or the 808;
+   * the sampled electric bass when unset. Set when a Practice Track carries
+   * its lesson's bass into the Studio.
+   */
+  bassVoice?: StudioBassVoice;
   /** Loaded one-shot for 'sampler' (Chops) tracks; unset until a sample lands. */
   samplerSample?: SamplerSampleRef;
+  /** Tonewheel organ settings (drawbars, Leslie, percussion, …) for
+   *  'tonewheel-organ' tracks; the engine's defaults when unset. */
+  organState?: OrganState;
+  /** The keyboard preset name shown on piano/keys tracks (display only — the
+   *  sound itself is `instrument` + `gmProgram`). */
+  presetName?: string;
   /** Post-fader aux send levels keyed by return bus id (0–1); absent = 0. */
   sends?: Record<string, number>;
   /** Parameter-automation lanes keyed by paramId (volume/pan/send.X/effect.*).

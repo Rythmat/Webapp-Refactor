@@ -9,6 +9,8 @@ import {
   type ExportProgress,
   type WavBitDepth,
 } from '@/daw/audio/exportAudio';
+import { projectEndTick } from '@/daw/audio/renderProject';
+import { ticksPerBar } from '@/daw/utils/timelineScale';
 import { isOpusEncodingSupported } from '@/lib/studio-assets/encode-opus';
 import { showError, showSuccess } from '@/components/utils/toast';
 
@@ -18,6 +20,21 @@ const FORMATS: { id: AudioExportFormat; label: string; hint: string }[] = [
 ];
 const BIT_DEPTHS: WavBitDepth[] = [16, 24];
 
+type RangeChoice = 'project' | 'loop' | 'custom';
+
+/** A typed bar number, or null when it isn't a whole number ≥ 1. */
+function parseBar(text: string): number | null {
+  const n = Number(text.trim());
+  return Number.isInteger(n) && n >= 1 ? n : null;
+}
+
+/** Seconds → m:ss. */
+function formatDuration(sec: number): string {
+  const m = Math.floor(sec / 60);
+  const s = Math.round(sec % 60);
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
 // ── Segmented control ──────────────────────────────────────────────────────
 
 function Seg<T extends string | number>({
@@ -26,7 +43,7 @@ function Seg<T extends string | number>({
   onChange,
   disabled,
 }: {
-  options: { value: T; label: string }[];
+  options: { value: T; label: string; disabled?: boolean }[];
   value: T;
   onChange: (v: T) => void;
   disabled?: boolean;
@@ -38,19 +55,18 @@ function Seg<T extends string | number>({
     >
       {options.map((opt) => {
         const active = opt.value === value;
+        const off = disabled || opt.disabled;
         return (
           <button
             key={String(opt.value)}
             onClick={() => onChange(opt.value)}
-            disabled={disabled}
+            disabled={off}
             className="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
             style={{
-              backgroundColor: active
-                ? 'rgba(255,255,255,0.12)'
-                : 'transparent',
-              color: active ? '#ffffff' : 'var(--color-text-dim)',
-              cursor: disabled ? 'default' : 'pointer',
-              opacity: disabled ? 0.5 : 1,
+              backgroundColor: active ? '#f59e0b' : 'transparent',
+              color: active ? '#1a1a1a' : 'var(--color-text-dim)',
+              cursor: off ? 'default' : 'pointer',
+              opacity: off ? 0.5 : 1,
             }}
           >
             {opt.label}
@@ -72,6 +88,43 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
+function BarInput({
+  label,
+  value,
+  onChange,
+  disabled,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <label className="flex flex-1 flex-col gap-1">
+      <span className="text-[10px]" style={{ color: 'var(--color-text-dim)' }}>
+        {label}
+      </span>
+      <input
+        type="number"
+        inputMode="numeric"
+        min={1}
+        step={1}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        className="w-full rounded-md px-2.5 py-1.5 text-xs outline-none focus:ring-1 focus:ring-amber-500"
+        // The dialog portals outside .daw-root, so the theme vars need
+        // literal fallbacks or the field renders without a box.
+        style={{
+          backgroundColor: 'var(--color-surface-2, rgba(255,255,255,0.08))',
+          color: 'var(--color-text, #e8e8f0)',
+          border: '1px solid var(--color-border, rgba(255,255,255,0.2))',
+        }}
+      />
+    </label>
+  );
+}
+
 // ── ExportAudioDialog ──────────────────────────────────────────────────────
 
 export function ExportAudioDialog({
@@ -85,6 +138,10 @@ export function ExportAudioDialog({
   // useShallow fresh-object infinite-loop trap; derive counts in render.
   const tracks = useStore((s) => s.tracks);
   const loopEnabled = useStore((s) => s.loopEnabled);
+  const bpm = useStore((s) => s.bpm);
+  const barTicks = useStore((s) =>
+    ticksPerBar(s.timeSignatureNumerator, s.timeSignatureDenominator),
+  );
 
   const trackCount = tracks.length;
   // Instruments that don't render faithfully offline (see renderProject parity
@@ -113,7 +170,9 @@ export function ExportAudioDialog({
 
   const [format, setFormat] = useState<AudioExportFormat>('wav');
   const [bitDepth, setBitDepth] = useState<WavBitDepth>(16);
-  const [range, setRange] = useState<'project' | 'loop'>('project');
+  const [range, setRange] = useState<RangeChoice>('project');
+  const [startBarText, setStartBarText] = useState('1');
+  const [endBarText, setEndBarText] = useState('1');
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<ExportProgress | null>(null);
 
@@ -129,9 +188,35 @@ export function ExportAudioDialog({
     }
   }, [open]);
 
-  // If the loop is off, force whole-project range (loop range is unavailable).
+  // Prefill the bar range with the whole project each time the dialog opens.
   useEffect(() => {
-    if (!loopEnabled) setRange('project');
+    if (!open) return;
+    const lastBar = Math.max(
+      1,
+      Math.ceil(projectEndTick(useStore.getState()) / barTicks),
+    );
+    setStartBarText('1');
+    setEndBarText(String(lastBar));
+  }, [open, barTicks]);
+
+  const startBar = parseBar(startBarText);
+  const endBar = parseBar(endBarText);
+  const customValid =
+    startBar !== null && endBar !== null && endBar >= startBar;
+  const customError =
+    range !== 'custom' || customValid
+      ? null
+      : startBar === null || endBar === null
+        ? 'Bars are whole numbers from 1.'
+        : 'End bar must be the same as or after the start bar.';
+  const customSeconds = customValid
+    ? ((endBar - startBar + 1) * barTicks * 60) / bpm / 480
+    : 0;
+
+  // If the loop is off, the loop range is unavailable — fall back to the
+  // whole project (a custom range is unaffected).
+  useEffect(() => {
+    if (!loopEnabled) setRange((r) => (r === 'loop' ? 'project' : r));
   }, [loopEnabled]);
 
   const handleExport = useCallback(async () => {
@@ -140,10 +225,25 @@ export function ExportAudioDialog({
     try {
       const effectiveFormat =
         format === 'opus' && !opusSupported ? 'wav' : format;
+      const custom = range === 'custom' && startBar !== null && endBar !== null;
       const { blob, filename } = await exportProjectAudio(
         {
           format: effectiveFormat,
-          range,
+          // Bars are inclusive: bars 5–12 runs from the top of bar 5 to the
+          // end of bar 12.
+          range: custom
+            ? {
+                startTick: (startBar - 1) * barTicks,
+                endTick: endBar * barTicks,
+              }
+            : range === 'loop'
+              ? 'loop'
+              : 'project',
+          rangeLabel: custom
+            ? startBar === endBar
+              ? `bar-${startBar}`
+              : `bars-${startBar}-${endBar}`
+            : undefined,
           bitDepth,
         },
         setProgress,
@@ -162,7 +262,16 @@ export function ExportAudioDialog({
       setBusy(false);
       setProgress(null);
     }
-  }, [format, range, bitDepth, opusSupported, onOpenChange]);
+  }, [
+    format,
+    range,
+    startBar,
+    endBar,
+    barTicks,
+    bitDepth,
+    opusSupported,
+    onOpenChange,
+  ]);
 
   const progressLabel =
     progress?.stage === 'render'
@@ -281,12 +390,50 @@ export function ExportAudioDialog({
                   {
                     value: 'loop' as const,
                     label: loopEnabled ? 'Loop region' : 'Loop (off)',
+                    disabled: !loopEnabled,
                   },
+                  { value: 'custom' as const, label: 'Start – End' },
                 ]}
                 value={range}
-                onChange={(v) => loopEnabled && setRange(v)}
-                disabled={busy || !loopEnabled}
+                onChange={setRange}
+                disabled={busy}
               />
+              {range === 'custom' && (
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-end gap-2">
+                    <BarInput
+                      label="Start bar"
+                      value={startBarText}
+                      onChange={setStartBarText}
+                      disabled={busy}
+                    />
+                    <span
+                      className="pb-2 text-xs"
+                      style={{ color: 'var(--color-text-dim)' }}
+                    >
+                      to
+                    </span>
+                    <BarInput
+                      label="End bar"
+                      value={endBarText}
+                      onChange={setEndBarText}
+                      disabled={busy}
+                    />
+                  </div>
+                  <span
+                    className="text-[11px]"
+                    style={{
+                      color: customError ? '#f87171' : 'var(--color-text-dim)',
+                    }}
+                    role={customError ? 'alert' : undefined}
+                  >
+                    {customError ??
+                      `${endBar! - startBar! + 1} ${
+                        endBar === startBar ? 'bar' : 'bars'
+                      } · ${formatDuration(customSeconds)} (end bar included)`}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Coverage warnings */}
@@ -366,11 +513,16 @@ export function ExportAudioDialog({
               <button
                 data-tutorial-id="export-audio-run"
                 onClick={() => void handleExport()}
-                disabled={busy || trackCount === 0}
-                className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#101012] transition-colors enabled:hover:bg-white/90"
+                disabled={busy || trackCount === 0 || !!customError}
+                className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-semibold transition-colors"
                 style={{
-                  cursor: busy || trackCount === 0 ? 'default' : 'pointer',
-                  opacity: busy || trackCount === 0 ? 0.5 : 1,
+                  backgroundColor: '#f59e0b',
+                  color: '#1a1a1a',
+                  cursor:
+                    busy || trackCount === 0 || customError
+                      ? 'default'
+                      : 'pointer',
+                  opacity: busy || trackCount === 0 || customError ? 0.5 : 1,
                 }}
               >
                 <Download size={13} strokeWidth={2.5} />

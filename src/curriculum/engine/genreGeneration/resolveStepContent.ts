@@ -11,6 +11,7 @@ import type { ActivitySectionId } from '../../types/activity';
 import type { ActivityStepV2, LessonInstrument } from '../../types/activity.v2';
 import { midiToPitchName } from './enharmonicEngine';
 import { applyRegisterRules } from './registerRules';
+import { applySwing } from './swing';
 
 // ── Our internal note format ─────────────────────────────────────────────────
 
@@ -30,6 +31,10 @@ export interface StepContext {
   timeSignature: [number, number]; // default [4, 4]
   tpb: number; // ticks per beat, default 480
   defaultScale?: number[]; // flow-level default scale intervals
+  /** The flow's genre — Hip Hop chords sit higher (registerRules.ts). */
+  genre?: string;
+  /** 16th-note swing percentage; the student's notes swing with the backing. */
+  swing?: number;
   /** The flow's instrument; omitted means piano. */
   instrument?: LessonInstrument;
 }
@@ -162,10 +167,12 @@ export function resolveStepContent(
   // Register of Chord and Bass Notes — see registerRules.ts. Applied at the one
   // choke point every student-facing note passes through, so authored data and
   // generated content obey the same rule.
-  return applyRegisterRules(notes, {
+  const placed = applyRegisterRules(notes, {
     section: step.section,
     instrument_config: step.instrument_config,
-  }) as GenreNoteEvent[];
+    genre: ctx.genre,
+  });
+  return applySwing(placed, ctx.swing ?? 50) as GenreNoteEvent[];
 }
 
 function resolveRawStepContent(

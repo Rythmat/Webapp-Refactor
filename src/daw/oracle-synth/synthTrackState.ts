@@ -151,6 +151,27 @@ export function setActiveSynthTrack(trackId: string | null): void {
   activeTrackId = trackId;
 }
 
+/** The track whose patch is currently live in the shared store, if any. */
+export function getActiveSynthTrack(): string | null {
+  return activeTrackId;
+}
+
+// More than one synth panel can be bridged to the same track at once (the
+// inline strip stays mounted under the full-screen pop-out). Count them so
+// closing one panel doesn't mark the track as no longer live.
+let mountedBridges = 0;
+
+/** Register a mounted store bridge. */
+export function acquireSynthBridge(): void {
+  mountedBridges++;
+}
+
+/** Unregister a store bridge; returns true when it was the last one. */
+export function releaseSynthBridge(): boolean {
+  mountedBridges = Math.max(0, mountedBridges - 1);
+  return mountedBridges === 0;
+}
+
 /** Cache `trackId`'s outgoing patch (called by the bridge on switch/unmount). */
 export function cacheSynthState(trackId: string, snap: SynthTrackState): void {
   stateCache.set(trackId, snap);

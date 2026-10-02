@@ -32,6 +32,12 @@ export interface InstrumentAdapter {
    */
   cc?(controller: number, value: number, time?: number): void;
 
+  /**
+   * Pitch-bend wheel position, -1 (full down) … 0 (centre) … +1 (full up).
+   * Optional — instruments that can't bend omit this.
+   */
+  pitchBend?(value: number, time?: number): void;
+
   /** Release all currently sounding notes (with envelope release). */
   allNotesOff(): void;
 

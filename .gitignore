@@ -50,3 +50,7 @@ src/curriculum/data/songs/_generated_index.ts
 # The suggestion importer's per-URL response cache (importSuggestions.ts);
 # `**/_*.json` does not reach files inside the folder
 src/scripts/enrichment/_cache/
+
+# Claude Code local state
+.claude/settings.local.json
+.claude/genre-planning/

@@ -60,6 +60,10 @@ export interface ActivitySection {
 export interface ActivityFlowParams {
   defaultKey: string;
   tempoRange: [min: number, max: number];
+  /**
+   * 16th-note swing percentage (50 straight, 66 triplet feel). Values below
+   * 50 are legacy flags and play straight. Steps may override it.
+   */
   swing: number;
   grooves: string[];
 }

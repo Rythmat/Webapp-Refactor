@@ -1,3 +1,7 @@
+import {
+  BASS_VOICES,
+  type BassVoiceId,
+} from '@/curriculum/engine/genreGeneration/genreBassVoices';
 import type { SamplerConfig } from './SamplerInstrument';
 
 // ── tonejs-instruments CDN ──────────────────────────────────────────────
@@ -81,6 +85,21 @@ export const BASS_ELECTRIC_CONFIG: SamplerConfig = {
     'C#5': 'Cs5.mp3',
   },
 };
+
+// ── Lesson bass voices ──────────────────────────────────────────────────
+// Fretless (Pop), Finger electric (Funk, Hip Hop) and Upright — the General
+// MIDI sets the lessons' play-alongs use (genreBassVoices.ts), level-matched to
+// the electric bass, so a Practice Track keeps the lesson's bass.
+
+export function bassVoiceSamplerConfig(id: BassVoiceId): SamplerConfig {
+  const voice = BASS_VOICES[id];
+  return {
+    name: voice.label,
+    baseUrl: voice.baseUrl,
+    sampleMap: voice.urls,
+    volumeDb: voice.volumeDb,
+  };
+}
 
 // ── Cello ───────────────────────────────────────────────────────────────
 

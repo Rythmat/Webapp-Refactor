@@ -60,10 +60,12 @@ describe('flowPracticeScales', () => {
       'dorian',
       'aeolian',
     ]);
+    // Funk L1's pentatonic phrases (tagged Dorian) now come before the blues
+    // scale: each scale is followed by its phrases (ledger D-043).
     expect(flowPracticeScales(funkL1).map((s) => s.id)).toEqual([
       'minor_pentatonic',
-      'minor_blues',
       'dorian',
+      'minor_blues',
     ]);
   });
 

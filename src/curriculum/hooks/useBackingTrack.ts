@@ -24,15 +24,25 @@ import { DrumMachineEngine } from '../../daw/instruments/DrumMachineEngine';
 import { SoundFontAdapter } from '../../daw/instruments/SoundFontAdapter';
 import { buildBackingNotes } from '../engine/genreGeneration/backingPatterns';
 import {
+  createEightOhEight,
+  play808,
+  type EightOhEight,
+} from '../engine/genreGeneration/eightOhEight';
+import {
   startEpSampler,
   triggerEpAttackRelease,
 } from '../engine/genreGeneration/epSamplerV2';
+import {
+  BASS_VOICES,
+  genreBassVoice,
+  type BassVoiceConfig,
+} from '../engine/genreGeneration/genreBassVoices';
 import type { GenreNoteEvent } from '../engine/genreGeneration/resolveStepContent';
 import type { ActivityStepV2 } from '../types/activity.v2';
 
 // ── Bass sampler config (public/samples/bass-electric/) ─────────────────────
 
-const BASS_ELECTRIC_CONFIG = {
+export const BASS_ELECTRIC_CONFIG = {
   baseUrl: '/samples/bass-electric/',
   sampleMap: {
     'A#1': 'As1.mp3',
@@ -75,6 +85,11 @@ export function useBackingTrack(tempo: number) {
   const drumEngineRef = useRef<DrumMachineEngine | null>(null);
   const bassSamplerRef = useRef<Tone.Sampler | null>(null); // direct Tone.js Sampler
   const bassBridgeRef = useRef<Tone.Gain | null>(null);
+  // Genre bass voices (genreBassVoices.ts), loaded the first time a genre plays.
+  // null = the voice failed to load; the electric sampler covers for it.
+  const genreBassRef = useRef(new Map<string, Promise<Tone.Sampler | null>>());
+  const loadedGenreBassRef = useRef<Tone.Sampler[]>([]);
+  const eightOhEightRef = useRef<EightOhEight | null>(null);
   const drumBridgeRef = useRef<Tone.Gain | null>(null);
   const enginesReady = useRef(false);
   const enginesLoading = useRef(false);
@@ -240,12 +255,46 @@ export function useBackingTrack(tempo: number) {
     return true;
   }, []);
 
+  const loadGenreBass = useCallback(
+    (voice: BassVoiceConfig): Promise<Tone.Sampler | null> => {
+      const cached = genreBassRef.current.get(voice.id);
+      if (cached) return cached;
+      const bridge = bassBridgeRef.current;
+      if (!bridge) return Promise.resolve(null);
+      const loading = new Promise<Tone.Sampler | null>((resolve) => {
+        const sampler: Tone.Sampler = new Tone.Sampler({
+          urls: voice.urls,
+          baseUrl: voice.baseUrl,
+          volume: voice.volumeDb,
+          onload: () => {
+            loadedGenreBassRef.current.push(sampler);
+            resolve(sampler);
+          },
+          onerror: (err) => {
+            console.warn(`[useBackingTrack] ${voice.label} bass failed`, err);
+            sampler.dispose();
+            resolve(null);
+          },
+        });
+        sampler.connect(bridge);
+      });
+      genreBassRef.current.set(voice.id, loading);
+      return loading;
+    },
+    [],
+  );
+
   // ── Cleanup ───────────────────────────────────────────────────────────────
 
   useEffect(() => {
     return () => {
       drumEngineRef.current?.dispose();
       bassSamplerRef.current?.dispose();
+      loadedGenreBassRef.current.forEach((sampler) => sampler.dispose());
+      loadedGenreBassRef.current = [];
+      eightOhEightRef.current?.dispose();
+      eightOhEightRef.current = null;
+      genreBassRef.current.clear();
       drumBridgeRef.current?.dispose();
       bassBridgeRef.current?.dispose();
       kickSynthRef.current?.dispose();
@@ -287,6 +336,8 @@ export function useBackingTrack(tempo: number) {
     sf2NoteOffTimers.current = [];
     drumEngineRef.current?.allNotesOff();
     bassSamplerRef.current?.releaseAll();
+    loadedGenreBassRef.current.forEach((sampler) => sampler.releaseAll());
+    eightOhEightRef.current?.synth.triggerRelease();
     sf2BassRef.current?.allNotesOff();
     sf2ChordsRef.current?.allNotesOff();
     popPadSynthRef.current?.releaseAll();
@@ -312,6 +363,7 @@ export function useBackingTrack(tempo: number) {
       preStartCallback?: () => Promise<void>,
       genre: string = 'funk',
       countInTicks: number = 0,
+      swing: number = 50,
     ) => {
       Tone.getTransport().stop();
       Tone.getTransport().cancel();
@@ -325,6 +377,25 @@ export function useBackingTrack(tempo: number) {
 
       const useReal = enginesReady.current;
       const useSF2 = sf2Ready.current;
+      // The step's own kit and bass sound (backing_style), else the genre's.
+      const style = step.backing_style;
+      if (useReal && drumEngineRef.current) {
+        await drumEngineRef.current.setKit(style?.kit ?? 'natural');
+      }
+      const voiceId = style?.bassVoice;
+      const use808 = useReal && voiceId === '808' && bassBridgeRef.current;
+      if (use808 && !eightOhEightRef.current) {
+        eightOhEightRef.current = createEightOhEight(bassBridgeRef.current!);
+      }
+      const bassVoice =
+        voiceId === 'electric'
+          ? null
+          : voiceId && voiceId !== '808'
+            ? BASS_VOICES[voiceId]
+            : genreBassVoice(genre);
+      const genreBass =
+        useReal && bassVoice && !use808 ? await loadGenreBass(bassVoice) : null;
+      const bassSampler = genreBass ?? bassSamplerRef.current;
       const spt = 60 / (tempo * 480); // seconds per tick
 
       const allNotes = buildBackingNotes(
@@ -335,6 +406,7 @@ export function useBackingTrack(tempo: number) {
         targetNotes,
         genre,
         countInTicks,
+        swing,
       );
 
       // Dev verification
@@ -426,6 +498,7 @@ export function useBackingTrack(tempo: number) {
           velocity: n.velocity,
           durationSec: soundDur * spt,
           durationMs: soundDur * spt * 1000,
+          glideFrom: n.glideFrom,
         };
       });
 
@@ -438,13 +511,23 @@ export function useBackingTrack(tempo: number) {
               velocity: number;
               durationSec: number;
               durationMs: number;
+              glideFrom?: number;
             },
           ) => {
-            if (useReal && bassSamplerRef.current) {
+            if (use808 && eightOhEightRef.current) {
+              play808(
+                eightOhEightRef.current,
+                value.note,
+                value.durationSec,
+                time,
+                value.velocity / 127,
+                value.glideFrom,
+              );
+            } else if (useReal && bassSampler) {
               // triggerAttackRelease is self-contained: each call creates its
               // own buffer source with its own stop timer. No voice collision.
               const noteName = Tone.Frequency(value.note, 'midi').toNote();
-              bassSamplerRef.current.triggerAttackRelease(
+              bassSampler.triggerAttackRelease(
                 noteName,
                 value.durationSec,
                 time,
@@ -538,7 +621,7 @@ export function useBackingTrack(tempo: number) {
       Tone.getTransport().start(`+${BACKING_LEAD_SEC}`);
       isPlayingRef.current = true;
     },
-    [tempo, disposeAll, ensureFallbackSynths],
+    [tempo, disposeAll, ensureFallbackSynths, loadGenreBass],
   );
 
   return {

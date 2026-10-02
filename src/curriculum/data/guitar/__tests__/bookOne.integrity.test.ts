@@ -109,6 +109,7 @@ const SEVENTH_QUALITIES: BookChordQuality[] = [
 const ENGINE_QUALITY: Record<BookChordQuality, string> = {
   maj: 'major',
   min: 'minor',
+  dim: 'diminished',
   maj7: 'major7',
   min7: 'minor7',
   dom7: 'dominant7',

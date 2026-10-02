@@ -159,7 +159,9 @@ export function analyzeMusicMap(map: GuitarMusicMap): MusicMapAnalysis {
     triadBarsIn7thMap:
       map.example >= 4
         ? bars.flatMap((b, i) =>
-            b.quality === 'maj' || b.quality === 'min' ? [i] : [],
+            b.quality === 'maj' || b.quality === 'min' || b.quality === 'dim'
+              ? [i]
+              : [],
           )
         : [],
     dom7ToOne,

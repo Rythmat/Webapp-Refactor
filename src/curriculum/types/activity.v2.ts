@@ -104,6 +104,7 @@ export interface TargetNote {
 export type DetectorChordQuality =
   | 'major'
   | 'minor'
+  | 'diminished'
   | 'major7'
   | 'minor7'
   | 'dominant7'

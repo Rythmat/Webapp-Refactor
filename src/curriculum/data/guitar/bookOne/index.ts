@@ -136,6 +136,7 @@ export function chordRootPc(key: GuitarKeyName, degree: ScaleDegree): number {
 const QUALITY_WORDS: Readonly<Record<BookChordQuality, string>> = {
   maj: 'major',
   min: 'minor',
+  dim: 'diminished',
   maj7: 'major 7',
   min7: 'minor 7',
   dom7: 'dominant 7',
@@ -145,6 +146,7 @@ const QUALITY_WORDS: Readonly<Record<BookChordQuality, string>> = {
 const QUALITY_SYMBOL: Readonly<Record<BookChordQuality, string>> = {
   maj: '',
   min: 'm',
+  dim: 'dim',
   maj7: 'maj7',
   min7: 'm7',
   dom7: '7',
@@ -154,6 +156,7 @@ const QUALITY_SYMBOL: Readonly<Record<BookChordQuality, string>> = {
 const QUALITY_HYBRID: Readonly<Record<BookChordQuality, string>> = {
   maj: 'maj',
   min: 'min',
+  dim: 'dim',
   maj7: 'maj7',
   min7: 'min7',
   dom7: 'dom7',

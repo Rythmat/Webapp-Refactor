@@ -27,10 +27,14 @@ export type GuitarKeyName =
   | 'Bb'
   | 'F';
 
-/** Chord qualities as the book's Hybrid Number System abbreviates them. */
+/**
+ * Chord qualities as the book's Hybrid Number System abbreviates them, plus
+ * the diminished triad the modal lessons add (Book One never prints one).
+ */
 export type BookChordQuality =
   | 'maj'
   | 'min'
+  | 'dim'
   | 'maj7'
   | 'min7'
   | 'dom7'

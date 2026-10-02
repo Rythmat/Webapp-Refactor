@@ -83,6 +83,7 @@ export const MUSIC_MAP_PASSES = 2;
 const ENGINE_QUALITY: Record<BookChordQuality, DetectorChordQuality> = {
   maj: 'major',
   min: 'minor',
+  dim: 'diminished',
   maj7: 'major7',
   min7: 'minor7',
   dom7: 'dominant7',

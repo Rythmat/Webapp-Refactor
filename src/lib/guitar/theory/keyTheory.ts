@@ -131,6 +131,7 @@ export function chordAliases(
   const suffixes: Record<BookChordQuality, string[]> = {
     maj: ['maj', 'M'],
     min: ['min', '−'],
+    dim: ['°', 'o'],
     maj7: ['M7', 'Δ7', 'Δ'],
     min7: ['min7', '−7'],
     min7b5: ['ø7', 'ø', '−7♭5', 'min7(♭5)'],

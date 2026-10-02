@@ -185,7 +185,7 @@ export function chordTheory({
   const key = keyName ?? (degree ? bookKeyOf(rootPc, degree) : null);
   let notes: DiagramInfoNote[] = [];
   if (key && degree) {
-    const seventh = quality !== 'maj' && quality !== 'min';
+    const seventh = quality !== 'maj' && quality !== 'min' && quality !== 'dim';
     const popover = notesFor(seventh ? 'B7' : 'B1', {
       center: GUITAR_ATLAS_BOOK_ONE[key],
       shape: { ...shape, degree, quality },

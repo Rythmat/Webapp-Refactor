@@ -98,11 +98,11 @@ const SURFACES = Object.fromEntries(
 ) as Record<GuitarKeyName, Surface[]>;
 
 describe('guitar theory notes: structure', () => {
-  it('has 72 notes with unique ids and 60 UI strings', () => {
+  it('has 72 notes with unique ids and 61 UI strings', () => {
     expect(GUITAR_THEORY_NOTES).toHaveLength(72);
     const ids = GUITAR_THEORY_NOTES.map((n) => n.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(Object.keys(GUITAR_THEORY_STRINGS)).toHaveLength(60);
+    expect(Object.keys(GUITAR_THEORY_STRINGS)).toHaveLength(61);
   });
 
   it('uses valid prefixes, conditions and tokens', () => {

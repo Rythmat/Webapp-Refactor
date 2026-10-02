@@ -15,7 +15,7 @@ export type ChordToneRole = 'root' | 'third' | 'fifth' | 'seventh';
 /** Scale degree in a major key. */
 export type KeyDegree = 7 | 6 | 5 | 4 | 3 | 2 | 1;
 export type LabelMode = 'fingers' | 'notes' | 'keyNumbers' | 'chordTones';
-/** Book qualities plus the diminished triad on 7, which the book never prints. */
+/** Book qualities, the diminished triad included. */
 export type DiatonicQuality = BookChordQuality | 'dim';
 export type SeventhQuality = Extract<
   BookChordQuality,

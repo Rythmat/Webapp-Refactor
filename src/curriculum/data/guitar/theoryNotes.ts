@@ -696,6 +696,7 @@ export type GuitarTheoryStringId =
   | 'badge.openStrings'
   | 'formula.maj'
   | 'formula.min'
+  | 'formula.dim'
   | 'formula.maj7'
   | 'formula.dom7'
   | 'formula.min7'
@@ -761,6 +762,7 @@ export const GUITAR_THEORY_STRINGS: Readonly<
   'badge.openStrings': 'Uses open strings',
   'formula.maj': 'R 3 5',
   'formula.min': 'R ♭3 5',
+  'formula.dim': 'R ♭3 ♭5',
   'formula.maj7': 'R 3 5 7',
   'formula.dom7': 'R 3 5 ♭7',
   'formula.min7': 'R ♭3 5 ♭7',

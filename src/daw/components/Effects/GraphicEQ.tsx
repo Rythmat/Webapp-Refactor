@@ -527,7 +527,6 @@ export function GraphicEQ({ bands, onChange, analyserNode }: GraphicEQProps) {
                     textAnchor="end"
                     fill="rgba(255,255,255,0.25)"
                     fontSize={8}
-                    fontFamily="system-ui"
                   >
                     {db > 0 ? `+${db}` : db}
                   </text>
@@ -554,7 +553,6 @@ export function GraphicEQ({ bands, onChange, analyserNode }: GraphicEQProps) {
                     textAnchor="middle"
                     fill="rgba(255,255,255,0.25)"
                     fontSize={8}
-                    fontFamily="system-ui"
                   >
                     {fmtFreq(f)}
                   </text>
@@ -637,7 +635,6 @@ export function GraphicEQ({ bands, onChange, analyserNode }: GraphicEQProps) {
                     fill="rgba(0,0,0,0.7)"
                     fontSize={8}
                     fontWeight={700}
-                    fontFamily="system-ui"
                     style={{ pointerEvents: 'none' }}
                   >
                     {i + 1}
@@ -669,7 +666,6 @@ export function GraphicEQ({ bands, onChange, analyserNode }: GraphicEQProps) {
                         fill={color}
                         fontSize={8}
                         fontWeight={600}
-                        fontFamily="system-ui"
                       >
                         {band.slope ?? 12}
                       </text>
@@ -693,7 +689,6 @@ export function GraphicEQ({ bands, onChange, analyserNode }: GraphicEQProps) {
                         textAnchor="middle"
                         fill="rgba(255,255,255,0.85)"
                         fontSize={8}
-                        fontFamily="system-ui"
                       >
                         {fmtFreq(band.freq)} Hz{' '}
                         {isCut ? '' : `${fmtDb(band.gain)} dB`} Q{' '}

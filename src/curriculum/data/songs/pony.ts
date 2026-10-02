@@ -16,6 +16,18 @@ export const pony: Song = {
   difficulty: 2,
   genreTags: ['hip-hop'],
   techniques: [],
+  credits: [
+    { name: 'Static Major', role: 'songwriter', artistGlobeId: 'static-major' },
+    { name: 'Ginuwine', role: 'songwriter', artistGlobeId: 'ginuwine' },
+    {
+      name: 'Ginuwine',
+      role: 'vocals',
+      artistGlobeId: 'ginuwine',
+      primary: true,
+    },
+    { name: 'Timbaland', role: 'songwriter', artistGlobeId: 'timbaland' },
+  ],
+  releases: [{ releaseId: 'ginuwine-ginuwine-the-bachelor', track: 2 }],
 
   sections: [
     {

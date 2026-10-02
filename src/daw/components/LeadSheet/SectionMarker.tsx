@@ -37,7 +37,7 @@ export const SectionMarker = memo(function SectionMarker({
         y={-padding}
         fontSize={fontSize}
         fontWeight="bold"
-        fontFamily="serif"
+        fontFamily="'Glacial Indifference', system-ui, sans-serif"
         fill="currentColor"
       >
         {label}

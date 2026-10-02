@@ -16,7 +16,48 @@ export const sittin_on_the_dock_of_the_bay: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
-
+  credits: [
+    { name: 'Steve Cropper', role: 'producer', artistGlobeId: 'steve-cropper' },
+    { name: 'Otis Redding', role: 'songwriter', artistGlobeId: 'otis-redding' },
+    { name: 'Isaac Hayes', role: 'performer', artistGlobeId: 'isaac-hayes' },
+    {
+      name: 'Otis Redding',
+      role: 'vocals',
+      artistGlobeId: 'otis-redding',
+      primary: true,
+    },
+    {
+      name: 'Al Jackson, Jr.',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'al-jackson-jr',
+    },
+    {
+      name: 'Steve Cropper',
+      role: 'performer',
+      artistGlobeId: 'steve-cropper',
+    },
+    {
+      name: 'Donald “Duck” Dunn',
+      role: 'performer',
+      instrument: 'electric-bass',
+    },
+    {
+      name: 'Wayne Jackson',
+      role: 'performer',
+      instrument: 'trumpet',
+    },
+    {
+      name: 'Steve Cropper',
+      role: 'songwriter',
+      artistGlobeId: 'steve-cropper',
+    },
+    {
+      name: 'Booker T. Jones',
+      role: 'performer',
+      artistGlobeId: 'booker-t-jones',
+    },
+  ],
   sections: [
     {
       id: 'intro',

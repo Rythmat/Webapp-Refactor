@@ -422,7 +422,7 @@ const LessonCard = ({
           aria-label={saved ? `Unsave ${day.label}` : `Save ${day.label}`}
           aria-pressed={saved}
           className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-white/[0.04] ${
-            saved ? 'text-amber-300' : 'text-white/40 hover:text-white/80'
+            saved ? 'text-white' : 'text-white/40 hover:text-white/80'
           }`}
         >
           <Bookmark

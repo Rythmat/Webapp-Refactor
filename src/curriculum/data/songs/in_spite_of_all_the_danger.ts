@@ -16,6 +16,14 @@ export const in_spite_of_all_the_danger: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Paul McCartney',
+      role: 'songwriter',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'George Harrison', role: 'songwriter' },
+  ],
 
   sections: [
     {

@@ -1,6 +1,10 @@
 import { Lock, Repeat, TrendingUp } from 'lucide-react';
 import { memo, useEffect, useMemo, useRef } from 'react';
-import { ChordBox, type ChordDiagnostics } from '@/components/guitar';
+import {
+  ChordBox,
+  type ChordDiagnostics,
+  type DiagramVariant,
+} from '@/components/guitar';
 import {
   GUITAR_ATLAS_BOOK_ONE,
   seventhShapeId,
@@ -37,6 +41,10 @@ import { CHANGE_PREFIXES, sharedNotesText } from './theory/theoryUi';
 // change keeps — shared notes, a finger that can stay down — between the
 // boxes (setting, on by default), and on the 7th-chord page (B8) the
 // climbing top line and the closing chord 1.
+//
+// The lesson variant draws the lesson chord boxes, fades the strip's edges
+// where it scrolls, and sets the cues in 12px white/55 — no key colour, which
+// the lesson keeps for the chord being played.
 
 const CHANGE_NOTE_IDS = new Set(['d3.tricky', 'd3.sameFret']);
 const ANCHOR_TITLE =
@@ -63,6 +71,10 @@ interface GuitarChordStripProps {
   showSharedNotes?: boolean;
   /** Roman numeral beside each Hybrid label (default: the device setting). */
   showRomanNumerals?: boolean;
+  /** 'lesson': the lesson chord boxes and quieter cues (default 'default'). */
+  variant?: DiagramVariant;
+  /** The chord boxes' size (default 'sm'). */
+  size?: 'sm' | 'md';
 }
 
 interface ChangeCue {
@@ -161,18 +173,45 @@ export function chordStripCues(
   }));
 }
 
-const CUE_TEXT = 'text-[10px] leading-tight';
-const CUE_BORDER = '1px solid var(--color-border, rgba(255,255,255,0.14))';
+const CUE_LOOK = {
+  default: {
+    text: 'text-[10px] leading-tight',
+    border: '1px solid var(--color-border, rgba(255,255,255,0.14))',
+    column: 'w-16',
+    dim: 'var(--color-text-dim, #9a9aab)',
+    ink: 'var(--color-text, #e8e8f0)',
+    icon: 'h-2.5 w-2.5',
+    /** Tappable cues: as drawn. */
+    hit: '',
+  },
+  lesson: {
+    text: 'text-xs leading-tight',
+    // Plain captions between the boxes: an outline on every one of them
+    // read as a row of buttons.
+    border: 'none',
+    column: 'w-20',
+    dim: 'rgba(255, 255, 255, 0.55)',
+    ink: 'rgba(255, 255, 255, 0.55)',
+    icon: 'h-3 w-3',
+    /** Tappable cues reach 36px round their text. */
+    hit: " relative before:absolute before:-inset-2 before:content-['']",
+  },
+} as const;
 
 function ChangeBadges({
   cue,
   showShared,
   keyColor,
+  variant,
 }: {
   cue: BoxCue;
   showShared: boolean;
   keyColor: string;
+  variant: DiagramVariant;
 }) {
+  const look = CUE_LOOK[variant];
+  // The climbing top line: the key colour in the book's look, neutral in a lesson.
+  const lineColor = variant === 'lesson' ? look.dim : keyColor;
   const change = showShared ? cue.change : null;
   const topLine = cue.topLine && cue.topNote ? cue.topLine : null;
   if (!change && !topLine && !cue.octaveNote) return null;
@@ -187,19 +226,19 @@ function ChangeBadges({
   return (
     <div
       data-strip-cues
-      className="flex w-16 flex-col items-center gap-1 text-center"
-      style={{ color: 'var(--color-text-dim, #9a9aab)' }}
+      className={`flex ${look.column} flex-col items-center gap-1 text-center`}
+      style={{ color: look.dim }}
     >
       {change &&
         (change.notes.length > 0 ? (
           <TheoryPopover
             notes={change.notes}
             triggerLabel={change.wraps ? `Back to bar 1: ${shared}` : shared}
-            className={`${CUE_TEXT} inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 hover:bg-white/10`}
-            style={{ border: CUE_BORDER, color: 'var(--color-text, #e8e8f0)' }}
+            className={`${look.text} inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 hover:bg-white/10${look.hit}`}
+            style={{ border: look.border, color: look.ink }}
           >
             {change.wraps && (
-              <Repeat aria-hidden className="h-2.5 w-2.5 shrink-0" />
+              <Repeat aria-hidden className={`${look.icon} shrink-0`} />
             )}
             <span data-shared-badge={change.change.sharedPitchClasses.length}>
               {shared}
@@ -207,12 +246,12 @@ function ChangeBadges({
           </TheoryPopover>
         ) : (
           <span
-            className={`${CUE_TEXT} inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5`}
-            style={{ border: CUE_BORDER }}
+            className={`${look.text} inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5`}
+            style={{ border: look.border }}
           >
             {change.wraps && (
               <>
-                <Repeat aria-hidden className="h-2.5 w-2.5 shrink-0" />
+                <Repeat aria-hidden className={`${look.icon} shrink-0`} />
                 <span className="sr-only">Back to bar 1: </span>
               </>
             )}
@@ -227,15 +266,15 @@ function ChangeBadges({
             <TheoryPopover
               notes={[change.anchorNote]}
               triggerLabel={`${ANCHOR_TITLE}: ${anchorWhere}`}
-              className={`${CUE_TEXT} inline-flex items-center gap-0.5 rounded px-1 hover:bg-white/10`}
-              style={{ color: 'var(--color-text, #e8e8f0)' }}
+              className={`${look.text} inline-flex items-center gap-0.5 rounded px-1 hover:bg-white/10${look.hit}`}
+              style={{ color: look.ink }}
             >
-              <Lock aria-hidden className="h-2.5 w-2.5 shrink-0" />
+              <Lock aria-hidden className={`${look.icon} shrink-0`} />
               {ANCHOR_TITLE}
             </TheoryPopover>
           ) : (
-            <span className={`${CUE_TEXT} inline-flex items-center gap-0.5`}>
-              <Lock aria-hidden className="h-2.5 w-2.5 shrink-0" />
+            <span className={`${look.text} inline-flex items-center gap-0.5`}>
+              <Lock aria-hidden className={`${look.icon} shrink-0`} />
               {ANCHOR_TITLE}
               <span className="sr-only">: {anchorWhere}</span>
             </span>
@@ -245,8 +284,8 @@ function ChangeBadges({
       {topLine === 'start' && cue.topNote && (
         <TheoryPopover
           notes={[cue.topNote]}
-          className={`${CUE_TEXT} inline-flex items-center gap-0.5 rounded px-1 hover:bg-white/10`}
-          style={{ color: keyColor }}
+          className={`${look.text} inline-flex items-center gap-0.5 rounded px-1 hover:bg-white/10${look.hit}`}
+          style={{ color: lineColor }}
         >
           <TrendingUp aria-hidden className="h-3 w-3 shrink-0" />
           <span data-top-line>{cue.topNote.title}</span>
@@ -257,14 +296,14 @@ function ChangeBadges({
           aria-hidden
           data-top-line-continue
           className="h-3 w-3"
-          style={{ color: keyColor }}
+          style={{ color: lineColor }}
         />
       )}
       {cue.octaveNote && (
         <TheoryPopover
           notes={[cue.octaveNote]}
-          className={`${CUE_TEXT} rounded-full px-1.5 py-0.5 hover:bg-white/10`}
-          style={{ border: CUE_BORDER, color: 'var(--color-text, #e8e8f0)' }}
+          className={`${look.text} rounded-full px-1.5 py-0.5 hover:bg-white/10${look.hit}`}
+          style={{ border: look.border, color: look.ink }}
         >
           <span data-octave-return={cue.octaveNote.id}>
             {cue.octaveNote.title}
@@ -288,7 +327,10 @@ export const GuitarChordStrip = memo(function GuitarChordStrip({
   map,
   showSharedNotes,
   showRomanNumerals,
+  variant = 'default',
+  size = 'sm',
 }: GuitarChordStripProps) {
+  const lesson = variant === 'lesson';
   const listRef = useRef<HTMLOListElement>(null);
   const sharedSetting = useGuitarDisplaySettings((s) => s.showSharedNotes);
   const romanSetting = useGuitarDisplaySettings((s) => s.showRomanNumerals);
@@ -329,7 +371,17 @@ export const GuitarChordStrip = memo(function GuitarChordStrip({
     <ol
       ref={listRef}
       aria-label="Chords"
-      className="relative flex h-full max-w-full items-start gap-2 overflow-x-auto overflow-y-hidden motion-safe:scroll-smooth [scrollbar-width:none]"
+      data-variant={lesson ? 'lesson' : undefined}
+      className={
+        lesson
+          ? // The edges fade where boxes scroll past them; the padding keeps
+            // the first and last box clear of the fade. The boxes sit centred
+            // in the lesson's tall area — safely: in an area shorter than
+            // they are (a short window while practising), they keep their
+            // names in view and lose the bottom row instead of both ends.
+            'relative flex h-full max-w-full snap-x gap-3 overflow-x-auto overflow-y-hidden px-4 [align-items:safe_center] [mask-image:linear-gradient(to_right,transparent,#000_16px,#000_calc(100%-16px),transparent)] motion-safe:scroll-smooth [scrollbar-width:none]'
+          : 'relative flex h-full max-w-full items-start gap-2 overflow-x-auto overflow-y-hidden motion-safe:scroll-smooth [scrollbar-width:none]'
+      }
     >
       {chords.map((chord, i) => {
         const isCurrent = i === currentIndex;
@@ -339,7 +391,11 @@ export const GuitarChordStrip = memo(function GuitarChordStrip({
             key={`${i}-${chord.shapeId}`}
             data-chord-index={i}
             aria-current={isCurrent ? 'step' : undefined}
-            className="flex shrink-0 items-center gap-2"
+            className={
+              lesson
+                ? 'flex shrink-0 snap-center items-center gap-3'
+                : 'flex shrink-0 items-center gap-2'
+            }
           >
             <ChordBox
               shape={chord.shape}
@@ -351,7 +407,8 @@ export const GuitarChordStrip = memo(function GuitarChordStrip({
               }
               rootPc={chord.rootPc}
               keyColor={keyColor}
-              size="sm"
+              size={size}
+              {...(lesson ? { variant: 'lesson' as const } : {})}
               state={isCurrent ? (heard ? 'heard' : 'current') : 'idle'}
               mirrored={mirrored}
               diagnostics={isCurrent ? diagnostics : undefined}
@@ -362,6 +419,7 @@ export const GuitarChordStrip = memo(function GuitarChordStrip({
                 cue={cue}
                 showShared={showShared}
                 keyColor={keyColor}
+                variant={variant}
               />
             )}
           </li>

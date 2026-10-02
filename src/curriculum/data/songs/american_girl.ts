@@ -4,7 +4,7 @@ export const american_girl: Song = {
   id: 'american_girl',
   title: 'American Girl',
   artist: 'Tom Petty',
-  year: undefined,
+  year: 1976,
 
   historicalDescription:
     "Tom Petty and the Heartbreakers release 'American Girl', a jangly, Byrds-influenced rocker that announces the arrival of a new voice in American rock. Built on chiming guitars and an irresistible hook, the song captures a restless, highway-bound longing that resonates deeply with a generation. It becomes one of rock's most enduring anthems and a cornerstone of Petty's legacy.",
@@ -17,6 +17,20 @@ export const american_girl: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'the-shelter-studio' },
+  credits: [
+    { name: 'Tom Petty', role: 'songwriter', artistGlobeId: 'tom-petty' },
+    { name: 'Denny Cordell', role: 'producer', artistGlobeId: 'denny-cordell' },
+    { name: 'Ron Blair', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Max Reese', role: 'engineer' },
+    { name: 'Noah Shark', role: 'engineer' },
+  ],
+  releases: [
+    {
+      releaseId:
+        'tom-petty-and-the-heartbreakers-tom-petty-and-the-heartbreakers',
+    },
+  ],
 
   sections: [
     {

@@ -91,29 +91,61 @@ const Group: FC<{ heading: string; children: React.ReactNode }> = ({
   </div>
 );
 
-/** One credit's pill: the name, with what they did as its tooltip. */
-const CreditPill: FC<{ credit: Credit }> = ({ credit }) => {
+/** What a credit says they did: the instrument, else the role. */
+const didOf = (credit: Credit): string => {
   const instrument = credit.instrument
     ? getInstrument(credit.instrument)
     : undefined;
-  const did = instrument
+  return instrument
     ? instrument.name
     : (ROLE_LABEL[credit.role] ?? credit.role);
+};
+
+/**
+ * One person's credits within a row, in the order they first appear: a
+ * player on three instruments, or an engineer who also produced, is one
+ * pill whose tooltip lists everything they did.
+ */
+const byPerson = (credits: readonly Credit[]): Credit[][] => {
+  const people = new Map<string, Credit[]>();
+  for (const credit of credits) {
+    const held = people.get(credit.name);
+    if (held) held.push(credit);
+    else people.set(credit.name, [credit]);
+  }
+  return [...people.values()];
+};
+
+/** One person's pill: the name, with what they did as its tooltip. */
+const CreditPill: FC<{ credits: readonly Credit[] }> = ({ credits }) => {
+  const [credit] = credits;
+  const did = [...new Set(credits.map(didOf))].join(', ');
+  const unverified = credits.every((c) => c.unverified);
   return (
     <Pill
       label={credit.name}
       href={
-        LINKABLE_ROLES.has(credit.role) ? atlas.artist(credit.name) : undefined
+        credits.some((c) => LINKABLE_ROLES.has(c.role))
+          ? atlas.artist(credit.name)
+          : undefined
       }
-      muted={credit.unverified}
-      title={credit.unverified ? `${did} — unconfirmed` : did}
+      muted={unverified}
+      title={unverified ? `${did} — unconfirmed` : did}
     />
   );
 };
 
 export const SongCredits: FC<{ song: Song }> = ({ song }) => {
   const { credits = [], session, relatedRecordings = [] } = song;
-  if (!credits.length && !session && !relatedRecordings.length) return null;
+  // The session as a student sees it: its text and year. Its ids and source
+  // (song v2) are the console's, and a session holding only those shows no
+  // "Recorded" at all rather than an empty one.
+  const recorded =
+    session &&
+    (session.studio || session.city || session.label || session.recordedYear)
+      ? session
+      : undefined;
+  if (!credits.length && !recorded && !relatedRecordings.length) return null;
 
   const byRole = (...roles: string[]) =>
     credits.filter((c) => roles.includes(c.role));
@@ -143,18 +175,15 @@ export const SongCredits: FC<{ song: Song }> = ({ song }) => {
       {billed.length > 0 && (
         <Group heading="Artists">
           {billed.map((c) => (
-            <CreditPill key={`primary-${c.name}`} credit={c} />
+            <CreditPill key={`primary-${c.name}`} credits={[c]} />
           ))}
         </Group>
       )}
 
       {players.length > 0 && (
         <Group heading="Sidemen">
-          {players.map((c, i) => (
-            <CreditPill
-              key={`${c.name}-${c.instrument ?? c.role}-${i}`}
-              credit={c}
-            />
+          {byPerson(players).map((held) => (
+            <CreditPill key={`${held[0].name}-p`} credits={held} />
           ))}
         </Group>
       )}
@@ -169,32 +198,34 @@ export const SongCredits: FC<{ song: Song }> = ({ song }) => {
 
       {writers.length > 0 && (
         <Group heading="Written by">
-          {writers.map((c, i) => (
-            <CreditPill key={`${c.name}-w-${i}`} credit={c} />
+          {byPerson(writers).map((held) => (
+            <CreditPill key={`${held[0].name}-w`} credits={held} />
           ))}
         </Group>
       )}
 
       {desk.length > 0 && (
         <Group heading="Studio">
-          {desk.map((c, i) => (
-            <CreditPill key={`${c.name}-d-${i}`} credit={c} />
+          {byPerson(desk).map((held) => (
+            <CreditPill key={`${held[0].name}-d`} credits={held} />
           ))}
         </Group>
       )}
 
-      {session && (
+      {recorded && (
         <Group heading="Recorded">
-          {session.studio && <Pill label={session.studio} />}
-          {session.city && (
-            <Pill label={session.city} href={atlas.place(session.city)} />
+          {recorded.studio && <Pill label={recorded.studio} />}
+          {recorded.city && (
+            <Pill label={recorded.city} href={atlas.place(recorded.city)} />
           )}
-          {session.label && <Pill label={session.label} title="Label" />}
-          {session.recordedYear && (
+          {recorded.label && <Pill label={recorded.label} title="Label" />}
+          {recorded.recordedYear && (
             <Pill
-              label={String(session.recordedYear)}
-              href={atlas.era(`${Math.floor(session.recordedYear / 10) * 10}s`)}
-              title={`Recorded ${session.recordedYear}`}
+              label={String(recorded.recordedYear)}
+              href={atlas.era(
+                `${Math.floor(recorded.recordedYear / 10) * 10}s`,
+              )}
+              title={`Recorded ${recorded.recordedYear}`}
             />
           )}
         </Group>

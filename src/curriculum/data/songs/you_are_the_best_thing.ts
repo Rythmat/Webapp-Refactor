@@ -16,6 +16,14 @@ export const you_are_the_best_thing: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Ray LaMontagne',
+      role: 'songwriter',
+      artistGlobeId: 'ray-lamontagne',
+    },
+  ],
+  releases: [{ releaseId: 'ray-lamontagne-gossip-in-the-grain', track: 1 }],
 
   sections: [
     {

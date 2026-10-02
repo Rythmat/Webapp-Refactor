@@ -102,8 +102,8 @@
   --tab-accent-dim: rgba(52, 211, 153, 0.12);
 }
 .dashboard-root[data-tab='studio'] {
-  --tab-accent: #ffcc33;
-  --tab-accent-dim: rgba(255, 204, 51, 0.12);
+  --tab-accent: #e8e8f0;
+  --tab-accent-dim: rgba(232, 232, 240, 0.08);
 }
 .dashboard-root[data-tab='globe'] {
   --tab-accent: #60a5fa;

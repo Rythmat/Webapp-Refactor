@@ -16,6 +16,31 @@ export const young_americans: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Ava Cherry', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Willie Weeks', role: 'performer' },
+    { name: 'Tony Visconti', role: 'engineer', artistGlobeId: 'tony-visconti' },
+    { name: 'David Sanborn', role: 'performer' },
+    { name: 'Andy Newmark', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Robin Clark', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'David Bowie',
+      role: 'vocals',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'Pablo Rosario', role: 'performer', instrument: 'percussion' },
+    { name: 'Larry Washington', role: 'performer', instrument: 'congas' },
+    { name: 'Tony Visconti', role: 'producer', artistGlobeId: 'tony-visconti' },
+    { name: 'Mike Garson', role: 'performer', instrument: 'piano' },
+    { name: 'David Bowie', role: 'songwriter', artistGlobeId: 'david-bowie' },
+    {
+      name: 'Luther Vandross',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+  ],
+  releases: [{ releaseId: 'david-bowie-young-americans' }],
 
   sections: [
     {

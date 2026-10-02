@@ -1,0 +1,1081 @@
+{
+  "artifactsVersion": 1,
+  "description": "MusicBrainz and Wikidata suggestions for the console Table, written by src/scripts/enrichment/importSuggestions.ts (emit). Rows are suggestions, never edits: the owner accepts them one at a time, or in bulk (sure tier only, once calibrated).",
+  "batch": "mb-2026-09-30",
+  "generatedAt": "2026-09-30T17:01:16.605Z",
+  "files": [
+    {
+      "file": "artists.json",
+      "sha256": "588418e0d60c21f8faa39ba0ca657a060a0d5c5bc63e34f790a945180bc624d5",
+      "bytes": 3123372,
+      "what": "Suggestion rows for artists (identity, Born, City, Years Active, Genres, Instruments), one per line."
+    },
+    {
+      "file": "places.json",
+      "sha256": "35ebaf48d2b6a12d063095d8408eef4731e4abd74daff1ad98c16b9c79d923df",
+      "bytes": 159955,
+      "what": "pin:false places the artist rows need created first, with the rows that need each."
+    },
+    {
+      "file": "songs.json",
+      "sha256": "d4203062d3324ae9aeafd511298e1e88d506dd8e6ed165f5b106905cdfa3528a",
+      "bytes": 7177745,
+      "what": "Suggestion rows for songs (Album, Studio, Credits, Year) and for the releases they create (Label), one per line."
+    },
+    {
+      "file": "matches.json",
+      "sha256": "8c34004be0704fac6203418b4d16cd34c8ae59b8e63e0d14e8fbef7658c21f1e",
+      "bytes": 315775,
+      "what": "Every library song and the MusicBrainz recording, work and album it was matched to, or why not."
+    },
+    {
+      "file": "releases.json",
+      "sha256": "fef308bf700b747037130691e2f7f40052540e59b21aff85351c2b00a66a1b16",
+      "bytes": 190896,
+      "what": "Release records the Album rows need made, with the rows that need each."
+    },
+    {
+      "file": "labels.json",
+      "sha256": "da77b7e0e1172f831617bc7e71bc6223922fff610d14d9863a849e5b8edbf583",
+      "bytes": 53868,
+      "what": "Label records the Label rows need made, with the rows that need each."
+    },
+    {
+      "file": "studios.json",
+      "sha256": "37c73c7989f2600f44a1ce57987fd921d02ced7b292ee4f3401842a721f9c323",
+      "bytes": 70122,
+      "what": "Studio records the Studio rows need made, with the rows that need each."
+    },
+    {
+      "file": "artists-created.json",
+      "sha256": "fc6a974033b81bd5b6b7eea5217ac005ae821d03ff503946e593151ab4a40689",
+      "bytes": 333505,
+      "what": "Artist records the credits need made (C30: billed, members, songwriters, producers), created unverified with their MBID."
+    },
+    {
+      "file": "record-places.json",
+      "sha256": "5779f67ce539113576763752cf3492de5548824719a9335bc36a7db2162e69e3",
+      "bytes": 21483,
+      "what": "pin:false towns the labels and studios need made, beyond our cities and the artist half’s places."
+    },
+    {
+      "file": "record-slugs.json",
+      "sha256": "73a92bdaebd89f554697afaddce7b0d2307a8d26c35ccd4ee76c66a5b7922239",
+      "bytes": 122679,
+      "what": "The slug each release, label, studio and person was given, by MusicBrainz id: read by emit and only added to."
+    }
+  ],
+  "counts": {
+    "suggestions": 5877,
+    "byTier": {
+      "sure": 3023,
+      "likely": 2820,
+      "ambiguous": 34
+    },
+    "byField": {
+      "activeFrom": {
+        "sure": 310,
+        "likely": 372,
+        "ambiguous": 0
+      },
+      "activeTo": {
+        "sure": 79,
+        "likely": 91,
+        "ambiguous": 0
+      },
+      "basedInPlaceId": {
+        "sure": 113,
+        "likely": 167,
+        "ambiguous": 0
+      },
+      "born.date": {
+        "sure": 311,
+        "likely": 416,
+        "ambiguous": 0
+      },
+      "externalIds.mbid": {
+        "sure": 354,
+        "likely": 294,
+        "ambiguous": 34
+      },
+      "externalIds.wikidata": {
+        "sure": 353,
+        "likely": 296,
+        "ambiguous": 0
+      },
+      "genreIds[]": {
+        "sure": 799,
+        "likely": 553,
+        "ambiguous": 0
+      },
+      "group": {
+        "sure": 142,
+        "likely": 99,
+        "ambiguous": 0
+      },
+      "instrumentIds[]": {
+        "sure": 369,
+        "likely": 283,
+        "ambiguous": 0
+      },
+      "born.placeId": {
+        "sure": 193,
+        "likely": 249,
+        "ambiguous": 0
+      }
+    },
+    "identity": {
+      "sure": 354,
+      "likely": 294,
+      "ambiguous": 34,
+      "weak": 166,
+      "none": 35,
+      "pending": 0
+    },
+    "artistsWithFields": 648,
+    "placesToCreate": 309,
+    "placesMapped": 359,
+    "registryArtists": 883
+  },
+  "unmapped": {
+    "genres": [
+      [
+        "East Coast hip-hop",
+        14
+      ],
+      [
+        "hardcore hip-hop",
+        11
+      ],
+      [
+        "world music",
+        10
+      ],
+      [
+        "doo-wop",
+        7
+      ],
+      [
+        "gangsta rap",
+        7
+      ],
+      [
+        "traditional folk music",
+        7
+      ],
+      [
+        "music of Latin America",
+        5
+      ],
+      [
+        "alternative country",
+        4
+      ],
+      [
+        "American folk music",
+        3
+      ],
+      [
+        "electro",
+        3
+      ],
+      [
+        "experimental rock",
+        3
+      ],
+      [
+        "mafioso rap",
+        3
+      ],
+      [
+        "music of Africa",
+        3
+      ],
+      [
+        "progressive rap",
+        3
+      ],
+      [
+        "progressive soul",
+        3
+      ],
+      [
+        "trip hop",
+        3
+      ],
+      [
+        "African popular music",
+        2
+      ],
+      [
+        "baroque pop",
+        2
+      ],
+      [
+        "beat music",
+        2
+      ],
+      [
+        "Celtic rock",
+        2
+      ],
+      [
+        "church music",
+        2
+      ],
+      [
+        "concerto",
+        2
+      ],
+      [
+        "conscious hip-hop",
+        2
+      ],
+      [
+        "dance-rock",
+        2
+      ],
+      [
+        "dirty rap",
+        2
+      ]
+    ],
+    "instruments": [
+      [
+        "guitar",
+        208
+      ],
+      [
+        "keyboard instrument",
+        28
+      ],
+      [
+        "saxophone",
+        27
+      ],
+      [
+        "keyboard",
+        15
+      ],
+      [
+        "musical keyboard",
+        13
+      ],
+      [
+        "bass",
+        10
+      ],
+      [
+        "bandoneón",
+        7
+      ],
+      [
+        "bass instrument",
+        7
+      ],
+      [
+        "tenor vocals",
+        5
+      ],
+      [
+        "upright piano",
+        5
+      ],
+      [
+        "cornet",
+        4
+      ],
+      [
+        "electronic keyboard",
+        4
+      ],
+      [
+        "flugelhorn",
+        4
+      ],
+      [
+        "melodica",
+        3
+      ],
+      [
+        "oboe",
+        3
+      ],
+      [
+        "other vocals",
+        3
+      ],
+      [
+        "percussion guitare",
+        3
+      ],
+      [
+        "autoharp",
+        2
+      ],
+      [
+        "charango",
+        2
+      ],
+      [
+        "drum",
+        2
+      ],
+      [
+        "piano accordion",
+        2
+      ],
+      [
+        "recorder",
+        2
+      ],
+      [
+        "12-string guitar",
+        1
+      ],
+      [
+        "Ableton Live",
+        1
+      ],
+      [
+        "acoustic bass guitar",
+        1
+      ]
+    ],
+    "places": [
+      [
+        "New Jersey: a county or region, not a city",
+        2
+      ],
+      [
+        "Washington: a county or region, not a city",
+        2
+      ],
+      [
+        "Wisconsin: a county or region, not a city",
+        2
+      ],
+      [
+        "California: a county or region, not a city",
+        1
+      ],
+      [
+        "Chase Farm Hospital: a building or a street, not a birthplace",
+        1
+      ],
+      [
+        "Clay County: a county or region, not a birthplace",
+        1
+      ],
+      [
+        "Jamaica: a country, not a birthplace",
+        1
+      ],
+      [
+        "Kentucky: a county or region, not a city",
+        1
+      ],
+      [
+        "Lenox Hill Hospital: a building or a street, not a birthplace",
+        1
+      ],
+      [
+        "Liverpool Maternity Hospital: a building or a street, not a birthplace",
+        1
+      ],
+      [
+        "Locust Ridge: not one of our places, and no coordinates to create it at",
+        1
+      ],
+      [
+        "Louisiana: a county or region, not a birthplace",
+        1
+      ],
+      [
+        "Louisiana: a county or region, not a city",
+        1
+      ],
+      [
+        "Ohio: a county or region, not a city",
+        1
+      ],
+      [
+        "Putney Hospital: a building or a street, not a birthplace",
+        1
+      ],
+      [
+        "Reading Hospital: a building or a street, not a birthplace",
+        1
+      ],
+      [
+        "Royal Halifax Infirmary: a building or a street, not a birthplace",
+        1
+      ],
+      [
+        "Saint Andrew Parish: a county or region, not a birthplace",
+        1
+      ],
+      [
+        "Saint Elizabeth Parish: a county or region, not a birthplace",
+        1
+      ],
+      [
+        "Saint James Parish: a county or region, not a birthplace",
+        1
+      ],
+      [
+        "Saint Mary Parish: a county or region, not a birthplace",
+        1
+      ],
+      [
+        "Saint Michael: a county or region, not a birthplace",
+        1
+      ],
+      [
+        "San Francisco Bay Area: a county or region, not a city",
+        1
+      ],
+      [
+        "Shewa: a county or region, not a birthplace",
+        1
+      ],
+      [
+        "St. Mary's Mercy Hospital: a building or a street, not a birthplace",
+        1
+      ]
+    ],
+    "residences": [
+      [
+        "Los Angeles",
+        13
+      ],
+      [
+        "New York City",
+        9
+      ],
+      [
+        "Beverly Hills",
+        4
+      ],
+      [
+        "London",
+        4
+      ],
+      [
+        "Bel Air",
+        3
+      ],
+      [
+        "Miami",
+        3
+      ],
+      [
+        "Nashville",
+        3
+      ],
+      [
+        "Atlanta",
+        2
+      ],
+      [
+        "Brooklyn",
+        2
+      ],
+      [
+        "Las Vegas",
+        2
+      ],
+      [
+        "Malibu",
+        2
+      ],
+      [
+        "New Orleans",
+        2
+      ],
+      [
+        "Pittsburgh",
+        2
+      ],
+      [
+        "Toronto",
+        2
+      ],
+      [
+        "Albuquerque",
+        1
+      ],
+      [
+        "Aspen",
+        1
+      ],
+      [
+        "Baltimore",
+        1
+      ],
+      [
+        "Berlin",
+        1
+      ],
+      [
+        "Billstown",
+        1
+      ],
+      [
+        "Bow",
+        1
+      ],
+      [
+        "Box",
+        1
+      ],
+      [
+        "Branson",
+        1
+      ],
+      [
+        "Bray",
+        1
+      ],
+      [
+        "Chanhassen",
+        1
+      ],
+      [
+        "Chicago",
+        1
+      ]
+    ]
+  },
+  "sharedPicks": [],
+  "cache": {
+    "digest": "eb058f418a37f4a230f90b63b01386fef58aebc91673d9c3a8b4209a7d1a2d32",
+    "responses": 6602,
+    "byHost": {
+      "musicbrainz.org": 6526,
+      "query.wikidata.org": 8,
+      "www.wikidata.org": 68
+    }
+  },
+  "inputs": {
+    "_mb_cache.json": {
+      "sha256": "7d19ba73e92ef6b8527c14e5e6f367531d1d532d761a9fe651ab4f8ed3be2771",
+      "bytes": 197315125
+    },
+    "_year_audit.json": {
+      "sha256": "0faf97b62712beca7bb917d58ce0ce4f048c944815f53c76575de709721f85ab",
+      "bytes": 170808
+    },
+    "_year_misses.json": {
+      "sha256": "801b2abd5c9f0a70c95715c865f17f17b15466f3514d643150b96ac80c840004",
+      "bytes": 11963
+    }
+  },
+  "stageFingerprint": "3cfd71555e4eb4837f9e9febd5daa4fd82e575d7f76b9acd7bb0ecb2bdfb626c",
+  "scoring": {
+    "weights": {
+      "name": 0.35,
+      "alias": 0.25,
+      "song": 0.4,
+      "weakSong": 0.2,
+      "releaseTitle": 0.25,
+      "area": 0.1,
+      "lifeSpan": 0.1,
+      "genre": 0.05
+    },
+    "sure": 0.85,
+    "likely": 0.6,
+    "ambiguousWithin": 0.15
+  },
+  "calibrated": false,
+  "measuredPrecision": null,
+  "songs": {
+    "batch": "mb-songs-2026-09-30",
+    "description": "MusicBrainz suggestions for songs and the records they need, written by importSuggestions.ts (emit). Every song row rests on its lead act’s identity row (dependsOn) and a Label row on its release’s Album row.",
+    "counts": {
+      "songs": 638,
+      "matches": {
+        "matched": 580,
+        "ambiguous": 35,
+        "none": 18,
+        "pending": 0,
+        "skipped": 5,
+        "error": 0
+      },
+      "matchTiers": {
+        "sure": 495,
+        "likely": 85
+      },
+      "suggestions": 7783,
+      "byTier": {
+        "sure": 5571,
+        "likely": 2212,
+        "ambiguous": 0
+      },
+      "byField": {
+        "credits[] arranger": {
+          "sure": 184,
+          "likely": 32,
+          "ambiguous": 0
+        },
+        "credits[] conductor": {
+          "sure": 16,
+          "likely": 6,
+          "ambiguous": 0
+        },
+        "credits[] engineer": {
+          "sure": 688,
+          "likely": 98,
+          "ambiguous": 0
+        },
+        "credits[] performer": {
+          "sure": 1815,
+          "likely": 1113,
+          "ambiguous": 0
+        },
+        "credits[] producer": {
+          "sure": 579,
+          "likely": 148,
+          "ambiguous": 0
+        },
+        "credits[] songwriter": {
+          "sure": 983,
+          "likely": 315,
+          "ambiguous": 0
+        },
+        "credits[] vocals": {
+          "sure": 335,
+          "likely": 89,
+          "ambiguous": 0
+        },
+        "labelId": {
+          "sure": 316,
+          "likely": 130,
+          "ambiguous": 0
+        },
+        "releases[]": {
+          "sure": 467,
+          "likely": 60,
+          "ambiguous": 0
+        },
+        "session.studioId": {
+          "sure": 173,
+          "likely": 207,
+          "ambiguous": 0
+        },
+        "year": {
+          "sure": 15,
+          "likely": 14,
+          "ambiguous": 0
+        }
+      },
+      "records": {
+        "releases": 413,
+        "labels": 177,
+        "studios": 208,
+        "artists": 1025,
+        "places": 38
+      },
+      "existing": {
+        "labels": 4,
+        "studios": 2
+      },
+      "creditLinks": {
+        "ours": 1315,
+        "created": 2800,
+        "nameOnly": 2286
+      },
+      "songsWithSuggestions": 574
+    },
+    "unmapped": {
+      "roles": [
+        [
+          "recording: engineer (assistant)",
+          201
+        ],
+        [
+          "recording: programming",
+          102
+        ],
+        [
+          "release: instrument",
+          100
+        ],
+        [
+          "recording: mix (assistant)",
+          65
+        ],
+        [
+          "release: vocal",
+          35
+        ],
+        [
+          "recording: producer (executive)",
+          34
+        ],
+        [
+          "recording: recording (assistant)",
+          34
+        ],
+        [
+          "recording: phonographic copyright",
+          15
+        ],
+        [
+          "recording: producer (associate)",
+          15
+        ],
+        [
+          "recording: remixer",
+          14
+        ],
+        [
+          "release: engineer",
+          14
+        ],
+        [
+          "recording: editor",
+          12
+        ],
+        [
+          "release: mastering",
+          12
+        ],
+        [
+          "release: photography",
+          10
+        ],
+        [
+          "release: producer (executive)",
+          7
+        ],
+        [
+          "recording: misc",
+          6
+        ],
+        [
+          "release: design",
+          6
+        ],
+        [
+          "recording: producer (assistant)",
+          4
+        ],
+        [
+          "recording: sound effects",
+          4
+        ],
+        [
+          "release: art direction",
+          4
+        ],
+        [
+          "release: instrument arranger",
+          4
+        ],
+        [
+          "release: misc",
+          4
+        ],
+        [
+          "recording: instrument technician",
+          3
+        ],
+        [
+          "release: arranger",
+          3
+        ],
+        [
+          "release: design/illustration",
+          3
+        ]
+      ],
+      "instruments": [
+        [
+          "guitar",
+          305
+        ],
+        [
+          "keyboard",
+          164
+        ],
+        [
+          "bass",
+          97
+        ],
+        [
+          "saxophone",
+          36
+        ],
+        [
+          "flugelhorn",
+          9
+        ],
+        [
+          "membranophone",
+          9
+        ],
+        [
+          "mellotron",
+          8
+        ],
+        [
+          "other instruments",
+          7
+        ],
+        [
+          "electronic drum set",
+          6
+        ],
+        [
+          "maracas",
+          6
+        ],
+        [
+          "effects",
+          4
+        ],
+        [
+          "shakers",
+          4
+        ],
+        [
+          "talkbox",
+          4
+        ],
+        [
+          "woodwind",
+          4
+        ],
+        [
+          "glockenspiel",
+          3
+        ],
+        [
+          "guitar family",
+          3
+        ],
+        [
+          "guitar synthesizer",
+          3
+        ],
+        [
+          "tape",
+          3
+        ],
+        [
+          "claves",
+          2
+        ],
+        [
+          "cymbal",
+          2
+        ],
+        [
+          "synclavier",
+          2
+        ],
+        [
+          "tack piano",
+          2
+        ],
+        [
+          "tin whistle",
+          2
+        ],
+        [
+          "tubular bells",
+          2
+        ],
+        [
+          "autoharp",
+          1
+        ]
+      ],
+      "places": [
+        [
+          "United States: a country, not a town",
+          111
+        ],
+        [
+          "United Kingdom: a country, not a town",
+          31
+        ],
+        [
+          "no area",
+          11
+        ],
+        [
+          "Notting Hill: a district, not a town",
+          2
+        ],
+        [
+          "Soho: a district, not a town",
+          2
+        ],
+        [
+          "Sweden: a country, not a town",
+          2
+        ],
+        [
+          "[Worldwide]: a country, not a town",
+          1
+        ],
+        [
+          "Australia: a country, not a town",
+          1
+        ],
+        [
+          "Bermondsey: a district, not a town",
+          1
+        ],
+        [
+          "Canada: a country, not a town",
+          1
+        ],
+        [
+          "Canoga Park: a district, not a town",
+          1
+        ],
+        [
+          "Fitzrovia: a district, not a town",
+          1
+        ],
+        [
+          "Florida: a subdivision, not a town",
+          1
+        ],
+        [
+          "France: a country, not a town",
+          1
+        ],
+        [
+          "Germany: a country, not a town",
+          1
+        ],
+        [
+          "Hackney: a subdivision, not a town",
+          1
+        ],
+        [
+          "Hammersmith: a district, not a town",
+          1
+        ],
+        [
+          "Jamaica: a country, not a town",
+          1
+        ],
+        [
+          "Japan: a country, not a town",
+          1
+        ],
+        [
+          "Lincolnshire: a subdivision, not a town",
+          1
+        ],
+        [
+          "Milton Keynes: a subdivision, not a town",
+          1
+        ],
+        [
+          "Netherlands: a country, not a town",
+          1
+        ],
+        [
+          "New Jersey: a subdivision, not a town",
+          1
+        ],
+        [
+          "New York: a subdivision, not a town",
+          1
+        ],
+        [
+          "New Zealand: a country, not a town",
+          1
+        ]
+      ],
+      "namesakes": [
+        [
+          "George Harrison → george-harrison?",
+          48
+        ],
+        [
+          "Ringo Starr → ringo-starr?",
+          34
+        ],
+        [
+          "George Martin → george-martin?",
+          23
+        ],
+        [
+          "Quincy Jones → quincy-jones?",
+          10
+        ],
+        [
+          "David Paich → david-paich?",
+          6
+        ],
+        [
+          "Jeff Porcaro → jeff-porcaro?",
+          4
+        ],
+        [
+          "Steve Lukather → steve-lukather?",
+          4
+        ],
+        [
+          "Steve Porcaro → steve-porcaro?",
+          4
+        ],
+        [
+          "Carlos Santana → carlos-santana?",
+          3
+        ],
+        [
+          "Karen Carpenter → karen-carpenter?",
+          3
+        ],
+        [
+          "Bobby Kimball → bobby-kimball?",
+          2
+        ],
+        [
+          "David Hungate → david-hungate?",
+          2
+        ],
+        [
+          "Ike Turner → ike-turner?",
+          2
+        ],
+        [
+          "Tammi Terrell → tammi-terrell?",
+          2
+        ],
+        [
+          "Valerie Simpson → valerie-simpson?",
+          2
+        ],
+        [
+          "Michael McDonald → michael-mcdonald?",
+          1
+        ],
+        [
+          "Nellee Hooper → nellee-hooper?",
+          1
+        ],
+        [
+          "Nickolas Ashford → nickolas-ashford?",
+          1
+        ]
+      ],
+      "years": [
+        "midnight_train_to_georgia",
+        "sweet_dreams",
+        "tears_of_a_clown",
+        "thank_you_falettinme_be_mice_elf_again"
+      ]
+    },
+    "requery": 54,
+    "calibrated": false
+  }
+}

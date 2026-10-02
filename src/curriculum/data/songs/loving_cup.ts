@@ -16,6 +16,22 @@ export const loving_cup: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Keith Richards',
+      role: 'songwriter',
+      artistGlobeId: 'keith-richards',
+    },
+    { name: 'Mick Jagger', role: 'songwriter', artistGlobeId: 'mick-jagger' },
+    {
+      name: 'Jimmy Miller',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'jimmy-miller',
+    },
+    { name: 'Jimmy Miller', role: 'producer', artistGlobeId: 'jimmy-miller' },
+  ],
+  releases: [{ releaseId: 'the-rolling-stones-exile-on-main-st' }],
 
   sections: [
     {

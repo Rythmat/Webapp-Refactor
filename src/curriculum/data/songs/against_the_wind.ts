@@ -4,7 +4,7 @@ export const against_the_wind: Song = {
   id: 'against_the_wind',
   title: 'Against The Wind',
   artist: 'Bob Seger & The Silver Bullet Band',
-  year: undefined,
+  year: 1980,
 
   historicalDescription:
     "Bob Seger & The Silver Bullet Band release 'Against The Wind', a reflective anthem about the passage of time, freedom, and the cost of living life on the road. The song captures the worn wisdom of a working-class rock and roller — the kind of heartland voice Seger had been honing for over a decade. It becomes one of his signature recordings, resonating deeply with an audience who had grown up alongside him.",
@@ -17,6 +17,68 @@ export const against_the_wind: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'bayshore-recording-studios' },
+  credits: [
+    {
+      name: 'Bob Seger',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'bob-seger',
+    },
+    {
+      name: 'Glenn Frey',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'glenn-frey',
+    },
+    { name: 'Bill Szymczyk', role: 'engineer', artistGlobeId: 'bill-szymczyk' },
+    {
+      name: 'Drew Abbott',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'drew-abbott',
+    },
+    {
+      name: 'David Teegarden',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'david-teegarden',
+    },
+    { name: 'Bob Seger', role: 'vocals', artistGlobeId: 'bob-seger' },
+    { name: 'Bob Seger', role: 'performer', artistGlobeId: 'bob-seger' },
+    {
+      name: 'Chris Campbell',
+      role: 'performer',
+      artistGlobeId: 'chris-campbell',
+    },
+    { name: 'Alto Reed', role: 'performer', artistGlobeId: 'alto-reed' },
+    { name: 'Bob Seger', role: 'songwriter', artistGlobeId: 'bob-seger' },
+    {
+      name: 'Bob Seger',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'bob-seger',
+    },
+    { name: 'Drew Abbott', role: 'performer', artistGlobeId: 'drew-abbott' },
+    { name: 'Paul Harris', role: 'performer', instrument: 'organ' },
+    {
+      name: 'David Teegarden',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'david-teegarden',
+    },
+    {
+      name: 'Chris Campbell',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'chris-campbell',
+    },
+    { name: 'Paul Harris', role: 'performer', instrument: 'piano' },
+    { name: 'Bill Szymczyk', role: 'producer', artistGlobeId: 'bill-szymczyk' },
+  ],
+  releases: [
+    { releaseId: 'bob-seger-and-the-silver-bullet-band-against-the-wind' },
+  ],
 
   sections: [
     {

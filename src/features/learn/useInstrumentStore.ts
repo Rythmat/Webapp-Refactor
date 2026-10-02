@@ -3,10 +3,11 @@ import { persist } from 'zustand/middleware';
 import type { LessonInstrument } from '@/curriculum/types/activity.v2';
 
 // ── Learn instrument ───────────────────────────────────────────────────────
-// Which instrument Learn teaches on this device. It picks the Technique tiles
-// (piano or guitar) and the guitar views' handedness. Device-level, like the
-// saved-items and view preferences: a student may play guitar at school and
-// piano at home.
+// Which instrument Learn teaches on this device. On guitar, Theory →
+// Ionian (Major) opens The Guitar Atlas's key centers, the other Theory tiles
+// read "Coming soon for guitar" and the Technique tab is hidden; it also sets
+// the guitar views' handedness. Device-level, like the saved-items and view
+// preferences: a student may play guitar at school and piano at home.
 
 export type LearnInstrument = LessonInstrument;
 

@@ -4,7 +4,7 @@ export const bare_necessities: Song = {
   id: 'bare_necessities',
   title: 'Bare Necessities',
   artist: 'Jungle Book',
-  year: undefined,
+  year: 1967,
 
   historicalDescription:
     "'The Bare Necessities' is performed in Disney's animated film The Jungle Book, with voice actor Phil Harris bringing the lovable bear Baloo to life. Written by Terry Gilkyson, the shuffling, jazz-inflected number becomes one of Disney's most beloved songs — a carefree anthem about simple pleasures that earns an Academy Award nomination and outlives the film itself.",

@@ -4,7 +4,7 @@ export const you_make_my_dreams: Song = {
   id: 'you_make_my_dreams',
   title: 'You Make My Dreams',
   artist: 'Hall & Oates',
-  year: undefined,
+  year: 1980,
 
   historicalDescription:
     "Hall & Oates release 'You Make My Dreams', a buoyant burst of blue-eyed soul that captures the duo at their commercial peak. Its irresistible hooks and upbeat energy help cement Daryl Hall and John Oates as the best-selling duo in music history, bridging rock, pop, and R&B for a massive mainstream audience.",
@@ -17,6 +17,18 @@ export const you_make_my_dreams: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Daryl Hall', role: 'producer', artistGlobeId: 'daryl-hall' },
+    { name: 'Daryl Hall', role: 'vocals', artistGlobeId: 'daryl-hall' },
+    { name: 'John Oates', role: 'producer', artistGlobeId: 'john-oates' },
+    { name: 'Sara Allen', role: 'songwriter', artistGlobeId: 'sara-allen' },
+    { name: 'Daryl Hall', role: 'songwriter', artistGlobeId: 'daryl-hall' },
+    { name: 'John Oates', role: 'vocals', artistGlobeId: 'john-oates' },
+    { name: 'Daryl Hall', role: 'arranger', artistGlobeId: 'daryl-hall' },
+    { name: 'John Oates', role: 'arranger', artistGlobeId: 'john-oates' },
+    { name: 'John Oates', role: 'songwriter', artistGlobeId: 'john-oates' },
+  ],
+  releases: [{ releaseId: 'hall-and-oates-voices' }],
 
   sections: [
     {

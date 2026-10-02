@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { useState } from 'react';
-import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,13 +12,22 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { cn } from '@/components/utilities';
 import {
   useAdminQueryDelta,
   useAdminQueryStats,
   useCaptureQuerySnapshot,
   type QueryStatement,
 } from '@/hooks/data/admin/useAdminDatabase';
-import { toast } from '@/hooks/use-toast';
+import { ConsoleBadge } from '../ui/ConsoleBadge';
+import { ConsoleCallout } from '../ui/ConsoleCallout';
+import { ConsoleSectionTitle } from '../ui/ConsolePageHeader';
+import {
+  CONSOLE_LABEL,
+  CONSOLE_PANEL,
+  CONSOLE_TABLE_HEAD,
+  consoleTabClass,
+} from '../ui/styles';
 import { StatCard } from './components/StatCard';
 
 type View = 'live' | 'delta';
@@ -55,7 +64,7 @@ function cacheHitColor(pct: number | null): string {
 }
 
 const QueryCell = ({ query }: { query: string }) => (
-  <TableCell className="max-w-lg font-mono text-xs">
+  <TableCell className="max-w-lg text-xs">
     <span className="line-clamp-2 break-all" title={query}>
       {query}
     </span>
@@ -63,21 +72,17 @@ const QueryCell = ({ query }: { query: string }) => (
 );
 
 const NotInstalled = () => (
-  <Card className="border border-amber-500/30 bg-amber-500/5 p-6">
-    <h3 className="font-medium text-amber-300">
-      Query attribution is not installed on this database
-    </h3>
-    <p className="mt-2 text-sm text-muted-foreground">
-      The <code className="font-mono">diagnostics</code> schema is missing. This
-      is expected on a fresh Neon branch. Apply{' '}
-      <code className="font-mono">
-        src/scripts/sql/setup-query-attribution.sql
-      </code>{' '}
-      from the API repo — or run{' '}
-      <code className="font-mono">bun src/scripts/queryStats.ts setup</code> —
-      to enable it.
+  <ConsoleCallout
+    tone="warning"
+    title={<h3>Query attribution is not installed on this database</h3>}
+  >
+    <p>
+      The <code>diagnostics</code> schema is missing. This is expected on a
+      fresh Neon branch. Apply{' '}
+      <code>src/scripts/sql/setup-query-attribution.sql</code> from the API repo
+      — or run <code>bun src/scripts/queryStats.ts setup</code> — to enable it.
     </p>
-  </Card>
+  </ConsoleCallout>
 );
 
 const LiveTable = ({ statements }: { statements: QueryStatement[] }) => {
@@ -92,7 +97,7 @@ const LiveTable = ({ statements }: { statements: QueryStatement[] }) => {
 
   return (
     <Table>
-      <TableHeader>
+      <TableHeader className={CONSOLE_TABLE_HEAD}>
         <TableRow>
           <TableHead>Query</TableHead>
           <TableHead className="text-right">Calls</TableHead>
@@ -148,15 +153,12 @@ export const AdminDatabasePage = () => {
   const onCapture = () => {
     capture.mutate(undefined, {
       onSuccess: ({ captured }) => {
-        toast({
-          title: 'Snapshot captured',
+        toast.success('Snapshot captured', {
           description: `${captured} statement${captured === 1 ? '' : 's'} persisted. Capture another after a period of traffic to compare.`,
         });
       },
       onError: (err) => {
-        toast({
-          variant: 'destructive',
-          title: 'Could not capture snapshot',
+        toast.error('Could not capture snapshot', {
           description: err.message,
         });
       },
@@ -167,24 +169,20 @@ export const AdminDatabasePage = () => {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold">Database</h2>
-          <p className="text-sm text-muted-foreground">
+          <ConsoleSectionTitle>Database</ConsoleSectionTitle>
+          <p className="mt-1 text-sm text-muted-foreground">
             Query attribution from pg_stat_statements
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex rounded-md border border-white/10">
+          <div className="flex gap-1.5">
             {(['live', 'delta'] as const).map((option) => (
               <button
                 key={option}
                 type="button"
                 onClick={() => setView(option)}
-                className={`px-3 py-1.5 text-sm transition-colors ${
-                  view === option
-                    ? 'bg-white/10 text-white'
-                    : 'text-muted-foreground hover:text-white'
-                }`}
+                className={consoleTabClass(view === option)}
               >
                 {option === 'live' ? 'Live' : 'Since snapshot'}
               </button>
@@ -224,17 +222,17 @@ export const AdminDatabasePage = () => {
             />
           </div>
 
-          <Card className="border border-white/10 bg-white/5 p-4">
-            <h3 className="mb-4 text-sm font-medium text-muted-foreground">
+          <Card className={cn(CONSOLE_PANEL, 'p-4')}>
+            <h3 className={cn(CONSOLE_LABEL, 'mb-4')}>
               Hottest queries by total execution time
             </h3>
             <LiveTable statements={stats.data?.statements ?? []} />
           </Card>
         </>
       ) : (
-        <Card className="border border-white/10 bg-white/5 p-4">
+        <Card className={cn(CONSOLE_PANEL, 'p-4')}>
           <div className="mb-4">
-            <h3 className="text-sm font-medium text-muted-foreground">
+            <h3 className={CONSOLE_LABEL}>
               Change between the two most recent snapshots
             </h3>
             {delta.data?.windowStart && delta.data?.windowEnd && (
@@ -252,7 +250,7 @@ export const AdminDatabasePage = () => {
             </p>
           ) : (
             <Table>
-              <TableHeader>
+              <TableHeader className={CONSOLE_TABLE_HEAD}>
                 <TableRow>
                   <TableHead>Query</TableHead>
                   <TableHead className="text-right">Calls</TableHead>
@@ -276,13 +274,12 @@ export const AdminDatabasePage = () => {
                     </TableCell>
                     <TableCell>
                       {row.countersWereReset ? (
-                        <Badge
-                          variant="outline"
-                          className="border-amber-500/40 text-amber-300"
+                        <ConsoleBadge
+                          tone="warning"
                           title="No comparable baseline in the previous snapshot — the compute restarted, counters were reset, or this statement was first seen in this window. Treat the numbers as a lower bound."
                         >
                           partial
-                        </Badge>
+                        </ConsoleBadge>
                       ) : (
                         <span className="text-xs text-muted-foreground">
                           complete

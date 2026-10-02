@@ -3073,6 +3073,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b', 'neo-soul'],
     artist: 'Love on Top (Beyonce)',
     song: '',
+    songIds: ['love_on_top'],
   },
 
   {
@@ -3087,6 +3088,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b', 'neo-soul', 'blues'],
     artist: 'Love on Top (Beyonce)',
     song: '',
+    songIds: ['love_on_top'],
   },
 
   {
@@ -4328,6 +4330,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b'],
     artist: "Can't Stop the Feeling- JT",
     song: '',
+    songIds: ['cant_stop_the_feeling'],
   },
 
   {
@@ -5951,6 +5954,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b'],
     artist: '',
     song: "Ain't No Mountain",
+    songIds: ['aint_no_mountain_high_enough'],
   },
 
   {
@@ -6921,6 +6925,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     ],
     artist: '',
     song: 'Juice Lizzo',
+    songIds: ['juice'],
   },
 
   {
@@ -7027,6 +7032,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: ['jazz', 'r&b', 'neo-soul', 'latin'],
     artist: '',
     song: "Saturday in the Park (Chicago), Isn't She Lovely (Stevie Wonder), Daughters (John Mayer), Blackbird (Beatles)",
+    songIds: ['saturday_in_the_park', 'isnt_she_lovely', 'blackbird'],
   },
 
   {
@@ -9786,6 +9792,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: [],
     artist: '',
     song: 'Hey Ya! Outkast',
+    songIds: ['hey_ya'],
   },
 
   {
@@ -10290,6 +10297,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: [],
     artist: '',
     song: "Can't Stop the Feeling (Justin Timberlake)",
+    songIds: ['cant_stop_the_feeling'],
   },
 
   {
@@ -10382,6 +10390,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: [],
     artist: '',
     song: 'On and On (Erykah Badhu)',
+    songIds: ['on_on'],
   },
 
   {

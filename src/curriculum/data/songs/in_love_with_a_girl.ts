@@ -16,6 +16,10 @@ export const in_love_with_a_girl: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Gavin DeGraw', role: 'songwriter', artistGlobeId: 'gavin-degraw' },
+  ],
+  releases: [{ releaseId: 'gavin-degraw-gavin-degraw', track: 1 }],
 
   sections: [
     {

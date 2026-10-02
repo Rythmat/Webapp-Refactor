@@ -50,9 +50,7 @@ export const ConnectInlet: React.FC = () => {
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="flex flex-col gap-6 lg:col-span-2">
-            <h2 className="font-serif text-xl text-white">
-              Recommended for You
-            </h2>
+            <h2 className="text-xl text-white">Recommended for You</h2>
 
             {/* Genre filter pills */}
             <div className="flex flex-wrap gap-1.5">
@@ -107,7 +105,7 @@ export const ConnectInlet: React.FC = () => {
           {/* Online Now sidebar */}
           <div className="flex flex-col gap-6">
             <div className="rounded-3xl border border-white/5 bg-[#151515] p-6">
-              <h3 className="mb-4 font-serif text-lg text-white">Online Now</h3>
+              <h3 className="mb-4 text-lg text-white">Online Now</h3>
               <div className="flex flex-col gap-4">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="flex items-center gap-3">

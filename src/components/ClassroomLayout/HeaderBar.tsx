@@ -32,7 +32,7 @@ export const HeaderBar: FC<HeaderBarProps> = ({
             <ChevronLeft className="size-5" />
           </button>
         )}
-        <h1 className="text-2xl md:text-3xl font-serif text-gray-100 group-hover:text-white transition-colors">
+        <h1 className="text-2xl md:text-3xl text-gray-100 group-hover:text-white transition-colors">
           {title}
         </h1>
         {subtitle && (

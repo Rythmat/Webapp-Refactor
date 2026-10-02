@@ -4,7 +4,7 @@ export const how_come_you_dont_call_me: Song = {
   id: 'how_come_you_dont_call_me',
   title: 'How Come You Don’t Call Me',
   artist: 'Alicia Keys and Justin Timberlake',
-  year: undefined,
+  year: 2001,
 
   historicalDescription:
     "Originally written and recorded by Prince, 'How Come You Don't Call Me' becomes a showcase for Alicia Keys on her landmark debut 'Songs in A Minor' — her raw, gospel-drenched piano style transforming the song into a soul confession. The track underscores Keys' gift for channeling classic R&B feeling through a modern lens, honoring Prince's legacy while staking out her own voice.",
@@ -17,6 +17,24 @@ export const how_come_you_dont_call_me: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  session: { studioId: 'krucialkeys-studios' },
+  credits: [
+    {
+      name: 'Kerry Brothers',
+      role: 'engineer',
+      artistGlobeId: 'kerry-brothers',
+    },
+    {
+      name: 'Kerry Brothers',
+      role: 'producer',
+      artistGlobeId: 'kerry-brothers',
+    },
+    { name: 'Prince', role: 'songwriter', artistGlobeId: 'prince' },
+    { name: 'Alicia Keys', role: 'performer', artistGlobeId: 'alicia-keys' },
+    { name: 'Russell Elevado', role: 'engineer' },
+    { name: 'Alicia Keys', role: 'producer', artistGlobeId: 'alicia-keys' },
+  ],
+  releases: [{ releaseId: 'alicia-keys-songs-in-a-minor', track: 3 }],
 
   sections: [
     {

@@ -16,6 +16,19 @@ export const the_gambler: Song = {
   difficulty: 2,
   genreTags: ['folk', 'pop'],
   techniques: [],
+  session: { studioId: 'jack-clement-recording-studio' },
+  credits: [
+    {
+      name: 'Kenny Rogers',
+      role: 'vocals',
+      artistGlobeId: 'kenny-rogers',
+      primary: true,
+    },
+    { name: 'Billy Sherrill', role: 'engineer' },
+    { name: 'Don Schlitz', role: 'songwriter', artistGlobeId: 'don-schlitz' },
+    { name: 'Larry Butler', role: 'producer', artistGlobeId: 'larry-butler' },
+  ],
+  releases: [{ releaseId: 'kenny-rogers-the-gambler' }],
 
   sections: [
     {

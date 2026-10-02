@@ -16,6 +16,20 @@ export const cruise: Song = {
   difficulty: 2,
   genreTags: ['folk', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'Jesse Rice', role: 'songwriter', artistGlobeId: 'jesse-rice' },
+    {
+      name: 'Tyler Hubbard',
+      role: 'songwriter',
+      artistGlobeId: 'tyler-hubbard',
+    },
+    { name: 'Chase Rice', role: 'songwriter', artistGlobeId: 'chase-rice' },
+    { name: 'Brian Kelley', role: 'songwriter', artistGlobeId: 'brian-kelley' },
+    { name: 'Joey Moi', role: 'songwriter', artistGlobeId: 'joey-moi' },
+  ],
+  releases: [
+    { releaseId: 'florida-georgia-line-heres-to-the-good-times', track: 1 },
+  ],
 
   sections: [
     {

@@ -16,6 +16,68 @@ export const use_me: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  session: { studioId: 'the-record-plant-los-angeles' },
+  credits: [
+    {
+      name: 'James Gadson',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'james-gadson',
+    },
+    {
+      name: 'Melvin Dunlap',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'melvin-dunlap',
+    },
+    { name: 'Melvin Dunlap', role: 'producer', artistGlobeId: 'melvin-dunlap' },
+    { name: 'Bill Withers', role: 'producer', artistGlobeId: 'bill-withers' },
+    { name: 'Phil Schier', role: 'engineer' },
+    {
+      name: 'Bill Withers',
+      role: 'vocals',
+      artistGlobeId: 'bill-withers',
+      primary: true,
+    },
+    {
+      name: 'James Gadson',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'james-gadson',
+    },
+    { name: 'Bill Withers', role: 'songwriter', artistGlobeId: 'bill-withers' },
+    {
+      name: 'Raymond Jackson',
+      role: 'producer',
+      artistGlobeId: 'raymond-jackson',
+    },
+    { name: 'James Gadson', role: 'producer', artistGlobeId: 'james-gadson' },
+    {
+      name: 'Benorce Blackmon',
+      role: 'producer',
+      artistGlobeId: 'benorce-blackmon',
+    },
+    {
+      name: 'Raymond Jackson',
+      role: 'performer',
+      instrument: 'wurlitzer',
+      artistGlobeId: 'raymond-jackson',
+    },
+    { name: 'Bob Hughes', role: 'engineer' },
+    {
+      name: 'Benorce Blackmon',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'benorce-blackmon',
+    },
+    {
+      name: 'Raymond Jackson',
+      role: 'performer',
+      instrument: 'clavinet',
+      artistGlobeId: 'raymond-jackson',
+    },
+  ],
+  releases: [{ releaseId: 'bill-withers-still-bill' }],
 
   sections: [
     {

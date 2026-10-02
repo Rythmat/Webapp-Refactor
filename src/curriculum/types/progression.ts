@@ -1,47 +1,18 @@
 /**
  * Phase 2 — Chord progression types.
  *
- * Models the 589-entry Chord Progression Library with vibe/style filtering.
+ * Models the Chord Progression Library with vibe/style filtering.
  */
+
+import type { StyleTag, VibeTag } from '../engine/progressionRules';
 
 /**
- * 16 vibe tags used for progression filtering.
- * Each vibe has associated rules (required chords, forbidden chords, tempo, modes).
+ * The vibe and style vocabularies. The progression rules own them
+ * (`engine/progressionRules.ts`: `VIBE_TAGS`, `STYLE_TAGS`), next to the
+ * rules that suggest them and the reference data from Algorithms_Scales.md.
+ * They are re-exported here so type imports keep one home.
  */
-export type VibeTag =
-  | 'cool'
-  | 'sexy'
-  | 'intriguing'
-  | 'dark'
-  | 'emotional'
-  | 'sophisticated'
-  | 'fun'
-  | 'happy'
-  | 'melancholic'
-  | 'aggressive'
-  | 'dreamy'
-  | 'hypnotic'
-  | 'triumphant'
-  | 'spiritual'
-  | 'rebellious'
-  | 'romantic';
-
-/** Genre-based style tag for progression filtering */
-export type StyleTag =
-  | 'pop'
-  | 'rock'
-  | 'hip-hop'
-  | 'jam-band'
-  | 'funk'
-  | 'neo-soul'
-  | 'jazz'
-  | 'r&b'
-  | 'reggae'
-  | 'latin'
-  | 'blues'
-  | 'folk'
-  | 'electronic'
-  | 'african';
+export type { StyleTag, VibeTag };
 
 /**
  * A single chord in a progression, specified by degree and quality.

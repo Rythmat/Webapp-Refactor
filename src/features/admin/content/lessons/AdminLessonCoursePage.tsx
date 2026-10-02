@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-sort-props */
-import { ArrowLeft, Braces, Loader2, Plus, Save, Trash2 } from 'lucide-react';
+import { Braces, Loader2, Plus, Save, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -25,7 +25,13 @@ import {
   useSaveContentItem,
   type ContentStatus,
 } from '@/hooks/data/admin/useAdminContent';
+import { useCapabilities } from '@/hooks/data/admin/useCapabilities';
 import { isContentEditor } from '../../consoleRoles';
+import { ConsoleCallout } from '../../ui/ConsoleCallout';
+import { ConsolePageHeader } from '../../ui/ConsolePageHeader';
+import { consoleTabClass } from '../../ui/styles';
+import { repoNotServedNote } from '../repo/repoCopy';
+import { useRepoMode } from '../repo/useRepoMode';
 import { EditReviewBanner } from '../review/EditReview';
 import {
   LessonLevelEditor,
@@ -87,7 +93,33 @@ const newLevelBody = (
   sections: SECTION_SEEDS.map((section) => ({ ...section, steps: [] })),
 });
 
+/**
+ * Repo mode (DEV only) serves no lessons: they live in the content API
+ * alone. The page says so, rather than reading the refused list as a
+ * course with no levels and offering to create one.
+ */
 export const AdminLessonCoursePage = () => {
+  const repoMode = useRepoMode();
+  const repo = import.meta.env.DEV && repoMode;
+  const caps = useCapabilities();
+  if (repo && caps.capabilities && !caps.isServed('activity_flow')) {
+    return (
+      <div className="flex flex-col gap-5">
+        <ConsolePageHeader
+          backLabel="Back to lessons"
+          backTo={AdminRoutes.contentKind({ kind: 'activity_flow' })}
+          title="Lessons"
+        />
+        <ConsoleCallout tone="info">
+          {repoNotServedNote('Lessons')}
+        </ConsoleCallout>
+      </div>
+    );
+  }
+  return <LessonCourse />;
+};
+
+const LessonCourse = () => {
   const params = useParams();
   const [search, setSearch] = useSearchParams();
   const genre = params.genre ?? '';
@@ -231,85 +263,78 @@ export const AdminLessonCoursePage = () => {
   const displayGenre = titleCase(draft?.genre ?? genre);
 
   return (
-    <div className="flex flex-col gap-5 p-6">
+    <div className="flex flex-col gap-5">
       {/* ── Header ── */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Button asChild size="icon" variant="ghost">
-            <Link
-              to={AdminRoutes.contentKind({ kind: 'activity_flow' })}
-              aria-label="Back to lessons"
-            >
-              <ArrowLeft className="size-4" />
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-2xl font-semibold">{displayGenre}</h1>
-            <p className="text-xs text-muted-foreground">
-              Course slug{' '}
-              <span className="font-mono">
-                {canonicalGenre(genre)}-l&lt;level&gt;
-              </span>{' '}
-              · edits reach students only after you publish.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowJson((value) => !value)}
-          >
-            <Braces className="mr-2 size-4" />
-            {showJson ? 'Hide JSON' : 'JSON'}
-          </Button>
-          {/* Publishing status and deletion are admin calls — an editor's work
-              becomes live through approval, not through either of these. */}
-          {!isEditor && (
-            <Select
-              value={status}
-              onValueChange={(value) => {
-                setStatus(value as ContentStatus);
-                setDirty(true);
-              }}
-            >
-              <SelectTrigger className="w-36">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="draft">Draft</SelectItem>
-                <SelectItem value="published">Published</SelectItem>
-                <SelectItem value="archived">Archived</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
-          {activeEntry && !isEditor && (
+      <ConsolePageHeader
+        backLabel="Back to lessons"
+        backTo={AdminRoutes.contentKind({ kind: 'activity_flow' })}
+        title={displayGenre}
+        description={
+          <p>
+            Course slug{' '}
+            <span className="text-white/80">
+              {canonicalGenre(genre)}-l&lt;level&gt;
+            </span>{' '}
+            · edits reach students only after you publish.
+          </p>
+        }
+        actions={
+          <>
             <Button
               variant="ghost"
-              size="icon"
-              aria-label="Delete this level"
-              onClick={deleteLevel}
+              size="sm"
+              onClick={() => setShowJson((value) => !value)}
             >
-              <Trash2 className="size-4" />
+              <Braces className="mr-2 size-4" />
+              {showJson ? 'Hide JSON' : 'JSON'}
             </Button>
-          )}
-          <Button onClick={onSave} disabled={!draft || save.isPending}>
-            {save.isPending ? (
-              <Loader2 className="mr-2 size-4 animate-spin" />
-            ) : (
-              <Save className="mr-2 size-4" />
+            {/* Publishing status and deletion are admin calls — an editor's work
+              becomes live through approval, not through either of these. */}
+            {!isEditor && (
+              <Select
+                value={status}
+                onValueChange={(value) => {
+                  setStatus(value as ContentStatus);
+                  setDirty(true);
+                }}
+              >
+                <SelectTrigger className="w-36">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="published">Published</SelectItem>
+                  <SelectItem value="archived">Archived</SelectItem>
+                </SelectContent>
+              </Select>
             )}
-            {isEditor ? 'Submit level' : 'Save level'}
-            {dirty ? ' •' : ''}
-          </Button>
-        </div>
-      </div>
+            {activeEntry && !isEditor && (
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Delete this level"
+                onClick={deleteLevel}
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            )}
+            <Button onClick={onSave} disabled={!draft || save.isPending}>
+              {save.isPending ? (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 size-4" />
+              )}
+              {isEditor ? 'Submit level' : 'Save level'}
+              {dirty ? ' •' : ''}
+            </Button>
+          </>
+        }
+      />
 
       {(error || save.error) && (
-        <div className="rounded-lg border border-red-600/30 bg-red-600/10 p-3 text-sm text-red-300">
+        <ConsoleCallout tone="danger">
           {error ?? save.error?.message}
-        </div>
+        </ConsoleCallout>
       )}
 
       {detail.data?.editState && (
@@ -340,18 +365,14 @@ export const AdminLessonCoursePage = () => {
       )}
 
       {/* ── Level tabs ── */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-white/[0.08] pb-3">
+      <div className="flex flex-wrap items-center gap-2">
         {levels.map(({ item, level }) => {
           const isActive = activeEntry?.level === level;
           return (
             <button
               key={item.id}
               type="button"
-              className={`rounded-lg px-3.5 py-1.5 text-sm transition-colors ${
-                isActive
-                  ? 'bg-white/10 font-medium text-white'
-                  : 'text-muted-foreground hover:bg-white/5 hover:text-white'
-              }`}
+              className={consoleTabClass(isActive)}
               onClick={() => selectLevel(level)}
             >
               Level {level}
@@ -359,7 +380,7 @@ export const AdminLessonCoursePage = () => {
                   would otherwise be indistinguishable from an untouched
                   draft. */}
               <span
-                className={`ml-2 inline-block size-1.5 rounded-full ${
+                className={`ml-0.5 inline-block size-1.5 rounded-full ${
                   item.editState === 'pending'
                     ? 'bg-sky-400'
                     : item.editState === 'rejected'
@@ -383,7 +404,7 @@ export const AdminLessonCoursePage = () => {
         {levels.length < MAX_LEVEL ? (
           <button
             type="button"
-            className="inline-flex items-center gap-1 rounded-lg border border-dashed border-white/20 px-3 py-1.5 text-sm text-white/40 transition-colors hover:border-white/40 hover:text-white disabled:opacity-40"
+            className="inline-flex items-center gap-1 rounded-full border border-dashed border-white/20 px-3 py-1.5 text-sm text-white/45 transition-colors hover:border-white/40 hover:text-white disabled:opacity-40"
             disabled={save.isPending}
             onClick={addLevel}
           >
@@ -424,7 +445,7 @@ export const AdminLessonCoursePage = () => {
               </p>
               <Textarea
                 rows={20}
-                className="font-mono text-xs"
+                className="text-xs"
                 defaultValue={JSON.stringify(draft, null, 2)}
                 onBlur={(event) => {
                   try {

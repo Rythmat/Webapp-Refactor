@@ -16,6 +16,16 @@ export const uptight_everythings_alright: Song = {
   difficulty: 1,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    { name: 'Henry Cosby', role: 'songwriter', artistGlobeId: 'henry-cosby' },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    { name: 'Sylvia Moy', role: 'songwriter', artistGlobeId: 'sylvia-moy' },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-up-tight-everythings-alright' }],
 
   sections: [
     {

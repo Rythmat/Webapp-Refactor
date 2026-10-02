@@ -20,7 +20,17 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { cn } from '@/components/utilities';
 import { useAdminApiPerformance } from '@/hooks/data/admin/useAdminTelemetry';
+import { ConsoleSectionTitle } from '../ui/ConsolePageHeader';
+import { CONSOLE_LABEL, CONSOLE_PANEL, CONSOLE_TABLE_HEAD } from '../ui/styles';
+import {
+  CHART_SERIES,
+  chartAxisProps,
+  chartGridProps,
+  chartLegendProps,
+  chartTooltipProps,
+} from './chartTheme';
 import {
   TimeRangeSelect,
   useTimeRangeParams,
@@ -42,8 +52,8 @@ export const AdminApiPerformancePage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">API Performance</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <ConsoleSectionTitle>API Performance</ConsoleSectionTitle>
         <TimeRangeSelect value={range} onChange={setRange} />
       </div>
 
@@ -60,41 +70,28 @@ export const AdminApiPerformancePage = () => {
       ) : (
         <>
           {/* Request counts chart */}
-          <Card className="border border-white/10 bg-white/5 p-4">
-            <h3 className="mb-4 text-sm font-medium text-muted-foreground">
+          <Card className={cn(CONSOLE_PANEL, 'p-4')}>
+            <h3 className={cn(CONSOLE_LABEL, 'mb-4')}>
               Request Count Over Time
             </h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={data.timeSeries}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="rgba(255,255,255,0.1)"
-                />
+                <CartesianGrid {...chartGridProps} />
                 <XAxis
+                  {...chartAxisProps}
                   dataKey="bucket"
-                  stroke="rgba(255,255,255,0.5)"
-                  tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
                   tickFormatter={formatBucketLabel}
                 />
-                <YAxis
-                  stroke="rgba(255,255,255,0.5)"
-                  tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
-                />
+                <YAxis {...chartAxisProps} />
                 <RechartsTooltip
-                  contentStyle={{
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 8,
-                  }}
-                  labelStyle={{ color: 'white' }}
-                  itemStyle={{ color: 'white' }}
+                  {...chartTooltipProps}
                   labelFormatter={(v) => formatBucketLabel(String(v))}
                 />
-                <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.7)' }} />
+                <Legend {...chartLegendProps} />
                 <Line
                   type="monotone"
                   dataKey="successCount"
-                  stroke="#34d399"
+                  stroke={CHART_SERIES.green}
                   strokeWidth={2}
                   dot={false}
                   name="Success"
@@ -102,7 +99,7 @@ export const AdminApiPerformancePage = () => {
                 <Line
                   type="monotone"
                   dataKey="failureCount"
-                  stroke="#f87171"
+                  stroke={CHART_SERIES.red}
                   strokeWidth={2}
                   dot={false}
                   name="Failure"
@@ -110,7 +107,7 @@ export const AdminApiPerformancePage = () => {
                 <Line
                   type="monotone"
                   dataKey="requestCount"
-                  stroke="#60a5fa"
+                  stroke={CHART_SERIES.blue}
                   strokeWidth={2}
                   dot={false}
                   name="Total"
@@ -120,42 +117,26 @@ export const AdminApiPerformancePage = () => {
           </Card>
 
           {/* Latency chart */}
-          <Card className="border border-white/10 bg-white/5 p-4">
-            <h3 className="mb-4 text-sm font-medium text-muted-foreground">
-              Latency Over Time
-            </h3>
+          <Card className={cn(CONSOLE_PANEL, 'p-4')}>
+            <h3 className={cn(CONSOLE_LABEL, 'mb-4')}>Latency Over Time</h3>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={data.timeSeries}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="rgba(255,255,255,0.1)"
-                />
+                <CartesianGrid {...chartGridProps} />
                 <XAxis
+                  {...chartAxisProps}
                   dataKey="bucket"
-                  stroke="rgba(255,255,255,0.5)"
-                  tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
                   tickFormatter={formatBucketLabel}
                 />
-                <YAxis
-                  stroke="rgba(255,255,255,0.5)"
-                  tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
-                  unit=" ms"
-                />
+                <YAxis {...chartAxisProps} unit=" ms" />
                 <RechartsTooltip
-                  contentStyle={{
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 8,
-                  }}
-                  labelStyle={{ color: 'white' }}
-                  itemStyle={{ color: 'white' }}
+                  {...chartTooltipProps}
                   labelFormatter={(v) => formatBucketLabel(String(v))}
                 />
-                <Legend wrapperStyle={{ color: 'rgba(255,255,255,0.7)' }} />
+                <Legend {...chartLegendProps} />
                 <Line
                   type="monotone"
                   dataKey="avgLatencyMs"
-                  stroke="#fbbf24"
+                  stroke={CHART_SERIES.amber}
                   strokeWidth={2}
                   dot={false}
                   name="Avg Latency (ms)"
@@ -163,7 +144,7 @@ export const AdminApiPerformancePage = () => {
                 <Line
                   type="monotone"
                   dataKey="p95LatencyMs"
-                  stroke="#a78bfa"
+                  stroke={CHART_SERIES.violet}
                   strokeWidth={2}
                   dot={false}
                   name="P95 Latency (ms)"
@@ -173,15 +154,13 @@ export const AdminApiPerformancePage = () => {
           </Card>
 
           {/* Slowest routes table */}
-          <Card className="border border-white/10 bg-white/5 p-4">
-            <h3 className="mb-4 text-sm font-medium text-muted-foreground">
-              Slowest Routes
-            </h3>
+          <Card className={cn(CONSOLE_PANEL, 'p-4')}>
+            <h3 className={cn(CONSOLE_LABEL, 'mb-4')}>Slowest Routes</h3>
             {data.slowestRoutes.length === 0 ? (
               <p className="py-4 text-center text-muted-foreground">No data</p>
             ) : (
               <Table>
-                <TableHeader>
+                <TableHeader className={CONSOLE_TABLE_HEAD}>
                   <TableRow>
                     <TableHead>Route</TableHead>
                     <TableHead>Avg Latency</TableHead>
@@ -192,9 +171,7 @@ export const AdminApiPerformancePage = () => {
                 <TableBody>
                   {data.slowestRoutes.map((row) => (
                     <TableRow key={row.route}>
-                      <TableCell className="font-mono text-sm">
-                        {row.route}
-                      </TableCell>
+                      <TableCell className="text-sm">{row.route}</TableCell>
                       <TableCell>{Math.round(row.avgLatencyMs)} ms</TableCell>
                       <TableCell>{Math.round(row.p95LatencyMs)} ms</TableCell>
                       <TableCell>{row.count}</TableCell>
@@ -206,15 +183,13 @@ export const AdminApiPerformancePage = () => {
           </Card>
 
           {/* Failing routes table */}
-          <Card className="border border-white/10 bg-white/5 p-4">
-            <h3 className="mb-4 text-sm font-medium text-muted-foreground">
-              Most Failing Routes
-            </h3>
+          <Card className={cn(CONSOLE_PANEL, 'p-4')}>
+            <h3 className={cn(CONSOLE_LABEL, 'mb-4')}>Most Failing Routes</h3>
             {data.failingRoutes.length === 0 ? (
               <p className="py-4 text-center text-muted-foreground">No data</p>
             ) : (
               <Table>
-                <TableHeader>
+                <TableHeader className={CONSOLE_TABLE_HEAD}>
                   <TableRow>
                     <TableHead>Route</TableHead>
                     <TableHead>Failures</TableHead>
@@ -225,9 +200,7 @@ export const AdminApiPerformancePage = () => {
                 <TableBody>
                   {data.failingRoutes.map((row) => (
                     <TableRow key={row.route}>
-                      <TableCell className="font-mono text-sm">
-                        {row.route}
-                      </TableCell>
+                      <TableCell className="text-sm">{row.route}</TableCell>
                       <TableCell className="text-red-400">
                         {row.failureCount}
                       </TableCell>

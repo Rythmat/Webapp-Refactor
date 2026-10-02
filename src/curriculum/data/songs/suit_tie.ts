@@ -16,6 +16,63 @@ export const suit_tie: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Timbaland', role: 'songwriter', artistGlobeId: 'timbaland' },
+    {
+      name: 'Charles Still',
+      role: 'songwriter',
+      artistGlobeId: 'charles-still',
+    },
+    {
+      name: 'Justin Timberlake',
+      role: 'arranger',
+      artistGlobeId: 'justin-timberlake',
+    },
+    { name: 'Elliott Ives', role: 'performer' },
+    {
+      name: 'Justin Timberlake',
+      role: 'engineer',
+      artistGlobeId: 'justin-timberlake',
+    },
+    { name: 'J‐Roc', role: 'producer', artistGlobeId: 'j-roc' },
+    { name: 'J‐Roc', role: 'songwriter', artistGlobeId: 'j-roc' },
+    { name: 'Terry Stubbs', role: 'songwriter', artistGlobeId: 'terry-stubbs' },
+    {
+      name: 'Justin Timberlake',
+      role: 'producer',
+      artistGlobeId: 'justin-timberlake',
+    },
+    { name: 'John Wilson', role: 'songwriter', artistGlobeId: 'john-wilson' },
+    { name: 'Timbaland', role: 'producer', artistGlobeId: 'timbaland' },
+    { name: 'Timbaland', role: 'vocals', artistGlobeId: 'timbaland' },
+    { name: 'Chris Godbey', role: 'engineer', artistGlobeId: 'chris-godbey' },
+    {
+      name: 'James Fauntleroy',
+      role: 'songwriter',
+      artistGlobeId: 'james-fauntleroy',
+    },
+    { name: 'Jimmy Douglass', role: 'engineer' },
+    {
+      name: 'Justin Timberlake',
+      role: 'songwriter',
+      artistGlobeId: 'justin-timberlake',
+    },
+    { name: 'Jay-Z', role: 'songwriter', artistGlobeId: 'jay-z' },
+    {
+      name: 'Justin Timberlake',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'justin-timberlake',
+    },
+    { name: 'J‐Roc', role: 'performer', artistGlobeId: 'j-roc' },
+    {
+      name: 'Jay-Z',
+      role: 'vocals',
+      primary: true,
+      artistGlobeId: 'jay-z',
+    },
+  ],
+  releases: [{ releaseId: 'justin-timberlake-the-20-20-experience', track: 2 }],
 
   sections: [
     {

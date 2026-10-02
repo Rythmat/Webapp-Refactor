@@ -16,6 +16,15 @@ export const smells_like_teen_spirit: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Dave Grohl', role: 'songwriter', artistGlobeId: 'dave-grohl' },
+    { name: 'Kurt Cobain', role: 'songwriter', artistGlobeId: 'kurt-cobain' },
+    {
+      name: 'Krist Novoselic',
+      role: 'songwriter',
+      artistGlobeId: 'krist-novoselic',
+    },
+  ],
 
   sections: [
     {

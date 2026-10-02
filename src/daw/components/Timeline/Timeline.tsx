@@ -955,7 +955,7 @@ export function Timeline() {
           if (isLoadingCloudAudio) {
             if (clipWidth > 60) {
               ctx.fillStyle = 'rgba(255,255,255,0.55)';
-              ctx.font = '11px sans-serif';
+              ctx.font = "11px 'Glacial Indifference', system-ui, sans-serif";
               ctx.textAlign = 'center';
               ctx.textBaseline = 'middle';
               ctx.fillText('Loading…', clipX + clipWidth / 2, centerY);
@@ -1141,7 +1141,7 @@ export function Timeline() {
     const levels = rulerMarkings(currentZoom, state.bpm, tsNum, tsDen);
     for (const level of levels) {
       ctx.fillStyle = `rgba(${colorGridRgb}, ${level.alpha * 0.6})`;
-      ctx.font = `${level.fontSize}px Inter, sans-serif`;
+      ctx.font = `${level.fontSize}px 'Glacial Indifference', system-ui, sans-serif`;
       ctx.textBaseline = 'middle';
 
       const startAligned =
@@ -1167,7 +1167,7 @@ export function Timeline() {
     // Time display at primary marks (when zoomed in enough)
     if (currentPpb >= 30) {
       ctx.fillStyle = 'rgba(107, 107, 128, 0.3)';
-      ctx.font = '8px Inter, sans-serif';
+      ctx.font = "8px 'Glacial Indifference', system-ui, sans-serif";
       ctx.textBaseline = 'bottom';
       const primaryLevelInterval = levels[0].tickInterval;
       const startAligned =
@@ -1205,7 +1205,7 @@ export function Timeline() {
       ctx.fill();
 
       ctx.fillStyle = marker.color + 'cc';
-      ctx.font = '9px Inter, sans-serif';
+      ctx.font = "9px 'Glacial Indifference', system-ui, sans-serif";
       ctx.textBaseline = 'middle';
       ctx.fillText(marker.name, mx + 10, flagY + 10);
     }
@@ -1254,7 +1254,7 @@ export function Timeline() {
       ctx.fillStyle = isSelected
         ? '#f8fafc'
         : `rgba(${cr}, ${cg}, ${cb}, 0.85)`;
-      ctx.font = '10px Inter, sans-serif';
+      ctx.font = "10px 'Glacial Indifference', system-ui, sans-serif";
       ctx.textBaseline = 'middle';
       const label = displayAccidentals(
         chordRulerShowNotes ? region.name : region.noteName,
@@ -1300,7 +1300,7 @@ export function Timeline() {
     const primaryInterval = timeLevels[0].tickInterval;
 
     ctx.fillStyle = `rgba(${colorGridRgb}, 0.3)`;
-    ctx.font = '9px Inter, sans-serif';
+    ctx.font = "9px 'Glacial Indifference', system-ui, sans-serif";
     ctx.textBaseline = 'middle';
     const trStartAligned =
       Math.floor(visStart / primaryInterval) * primaryInterval;
@@ -1318,7 +1318,7 @@ export function Timeline() {
     if (timeLevels.length > 1) {
       const secondaryInterval = timeLevels[1].tickInterval;
       ctx.fillStyle = 'rgba(107, 107, 128, 0.3)';
-      ctx.font = '8px Inter, sans-serif';
+      ctx.font = "8px 'Glacial Indifference', system-ui, sans-serif";
       const trSecStart =
         Math.floor(visStart / secondaryInterval) * secondaryInterval;
       for (let tick = trSecStart; tick <= visEnd; tick += secondaryInterval) {
@@ -2826,7 +2826,7 @@ export function Timeline() {
                 width: 120,
                 height: CHORD_RULER_HEIGHT,
                 fontSize: 10,
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: "'Glacial Indifference', system-ui, sans-serif",
                 background: 'var(--color-surface-2)',
                 color: 'var(--color-text)',
                 border: '1px solid var(--color-accent, #7ecfcf)',

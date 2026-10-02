@@ -16,6 +16,84 @@ export const youre_my_best_friend: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Roger Taylor',
+      role: 'performer',
+      instrument: 'handclaps',
+      artistGlobeId: 'roger-taylor',
+    },
+    {
+      name: 'Freddie Mercury',
+      role: 'vocals',
+      artistGlobeId: 'freddie-mercury',
+    },
+    {
+      name: 'Roger Taylor',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'roger-taylor',
+    },
+    { name: 'Queen', role: 'producer', ensemble: true, artistGlobeId: 'queen' },
+    { name: 'Kris Fredriksson', role: 'engineer' },
+    {
+      name: 'Roger Taylor',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'roger-taylor',
+    },
+    {
+      name: 'John Deacon',
+      role: 'performer',
+      instrument: 'electric-piano',
+      artistGlobeId: 'john-deacon',
+    },
+    {
+      name: 'John Deacon',
+      role: 'performer',
+      instrument: 'handclaps',
+      artistGlobeId: 'john-deacon',
+    },
+    {
+      name: 'Brian May',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'brian-may',
+    },
+    {
+      name: 'Freddie Mercury',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'freddie-mercury',
+    },
+    { name: 'John Deacon', role: 'songwriter', artistGlobeId: 'john-deacon' },
+    { name: 'Gary Lyons', role: 'engineer' },
+    {
+      name: 'Freddie Mercury',
+      role: 'performer',
+      instrument: 'handclaps',
+      artistGlobeId: 'freddie-mercury',
+    },
+    {
+      name: 'John Deacon',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'john-deacon',
+    },
+    { name: 'Brian May', role: 'performer', artistGlobeId: 'brian-may' },
+    {
+      name: 'Roy Thomas Baker',
+      role: 'producer',
+      artistGlobeId: 'roy-thomas-baker',
+    },
+    {
+      name: 'Brian May',
+      role: 'performer',
+      instrument: 'handclaps',
+      artistGlobeId: 'brian-may',
+    },
+  ],
+  releases: [{ releaseId: 'queen-a-night-at-the-opera' }],
 
   sections: [
     {

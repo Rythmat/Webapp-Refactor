@@ -16,6 +16,55 @@ export const rainy_days_and_mondays: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  session: { studioId: 'a-m-studios' },
+  credits: [
+    {
+      name: 'Richard Carpenter',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'richard-carpenter',
+    },
+    {
+      name: 'Richard Carpenter',
+      role: 'performer',
+      artistGlobeId: 'richard-carpenter',
+    },
+    {
+      name: 'Jack Daugherty',
+      role: 'producer',
+      artistGlobeId: 'jack-daugherty',
+    },
+    { name: 'Hal Blaine', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'Richard Carpenter',
+      role: 'arranger',
+      artistGlobeId: 'richard-carpenter',
+    },
+    {
+      name: 'Karen Carpenter',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Joe Osborn', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Ray Gerhardt', role: 'engineer' },
+    {
+      name: 'Paul Williams',
+      role: 'songwriter',
+      artistGlobeId: 'paul-williams-us-songwriter-soft-rock-vocalist',
+    },
+    {
+      name: 'Roger Nichols',
+      role: 'songwriter',
+      artistGlobeId: 'roger-nichols',
+    },
+    { name: 'Tommy Morgan', role: 'performer', instrument: 'harmonica' },
+    {
+      name: 'Bob Messenger',
+      role: 'performer',
+      artistGlobeId: 'bob-messenger',
+    },
+  ],
+  releases: [{ releaseId: 'the-carpenters-carpenters', track: 1 }],
 
   sections: [
     {

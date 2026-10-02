@@ -16,6 +16,47 @@ export const umbrella: Song = {
   difficulty: 2,
   genreTags: ['hip-hop'],
   techniques: [],
+  credits: [
+    { name: 'Kuk Harrell', role: 'producer', artistGlobeId: 'kuk-harrell' },
+    {
+      name: 'Christopher Stewart',
+      role: 'songwriter',
+      artistGlobeId: 'christopher-stewart',
+    },
+    { name: 'Kuk Harrell', role: 'engineer', artistGlobeId: 'kuk-harrell' },
+    {
+      name: 'Christopher Stewart',
+      role: 'producer',
+      artistGlobeId: 'christopher-stewart',
+    },
+    {
+      name: 'Rihanna',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'rihanna',
+    },
+    {
+      name: 'Jay-Z',
+      role: 'vocals',
+      primary: true,
+      artistGlobeId: 'jay-z',
+    },
+    { name: 'Manny Marroquin', role: 'engineer' },
+    {
+      name: 'Christopher Stewart',
+      role: 'performer',
+      artistGlobeId: 'christopher-stewart',
+    },
+    {
+      name: 'Rihanna',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'rihanna',
+    },
+    { name: 'The‐Dream', role: 'songwriter', artistGlobeId: 'the-dream' },
+    { name: 'Kuk Harrell', role: 'songwriter', artistGlobeId: 'kuk-harrell' },
+  ],
+  releases: [{ releaseId: 'rihanna-good-girl-gone-bad', track: 1 }],
 
   sections: [
     {

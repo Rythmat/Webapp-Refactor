@@ -16,6 +16,56 @@ export const moves_like_jagger: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'James Valentine',
+      role: 'performer',
+      artistGlobeId: 'james-valentine',
+    },
+    { name: 'Ammar Malik', role: 'songwriter', artistGlobeId: 'ammar-malik' },
+    { name: 'Shellback', role: 'songwriter', artistGlobeId: 'shellback' },
+    {
+      name: 'Matt Flynn',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'matt-flynn',
+    },
+    { name: 'benny blanco', role: 'songwriter', artistGlobeId: 'benny-blanco' },
+    { name: 'Adam Levine', role: 'vocals', artistGlobeId: 'adam-levine' },
+    {
+      name: 'Mickey Madden',
+      role: 'performer',
+      artistGlobeId: 'mickey-madden',
+    },
+    {
+      name: 'Adam Levine',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'adam-levine',
+    },
+    {
+      name: 'Matt Flynn',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'matt-flynn',
+    },
+    {
+      name: 'Maroon 5',
+      role: 'performer',
+      ensemble: true,
+      primary: true,
+      artistGlobeId: 'maroon-5',
+    },
+    {
+      name: 'Christina Aguilera',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'christina-aguilera',
+    },
+    { name: 'PJ Morton', role: 'performer', artistGlobeId: 'pj-morton' },
+    { name: 'Adam Levine', role: 'songwriter', artistGlobeId: 'adam-levine' },
+  ],
+  releases: [{ releaseId: 'maroon-5-hands-all-over', track: 13 }],
 
   sections: [
     {

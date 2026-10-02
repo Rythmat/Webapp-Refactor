@@ -1,0 +1,46 @@
+{
+  "song": {
+    "identity": "id",
+    "pattern": "^[a-z0-9_]+$"
+  },
+  "globe_event": {
+    "identity": "id",
+    "pattern": "^(evt-[a-z0-9-]+|song-[a-z0-9_]+)$"
+  },
+  "globe_city": {
+    "identity": "id",
+    "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+  },
+  "chord_progression": {
+    "identity": "id",
+    "pattern": "^\\d+$"
+  },
+  "artist": {
+    "identity": "slug",
+    "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+  },
+  "release": {
+    "identity": "slug",
+    "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+  },
+  "studio": {
+    "identity": "slug",
+    "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+  },
+  "label": {
+    "identity": "slug",
+    "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+  },
+  "activity_flow": {
+    "identity": "id",
+    "pattern": null
+  },
+  "fundamentals_flow": {
+    "identity": "id",
+    "pattern": null
+  },
+  "artist_location": {
+    "identity": "id",
+    "pattern": null
+  }
+}

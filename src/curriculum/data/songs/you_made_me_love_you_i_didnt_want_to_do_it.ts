@@ -16,6 +16,19 @@ export const you_made_me_love_you_i_didnt_want_to_do_it: Song = {
   difficulty: 3,
   genreTags: ['folk'],
   techniques: [],
+  credits: [
+    {
+      name: 'James V. Monaco',
+      role: 'songwriter',
+      artistGlobeId: 'james-v-monaco',
+    },
+    {
+      name: 'Joseph McCarthy',
+      role: 'songwriter',
+      artistGlobeId: 'joseph-mccarthy',
+    },
+  ],
+  releases: [{ releaseId: 'patsy-cline-sentimentally-yours' }],
 
   sections: [
     {

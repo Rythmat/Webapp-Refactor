@@ -16,6 +16,50 @@ export const aint_no_sunshine: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Bill Lazarus', role: 'engineer' },
+    {
+      name: 'Booker T. Jones',
+      role: 'arranger',
+      artistGlobeId: 'booker-t-jones',
+    },
+    { name: 'John Golden', role: 'engineer' },
+    {
+      name: 'Booker T. Jones',
+      role: 'producer',
+      artistGlobeId: 'booker-t-jones',
+    },
+    {
+      name: 'Donald “Duck” Dunn',
+      role: 'performer',
+      instrument: 'electric-bass',
+    },
+    {
+      name: 'Bill Halverson',
+      role: 'engineer',
+      artistGlobeId: 'bill-halverson',
+    },
+    {
+      name: 'Al Jackson, Jr.',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'al-jackson-jr',
+    },
+    { name: 'Bill Withers', role: 'songwriter', artistGlobeId: 'bill-withers' },
+    {
+      name: 'Bill Withers',
+      role: 'vocals',
+      artistGlobeId: 'bill-withers',
+      primary: true,
+    },
+    {
+      name: 'Stephen Stills',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'stephen-stills',
+    },
+  ],
+  releases: [{ releaseId: 'bill-withers-just-as-i-am' }],
 
   sections: [
     {

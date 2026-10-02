@@ -60,28 +60,28 @@ const SOURCE_META: Record<
 > = {
   live_session: {
     Icon: Radio,
-    accent: 'text-emerald-300',
-    badge: 'bg-emerald-400/15',
+    accent: 'text-white/80',
+    badge: 'bg-white/10',
   },
   teacher: {
     Icon: GraduationCap,
-    accent: 'text-sky-300',
-    badge: 'bg-sky-400/15',
+    accent: 'text-white/80',
+    badge: 'bg-white/10',
   },
   challenge: {
     Icon: Trophy,
-    accent: 'text-amber-300',
-    badge: 'bg-amber-400/15',
+    accent: 'text-white/80',
+    badge: 'bg-white/10',
   },
   app_update: {
     Icon: Sparkles,
-    accent: 'text-violet-300',
-    badge: 'bg-violet-400/15',
+    accent: 'text-white/80',
+    badge: 'bg-white/10',
   },
   welcome: {
     Icon: Hand,
-    accent: 'text-emerald-300',
-    badge: 'bg-emerald-400/15',
+    accent: 'text-white/80',
+    badge: 'bg-white/10',
   },
 };
 

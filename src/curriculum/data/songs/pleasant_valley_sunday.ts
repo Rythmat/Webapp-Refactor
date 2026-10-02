@@ -16,6 +16,44 @@ export const pleasant_valley_sunday: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'rca-victor-studios' },
+  credits: [
+    { name: 'Micky Dolenz', role: 'vocals', artistGlobeId: 'micky-dolenz' },
+    {
+      name: 'Peter Tork',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'peter-tork',
+    },
+    { name: 'Eddie Hoh', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Bill Chadwick', role: 'performer', instrument: 'acoustic-guitar' },
+    { name: 'Chip Douglas', role: 'producer', artistGlobeId: 'chip-douglas' },
+    {
+      name: 'Michael Nesmith',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'michael-nesmith',
+    },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+    {
+      name: 'Davy Jones',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'davy-jones',
+    },
+    { name: 'Chip Douglas', role: 'performer', artistGlobeId: 'chip-douglas' },
+    { name: 'Gerry Goffin', role: 'songwriter', artistGlobeId: 'gerry-goffin' },
+    {
+      name: 'Michael Nesmith',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'michael-nesmith',
+    },
+    { name: 'Eddie Hoh', role: 'performer', instrument: 'percussion' },
+  ],
+  releases: [
+    { releaseId: 'the-monkees-pisces-aquarius-capricorn-jones-ltd', track: 10 },
+  ],
 
   sections: [
     {

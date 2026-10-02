@@ -16,6 +16,15 @@ export const we_are_family: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Nile Rodgers', role: 'songwriter', artistGlobeId: 'nile-rodgers' },
+    {
+      name: 'Bernard Edwards',
+      role: 'songwriter',
+      artistGlobeId: 'bernard-edwards',
+    },
+  ],
+  releases: [{ releaseId: 'sister-sledge-we-are-family' }],
 
   sections: [
     {

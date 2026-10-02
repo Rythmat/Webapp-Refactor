@@ -16,6 +16,41 @@ export const saving_all_my_love_for_you: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Michael Mancini', role: 'engineer' },
+    { name: 'Russell Schmitt', role: 'engineer' },
+    { name: 'Tom Scott', role: 'performer' },
+    {
+      name: 'Michael Masser',
+      role: 'songwriter',
+      artistGlobeId: 'michael-masser',
+    },
+    { name: 'Dann Huff', role: 'performer', artistGlobeId: 'dann-huff' },
+    { name: 'Oren Waters', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Robbie Buchanan', role: 'performer' },
+    { name: 'Maxine Waters', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Nathan East', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Bill Schnee', role: 'engineer' },
+    { name: 'Julia Waters', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Michael Masser',
+      role: 'producer',
+      artistGlobeId: 'michael-masser',
+    },
+    { name: 'Gerry Goffin', role: 'songwriter', artistGlobeId: 'gerry-goffin' },
+    {
+      name: 'Whitney Houston',
+      role: 'vocals',
+      artistGlobeId: 'whitney-houston',
+      primary: true,
+    },
+    { name: 'Randy Kerber', role: 'performer' },
+    { name: 'Debbie Thomas', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Richard Marx', role: 'performer' },
+    { name: 'Paul Jackson, Jr.', role: 'performer' },
+    { name: 'Louie Shelton', role: 'performer' },
+  ],
+  releases: [{ releaseId: 'whitney-houston-whitney-houston', track: 4 }],
 
   sections: [
     {

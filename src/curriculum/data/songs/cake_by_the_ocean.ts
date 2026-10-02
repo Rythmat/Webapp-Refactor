@@ -16,6 +16,25 @@ export const cake_by_the_ocean: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Mattias Larsson',
+      role: 'songwriter',
+      artistGlobeId: 'mattias-larsson',
+    },
+    {
+      name: 'Justin Tranter',
+      role: 'songwriter',
+      artistGlobeId: 'justin-tranter',
+    },
+    { name: 'Joe Jonas', role: 'songwriter', artistGlobeId: 'joe-jonas' },
+    {
+      name: 'Robin Fredriksson',
+      role: 'songwriter',
+      artistGlobeId: 'robin-fredriksson',
+    },
+  ],
+  releases: [{ releaseId: 'dnce-dnce', track: 3 }],
 
   sections: [
     {

@@ -16,6 +16,24 @@ export const poses: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Pierre Marchand',
+      role: 'producer',
+      artistGlobeId: 'pierre-marchand',
+    },
+    {
+      name: 'Pierre Marchand',
+      role: 'engineer',
+      artistGlobeId: 'pierre-marchand',
+    },
+    {
+      name: 'Rufus Wainwright',
+      role: 'songwriter',
+      artistGlobeId: 'rufus-wainwright',
+    },
+  ],
+  releases: [{ releaseId: 'rufus-wainwright-poses', track: 3 }],
 
   sections: [
     {

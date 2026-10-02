@@ -16,6 +16,10 @@ export const chain_of_fools: Song = {
   difficulty: 2,
   genreTags: ['funk', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'Don Covay', role: 'songwriter', artistGlobeId: 'don-covay' },
+  ],
+  releases: [{ releaseId: 'aretha-franklin-lady-soul' }],
 
   sections: [
     {

@@ -16,6 +16,13 @@ export const canned_heat: Song = {
   difficulty: 3,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Jay Kay', role: 'songwriter', artistGlobeId: 'jay-kay' },
+    { name: 'Simon Hale', role: 'arranger' },
+    { name: 'Jay Kay', role: 'arranger', artistGlobeId: 'jay-kay' },
+    { name: 'Al Stone', role: 'engineer', artistGlobeId: 'al-stone' },
+    { name: 'Al Stone', role: 'producer', artistGlobeId: 'al-stone' },
+  ],
 
   sections: [
     {

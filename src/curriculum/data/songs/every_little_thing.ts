@@ -16,6 +16,9 @@ export const every_little_thing: Song = {
   difficulty: 3,
   genreTags: ['funk', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'Bob Power', role: 'engineer', artistGlobeId: 'bob-power' },
+  ],
 
   sections: [
     {

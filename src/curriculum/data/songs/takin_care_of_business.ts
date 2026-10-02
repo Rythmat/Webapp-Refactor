@@ -16,6 +16,63 @@ export const takin_care_of_business: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'kaye-smith-studios' },
+  credits: [
+    { name: 'Norman Durkee', role: 'performer', instrument: 'piano' },
+    {
+      name: 'Robbie Bachman',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'robbie-bachman',
+    },
+    {
+      name: 'Robbie Bachman',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'robbie-bachman',
+    },
+    { name: 'Randy Bachman', role: 'producer', artistGlobeId: 'randy-bachman' },
+    {
+      name: 'Randy Bachman',
+      role: 'songwriter',
+      artistGlobeId: 'randy-bachman',
+    },
+    { name: 'Randy Bachman', role: 'vocals', artistGlobeId: 'randy-bachman' },
+    { name: 'Tim Bachman', role: 'performer', artistGlobeId: 'tim-bachman' },
+    {
+      name: 'Randy Bachman',
+      role: 'performer',
+      artistGlobeId: 'randy-bachman',
+    },
+    {
+      name: 'Randy Bachman',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'randy-bachman',
+    },
+    { name: 'Buzz Richmond', role: 'engineer' },
+    {
+      name: 'C.F. “Fred” Turner',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'c-f-fred-turner',
+    },
+    {
+      name: 'C.F. “Fred” Turner',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'c-f-fred-turner',
+    },
+    {
+      name: 'Tim Bachman',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'tim-bachman',
+    },
+  ],
+  releases: [
+    { releaseId: 'bachman-turner-overdrive-bachman-turner-overdrive-ii' },
+  ],
 
   sections: [
     {

@@ -16,6 +16,37 @@ export const december_1963_oh_what_a_night: Song = {
   difficulty: 2,
   genreTags: ['funk', 'pop'],
   techniques: [],
+  session: { studioId: 'sound-factory' },
+  credits: [
+    { name: 'John Paiva', role: 'performer', artistGlobeId: 'john-paiva' },
+    { name: 'Bob Gaudio', role: 'vocals', artistGlobeId: 'bob-gaudio' },
+    { name: 'Judy Parker', role: 'songwriter', artistGlobeId: 'judy-parker' },
+    {
+      name: 'Gerry Polci',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'gerry-polci',
+    },
+    { name: 'Lee Shapiro', role: 'performer', artistGlobeId: 'lee-shapiro' },
+    { name: 'Bob Gaudio', role: 'producer', artistGlobeId: 'bob-gaudio' },
+    { name: 'Gerry Polci', role: 'vocals', artistGlobeId: 'gerry-polci' },
+    { name: 'Bob Gaudio', role: 'performer', artistGlobeId: 'bob-gaudio' },
+    { name: 'Steve Maslow', role: 'engineer' },
+    { name: 'Lee Shapiro', role: 'arranger', artistGlobeId: 'lee-shapiro' },
+    { name: 'Frankie Valli', role: 'vocals', artistGlobeId: 'frankie-valli' },
+    {
+      name: 'Bob Gaudio',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'bob-gaudio',
+    },
+    { name: 'Don Ciccone', role: 'vocals', artistGlobeId: 'don-ciccone' },
+    { name: 'Val Garay', role: 'engineer' },
+    { name: 'Don Ciccone', role: 'performer', artistGlobeId: 'don-ciccone' },
+    { name: 'Bob Gaudio', role: 'songwriter', artistGlobeId: 'bob-gaudio' },
+    { name: 'John Paiva', role: 'vocals', artistGlobeId: 'john-paiva' },
+  ],
+  releases: [{ releaseId: 'the-four-seasons-who-loves-you' }],
 
   sections: [
     {

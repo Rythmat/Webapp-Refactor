@@ -16,6 +16,44 @@ export const black_dog: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'basing-street-studios' },
+  credits: [
+    { name: 'Robert Plant', role: 'vocals', artistGlobeId: 'robert-plant' },
+    {
+      name: 'Robert Plant',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'robert-plant',
+    },
+    {
+      name: 'John Paul Jones',
+      role: 'songwriter',
+      artistGlobeId: 'john-paul-jones',
+    },
+    { name: 'Jimmy Page', role: 'songwriter', artistGlobeId: 'jimmy-page' },
+    {
+      name: 'John Bonham',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'john-bonham',
+    },
+    { name: 'Andy Johns', role: 'engineer' },
+    { name: 'Robert Plant', role: 'songwriter', artistGlobeId: 'robert-plant' },
+    {
+      name: 'John Paul Jones',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'john-paul-jones',
+    },
+    {
+      name: 'Jimmy Page',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'jimmy-page',
+    },
+    { name: 'Jimmy Page', role: 'producer', artistGlobeId: 'jimmy-page' },
+  ],
+  releases: [{ releaseId: 'led-zeppelin-led-zeppelin-iv' }],
 
   sections: [
     {

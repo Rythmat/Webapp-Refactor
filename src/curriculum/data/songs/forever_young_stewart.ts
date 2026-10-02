@@ -16,6 +16,50 @@ export const forever_young_stewart: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'the-record-plant-los-angeles' },
+  credits: [
+    {
+      name: 'Kevin Savigar',
+      role: 'songwriter',
+      artistGlobeId: 'kevin-savigar',
+    },
+    { name: 'Bob Dylan', role: 'songwriter', artistGlobeId: 'bob-dylan' },
+    { name: 'Steve MacMillan', role: 'engineer' },
+    { name: 'Jim Cregan', role: 'songwriter', artistGlobeId: 'jim-cregan' },
+    { name: 'Tony Brock', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Andy Taylor', role: 'producer', artistGlobeId: 'andy-taylor' },
+    {
+      name: 'Jim Cregan',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'jim-cregan',
+    },
+    {
+      name: 'Bernard Edwards',
+      role: 'performer',
+      artistGlobeId: 'bernard-edwards',
+    },
+    {
+      name: 'Kevin Savigar',
+      role: 'performer',
+      artistGlobeId: 'kevin-savigar',
+    },
+    { name: 'Michael Landau', role: 'performer' },
+    {
+      name: 'Bernard Edwards',
+      role: 'producer',
+      artistGlobeId: 'bernard-edwards',
+    },
+    {
+      name: 'Bernard Edwards',
+      role: 'engineer',
+      artistGlobeId: 'bernard-edwards',
+    },
+    { name: 'Rod Stewart', role: 'producer', artistGlobeId: 'rod-stewart' },
+    { name: 'Rod Stewart', role: 'songwriter', artistGlobeId: 'rod-stewart' },
+    { name: 'Andy Taylor', role: 'performer', artistGlobeId: 'andy-taylor' },
+  ],
+  releases: [{ releaseId: 'rod-stewart-out-of-order' }],
 
   sections: [
     {

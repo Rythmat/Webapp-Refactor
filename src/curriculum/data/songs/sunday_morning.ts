@@ -16,6 +16,31 @@ export const sunday_morning: Song = {
   difficulty: 3,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Jesse Carmichael',
+      role: 'songwriter',
+      artistGlobeId: 'jesse-carmichael',
+    },
+    { name: 'Adam Levine', role: 'songwriter', artistGlobeId: 'adam-levine' },
+    { name: 'Matt Wallace', role: 'producer', artistGlobeId: 'matt-wallace' },
+    { name: 'Ryan Dusick', role: 'songwriter', artistGlobeId: 'ryan-dusick' },
+    { name: 'Mike Landolt', role: 'engineer' },
+    { name: 'Mystic', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'James Valentine',
+      role: 'songwriter',
+      artistGlobeId: 'james-valentine',
+    },
+    { name: 'Matt Wallace', role: 'engineer', artistGlobeId: 'matt-wallace' },
+    {
+      name: 'Mickey Madden',
+      role: 'songwriter',
+      artistGlobeId: 'mickey-madden',
+    },
+    { name: 'Mark Schoenecker', role: 'performer', instrument: 'french-horn' },
+  ],
+  releases: [{ releaseId: 'maroon-5-songs-about-jane', track: 8 }],
 
   sections: [
     {

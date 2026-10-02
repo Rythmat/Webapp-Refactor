@@ -16,6 +16,45 @@ export const billie_jean: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'westlake-recording-studios' },
+  credits: [
+    { name: 'Louis Johnson', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Jeremy Lubbock', role: 'conductor' },
+    { name: 'Bill Wolfer', role: 'performer', instrument: 'synthesizer' },
+    { name: 'Bruce Swedien', role: 'engineer', artistGlobeId: 'bruce-swedien' },
+    {
+      name: 'Michael Jackson',
+      role: 'songwriter',
+      artistGlobeId: 'michael-jackson',
+    },
+    {
+      name: 'Michael Jackson',
+      role: 'producer',
+      artistGlobeId: 'michael-jackson',
+    },
+    { name: 'Quincy Jones', role: 'producer' },
+    {
+      name: 'Greg Phillinganes',
+      role: 'performer',
+      instrument: 'fender-rhodes',
+    },
+    { name: 'Jerry Hey', role: 'arranger' },
+    { name: 'Greg Phillinganes', role: 'performer', instrument: 'synthesizer' },
+    { name: 'Leon Ndugu Chancler', role: 'performer', instrument: 'drum-kit' },
+    { name: 'David Williams', role: 'performer' },
+    {
+      name: 'Michael Jackson',
+      role: 'vocals',
+      artistGlobeId: 'michael-jackson',
+      primary: true,
+    },
+    {
+      name: 'Michael Jackson',
+      role: 'arranger',
+      artistGlobeId: 'michael-jackson',
+    },
+  ],
+  releases: [{ releaseId: 'michael-jackson-thriller', track: 6 }],
 
   sections: [
     {

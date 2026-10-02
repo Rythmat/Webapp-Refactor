@@ -16,6 +16,17 @@ export const _100_days_100_nights: Song = {
   difficulty: 3,
   genreTags: ['funk', 'rnb'],
   techniques: [],
+  credits: [
+    { name: 'Bosco Mann', role: 'songwriter', artistGlobeId: 'bosco-mann' },
+    { name: 'Bosco Mann', role: 'producer', artistGlobeId: 'bosco-mann' },
+    { name: 'Bosco Mann', role: 'engineer', artistGlobeId: 'bosco-mann' },
+  ],
+  releases: [
+    {
+      releaseId: 'sharon-jones-and-the-dap-kings-100-days-100-nights',
+      track: 1,
+    },
+  ],
 
   sections: [
     {

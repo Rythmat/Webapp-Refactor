@@ -16,6 +16,56 @@ export const life_during_wartime: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'the-record-plant-mobile-studio' },
+  credits: [
+    {
+      name: 'Tina Weymouth',
+      role: 'songwriter',
+      artistGlobeId: 'tina-weymouth',
+    },
+    { name: 'Ari Up', role: 'performer', instrument: 'congas' },
+    { name: 'Joe Barbaria', role: 'engineer' },
+    { name: 'David Byrne', role: 'songwriter', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Jerry Harrison',
+      role: 'songwriter',
+      artistGlobeId: 'jerry-harrison',
+    },
+    { name: 'Brian Eno', role: 'performer', artistGlobeId: 'brian-eno' },
+    { name: 'David Byrne', role: 'vocals', artistGlobeId: 'david-byrne' },
+    { name: 'Neal Teeman', role: 'engineer' },
+    { name: 'Jerry Harrison', role: 'vocals', artistGlobeId: 'jerry-harrison' },
+    { name: 'David Byrne', role: 'performer', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Chris Frantz',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'chris-frantz',
+    },
+    {
+      name: 'Tina Weymouth',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'tina-weymouth',
+    },
+    { name: 'Chris Frantz', role: 'songwriter', artistGlobeId: 'chris-frantz' },
+    { name: 'Rod O’Brien', role: 'engineer' },
+    { name: 'Brian Eno', role: 'producer', artistGlobeId: 'brian-eno' },
+    {
+      name: 'Jerry Harrison',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'jerry-harrison',
+    },
+    { name: 'Gene Wilder', role: 'performer', instrument: 'congas' },
+    {
+      name: 'Talking Heads',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'talking-heads',
+    },
+  ],
+  releases: [{ releaseId: 'talking-heads-fear-of-music' }],
 
   sections: [
     {

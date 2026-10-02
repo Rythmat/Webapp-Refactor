@@ -46,7 +46,7 @@ const song = (): Song =>
     artistImageSource: 'none',
   }) as Song;
 
-/** Mount the hook over a song the harness owns, as SongEditor does. */
+/** Mount the hook over a song the harness owns, as the song editor does. */
 function mount() {
   const host = document.createElement('div');
   document.body.appendChild(host);

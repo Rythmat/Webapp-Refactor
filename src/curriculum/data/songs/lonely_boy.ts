@@ -16,6 +16,33 @@ export const lonely_boy: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'easy-eye-sound-studios' },
+  credits: [
+    { name: 'Dan Auerbach', role: 'songwriter', artistGlobeId: 'dan-auerbach' },
+    {
+      name: 'The Black Keys',
+      role: 'performer',
+      ensemble: true,
+      artistGlobeId: 'the-black-keys',
+      primary: true,
+    },
+    { name: 'Tom Elmhirst', role: 'engineer' },
+    { name: 'Danger Mouse', role: 'producer', artistGlobeId: 'danger-mouse' },
+    {
+      name: 'Patrick Carney',
+      role: 'songwriter',
+      artistGlobeId: 'patrick-carney',
+    },
+    { name: 'Brian Burton', role: 'songwriter', artistGlobeId: 'brian-burton' },
+    { name: 'Kennie Takahashi', role: 'engineer' },
+    {
+      name: 'The Black Keys',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'the-black-keys',
+    },
+  ],
+  releases: [{ releaseId: 'the-black-keys-el-camino', track: 1 }],
 
   sections: [
     {

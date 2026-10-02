@@ -6,6 +6,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 // own UserConfig, and importing defineConfig from 'vite' makes `tsc -b` (and
 // therefore `npm run build`) fail on it.
 import { defineConfig } from 'vitest/config';
+import { repoContentPlugin } from './scripts/vite/repoContentPlugin';
 
 const analyze = process.env.ANALYZE === '1';
 
@@ -14,6 +15,9 @@ export default defineConfig({
   plugins: [
     tsconfigPaths(),
     react(),
+    // Repo mode: with VITE_CONTENT_REPO=1 the console saves into the repo's
+    // data files on this machine. Dev server only, and inert without the flag.
+    repoContentPlugin(),
     analyze &&
       visualizer({
         filename: 'docs/optimization/baseline-2026-06-10/bundle.html',

@@ -33,8 +33,13 @@ describe('the generated schema', () => {
   });
 });
 
+// `_*.ts` are the importer's own files (`_generated_index.ts` is a list of
+// imports to paste, not a chart), as in refPaths.test.ts.
 const modules = import.meta.glob<Record<string, unknown>>(
-  '../../../curriculum/data/songs/*.ts',
+  [
+    '../../../curriculum/data/songs/*.ts',
+    '!../../../curriculum/data/songs/_*.ts',
+  ],
   { eager: true },
 );
 const songs: Song[] = Object.values(modules)

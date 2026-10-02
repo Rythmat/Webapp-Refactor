@@ -50,6 +50,7 @@ export const aint_no_mountain_high_enough: Song = {
     { artist: 'Jennifer Hudson', year: 2021, relation: 'cover' },
     { artist: 'Cascada', year: 2024, relation: 'cover' },
   ],
+  releases: [{ releaseId: 'marvin-gaye-united' }],
 
   sections: [
     {

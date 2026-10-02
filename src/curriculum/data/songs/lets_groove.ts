@@ -4,7 +4,7 @@ export const lets_groove: Song = {
   id: 'lets_groove',
   title: 'Let’s Groove',
   artist: 'Earth, Wind & Fire',
-  year: undefined,
+  year: 1981,
 
   historicalDescription:
     "Earth, Wind & Fire release 'Let's Groove', a sleek fusion of funk, soul, and synthesizer-driven disco that captures the sound of a genre in transition. As the early 1980s pull pop music toward electronic production, Maurice White and the band ride the wave without losing their rhythmic soul. The song becomes one of their signature hits, cementing their legacy as architects of sophisticated Black pop.",
@@ -17,6 +17,16 @@ export const lets_groove: Song = {
   difficulty: 2,
   genreTags: ['funk', 'rnb'],
   techniques: [],
+  credits: [
+    { name: 'Maurice White', role: 'producer', artistGlobeId: 'maurice-white' },
+    {
+      name: 'Maurice White',
+      role: 'songwriter',
+      artistGlobeId: 'maurice-white',
+    },
+    { name: 'Wayne Vaughn', role: 'songwriter', artistGlobeId: 'wayne-vaughn' },
+  ],
+  releases: [{ releaseId: 'earth-wind-and-fire-raise' }],
 
   sections: [
     {

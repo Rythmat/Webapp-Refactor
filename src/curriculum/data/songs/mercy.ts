@@ -16,6 +16,21 @@ export const mercy: Song = {
   difficulty: 1,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Duffy',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'duffy',
+      primary: true,
+    },
+    { name: 'Steve Booker', role: 'producer', artistGlobeId: 'steve-booker' },
+    { name: 'Steve Booker', role: 'engineer', artistGlobeId: 'steve-booker' },
+    { name: 'Steve Booker', role: 'songwriter', artistGlobeId: 'steve-booker' },
+    { name: 'Steve Booker', role: 'performer', artistGlobeId: 'steve-booker' },
+    { name: 'Duffy', role: 'songwriter', artistGlobeId: 'duffy' },
+  ],
+  releases: [{ releaseId: 'duffy-rockferry', track: 7 }],
 
   sections: [
     {

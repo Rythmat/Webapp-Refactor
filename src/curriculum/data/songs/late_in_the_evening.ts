@@ -16,6 +16,43 @@ export const late_in_the_evening: Song = {
   difficulty: 1,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  session: { studioId: 'a-r-recording-studio-1958-1989' },
+  credits: [
+    { name: 'Phil Ramone', role: 'engineer', artistGlobeId: 'phil-ramone' },
+    { name: 'Paul Simon', role: 'songwriter', artistGlobeId: 'paul-simon' },
+    {
+      name: 'Paul Simon',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'paul-simon',
+      primary: true,
+    },
+    { name: 'Dave Grusin', role: 'arranger' },
+    { name: 'Eric Gale', role: 'performer', instrument: 'electric-guitar' },
+    { name: 'Phil Ramone', role: 'producer', artistGlobeId: 'phil-ramone' },
+    {
+      name: 'Ralph MacDonald',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'ralph-macdonald',
+    },
+    { name: 'Tony Levin', role: 'performer', instrument: 'electric-bass' },
+    {
+      name: 'Hugh McCracken',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+    },
+    {
+      name: 'Paul Simon',
+      role: 'vocals',
+      artistGlobeId: 'paul-simon',
+      primary: true,
+    },
+    { name: 'Steve Gadd', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Jim Boyer', role: 'engineer' },
+    { name: 'Paul Simon', role: 'producer', artistGlobeId: 'paul-simon' },
+  ],
+  releases: [{ releaseId: 'paul-simon-one-trick-pony' }],
 
   sections: [
     {

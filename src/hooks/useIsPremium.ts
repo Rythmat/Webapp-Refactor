@@ -1,8 +1,10 @@
+import { useContext } from 'react';
 import {
   getBillingUiState,
   isActivePaidState,
 } from '@/features/settings/subscription/subscriptionUtils';
 import { useMySubscription } from '@/hooks/data/subscription/useMySubscription';
+import { PremiumPreviewContext } from './PremiumPreviewContext';
 
 /**
  * Returns whether the current user has premium (paid) access.
@@ -17,7 +19,11 @@ import { useMySubscription } from '@/hooks/data/subscription/useMySubscription';
  * locked content either.
  */
 export function useIsPremium() {
+  const preview = useContext(PremiumPreviewContext);
   const { data: subscription, isLoading } = useMySubscription();
+  // The console's mirror previews the app as a chosen persona (see
+  // PremiumPreviewContext); everywhere else `preview` is null.
+  if (preview !== null) return { isPremium: preview, isLoading: false };
   const uiState = getBillingUiState(subscription);
   const isPremium = isLoading ? false : isActivePaidState(uiState);
   return { isPremium, isLoading };

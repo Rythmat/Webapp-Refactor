@@ -16,6 +16,9 @@ export const these_arms_of_mine: Song = {
   difficulty: 3,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    { name: 'Otis Redding', role: 'songwriter', artistGlobeId: 'otis-redding' },
+  ],
 
   sections: [
     {

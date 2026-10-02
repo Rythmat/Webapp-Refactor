@@ -16,6 +16,34 @@ export const it_all_comes_back: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Paul Perez Ensemble',
+      role: 'performer',
+      instrument: 'tenor-sax',
+      ensemble: true,
+    },
+    { name: 'John McCurry', role: 'songwriter', artistGlobeId: 'john-mccurry' },
+    {
+      name: 'Paul Perez Ensemble',
+      role: 'performer',
+      instrument: 'alto-sax',
+      ensemble: true,
+    },
+    { name: 'Neil Jason', role: 'songwriter', artistGlobeId: 'neil-jason' },
+    { name: 'Greg Adams', role: 'songwriter', artistGlobeId: 'greg-adams' },
+    {
+      name: 'Emilio Castillo',
+      role: 'producer',
+      artistGlobeId: 'emilio-castillo',
+    },
+    { name: 'Brad Kent', role: 'songwriter', artistGlobeId: 'brad-kent' },
+    { name: 'Danny Alonso', role: 'engineer' },
+    { name: 'Ken Kessie', role: 'engineer' },
+    { name: 'Lenny Pickett', role: 'performer' },
+    { name: 'Maureen Droney', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'tower-of-power-t-o-p', track: 2 }],
 
   sections: [
     {

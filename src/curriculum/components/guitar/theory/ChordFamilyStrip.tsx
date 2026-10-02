@@ -63,7 +63,7 @@ export const ChordFamilyStrip = memo(function ChordFamilyStrip({
             <span
               data-roman
               aria-hidden
-              className="font-serif text-[11px]"
+              className="text-[11px]"
               style={{ color: 'var(--color-text, #e8e8f0)' }}
             >
               {chip.roman}

@@ -16,6 +16,7 @@ export const vivir_mi_vida: Song = {
   difficulty: 2,
   genreTags: ['latin', 'pop'],
   techniques: [],
+  releases: [{ releaseId: 'marc-anthony-3-0' }],
 
   sections: [
     {

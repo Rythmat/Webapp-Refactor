@@ -16,6 +16,68 @@ export const the_weight: Song = {
   difficulty: 2,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  session: { studioId: 'a-r-recording-studio-1958-1989' },
+  credits: [
+    { name: 'Levon Helm', role: 'vocals', artistGlobeId: 'levon-helm' },
+    { name: 'John Simon', role: 'producer', artistGlobeId: 'john-simon' },
+    { name: 'Don Hahn', role: 'engineer' },
+    {
+      name: 'Garth Hudson',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'garth-hudson',
+    },
+    {
+      name: 'The Band',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'the-band',
+    },
+    {
+      name: 'Levon Helm',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'levon-helm',
+    },
+    {
+      name: 'Richard Manuel',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'richard-manuel',
+    },
+    {
+      name: 'Rick Danko',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'rick-danko',
+    },
+    {
+      name: 'Robbie Robertson',
+      role: 'songwriter',
+      artistGlobeId: 'robbie-robertson',
+    },
+    {
+      name: 'Rick Danko',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'rick-danko',
+    },
+    {
+      name: 'Robbie Robertson',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'robbie-robertson',
+    },
+    {
+      name: 'Levon Helm',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'levon-helm',
+    },
+    { name: 'Rick Danko', role: 'vocals', artistGlobeId: 'rick-danko' },
+    { name: 'Tony May', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'the-band-music-from-big-pink' }],
 
   sections: [
     {

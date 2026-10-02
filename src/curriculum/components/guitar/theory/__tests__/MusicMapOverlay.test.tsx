@@ -336,4 +336,85 @@ describe('MusicMapOverlay', () => {
     const { container } = renderOverlay({ layout: null });
     expect(container.querySelector('[data-music-map-overlay]')).toBeNull();
   });
+
+  it('is neutral: fixed 12px pills on white/20 brackets, no key colour', () => {
+    // G: pattern chips; D: a triad-bar note too.
+    const cases = [
+      { keyCenter: 'G' as const, map: G_EX4 },
+      { keyCenter: 'D' as const, map: GUITAR_ATLAS_BOOK_ONE.D.musicMaps[3] },
+    ];
+    for (const [scale, { keyCenter, map }] of [
+      [1, cases[0]],
+      [2, cases[0]],
+      [1, cases[1]],
+    ] as const) {
+      const { container } = renderOverlay({
+        keyCenter,
+        map,
+        layout: tabLayout(9, 5, scale),
+        showRomanNumerals: true,
+      });
+      const overlay = container.querySelector('[data-music-map-overlay]')!;
+      // The key colour (#D2404A = rgb(210, 64, 74)) is nowhere in it.
+      expect(overlay.innerHTML).not.toMatch(/d2404a|210, 64, 74/i);
+      const pills = [
+        ...overlay.querySelectorAll<HTMLElement>(
+          '[data-map-chip] button, [data-map-chip] span.absolute, [data-bar-mark] button',
+        ),
+      ];
+      expect(pills.length).toBeGreaterThan(0);
+      for (const pill of pills) {
+        for (const cls of [
+          'h-5',
+          'rounded-full',
+          'border-white/15',
+          'text-xs',
+          'text-white/55',
+        ]) {
+          expect(pill.className).toContain(cls);
+        }
+        expect(pill.className).not.toMatch(/font-(semibold|medium|bold)/);
+        // Fixed, not scaled with the TAB.
+        expect(pill.style.height).toBe('');
+        expect(pill.style.fontSize).toBe('');
+      }
+      for (const rail of overlay.querySelectorAll<HTMLElement>(
+        '[data-map-chip] > [aria-hidden]',
+      )) {
+        expect(rail.style.borderTop || rail.style.background).toMatch(
+          /rgba\(255, 255, 255, 0\.2\)$/,
+        );
+      }
+      for (const roman of overlay.querySelectorAll('[data-roman]')) {
+        expect(roman.className).toContain('text-xs');
+      }
+      cleanup();
+    }
+  });
+
+  it('draws the chord jobs as the same neutral 12px pills', () => {
+    const { container } = renderOverlay({ showChordJobs: true });
+    const jobs = [
+      ...container.querySelectorAll<HTMLElement>('[data-chord-job]'),
+    ];
+    expect(jobs).toHaveLength(8);
+    for (const job of jobs) {
+      for (const cls of [
+        'h-5',
+        'rounded-full',
+        'border-white/15',
+        'text-xs',
+        'text-white/55',
+        'font-normal',
+      ]) {
+        expect(job.className).toContain(cls);
+      }
+      // Not the badge's own 10px medium look, nor its inline ink.
+      expect(job.className).not.toMatch(/text-\[10px\]|font-medium/);
+      expect(job.style.border).toBe('');
+      expect(job.style.color).toBe('');
+      // The word and its icon stay.
+      expect(job.querySelector('svg')).toBeTruthy();
+    }
+  });
 });

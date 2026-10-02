@@ -16,6 +16,13 @@ export const hit_the_road_jack: Song = {
   difficulty: 2,
   genreTags: ['jazz'],
   techniques: [],
+  credits: [
+    {
+      name: 'Percy Mayfield',
+      role: 'songwriter',
+      artistGlobeId: 'percy-mayfield',
+    },
+  ],
 
   sections: [
     {

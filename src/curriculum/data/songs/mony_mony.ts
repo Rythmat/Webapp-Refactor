@@ -16,6 +16,24 @@ export const mony_mony: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Bo Gentry', role: 'songwriter', artistGlobeId: 'bo-gentry' },
+    {
+      name: 'Billy Idol',
+      role: 'vocals',
+      artistGlobeId: 'billy-idol',
+      primary: true,
+    },
+    {
+      name: 'Ritchie Cordell',
+      role: 'songwriter',
+      artistGlobeId: 'ritchie-cordell',
+    },
+    { name: 'Brian Reeves', role: 'engineer' },
+    { name: 'Bobby Bloom', role: 'songwriter', artistGlobeId: 'bobby-bloom' },
+    { name: 'Tommy James', role: 'songwriter', artistGlobeId: 'tommy-james' },
+    { name: 'Keith Forsey', role: 'producer', artistGlobeId: 'keith-forsey' },
+  ],
 
   sections: [
     {

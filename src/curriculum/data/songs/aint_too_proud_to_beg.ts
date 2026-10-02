@@ -16,6 +16,51 @@ export const aint_too_proud_to_beg: Song = {
   difficulty: 2,
   genreTags: ['funk', 'rnb'],
   techniques: [],
+  session: { studioId: 'hitsville' },
+  credits: [
+    {
+      name: 'Melvin Franklin',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'melvin-franklin',
+    },
+    {
+      name: 'Eddie Kendricks',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'eddie-kendricks',
+    },
+    {
+      name: 'Otis Williams',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'otis-williams',
+    },
+    {
+      name: 'Eddie Holland',
+      role: 'songwriter',
+      artistGlobeId: 'eddie-holland',
+    },
+    {
+      name: 'Norman Whitfield',
+      role: 'songwriter',
+      artistGlobeId: 'norman-whitfield',
+    },
+    {
+      name: 'Norman Whitfield',
+      role: 'producer',
+      artistGlobeId: 'norman-whitfield',
+    },
+    { name: 'David Ruffin', role: 'vocals', artistGlobeId: 'david-ruffin' },
+    { name: 'The Funk Brothers', role: 'performer', ensemble: true },
+    {
+      name: 'Paul Williams',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'paul-williams-member-of-the-temptations',
+    },
+  ],
+  releases: [{ releaseId: 'the-temptations-gettin-ready' }],
 
   sections: [
     {

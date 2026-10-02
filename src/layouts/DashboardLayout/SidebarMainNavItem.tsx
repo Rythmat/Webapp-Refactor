@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import {
   Tooltip,
   TooltipContent,
@@ -28,9 +28,16 @@ export type NavItemProps = {
   isCollapsed?: boolean;
   /** Override the auto-computed icon glyph size (Tailwind classes, e.g. 'h-6 w-6'). */
   glyphClassName?: string;
+  /**
+   * Whether the item is the current one, decided by the caller rather than by
+   * matching `to` against the location. The console sets it: its links point
+   * at console paths while the question is which APP section is showing.
+   * Unset — as everywhere in the app — the item matches the location itself.
+   */
+  active?: boolean;
 };
 
-const isRouteActive = (currentPath: string, targetPath: string) => {
+export const isRouteActive = (currentPath: string, targetPath: string) => {
   if (targetPath === '/') return currentPath === '/';
   return currentPath === targetPath || currentPath.startsWith(`${targetPath}/`);
 };
@@ -38,10 +45,11 @@ const isRouteActive = (currentPath: string, targetPath: string) => {
 export function SidebarMainNavItem(props: NavItemProps) {
   const location = useLocation();
   const active =
-    !props.external &&
-    (isRouteActive(location.pathname, props.to) ||
-      (props.activePaths?.some((p) => isRouteActive(location.pathname, p)) ??
-        false));
+    props.active ??
+    (!props.external &&
+      (isRouteActive(location.pathname, props.to) ||
+        (props.activePaths?.some((p) => isRouteActive(location.pathname, p)) ??
+          false)));
   const Icon = props.icon;
   const dim = props.variant === 'dim';
 
@@ -102,10 +110,14 @@ export function SidebarMainNavItem(props: NavItemProps) {
       {props.label}
     </span>
   );
+  // Collapsed, the row shows only its icon (hidden from assistive tech) and
+  // a tooltip that is not tied to the link, so the link carries its name.
+  const name = props.isCollapsed ? props.label : undefined;
 
   const link = props.external ? (
     <a
       className={rowClasses}
+      aria-label={name}
       href={props.to}
       rel="noreferrer"
       target={props.to.startsWith('mailto:') ? undefined : '_blank'}
@@ -113,8 +125,18 @@ export function SidebarMainNavItem(props: NavItemProps) {
       {iconEl}
       {labelEl}
     </a>
+  ) : props.active !== undefined ? (
+    <Link
+      className={rowClasses}
+      to={props.to}
+      aria-label={name}
+      aria-current={props.active ? 'page' : undefined}
+    >
+      {iconEl}
+      {labelEl}
+    </Link>
   ) : (
-    <NavLink className={rowClasses} to={props.to}>
+    <NavLink className={rowClasses} to={props.to} aria-label={name}>
       {iconEl}
       {labelEl}
     </NavLink>

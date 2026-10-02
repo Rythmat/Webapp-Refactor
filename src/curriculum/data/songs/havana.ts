@@ -16,6 +16,63 @@ export const havana: Song = {
   difficulty: 2,
   genreTags: ['latin', 'pop'],
   techniques: [],
+  session: { studioId: 'nightbird-recording-studios' },
+  credits: [
+    {
+      name: 'Camila Cabello',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'camila-cabello',
+    },
+    {
+      name: 'Camila Cabello',
+      role: 'songwriter',
+      artistGlobeId: 'camila-cabello',
+    },
+    {
+      name: 'Pharrell Williams',
+      role: 'songwriter',
+      artistGlobeId: 'pharrell-williams',
+    },
+    {
+      name: 'Starrah',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'starrah',
+    },
+    { name: 'Jaycen Joshua', role: 'engineer' },
+    {
+      name: 'Pharrell Williams',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'pharrell-williams',
+    },
+    { name: 'Starrah', role: 'songwriter', artistGlobeId: 'starrah' },
+    { name: 'Louis Bell', role: 'songwriter', artistGlobeId: 'louis-bell' },
+    { name: 'Frank Dukes', role: 'producer', artistGlobeId: 'frank-dukes' },
+    { name: 'Andrew Watt', role: 'songwriter', artistGlobeId: 'andrew-watt' },
+    { name: 'Mike Gaydusek', role: 'engineer' },
+    { name: 'Brian Lee', role: 'songwriter', artistGlobeId: 'brian-lee' },
+    {
+      name: 'Young Thug',
+      role: 'vocals',
+      primary: true,
+      artistGlobeId: 'young-thug',
+    },
+    { name: 'Ali Tamposi', role: 'songwriter', artistGlobeId: 'ali-tamposi' },
+    { name: 'Young Thug', role: 'songwriter', artistGlobeId: 'young-thug' },
+    { name: 'Kyle Mann', role: 'engineer' },
+    { name: 'Robbie Soukiasyan', role: 'engineer' },
+    { name: 'Matt Beckley', role: 'producer', artistGlobeId: 'matt-beckley' },
+    { name: 'Frank Dukes', role: 'songwriter', artistGlobeId: 'frank-dukes' },
+    {
+      name: 'Kaan Gunesberk',
+      role: 'songwriter',
+      artistGlobeId: 'kaan-gunesberk',
+    },
+    { name: 'Serafin Aguilar', role: 'performer', instrument: 'trumpet' },
+  ],
+  releases: [{ releaseId: 'camila-cabello-camila', track: 4 }],
 
   sections: [
     {

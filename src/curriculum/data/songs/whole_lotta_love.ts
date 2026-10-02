@@ -16,6 +16,58 @@ export const whole_lotta_love: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Robert Plant',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'robert-plant',
+    },
+    {
+      name: 'Jimmy Page',
+      role: 'performer',
+      instrument: 'theremin',
+      artistGlobeId: 'jimmy-page',
+    },
+    {
+      name: 'John Paul Jones',
+      role: 'songwriter',
+      artistGlobeId: 'john-paul-jones',
+    },
+    { name: 'John Bonham', role: 'songwriter', artistGlobeId: 'john-bonham' },
+    {
+      name: 'John Bonham',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'john-bonham',
+    },
+    { name: 'Jimmy Page', role: 'producer', artistGlobeId: 'jimmy-page' },
+    { name: 'Robert Plant', role: 'vocals', artistGlobeId: 'robert-plant' },
+    { name: 'Jimmy Page', role: 'songwriter', artistGlobeId: 'jimmy-page' },
+    { name: 'George Chkiantz', role: 'engineer' },
+    {
+      name: 'John Bonham',
+      role: 'performer',
+      instrument: 'bongos',
+      artistGlobeId: 'john-bonham',
+    },
+    { name: 'Eddie Kramer', role: 'engineer' },
+    {
+      name: 'John Paul Jones',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'john-paul-jones',
+    },
+    {
+      name: 'Jimmy Page',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'jimmy-page',
+    },
+    { name: 'Robert Plant', role: 'songwriter', artistGlobeId: 'robert-plant' },
+    { name: 'Willie Dixon', role: 'songwriter', artistGlobeId: 'willie-dixon' },
+  ],
+  releases: [{ releaseId: 'led-zeppelin-led-zeppelin-ii', track: 1 }],
 
   sections: [
     {

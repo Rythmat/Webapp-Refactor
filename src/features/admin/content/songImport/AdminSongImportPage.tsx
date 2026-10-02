@@ -1,11 +1,18 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef, useState } from 'react';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import type { Song } from '@/curriculum/types/songLibrary';
 import {
+  CONTENT_KEY,
   contentRequest,
   type ContentItemDetail,
   type ContentListItem,
 } from '@/hooks/data/admin/useAdminContent';
+import { ConsoleCallout } from '../../ui/ConsoleCallout';
+import { CONSOLE_LABEL, CONSOLE_TABLE_HEAD } from '../../ui/styles';
+import { RunSummary } from '../publishing/PublishKindsSection';
+import { usePublishActions, usePublishRun } from '../publishing/publishRun';
+import { rememberImport } from './importMemory';
 import { planImport, tally, toWrite, type SongDiff } from './songImportPlan';
 
 /**
@@ -25,8 +32,16 @@ import { planImport, tally, toWrite, type SongDiff } from './songImportPlan';
  *  - it compares before it writes, and shows the comparison.
  *  - writing can be stopped, and says what it managed.
  *
- * Publishing is still a separate act: this fills the authoring store, and the
- * release page is what moves the CDN bundle.
+ * Publishing is still a separate act: this fills the authoring store, and
+ * Publishing is what moves the CDN bundle — offered inline once a write lands.
+ *
+ * It is Publishing's temporary "Import from repo" tab, and remembers what
+ * each compare found (importMemory) so the tab can hide once nothing is left.
+ *
+ * Its writes go straight through `contentRequest`, not the save hook, so it
+ * invalidates the content queries itself once the run ends — as a bulk
+ * write does — and the Table, the mind map, Integrity and the queues show
+ * the imported songs.
  */
 
 /** Requests in flight while reading. Politeness, not throughput. */
@@ -66,6 +81,9 @@ export const AdminSongImportPage = () => {
   const [failures, setFailures] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const stop = useRef(false);
+  const queryClient = useQueryClient();
+  const run = usePublishRun();
+  const { publish } = usePublishActions();
 
   /** Every song the store holds, by slug, bodies and all. */
   const readStore = useCallback(async (): Promise<Map<string, Song>> => {
@@ -115,7 +133,12 @@ export const AdminSongImportPage = () => {
       // song data on the eager bundle for every reader of the app.
       const { BUNDLED_SONGS } = await import('@/curriculum/data/songs/bundled');
       const stored = await readStore();
-      setPlan(planImport(Object.values(BUNDLED_SONGS), stored));
+      const next = planImport(Object.values(BUNDLED_SONGS), stored);
+      setPlan(next);
+      // A stopped read compared part of the store; it proves nothing.
+      if (!stop.current) {
+        rememberImport({ toWrite: toWrite(next).length, failures: 0 });
+      }
       setPhase('ready');
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : String(caught));
@@ -159,37 +182,42 @@ export const AdminSongImportPage = () => {
       });
     }
     setFailures(bad);
+    // What is still unwritten: the failures, and anything a stop skipped.
+    rememberImport({
+      toWrite: bad.length + (work.length - done),
+      failures: bad.length,
+    });
     setPhase('done');
-  }, [plan, token]);
+    // Once, after the run: every export and list reads what was written.
+    if (done > bad.length) {
+      void queryClient.invalidateQueries({ queryKey: CONTENT_KEY });
+    }
+  }, [plan, token, queryClient]);
 
   const counts = plan ? tally(plan) : null;
   const work = plan ? toWrite(plan) : [];
   const busy = phase === 'reading' || phase === 'writing';
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-5 p-6">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold">Import songs from the repo</h1>
-        <p className="max-w-3xl text-sm text-muted-foreground">
+    <div className="flex max-w-5xl flex-col gap-5">
+      <div className="flex flex-col gap-1">
+        <h2 className={CONSOLE_LABEL}>Import songs from the repo</h2>
+        <p className="max-w-3xl text-sm text-white/55">
           Compares every chart in the repo against the one the store holds and
           writes the differences. It never deletes: a song only the store has is
           left alone and listed. Publishing is separate — this fills the
-          authoring store, and the Releases page moves the CDN bundle.
+          authoring store, and publishing moves the CDN bundle.
         </p>
-      </header>
+      </div>
 
-      {error && (
-        <p className="rounded border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-300">
-          {error}
-        </p>
-      )}
+      {error && <ConsoleCallout tone="danger">{error}</ConsoleCallout>}
 
       <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={() => void compare()}
           disabled={busy}
-          className="rounded border border-white/20 px-3 py-1.5 text-sm hover:border-white/40 disabled:opacity-40"
+          className="rounded-full border border-white/20 px-3 py-1.5 text-sm hover:border-white/40 disabled:opacity-40"
         >
           {plan ? 'Compare again' : 'Compare'}
         </button>
@@ -204,7 +232,7 @@ export const AdminSongImportPage = () => {
               onClick={() => {
                 stop.current = true;
               }}
-              className="rounded border border-white/20 px-2 py-1 text-xs hover:border-white/40"
+              className="rounded-full border border-white/20 px-2.5 py-1 text-xs hover:border-white/40"
             >
               Stop
             </button>
@@ -213,52 +241,72 @@ export const AdminSongImportPage = () => {
       </div>
 
       {counts && (
-        <div className="flex flex-wrap gap-4 rounded border border-white/10 bg-white/[0.02] p-3 text-sm">
-          <span className="text-emerald-400">{counts.missing} to create</span>
-          <span className="text-amber-400">{counts.differs} to replace</span>
-          <span className="text-sky-400">{counts.extra} only in the store</span>
-          <span className="text-white/40">{counts.same} already identical</span>
-        </div>
+        <ConsoleCallout tone="neutral">
+          <div className="flex flex-wrap gap-4 tabular-nums">
+            <span className="text-emerald-400">{counts.missing} to create</span>
+            <span className="text-amber-400">{counts.differs} to replace</span>
+            <span className="text-sky-400">
+              {counts.extra} only in the store
+            </span>
+            <span className="text-white/45">
+              {counts.same} already identical
+            </span>
+          </div>
+        </ConsoleCallout>
       )}
 
       {phase === 'ready' && work.length > 0 && (
-        <div className="flex items-center gap-3 rounded border border-amber-500/40 bg-amber-500/5 p-3">
-          <p className="flex-1 text-sm">
-            This will overwrite <strong>{counts?.differs}</strong> songs in the
-            store and create <strong>{counts?.missing}</strong>. The
-            store&apos;s own copies of those are replaced, not merged.
-          </p>
-          <button
-            type="button"
-            onClick={() => void push()}
-            className="rounded bg-amber-500/90 px-3 py-1.5 text-sm font-medium text-black hover:bg-amber-400"
-          >
-            Write {work.length} songs
-          </button>
-        </div>
+        <ConsoleCallout tone="warning">
+          <div className="flex items-center gap-3">
+            <p className="flex-1">
+              This will overwrite <strong>{counts?.differs}</strong> songs in
+              the store and create <strong>{counts?.missing}</strong>. The
+              store&apos;s own copies of those are replaced, not merged.
+            </p>
+            <button
+              type="button"
+              onClick={() => void push()}
+              className="shrink-0 rounded-full bg-white px-3 py-1.5 text-sm font-medium text-black hover:bg-white/90"
+            >
+              Write {work.length} songs
+            </button>
+          </div>
+        </ConsoleCallout>
       )}
 
       {phase === 'done' && (
-        <p className="rounded border border-white/10 bg-white/[0.02] p-3 text-sm">
+        <ConsoleCallout tone="neutral">
           Wrote {progress.done} of {work.length}.
           {failures.length > 0
             ? ` ${failures.length} failed.`
             : ' Nothing failed.'}{' '}
-          Publish from the Releases page to move the CDN bundle.
-        </p>
+          Students see none of it until songs are published.{' '}
+          <button
+            type="button"
+            disabled={run.status === 'running'}
+            onClick={() => void publish(['song'])}
+            className="underline underline-offset-2 disabled:opacity-40"
+          >
+            Publish Songs
+          </button>
+        </ConsoleCallout>
       )}
 
+      {phase === 'done' && run.status !== 'idle' && <RunSummary />}
+
       {failures.length > 0 && (
-        <ul className="rounded border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-300">
-          {failures.slice(0, 20).map((f) => (
-            <li key={f}>{f}</li>
-          ))}
-        </ul>
+        <ConsoleCallout tone="danger" className="text-xs">
+          <ul>
+            {failures.slice(0, 20).map((f) => (
+              <li key={f}>{f}</li>
+            ))}
+          </ul>
+        </ConsoleCallout>
       )}
 
       {plan && (
         <table className="w-full text-left text-sm">
-          <thead className="text-xs uppercase tracking-wide text-white/40">
+          <thead className={CONSOLE_TABLE_HEAD}>
             <tr>
               <th className="py-2">Song</th>
               <th className="py-2">What happens</th>
@@ -269,7 +317,7 @@ export const AdminSongImportPage = () => {
             {plan
               .filter((row) => row.state !== 'same')
               .map((row) => (
-                <tr key={row.slug} className="border-t border-white/5">
+                <tr key={row.slug} className="border-t border-white/[0.08]">
                   <td className="py-1.5 pr-3">
                     {row.title}
                     <span className="ml-2 text-xs text-white/25">

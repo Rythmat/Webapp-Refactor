@@ -16,6 +16,43 @@ export const she_loves_you: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'abbey-road-studios' },
+  credits: [
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'john-lennon',
+    },
+    { name: 'Ringo Starr', role: 'performer', instrument: 'drum-kit' },
+    { name: 'George Martin', role: 'producer' },
+    { name: 'John Lennon', role: 'songwriter', artistGlobeId: 'john-lennon' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'songwriter',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'John Lennon', role: 'vocals', artistGlobeId: 'john-lennon' },
+    { name: 'Paul McCartney', role: 'vocals', artistGlobeId: 'paul-mccartney' },
+    { name: 'Norman Smith', role: 'engineer' },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+  ],
+  releases: [{ releaseId: 'the-beatles-the-beatles-second-album' }],
 
   sections: [
     {

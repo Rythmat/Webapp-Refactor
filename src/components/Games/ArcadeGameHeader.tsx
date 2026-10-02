@@ -100,10 +100,7 @@ export function ArcadeGameHeader({
       </div>
 
       <div className="relative z-10 flex flex-col items-center text-center">
-        <h1
-          className="font-serif text-5xl italic tracking-wide text-white"
-          style={{ fontFamily: '"Playfair Display", serif' }}
-        >
+        <h1 className="text-5xl leading-[1.1] tracking-[-0.02em] text-white">
           {title}
         </h1>
         {controls && (

@@ -16,6 +16,41 @@ export const im_the_only_one: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'a-m-studios' },
+  credits: [
+    {
+      name: 'Melissa Etheridge',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'melissa-etheridge',
+      primary: true,
+    },
+    {
+      name: 'Melissa Etheridge',
+      role: 'vocals',
+      artistGlobeId: 'melissa-etheridge',
+      primary: true,
+    },
+    { name: 'Pino Palladino', role: 'performer' },
+    {
+      name: 'Melissa Etheridge',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'melissa-etheridge',
+      primary: true,
+    },
+    { name: 'Mauricio Lewak', role: 'performer', instrument: 'percussion' },
+    { name: 'Hugh Padgham', role: 'engineer' },
+    {
+      name: 'Melissa Etheridge',
+      role: 'songwriter',
+      artistGlobeId: 'melissa-etheridge',
+    },
+    { name: 'Scott Thurston', role: 'performer' },
+    { name: 'Mauricio Lewak', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Waddy Wachtel', role: 'performer', instrument: 'electric-guitar' },
+  ],
+  releases: [{ releaseId: 'melissa-etheridge-yes-i-am', track: 1 }],
 
   sections: [
     {

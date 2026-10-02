@@ -144,7 +144,7 @@ export function CompressorCurve({
         y={height - 2}
         fill="rgba(255,255,255,0.25)"
         fontSize={7}
-        fontFamily="system-ui"
+        fontFamily="'Glacial Indifference', system-ui, sans-serif"
       >
         {DB_MIN}
       </text>
@@ -153,7 +153,7 @@ export function CompressorCurve({
         y={height - 2}
         fill="rgba(255,255,255,0.25)"
         fontSize={7}
-        fontFamily="system-ui"
+        fontFamily="'Glacial Indifference', system-ui, sans-serif"
         textAnchor="end"
       >
         0dB

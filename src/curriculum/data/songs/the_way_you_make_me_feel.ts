@@ -16,6 +16,48 @@ export const the_way_you_make_me_feel: Song = {
   difficulty: 1,
   genreTags: ['pop'],
   techniques: [],
+  session: { studioId: 'westlake-audio' },
+  credits: [
+    { name: 'Christopher Currell', role: 'performer' },
+    { name: 'Quincy Jones', role: 'producer' },
+    { name: 'Bruce Swedien', role: 'engineer', artistGlobeId: 'bruce-swedien' },
+    { name: 'Ollie E. Brown', role: 'performer', instrument: 'percussion' },
+    { name: 'Gary Grant', role: 'performer', instrument: 'trumpet' },
+    { name: 'Kim Hutchcroft', role: 'performer' },
+    { name: 'David Williams', role: 'performer' },
+    {
+      name: 'Michael Jackson',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'michael-jackson',
+      primary: true,
+    },
+    {
+      name: 'Michael Jackson',
+      role: 'songwriter',
+      artistGlobeId: 'michael-jackson',
+    },
+    { name: 'Eric Gale', role: 'performer' },
+    { name: 'John Barnes', role: 'performer', instrument: 'synthesizer' },
+    { name: 'Jerry Hey', role: 'arranger' },
+    {
+      name: 'John “JR” Robinson',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'john-jr-robinson',
+    },
+    { name: 'Greg Phillinganes', role: 'performer', instrument: 'synthesizer' },
+    {
+      name: 'Michael Jackson',
+      role: 'producer',
+      artistGlobeId: 'michael-jackson',
+    },
+    { name: 'Larry Williams', role: 'performer' },
+    { name: 'Jerry Hey', role: 'performer', instrument: 'trumpet' },
+    { name: 'Michael Boddicker', role: 'performer', instrument: 'synthesizer' },
+    { name: 'Paulinho da Costa', role: 'performer', instrument: 'percussion' },
+  ],
+  releases: [{ releaseId: 'michael-jackson-bad', track: 2 }],
 
   sections: [
     {

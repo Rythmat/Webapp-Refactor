@@ -16,6 +16,19 @@ export const cruisin: Song = {
   difficulty: 2,
   genreTags: ['funk', 'pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Smokey Robinson',
+      role: 'songwriter',
+      artistGlobeId: 'smokey-robinson',
+    },
+    {
+      name: 'Marvin Tarplin',
+      role: 'songwriter',
+      artistGlobeId: 'marvin-tarplin',
+    },
+  ],
+  releases: [{ releaseId: 'smokey-robinson-where-theres-smoke' }],
 
   sections: [
     {

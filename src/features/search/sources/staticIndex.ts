@@ -103,34 +103,6 @@ function buildCourses(): IndexEntry[] {
   }));
 }
 
-/* ── Guitar (The Guitar Atlas), while its rollout flag is on ─────────── */
-function buildGuitar(): IndexEntry[] {
-  if (!isGuitarLearnEnabled()) return [];
-  return [
-    {
-      category: 'courses',
-      keywords: [
-        'Guitar',
-        'Guitar Atlas',
-        'Applied Theory Fundamentals',
-        'tab',
-        'tablature',
-        'chords',
-        'key centers',
-        'music maps',
-      ],
-      result: {
-        id: 'course-guitar-applied-theory-fundamentals',
-        category: 'courses',
-        title: 'Guitar: Applied Theory Fundamentals',
-        subtitle: 'The Guitar Atlas',
-        to: CurriculumRoutes.guitarAppliedTheoryFundamentals(),
-        icon: CATEGORY_META.courses.icon,
-      },
-    },
-  ];
-}
-
 /* ── Theory / modes (diatonic + minor/major variants) ────────────────── */
 const MODES: { slug: string; label: string; keywords: string[] }[] = [
   {
@@ -180,6 +152,40 @@ function buildTheory(): IndexEntry[] {
       thumb: { src: getTheoryTileImage(m.slug.toLowerCase()), shape: 'hex' },
     },
   }));
+}
+
+/* ── Guitar (The Guitar Atlas), while its rollout flag is on ─────────── */
+// Its key centers are Theory → Ionian (Major) on guitar.
+function buildGuitar(): IndexEntry[] {
+  if (!isGuitarLearnEnabled()) return [];
+  return [
+    {
+      category: 'theory',
+      // The mode words carry "Guitar", so "ionian" or "major" still finds this
+      // but ranks the piano Ionian (Major) first, as before.
+      keywords: [
+        'Guitar',
+        'Guitar Atlas',
+        'Guitar Ionian',
+        'Guitar Major',
+        'Guitar Ionian (Major)',
+        'tab',
+        'tablature',
+        'chords',
+        'key centers',
+        'music maps',
+      ],
+      result: {
+        id: 'theory-guitar-ionian',
+        category: 'theory',
+        title: 'Guitar: Ionian (Major)',
+        subtitle: 'The Guitar Atlas',
+        to: LearnRoutes.guitarOverview({ mode: 'ionian' }),
+        icon: CATEGORY_META.theory.icon,
+        thumb: { src: getTheoryTileImage('ionian'), shape: 'hex' },
+      },
+    },
+  ];
 }
 
 /* ── Globe / music-history events ────────────────────────────────────── */
@@ -410,8 +416,8 @@ export function getStaticIndex(): IndexEntry[] {
       ...buildSongs(),
       ...buildArtists(),
       ...buildCourses(),
-      ...buildGuitar(),
       ...buildTheory(),
+      ...buildGuitar(),
       ...buildGlobe(),
       ...buildArcade(),
       ...buildPages(),

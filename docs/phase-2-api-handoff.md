@@ -3,6 +3,12 @@
 Written 26 September 2026. Everything described as "done" is merged in
 `Webapp-Refactor`; everything under **What we need** is `music-atlas-api` work.
 
+> **Continued in `docs/console-content-api-contract.md` (29 September 2026).**
+> That doc takes items 1–3 below further — the artist kind grows metadata, and
+> release, studio and label kinds join it — and adds capabilities, lookup,
+> export and reference validation. One decision below is amended there:
+> artist-level influence is now a field on the artist record.
+
 ---
 
 ## The short version
@@ -152,6 +158,11 @@ Two things to preserve:
 - **`aliases` is load-bearing.** The globe titles him "Andy Grammar"; the song
   library has "Andy Grammer", which is correct. One artist, alias carries the
   misspelling.
+
+  > **Since 30 September 2026** no registry entry has an alias: the globe's
+  > misspelling was corrected, and the registry holds 883 artists after the
+  > duplicate merge. `aliases` stays for real alternate billings (see
+  > `docs/console-content-api-contract.md`).
 
 ### 3. Song → globe event derivation: four new fields
 

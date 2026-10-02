@@ -1,6 +1,6 @@
-import type { HistoricalEvent } from '@/components/atlas/types';
+import type { GlobeEventRecord } from '@/content/records/types';
 
-export const LATIN_EVENTS: HistoricalEvent[] = [
+export const LATIN_EVENTS: GlobeEventRecord[] = [
   {
     id: 'evt-andean-indigenous-cusco-1500',
     year: 1500,
@@ -25,6 +25,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'inca',
     ],
     videoId: 'qsNEu750zok',
+    placeId: 'cusco',
   },
   {
     id: 'evt-andean-folk-revival-lapaz-1965',
@@ -49,6 +50,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'quena',
     ],
     videoId: 'TftVfJkG0vk',
+    artistIds: ['los-jairas'],
+    placeId: 'la-paz',
   },
   {
     id: 'evt-bossanova-rio-1962',
@@ -72,6 +75,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'brazilian music',
     ],
     videoId: 'v5DZ5clg-bg',
+    artistIds: ['joao-gilberto', 'stan-getz'],
+    placeId: 'rio',
   },
   {
     id: 'evt-tango-buenos-aires-1917',
@@ -96,6 +101,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'arrabal',
     ],
     videoId: '3nwAlORj0As',
+    artistIds: ['carlos-gardel'],
+    placeId: 'buenos-aires',
   },
   {
     id: 'evt-samba-rio-1928',
@@ -120,6 +127,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'batucada',
     ],
     videoId: 'hS0NqPlHuTA',
+    placeId: 'rio',
   },
   {
     id: 'evt-mambo-havana-1950',
@@ -139,6 +147,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'big band',
     ],
     videoId: 'EDRlNtLDcBU',
+    artistIds: ['perez-prado'],
+    placeId: 'havana',
   },
   {
     id: 'evt-salsa-nyc-1973',
@@ -164,6 +174,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'south bronx',
     ],
     videoId: 'EaHMG-6v2u8',
+    artistIds: ['celia-cruz', 'hector-lavoe', 'willie-colon', 'ruben-blades'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-tropicalia-sao-paulo-1968',
@@ -189,6 +201,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'dictatorship',
     ],
     videoId: '9wFLPt3nItQ',
+    placeId: 'sao-paulo',
   },
   {
     id: 'evt-cumbia-monterrey-1990',
@@ -214,6 +227,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'border music',
     ],
     videoId: 'Bqi7DSA1Vd4',
+    artistIds: ['selena'],
+    placeId: 'monterrey',
   },
   {
     id: 'evt-reggaeton-san-juan-2004',
@@ -239,6 +254,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'perreo',
     ],
     videoId: 'vljN1K1czPY',
+    artistIds: ['daddy-yankee', 'tego-calderon'],
+    placeId: 'san-juan',
   },
   {
     id: 'evt-latin-urban-medellin-2017',
@@ -264,6 +281,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'urban latino',
     ],
     videoId: 'S3QMGc7tVes',
+    artistIds: ['j-balvin', 'maluma'],
+    placeId: 'medellin',
   },
   {
     id: 'evt-mariachi-mexicocity-1950',
@@ -289,6 +308,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'unesco',
     ],
     videoId: 'PrRkT7rLd8Y',
+    placeId: 'mexico-city',
   },
   {
     id: 'evt-latin-streaming-mexicocity-2023',
@@ -314,6 +334,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'foro sol',
     ],
     videoId: 'vA2F1YUwzYw',
+    artistIds: ['bad-bunny'],
+    placeId: 'mexico-city',
   },
   {
     id: 'evt-buena-vista-havana-1996',
@@ -333,6 +355,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'wim wenders',
     ],
     videoId: 'tGbRZ73NvlY',
+    artistIds: ['buena-vista-social-club', 'ry-cooder'],
+    placeId: 'havana',
   },
   {
     id: 'evt-tango-buenosaires-1913',
@@ -358,6 +382,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'port',
     ],
     videoId: 'JkPxbowTy-Y',
+    artistIds: ['carlos-gardel'],
+    placeId: 'buenos-aires',
   },
   {
     id: 'evt-bachata-santodomingo-1962',
@@ -382,6 +408,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'barrio',
     ],
     videoId: 'uGstoKXiXwI',
+    artistIds: ['jose-manuel-calderon'],
+    placeId: 'santo-domingo',
   },
   {
     id: 'evt-punta-belizecity-1981',
@@ -406,6 +434,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'belize independence',
     ],
     videoId: 'EQTtAQH73TA',
+    artistIds: ['pen-cayetano'],
+    placeId: 'belize-city',
   },
   {
     id: 'evt-punta-tegucigalpa-1995',
@@ -430,6 +460,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'caribbean coast',
     ],
     videoId: 'NQvMHwo6Y2w',
+    placeId: 'tegucigalpa',
   },
   {
     id: 'evt-cumbia-sansalvador-1990',
@@ -454,6 +485,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'post-war',
     ],
     videoId: 'zY4QB-u5RNs',
+    placeId: 'san-salvador',
   },
   {
     id: 'evt-sonnica-managua-1975',
@@ -479,6 +511,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'revolution',
     ],
     videoId: 'cDtwkdFN9Ik',
+    placeId: 'managua',
   },
   {
     id: 'evt-salsa-caracas-1974',
@@ -504,6 +537,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'venezuelan music',
     ],
     videoId: '8zGkG6OAmUA',
+    artistIds: ['oscar-dleon'],
+    placeId: 'caracas',
   },
   {
     id: 'evt-pasillo-quito-1930',
@@ -528,6 +563,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'quito',
     ],
     videoId: 'IjoyedX1X1M',
+    artistIds: ['julio-jaramillo'],
+    placeId: 'quito',
   },
   {
     id: 'evt-chicha-lima-1970',
@@ -548,6 +585,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'andean migration',
     ],
     videoId: 'UHJINRWcDNY',
+    artistIds: ['los-shapis'],
+    placeId: 'lima',
   },
   {
     id: 'evt-guarania-asuncion-1944',
@@ -573,6 +612,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'mangore',
     ],
     videoId: '2Zo6UfK7o7k',
+    artistIds: ['agustin-barrios', 'felix-perez-cardozo'],
+    placeId: 'asuncion',
   },
   {
     id: 'evt-diaspora-lima-afro-peruvian-1957',
@@ -595,6 +636,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'peru',
     ],
     videoId: 'spbGOamHrdU',
+    artistIds: ['nicomedes-santa-cruz'],
+    placeId: 'lima',
   },
   {
     id: 'evt-contradanza-havana-1800',
@@ -616,6 +659,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'cuba',
     ],
     videoId: 'yyz9SkX94Tg',
+    placeId: 'havana',
   },
   {
     id: 'evt-lundu-rio-1895',
@@ -642,6 +686,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'brazilian dance',
     ],
     videoId: 'erQi9lUIMHM',
+    placeId: 'rio',
   },
   {
     id: 'evt-son-havana-1930',
@@ -662,6 +707,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'golden age',
     ],
     videoId: '9GuJhF_1u9U',
+    placeId: 'havana',
   },
   {
     id: 'evt-revolution-havana-1959',
@@ -685,6 +731,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'diaspora',
     ],
     videoId: 'B1VE56pc3Rk',
+    placeId: 'havana',
   },
   {
     id: 'evt-salsa-nyc-1971',
@@ -709,6 +756,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'nuyorican',
     ],
     videoId: 'j37DqKzE0D8',
+    artistIds: ['willie-colon', 'hector-lavoe'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-chicha-lima-1971',
@@ -729,6 +778,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'migration',
     ],
     videoId: '-tQtg3VUVcA',
+    placeId: 'lima',
   },
   {
     id: 'evt-merengue-santodomingo-1958',
@@ -753,6 +803,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'big band',
     ],
     videoId: 'DJI5YkphZII',
+    placeId: 'santo-domingo',
   },
   {
     id: 'evt-cumbia-barranquilla-1962',
@@ -778,6 +829,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'golden age',
     ],
     videoId: 'igc3_4h8rw0',
+    placeId: 'barranquilla',
   },
   {
     id: 'evt-boogaloo-nyc-1966',
@@ -803,6 +855,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'nuyorican',
     ],
     videoId: '1pVu3qFjFGk',
+    placeId: 'new-york',
   },
   {
     id: 'evt-fania-nyc-1971',
@@ -828,6 +881,14 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'pan-latin',
     ],
     videoId: 'uaBKPGNt2fs',
+    artistIds: [
+      'fania-all-stars',
+      'celia-cruz',
+      'hector-lavoe',
+      'willie-colon',
+      'ruben-blades',
+    ],
+    placeId: 'new-york',
   },
   {
     id: 'evt-sonidero-mexicocity-1975',
@@ -852,6 +913,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'barrio',
     ],
     videoId: 'yeN7x0pvAqg',
+    placeId: 'mexico-city',
   },
   {
     id: 'evt-bachata-santodomingo-1980',
@@ -876,6 +938,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'dominican',
     ],
     videoId: 'QLZeAAesMhc',
+    placeId: 'santo-domingo',
   },
   {
     id: 'evt-cumbia-villera-buenosaires-1990',
@@ -900,6 +963,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'digital cumbia',
     ],
     videoId: 'vUmBvc20ws0',
+    placeId: 'buenos-aires',
   },
   {
     id: 'evt-reggaeton-underground-sanjuan-1993',
@@ -924,6 +988,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'playero tapes',
     ],
     videoId: 'uqJN_fYrQ_U',
+    artistIds: ['dj-playero', 'daddy-yankee', 'tego-calderon'],
+    placeId: 'san-juan',
   },
   {
     id: 'evt-bad-bunny-sanjuan-2020',
@@ -948,6 +1014,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'spanish language pop',
     ],
     videoId: '0GDs7j54nHU',
+    artistIds: ['bad-bunny'],
+    placeId: 'san-juan',
   },
   {
     id: 'evt-danzon-havana-1879',
@@ -967,6 +1035,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'national dance',
     ],
     videoId: 'm74f80e0SsI',
+    artistIds: ['miguel-failde'],
+    placeId: 'havana',
   },
   {
     id: 'evt-son-montuno-havana-1940',
@@ -987,6 +1057,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'salsa blueprint',
     ],
     videoId: '4jbgLyGNe_c',
+    artistIds: ['arsenio-rodriguez'],
+    placeId: 'havana',
   },
   {
     id: 'evt-chacha-havana-1953',
@@ -1007,6 +1079,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'chacha',
     ],
     videoId: 'BG1iX9fy3Wc',
+    artistIds: ['enrique-jorrin'],
+    placeId: 'havana',
   },
   {
     id: 'evt-palladium-nyc-1954',
@@ -1032,6 +1106,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin dance',
     ],
     videoId: '47SC-kL5M0I',
+    artistIds: ['tito-puente', 'machito'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-pachanga-nyc-1961',
@@ -1057,6 +1133,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'craze',
     ],
     videoId: 'dTBBoGdNACU',
+    placeId: 'new-york',
   },
   {
     id: 'evt-merengue-nyc-1985',
@@ -1081,6 +1158,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'nyc latin',
     ],
     videoId: 'TuS2enNgpM0',
+    placeId: 'new-york',
   },
   {
     id: 'evt-salsa-romantica-nyc-1987',
@@ -1106,6 +1184,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'crossover',
     ],
     videoId: 'sC-BiiTvWeU',
+    placeId: 'new-york',
   },
   {
     id: 'evt-timba-havana-1990',
@@ -1127,6 +1206,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'cuban dance music',
     ],
     videoId: 'rV89ldxaVlg',
+    artistIds: ['los-van-van', 'ng-la-banda'],
+    placeId: 'havana',
   },
   {
     id: 'evt-tito-puente-nyc-1958',
@@ -1151,6 +1232,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'nuyorican',
     ],
     videoId: '_kN0FGGFKRE',
+    artistIds: ['tito-puente'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-celia-cruz-havana-1960',
@@ -1170,6 +1253,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'fania',
     ],
     videoId: 'ZkWBMU9QGEw',
+    artistIds: ['celia-cruz'],
+    placeId: 'havana',
   },
   {
     id: 'evt-hector-lavoe-nyc-1975',
@@ -1195,6 +1280,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'el cantante',
     ],
     videoId: 'ENHH9-imLe8',
+    artistIds: ['hector-lavoe', 'willie-colon'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-ruben-blades-siembra-1978',
@@ -1220,6 +1307,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'narrative salsa',
     ],
     videoId: '_AdOMUPKZ24',
+    artistIds: ['ruben-blades', 'willie-colon'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-santana-abraxas-1970',
@@ -1245,6 +1334,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'mexican american',
     ],
     videoId: 'edDQFmK7HHg',
+    artistIds: ['carlos-santana', 'tito-puente'],
+    placeId: 'san-francisco',
   },
   {
     id: 'evt-bad-bunny-verano-2022',
@@ -1270,6 +1361,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin pop',
     ],
     videoId: 'ARWg160eaX4',
+    artistIds: ['bad-bunny'],
+    placeId: 'vega-baja',
   },
   {
     id: 'evt-jbalvin-energia-2016',
@@ -1294,6 +1387,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin pop',
     ],
     videoId: 'J85zhNSU81A',
+    artistIds: ['j-balvin'],
+    placeId: 'medellin',
   },
   {
     id: 'evt-shakira-laundry-2001',
@@ -1319,6 +1414,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'miami',
     ],
     videoId: 'KB5VUfRsRLQ',
+    artistIds: ['shakira'],
+    placeId: 'miami',
   },
   {
     id: 'evt-juanes-fijate-bien-2000',
@@ -1343,6 +1440,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'la camisa negra',
     ],
     videoId: 'vzrWvuGhFSc',
+    artistIds: ['juanes'],
+    placeId: 'medellin',
   },
   {
     id: 'evt-piazzolla-libertango-1974',
@@ -1367,6 +1466,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'classical crossover',
     ],
     videoId: 't83XjF04r80',
+    artistIds: ['astor-piazzolla'],
+    placeId: 'buenos-aires',
   },
   {
     id: 'evt-joao-gilberto-bossanova-1958',
@@ -1391,6 +1492,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'rio de janeiro',
     ],
     videoId: '9MHVgEOfbtM',
+    artistIds: ['joao-gilberto'],
+    placeId: 'rio',
   },
   {
     id: 'evt-mercedes-sosa-tucuman-1971',
@@ -1416,6 +1519,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'violeta parra',
     ],
     videoId: 'qWsAB-DPNOs',
+    artistIds: ['mercedes-sosa', 'violeta-parra'],
+    placeId: 'tucuman',
   },
   {
     id: 'evt-violeta-parra-santiago-1966',
@@ -1441,6 +1546,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'inti-illimani',
     ],
     videoId: 'Y5KZSlUxBi8',
+    artistIds: ['violeta-parra', 'victor-jara'],
+    placeId: 'santiago',
   },
   {
     id: 'evt-cafe-tacvba-re-1994',
@@ -1466,6 +1573,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'experimental',
     ],
     videoId: 'kIr8hsVTCzg',
+    artistIds: ['cafe-tacvba'],
+    placeId: 'mexico-city',
   },
   {
     id: 'evt-manu-chao-clandestino-1998',
@@ -1492,6 +1601,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin alternative',
     ],
     videoId: 'b4tTvUmxdeE',
+    artistIds: ['manu-chao'],
+    placeId: 'paris',
   },
   {
     id: 'evt-rosalia-el-mal-querer-2018',
@@ -1517,6 +1628,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin grammy',
     ],
     videoId: '5W-_NEGq2R4',
+    artistIds: ['rosalia'],
+    placeId: 'barcelona',
   },
   {
     id: 'evt-selena-amor-prohibido-1994',
@@ -1542,6 +1655,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin pop',
     ],
     videoId: '-tHIwDoZ8mg',
+    artistIds: ['selena'],
+    placeId: 'corpus-christi',
   },
   {
     id: 'evt-jorge-ben-jor-rio-1963',
@@ -1566,6 +1681,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'mpb',
     ],
     videoId: 'gLBHwkfOoqM',
+    artistIds: ['jorge-ben-jor'],
+    placeId: 'rio',
   },
   {
     id: 'evt-marc-anthony-nyc-1999',
@@ -1590,6 +1707,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'grammy',
     ],
     videoId: 'fLVzw9wVd9o',
+    artistIds: ['marc-anthony'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-ozuna-aura-2018',
@@ -1614,6 +1733,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin pop',
     ],
     videoId: 'wSdkM1AOyII',
+    artistIds: ['ozuna'],
+    placeId: 'san-juan',
   },
   {
     id: 'evt-karol-g-manana-2023',
@@ -1639,6 +1760,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin pop',
     ],
     videoId: '6k1TqYRWtCI',
+    artistIds: ['karol-g'],
+    placeId: 'medellin',
   },
   {
     id: 'evt-natalia-lafourcade-musas-2017',
@@ -1664,6 +1787,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin grammy',
     ],
     videoId: 'gd4jntP0tco',
+    artistIds: ['natalia-lafourcade'],
+    placeId: 'mexico-city',
   },
   {
     id: 'evt-mon-laferte-vina-2015',
@@ -1688,6 +1813,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'rock en espanol',
     ],
     videoId: 'epNbtk3rL_o',
+    artistIds: ['mon-laferte'],
+    placeId: 'vina-del-mar',
   },
   {
     id: 'evt-soda-stereo-buenosaires-1984',
@@ -1712,6 +1839,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'post-punk',
     ],
     videoId: 'OX-us7PEfkc',
+    artistIds: ['soda-stereo'],
+    placeId: 'buenos-aires',
   },
   {
     id: 'evt-fabulosos-cadillacs-buenosaires-1986',
@@ -1737,6 +1866,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'latin grammy',
     ],
     videoId: '09BHOB39jaY',
+    artistIds: ['los-fabulosos-cadillacs'],
+    placeId: 'buenos-aires',
   },
   {
     id: 'evt-aterciopelados-bogota-1990',
@@ -1761,6 +1892,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'el dorado',
     ],
     videoId: '8brMWtEvzZA',
+    artistIds: ['aterciopelados'],
+    placeId: 'bogota',
   },
   {
     id: 'evt-bomba-estereo-bogota-2015',
@@ -1786,6 +1919,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'electronic',
     ],
     videoId: 'THBP1tq49wk',
+    artistIds: ['bomba-estereo'],
+    placeId: 'bogota',
   },
   {
     id: 'evt-calle13-sanjuan-2005',
@@ -1811,6 +1946,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'protest music',
     ],
     videoId: 'BM6MHdhlZ0M',
+    placeId: 'san-juan',
   },
   {
     id: 'evt-ivy-queen-anasco-2003',
@@ -1835,6 +1971,8 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'puerto rico',
     ],
     videoId: 'T7B_lKM7JT0',
+    artistIds: ['ivy-queen'],
+    placeId: 'anasco',
   },
   {
     id: 'evt-tego-calderon-santurce-2003',
@@ -1860,5 +1998,7 @@ export const LATIN_EVENTS: HistoricalEvent[] = [
       'loiza',
     ],
     videoId: '6HY2VI4TrqY',
+    artistIds: ['tego-calderon'],
+    placeId: 'santurce',
   },
 ];

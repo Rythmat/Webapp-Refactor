@@ -114,12 +114,98 @@ describe('GenrePianoRoll instrument', () => {
     faces.notation.mockClear();
 
     render(<GenrePianoRoll {...lesson} instrument="guitar" />);
-    // TAB has no key signature, so it takes no key.
-    expect(shared(faces.tab.mock.lastCall![0])).toEqual(
-      shared(piano, 'keyRoot'),
-    );
+    // TAB has no key signature, so it takes no key; whether the playhead
+    // runs is the TAB's alone (it lights no note once a take stops), and so
+    // is where a paged TAB opens.
+    expect(
+      shared(faces.tab.mock.lastCall![0], 'playing', 'openOnMusic'),
+    ).toEqual(shared(piano, 'keyRoot'));
     fireEvent.click(screen.getByRole('radio', { name: 'Notation' }));
     expect(shared(faces.notation.mock.lastCall![0])).toEqual(piano);
+  });
+
+  it('opens the TAB on the music only when the lesson asks (its preview)', () => {
+    const { rerender } = render(
+      <GenrePianoRoll events={events} bars={1} instrument="guitar" />,
+    );
+    expect(faces.tab).toHaveBeenLastCalledWith(
+      expect.objectContaining({ openOnMusic: false }),
+    );
+    rerender(
+      <GenrePianoRoll
+        events={events}
+        bars={1}
+        instrument="guitar"
+        tabOpensOnMusic
+      />,
+    );
+    expect(faces.tab).toHaveBeenLastCalledWith(
+      expect.objectContaining({ openOnMusic: true }),
+    );
+  });
+
+  it('drops the view switch and both faces’ header for the guitar lesson layout', () => {
+    render(
+      <GenrePianoRoll
+        events={events}
+        bars={1}
+        instrument="guitar"
+        guitarViewToggle={false}
+      />,
+    );
+    expect(screen.getByTestId('tab-view')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('radiogroup', { name: 'Guitar note view' }),
+    ).toBeNull();
+    expect(screen.queryByRole('radio', { name: 'Tablature' })).toBeNull();
+    expect(faces.tab).toHaveBeenLastCalledWith(
+      expect.objectContaining({ toggle: null, showHeader: false }),
+    );
+
+    // Notation, chosen in the lesson's settings, loses its header too.
+    cleanup();
+    localStorage.setItem('musicAtlas:guitarView', 'notation');
+    render(
+      <GenrePianoRoll
+        events={events}
+        bars={1}
+        instrument="guitar"
+        guitarViewToggle={false}
+      />,
+    );
+    expect(screen.getByTestId('notation-view')).toBeInTheDocument();
+    expect(faces.notation).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        toggle: null,
+        showHeader: false,
+        clefAnnotation: '8vb',
+      }),
+    );
+  });
+
+  it('tells the TAB whether its playhead is running', () => {
+    const roll = (isPlaying: boolean) => (
+      <GenrePianoRoll
+        events={events}
+        bars={1}
+        instrument="guitar"
+        inTime
+        isPlaying={isPlaying}
+        onPlayingChange={() => {}}
+      />
+    );
+    const { rerender } = render(roll(true));
+    expect(faces.tab.mock.lastCall![0]).toHaveProperty('playing', true);
+    rerender(roll(false));
+    expect(faces.tab.mock.lastCall![0]).toHaveProperty('playing', false);
+  });
+
+  it('hands neither face a header setting by default', () => {
+    render(<GenrePianoRoll events={events} bars={1} instrument="guitar" />);
+    expect(faces.tab.mock.lastCall![0]).not.toHaveProperty('showHeader');
+    expect(
+      screen.getByRole('radiogroup', { name: 'Guitar note view' }),
+    ).toBeInTheDocument();
   });
 
   it("gives piano's notation view none of guitar's settings", () => {
@@ -129,6 +215,7 @@ describe('GenrePianoRoll instrument', () => {
     const props = faces.notation.mock.lastCall![0];
     expect(props).not.toHaveProperty('writtenOctaveShift');
     expect(props).not.toHaveProperty('clefAnnotation');
+    expect(props).not.toHaveProperty('showHeader');
     expect(props.staves).toBe('treble');
   });
 });

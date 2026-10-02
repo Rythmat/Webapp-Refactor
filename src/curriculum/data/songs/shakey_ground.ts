@@ -16,6 +16,25 @@ export const shakey_ground: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  session: { studioId: 'motown-studios-hitsville-west' },
+  credits: [
+    { name: 'Berry Gordy', role: 'producer', artistGlobeId: 'berry-gordy' },
+    { name: 'Jeffrey Bowen', role: 'producer', artistGlobeId: 'jeffrey-bowen' },
+    {
+      name: 'James Anthony Carmichael',
+      role: 'arranger',
+      artistGlobeId: 'james-anthony-carmichael',
+    },
+    { name: 'Dennis Edwards', role: 'vocals', artistGlobeId: 'dennis-edwards' },
+    { name: 'Al Boyd', role: 'songwriter', artistGlobeId: 'al-boyd' },
+    {
+      name: 'Jeffrey Bowen',
+      role: 'songwriter',
+      artistGlobeId: 'jeffrey-bowen',
+    },
+    { name: 'Eddie Hazel', role: 'songwriter', artistGlobeId: 'eddie-hazel' },
+  ],
+  releases: [{ releaseId: 'the-temptations-a-song-for-you', track: 3 }],
 
   sections: [
     {

@@ -16,6 +16,48 @@ export const sir_duke: Song = {
   difficulty: 3,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Ray Maldonado', role: 'performer', instrument: 'trumpet' },
+    { name: 'Ben Bridges', role: 'performer' },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    { name: 'Trevor Lawrence', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Hank Redd', role: 'performer', instrument: 'alto-sax' },
+    { name: 'Raymond Pounds', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'fender-rhodes',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Nathan Watts', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+    { name: 'Stevie Wonder', role: 'arranger', artistGlobeId: 'stevie-wonder' },
+    {
+      name: 'Michael Sembello',
+      role: 'performer',
+      artistGlobeId: 'michael-sembello',
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Steve Madaio', role: 'performer', instrument: 'trumpet' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-songs-in-the-key-of-life' }],
 
   sections: [
     {

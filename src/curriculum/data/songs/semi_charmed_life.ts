@@ -16,6 +16,67 @@ export const semi_charmed_life: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Stephan Jenkins',
+      role: 'performer',
+      artistGlobeId: 'stephan-jenkins',
+    },
+    {
+      name: 'Arion Salazar',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'arion-salazar',
+    },
+    { name: 'Arion Salazar', role: 'arranger', artistGlobeId: 'arion-salazar' },
+    {
+      name: 'Brad Hargreaves',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'brad-hargreaves',
+    },
+    { name: 'Kevin Cadogan', role: 'producer', artistGlobeId: 'kevin-cadogan' },
+    { name: 'Ren Klyce', role: 'arranger' },
+    {
+      name: 'Stephan Jenkins',
+      role: 'vocals',
+      artistGlobeId: 'stephan-jenkins',
+    },
+    {
+      name: 'Kevin Cadogan',
+      role: 'performer',
+      artistGlobeId: 'kevin-cadogan',
+    },
+    {
+      name: 'Kevin Cadogan',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'kevin-cadogan',
+    },
+    {
+      name: 'Eric Valentine',
+      role: 'engineer',
+      artistGlobeId: 'eric-valentine',
+    },
+    {
+      name: 'Stephan Jenkins',
+      role: 'songwriter',
+      artistGlobeId: 'stephan-jenkins',
+    },
+    { name: 'Arion Salazar', role: 'producer', artistGlobeId: 'arion-salazar' },
+    {
+      name: 'Eric Valentine',
+      role: 'producer',
+      artistGlobeId: 'eric-valentine',
+    },
+    {
+      name: 'Stephan Jenkins',
+      role: 'producer',
+      artistGlobeId: 'stephan-jenkins',
+    },
+    { name: 'Kevin Cadogan', role: 'arranger', artistGlobeId: 'kevin-cadogan' },
+  ],
+  releases: [{ releaseId: 'third-eye-blind-third-eye-blind', track: 3 }],
 
   sections: [
     {

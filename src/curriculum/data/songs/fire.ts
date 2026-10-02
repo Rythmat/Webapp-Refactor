@@ -4,7 +4,7 @@ export const fire: Song = {
   id: 'fire',
   title: 'Fire',
   artist: 'Jimi Hendrix',
-  year: undefined,
+  year: 1967,
 
   historicalDescription:
     "Jimi Hendrix unleashes 'Fire' as a raw, high-voltage showcase of his guitar pyrotechnics and magnetic stage presence. First appearing on 'Are You Experienced' in 1967, the track distills the explosive energy of Hendrix's live performances into a concise burst of psychedelic rock. It cements his reputation as the most electrifying guitarist of his generation.",

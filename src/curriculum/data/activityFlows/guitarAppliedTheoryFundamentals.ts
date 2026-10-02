@@ -1,15 +1,20 @@
 /**
- * Applied Theory Fundamentals — Guitar (Technique tab, free, key-parameterized).
+ * Ionian (Major) on guitar (Learn → Theory, key-parameterized; C free, the
+ * other keys Premium, as on piano).
  *
  * The guitar twin of appliedTheoryFundamentals.ts, built from The Guitar
- * Atlas: Book One. It keeps the piano flow's logic step for step — the same
- * sections, subsections, titles, assessments, tag suffixes, onsets and
- * durations — and plays the book's own material in them: its major-scale
- * position instead of a keyboard octave, its chord boxes instead of close
- * triads. Where the book has more than the piano flow (the pentatonic
- * position, triads 5-6, the 7th chords, the Music Maps) it adds subsections
- * built with the same builders; the Music Maps take the place of piano's
- * two-hand steps.
+ * Atlas: Book One. It started out as guitar Applied Theory Fundamentals; its
+ * ids (genre, module, tags, this file and the builder) keep that name so
+ * saved progress carries over, and only what the student sees says Ionian
+ * (Major).
+ *
+ * It keeps the piano flow's logic step for step — the same sections,
+ * subsections, titles, assessments, tag suffixes, onsets and durations — and
+ * plays the book's own material in them: its major-scale position instead of
+ * a keyboard octave, its chord boxes instead of close triads. Where the book
+ * has more than the piano flow (the pentatonic position, triads 5-6, the 7th
+ * chords, the Music Maps) it adds subsections built with the same builders;
+ * the Music Maps take the place of piano's two-hand steps.
  *
  * Every note is explicit: a fret on a string (TargetNote.fretPosition) at its
  * sounding pitch, so resolveStepContent passes it through untouched (Priority
@@ -1010,7 +1015,7 @@ function buildPlayAlongSteps(center: GuitarKeyCenter, step: Step) {
 // ── Builder ───────────────────────────────────────────────────────────────
 
 /**
- * Builds the guitar Applied Theory Fundamentals flow for a key center.
+ * Builds the guitar Ionian (Major) flow for a key center.
  * @param keyName - ASCII key name, e.g. 'C', 'F#', 'Db'. Other spellings of a
  *   book key ('Gb', 'C#') resolve to it; anything else falls back to C, as
  *   the piano builder falls back to MIDI 60.
@@ -1046,7 +1051,7 @@ export function buildGuitarAppliedTheoryFundamentalsFlow(
     genre: GUITAR_APPLIED_THEORY_GENRE,
     level: 1,
     version: 'v2',
-    title: 'Applied Theory Fundamentals — Guitar',
+    title: 'Ionian (Major) — Guitar',
     params: {
       defaultKey: `${key} Major (Ionian)`,
       defaultScale: MAJOR_SCALE_INTERVALS,

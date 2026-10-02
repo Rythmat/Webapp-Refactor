@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAdminTelemetryOverview } from '@/hooks/data/admin/useAdminTelemetry';
+import { ConsoleSectionTitle } from '../ui/ConsolePageHeader';
 import { StatCard } from './components/StatCard';
 import {
   TimeRangeSelect,
@@ -15,8 +16,8 @@ export const AdminTelemetryOverviewPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Overview</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <ConsoleSectionTitle>Overview</ConsoleSectionTitle>
         <TimeRangeSelect value={range} onChange={setRange} />
       </div>
 

@@ -16,6 +16,56 @@ export const take_on_me: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'a‐ha', role: 'engineer', ensemble: true, artistGlobeId: 'a-ha' },
+    {
+      name: 'Morten Harket',
+      role: 'songwriter',
+      artistGlobeId: 'morten-harket',
+    },
+    { name: 'John Ratcliff', role: 'engineer' },
+    {
+      name: 'Paul Waaktaar-Savoy',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'paul-waaktaar-savoy',
+    },
+    {
+      name: 'Paul Waaktaar-Savoy',
+      role: 'songwriter',
+      artistGlobeId: 'paul-waaktaar-savoy',
+    },
+    { name: 'Morten Harket', role: 'vocals', artistGlobeId: 'morten-harket' },
+    {
+      name: 'Paul Waaktaar-Savoy',
+      role: 'performer',
+      instrument: 'drum-machine',
+      artistGlobeId: 'paul-waaktaar-savoy',
+    },
+    {
+      name: 'Magne Furuholmen',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'magne-furuholmen',
+    },
+    { name: 'Alan Tarney', role: 'producer', artistGlobeId: 'alan-tarney' },
+    {
+      name: 'Paul Waaktaar-Savoy',
+      role: 'performer',
+      artistGlobeId: 'paul-waaktaar-savoy',
+    },
+    {
+      name: 'Magne Furuholmen',
+      role: 'songwriter',
+      artistGlobeId: 'magne-furuholmen',
+    },
+    {
+      name: 'Magne Furuholmen',
+      role: 'performer',
+      artistGlobeId: 'magne-furuholmen',
+    },
+  ],
+  releases: [{ releaseId: 'a-ha-hunting-high-and-low' }],
 
   sections: [
     {

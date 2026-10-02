@@ -16,6 +16,19 @@ export const broken_halos: Song = {
   difficulty: 2,
   genreTags: ['folk', 'pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Chris Stapleton',
+      role: 'songwriter',
+      artistGlobeId: 'chris-stapleton',
+    },
+    {
+      name: 'Mike Henderson',
+      role: 'songwriter',
+      artistGlobeId: 'mike-henderson',
+    },
+  ],
+  releases: [{ releaseId: 'chris-stapleton-from-a-room-volume-1' }],
 
   sections: [
     {

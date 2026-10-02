@@ -1,6 +1,6 @@
-import type { HistoricalEvent } from '@/components/atlas/types';
+import type { GlobeEventRecord } from '@/content/records/types';
 
-export const HIPHOP_EVENTS: HistoricalEvent[] = [
+export const HIPHOP_EVENTS: GlobeEventRecord[] = [
   {
     id: 'evt-hiphop-nyc-1984',
     year: 1984,
@@ -24,6 +24,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'rap debut',
     ],
     videoId: 'iOKMWSR2Aio',
+    artistIds: ['run-dmc', 'rick-rubin'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-hiphop-atlanta-2003',
@@ -44,6 +46,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'dirty south',
     ],
     videoId: 'cthy007wxjY',
+    artistIds: ['outkast', 'andre-3000', 'big-boi'],
+    placeId: 'atlanta',
   },
   {
     id: 'evt-hiphop-nyc-1979',
@@ -69,6 +73,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'old school',
     ],
     videoId: 'Te7FLFK3o7A',
+    artistIds: ['sugar-hill-gang'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-westcoast-la-1988',
@@ -94,6 +100,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'south central',
     ],
     videoId: 'x0BkTFh-OB8',
+    artistIds: ['dr-dre'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-chopped-houston-1995',
@@ -113,6 +121,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'screwed up click',
     ],
     videoId: '8jfFt4rQa4Y',
+    artistIds: ['dj-screw'],
+    placeId: 'houston',
   },
   {
     id: 'evt-grime-london-2003',
@@ -133,6 +143,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'roll deep',
     ],
     videoId: 'EZzGFOCDcIE',
+    artistIds: ['dizzee-rascal'],
+    placeId: 'london',
   },
   {
     id: 'evt-trap-atlanta-2012',
@@ -153,6 +165,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'quality control',
     ],
     videoId: 'x95VyWhAwUI',
+    artistIds: ['young-thug'],
+    placeId: 'atlanta',
   },
   {
     id: 'evt-drill-london-2019',
@@ -173,6 +187,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'british rap',
     ],
     videoId: 'Ba-jeB6oHBM',
+    placeId: 'london',
   },
   {
     id: 'evt-hiphop-paris-1990',
@@ -193,6 +208,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'seine saint denis',
     ],
     videoId: '1R2etg__x1Y',
+    placeId: 'paris',
   },
   {
     id: 'evt-mahraganat-cairo-2012',
@@ -213,6 +229,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'tuk-tuk',
     ],
     videoId: 'rplA4y0Gc4s',
+    placeId: 'cairo',
   },
   {
     id: 'evt-uk-drill-london-2022',
@@ -233,6 +250,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'south london',
     ],
     videoId: 'pSY3i5XHHXo',
+    placeId: 'london',
   },
   {
     id: 'evt-baile-funk-saopaulo-2004',
@@ -258,6 +276,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'tecnobrega',
     ],
     videoId: 'QnKu1S01vDA',
+    placeId: 'rio',
   },
   {
     id: 'evt-hipco-monrovia-2004',
@@ -283,6 +302,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'reconstruction',
     ],
     videoId: 'GK4G3B4DKeo',
+    placeId: 'monrovia',
   },
   {
     id: 'evt-bongo-flava-dar-1990',
@@ -308,6 +328,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'east africa',
     ],
     videoId: 'gSqA6dz3-cs',
+    placeId: 'dar-es-salaam',
   },
   {
     id: 'evt-inanga-kigali-2010',
@@ -328,6 +349,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'kigaliup',
     ],
     videoId: 'z-raoyxX9os',
+    placeId: 'kigali',
   },
   {
     id: 'evt-motswako-gaborone-2005',
@@ -353,6 +375,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'kalahari',
     ],
     videoId: '3MXlG2RCCLE',
+    placeId: 'gaborone',
   },
   {
     id: 'evt-arabic-indie-amman-2015',
@@ -371,6 +394,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'jafra cafe',
     ],
     videoId: 'ylXrZxKYEL4',
+    placeId: 'amman',
   },
   {
     id: 'evt-palestinian-hiphop-ramallah-2007',
@@ -394,6 +418,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'resistance music',
     ],
     videoId: 'zIo6lyP9tTE',
+    artistIds: ['dam'],
+    placeId: 'ramallah',
   },
   {
     id: 'evt-arabic-hiphop-dubai-2017',
@@ -412,6 +438,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'arab trap',
     ],
     videoId: 'GFD_YomluSE',
+    placeId: 'dubai',
   },
   {
     id: 'evt-drake-toronto-2015',
@@ -437,6 +464,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'six',
     ],
     videoId: 'tfrWuiQ4QNc',
+    artistIds: ['drake', 'the-weeknd'],
+    placeId: 'toronto',
   },
   {
     id: 'evt-cadenceweapon-edmonton-2005',
@@ -460,6 +489,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'alberta',
     ],
     videoId: 'thlDLoo62As',
+    artistIds: ['cadence-weapon'],
+    placeId: 'edmonton',
   },
   {
     id: 'evt-rhymesayers-minneapolis-2002',
@@ -485,6 +516,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'eyedea',
     ],
     videoId: 'gbEwHJX95QE',
+    artistIds: ['atmosphere'],
+    placeId: 'minneapolis',
   },
   {
     id: 'evt-hiphop-pittsburgh-2010',
@@ -510,6 +543,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'rust belt',
     ],
     videoId: 'JmwxAG1vTbk',
+    artistIds: ['mac-miller', 'wiz-khalifa'],
+    placeId: 'pittsburgh',
   },
   {
     id: 'evt-queenlatifah-newark-1989',
@@ -530,6 +565,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'afrocentric',
     ],
     videoId: 'qaS4pGWQ7RE',
+    artistIds: ['queen-latifah'],
+    placeId: 'newark',
   },
   {
     id: 'evt-dababy-charlotte-2019',
@@ -550,6 +587,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'billboard',
     ],
     videoId: 'KvuQNNVrbtM',
+    artistIds: ['dababy'],
+    placeId: 'charlotte',
   },
   {
     id: 'evt-diaspora-nyc-hip-hop-africa-1982',
@@ -577,6 +616,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'afrofuturism',
     ],
     videoId: '9J3lwZjHenA',
+    artistIds: ['afrika-bambaataa'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-hiphop-nyc-1973',
@@ -601,6 +642,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'birth of hip hop',
     ],
     videoId: 'Jdb3MTz7xXg',
+    placeId: 'new-york',
   },
   {
     id: 'evt-conscious-rap-nyc-1982',
@@ -624,6 +666,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'hip-hop',
     ],
     videoId: 'PobrSpMwKk4',
+    artistIds: ['grandmaster-flash'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-rap-rock-nyc-1986',
@@ -648,6 +692,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'hip-hop',
     ],
     videoId: '4B_UYYPb-Gk',
+    artistIds: ['run-dmc'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-hiphop-dakar-1991',
@@ -672,6 +718,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'francophone',
     ],
     videoId: 'tt9F_FOb5Rk',
+    placeId: 'dakar',
   },
   {
     id: 'evt-hiphop-tokyo-1993',
@@ -691,6 +738,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'boom bap',
     ],
     videoId: '5YxT_lBJQvs',
+    artistIds: ['dj-krush'],
+    placeId: 'tokyo',
   },
   {
     id: 'evt-hiphop-saopaulo-1995',
@@ -714,6 +763,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'sobrevivendo no inferno',
     ],
     videoId: 'BHW_Ge2MNtg',
+    placeId: 'sao-paulo',
   },
   {
     id: 'evt-k-hiphop-seoul-1996',
@@ -738,6 +788,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'youth revolution',
     ],
     videoId: 'IRFfPZQeJuo',
+    artistIds: ['seo-taiji'],
+    placeId: 'seoul',
   },
   {
     id: 'evt-cuban-hiphop-havana-2001',
@@ -757,6 +809,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'obsesion',
     ],
     videoId: 'L2eV20UhkQk',
+    placeId: 'havana',
   },
   {
     id: 'evt-hiplife-accra-2004',
@@ -776,6 +829,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'afrobeats origin',
     ],
     videoId: '_IdXQP4pJ6Q',
+    placeId: 'accra',
   },
   {
     id: 'evt-latin-trap-medellin-2005',
@@ -801,6 +855,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'colombian',
     ],
     videoId: 'TtIg2jcjB5o',
+    artistIds: ['j-balvin'],
+    placeId: 'medellin',
   },
   {
     id: 'evt-indian-hiphop-mumbai-2020',
@@ -821,6 +877,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'desi hip hop',
     ],
     videoId: '1bK5dzwhu-I',
+    placeId: 'mumbai',
   },
   {
     id: 'evt-afroswing-london-2017',
@@ -841,6 +898,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'grime fusion',
     ],
     videoId: 'As1pRzoKmJ8',
+    placeId: 'london',
   },
 
   // === Female MCs ===
@@ -868,6 +926,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'r&b',
     ],
     videoId: 'hHcyJPTTn9w',
+    artistIds: ['missy-elliott', 'timbaland'],
+    placeId: 'portsmouth',
   },
   {
     id: 'evt-hiphop-brooklyn-1996-lilkim',
@@ -888,6 +948,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'hardcore rap',
     ],
     videoId: 'O7RSluo5Xyc',
+    artistIds: ['lil-kim'],
+    placeId: 'brooklyn',
   },
   {
     id: 'evt-hiphop-philly-1999-eve',
@@ -912,6 +974,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'east coast rap',
     ],
     videoId: 'yuhitNJNudI',
+    artistIds: ['eve'],
+    placeId: 'philadelphia',
   },
   {
     id: 'evt-hiphop-nyc-2010-nickiminaj',
@@ -937,6 +1001,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'alter ego',
     ],
     videoId: '4JipHEz53sU',
+    artistIds: ['nicki-minaj'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-hiphop-bronx-2018-cardib',
@@ -957,6 +1023,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'trap',
     ],
     videoId: 'XHyYRknFKn0',
+    artistIds: ['cardi-b'],
+    placeId: 'bronx',
   },
   {
     id: 'evt-hiphop-houston-2020-megtheestallion',
@@ -977,6 +1045,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'texas',
     ],
     videoId: 'AqaQsL-8I_M',
+    artistIds: ['megan-thee-stallion'],
+    placeId: 'houston',
   },
   {
     id: 'evt-hiphop-tampa-2024-doechii',
@@ -997,6 +1067,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'grammy',
     ],
     videoId: 'd88aXSr6e7U',
+    artistIds: ['doechii'],
+    placeId: 'tampa',
   },
   {
     id: 'evt-hiphop-raleigh-2017-rapsody',
@@ -1017,6 +1089,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'lyricist',
     ],
     videoId: 'btYlWphnfbE',
+    artistIds: ['rapsody'],
+    placeId: 'raleigh',
   },
   {
     id: 'evt-hiphop-london-2021-littlesimz',
@@ -1037,6 +1111,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'north london',
     ],
     videoId: 'YSVUozpD7HY',
+    artistIds: ['little-simz'],
+    placeId: 'london',
   },
   {
     id: 'evt-hiphop-philly-2018-tierrawhack',
@@ -1062,6 +1138,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'one minute songs',
     ],
     videoId: 'uRG6IWYVazM',
+    artistIds: ['tierra-whack'],
+    placeId: 'philadelphia',
   },
 
   // === Hispanic Hip Hop ===
@@ -1084,6 +1162,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'lyricist',
     ],
     videoId: '4Lg016unpmw',
+    artistIds: ['big-pun'],
+    placeId: 'bronx',
   },
   {
     id: 'evt-hiphop-la-1991-cypresshill',
@@ -1109,6 +1189,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'mexican american',
     ],
     videoId: 'tUApO77uUUk',
+    artistIds: ['cypress-hill'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-hiphop-harlem-2003-immortaltechnique',
@@ -1129,6 +1211,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'dance with the devil',
     ],
     videoId: 'dMymMGVYi8A',
+    artistIds: ['immortal-technique'],
+    placeId: 'harlem',
   },
   {
     id: 'evt-hiphop-bronx-1998-fatjoe',
@@ -1149,6 +1233,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'east coast rap',
     ],
     videoId: 'sb-gh6hJr30',
+    artistIds: ['fat-joe'],
+    placeId: 'bronx',
   },
   {
     id: 'evt-hiphop-miami-2004-pitbull',
@@ -1169,6 +1255,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'bilingual rap',
     ],
     videoId: 'Cj1SCv5HkKE',
+    artistIds: ['pitbull'],
+    placeId: 'miami',
   },
 
   // === Conscious Rap ===
@@ -1191,6 +1279,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'conscious rap',
     ],
     videoId: 'DcOxPVilxrg',
+    artistIds: ['gang-starr', 'dj-premier'],
+    placeId: 'brooklyn',
   },
   {
     id: 'evt-hiphop-brooklyn-1998-blackstar',
@@ -1211,6 +1301,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'definition',
     ],
     videoId: 'eeTnog5RRQo',
+    artistIds: ['talib-kweli'],
+    placeId: 'brooklyn',
   },
   {
     id: 'evt-hiphop-chicago-2000-common',
@@ -1231,6 +1323,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'questlove',
     ],
     videoId: '9cncKOGTCJk',
+    artistIds: ['common'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-hiphop-philly-1999-theroots',
@@ -1256,6 +1350,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'conscious rap',
     ],
     videoId: '20AVKn1sR6c',
+    artistIds: ['the-roots', 'black-thought'],
+    placeId: 'philadelphia',
   },
 
   // === Golden Age & Modern Classics ===
@@ -1284,6 +1380,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'black power',
     ],
     videoId: 'UexhiKFCAAM',
+    artistIds: ['public-enemy'],
+    placeId: 'long-island',
   },
   {
     id: 'evt-hiphop-queens-1994-nas',
@@ -1304,6 +1402,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'golden age',
     ],
     videoId: 'ImSoA_fAVL4',
+    artistIds: ['nas', 'dj-premier'],
+    placeId: 'queens',
   },
   {
     id: 'evt-hiphop-brooklyn-1996-jayz',
@@ -1324,6 +1424,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'mogul',
     ],
     videoId: 'gwbUtfEJ8lE',
+    artistIds: ['jay-z'],
+    placeId: 'brooklyn',
   },
   {
     id: 'evt-hiphop-chicago-2004-kanyewest',
@@ -1344,6 +1446,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'producer-rapper',
     ],
     videoId: 'AE8y25CcE6s',
+    artistIds: ['kanye-west'],
+    placeId: 'chicago',
   },
   {
     id: 'evt-hiphop-compton-2012-kendricklamar',
@@ -1364,6 +1468,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'storytelling',
     ],
     videoId: 'hHNmgefPaLg',
+    artistIds: ['kendrick-lamar'],
+    placeId: 'compton',
   },
   {
     id: 'evt-hiphop-toronto-2011-drake',
@@ -1389,6 +1495,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'marvins room',
     ],
     videoId: '3t195yz9xCc',
+    artistIds: ['drake', '40'],
+    placeId: 'toronto',
   },
   {
     id: 'evt-hiphop-la-2019-tylerthecreator',
@@ -1414,6 +1522,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'synth pop',
     ],
     videoId: '2TVXi_9Bvlg',
+    artistIds: ['tyler-the-creator'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-hiphop-fayetteville-2014-jcole',
@@ -1439,6 +1549,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'introspective',
     ],
     videoId: 'NtjrFw4i2Qo',
+    artistIds: ['j-cole'],
+    placeId: 'fayetteville',
   },
   {
     id: 'evt-hiphop-neworleans-2008-lilwayne',
@@ -1464,6 +1576,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'young money',
     ],
     videoId: 'sINGvrL61VY',
+    artistIds: ['lil-wayne'],
+    placeId: 'new-orleans',
   },
   {
     id: 'evt-hiphop-detroit-2000-eminem',
@@ -1484,6 +1598,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'rap god',
     ],
     videoId: 'XGSrs0QIUAc',
+    artistIds: ['eminem', 'dr-dre'],
+    placeId: 'detroit',
   },
   {
     id: 'evt-hiphop-atlanta-1998-outkast',
@@ -1504,6 +1620,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'dungeon family',
     ],
     videoId: 'KwhBreZic8I',
+    artistIds: ['outkast', 'andre-3000', 'big-boi', 'organized-noize'],
+    placeId: 'atlanta',
   },
   {
     id: 'evt-hiphop-queens-1991-tribecalledquest',
@@ -1524,6 +1642,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'alternative hip hop',
     ],
     videoId: 'P9oTCzWRuvQ',
+    artistIds: ['a-tribe-called-quest'],
+    placeId: 'queens',
   },
   {
     id: 'evt-hiphop-statenisland-1993-wutang',
@@ -1549,6 +1669,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'cream',
     ],
     videoId: 'pJk0p-98Xzc',
+    artistIds: ['wu-tang-clan'],
+    placeId: 'staten-island',
   },
   {
     id: 'evt-hiphop-houston-2018-travisscott',
@@ -1569,6 +1691,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'texas',
     ],
     videoId: 'XzmnM2PLPfs',
+    artistIds: ['travis-scott'],
+    placeId: 'houston',
   },
   {
     id: 'evt-hiphop-la-2004-mfdoom',
@@ -1594,6 +1718,8 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'villain',
     ],
     videoId: 'gSJeHDlhYls',
+    artistIds: ['mf-doom', 'madlib'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-hiphop-chicago-2016-chancetherapper',
@@ -1614,5 +1740,7 @@ export const HIPHOP_EVENTS: HistoricalEvent[] = [
       'south side',
     ],
     videoId: 'rDAkWJgTSOk',
+    artistIds: ['chance-the-rapper'],
+    placeId: 'chicago',
   },
 ];

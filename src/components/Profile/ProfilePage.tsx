@@ -207,7 +207,7 @@ export const ProfilePage: React.FC = () => {
               <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
                 <div className="flex flex-col items-center justify-center lg:col-span-5">
                   <div
-                    className="mb-4 rounded-full px-4 py-2 text-center font-serif text-lg backdrop-blur-sm"
+                    className="mb-4 rounded-full px-4 py-2 text-center text-lg backdrop-blur-sm"
                     style={{
                       background: 'rgba(0,0,0,0.35)',
                       border: '1px solid var(--color-border)',
@@ -260,7 +260,7 @@ export const ProfilePage: React.FC = () => {
                       style={{ color: 'var(--color-text)' }}
                     >
                       <User size={20} />
-                      <h2 className="font-serif text-lg">Bio</h2>
+                      <h2 className="text-lg">Bio</h2>
                     </div>
                     <div className="flex items-center gap-2">
                       <span
@@ -285,7 +285,7 @@ export const ProfilePage: React.FC = () => {
                     <div className="space-y-6">
                       <div>
                         <h3
-                          className="mb-3 font-serif text-sm"
+                          className="mb-3 text-sm"
                           style={{ color: 'var(--color-text-dim)' }}
                         >
                           Instruments
@@ -308,7 +308,7 @@ export const ProfilePage: React.FC = () => {
                       />
                       <div>
                         <h3
-                          className="mb-3 font-serif text-sm"
+                          className="mb-3 text-sm"
                           style={{ color: 'var(--color-text-dim)' }}
                         >
                           Genres
@@ -331,7 +331,7 @@ export const ProfilePage: React.FC = () => {
                       />
                       <div>
                         <h3
-                          className="mb-3 font-serif text-sm"
+                          className="mb-3 text-sm"
                           style={{ color: 'var(--color-text-dim)' }}
                         >
                           Focus
@@ -357,7 +357,7 @@ export const ProfilePage: React.FC = () => {
                 <div className="lg:col-span-8">
                   <div className="mb-4 flex items-center gap-6">
                     <h2
-                      className="font-serif text-xl"
+                      className="text-xl"
                       style={{ color: 'var(--color-text)' }}
                     >
                       XP
@@ -393,7 +393,7 @@ export const ProfilePage: React.FC = () => {
                     style={{ color: 'var(--color-text)' }}
                   >
                     <Users size={18} />
-                    <h2 className="font-serif text-lg">Connect</h2>
+                    <h2 className="text-lg">Connect</h2>
                     <ChevronRight
                       size={16}
                       style={{ color: 'var(--color-text-dim)' }}

@@ -16,6 +16,40 @@ export const golden_lady: Song = {
   difficulty: 3,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'fender-rhodes',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Ralph Hammer', role: 'performer', instrument: 'acoustic-guitar' },
+    { name: 'Clarence Bell', role: 'performer', instrument: 'organ' },
+    { name: 'Stevie Wonder', role: 'arranger', artistGlobeId: 'stevie-wonder' },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    { name: 'Larry Latimer', role: 'performer', instrument: 'congas' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-innervisions' }],
 
   sections: [
     {

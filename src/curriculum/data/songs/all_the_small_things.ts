@@ -4,7 +4,7 @@ export const all_the_small_things: Song = {
   id: 'all_the_small_things',
   title: 'All The Small Things',
   artist: 'Blink 182',
-  year: undefined,
+  year: 1999,
 
   historicalDescription:
     "Blink-182 releases 'All The Small Things', a melodic punk anthem that catapults the San Diego trio from cult skate-punk act to mainstream superstars. Its relentless hooks and tongue-in-cheek MTV video — spoofing boy band culture — make it inescapable, cementing pop-punk as a defining sound of late-90s American youth.",
@@ -17,6 +17,41 @@ export const all_the_small_things: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Mark Hoppus',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'mark-hoppus',
+    },
+    { name: 'Sean O’Dwyer', role: 'engineer' },
+    {
+      name: 'Travis Barker',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'travis-barker',
+    },
+    {
+      name: 'blink‐182',
+      role: 'arranger',
+      ensemble: true,
+      artistGlobeId: 'blink-182',
+    },
+    {
+      name: 'Mark Hoppus',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'mark-hoppus',
+    },
+    { name: 'Tom DeLonge', role: 'songwriter', artistGlobeId: 'tom-delonge' },
+    { name: 'Tom DeLonge', role: 'vocals', artistGlobeId: 'tom-delonge' },
+    { name: 'Jerry Finn', role: 'producer', artistGlobeId: 'jerry-finn' },
+    { name: 'Mark Hoppus', role: 'songwriter', artistGlobeId: 'mark-hoppus' },
+    { name: 'Roger Joseph Manning Jr.', role: 'performer' },
+    { name: 'Tom DeLonge', role: 'performer', artistGlobeId: 'tom-delonge' },
+    { name: 'Tom Lord‐Alge', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'blink-182-enema-of-the-state', track: 8 }],
 
   sections: [
     {

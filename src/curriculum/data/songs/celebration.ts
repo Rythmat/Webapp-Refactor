@@ -4,7 +4,7 @@ export const celebration: Song = {
   id: 'celebration',
   title: 'Celebration',
   artist: 'Kool & the Gang',
-  year: undefined,
+  year: 1980,
 
   historicalDescription:
     "Kool and the Gang releases 'Celebration', a euphoric funk anthem that becomes one of the most recognizable party songs in history. Its irresistible horn-driven groove and jubilant chorus cross every demographic barrier, transforming the band from jazz-funk underground pioneers into mainstream pop stars. The song becomes the soundtrack to Super Bowls, weddings, and New Year's Eve countdowns for decades to come.",
@@ -17,6 +17,46 @@ export const celebration: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Robert Spike Mickens',
+      role: 'songwriter',
+      artistGlobeId: 'robert-spike-mickens',
+    },
+    {
+      name: 'James “J.T.” Taylor',
+      role: 'songwriter',
+      artistGlobeId: 'james-j-t-taylor',
+    },
+    { name: 'George Brown', role: 'songwriter', artistGlobeId: 'george-brown' },
+    { name: 'Ronald Bell', role: 'songwriter', artistGlobeId: 'ronald-bell' },
+    {
+      name: 'Dennis “D.T.” Thomas',
+      role: 'songwriter',
+      artistGlobeId: 'dennis-d-t-thomas',
+    },
+    {
+      name: 'Robert “Kool” Bell',
+      role: 'songwriter',
+      artistGlobeId: 'robert-kool-bell',
+    },
+    {
+      name: 'Eumir Deodato',
+      role: 'songwriter',
+      artistGlobeId: 'eumir-deodato',
+    },
+    {
+      name: 'Earl Toon, Jr.',
+      role: 'songwriter',
+      artistGlobeId: 'earl-toon-jr',
+    },
+    {
+      name: 'Claydes Smith',
+      role: 'songwriter',
+      artistGlobeId: 'claydes-smith',
+    },
+  ],
+  releases: [{ releaseId: 'kool-and-the-gang-celebrate' }],
 
   sections: [
     {

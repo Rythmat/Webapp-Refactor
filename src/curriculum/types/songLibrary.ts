@@ -9,6 +9,8 @@
  * - Voicing hints follow bottom-to-top stack (e.g. '3-5-1' for first inversion).
  * - All accidentals use ♭ and ♯ symbols, never b or #.
  * - GlobeOrigin is metadata only — the resolver uses it to generate Globe ContentRefs.
+ * - A field marked (v2) is accepted from song body schema level v2 on
+ *   (src/scripts/apiContract/manifest.json); a v1 server refuses it.
  */
 
 /* ── Enums & Unions ─────────────────────────────────────────────────── */
@@ -263,6 +265,8 @@ export interface Credit {
   /** Set when this could not be pinned to a reliable source — renders muted
    *  and is excluded from the constellation until someone confirms it. */
   unverified?: boolean;
+  /** Where the credit came from: 'musicbrainz', a liner-notes URL. (v2) */
+  source?: string;
 }
 
 /**
@@ -280,7 +284,18 @@ export interface RecordingSession {
   label?: string;
   /** Recording year, when it differs from the release `year`. */
   recordedYear?: number;
+  /** The studio's record: a studio slug. `studio` stays the text shown. (v2) */
+  studioId?: string;
+  /** The label's record: a label slug, used only when the song has no
+   *  `releases` (a release names its own label). `label` stays the text
+   *  shown. (v2) */
+  labelId?: string;
+  /** Where it was recorded: a globe city id. It never moves the song's pin.
+   *  (v2) */
+  placeId?: string;
   unverified?: boolean;
+  /** Where the session facts came from. (v2) */
+  source?: string;
 }
 
 /** Another recording this one is tied to — a cover, an original, a sample. */
@@ -292,6 +307,18 @@ export interface RelatedRecording {
   relation: 'original' | 'cover' | 'sample' | 'interpolation' | 'collaboration';
   artistGlobeId?: string;
   unverified?: boolean;
+  /** Where the tie came from. (v2) */
+  source?: string;
+}
+
+/** A record the recording appears on. (v2) */
+export interface SongRelease {
+  /** The record: a release slug. */
+  releaseId: string;
+  /** Its track number there. */
+  track?: number;
+  unverified?: boolean;
+  source?: string;
 }
 
 /* ── Song (top-level) ───────────────────────────────────────────────── */
@@ -316,6 +343,9 @@ export interface Song {
   // ── Pedagogical metadata ──
   difficulty: DifficultyLevel;
   genreTags: string[];
+  /** Subgenre ids from the vocabulary ('soft-rock'), finer than `genreTags`;
+   *  each is filed under its genre. (v2) */
+  subgenreIds?: string[];
   techniques: string[];
 
   // ── Globe metadata ──
@@ -332,6 +362,9 @@ export interface Song {
   session?: RecordingSession;
   /** Other recordings of this song, and records this one is tied to. */
   relatedRecordings?: RelatedRecording[];
+  /** The records it appears on, first issue first. A release's label is
+   *  where the song's label comes from. (v2) */
+  releases?: SongRelease[];
 
   // ── Content cross-references ──
   /** Explicit overrides; resolver fills in the rest from metadata. */

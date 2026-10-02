@@ -16,6 +16,41 @@ export const killing_me_softly_flack: Song = {
   difficulty: 2,
   genreTags: ['funk', 'rnb'],
   techniques: [],
+  session: { studioId: 'booga-basement-studio' },
+  credits: [
+    { name: 'Lauryn Hill', role: 'producer', artistGlobeId: 'lauryn-hill' },
+    {
+      name: 'Lauryn Hill',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'lauryn-hill',
+    },
+    { name: 'Wyclef Jean', role: 'engineer', artistGlobeId: 'wyclef-jean' },
+    {
+      name: 'Jerry Duplessis',
+      role: 'producer',
+      artistGlobeId: 'jerry-duplessis',
+    },
+    {
+      name: 'The Fugees',
+      role: 'performer',
+      ensemble: true,
+      artistGlobeId: 'the-fugees',
+      primary: true,
+    },
+    { name: 'Warren Riker', role: 'engineer' },
+    { name: 'Wyclef Jean', role: 'producer', artistGlobeId: 'wyclef-jean' },
+    { name: 'Lauryn Hill', role: 'arranger', artistGlobeId: 'lauryn-hill' },
+    { name: 'Wyclef Jean', role: 'vocals', artistGlobeId: 'wyclef-jean' },
+    { name: 'Pras Michel', role: 'producer', artistGlobeId: 'pras-michel' },
+    { name: 'Charles Fox', role: 'songwriter', artistGlobeId: 'charles-fox' },
+    {
+      name: 'Norman Gimbel',
+      role: 'songwriter',
+      artistGlobeId: 'norman-gimbel',
+    },
+  ],
+  releases: [{ releaseId: 'the-fugees-the-score', track: 8 }],
 
   sections: [
     {

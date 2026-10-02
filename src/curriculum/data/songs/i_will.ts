@@ -16,6 +16,39 @@ export const i_will: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'abbey-road-studios' },
+  credits: [
+    { name: 'Ringo Starr', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'songwriter',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'Ken Scott', role: 'engineer', artistGlobeId: 'ken-scott' },
+    { name: 'Ringo Starr', role: 'performer' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'Chris Thomas', role: 'producer', artistGlobeId: 'chris-thomas' },
+    { name: 'John Lennon', role: 'performer', artistGlobeId: 'john-lennon' },
+    { name: 'Paul McCartney', role: 'vocals', artistGlobeId: 'paul-mccartney' },
+    { name: 'John Lennon', role: 'songwriter', artistGlobeId: 'john-lennon' },
+  ],
+  releases: [{ releaseId: 'the-beatles-the-beatles' }],
 
   sections: [
     {

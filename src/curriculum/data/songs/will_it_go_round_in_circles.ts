@@ -16,6 +16,15 @@ export const will_it_go_round_in_circles: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    { name: 'Bruce Fisher', role: 'songwriter', artistGlobeId: 'bruce-fisher' },
+    {
+      name: 'Billy Preston',
+      role: 'songwriter',
+      artistGlobeId: 'billy-preston',
+    },
+  ],
+  releases: [{ releaseId: 'billy-preston-music-is-my-life' }],
 
   sections: [
     {

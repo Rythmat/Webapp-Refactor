@@ -47,6 +47,12 @@ import { LearnHome } from './LearnHome';
 import { LearnTabBar } from './LearnTabBar';
 import { WorldHarmony } from './WorldHarmony';
 import {
+  COMING_SOON_FOR_GUITAR,
+  guitarIonianLessonRoute,
+  guitarTheoryChapters,
+  isTheoryItemOnGuitar,
+} from './guitarTheory';
+import {
   COURSES_LEVEL_OPTIONS,
   COURSES_SORT_OPTIONS,
   MODE_FAMILY_OPTIONS,
@@ -176,8 +182,9 @@ interface ContentItem {
   /** When true (and `image` is a polygon honeycomb), the tile art is an
    *  interactive hex canvas that paints on hover and drifts on its own. */
   interactive?: boolean;
-  /** Saved-items id when the title isn't unique (guitar Technique tiles). */
-  savedId?: string;
+  /** Set when the tile has no lessons on the chosen instrument yet: it is
+   *  shown dimmed and disabled, labelled with this text. */
+  comingSoon?: string;
 }
 
 interface SelectedSubItem {
@@ -1020,14 +1027,15 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
  *
  * Free items:
  *  - Technique → "Fundamentals" (piano-fundamentals)
- *  - Theory (Diatonic Modes) → "Ionian (Major)" — specifically the C key sub-item
+ *  - Theory (Diatonic Modes) → "Ionian (Major)" — specifically the C key sub-item,
+ *    on piano and on guitar (The Guitar Atlas's key centers live there)
  *
  * Everything else (all courses, all other modes, relative/parallel/harmonic/melodic/
  * double-harmonic sections) is premium-only.
  */
 function isLearnItemFree(item: ContentItem, tab: string): boolean {
   return (
-    tab === 'Technique' || // Piano Fundamentals, Applied Theory (piano + guitar)
+    tab === 'Technique' || // Piano Fundamentals, Applied Theory Fundamentals
     (tab === 'Theory' && item.mode === 'ionian') // C Ionian available
   );
 }
@@ -1048,6 +1056,9 @@ interface CardItemProps {
   locked?: boolean;
   savedKind?: SavedItemKind;
   savedId?: string;
+  /** No lessons on this instrument yet: dimmed, not clickable, and labelled
+   *  with this text. Hides the premium lock and the saved heart. */
+  comingSoon?: string;
 }
 
 const CardItem: React.FC<CardItemProps> = ({
@@ -1066,18 +1077,25 @@ const CardItem: React.FC<CardItemProps> = ({
   locked,
   savedKind,
   savedId,
+  comingSoon,
 }) => {
-  const hasExpansion = !!(mode || subItems);
+  const unavailable = !!comingSoon;
+  const hasExpansion = !!(mode || subItems) && !unavailable;
+  // A tile that can't be opened doesn't zoom on hover either.
+  const hoverZoom = unavailable ? '' : ' group-hover:scale-105';
   const isSaved = useSavedItemsStore((s) =>
     savedKind && savedId ? Boolean(s.saved[`${savedKind}:${savedId}`]) : false,
   );
   const toggleSavedItem = useSavedItemsStore((s) => s.toggleSaved);
 
   return (
-    <LockedFeatureOverlay locked={!!locked}>
+    <LockedFeatureOverlay locked={!!locked && !unavailable}>
       <div
         ref={highlightRef}
-        className={`group flex cursor-pointer flex-col gap-3 ${highlighted ? 'genre-highlight' : ''}`}
+        role={unavailable ? 'group' : undefined}
+        aria-label={unavailable ? `${title}: ${comingSoon}` : undefined}
+        aria-disabled={unavailable || undefined}
+        className={`group flex ${unavailable ? 'cursor-not-allowed' : 'cursor-pointer'} flex-col gap-3 ${highlighted ? 'genre-highlight' : ''}`}
       >
         <div
           className={`glass-panel relative ${imageSize ? '' : interactive ? 'aspect-[3/4]' : 'aspect-square'} overflow-hidden rounded-2xl transition-colors duration-150`}
@@ -1090,14 +1108,14 @@ const CardItem: React.FC<CardItemProps> = ({
                 ? '2px solid var(--color-accent)'
                 : '1px solid var(--color-border)',
           }}
-          onClick={onSelect}
+          onClick={unavailable ? undefined : onSelect}
         >
           {image && interactive ? (
             <HexWaveBackground
               src={image}
               drain={false}
               ambient
-              className="pointer-events-none absolute inset-0 transition-transform duration-500 group-hover:scale-105"
+              className={`pointer-events-none absolute inset-0 transition-transform duration-500${hoverZoom}`}
               backgroundColor="#0D0B08"
               colorThreshold={0.05}
               brushRadius={70}
@@ -1106,17 +1124,26 @@ const CardItem: React.FC<CardItemProps> = ({
             <img
               src={image}
               alt={title}
-              className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className={`absolute inset-0 size-full object-cover transition-transform duration-500${hoverZoom}`}
             />
           ) : (
             <HexAvatarSVG
               config={defaultAvatarConfig(title)}
               circular={false}
-              className="absolute left-0 top-0 size-[120%] transition-transform duration-500 group-hover:scale-105"
+              className={`absolute left-0 top-0 size-[120%] transition-transform duration-500${hoverZoom}`}
             />
           )}
-          <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
-          {savedKind && savedId && (
+          {unavailable ? (
+            // Dimmed art with the reason on top, in words, not colour alone.
+            <div className="absolute inset-0 flex items-end bg-black/60 p-3">
+              <span className="rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-white/80">
+                {comingSoon}
+              </span>
+            </div>
+          ) : (
+            <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
+          )}
+          {savedKind && savedId && !unavailable && (
             <button
               type="button"
               onClick={(e) => {
@@ -1140,7 +1167,11 @@ const CardItem: React.FC<CardItemProps> = ({
         <div className="flex items-start justify-between px-1">
           <h3
             className="text-lg font-semibold"
-            style={{ color: 'var(--color-text)' }}
+            style={{
+              color: unavailable
+                ? 'var(--color-text-dim)'
+                : 'var(--color-text)',
+            }}
           >
             {title}
           </h3>
@@ -1190,19 +1221,26 @@ const ListItem: React.FC<CardItemProps> = ({
   locked,
   savedKind,
   savedId,
+  comingSoon,
 }) => {
-  const hasExpansion = !!(mode || subItems);
+  const unavailable = !!comingSoon;
+  const hasExpansion = !!(mode || subItems) && !unavailable;
   const isSaved = useSavedItemsStore((s) =>
     savedKind && savedId ? Boolean(s.saved[`${savedKind}:${savedId}`]) : false,
   );
   const toggleSavedItem = useSavedItemsStore((s) => s.toggleSaved);
 
   return (
-    <LockedFeatureOverlay locked={!!locked}>
+    <LockedFeatureOverlay locked={!!locked && !unavailable}>
       <button
         type="button"
-        onClick={onSelect}
-        className="group flex w-full cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors hover:bg-white/[0.04]"
+        onClick={unavailable ? undefined : onSelect}
+        aria-disabled={unavailable || undefined}
+        className={
+          unavailable
+            ? 'group flex w-full cursor-not-allowed items-center gap-3 rounded-lg border px-3 py-2 text-left opacity-50'
+            : 'group flex w-full cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors hover:bg-white/[0.04]'
+        }
         style={{
           background: 'rgba(255,255,255,0.02)',
           borderColor: 'var(--color-border)',
@@ -1233,6 +1271,14 @@ const ListItem: React.FC<CardItemProps> = ({
         >
           {title}
         </h3>
+        {unavailable && (
+          <span
+            className="flex-shrink-0 text-xs"
+            style={{ color: 'var(--color-text-dim)' }}
+          >
+            {comingSoon}
+          </span>
+        )}
         {progressPct != null && progressPct > 0 && (
           <span
             className="flex-shrink-0 text-xs tabular-nums"
@@ -1241,7 +1287,7 @@ const ListItem: React.FC<CardItemProps> = ({
             {progressPct}%
           </span>
         )}
-        {savedKind && savedId && (
+        {savedKind && savedId && !unavailable && (
           <button
             type="button"
             onClick={(e) => {
@@ -1296,9 +1342,14 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         : initialTab && validTabs.includes(initialTab)
           ? initialTab
           : 'Home';
-  const [subTab, setSubTab] = useState(defaultTab);
-  // Technique tiles follow the instrument picker (piano or guitar).
+  const [selectedTab, setSubTab] = useState(defaultTab);
+  // The instrument picker decides what Learn shows. Guitar's lessons (The
+  // Guitar Atlas's key centers) are Theory → Ionian (Major); it has no
+  // Technique tiles, so its Technique tab is hidden and opens Theory instead.
   const learnInstrument = useLearnInstrument();
+  const onGuitar = learnInstrument === 'guitar';
+  const subTab =
+    onGuitar && selectedTab === 'Technique' ? 'Theory' : selectedTab;
   const techniqueData = useMemo<ContentItem[]>(
     () => [...techniqueDataFor(learnInstrument)],
     [learnInstrument],
@@ -1313,6 +1364,8 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(
     null,
   );
+  // Guitar chapters load with the book; only the latest key's may land.
+  const guitarChaptersRequest = useRef(0);
   // Responsive column count of the tile grid (grid-cols-2 → md:grid-cols-4);
   // used to span the inline expansion panel across a row's remaining columns.
   const [gridCols, setGridCols] = useState(() =>
@@ -1354,6 +1407,15 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   const savedLearnItems = useSavedItemsStore((s) => s.saved);
 
   const theorySections = useMemo(() => {
+    // On guitar only Ionian (Major) has lessons so far; the rest say so.
+    const forInstrument = (items: ContentItem[]): ContentItem[] =>
+      onGuitar
+        ? items.map((item) =>
+            isTheoryItemOnGuitar(item)
+              ? item
+              : { ...item, comingSoon: COMING_SOON_FOR_GUITAR },
+          )
+        : items;
     const all = [
       {
         family: 'diatonic' as ModeFamily,
@@ -1413,7 +1475,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         ...s,
         items: applyTheorySort(
           applySavedFilter(
-            applySearch(s.items, theoryFilters.search),
+            applySearch(forInstrument(s.items), theoryFilters.search),
             theoryFilters.saved,
             (i) => !!i.mode && Boolean(savedLearnItems[`mode:${i.mode}`]),
           ),
@@ -1421,14 +1483,14 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
         ),
       }))
       .filter((s) => s.items.length > 0);
-  }, [theoryFilters, savedLearnItems]);
+  }, [theoryFilters, savedLearnItems, onGuitar]);
 
   const filteredTechnique = useMemo(() => {
     const searched = applySearch(techniqueData, techniqueFilters.search);
     const savedFiltered = applySavedFilter(
       searched,
       techniqueFilters.saved,
-      (i) => Boolean(savedLearnItems[`technique:${i.savedId ?? i.title}`]),
+      (i) => Boolean(savedLearnItems[`technique:${i.title}`]),
     );
     // category + difficulty have no backing data today — wired but no-op
     return applyTechniqueSort(savedFiltered, techniqueFilters.sort);
@@ -1493,6 +1555,25 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     keyLabel: string,
     modeTitle: string,
   ) => {
+    // Guitar: the key's Guitar Atlas lesson. Its chapters come from the book,
+    // loaded on demand; if keys are clicked quickly, the last one wins. No
+    // percentages: the server's progress is the piano lessons'.
+    if (onGuitar && isTheoryItemOnGuitar({ mode })) {
+      const request = ++guitarChaptersRequest.current;
+      const label = `${keyLabel} ${modeTitle}`;
+      const route = guitarIonianLessonRoute(keyLabel);
+      setSelectedSubItem({ label, route, completionPct: 0, sections: [] });
+      guitarTheoryChapters(keyLabel)
+        .then((sections) => {
+          if (request !== guitarChaptersRequest.current) return;
+          setSelectedSubItem({ label, route, completionPct: 0, sections });
+        })
+        .catch(() => {
+          // The book didn't load (offline?): the key stays selected with no
+          // chapters, and choosing it again retries.
+        });
+      return;
+    }
     const pct = getLessonCompletion(
       progressSummary,
       'mode-lesson-flow',
@@ -1540,6 +1621,14 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     }
   }, [expandedMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Switching instrument closes the open tile: its keys and chapters, and
+  // whether it has lessons at all, depend on the instrument.
+  useEffect(() => {
+    guitarChaptersRequest.current += 1;
+    setExpandedMode(null);
+    setSelectedSubItem(null);
+  }, [learnInstrument]);
+
   // Auto-select the first chapter when a key/level is selected
   useEffect(() => {
     if (selectedSubItem?.sections?.[0]) {
@@ -1558,6 +1647,20 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabParam]);
+
+  // Guitar has no Technique tab: a ?tab=Technique link shows Theory (see
+  // `subTab`) and the URL is corrected to match, without a history entry.
+  useEffect(() => {
+    if (!onGuitar || tabParam !== 'Technique') return;
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set('tab', 'Theory');
+        return next;
+      },
+      { replace: true },
+    );
+  }, [onGuitar, tabParam, setSearchParams]);
 
   // Auto-select Genre tab and highlight the genre when arriving from Globe.
   // Skip while the Songs tab is active: the Songs filter also writes ?genre=,
@@ -1596,19 +1699,27 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     const savedPropsFor = (
       item: ContentItem,
     ): { savedKind?: SavedItemKind; savedId?: string } => {
+      if (item.comingSoon) return {};
       if (tab === 'Theory' && item.mode)
         return { savedKind: 'mode', savedId: item.mode };
       if (tab === 'Technique')
-        return { savedKind: 'technique', savedId: item.savedId ?? item.title };
+        return { savedKind: 'technique', savedId: item.title };
       if (tab === 'Genre' && item.expandId)
         return { savedKind: 'course', savedId: item.expandId };
       return {};
     };
 
+    // Guitar has no server progress; the piano lessons' would mislead.
+    const guitarTheory = onGuitar && tab === 'Theory';
+    const tileProgress = (item: ContentItem) =>
+      guitarTheory ? 0 : getTileCompletion(progressSummary, item);
+
     // Click a tile: toggle its inline expansion (modes/genres) or navigate.
     const toggleExpand = (item: ContentItem) => {
+      if (item.comingSoon) return;
       const key = item.expandId ?? item.mode;
       if (item.mode || item.subItems) {
+        guitarChaptersRequest.current += 1;
         setSelectedSubItem(null);
         setExpandedMode(key === expandedMode ? null : (key ?? null));
       } else if (item.route) {
@@ -1644,12 +1755,14 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                 const isSelected =
                   selectedSubItem?.label ===
                   `${keyLabel} ${expandedItem.title}`;
-                const keyPct = getLessonCompletion(
-                  progressSummary,
-                  'mode-lesson-flow',
-                  expandedItem.mode,
-                  keyLabelToUrlParam(keyLabel),
-                );
+                const keyPct = guitarTheory
+                  ? 0
+                  : getLessonCompletion(
+                      progressSummary,
+                      'mode-lesson-flow',
+                      expandedItem.mode,
+                      keyLabelToUrlParam(keyLabel),
+                    );
                 items.push(
                   <div
                     key={keyLabel}
@@ -1821,7 +1934,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
               key={i}
               {...item}
               {...savedPropsFor(item)}
-              progressPct={getTileCompletion(progressSummary, item)}
+              progressPct={tileProgress(item)}
               locked={!isPremium && !isLearnItemFree(item, tab)}
               onSelect={() => toggleExpand(item)}
             />
@@ -1882,7 +1995,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
                 highlighted={isHighlighted}
                 highlightRef={isHighlighted ? highlightRef : undefined}
                 expanded={isExpanded}
-                progressPct={getTileCompletion(progressSummary, item)}
+                progressPct={tileProgress(item)}
                 locked={!isPremium && !isLearnItemFree(item, tab)}
                 onToggleExpand={
                   hasExpansion ? () => toggleExpand(item) : undefined

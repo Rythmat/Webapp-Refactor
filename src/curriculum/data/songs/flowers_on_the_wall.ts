@@ -16,6 +16,10 @@ export const flowers_on_the_wall: Song = {
   difficulty: 2,
   genreTags: ['folk'],
   techniques: [],
+  credits: [
+    { name: 'Lew DeWitt', role: 'songwriter', artistGlobeId: 'lew-dewitt' },
+  ],
+  releases: [{ releaseId: 'the-statler-brothers-flowers-on-the-wall' }],
 
   sections: [
     {

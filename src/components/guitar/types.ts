@@ -30,6 +30,14 @@ export type ScaleBoxLabelMode = Extract<
 /** How a chord or scale box is being used right now. */
 export type DiagramState = 'idle' | 'current' | 'done' | 'heard';
 
+/**
+ * 'default': the book's look, as the overview, setup and comparison pages
+ * draw it. 'lesson': the guitar lesson's quieter look — neutral frame and
+ * grid, the key colour only on what is being played now, fixed 12px type,
+ * and (chord and scale boxes) two short lines with the rest in an (i).
+ */
+export type DiagramVariant = 'default' | 'lesson';
+
 /** A dot's state inside a box. Each draws differently (fill, ring, badge). */
 export type DiagramDotState = 'idle' | 'next' | 'done' | 'missing' | 'extra';
 
@@ -93,6 +101,8 @@ export interface FretDiagramProps {
   ghosts?: readonly FretPosition[];
   /** More header lines under the title and subtitle (formula, family). */
   headerExtra?: ReactNode;
+  /** 'lesson': neutral frame, key-colour frame only when current (default 'default'). */
+  variant?: DiagramVariant;
 }
 
 /** Tones a chord was missing or had extra, from chord-tone diagnostics. */
@@ -140,6 +150,12 @@ export interface ChordBoxProps {
   labelMode?: ChordBoxLabelMode;
   /** Draw the theory layer when the quality is known (default true). */
   theory?: boolean;
+  /**
+   * 'lesson': the name and an (i) on one line, the Hybrid label under it,
+   * the formula, family, badge, shape and other names in the (i); the box
+   * itself plays the chord (default 'default').
+   */
+  variant?: DiagramVariant;
 }
 
 /** A note from theoryNotes.ts, resolved, for an (i) popover. */
@@ -174,6 +190,11 @@ export interface ScaleBoxProps {
   ghosts?: readonly FretPosition[];
   /** Notes for an (i) popover beside the box (e.g. 'What is Ionian?'). */
   about?: readonly DiagramInfoNote[];
+  /**
+   * 'lesson': 'C major scale (i)' over the box and 'Position 7 · finger 1
+   * on fret 7' under it (default 'default').
+   */
+  variant?: DiagramVariant;
 }
 
 /**
@@ -235,4 +256,10 @@ export interface FretboardProps {
   labelShape?: 'dot' | 'chip';
   /** Brackets over fret pairs (half steps on A1 with "Show steps"). */
   brackets?: readonly FretBracket[];
+  /**
+   * 'lesson': no board fill, quieter frets and strings, 12px labels at any
+   * height, and the key colour only on the note to play now (default
+   * 'default').
+   */
+  variant?: DiagramVariant;
 }

@@ -4,7 +4,7 @@ export const brother_soul: Song = {
   id: 'brother_soul',
   title: 'Brother Soul',
   artist: 'Lou Donaldson/Soulive',
-  year: undefined,
+  year: 1969,
 
   historicalDescription:
     'Lou Donaldson, the alto saxophone legend known for fusing hard bop with soul and funk, finds a natural partner in Soulive — the Brooklyn organ trio who carry that same greasy, groove-forward tradition into the 21st century. Their collaboration bridges two generations of jazz-rooted funk, honoring the Blue Note soul-jazz sound while keeping it alive for a new audience.',

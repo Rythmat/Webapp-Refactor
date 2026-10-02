@@ -39,7 +39,7 @@ export function KeySection({
         </span>
         {unisonKey && (
           <span
-            className="text-[9px] font-mono"
+            className="text-[9px] tabular-nums"
             style={{ color: 'var(--color-text-dim)' }}
           >
             {Math.round(unisonKey.confidence * 100)}%
@@ -79,7 +79,7 @@ export function KeySection({
               >
                 {alt.rootName} {alt.modeDisplay}
                 <span
-                  className="ml-1 font-mono text-[8px]"
+                  className="ml-1 text-[8px] tabular-nums"
                   style={{ opacity: 0.6 }}
                 >
                   {Math.round(alt.confidence * 100)}%

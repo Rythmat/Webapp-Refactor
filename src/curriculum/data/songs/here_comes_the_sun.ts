@@ -16,6 +16,52 @@ export const here_comes_the_sun: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'abbey-road-studios' },
+  credits: [
+    { name: 'Ringo Starr', role: 'performer', instrument: 'drum-kit' },
+    { name: 'George Harrison', role: 'songwriter' },
+    { name: 'Ringo Starr', role: 'performer', instrument: 'handclaps' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'handclaps',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'George Harrison', role: 'performer', instrument: 'handclaps' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'Geoff Emerick', role: 'engineer' },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'George Harrison', role: 'performer' },
+    { name: 'Phil McDonald', role: 'engineer' },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    { name: 'George Martin', role: 'producer' },
+    { name: 'George Harrison', role: 'performer', instrument: 'synthesizer' },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+  ],
+  releases: [{ releaseId: 'the-beatles-abbey-road' }],
 
   sections: [
     {

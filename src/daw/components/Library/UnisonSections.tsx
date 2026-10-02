@@ -61,7 +61,7 @@ export function UnisonSections({
                   )}
                 </span>
                 <span
-                  className="text-[9px] font-mono"
+                  className="text-[9px] tabular-nums"
                   style={{ color: 'var(--color-accent)' }}
                 >
                   {Math.round(match.score * 100)}%
@@ -272,7 +272,7 @@ function SessionSections({
               />
             </div>
             <span
-              className="text-[8px] font-mono"
+              className="text-[8px] tabular-nums"
               style={{ color: 'var(--color-text-dim)' }}
             >
               {Math.round(unisonDoc.rhythm.swingAmount * 100)}%

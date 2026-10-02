@@ -16,6 +16,14 @@ export const ill_take_you_there: Song = {
   difficulty: 1,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    {
+      name: 'Alvertis Isbell',
+      role: 'songwriter',
+      artistGlobeId: 'alvertis-isbell',
+    },
+  ],
+  releases: [{ releaseId: 'the-staple-singers-be-altitude-respect-yourself' }],
 
   sections: [
     {

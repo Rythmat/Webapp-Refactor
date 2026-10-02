@@ -33,8 +33,14 @@ export const nothing_compares_2_u: Song = {
     { name: 'Prince', role: 'songwriter' },
   ],
   relatedRecordings: [
+    // Prince recorded it first (1984, unreleased until 2018); The Family's
+    // 1985 album cut was the first release. Both predate this 1990 recording,
+    // so both are originals of it — neither covers it.
     { artist: 'Prince', year: 1984, relation: 'original' },
-    { artist: 'The Family', year: 1985, relation: 'cover' },
+    { artist: 'The Family', year: 1985, relation: 'original' },
+  ],
+  releases: [
+    { releaseId: 'sinead-oconnor-i-do-not-want-what-i-havent-got', track: 6 },
   ],
 
   sections: [

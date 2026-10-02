@@ -16,6 +16,68 @@ export const give_me_back_my_name: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'sigma-sound-studios' },
+  credits: [
+    { name: 'Eric Thorngren', role: 'engineer' },
+    { name: 'David Byrne', role: 'arranger', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Jerry Harrison',
+      role: 'performer',
+      artistGlobeId: 'jerry-harrison',
+    },
+    {
+      name: 'Jerry Harrison',
+      role: 'songwriter',
+      artistGlobeId: 'jerry-harrison',
+    },
+    { name: 'David Byrne', role: 'vocals', artistGlobeId: 'david-byrne' },
+    { name: 'Tina Weymouth', role: 'arranger', artistGlobeId: 'tina-weymouth' },
+    {
+      name: 'Tina Weymouth',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'tina-weymouth',
+    },
+    { name: 'David Byrne', role: 'songwriter', artistGlobeId: 'david-byrne' },
+    { name: 'Chris Frantz', role: 'arranger', artistGlobeId: 'chris-frantz' },
+    { name: 'Chris Frantz', role: 'songwriter', artistGlobeId: 'chris-frantz' },
+    { name: 'David Byrne', role: 'performer', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Jerry Harrison',
+      role: 'arranger',
+      artistGlobeId: 'jerry-harrison',
+    },
+    {
+      name: 'Talking Heads',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'talking-heads',
+    },
+    {
+      name: 'Chris Frantz',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'chris-frantz',
+    },
+    {
+      name: 'Tina Weymouth',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'tina-weymouth',
+    },
+    {
+      name: 'Jerry Harrison',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'jerry-harrison',
+    },
+    {
+      name: 'Tina Weymouth',
+      role: 'songwriter',
+      artistGlobeId: 'tina-weymouth',
+    },
+  ],
+  releases: [{ releaseId: 'talking-heads-little-creatures', track: 2 }],
 
   sections: [
     {

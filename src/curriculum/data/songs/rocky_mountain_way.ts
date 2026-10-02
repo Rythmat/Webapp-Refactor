@@ -16,6 +16,99 @@ export const rocky_mountain_way: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Joe Vitale',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'joe-vitale',
+    },
+    {
+      name: 'Joe Vitale',
+      role: 'performer',
+      instrument: 'electric-piano',
+      artistGlobeId: 'joe-vitale',
+    },
+    {
+      name: 'Joe Walsh',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'joe-walsh',
+      primary: true,
+    },
+    {
+      name: 'Joe Walsh',
+      role: 'vocals',
+      artistGlobeId: 'joe-walsh',
+      primary: true,
+    },
+    {
+      name: 'Joe Vitale',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'joe-vitale',
+    },
+    { name: 'Joe Walsh', role: 'songwriter', artistGlobeId: 'joe-walsh' },
+    { name: 'Rocke Grace', role: 'songwriter', artistGlobeId: 'rocke-grace' },
+    {
+      name: 'Kenny Passarelli',
+      role: 'performer',
+      artistGlobeId: 'kenny-passarelli',
+    },
+    { name: 'Bill Szymczyk', role: 'producer', artistGlobeId: 'bill-szymczyk' },
+    { name: 'Joe Vitale', role: 'songwriter', artistGlobeId: 'joe-vitale' },
+    {
+      name: 'Kenny Passarelli',
+      role: 'songwriter',
+      artistGlobeId: 'kenny-passarelli',
+    },
+    { name: 'Joe Walsh', role: 'producer', artistGlobeId: 'joe-walsh' },
+    {
+      name: 'Joe Walsh',
+      role: 'performer',
+      artistGlobeId: 'joe-walsh',
+      primary: true,
+    },
+    { name: 'Rocke Grace', role: 'performer', artistGlobeId: 'rocke-grace' },
+    {
+      name: 'Joe Vitale',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'joe-vitale',
+    },
+    {
+      name: 'Joe Walsh',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'joe-walsh',
+      primary: true,
+    },
+    {
+      name: 'Kenny Passarelli',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'kenny-passarelli',
+    },
+    { name: 'Joe Vitale', role: 'performer', artistGlobeId: 'joe-vitale' },
+    {
+      name: 'Rocke Grace',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'rocke-grace',
+    },
+    {
+      name: 'Kenny Passarelli',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'kenny-passarelli',
+    },
+  ],
+  releases: [
+    {
+      releaseId: 'joe-walsh-the-smoker-you-drink-the-player-you-get',
+      track: 1,
+    },
+  ],
 
   sections: [
     {

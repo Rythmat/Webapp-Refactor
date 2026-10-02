@@ -16,6 +16,92 @@ export const another_day_lidell: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Denny Seiwell', role: 'performer', instrument: 'percussion' },
+    {
+      name: 'Linda McCartney',
+      role: 'songwriter',
+      artistGlobeId: 'linda-mccartney',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'paul-mccartney',
+      primary: true,
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'vocals',
+      artistGlobeId: 'paul-mccartney',
+      primary: true,
+    },
+    { name: 'Tim Geelan', role: 'engineer' },
+    { name: 'Denny Seiwell', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'David Spinozza',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    {
+      name: 'David Spinozza',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'tambourine',
+      artistGlobeId: 'paul-mccartney',
+      primary: true,
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'paul-mccartney',
+      primary: true,
+    },
+    { name: 'Dixon Van Winkle', role: 'engineer' },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'paul-mccartney',
+      primary: true,
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'producer',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'paul-mccartney',
+      primary: true,
+    },
+    {
+      name: 'Linda McCartney',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'linda-mccartney',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'paul-mccartney',
+      primary: true,
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'songwriter',
+      artistGlobeId: 'paul-mccartney',
+    },
+  ],
+  releases: [{ releaseId: 'paul-mccartney-ram', track: 1 }],
 
   sections: [
     {

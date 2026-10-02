@@ -16,6 +16,48 @@ export const havent_met_you_yet: Song = {
   difficulty: 3,
   genreTags: ['jazz', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'Rick Baptist', role: 'performer' },
+    { name: 'Rusty Anderson', role: 'performer' },
+    { name: 'Jacob Rodriguez', role: 'performer', instrument: 'baritone-sax' },
+    { name: 'Bob Rock', role: 'arranger' },
+    { name: 'Alan Chang', role: 'arranger', artistGlobeId: 'alan-chang' },
+    { name: 'Alan Chang', role: 'songwriter', artistGlobeId: 'alan-chang' },
+    {
+      name: 'Michael Bublé',
+      role: 'vocals',
+      artistGlobeId: 'michael-buble',
+      primary: true,
+    },
+    { name: 'Michael Landau', role: 'performer' },
+    { name: 'Lenny Castro', role: 'performer', instrument: 'percussion' },
+    { name: 'Josh Freese', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Keith Scott', role: 'performer' },
+    {
+      name: 'Alan Chang',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'alan-chang',
+    },
+    { name: 'Lou Pomanti', role: 'arranger' },
+    { name: 'Nick Vayenas', role: 'performer', instrument: 'trombone' },
+    { name: 'Joel Shearer', role: 'performer' },
+    {
+      name: 'Michael Bublé',
+      role: 'songwriter',
+      artistGlobeId: 'michael-buble',
+    },
+    {
+      name: 'Amy Foster‐Gillies',
+      role: 'songwriter',
+      artistGlobeId: 'amy-foster-gillies',
+    },
+    { name: 'Paul Bushnell', role: 'performer' },
+    { name: 'Justin Ray', role: 'performer', instrument: 'trumpet' },
+    { name: 'Mike Allen', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Michael Bublé', role: 'arranger', artistGlobeId: 'michael-buble' },
+  ],
+  releases: [{ releaseId: 'michael-buble-crazy-love', track: 5 }],
 
   sections: [
     {

@@ -30,8 +30,14 @@ export function createRouteDefinition<
       );
       const generated = generatePath(fullPath, encoded);
 
-      if (query) {
-        return `${generated}?${new URLSearchParams(query).toString()}`;
+      // An optional parameter left undefined is absent, not the text
+      // "undefined": `{ q: undefined }` makes no `?q=undefined`.
+      const defined = Object.entries(query ?? {}).filter(
+        (entry): entry is [string, string] =>
+          entry[1] !== undefined && entry[1] !== null,
+      );
+      if (defined.length) {
+        return `${generated}?${new URLSearchParams(defined).toString()}`;
       }
 
       return generated;

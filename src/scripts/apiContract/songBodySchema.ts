@@ -278,6 +278,8 @@ export const creditSchema = z
      *  and is excluded from the constellation until someone confirms it.
      */
     unverified: z.boolean().optional(),
+    /** Where the credit came from: 'musicbrainz', a liner-notes URL. (v2) */
+    source: z.string().optional(),
   })
   .strict();
 
@@ -296,7 +298,22 @@ export const recordingSessionSchema = z
     label: z.string().optional(),
     /** Recording year, when it differs from the release `year`. */
     recordedYear: z.number().optional(),
+    /** The studio's record: a studio slug. `studio` stays the text shown. (v2) */
+    studioId: z.string().optional(),
+    /**
+     * The label's record: a label slug, used only when the song has no
+     *  `releases` (a release names its own label). `label` stays the text
+     *  shown. (v2)
+     */
+    labelId: z.string().optional(),
+    /**
+     * Where it was recorded: a globe city id. It never moves the song's pin.
+     *  (v2)
+     */
+    placeId: z.string().optional(),
     unverified: z.boolean().optional(),
+    /** Where the session facts came from. (v2) */
+    source: z.string().optional(),
   })
   .strict();
 
@@ -318,6 +335,22 @@ export const relatedRecordingSchema = z
     ]),
     artistGlobeId: z.string().optional(),
     unverified: z.boolean().optional(),
+    /** Where the tie came from. (v2) */
+    source: z.string().optional(),
+  })
+  .strict();
+
+/**
+ * A record the recording appears on. (v2)
+ */
+export const songReleaseSchema = z
+  .object({
+    /** The record: a release slug. */
+    releaseId: z.string(),
+    /** Its track number there. */
+    track: z.number().optional(),
+    unverified: z.boolean().optional(),
+    source: z.string().optional(),
   })
   .strict();
 
@@ -339,6 +372,11 @@ export const songSchema = z
     timeSignature: z.tuple([z.number(), z.number()]),
     difficulty: difficultyLevelSchema,
     genreTags: z.array(z.string()),
+    /**
+     * Subgenre ids from the vocabulary ('soft-rock'), finer than `genreTags`;
+     *  each is filed under its genre. (v2)
+     */
+    subgenreIds: z.array(z.string()).optional(),
     techniques: z.array(z.string()),
     origin: globeOriginSchema.optional(),
     /**
@@ -353,6 +391,11 @@ export const songSchema = z
     session: recordingSessionSchema.optional(),
     /** Other recordings of this song, and records this one is tied to. */
     relatedRecordings: z.array(relatedRecordingSchema).optional(),
+    /**
+     * The records it appears on, first issue first. A release's label is
+     *  where the song's label comes from. (v2)
+     */
+    releases: z.array(songReleaseSchema).optional(),
     /** Explicit overrides; resolver fills in the rest from metadata. */
     contentRefs: z.array(contentRefSchema).optional(),
     sections: z.array(songSectionSchema),

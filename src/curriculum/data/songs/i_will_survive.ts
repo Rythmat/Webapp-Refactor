@@ -16,7 +16,15 @@ export const i_will_survive: Song = {
   difficulty: 3,
   genreTags: ['funk'],
   techniques: [],
-
+  credits: [
+    { name: 'Dino Fekaris', role: 'producer', artistGlobeId: 'dino-fekaris' },
+    { name: 'Dino Fekaris', role: 'songwriter', artistGlobeId: 'dino-fekaris' },
+    {
+      name: 'Freddie Perren',
+      role: 'songwriter',
+      artistGlobeId: 'freddie-perren',
+    },
+  ],
   sections: [
     {
       id: 'intro',

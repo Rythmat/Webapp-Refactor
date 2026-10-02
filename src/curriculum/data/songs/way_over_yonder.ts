@@ -16,6 +16,45 @@ export const way_over_yonder: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  session: { studioId: 'a-m-studios' },
+  credits: [
+    { name: 'Terry King', role: 'performer', instrument: 'cello' },
+    { name: 'Curtis Amy', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Lou Adler', role: 'producer', artistGlobeId: 'lou-adler' },
+    { name: 'Charles Larkey', role: 'performer', instrument: 'electric-bass' },
+    {
+      name: 'Carole King',
+      role: 'vocals',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+    { name: 'David Campbell', role: 'performer', instrument: 'viola' },
+    {
+      name: 'Danny Kortchmar',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    {
+      name: 'Carole King',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    { name: 'Hank Cicalo', role: 'engineer' },
+    { name: 'Merry Clayton', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'James Taylor',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'james-taylor',
+    },
+    { name: 'Perry Steinberg', role: 'performer', instrument: 'upright-bass' },
+    { name: "Joel O'Brien", role: 'performer', instrument: 'drum-kit' },
+    { name: 'Barry Socher', role: 'performer', instrument: 'violin' },
+  ],
+  releases: [{ releaseId: 'carole-king-tapestry' }],
 
   sections: [
     {

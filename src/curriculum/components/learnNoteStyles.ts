@@ -14,6 +14,12 @@ export interface LearnNoteStyleState {
   noteHoldMeta?: Record<string, NoteHoldMeta>;
   playheadTick: number;
   keyColor?: string;
+  /**
+   * In time, the style for a note the playhead has passed without it being
+   * played (guitar TAB: white/30 after a take). Used as given. Omitted, such
+   * a note keeps its unstyled look, as the staff draws it.
+   */
+  missed?: NoteStyle;
 }
 
 export function learnNoteStyles(
@@ -24,6 +30,7 @@ export function learnNoteStyles(
     noteHoldMeta,
     playheadTick,
     keyColor,
+    missed,
   }: LearnNoteStyleState,
 ): Map<string, NoteStyle> {
   const styles = new Map<string, NoteStyle>();
@@ -38,6 +45,8 @@ export function learnNoteStyles(
       if (played) styles.set(e.id, { color: done });
       else if (playheadTick >= e.startTicks && playheadTick <= end) {
         styles.set(e.id, { color: highlight, glow: true });
+      } else if (missed && playheadTick > end) {
+        styles.set(e.id, missed);
       }
     } else {
       const meta = noteHoldMeta?.[e.id];

@@ -12,6 +12,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/components/utilities';
+import {
+  SettingsRow,
+  SettingsSwitchRow,
+} from '@/curriculum/guitar/layout/settingsControls';
 import { shapeNotes } from '@/lib/guitar/fretboard';
 import {
   GUITAR_AMP_MODELS,
@@ -45,7 +49,7 @@ async function previewTone(): Promise<void> {
   );
 }
 
-interface GuitarToneMenuProps {
+export interface GuitarToneMenuProps {
   /** The student's guitar is coming in by mic or interface. */
   inputActive: boolean;
   /** Their guitar is played back through the amp. */
@@ -61,20 +65,19 @@ interface GuitarToneMenuProps {
 /** How long a preview strum sounds, with its ring. */
 export const PREVIEW_MS = 2000;
 
+const MONITOR_NOTE = {
+  on: 'Headphones only: speakers feed back into the mic.',
+  off: 'Turn on audio input to hear yourself.',
+};
+
 /**
- * "Tone: Quartz ▾" — how lesson guitar sounds: one of the Studio's guitar
- * amps, or an acoustic guitar with no amp. A new choice strums a C to hear
- * it. Also switches monitoring the student's own guitar through the amp,
- * which needs audio input on and headphones (speakers feed back into a mic).
+ * The lesson guitar's tone: the choice as a value ('acoustic' or an amp
+ * id), its name, and `choose`, which saves a new choice, tells the lesson a
+ * preview is about to sound (`onPreview`, so the mic ignores it) and strums
+ * a C through it.
  */
-export function GuitarToneMenu({
-  inputActive,
-  monitor,
-  onMonitorChange,
-  onPreview,
-}: GuitarToneMenuProps) {
+export function useGuitarToneChoice(onPreview?: () => void) {
   const [prefs, setPrefs] = useGuitarTonePrefs();
-  const monitorNoteId = useId();
   const value = prefs.tone === 'acoustic' ? ACOUSTIC : prefs.ampModelId;
   const label =
     prefs.tone === 'acoustic'
@@ -93,6 +96,24 @@ export function GuitarToneMenu({
       console.warn('[GuitarToneMenu] preview failed:', err);
     });
   };
+
+  return { prefs, value, label, choose };
+}
+
+/**
+ * "Tone: Quartz ▾" — how lesson guitar sounds: one of the Studio's guitar
+ * amps, or an acoustic guitar with no amp. A new choice strums a C to hear
+ * it. Also switches monitoring the student's own guitar through the amp,
+ * which needs audio input on and headphones (speakers feed back into a mic).
+ */
+export function GuitarToneMenu({
+  inputActive,
+  monitor,
+  onMonitorChange,
+  onPreview,
+}: GuitarToneMenuProps) {
+  const monitorNoteId = useId();
+  const { value, label, choose } = useGuitarToneChoice(onPreview);
 
   return (
     <DropdownMenu>
@@ -168,12 +189,68 @@ export function GuitarToneMenu({
             className="flex items-center gap-1 text-xs text-white/50"
           >
             <Headphones aria-hidden="true" className="size-3.5 shrink-0" />
-            {inputActive
-              ? 'Headphones only: speakers feed back into the mic.'
-              : 'Turn on audio input to hear yourself.'}
+            {inputActive ? MONITOR_NOTE.on : MONITOR_NOTE.off}
           </span>
         </DropdownMenuPrimitive.CheckboxItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+export type GuitarToneSettingsProps = GuitarToneMenuProps;
+
+/**
+ * The tone menu's choices as two settings rows, for the lesson's settings
+ * sheet: "Guitar tone", a select of the Studio's guitar amps by tone type
+ * and the acoustic guitar (a new choice strums a C), and "Monitor through
+ * amp", on only while audio input is on.
+ */
+export function GuitarToneSettings({
+  inputActive,
+  monitor,
+  onMonitorChange,
+  onPreview,
+}: GuitarToneSettingsProps) {
+  const { value, choose } = useGuitarToneChoice(onPreview);
+  return (
+    <>
+      <SettingsRow label="Guitar tone" helper="How lesson guitar sounds.">
+        {({ controlId, helperId }) => (
+          <div className="relative">
+            <select
+              id={controlId}
+              aria-describedby={helperId}
+              value={value}
+              onChange={(event) => choose(event.target.value)}
+              className="h-9 max-w-44 cursor-pointer appearance-none truncate rounded-full border border-white/15 bg-white/[0.04] pl-3 pr-8 text-sm text-[#e8e8f0] transition-colors [color-scheme:dark] hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 max-sm:h-11"
+            >
+              {TONE_TYPES.map((type) => (
+                <optgroup key={type.id} label={type.label}>
+                  {GUITAR_AMP_MODELS.filter((m) => m.toneType === type.id).map(
+                    (amp) => (
+                      <option key={amp.id} value={amp.id}>
+                        {amp.name}
+                      </option>
+                    ),
+                  )}
+                </optgroup>
+              ))}
+              <option value={ACOUSTIC}>Acoustic (no amp)</option>
+            </select>
+            <ChevronDown
+              aria-hidden
+              className="pointer-events-none absolute right-2.5 top-1/2 size-4 -translate-y-1/2 text-white/55"
+            />
+          </div>
+        )}
+      </SettingsRow>
+      <SettingsSwitchRow
+        label="Monitor through amp"
+        helper={inputActive ? MONITOR_NOTE.on : MONITOR_NOTE.off}
+        checked={monitor}
+        onCheckedChange={onMonitorChange}
+        disabled={!inputActive}
+      />
+    </>
   );
 }

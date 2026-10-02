@@ -16,6 +16,37 @@ export const twistin_the_night_away: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  session: { studioId: 'rca-studios' },
+  credits: [
+    { name: 'Tommy Tedesco', role: 'performer' },
+    { name: 'Red Callender', role: 'performer' },
+    { name: 'Earl Palmer', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Ernest Hayes', role: 'performer', instrument: 'piano' },
+    {
+      name: 'Luigi Creatore',
+      role: 'producer',
+      artistGlobeId: 'luigi-creatore',
+    },
+    { name: 'Jewell Grant', role: 'performer' },
+    { name: 'John Ewing', role: 'performer', instrument: 'trombone' },
+    { name: 'John Kelsom', role: 'performer' },
+    { name: 'Sam Cooke', role: 'songwriter', artistGlobeId: 'sam-cooke' },
+    { name: 'René Hall', role: 'arranger' },
+    { name: 'Sam Cooke', role: 'producer', artistGlobeId: 'sam-cooke' },
+    { name: 'Hugo Peretti', role: 'producer', artistGlobeId: 'hugo-peretti' },
+    { name: 'Al Schmitt', role: 'engineer' },
+    { name: 'René Hall', role: 'conductor' },
+    { name: 'René Hall', role: 'performer' },
+    { name: 'Clifton White', role: 'performer' },
+    {
+      name: 'Sam Cooke',
+      role: 'vocals',
+      artistGlobeId: 'sam-cooke',
+      primary: true,
+    },
+    { name: 'Stuart Williamson', role: 'performer', instrument: 'trumpet' },
+  ],
+  releases: [{ releaseId: 'sam-cooke-twistin-the-night-away' }],
 
   sections: [
     {

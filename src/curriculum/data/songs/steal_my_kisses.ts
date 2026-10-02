@@ -16,6 +16,39 @@ export const steal_my_kisses: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Ben Harper',
+      role: 'vocals',
+      primary: true,
+      artistGlobeId: 'ben-harper',
+    },
+    { name: 'Eric Sarafin', role: 'engineer' },
+    {
+      name: 'Ben Harper',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'ben-harper',
+    },
+    { name: 'Nick Rich', role: 'performer' },
+    {
+      name: 'Ben Harper & The Innocent Criminals',
+      role: 'performer',
+      ensemble: true,
+      artistGlobeId: 'ben-harper-and-the-innocent-criminals',
+      primary: true,
+    },
+    { name: 'Dean Butterworth', role: 'performer' },
+    { name: 'Juan Nelson', role: 'performer', instrument: 'electric-bass' },
+    { name: 'JP Plunier', role: 'producer', artistGlobeId: 'jp-plunier' },
+    { name: 'Ben Harper', role: 'songwriter', artistGlobeId: 'ben-harper' },
+  ],
+  releases: [
+    {
+      releaseId: 'ben-harper-and-the-innocent-criminals-burn-to-shine',
+      track: 7,
+    },
+  ],
 
   sections: [
     {

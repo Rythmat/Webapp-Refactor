@@ -81,7 +81,8 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
           fontSize: isSmall ? 8 : 10,
           fontWeight: 600,
           color: '#e2e8f0',
-          fontFamily: 'monospace',
+          fontFamily: 'inherit',
+          fontVariantNumeric: 'tabular-nums',
         }}
       >
         {clampedPct >= 100 ? '\u2713' : `${Math.round(clampedPct)}`}

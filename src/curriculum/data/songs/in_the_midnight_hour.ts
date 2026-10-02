@@ -16,6 +16,53 @@ export const in_the_midnight_hour: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'stax-studios' },
+  credits: [
+    {
+      name: 'Donald “Duck” Dunn',
+      role: 'performer',
+      instrument: 'electric-bass',
+    },
+    {
+      name: 'Steve Cropper',
+      role: 'songwriter',
+      artistGlobeId: 'steve-cropper',
+    },
+    { name: 'Floyd Newman', role: 'performer', instrument: 'baritone-sax' },
+    {
+      name: 'Charles “Packy” Axton',
+      role: 'performer',
+      instrument: 'tenor-sax',
+    },
+    {
+      name: 'Wilson Pickett',
+      role: 'vocals',
+      artistGlobeId: 'wilson-pickett',
+      primary: true,
+    },
+    {
+      name: 'Al Jackson, Jr.',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'al-jackson-jr',
+    },
+    { name: 'Joe Hall', role: 'performer', instrument: 'piano' },
+    { name: 'Jerry Wexler', role: 'producer', artistGlobeId: 'jerry-wexler' },
+    {
+      name: 'Steve Cropper',
+      role: 'performer',
+      artistGlobeId: 'steve-cropper',
+    },
+    { name: 'Andrew Love', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Wayne Jackson', role: 'performer', instrument: 'trumpet' },
+    { name: 'Jim Stewart', role: 'producer', artistGlobeId: 'jim-stewart' },
+    {
+      name: 'Wilson Pickett',
+      role: 'songwriter',
+      artistGlobeId: 'wilson-pickett',
+    },
+  ],
+  releases: [{ releaseId: 'wilson-pickett-in-the-midnight-hour' }],
 
   sections: [
     {

@@ -4,7 +4,7 @@ export const pride_and_joy: Song = {
   id: 'pride_and_joy',
   title: 'Pride And Joy',
   artist: 'Stevie Ray Vaughan',
-  year: undefined,
+  year: 1983,
 
   historicalDescription:
     "Stevie Ray Vaughan releases 'Pride and Joy', a swaggering blues-rock declaration that announces his arrival as the most electrifying guitarist of his generation. Drawing from Texas blues legends like Lightnin' Hopkins and Albert King, Vaughan drags the blues back into the mainstream at a time when the genre had been pushed to the margins — proving that raw, feeling-soaked guitar could still shake the world.",

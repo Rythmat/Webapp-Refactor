@@ -34,7 +34,7 @@ export function drawCountIn(
 ) {
   if (countInNumber > 0) {
     ctx.fillStyle = keyColor;
-    ctx.font = 'bold 120px "Playfair Display", serif';
+    ctx.font = "bold 120px 'Glacial Indifference', system-ui, sans-serif";
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(countInNumber.toString(), width / 2, height / 2 - 50);
@@ -101,12 +101,12 @@ export function drawPauseOverlay(
 
   // "PAUSED" text
   ctx.fillStyle = '#a1a1aa';
-  ctx.font = '600 16px Inter, sans-serif';
+  ctx.font = "600 16px 'Glacial Indifference', system-ui, sans-serif";
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
   ctx.fillText('PAUSED', cx, cy + barHeight / 2 + 16);
 
-  ctx.font = '400 12px Inter, sans-serif';
+  ctx.font = "400 12px 'Glacial Indifference', system-ui, sans-serif";
   ctx.fillStyle = '#71717a';
   ctx.fillText('Press Escape to resume', cx, cy + barHeight / 2 + 40);
 
@@ -217,7 +217,7 @@ export function drawGameFrame(
     // Note label
     if (!note.missed && !note.lost) {
       ctx.fillStyle = '#000';
-      ctx.font = '600 12px Inter, sans-serif';
+      ctx.font = "600 12px 'Glacial Indifference', system-ui, sans-serif";
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(NOTE_NAMES[note.midi % 12], geom.x + geom.width / 2, y - 15);
@@ -283,7 +283,7 @@ function drawPiano(
         const labelIdx = currentKeys.indexOf(mappedKey);
         if (labelIdx > -1) {
           ctx.fillStyle = isActive ? '#fff' : '#a1a1aa';
-          ctx.font = 'bold 14px Inter, sans-serif';
+          ctx.font = "bold 14px 'Glacial Indifference', system-ui, sans-serif";
           ctx.textAlign = 'center';
           ctx.textBaseline = 'bottom';
           ctx.fillText(

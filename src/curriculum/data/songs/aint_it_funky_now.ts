@@ -16,6 +16,26 @@ export const aint_it_funky_now: Song = {
   difficulty: 2,
   genreTags: ['funk', 'jazz', 'rnb'],
   techniques: [],
+  session: { studioId: 'van-gelder-studio' },
+  credits: [
+    {
+      name: 'Grant Green',
+      role: 'performer',
+      artistGlobeId: 'grant-green',
+      primary: true,
+    },
+    { name: 'Richard Landrum', role: 'performer', instrument: 'bongos' },
+    { name: 'James Brown', role: 'songwriter', artistGlobeId: 'james-brown' },
+    { name: 'Jimmy Lewis', role: 'performer' },
+    { name: 'Blue Mitchell', role: 'performer', instrument: 'trumpet' },
+    { name: 'Emmanuel Riggins', role: 'performer', instrument: 'organ' },
+    { name: 'Claude Bartee, Jr.', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Candido', role: 'performer', instrument: 'congas' },
+    { name: 'Francis Wolff', role: 'producer', artistGlobeId: 'francis-wolff' },
+    { name: 'Idris Muhammad', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Rudy van Gelder', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'grant-green-green-is-beautiful' }],
 
   sections: [
     {

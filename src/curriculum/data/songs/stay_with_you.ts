@@ -16,6 +16,33 @@ export const stay_with_you: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Jeremy Dyen', role: 'performer', instrument: 'synthesizer' },
+    {
+      name: "M'balia Singley",
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    {
+      name: 'John Legend',
+      role: 'vocals',
+      artistGlobeId: 'john-legend',
+      primary: true,
+    },
+    { name: 'Jimmy Coleman', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Dave Tozer', role: 'producer', artistGlobeId: 'dave-tozer' },
+    { name: 'Dave Tozer', role: 'performer', artistGlobeId: 'dave-tozer' },
+    { name: 'Tom Craskey', role: 'performer' },
+    {
+      name: 'John Legend',
+      role: 'performer',
+      artistGlobeId: 'john-legend',
+      primary: true,
+    },
+    { name: 'John Legend', role: 'songwriter', artistGlobeId: 'john-legend' },
+    { name: 'Dave Tozer', role: 'songwriter', artistGlobeId: 'dave-tozer' },
+  ],
+  releases: [{ releaseId: 'john-legend-get-lifted', track: 9 }],
 
   sections: [
     {

@@ -16,6 +16,52 @@ export const blank_space: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'John Hanes', role: 'engineer' },
+    { name: 'Shellback', role: 'songwriter', artistGlobeId: 'shellback' },
+    {
+      name: 'Shellback',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'shellback',
+    },
+    { name: 'Max Martin', role: 'songwriter', artistGlobeId: 'max-martin' },
+    { name: 'Taylor Swift', role: 'songwriter', artistGlobeId: 'taylor-swift' },
+    { name: 'Shellback', role: 'producer', artistGlobeId: 'shellback' },
+    { name: 'Michael Ilbert', role: 'engineer' },
+    {
+      name: 'Taylor Swift',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'taylor-swift',
+      primary: true,
+    },
+    { name: 'Sam Holland', role: 'engineer' },
+    { name: 'Max Martin', role: 'performer', artistGlobeId: 'max-martin' },
+    { name: 'Shellback', role: 'performer', artistGlobeId: 'shellback' },
+    { name: 'Max Martin', role: 'producer', artistGlobeId: 'max-martin' },
+    { name: 'Shellback', role: 'vocals', artistGlobeId: 'shellback' },
+    {
+      name: 'Shellback',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'shellback',
+    },
+    {
+      name: 'Shellback',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'shellback',
+    },
+    { name: 'Serban Ghenea', role: 'engineer' },
+    {
+      name: 'Taylor Swift',
+      role: 'vocals',
+      artistGlobeId: 'taylor-swift',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'taylor-swift-1989', track: 2 }],
 
   sections: [
     {

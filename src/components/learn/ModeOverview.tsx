@@ -1,5 +1,5 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { PianoKeyboard } from '@/components/PianoKeyboard';
 import { YouTubePlayer } from '@/components/YouTubePlayer';
 import { useProgressSummary } from '@/hooks/data/progress';
@@ -21,9 +21,32 @@ import { getNoteSpelling } from './noteSpellingLookup';
 import { getChordScales, type ChordScaleEntry } from './chordScaleData';
 import './learn.css';
 
+/** What the overview is showing as it walks through the keys. */
+export type ModeOverviewShow = {
+  /** The key on show: 'C', 'F♯', 'D♭'. */
+  keyLabel: string;
+  /** The scale note being played, from 0 (the tonic). */
+  noteIndex: number;
+  keyColor: string;
+};
+
+/**
+ * The same overview on another instrument (guitar). Without it, the piano
+ * page renders as it always has.
+ */
+export type ModeOverviewVariant = {
+  /** Drawn in place of the piano keyboard. */
+  renderVisual: (show: ModeOverviewShow) => ReactNode;
+  /** Where a key tile goes. */
+  lessonRoute: (keyLabel: string) => string;
+  /** A line under the title. */
+  subtitle?: string;
+};
+
 type ModeOverviewProps = {
   mode: PrismModeSlug;
   // type: string;
+  variant?: ModeOverviewVariant;
 };
 
 type KeyStep = {
@@ -199,13 +222,15 @@ function ChordRow({
   );
 }
 
-export function ModeOverview({ mode }: ModeOverviewProps) {
+export function ModeOverview({ mode, variant }: ModeOverviewProps) {
   const [keyIndex, setKeyIndex] = useState(0);
   const [noteIndex, setNoteIndex] = useState(0);
   const [chordsOpen, setChordsOpen] = useState(false);
   const { data: modeDetail } = usePrismMode(mode);
   const navigate = useNavigate();
-  const { data: progressSummary } = useProgressSummary(true);
+  // Server progress is the piano lessons'; another instrument doesn't resume
+  // from it.
+  const { data: progressSummary } = useProgressSummary(!variant);
   const videoId = '';
 
   useEffect(() => {
@@ -298,6 +323,7 @@ export function ModeOverview({ mode }: ModeOverviewProps) {
       };
     };
 
+    if (variant) return map;
     progressSummary?.lessons.forEach((lesson) => {
       if (!lesson.lessonId.startsWith('mode-lesson-flow')) return;
       // v1 = pre Bass/Play-Along removal, v2 = current (Overview/Melody/Chords
@@ -334,16 +360,18 @@ export function ModeOverview({ mode }: ModeOverviewProps) {
       });
     });
     return map;
-  }, [mode, progressSummary?.lessons]);
+  }, [mode, progressSummary?.lessons, variant]);
 
   const lessonRouteFor = (keyLabel: string, activityDefId?: string) =>
-    LearnRoutes.lesson(
-      {
-        mode,
-        key: keyLabelToUrlParam(keyLabel),
-      },
-      activityDefId ? { activity: activityDefId } : undefined,
-    );
+    variant
+      ? variant.lessonRoute(keyLabel)
+      : LearnRoutes.lesson(
+          {
+            mode,
+            key: keyLabelToUrlParam(keyLabel),
+          },
+          activityDefId ? { activity: activityDefId } : undefined,
+        );
 
   return (
     <div
@@ -356,18 +384,37 @@ export function ModeOverview({ mode }: ModeOverviewProps) {
         onBack={() => navigate(-1)}
         showProfile={false}
       />
+      {variant?.subtitle && (
+        // Under the title: HeaderBar's padding plus its back button and gap
+        // (3rem). HeaderBar's own subtitle sits beside the title and spills
+        // out of the bar at phone width.
+        <p
+          className="-mt-5 pl-16 pr-4 text-sm sm:pl-[4.5rem] lg:pl-[5.5rem]"
+          style={{ color: 'var(--color-text-dim)' }}
+        >
+          {variant.subtitle}
+        </p>
+      )}
       {videoId && (
         <div className="w-1/2 mx-auto">
           <YouTubePlayer videoId={videoId} />
         </div>
       )}
-      <PianoKeyboard
-        endC={6}
-        startC={4}
-        playingNotes={activeNotes}
-        activeWhiteKeyColor={activeKeyColor}
-        activeBlackKeyColor={activeKeyColor}
-      />
+      {variant ? (
+        variant.renderVisual({
+          keyLabel: activeKey.label,
+          noteIndex,
+          keyColor: activeKeyColor,
+        })
+      ) : (
+        <PianoKeyboard
+          endC={6}
+          startC={4}
+          playingNotes={activeNotes}
+          activeWhiteKeyColor={activeKeyColor}
+          activeBlackKeyColor={activeKeyColor}
+        />
+      )}
       <section className="mb-6 flex flex-col items-center">
         <p
           className="text-base md:text-lg font-semibold mb-3 text-left self-start ml-[10%]"

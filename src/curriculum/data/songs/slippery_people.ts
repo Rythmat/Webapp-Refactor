@@ -16,6 +16,91 @@ export const slippery_people: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Chris Frantz',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'chris-frantz',
+    },
+    { name: 'David Byrne', role: 'performer', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Tina Weymouth',
+      role: 'performer',
+      artistGlobeId: 'tina-weymouth',
+    },
+    {
+      name: 'Tina Weymouth',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'tina-weymouth',
+    },
+    {
+      name: 'Chris Frantz',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'chris-frantz',
+    },
+    { name: 'Chris Frantz', role: 'songwriter', artistGlobeId: 'chris-frantz' },
+    {
+      name: 'Talking Heads',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'talking-heads',
+    },
+    { name: 'David Byrne', role: 'songwriter', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Chris Frantz',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'chris-frantz',
+    },
+    {
+      name: 'Tina Weymouth',
+      role: 'songwriter',
+      artistGlobeId: 'tina-weymouth',
+    },
+    { name: 'David Byrne', role: 'vocals', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Jerry Harrison',
+      role: 'songwriter',
+      artistGlobeId: 'jerry-harrison',
+    },
+    { name: 'Butch Jones', role: 'engineer' },
+    { name: 'Dickie Landry', role: 'performer' },
+    {
+      name: 'Jerry Harrison',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'jerry-harrison',
+    },
+    {
+      name: 'Dolette McDonald',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Nona Hendryx', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Jerry Harrison',
+      role: 'performer',
+      artistGlobeId: 'jerry-harrison',
+    },
+    { name: 'Raphael DeJesus', role: 'performer', instrument: 'percussion' },
+    {
+      name: 'David Byrne',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'david-byrne',
+    },
+    { name: 'Alex Sadkin', role: 'engineer' },
+    {
+      name: 'Tina Weymouth',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'tina-weymouth',
+    },
+  ],
+  releases: [{ releaseId: 'talking-heads-speaking-in-tongues' }],
 
   sections: [
     {

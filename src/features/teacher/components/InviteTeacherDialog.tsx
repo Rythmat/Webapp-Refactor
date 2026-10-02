@@ -245,7 +245,7 @@ export const InviteTeacherDialog = ({
                   <Input
                     readOnly
                     value={lastLink}
-                    className="border-white/10 bg-white/[0.02] font-mono text-xs text-white placeholder:text-white/40 focus-visible:border-white/25 focus-visible:ring-0"
+                    className="border-white/10 bg-white/[0.02] text-xs text-white placeholder:text-white/40 focus-visible:border-white/25 focus-visible:ring-0"
                   />
                   <Button
                     size="icon"

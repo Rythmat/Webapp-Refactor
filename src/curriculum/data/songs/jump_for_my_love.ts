@@ -16,6 +16,28 @@ export const jump_for_my_love: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'James C. Tract', role: 'engineer' },
+    {
+      name: 'Gary Skardina',
+      role: 'songwriter',
+      artistGlobeId: 'gary-skardina',
+    },
+    {
+      name: 'Stephen Mitchell',
+      role: 'songwriter',
+      artistGlobeId: 'stephen-mitchell',
+    },
+    {
+      name: 'Marti Sharron',
+      role: 'songwriter',
+      artistGlobeId: 'marti-sharron',
+    },
+    { name: 'Richard Perry', role: 'producer', artistGlobeId: 'richard-perry' },
+    { name: 'Michael Brooks', role: 'engineer' },
+    { name: 'Gary Skardina', role: 'engineer', artistGlobeId: 'gary-skardina' },
+  ],
+  releases: [{ releaseId: 'the-pointer-sisters-break-out' }],
 
   sections: [
     {

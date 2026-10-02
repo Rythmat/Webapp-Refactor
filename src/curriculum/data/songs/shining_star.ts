@@ -4,7 +4,7 @@ export const shining_star: Song = {
   id: 'shining_star',
   title: 'Shining Star',
   artist: 'Earth, Wind & Fire',
-  year: undefined,
+  year: 1975,
 
   historicalDescription:
     "Earth, Wind & Fire release 'Shining Star', becoming their first #1 hit on the Billboard Hot 100. The track fuses funk, soul, and R&B into an electrifying anthem of self-affirmation, capturing the spirit of mid-70s Black musical creativity at its peak. It wins the Grammy for Best R&B Performance and cements the band as one of the era's defining acts.",
@@ -17,6 +17,38 @@ export const shining_star: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Larry Dunn', role: 'songwriter', artistGlobeId: 'larry-dunn' },
+    {
+      name: 'Charles Stepney',
+      role: 'arranger',
+      artistGlobeId: 'charles-stepney',
+    },
+    {
+      name: 'Charles Stepney',
+      role: 'producer',
+      artistGlobeId: 'charles-stepney',
+    },
+    {
+      name: 'Philip Bailey',
+      role: 'songwriter',
+      artistGlobeId: 'philip-bailey',
+    },
+    { name: 'Maurice White', role: 'producer', artistGlobeId: 'maurice-white' },
+    {
+      name: 'Earth, Wind & Fire',
+      role: 'arranger',
+      ensemble: true,
+      artistGlobeId: 'earth-wind-and-fire',
+    },
+    { name: 'George Massenburg', role: 'engineer' },
+    {
+      name: 'Maurice White',
+      role: 'songwriter',
+      artistGlobeId: 'maurice-white',
+    },
+  ],
+  releases: [{ releaseId: 'earth-wind-and-fire-thats-the-way-of-the-world' }],
 
   sections: [
     {

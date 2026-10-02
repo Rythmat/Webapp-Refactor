@@ -1,4 +1,8 @@
 import { Env } from '@/constants/env';
+import {
+  CONTENT_MOCK,
+  MOCK_CDN_URL,
+} from '@/features/admin/content/mock/mockSwitch';
 
 /**
  * Client for the published content bundles on the CDN.
@@ -28,9 +32,33 @@ export type ContentManifest = {
   >;
 };
 
-/** Absent in local dev and in tests, which is the signal to use bundled data. */
+/**
+ * Absent in local dev and in tests, which is the signal to use bundled data.
+ *
+ * With the offline content mock on (DEV only, see mockSwitch.ts) it is the
+ * mock's own CDN, so the app reads what the console last published there.
+ */
 export const contentCdnUrl = (): string | undefined =>
-  Env.get('VITE_CONTENT_CDN_URL', { nullable: true });
+  CONTENT_MOCK
+    ? MOCK_CDN_URL
+    : Env.get('VITE_CONTENT_CDN_URL', { nullable: true });
+
+/**
+ * `fetch`, except that the mock CDN's `mock:` URLs are answered by the mock.
+ * In a production build the branch is dead, and because the literal
+ * `import.meta.env.DEV` sits right here, the bundler does not emit the mock's
+ * chunk either (with only the imported constant it drops the call but still
+ * writes the chunk to dist).
+ */
+const cdnFetch = async (url: string, init: RequestInit): Promise<Response> => {
+  if (import.meta.env.DEV && CONTENT_MOCK && url.startsWith('mock:')) {
+    const { handleMockCdnRequest } = await import(
+      '@/features/admin/content/mock/handleMockRequest'
+    );
+    return handleMockCdnRequest(url);
+  }
+  return fetch(url, init);
+};
 
 export const isContentCdnEnabled = (): boolean => Boolean(contentCdnUrl());
 
@@ -41,7 +69,7 @@ export const fetchManifest = (): Promise<ContentManifest> => {
     const base = contentCdnUrl();
     if (!base) throw new Error('VITE_CONTENT_CDN_URL is not set');
 
-    const response = await fetch(`${base}/content/manifest.json`, {
+    const response = await cdnFetch(`${base}/content/manifest.json`, {
       // The manifest carries its own short max-age; let the HTTP cache honour
       // it rather than forcing a revalidation on every page load.
       credentials: 'omit',
@@ -82,8 +110,10 @@ const CACHE_NAME = 'ma-content-v1';
 const fetchObject = async (base: string, key: string): Promise<unknown> => {
   const url = `${base}/${key}`;
 
+  // Not for the mock CDN: its versions restart at 1 after a reset, so a key
+  // is no longer a promise that the object never changes.
   const cache =
-    typeof caches !== 'undefined'
+    typeof caches !== 'undefined' && !(CONTENT_MOCK && url.startsWith('mock:'))
       ? await caches.open(CACHE_NAME).catch(() => null)
       : null;
 
@@ -92,7 +122,7 @@ const fetchObject = async (base: string, key: string): Promise<unknown> => {
     if (hit) return hit.json();
   }
 
-  const response = await fetch(url, { credentials: 'omit' });
+  const response = await cdnFetch(url, { credentials: 'omit' });
   if (!response.ok) {
     throw new Error(`Content bundle fetch failed (${key}): ${response.status}`);
   }

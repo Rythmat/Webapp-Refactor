@@ -16,6 +16,22 @@ export const the_big_country: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'compass-point-studios' },
+  credits: [
+    { name: 'Brian Eno', role: 'producer', artistGlobeId: 'brian-eno' },
+    { name: 'David Byrne', role: 'vocals', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Talking Heads',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'talking-heads',
+    },
+    { name: 'David Byrne', role: 'songwriter', artistGlobeId: 'david-byrne' },
+    { name: 'Rhett Davies', role: 'engineer' },
+  ],
+  releases: [
+    { releaseId: 'talking-heads-more-songs-about-buildings-and-food' },
+  ],
 
   sections: [
     {

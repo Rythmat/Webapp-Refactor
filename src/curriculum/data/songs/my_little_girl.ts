@@ -16,6 +16,16 @@ export const my_little_girl: Song = {
   difficulty: 3,
   genreTags: ['folk', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'Tim Douglas', role: 'songwriter', artistGlobeId: 'tim-douglas' },
+    { name: 'Tim McGraw', role: 'producer', artistGlobeId: 'tim-mcgraw' },
+    {
+      name: 'Byron Gallimore',
+      role: 'producer',
+      artistGlobeId: 'byron-gallimore',
+    },
+    { name: 'Tim McGraw', role: 'songwriter', artistGlobeId: 'tim-mcgraw' },
+  ],
 
   sections: [
     {

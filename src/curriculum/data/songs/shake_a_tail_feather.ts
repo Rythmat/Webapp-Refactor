@@ -16,6 +16,52 @@ export const shake_a_tail_feather: Song = {
   difficulty: 2,
   genreTags: ['blues'],
   techniques: [],
+  credits: [
+    {
+      name: 'Jake E. “Joliet” Blues',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    {
+      name: 'Ray Charles',
+      role: 'vocals',
+      artistGlobeId: 'ray-charles',
+      primary: true,
+    },
+    { name: 'Tom “Bones” Malone', role: 'performer' },
+    { name: 'Lou Marini', role: 'performer' },
+    {
+      name: 'Donald “Duck” Dunn',
+      role: 'performer',
+      instrument: 'electric-bass',
+    },
+    { name: 'Al Rubin', role: 'performer', instrument: 'trumpet' },
+    { name: 'Otha Hayes', role: 'songwriter', artistGlobeId: 'otha-hayes' },
+    {
+      name: 'Andre Williams',
+      role: 'songwriter',
+      artistGlobeId: 'andre-williams',
+    },
+    { name: 'Blues Brothers', role: 'performer', ensemble: true },
+    {
+      name: 'Willie "Too Big" Hall',
+      role: 'performer',
+      instrument: 'drum-kit',
+    },
+    { name: 'Murphy Dunne', role: 'performer' },
+    {
+      name: 'Steve Cropper',
+      role: 'performer',
+      artistGlobeId: 'steve-cropper',
+    },
+    {
+      name: 'Elwood J. Blues',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Verlie Rice', role: 'songwriter', artistGlobeId: 'verlie-rice' },
+    { name: 'Matt Murphy', role: 'performer' },
+  ],
 
   sections: [
     {

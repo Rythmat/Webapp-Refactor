@@ -4,7 +4,7 @@ export const whats_going_on: Song = {
   id: 'whats_going_on',
   title: 'What’s Going On',
   artist: 'Marvin Gaye',
-  year: undefined,
+  year: 1971,
 
   historicalDescription:
     "Marvin Gaye releases 'What's Going On', a deeply personal protest against the Vietnam War, racism, and poverty — a radical departure from Motown's polished pop formula. Berry Gordy initially refuses to release it, convinced it will fail. It becomes one of the best-selling Motown singles of all time and redefines what soul music can say.",
@@ -17,6 +17,51 @@ export const whats_going_on: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  session: { studioId: 'hitsville' },
+  credits: [
+    {
+      name: 'Renaldo Benson',
+      role: 'songwriter',
+      artistGlobeId: 'renaldo-benson',
+    },
+    { name: 'Detroit Symphony Orchestra', role: 'performer', ensemble: true },
+    { name: 'Al Cleveland', role: 'songwriter', artistGlobeId: 'al-cleveland' },
+    {
+      name: 'Marvin Gaye',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'marvin-gaye',
+      primary: true,
+    },
+    { name: 'Mel Farr', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Marvin Gaye',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'marvin-gaye',
+      primary: true,
+    },
+    { name: 'David Van dePitte', role: 'conductor' },
+    { name: 'Lawrence Miles', role: 'engineer' },
+    { name: 'The Funk Brothers', role: 'performer', ensemble: true },
+    {
+      name: 'Marvin Gaye',
+      role: 'vocals',
+      artistGlobeId: 'marvin-gaye',
+      primary: true,
+    },
+    { name: 'Lem Barney', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Marvin Gaye', role: 'songwriter', artistGlobeId: 'marvin-gaye' },
+    {
+      name: 'Marvin Gaye',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'marvin-gaye',
+      primary: true,
+    },
+    { name: 'Marvin Gaye', role: 'producer', artistGlobeId: 'marvin-gaye' },
+  ],
+  releases: [{ releaseId: 'marvin-gaye-whats-going-on' }],
 
   sections: [
     {

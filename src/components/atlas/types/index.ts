@@ -40,10 +40,18 @@ export interface Region {
   altitude: number;
 }
 
+/** Where an event is pinned: its coordinates, and its city and country as written. */
+export interface EventLocation {
+  lat: number;
+  lng: number;
+  city: string;
+  country: string;
+}
+
 export interface HistoricalEvent {
   id: string;
   year: number;
-  location: { lat: number; lng: number; city: string; country: string };
+  location: EventLocation;
   genre: string[];
   title: string;
   description: string;

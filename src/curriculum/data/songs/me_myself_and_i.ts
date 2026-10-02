@@ -16,6 +16,33 @@ export const me_myself_and_i: Song = {
   difficulty: 2,
   genreTags: ['hip-hop'],
   techniques: [],
+  session: { studioId: 'south-beach-studios' },
+  credits: [
+    { name: 'Scott Storch', role: 'producer', artistGlobeId: 'scott-storch' },
+    {
+      name: 'Beyoncé',
+      role: 'vocals',
+      artistGlobeId: 'beyonce',
+      primary: true,
+    },
+    { name: 'Beyoncé', role: 'songwriter', artistGlobeId: 'beyonce' },
+    {
+      name: 'Robert Waller',
+      role: 'songwriter',
+      artistGlobeId: 'robert-waller',
+    },
+    { name: 'Beyoncé', role: 'producer', artistGlobeId: 'beyonce' },
+    { name: 'Tony Maserati', role: 'engineer' },
+    { name: 'Scott Storch', role: 'songwriter', artistGlobeId: 'scott-storch' },
+    { name: 'Carlos Bedoya', role: 'engineer' },
+    {
+      name: 'Beyoncé',
+      role: 'performer',
+      artistGlobeId: 'beyonce',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'beyonce-dangerously-in-love' }],
 
   sections: [
     {

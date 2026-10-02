@@ -16,6 +16,38 @@ export const and_i_love_her: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'abbey-road-studios' },
+  credits: [
+    { name: 'Norman Smith', role: 'engineer' },
+    {
+      name: 'Paul McCartney',
+      role: 'songwriter',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'Paul McCartney', role: 'vocals', artistGlobeId: 'paul-mccartney' },
+    { name: 'John Lennon', role: 'songwriter', artistGlobeId: 'john-lennon' },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'john-lennon',
+    },
+    { name: 'Ringo Starr', role: 'performer', instrument: 'bongos' },
+    { name: 'George Martin', role: 'producer' },
+    { name: 'Ringo Starr', role: 'performer' },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'paul-mccartney',
+    },
+  ],
+  releases: [{ releaseId: 'the-beatles-a-hard-days-night' }],
 
   sections: [
     {

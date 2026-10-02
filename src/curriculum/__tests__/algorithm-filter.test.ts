@@ -9,6 +9,7 @@ import {
   getScalesForContext,
 } from '../engine/algorithmFilter';
 import { getGenresForMode, getVibesForMode } from '../engine/modeAssociations';
+import { autoTags } from '../engine/progressionRules';
 import {
   STYLE_ALGORITHMS,
   filterProgressionsByStyle,
@@ -49,6 +50,28 @@ describe('vibeAlgorithms', () => {
     expect(dark.length).toBeGreaterThan(0);
   });
 
+  it('filterProgressionsByVibe keeps stored tags and adds the rules’ suggestions', () => {
+    const happy = filterProgressionsByVibe(CHORD_PROGRESSION_LIBRARY, 'happy');
+    const ids = new Set(happy.map((p) => p.id));
+    for (const p of CHORD_PROGRESSION_LIBRARY) {
+      const expected =
+        p.vibes.includes('happy') || autoTags(p.chords).vibes.includes('happy');
+      expect(ids.has(p.id)).toBe(expected);
+    }
+  });
+
+  it('filterProgressionsByVibe reads stored tags alone for a vibe with no rule', () => {
+    const hypnotic = filterProgressionsByVibe(
+      CHORD_PROGRESSION_LIBRARY,
+      'hypnotic',
+    );
+    expect(hypnotic.map((p) => p.id)).toEqual(
+      CHORD_PROGRESSION_LIBRARY.filter((p) => p.vibes.includes('hypnotic')).map(
+        (p) => p.id,
+      ),
+    );
+  });
+
   it('getModesForVibe returns modes', () => {
     const modes = getModesForVibe('sophisticated');
     expect(modes).toContain('lydian');
@@ -60,8 +83,10 @@ describe('vibeAlgorithms', () => {
 // Style Algorithms
 // ---------------------------------------------------------------------------
 describe('styleAlgorithms', () => {
-  it('defines all 14 styles (including folk and blues)', () => {
-    expect(Object.keys(STYLE_ALGORITHMS)).toHaveLength(14);
+  it('defines all 15 styles (including folk, blues and gospel)', () => {
+    expect(Object.keys(STYLE_ALGORITHMS)).toHaveLength(15);
+    expect(STYLE_ALGORITHMS.gospel.hasRule).toBe(true);
+    expect(STYLE_ALGORITHMS.blues.hasRule).toBe(false);
   });
 
   it('every style has primary modes', () => {
@@ -73,6 +98,22 @@ describe('styleAlgorithms', () => {
   it('filterProgressionsByStyle returns results for jazz', () => {
     const jazz = filterProgressionsByStyle(CHORD_PROGRESSION_LIBRARY, 'jazz');
     expect(jazz.length).toBeGreaterThan(0);
+  });
+
+  it('filterProgressionsByStyle keeps stored tags and adds the rules’ suggestions', () => {
+    const gospel = filterProgressionsByStyle(
+      CHORD_PROGRESSION_LIBRARY,
+      'gospel',
+    );
+    const ids = new Set(gospel.map((p) => p.id));
+    for (const p of CHORD_PROGRESSION_LIBRARY) {
+      const expected =
+        p.styles.includes('gospel') ||
+        autoTags(p.chords).styles.includes('gospel');
+      expect(ids.has(p.id)).toBe(expected);
+    }
+    const latin = filterProgressionsByStyle(CHORD_PROGRESSION_LIBRARY, 'latin');
+    expect(latin.every((p) => p.styles.includes('latin'))).toBe(true);
   });
 
   it('getModesForStyle returns primary + secondary', () => {

@@ -16,6 +16,40 @@ export const brown_eyed_girl: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'a-r-recording-studio-1958-1967' },
+  credits: [
+    { name: 'Van Morrison', role: 'songwriter', artistGlobeId: 'van-morrison' },
+    { name: 'Gary Chester', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Hugh McCracken', role: 'performer' },
+    { name: 'Al Gorgoni', role: 'performer' },
+    {
+      name: 'The Sweet Inspirations',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      ensemble: true,
+    },
+    {
+      name: 'Van Morrison',
+      role: 'performer',
+      artistGlobeId: 'van-morrison',
+      primary: true,
+    },
+    { name: 'Garry Sherman', role: 'performer', instrument: 'organ' },
+    { name: 'Eric Gale', role: 'performer', instrument: 'electric-bass' },
+    {
+      name: 'Van Morrison',
+      role: 'vocals',
+      artistGlobeId: 'van-morrison',
+      primary: true,
+    },
+    { name: 'Brooks Arthur', role: 'engineer' },
+    {
+      name: 'Bert Russell Berns',
+      role: 'producer',
+      artistGlobeId: 'bert-russell-berns',
+    },
+  ],
+  releases: [{ releaseId: 'van-morrison-blowin-your-mind' }],
 
   sections: [
     {

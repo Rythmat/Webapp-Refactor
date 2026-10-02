@@ -16,6 +16,40 @@ export const harvest_moon: Song = {
   difficulty: 2,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  session: { studioId: 'redwood-digital' },
+  credits: [
+    { name: 'Ben Keith', role: 'vocals', artistGlobeId: 'ben-keith' },
+    { name: 'Tim Mulligan', role: 'engineer' },
+    { name: 'Kenny Buttrey', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Neil Young', role: 'engineer', artistGlobeId: 'neil-young' },
+    {
+      name: 'Neil Young',
+      role: 'vocals',
+      artistGlobeId: 'neil-young',
+      primary: true,
+    },
+    { name: 'John Nowland', role: 'engineer' },
+    { name: 'Neil Young', role: 'producer', artistGlobeId: 'neil-young' },
+    { name: 'Tim Drummond', role: 'performer' },
+    { name: 'Neil Young', role: 'songwriter', artistGlobeId: 'neil-young' },
+    { name: 'Linda Ronstadt', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Ben Keith',
+      role: 'performer',
+      instrument: 'pedal-steel',
+      artistGlobeId: 'ben-keith',
+    },
+    { name: 'Ben Keith', role: 'producer', artistGlobeId: 'ben-keith' },
+    {
+      name: 'Neil Young',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'neil-young',
+      primary: true,
+    },
+    { name: 'Spooner Oldham', role: 'performer', instrument: 'organ' },
+  ],
+  releases: [{ releaseId: 'neil-young-harvest-moon', track: 4 }],
 
   sections: [
     {

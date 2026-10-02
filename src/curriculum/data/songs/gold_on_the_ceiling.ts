@@ -16,6 +16,33 @@ export const gold_on_the_ceiling: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'easy-eye-sound-studios' },
+  credits: [
+    { name: 'Tchad Blake', role: 'engineer' },
+    {
+      name: 'The Black Keys',
+      role: 'performer',
+      ensemble: true,
+      artistGlobeId: 'the-black-keys',
+      primary: true,
+    },
+    { name: 'Dan Auerbach', role: 'songwriter', artistGlobeId: 'dan-auerbach' },
+    { name: 'Brian Burton', role: 'songwriter', artistGlobeId: 'brian-burton' },
+    { name: 'Kennie Takahashi', role: 'engineer' },
+    {
+      name: 'The Black Keys',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'the-black-keys',
+    },
+    {
+      name: 'Patrick Carney',
+      role: 'songwriter',
+      artistGlobeId: 'patrick-carney',
+    },
+    { name: 'Danger Mouse', role: 'producer', artistGlobeId: 'danger-mouse' },
+  ],
+  releases: [{ releaseId: 'the-black-keys-el-camino', track: 3 }],
 
   sections: [
     {

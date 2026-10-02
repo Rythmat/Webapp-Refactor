@@ -75,7 +75,9 @@ const printAlignment = (unitLabel: string, a: UnitAlignment) => {
       : '';
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>Standards Alignment — ${esc(unitLabel)}</title>
     <style>
-      body{font-family:Georgia,serif;color:#1a1a1a;max-width:720px;margin:40px auto;padding:0 24px;line-height:1.5}
+      @font-face{font-family:'Glacial Indifference';src:url('${window.location.origin}/fonts/GlacialIndifference-Regular.otf') format('opentype');font-weight:400}
+      @font-face{font-family:'Glacial Indifference';src:url('${window.location.origin}/fonts/GlacialIndifference-Bold.otf') format('opentype');font-weight:700}
+      body{font-family:'Glacial Indifference',system-ui,sans-serif;color:#1a1a1a;max-width:720px;margin:40px auto;padding:0 24px;line-height:1.5}
       header{border-bottom:2px solid #1a1a1a;padding-bottom:8px;margin-bottom:16px}
       .brand{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:#666}
       h1{font-size:24px;margin:4px 0}
@@ -100,7 +102,20 @@ const printAlignment = (unitLabel: string, a: UnitAlignment) => {
   w.document.write(html);
   w.document.close();
   w.focus();
-  w.print();
+  // Print once Glacial has loaded, or the page prints in the fallback font —
+  // but never wait more than two seconds: a stalled font request must not
+  // leave the teacher with a popup and no print dialog.
+  const { fonts } = w.document;
+  const fontsLoaded = Promise.all([
+    fonts.load("400 16px 'Glacial Indifference'"),
+    fonts.load("700 16px 'Glacial Indifference'"),
+  ])
+    .then(() => fonts.ready)
+    .catch(() => undefined);
+  void Promise.race([
+    fontsLoaded,
+    new Promise((resolve) => setTimeout(resolve, 2000)),
+  ]).then(() => w.print());
 };
 
 export const UnitAlignmentSummary = ({

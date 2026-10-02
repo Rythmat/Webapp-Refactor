@@ -16,6 +16,41 @@ export const fire_on_the_bayou: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Cyril Neville',
+      role: 'songwriter',
+      artistGlobeId: 'cyril-neville',
+    },
+    {
+      name: 'The Meters',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'the-meters',
+    },
+    {
+      name: 'Ziggy Modeliste',
+      role: 'songwriter',
+      artistGlobeId: 'ziggy-modeliste',
+    },
+    {
+      name: 'George Porter, Jr.',
+      role: 'songwriter',
+      artistGlobeId: 'george-porter-jr',
+    },
+    {
+      name: 'Leo Nocentelli',
+      role: 'songwriter',
+      artistGlobeId: 'leo-nocentelli',
+    },
+    { name: 'Art Neville', role: 'songwriter', artistGlobeId: 'art-neville' },
+    {
+      name: 'Allen Toussaint',
+      role: 'producer',
+      artistGlobeId: 'allen-toussaint',
+    },
+  ],
+  releases: [{ releaseId: 'the-meters-fire-on-the-bayou' }],
 
   sections: [
     {

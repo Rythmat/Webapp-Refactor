@@ -151,7 +151,7 @@ export const ClassroomSelectionPage = () => {
                 <button
                   type="button"
                   onClick={() => copyCode(classroom.code)}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.02] px-2.5 py-1 font-mono text-xs text-white/80 transition-colors hover:border-white/25 hover:text-white"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.02] px-2.5 py-1 text-xs tracking-wider text-white/80 transition-colors hover:border-white/25 hover:text-white"
                   title="Copy join code"
                 >
                   {classroom.code}

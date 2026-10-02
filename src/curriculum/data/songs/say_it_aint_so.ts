@@ -16,6 +16,10 @@ export const say_it_aint_so: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Rivers Cuomo', role: 'songwriter', artistGlobeId: 'rivers-cuomo' },
+  ],
+  releases: [{ releaseId: 'weezer-weezer', track: 1 }],
 
   sections: [
     {

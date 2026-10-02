@@ -16,6 +16,61 @@ export const black_or_white: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Michael Jackson',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'michael-jackson',
+      primary: true,
+    },
+    { name: 'Brad Buxer', role: 'performer', instrument: 'percussion' },
+    {
+      name: 'Michael Jackson',
+      role: 'producer',
+      artistGlobeId: 'michael-jackson',
+    },
+    { name: 'Andres McKenzie', role: 'vocals' },
+    { name: 'Bill Bottrell', role: 'producer', artistGlobeId: 'bill-bottrell' },
+    {
+      name: 'Bill Bottrell',
+      role: 'performer',
+      artistGlobeId: 'bill-bottrell',
+    },
+    { name: 'Brad Buxer', role: 'performer' },
+    { name: 'John Barnes', role: 'performer' },
+    { name: 'Jasun Martz', role: 'performer' },
+    { name: 'Tim Pierce', role: 'performer' },
+    {
+      name: 'Bill Bottrell',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'bill-bottrell',
+    },
+    {
+      name: 'Michael Jackson',
+      role: 'songwriter',
+      artistGlobeId: 'michael-jackson',
+    },
+    { name: 'L.T.B.', role: 'vocals' },
+    {
+      name: 'Slash',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'slash',
+    },
+    {
+      name: 'Bill Bottrell',
+      role: 'songwriter',
+      artistGlobeId: 'bill-bottrell',
+    },
+    { name: 'Terry Jackson', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Bill Bottrell', role: 'engineer', artistGlobeId: 'bill-bottrell' },
+    { name: 'Bryan Loren', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Matt Forger', role: 'engineer' },
+    { name: 'Bryan Loren', role: 'performer', instrument: 'synthesizer' },
+  ],
+  releases: [{ releaseId: 'michael-jackson-dangerous', track: 8 }],
 
   sections: [
     {

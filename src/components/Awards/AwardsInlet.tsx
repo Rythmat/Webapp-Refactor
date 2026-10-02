@@ -46,7 +46,7 @@ const AwardCard: FC<{ award: EvaluatedAward }> = ({ award }) => {
         )}
       </div>
       <div className="flex flex-col gap-1.5 p-4">
-        <h3 className="font-serif text-base text-white">{title}</h3>
+        <h3 className="text-base text-white">{title}</h3>
         <p className="text-xs text-white/50">{description}</p>
         {!unlocked && (
           <div className="mt-1.5 flex flex-col gap-1">

@@ -16,6 +16,17 @@ export const marry_me: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Pat Monahan', role: 'songwriter', artistGlobeId: 'pat-monahan' },
+    {
+      name: 'Train',
+      role: 'performer',
+      ensemble: true,
+      artistGlobeId: 'train',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'train-save-me-san-francisco', track: 11 }],
 
   sections: [
     {

@@ -16,6 +16,26 @@ export const a_thousand_years: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Deborah Lurie', role: 'performer', instrument: 'string-section' },
+    {
+      name: 'Christina Perri',
+      role: 'performer',
+      artistGlobeId: 'christina-perri',
+      primary: true,
+    },
+    { name: 'Justin Glasgow', role: 'performer', instrument: 'drum-kit' },
+    { name: 'David Hodges', role: 'songwriter', artistGlobeId: 'david-hodges' },
+    { name: 'Chad Copelin', role: 'engineer' },
+    { name: 'Justin Glasgow', role: 'performer' },
+    {
+      name: 'Christina Perri',
+      role: 'songwriter',
+      artistGlobeId: 'christina-perri',
+    },
+    { name: 'Mark Endert', role: 'engineer', artistGlobeId: 'mark-endert' },
+    { name: 'David Hodges', role: 'producer', artistGlobeId: 'david-hodges' },
+  ],
 
   sections: [
     {

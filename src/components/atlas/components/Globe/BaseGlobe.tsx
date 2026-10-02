@@ -298,7 +298,7 @@ export function BaseGlobe() {
       lat: e.location.lat,
       lng: e.location.lng,
       name: `${e.title} · ${e.year}`,
-      color: '#fbbf24',
+      color: '#ffffff',
       size: 0.45,
       eventId: e.id,
     }));

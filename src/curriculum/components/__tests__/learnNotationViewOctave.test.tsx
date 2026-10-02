@@ -70,3 +70,33 @@ describe('LearnNotationView octave shift', () => {
     ).toEqual(events.map((e) => e.id));
   });
 });
+
+describe('LearnNotationView header', () => {
+  afterEach(cleanup);
+  const header = (props: Partial<Parameters<typeof LearnNotationView>[0]>) =>
+    render(
+      <LearnNotationView
+        events={events}
+        bars={1}
+        beatsPerBar={4}
+        inTime={false}
+        playheadTick={0}
+        height={300}
+        toggle={<span data-testid="view-toggle" />}
+        {...props}
+      />,
+    ).container;
+
+  it('keeps its header strip and toggle by default', () => {
+    const host = header({});
+    expect(host.querySelector('[data-testid="view-toggle"]')).toBeTruthy();
+    expect(host.firstElementChild!.children).toHaveLength(2);
+  });
+
+  it('draws no header strip with showHeader off', () => {
+    const host = header({ showHeader: false });
+    expect(host.querySelector('[data-testid="view-toggle"]')).toBeNull();
+    // Only the staff's own box is left in the panel.
+    expect(host.firstElementChild!.children).toHaveLength(1);
+  });
+});

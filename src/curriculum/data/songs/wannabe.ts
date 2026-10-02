@@ -16,6 +16,46 @@ export const wannabe: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Matt Rowe', role: 'performer', artistGlobeId: 'matt-rowe' },
+    {
+      name: 'Richard “Biff” Stannard',
+      role: 'performer',
+      artistGlobeId: 'richard-biff-stannard',
+    },
+    {
+      name: 'Melanie Brown',
+      role: 'songwriter',
+      artistGlobeId: 'melanie-brown',
+    },
+    {
+      name: 'Richard “Biff” Stannard',
+      role: 'producer',
+      artistGlobeId: 'richard-biff-stannard',
+    },
+    { name: 'Mark “Spike” Stent', role: 'engineer' },
+    {
+      name: 'Richard “Biff” Stannard',
+      role: 'songwriter',
+      artistGlobeId: 'richard-biff-stannard',
+    },
+    { name: 'Melanie C', role: 'songwriter', artistGlobeId: 'melanie-c' },
+    { name: 'Matt Rowe', role: 'songwriter', artistGlobeId: 'matt-rowe' },
+    { name: 'Adrian Bushby', role: 'engineer' },
+    { name: 'Emma Bunton', role: 'songwriter', artistGlobeId: 'emma-bunton' },
+    {
+      name: 'Geri Halliwell',
+      role: 'songwriter',
+      artistGlobeId: 'geri-halliwell',
+    },
+    { name: 'Matt Rowe', role: 'producer', artistGlobeId: 'matt-rowe' },
+    {
+      name: 'Victoria Beckham',
+      role: 'songwriter',
+      artistGlobeId: 'victoria-beckham',
+    },
+  ],
+  releases: [{ releaseId: 'the-spice-girls-spice', track: 1 }],
 
   sections: [
     {

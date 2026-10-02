@@ -16,6 +16,48 @@ export const train_in_vain: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'wessex-sound-studios' },
+  credits: [
+    {
+      name: 'Mick Jones',
+      role: 'performer',
+      artistGlobeId: 'mick-jones-the-clash-big-audio-dynamite',
+    },
+    { name: 'Guy Stevens', role: 'producer', artistGlobeId: 'guy-stevens' },
+    {
+      name: 'Mick Jones',
+      role: 'songwriter',
+      artistGlobeId: 'mick-jones-the-clash-big-audio-dynamite',
+    },
+    { name: 'Joe Strummer', role: 'vocals', artistGlobeId: 'joe-strummer' },
+    { name: 'Joe Strummer', role: 'songwriter', artistGlobeId: 'joe-strummer' },
+    {
+      name: 'Topper Headon',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'topper-headon',
+    },
+    {
+      name: 'Topper Headon',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'topper-headon',
+    },
+    {
+      name: 'Paul Simonon',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'paul-simonon',
+    },
+    { name: 'Joe Strummer', role: 'performer', artistGlobeId: 'joe-strummer' },
+    { name: 'Bill Price', role: 'engineer' },
+    {
+      name: 'Mick Jones',
+      role: 'vocals',
+      artistGlobeId: 'mick-jones-the-clash-big-audio-dynamite',
+    },
+  ],
+  releases: [{ releaseId: 'the-clash-london-calling' }],
 
   sections: [
     {

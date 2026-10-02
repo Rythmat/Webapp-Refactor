@@ -16,6 +16,51 @@ export const _1612: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Joe Dart',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'joe-dart',
+    },
+    {
+      name: 'Jack Stratton',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'jack-stratton',
+    },
+    {
+      name: 'Theo Katzman',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'theo-katzman',
+    },
+    {
+      name: 'Woody Goss',
+      role: 'performer',
+      instrument: 'wurlitzer',
+      artistGlobeId: 'woody-goss',
+    },
+    {
+      name: 'Jack Stratton',
+      role: 'songwriter',
+      artistGlobeId: 'jack-stratton',
+    },
+    {
+      name: 'Vulfpeck',
+      role: 'performer',
+      ensemble: true,
+      primary: true,
+      artistGlobeId: 'vulfpeck',
+    },
+    { name: 'Jack Stratton', role: 'engineer', artistGlobeId: 'jack-stratton' },
+    {
+      name: 'Antwaun Stanley',
+      role: 'vocals',
+      primary: true,
+      artistGlobeId: 'antwaun-stanley',
+    },
+  ],
 
   sections: [
     {

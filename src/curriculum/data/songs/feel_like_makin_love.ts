@@ -16,6 +16,34 @@ export const feel_like_makin_love: Song = {
   difficulty: 2,
   genreTags: ['funk', 'hip-hop'],
   techniques: [],
+  session: { studioId: 'electric-lady-studios' },
+  credits: [
+    { name: '?uestlove', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Pino Palladino', role: 'performer', instrument: 'electric-bass' },
+    { name: 'D’Angelo', role: 'arranger', artistGlobeId: 'dangelo' },
+    {
+      name: 'D’Angelo',
+      role: 'vocals',
+      artistGlobeId: 'dangelo',
+      primary: true,
+    },
+    { name: 'D’Angelo', role: 'engineer', artistGlobeId: 'dangelo' },
+    { name: 'Russell Elevado', role: 'engineer' },
+    { name: 'Steve Mandel', role: 'engineer' },
+    { name: 'D’Angelo', role: 'producer', artistGlobeId: 'dangelo' },
+    {
+      name: 'D’Angelo',
+      role: 'performer',
+      artistGlobeId: 'dangelo',
+      primary: true,
+    },
+    {
+      name: 'Gene McDaniels',
+      role: 'songwriter',
+      artistGlobeId: 'gene-mcdaniels',
+    },
+  ],
+  releases: [{ releaseId: 'dangelo-voodoo', track: 10 }],
 
   sections: [
     {

@@ -16,7 +16,46 @@ export const happy_xmas_war_is_over: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
-
+  credits: [
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'john-lennon',
+    },
+    { name: 'Phil Spector', role: 'producer', artistGlobeId: 'phil-spector' },
+    { name: 'Yoko Ono', role: 'songwriter', artistGlobeId: 'yoko-ono' },
+    { name: 'Yoko Ono', role: 'producer', artistGlobeId: 'yoko-ono' },
+    { name: 'John Lennon', role: 'songwriter', artistGlobeId: 'john-lennon' },
+    {
+      name: 'Plastic Ono Band',
+      role: 'performer',
+      ensemble: true,
+      primary: true,
+      artistGlobeId: 'plastic-ono-band',
+    },
+    { name: 'John Lennon', role: 'producer', artistGlobeId: 'john-lennon' },
+    {
+      name: 'Yoko Ono',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'yoko-ono',
+    },
+    {
+      name: 'The Harlem Community Choir',
+      role: 'performer',
+      ensemble: true,
+      primary: true,
+      artistGlobeId: 'the-harlem-community-choir',
+    },
+    {
+      name: 'The Harlem Community Choir',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      ensemble: true,
+      artistGlobeId: 'the-harlem-community-choir',
+    },
+  ],
   sections: [
     {
       id: 'verse_1',

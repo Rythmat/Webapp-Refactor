@@ -62,7 +62,11 @@ export const ChordSymbolText: FC<{
   return (
     <span
       className="inline-flex flex-col items-start whitespace-nowrap leading-none"
-      style={{ fontFamily: 'serif', fontSize: size, ...style }}
+      style={{
+        fontFamily: "'Glacial Indifference', system-ui, sans-serif",
+        fontSize: size,
+        ...style,
+      }}
     >
       <span className="inline-flex items-start leading-none">
         <span>{root}</span>

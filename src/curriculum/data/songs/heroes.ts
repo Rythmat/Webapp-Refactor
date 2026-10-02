@@ -16,6 +16,44 @@ export const heroes: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'hansa-studios' },
+  credits: [
+    { name: 'David Bowie', role: 'producer', artistGlobeId: 'david-bowie' },
+    { name: 'David Bowie', role: 'songwriter', artistGlobeId: 'david-bowie' },
+    {
+      name: 'Brian Eno',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'brian-eno',
+    },
+    { name: 'Tony Visconti', role: 'producer', artistGlobeId: 'tony-visconti' },
+    { name: 'Robert Fripp', role: 'performer' },
+    {
+      name: 'David Bowie',
+      role: 'vocals',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'Brian Eno', role: 'songwriter', artistGlobeId: 'brian-eno' },
+    { name: 'David Bowie', role: 'engineer', artistGlobeId: 'david-bowie' },
+    {
+      name: 'David Bowie',
+      role: 'performer',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    {
+      name: 'Carlos Alomar',
+      role: 'performer',
+      artistGlobeId: 'carlos-alomar',
+    },
+    { name: 'Tony Visconti', role: 'engineer', artistGlobeId: 'tony-visconti' },
+    { name: 'David Richards', role: 'engineer' },
+    { name: 'George Murray', role: 'performer' },
+    { name: 'Brian Eno', role: 'performer', artistGlobeId: 'brian-eno' },
+    { name: 'Dennis Davis', role: 'performer', instrument: 'percussion' },
+  ],
+  releases: [{ releaseId: 'david-bowie-heroes', track: 1 }],
 
   sections: [
     {

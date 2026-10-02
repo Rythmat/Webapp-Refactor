@@ -25,6 +25,10 @@ import { patternChipText, patternNoteId } from './theoryUi';
 // each opening its note; and, when asked for, each bar's chord job (Home /
 // Away / Tension) and Roman numeral above it. Positions come from the TAB's
 // drawn layout, so everything travels with the TAB as it wraps and scrolls.
+//
+// Neutral, like the TAB's other theory chips: a fixed 20px pill in white/55
+// on the panel's colour, centred on a 1px white/20 bracket — the key colour
+// is for the notes being played.
 
 /** One bar at 4/4, in lesson ticks. */
 const BAR_TICKS = 1920;
@@ -43,6 +47,13 @@ const CHIP_INSET = 4;
 /** The job/numeral row sits beside the chord symbol, above the top string. */
 const MARK_TOP = -22;
 const MARK_INSET = 4;
+/** The chips' pill: fixed 12px type, whatever the TAB's scale. */
+const CHIP_CLASS =
+  'inline-flex h-5 items-center gap-1 whitespace-nowrap rounded-full border border-white/15 px-2 text-xs leading-none text-white/55';
+/** The brackets: a hairline, fainter than the chips. */
+const BRACKET = 'rgba(255, 255, 255, 0.2)';
+/** Behind a chip: the TAB panel's own colour, so the bracket stops at it. */
+const CHIP_BACKGROUND = 'var(--ma-tab-gap, #151518)';
 /** Short visible text for a bar's own note; the popover has the rest. */
 const BAR_NOTE_TEXT = {
   'd3.triadBar': 'Triad',
@@ -228,7 +239,8 @@ export interface MusicMapOverlayProps {
   /** Ticks before map bar 1 on the TAB: 1920 in time (the count-in bar), 0 out of time. */
   countInOffset: number;
   ticksPerBar?: number;
-  keyColor: string;
+  /** Unused: the overlay is neutral, the key colour kept for the notes. */
+  keyColor?: string;
   /** Home / Away / Tension above every bar. */
   showChordJobs: boolean;
   /** Each bar's Roman numeral above it (teacher/classroom setting). */
@@ -238,13 +250,9 @@ export interface MusicMapOverlayProps {
 function ChipLabel({
   segment,
   notes,
-  keyColor,
-  scale,
 }: {
   segment: MapChipSegment;
   notes: readonly PopoverNote[];
-  keyColor: string;
-  scale: number;
 }) {
   const text = patternChipText(segment.pattern.id);
   const wraps = segment.pattern.wrapsRepeat;
@@ -254,18 +262,13 @@ function ChipLabel({
       ? `bar ${segment.firstBar}`
       : `bars ${segment.firstBar}–${segment.lastBar}`;
   const label = `${text}, ${bars}${wraps ? ', across the repeat' : ''}`;
-  const className =
-    'absolute left-1/2 top-0 inline-flex -translate-x-1/2 items-center gap-0.5 whitespace-nowrap rounded-full px-1.5 text-[10px] font-semibold leading-none';
-  const style = {
-    height: Math.max(CHIP_HEIGHT * scale, 12),
-    border: `1px solid ${keyColor}`,
-    background: 'rgba(20,20,26,0.92)',
-    color: 'var(--color-text, #e8e8f0)',
-  };
+  // Centred on the bracket's rail, which runs through the middle of the band.
+  const className = `absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ${CHIP_CLASS}`;
+  const style = { background: CHIP_BACKGROUND };
   const content = (
     <>
       {text}
-      {wraps && <Repeat aria-hidden className="h-2.5 w-2.5" />}
+      {wraps && <Repeat aria-hidden className="h-3 w-3" />}
     </>
   );
   if (notes.length === 0) {
@@ -298,7 +301,6 @@ export const MusicMapOverlay = memo(function MusicMapOverlay({
   passes = MUSIC_MAP_PASSES,
   countInOffset,
   ticksPerBar = BAR_TICKS,
-  keyColor,
   showChordJobs,
   showRomanNumerals,
 }: MusicMapOverlayProps) {
@@ -358,30 +360,25 @@ export const MusicMapOverlay = memo(function MusicMapOverlay({
               aria-hidden
               className="absolute inset-x-0 top-1/2"
               style={{
-                borderTop: `1px ${segment.openEnd || segment.openStart ? 'dashed' : 'solid'} ${keyColor}`,
+                borderTop: `1px ${segment.openEnd || segment.openStart ? 'dashed' : 'solid'} ${BRACKET}`,
               }}
             />
             {!segment.openStart && (
               <div
                 aria-hidden
                 className="absolute left-0 top-0 h-1/2 w-px"
-                style={{ background: keyColor }}
+                style={{ background: BRACKET }}
               />
             )}
             {!segment.openEnd && (
               <div
                 aria-hidden
                 className="absolute right-0 top-0 h-1/2 w-px"
-                style={{ background: keyColor }}
+                style={{ background: BRACKET }}
               />
             )}
             {segment.labelled && (
-              <ChipLabel
-                segment={segment}
-                notes={note ? [note] : []}
-                keyColor={keyColor}
-                scale={scale}
-              />
+              <ChipLabel segment={segment} notes={note ? [note] : []} />
             )}
           </div>
         );
@@ -400,12 +397,8 @@ export const MusicMapOverlay = memo(function MusicMapOverlay({
               <TheoryPopover
                 notes={[barNote]}
                 triggerLabel={`${barNote.title}, bar ${mark.bar + 1}`}
-                className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-px text-[10px] font-medium leading-none"
-                style={{
-                  border: `1px solid ${keyColor}`,
-                  background: 'rgba(20,20,26,0.85)',
-                  color: 'var(--color-text, #e8e8f0)',
-                }}
+                className={CHIP_CLASS}
+                style={{ background: CHIP_BACKGROUND }}
               >
                 <Info aria-hidden className="h-3 w-3" />
                 <span data-bar-note={mark.noteId}>
@@ -416,13 +409,26 @@ export const MusicMapOverlay = memo(function MusicMapOverlay({
             {showRomanNumerals && (
               <span
                 data-roman
-                className="font-serif text-[11px] leading-none"
+                className="text-xs leading-none"
                 style={{ color: 'var(--color-text, #e8e8f0)' }}
               >
                 {mark.roman}
               </span>
             )}
-            {showChordJobs && <ChordJobsBadge group={mark.group} />}
+            {showChordJobs && (
+              // The map's chip look, not the badge's 10px one: the classes
+              // win the merge, and clearing its inline border and colour
+              // lets them show.
+              <ChordJobsBadge
+                group={mark.group}
+                className={`${CHIP_CLASS} py-0 font-normal`}
+                style={{
+                  border: undefined,
+                  background: CHIP_BACKGROUND,
+                  color: undefined,
+                }}
+              />
+            )}
           </div>
         );
       })}

@@ -16,6 +16,48 @@ export const waiting_on_the_world_to_change: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Maggie Slavonic',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Pino Palladino', role: 'performer', instrument: 'electric-bass' },
+    {
+      name: 'Ricky Cytonbaum',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Steve Jordan', role: 'performer', instrument: 'percussion' },
+    {
+      name: 'John Mayer',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'john-mayer',
+      primary: true,
+    },
+    { name: 'John Mayer', role: 'songwriter', artistGlobeId: 'john-mayer' },
+    { name: 'Ricky Peterson', role: 'performer' },
+    {
+      name: 'Jeannie Martinez',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Lee Padgett', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Kristen Moss', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Roy Hargrove', role: 'performer', instrument: 'horn-section' },
+    { name: 'Sandy Vongdasy', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Steve Jordan', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Steve Jordan', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Scotty Crowe', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Pino Palladino', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Harley Pasternak',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+  ],
+  releases: [{ releaseId: 'john-mayer-continuum', track: 1 }],
 
   sections: [
     {

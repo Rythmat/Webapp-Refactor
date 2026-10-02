@@ -16,6 +16,10 @@ export const do_your_thing: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Isaac Hayes', role: 'songwriter', artistGlobeId: 'isaac-hayes' },
+  ],
+  releases: [{ releaseId: 'isaac-hayes-shaft-music-from-the-soundtrack' }],
 
   sections: [
     {

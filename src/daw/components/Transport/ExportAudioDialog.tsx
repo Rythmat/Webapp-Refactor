@@ -45,8 +45,10 @@ function Seg<T extends string | number>({
             disabled={disabled}
             className="flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
             style={{
-              backgroundColor: active ? '#f59e0b' : 'transparent',
-              color: active ? '#1a1a1a' : 'var(--color-text-dim)',
+              backgroundColor: active
+                ? 'rgba(255,255,255,0.12)'
+                : 'transparent',
+              color: active ? '#ffffff' : 'var(--color-text-dim)',
               cursor: disabled ? 'default' : 'pointer',
               opacity: disabled ? 0.5 : 1,
             }}
@@ -226,9 +228,9 @@ export function ExportAudioDialog({
                       className="flex flex-1 flex-col items-center gap-0.5 rounded-lg px-2 py-2 transition-colors"
                       style={{
                         backgroundColor: active
-                          ? 'rgba(245, 158, 11, 0.15)'
+                          ? 'rgba(255, 255, 255, 0.08)'
                           : 'var(--color-surface-2)',
-                        border: `1px solid ${active ? '#f59e0b' : 'var(--color-border)'}`,
+                        border: `1px solid ${active ? 'rgba(255, 255, 255, 0.6)' : 'var(--color-border)'}`,
                         cursor: unavailable ? 'not-allowed' : 'pointer',
                         opacity: unavailable ? 0.4 : 1,
                       }}
@@ -339,7 +341,7 @@ export function ExportAudioDialog({
                     className="h-full rounded-full transition-all duration-200"
                     style={{
                       width: `${barPct}%`,
-                      backgroundColor: '#f59e0b',
+                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
                     }}
                   />
                 </div>
@@ -351,7 +353,7 @@ export function ExportAudioDialog({
               <button
                 onClick={() => onOpenChange(false)}
                 disabled={busy}
-                className="rounded-lg px-4 py-2 text-xs font-medium transition-colors hover:bg-white/5"
+                className="rounded-full px-4 py-2 text-xs font-medium transition-colors hover:bg-white/5"
                 style={{
                   color: 'var(--color-text-dim)',
                   border: '1px solid var(--color-border)',
@@ -365,10 +367,8 @@ export function ExportAudioDialog({
                 data-tutorial-id="export-audio-run"
                 onClick={() => void handleExport()}
                 disabled={busy || trackCount === 0}
-                className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-semibold transition-colors"
+                className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#101012] transition-colors enabled:hover:bg-white/90"
                 style={{
-                  backgroundColor: '#f59e0b',
-                  color: '#1a1a1a',
                   cursor: busy || trackCount === 0 ? 'default' : 'pointer',
                   opacity: busy || trackCount === 0 ? 0.5 : 1,
                 }}

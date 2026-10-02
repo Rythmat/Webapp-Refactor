@@ -16,6 +16,39 @@ export const the_sign: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'cheiron-studios' },
+  credits: [
+    { name: 'Douglas Carr', role: 'producer', artistGlobeId: 'douglas-carr' },
+    { name: 'Jonas Berggren', role: 'vocals', artistGlobeId: 'jonas-berggren' },
+    { name: 'Jenny Berggren', role: 'vocals', artistGlobeId: 'jenny-berggren' },
+    { name: 'Ulf Ekberg', role: 'songwriter', artistGlobeId: 'ulf-ekberg' },
+    { name: 'Denniz PoP', role: 'producer', artistGlobeId: 'denniz-pop' },
+    {
+      name: 'Jonas Berggren',
+      role: 'performer',
+      artistGlobeId: 'jonas-berggren',
+    },
+    { name: 'Malin Berggren', role: 'vocals', artistGlobeId: 'malin-berggren' },
+    { name: 'Ulf Ekberg', role: 'performer', artistGlobeId: 'ulf-ekberg' },
+    {
+      name: 'Jonas Berggren',
+      role: 'songwriter',
+      artistGlobeId: 'jonas-berggren',
+    },
+    {
+      name: 'Jonas Berggren',
+      role: 'producer',
+      artistGlobeId: 'jonas-berggren',
+    },
+    { name: 'Ulf Ekberg', role: 'vocals', artistGlobeId: 'ulf-ekberg' },
+    {
+      name: 'Douglas Carr',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'douglas-carr',
+    },
+  ],
+  releases: [{ releaseId: 'ace-of-base-the-sign', track: 4 }],
 
   sections: [
     {

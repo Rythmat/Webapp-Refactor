@@ -99,7 +99,7 @@ export const LibraryInlet: React.FC = () => {
       <HeaderBar title="Library" />
       <div className="custom-scrollbar flex-1 overflow-y-auto px-8 pb-12">
         <div className="mb-10">
-          <div className="group mb-6 flex w-fit cursor-pointer items-center gap-2 font-serif text-lg text-gray-200">
+          <div className="group mb-6 flex w-fit cursor-pointer items-center gap-2 text-lg text-gray-200">
             <div className="flex size-8 items-center justify-center rounded-lg bg-white/10">
               <LayoutGrid size={16} />
             </div>
@@ -126,7 +126,7 @@ export const LibraryInlet: React.FC = () => {
           </div>
         </div>
         <div>
-          <div className="group mb-6 flex w-fit cursor-pointer items-center gap-2 font-serif text-lg text-gray-200">
+          <div className="group mb-6 flex w-fit cursor-pointer items-center gap-2 text-lg text-gray-200">
             <div className="flex size-8 items-center justify-center rounded-lg bg-white/10">
               <Music size={16} />
             </div>

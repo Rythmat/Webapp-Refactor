@@ -1,6 +1,6 @@
-import type { HistoricalEvent } from '@/components/atlas/types';
+import type { GlobeEventRecord } from '@/content/records/types';
 
-export const REGGAE_EVENTS: HistoricalEvent[] = [
+export const REGGAE_EVENTS: GlobeEventRecord[] = [
   {
     id: 'evt-mento-kingston-1947',
     year: 1947,
@@ -24,6 +24,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'country dance',
     ],
     videoId: 'vFjkth_3XfU',
+    placeId: 'kingston',
   },
   {
     id: 'evt-ska-kingston-1962',
@@ -48,6 +49,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'kingston',
     ],
     videoId: 'EcoNPm3pyqg',
+    placeId: 'kingston',
   },
   {
     id: 'evt-reggae-kingston-1977',
@@ -72,6 +74,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'rastafari',
     ],
     videoId: 'QBeNlUG0Vyc',
+    artistIds: ['bob-marley'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-roots-reggae-kingston-1973',
@@ -96,6 +100,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'producer',
     ],
     videoId: 'QRug-rylPXM',
+    artistIds: ['lee-scratch-perry', 'king-tubby'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-dancehall-kingston-1985',
@@ -121,6 +127,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'riddim',
     ],
     videoId: 'VqTXMEF8SY0',
+    artistIds: ['yellowman', 'shabba-ranks'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-kompa-portauprince-1957',
@@ -145,6 +153,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'super ensemble',
     ],
     videoId: 'C0SJQKpaO54',
+    artistIds: ['nemours-jean-baptiste'],
+    placeId: 'port-au-prince',
   },
   {
     id: 'evt-steelpan-portofspain-1951',
@@ -170,6 +180,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'trinidad',
     ],
     videoId: 'UnwIjyYiw_I',
+    artistIds: ['taspo'],
+    placeId: 'port-of-spain',
   },
   {
     id: 'evt-spouge-bridgetown-1969',
@@ -194,6 +206,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'calypso',
     ],
     videoId: 'hozhG4wpmYI',
+    artistIds: ['jackie-opel'],
+    placeId: 'bridgetown',
   },
   {
     id: 'evt-junkanoo-nassau-1958',
@@ -219,6 +233,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'masquerade',
     ],
     videoId: '4VJXiOMyTAA',
+    placeId: 'nassau',
   },
   {
     id: 'evt-jab-stgeorges-2000',
@@ -244,6 +259,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'shortknee',
     ],
     videoId: 'Z1S9Xs5elw0',
+    placeId: 'st-georges',
   },
   {
     id: 'evt-dennery-castries-2014',
@@ -268,6 +284,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'dennery',
     ],
     videoId: '0GXk7HLANmM',
+    placeId: 'castries',
   },
   {
     id: 'evt-vincy-soca-kingstown-2009',
@@ -292,6 +309,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'gamal doyle',
     ],
     videoId: 'FR1AqNxsKKk',
+    artistIds: ['skinny-fabulous'],
+    placeId: 'kingstown',
   },
   {
     id: 'evt-bouyon-roseau-1988',
@@ -317,6 +336,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'creole',
     ],
     videoId: 'fLYSO67jBvQ',
+    placeId: 'roseau',
   },
   {
     id: 'evt-benna-stjohns-1960',
@@ -341,6 +361,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'work song',
     ],
     videoId: 'siYpxFCFQfg',
+    artistIds: ['short-shirt', 'king-swallow'],
+    placeId: 'st-johns-antigua',
   },
   {
     id: 'evt-sugar-mas-basseterre-1971',
@@ -365,6 +387,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'christmas festival',
     ],
     videoId: 'xyT4s_VYWRg',
+    placeId: 'basseterre',
   },
   {
     id: 'evt-calypso-sanjose-1970',
@@ -389,6 +412,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'caribbean coast',
     ],
     videoId: 'VFE-uo7v4e8',
+    artistIds: ['walter-ferguson', 'limon'],
+    placeId: 'san-jose',
   },
   {
     id: 'evt-chutney-georgetown-1996',
@@ -414,6 +439,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'diaspora',
     ],
     videoId: 'xrJii0clb2o',
+    placeId: 'georgetown',
   },
   {
     id: 'evt-kaseko-paramaribo-1970',
@@ -439,6 +465,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'paramaribo',
     ],
     videoId: 'EO1IgP4fYYQ',
+    artistIds: ['lieve-hugo'],
+    placeId: 'paramaribo',
   },
   {
     id: 'evt-diaspora-portofspain-calypso-1914',
@@ -466,6 +494,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'creole',
     ],
     videoId: 'dkN46qYe4pA',
+    placeId: 'port-of-spain',
   },
   {
     id: 'evt-diaspora-kingston-kumina-1950',
@@ -494,6 +523,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'ancestral drumming',
     ],
     videoId: 'ZAt-nGTfAzk',
+    placeId: 'kingston',
   },
   {
     id: 'evt-diaspora-london-lovers-rock-1977',
@@ -515,6 +545,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'black british',
     ],
     videoId: '-KVjGBDl72o',
+    placeId: 'london',
   },
   {
     id: 'evt-diaspora-portofspain-soca-1973',
@@ -542,6 +573,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'soul of calypso',
     ],
     videoId: 'FHxmPi3Z03Y',
+    artistIds: ['lord-shorty'],
+    placeId: 'port-of-spain',
   },
   {
     id: 'evt-diaspora-freetown-maroon-1800',
@@ -569,6 +602,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'sierra leone',
     ],
     videoId: 'RG4jzr6UzoA',
+    placeId: 'freetown',
   },
   {
     id: 'evt-windrush-london-1948',
@@ -590,6 +624,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'empire windrush',
     ],
     videoId: 'pl39RvjgOUc',
+    placeId: 'london',
   },
   {
     id: 'evt-soundsystem-kingston-1956',
@@ -616,6 +651,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'yard dance',
     ],
     videoId: 'QmTPf30Y4nw',
+    placeId: 'kingston',
   },
   {
     id: 'evt-rocksteady-kingston-1966',
@@ -640,6 +676,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'kingston',
     ],
     videoId: '9HhN3iNmFb8',
+    placeId: 'kingston',
   },
   {
     id: 'evt-reggae-kingston-1971',
@@ -665,6 +702,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'pan-african',
     ],
     videoId: 'OQYmGg3mKHg',
+    artistIds: ['bob-marley'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-dancehall-kingston-1975',
@@ -690,6 +729,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'riddim',
     ],
     videoId: 'BnRC9qb82Y8',
+    placeId: 'kingston',
   },
   {
     id: 'evt-2tone-coventry-1979',
@@ -709,6 +749,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'multicultural',
     ],
     videoId: 'RZ2oXzrnti4',
+    placeId: 'coventry-uk',
   },
   {
     id: 'evt-dancehall-digital-kingston-1998',
@@ -734,6 +775,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'casio',
     ],
     videoId: 'Wjw7m-BKmQ8',
+    placeId: 'kingston',
   },
   {
     id: 'evt-dancehall-kingston-2010',
@@ -759,6 +801,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'global bass',
     ],
     videoId: 'e0DhY8Gj86w',
+    artistIds: ['major-lazer'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-polynesian-auckland-1990',
@@ -785,6 +829,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'samoan',
     ],
     videoId: 'EclPhyXuO5A',
+    artistIds: ['maori'],
+    placeId: 'auckland',
   },
   {
     id: 'evt-reggae-kingston-1978-marley',
@@ -810,6 +856,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'wailers',
     ],
     videoId: 'Osf03NNcF2k',
+    artistIds: ['bob-marley'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-reggae-kingston-1977-tosh',
@@ -834,6 +882,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'protest music',
     ],
     videoId: 'bOZQZAX4deM',
+    artistIds: ['peter-tosh'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-reggae-kingston-1972-cliff',
@@ -858,6 +908,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'island records',
     ],
     videoId: 'TWe60ZC6icc',
+    artistIds: ['jimmy-cliff'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-roots-reggae-kingston-1975-spear',
@@ -882,6 +934,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'pan-africanism',
     ],
     videoId: 'E--IBhs85fM',
+    artistIds: ['burning-spear'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-reggae-birmingham-1978-steel-pulse',
@@ -907,6 +961,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'windrush',
     ],
     videoId: '9iubKiCI0mc',
+    artistIds: ['steel-pulse'],
+    placeId: 'birmingham-uk',
   },
   {
     id: 'evt-reggae-kingston-1981-black-uhuru',
@@ -931,6 +987,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'kingston',
     ],
     videoId: '5jI-8zWpKRk',
+    artistIds: ['black-uhuru'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-reggae-kingston-1973-maytals',
@@ -955,6 +1013,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'reggae',
     ],
     videoId: 'Or2_x8hsGTs',
+    placeId: 'kingston',
   },
   {
     id: 'evt-dancehall-kingston-1982-yellowman',
@@ -979,6 +1038,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'kingston',
     ],
     videoId: 'zHBD6DJzUq4',
+    artistIds: ['yellowman'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-dancehall-kingston-1991-shabba',
@@ -1004,6 +1065,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'epic records',
     ],
     videoId: 'wH_0_pijbZY',
+    artistIds: ['shabba-ranks'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-dancehall-nyc-1995-shaggy',
@@ -1028,6 +1091,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'reggae pop',
     ],
     videoId: '6W5pq4bIzIw',
+    artistIds: ['shaggy'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-dancehall-kingston-2002-sean-paul',
@@ -1053,6 +1118,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'atlantic records',
     ],
     videoId: 'oPQ3o14ksaM',
+    artistIds: ['sean-paul'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-reggae-kingston-1995-buju',
@@ -1077,6 +1144,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'kingston',
     ],
     videoId: 'BBR5X0W30Mk',
+    artistIds: ['buju-banton'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-dancehall-kingston-2000-beenie',
@@ -1101,6 +1170,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'kingston',
     ],
     videoId: 'hACE2F0opss',
+    artistIds: ['beenie-man'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-dub-kingston-1972-tubby',
@@ -1126,6 +1197,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'sound engineer',
     ],
     videoId: 'RTaZFGwg2rY',
+    artistIds: ['king-tubby'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-dub-kingston-1976-pablo',
@@ -1150,6 +1223,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'kingston',
     ],
     videoId: 'NoXYJkOeYSM',
+    artistIds: ['augustus-pablo', 'king-tubby'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-reggae-kingston-2017-chronixx',
@@ -1174,6 +1249,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'conscious reggae',
     ],
     videoId: '049km3Vc02c',
+    artistIds: ['chronixx'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-reggae-kingston-2018-protoje',
@@ -1198,6 +1275,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'in.digg.nation',
     ],
     videoId: 'Z1LOOZeh7qA',
+    artistIds: ['protoje'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-reggae-spanish-town-2019-koffee',
@@ -1223,6 +1302,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'female reggae',
     ],
     videoId: 'i4I2Ae6FQ9g',
+    artistIds: ['koffee'],
+    placeId: 'spanish-town',
   },
   {
     id: 'evt-reggae-kingston-2005-damian',
@@ -1247,6 +1328,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'marley family',
     ],
     videoId: '_GZlJGERbvE',
+    artistIds: ['damian-marley'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-reggae-kingston-1988-ziggy',
@@ -1271,6 +1354,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'talking heads',
     ],
     videoId: 'bMhjF-aWIkU',
+    artistIds: ['ziggy-marley', 'talking-heads'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-reggae-kingston-1977-third-world',
@@ -1295,6 +1380,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'crossover',
     ],
     videoId: 'hwE5gfZlMZY',
+    artistIds: ['third-world'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-reggae-kingston-1993-inner-circle',
@@ -1319,6 +1406,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'crossover',
     ],
     videoId: 'EwzyQg_Pqrw',
+    artistIds: ['inner-circle'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-reggae-kingston-1997-sizzla',
@@ -1343,6 +1432,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'bobo ashanti',
     ],
     videoId: 'qPRe8-2s4Sg',
+    artistIds: ['sizzla'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-reggae-kingston-2009-tarrus',
@@ -1367,6 +1458,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'dean fraser',
     ],
     videoId: 'rmCKYA-E_-4',
+    artistIds: ['tarrus-riley'],
+    placeId: 'kingston',
   },
   {
     id: 'evt-reggae-austin-2005-matisyahu',
@@ -1391,6 +1484,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'alternative reggae',
     ],
     videoId: 'dsFpUW48Tnc',
+    artistIds: ['matisyahu'],
+    placeId: 'austin',
   },
   {
     id: 'evt-reggae-birmingham-1983-ub40',
@@ -1415,6 +1510,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'crossover',
     ],
     videoId: 'zXt56MB-3vc',
+    artistIds: ['ub40'],
+    placeId: 'birmingham-uk',
   },
   {
     id: 'evt-reggae-cologne-2002-gentleman',
@@ -1439,6 +1536,8 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'patois',
     ],
     videoId: 'u0Ef5SKqQ4I',
+    artistIds: ['gentleman'],
+    placeId: 'cologne',
   },
   {
     id: 'evt-reggae-santa-barbara-2004-rebelution',
@@ -1463,5 +1562,7 @@ export const REGGAE_EVENTS: HistoricalEvent[] = [
       'west coast',
     ],
     videoId: '9Ecsg2AYH8E',
+    artistIds: ['rebelution'],
+    placeId: 'santa-barbara',
   },
 ];

@@ -16,6 +16,47 @@ export const love_and_happiness: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    {
+      name: 'Charles Chalmers',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Charles Hodges', role: 'performer', instrument: 'piano' },
+    { name: 'Ed Logan', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'James Mitchell', role: 'arranger' },
+    {
+      name: 'Willie Mitchell',
+      role: 'engineer',
+      artistGlobeId: 'willie-mitchell',
+    },
+    { name: 'Sandra Rhodes', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Wayne Jackson', role: 'performer', instrument: 'trumpet' },
+    { name: 'Mabon Hodges', role: 'songwriter', artistGlobeId: 'mabon-hodges' },
+    { name: 'Andrew Love', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Al Green', role: 'producer', artistGlobeId: 'al-green' },
+    { name: 'Howard Grimes', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Charles Hodges', role: 'performer', instrument: 'organ' },
+    { name: 'Charles Chalmers', role: 'arranger' },
+    {
+      name: 'Willie Mitchell',
+      role: 'producer',
+      artistGlobeId: 'willie-mitchell',
+    },
+    { name: 'Leroy Hodges', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Mabon Hodges', role: 'performer', artistGlobeId: 'mabon-hodges' },
+    { name: 'Al Green', role: 'songwriter', artistGlobeId: 'al-green' },
+    { name: 'James Mitchell', role: 'performer', instrument: 'baritone-sax' },
+    {
+      name: 'Al Jackson, Jr.',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'al-jackson-jr',
+    },
+    { name: 'Jack Hale', role: 'performer', instrument: 'trombone' },
+    { name: 'Donna Rhodes', role: 'performer', instrument: 'backing-vocals' },
+  ],
+  releases: [{ releaseId: 'al-green-im-still-in-love-with-you' }],
 
   sections: [
     {

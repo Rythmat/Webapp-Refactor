@@ -16,6 +16,28 @@ export const any_man_of_mine: Song = {
   difficulty: 1,
   genreTags: ['folk', 'pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Robert John “Mutt” Lange',
+      role: 'arranger',
+      artistGlobeId: 'robert-john-mutt-lange',
+    },
+    { name: 'Ron Reynolds', role: 'engineer' },
+    { name: 'Lynn Peterzell', role: 'engineer' },
+    {
+      name: 'Robert John “Mutt” Lange',
+      role: 'songwriter',
+      artistGlobeId: 'robert-john-mutt-lange',
+    },
+    { name: 'Shania Twain', role: 'songwriter', artistGlobeId: 'shania-twain' },
+    { name: 'Nick Keca', role: 'engineer' },
+    {
+      name: 'Robert John “Mutt” Lange',
+      role: 'producer',
+      artistGlobeId: 'robert-john-mutt-lange',
+    },
+  ],
+  releases: [{ releaseId: 'shania-twain-the-woman-in-me', track: 2 }],
 
   sections: [
     {

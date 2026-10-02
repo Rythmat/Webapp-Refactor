@@ -16,6 +16,26 @@ export const reach_out_ill_be_there: Song = {
   difficulty: 3,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    {
+      name: 'Lamont Dozier',
+      role: 'songwriter',
+      artistGlobeId: 'lamont-dozier',
+    },
+    { name: 'Lamont Dozier', role: 'producer', artistGlobeId: 'lamont-dozier' },
+    {
+      name: 'Eddie Holland',
+      role: 'songwriter',
+      artistGlobeId: 'eddie-holland',
+    },
+    { name: 'Brian Holland', role: 'producer', artistGlobeId: 'brian-holland' },
+    {
+      name: 'Brian Holland',
+      role: 'songwriter',
+      artistGlobeId: 'brian-holland',
+    },
+  ],
+  releases: [{ releaseId: 'four-tops-reach-out' }],
 
   sections: [
     {

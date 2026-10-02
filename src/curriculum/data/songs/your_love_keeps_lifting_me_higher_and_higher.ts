@@ -16,6 +16,39 @@ export const your_love_keeps_lifting_me_higher_and_higher: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  session: { studioId: 'columbia-recording-studios' },
+  credits: [
+    { name: 'Gary Jackson', role: 'songwriter', artistGlobeId: 'gary-jackson' },
+    { name: 'Carl Smith', role: 'songwriter', artistGlobeId: 'carl-smith' },
+    {
+      name: 'Jackie Wilson',
+      role: 'performer',
+      artistGlobeId: 'jackie-wilson',
+      primary: true,
+    },
+    { name: 'Sonny Sanders', role: 'arranger' },
+    { name: 'James Jamerson', role: 'performer' },
+    { name: 'Carl Davis', role: 'producer', artistGlobeId: 'carl-davis' },
+    { name: 'Johnny Griffith', role: 'performer' },
+    {
+      name: 'Richard "Pistol" Allen',
+      role: 'performer',
+      instrument: 'drum-kit',
+    },
+    {
+      name: 'Jackie Wilson',
+      role: 'vocals',
+      artistGlobeId: 'jackie-wilson',
+      primary: true,
+    },
+    { name: 'Robert White', role: 'performer' },
+    {
+      name: 'Raynard Miner',
+      role: 'songwriter',
+      artistGlobeId: 'raynard-miner',
+    },
+  ],
+  releases: [{ releaseId: 'jackie-wilson-higher-and-higher' }],
 
   sections: [
     {

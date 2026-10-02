@@ -1,6 +1,8 @@
+import { INSTRUMENT_SECTIONS } from '@/curriculum/data/instruments';
 import type { ContentKind } from '@/hooks/data/admin/useAdminContent';
 import type { ContentPreview, StructuredEditor } from './editorTypes';
-import { SongEditor } from './songEditor/SongEditor';
+import { RECORD_EDITORS } from './recordEditors';
+import { SongPageEditor } from './songEditor/SongPageEditor';
 import { makeEmptySong } from './songEditor/songDefaults';
 
 /**
@@ -56,6 +58,42 @@ export type KindSpec = {
   makeDefault?: () => Record<string, unknown>;
 };
 
+/**
+ * A record kind's identity field, the one key its editor does not write: the
+ * slug other records link by, set when the record is made and kept after.
+ */
+const slugField = (what: string): FieldSpec => ({
+  path: 'slug',
+  label: 'Slug',
+  type: 'text',
+  help: `Unique: lowercase words joined by hyphens. ${what} link to it by this, so it stays when the name changes.`,
+});
+
+/**
+ * A vocabulary record's id: set when it is made and never changed, since
+ * other records and code name it by this.
+ */
+const vocabularyId = (what: string): FieldSpec => ({
+  path: 'id',
+  label: 'Id',
+  type: 'text',
+  help: `Unique: lowercase words joined by hyphens, and never changed once made. ${what} name it by this.`,
+});
+
+/** The globe's own spellings that resolve to a genre or subgenre. */
+const globeTags: FieldSpec = {
+  path: 'tags',
+  label: 'Globe tags',
+  type: 'csv',
+  wide: true,
+  help: 'How the globe’s events and scenes spell it, separated by commas: “Hip Hop, Hip-Hop”. Each tag names one genre or subgenre.',
+};
+
+// Every content kind has a spec. The record kinds (artist, release, studio,
+// label, chord_progression, and globe_city's place body) are edited by their
+// record editor (`recordEditors/`), the same component the Table's row panel
+// shows in its Details; the typed form keeps only the identity field, which
+// the record editors leave alone, and the JSON pane the keys neither owns.
 export const CONTENT_KINDS: Record<ContentKind, KindSpec> = {
   globe_event: {
     label: 'Globe events',
@@ -179,13 +217,13 @@ export const CONTENT_KINDS: Record<ContentKind, KindSpec> = {
       'artistImageRef',
       'historicalDescription',
     ],
-    // The song kind is edited entirely through an in-place replica of the
-    // published song page — no scalar form, no JSON pane.
-    FullEditor: SongEditor,
+    // The song kind is edited on the song page itself (SongDetailView with
+    // its fields as inputs) — no scalar form, no JSON pane.
+    FullEditor: SongPageEditor,
     makeDefault: () => makeEmptySong() as unknown as Record<string, unknown>,
     jsonLabel: 'Audio sources, time signature and cross-references',
-    // credits/session/relatedRecordings are edited in SongEditor's credits
-    // panel, so they stay out of the JSON pane.
+    // credits/session/relatedRecordings are edited in the song editor's
+    // ConnectionsPanel, so they stay out of the JSON pane.
   },
 
   activity_flow: {
@@ -249,20 +287,157 @@ export const CONTENT_KINDS: Record<ContentKind, KindSpec> = {
   globe_city: {
     label: 'Globe cities',
     singular: 'city',
-    blurb: 'City pins on the globe.',
+    blurb:
+      'Places: the globe’s city pins, and the hometowns and studio towns it draws no pin for. Artists, studios, labels and events name a place by its id.',
+    // The place fields are PlaceFields' (the whole City plus aliases and the
+    // pin switch); the form keeps only the id, so the two never both edit a key.
     fields: [
-      { path: 'id', label: 'Id / slug', type: 'text' },
-      { path: 'name', label: 'Name', type: 'text' },
-      { path: 'country', label: 'Country', type: 'text' },
-      { path: 'genres', label: 'Genres', type: 'csv', wide: true },
       {
-        path: 'description',
-        label: 'Description',
-        type: 'textarea',
-        wide: true,
+        path: 'id',
+        label: 'Id / slug',
+        type: 'text',
+        help: 'Unique. Artists, studios, labels and events link to it by this.',
       },
     ],
-    formKeys: ['id', 'name', 'country', 'genres', 'description'],
+    formKeys: ['id'],
+    StructuredEditor: RECORD_EDITORS.globe_city.Editor,
+    structuralKeys: [...RECORD_EDITORS.globe_city.keys],
+  },
+
+  artist: {
+    label: 'Artists',
+    singular: 'artist',
+    blurb:
+      'Acts and people: a band, a solo artist, someone credited on a song. Songs, records and events name an artist by slug.',
+    fields: [slugField('Songs, records and events')],
+    formKeys: ['slug'],
+    StructuredEditor: RECORD_EDITORS.artist.Editor,
+    structuralKeys: [...RECORD_EDITORS.artist.keys],
+  },
+
+  release: {
+    label: 'Records',
+    singular: 'record',
+    blurb:
+      'Albums, singles and EPs: who made each, when, and on which label. Songs name the records they appear on.',
+    fields: [slugField('Songs and events')],
+    formKeys: ['slug'],
+    StructuredEditor: RECORD_EDITORS.release.Editor,
+    structuralKeys: [...RECORD_EDITORS.release.keys],
+  },
+
+  studio: {
+    label: 'Studios',
+    singular: 'studio',
+    blurb:
+      'Recording studios: where each one is and the years it ran. Songs name the studio they were recorded in.',
+    fields: [slugField('Songs and events')],
+    formKeys: ['slug'],
+    StructuredEditor: RECORD_EDITORS.studio.Editor,
+    structuralKeys: [...RECORD_EDITORS.studio.keys],
+  },
+
+  label: {
+    label: 'Labels',
+    singular: 'label',
+    blurb:
+      'Record labels, their city and the label above them. Records name their label; artists name the labels they signed to.',
+    fields: [slugField('Records, artists and songs')],
+    formKeys: ['slug'],
+    StructuredEditor: RECORD_EDITORS.label.Editor,
+    structuralKeys: [...RECORD_EDITORS.label.keys],
+  },
+
+  chord_progression: {
+    label: 'Progressions',
+    singular: 'progression',
+    blurb:
+      'The progression library. Its chords are the library’s own; the songs that use a progression, its styles, vibes and complexity are edited here.',
+    fields: [
+      {
+        path: 'id',
+        label: 'Id',
+        type: 'number',
+        help: 'The library’s number for it.',
+      },
+    ],
+    formKeys: ['id'],
+    StructuredEditor: RECORD_EDITORS.chord_progression.Editor,
+    structuralKeys: [...RECORD_EDITORS.chord_progression.keys],
+    jsonLabel: 'The progression as the library has it',
+  },
+
+  // The vocabulary kinds: the repo's own data (src/content/vocabulary/),
+  // which only the dev repo content server serves.
+  genre: {
+    label: 'Genres',
+    singular: 'genre',
+    blurb:
+      'The umbrella genres every subgenre sits under. Artists, songs and subgenres name a genre by its id. Not shown to students.',
+    fields: [
+      vocabularyId('Artists, songs and subgenres'),
+      { path: 'name', label: 'Name', type: 'text' },
+      globeTags,
+      {
+        path: 'note',
+        label: 'Note',
+        type: 'text',
+        wide: true,
+        help: 'Why it is here though the curriculum does not teach it.',
+      },
+    ],
+    formKeys: ['id', 'name', 'tags', 'note'],
+    jsonLabel: 'Set in code: whether the curriculum teaches it',
+  },
+
+  subgenre: {
+    label: 'Subgenres',
+    singular: 'subgenre',
+    blurb:
+      'The styles under each genre. Artists and songs name a subgenre by its id, and instruments name the styles they define. Not shown to students.',
+    fields: [
+      vocabularyId('Artists, songs and instruments'),
+      { path: 'name', label: 'Name', type: 'text' },
+      {
+        path: 'parent',
+        label: 'Genre',
+        type: 'text',
+        help: 'The id of the genre it sits under.',
+      },
+      globeTags,
+    ],
+    formKeys: ['id', 'name', 'parent', 'tags'],
+  },
+
+  instrument: {
+    label: 'Instruments',
+    singular: 'instrument',
+    blurb:
+      'Session instruments: what a credit says someone played. Students see an instrument’s name and section on song pages once the change is deployed.',
+    fields: [
+      vocabularyId('Song credits and artists'),
+      { path: 'name', label: 'Name', type: 'text' },
+      {
+        path: 'section',
+        label: 'Section',
+        type: 'select',
+        options: INSTRUMENT_SECTIONS.map((entry) => entry.section),
+      },
+      {
+        path: 'worldInstrumentId',
+        label: 'Instruments of the World entry',
+        type: 'text',
+        help: 'The id of the same instrument on the globe’s Instruments of the World, when there is one.',
+      },
+      {
+        path: 'typicalIn',
+        label: 'Typical in',
+        type: 'csv',
+        wide: true,
+        help: 'Ids of the genres or subgenres it defines, separated by commas.',
+      },
+    ],
+    formKeys: ['id', 'name', 'section', 'worldInstrumentId', 'typicalIn'],
   },
 };
 
@@ -274,43 +449,27 @@ export const KIND_ORDER: ContentKind[] = [
   'globe_event',
   'artist_location',
   'globe_city',
+  'artist',
+  'release',
+  'studio',
+  'label',
+  'chord_progression',
+  'genre',
+  'subgenre',
+  'instrument',
 ];
 
+// Own keys only: `in` also accepts inherited ones, so a URL of
+// /console/content/constructor/… passed as a kind.
 export const isContentKind = (
   value: string | undefined,
-): value is ContentKind => value !== undefined && value in CONTENT_KINDS;
+): value is ContentKind =>
+  value !== undefined &&
+  Object.prototype.hasOwnProperty.call(CONTENT_KINDS, value);
 
 // ── Dot-path helpers, so FieldSpec.path can address nested body fields ───────
+// They live in src/content/bodyPaths.ts, which is pure, so code that only
+// reads a body need not load every kind's editor; re-exported for the pages
+// that have always found them here.
 
-export const getPath = (body: unknown, path: string): unknown =>
-  path
-    .split('.')
-    .reduce<unknown>(
-      (value, key) =>
-        value && typeof value === 'object'
-          ? (value as Record<string, unknown>)[key]
-          : undefined,
-      body,
-    );
-
-/** Immutably set a dot path, creating intermediate objects as needed. */
-export const setPath = <T extends Record<string, unknown>>(
-  body: T,
-  path: string,
-  value: unknown,
-): T => {
-  const [head, ...rest] = path.split('.');
-  if (rest.length === 0) return { ...body, [head]: value };
-
-  const child = (body[head] ?? {}) as Record<string, unknown>;
-  return { ...body, [head]: setPath(child, rest.join('.'), value) };
-};
-
-/** The part of the body the typed form does NOT own, for the JSON editor. */
-export const jsonRemainder = (
-  body: Record<string, unknown>,
-  formKeys: string[],
-): Record<string, unknown> =>
-  Object.fromEntries(
-    Object.entries(body).filter(([key]) => !formKeys.includes(key)),
-  );
+export { getPath, jsonRemainder, setPath } from '@/content/bodyPaths';

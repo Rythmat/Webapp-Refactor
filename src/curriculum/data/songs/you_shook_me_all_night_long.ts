@@ -16,6 +16,47 @@ export const you_shook_me_all_night_long: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'compass-point-studios' },
+  credits: [
+    { name: 'Tony Platt', role: 'engineer' },
+    {
+      name: 'Brian Johnson',
+      role: 'songwriter',
+      artistGlobeId: 'brian-johnson',
+    },
+    { name: 'Brian Johnson', role: 'vocals', artistGlobeId: 'brian-johnson' },
+    {
+      name: 'Malcolm Young',
+      role: 'performer',
+      artistGlobeId: 'malcolm-young',
+    },
+    {
+      name: 'Robert John “Mutt” Lange',
+      role: 'producer',
+      artistGlobeId: 'robert-john-mutt-lange',
+    },
+    {
+      name: 'Malcolm Young',
+      role: 'songwriter',
+      artistGlobeId: 'malcolm-young',
+    },
+    {
+      name: 'Cliff Williams',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'cliff-williams',
+    },
+    {
+      name: 'Phil Rudd',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'phil-rudd',
+    },
+    { name: 'Brad Samuelsohn', role: 'engineer' },
+    { name: 'Angus Young', role: 'performer', artistGlobeId: 'angus-young' },
+    { name: 'Angus Young', role: 'songwriter', artistGlobeId: 'angus-young' },
+  ],
+  releases: [{ releaseId: 'ac-dc-back-in-black' }],
 
   sections: [
     {

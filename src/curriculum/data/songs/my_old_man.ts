@@ -16,6 +16,30 @@ export const my_old_man: Song = {
   difficulty: 3,
   genreTags: ['folk'],
   techniques: [],
+  session: { studioId: 'a-m-studios' },
+  credits: [
+    { name: 'Joni Mitchell', role: 'producer', artistGlobeId: 'joni-mitchell' },
+    {
+      name: 'Joni Mitchell',
+      role: 'vocals',
+      artistGlobeId: 'joni-mitchell',
+      primary: true,
+    },
+    {
+      name: 'Joni Mitchell',
+      role: 'songwriter',
+      artistGlobeId: 'joni-mitchell',
+    },
+    {
+      name: 'Joni Mitchell',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'joni-mitchell',
+      primary: true,
+    },
+    { name: 'Henry Lewy', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'joni-mitchell-blue' }],
 
   sections: [
     {

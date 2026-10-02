@@ -16,6 +16,27 @@ export const raise_your_glass: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'woodshed-recording' },
+  credits: [
+    { name: 'Serban Ghenea', role: 'engineer' },
+    { name: 'Shellback', role: 'engineer', artistGlobeId: 'shellback' },
+    { name: 'Max Martin', role: 'engineer', artistGlobeId: 'max-martin' },
+    { name: 'Michael Ilbert', role: 'engineer' },
+    { name: 'Shellback', role: 'songwriter', artistGlobeId: 'shellback' },
+    { name: 'Max Martin', role: 'producer', artistGlobeId: 'max-martin' },
+    {
+      name: 'Shellback',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'shellback',
+    },
+    { name: 'Max Martin', role: 'songwriter', artistGlobeId: 'max-martin' },
+    { name: 'Shellback', role: 'performer', artistGlobeId: 'shellback' },
+    { name: 'Pink', role: 'songwriter', artistGlobeId: 'pink' },
+    { name: 'John Hanes', role: 'engineer' },
+    { name: 'Shellback', role: 'producer', artistGlobeId: 'shellback' },
+    { name: 'Max Martin', role: 'performer', artistGlobeId: 'max-martin' },
+  ],
 
   sections: [
     {

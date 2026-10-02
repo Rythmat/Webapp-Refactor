@@ -16,6 +16,53 @@ export const how_sweet_it_is_to_be_loved_by_you: Song = {
   difficulty: 2,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Russ Kunkel', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'Clarence McDonald',
+      role: 'performer',
+      instrument: 'fender-rhodes',
+      artistGlobeId: 'clarence-mcdonald',
+    },
+    {
+      name: 'Clarence McDonald',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'clarence-mcdonald',
+    },
+    {
+      name: 'Lamont Dozier',
+      role: 'songwriter',
+      artistGlobeId: 'lamont-dozier',
+    },
+    {
+      name: 'Brian Holland',
+      role: 'songwriter',
+      artistGlobeId: 'brian-holland',
+    },
+    {
+      name: 'Danny Kortchmar',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    {
+      name: 'Eddie Holland',
+      role: 'songwriter',
+      artistGlobeId: 'eddie-holland',
+    },
+    { name: 'Russ Titelman', role: 'producer', artistGlobeId: 'russ-titelman' },
+    { name: 'Leland Sklar', role: 'performer' },
+    { name: 'Jim Keltner', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Carly Simon', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Russ Kunkel', role: 'performer', instrument: 'tambourine' },
+    { name: 'Lee Herschberg', role: 'engineer' },
+    {
+      name: 'Lenny Waronker',
+      role: 'producer',
+      artistGlobeId: 'lenny-waronker',
+    },
+  ],
+  releases: [{ releaseId: 'james-taylor-gorilla' }],
 
   sections: [
     {

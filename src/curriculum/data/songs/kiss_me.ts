@@ -16,6 +16,30 @@ export const kiss_me: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Matt Slocum', role: 'songwriter', artistGlobeId: 'matt-slocum' },
+    { name: 'Steve Taylor', role: 'producer', artistGlobeId: 'steve-taylor' },
+    { name: 'Leigh Nash', role: 'vocals', artistGlobeId: 'leigh-nash' },
+    {
+      name: 'Dale Baker',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'dale-baker',
+    },
+    {
+      name: 'Dale Baker',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'dale-baker',
+    },
+    { name: 'Russ Long', role: 'engineer' },
+  ],
+  releases: [
+    {
+      releaseId: 'sixpence-none-the-richer-sixpence-none-the-richer',
+      track: 4,
+    },
+  ],
 
   sections: [
     {

@@ -16,6 +16,20 @@ export const s_o_b: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Nathaniel Rateliff',
+      role: 'songwriter',
+      artistGlobeId: 'nathaniel-rateliff',
+    },
+  ],
+  releases: [
+    {
+      releaseId:
+        'nathaniel-rateliff-and-the-night-sweats-nathaniel-rateliff-the-night-sweats',
+      track: 5,
+    },
+  ],
 
   sections: [
     {

@@ -1,6 +1,7 @@
-import { format } from 'date-fns';
-import { ChevronDown, Search } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Plus, RotateCw, Search } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,14 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -29,120 +23,68 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  useFreeAccessRules,
+  type FreeAccessRule,
+} from '@/hooks/data/admin/useAdminFreeAccess';
 import {
   useAdminUsers,
   useUpdateUserRole,
   type AdminUser,
 } from '@/hooks/data/admin/useAdminUsers';
-import { toast } from '@/hooks/use-toast';
+import { ConsoleCallout } from './ui/ConsoleCallout';
+import { ConsolePageHeader } from './ui/ConsolePageHeader';
+import { InsiderAccessDialogs } from './users/InsiderAccessDialogs';
+import {
+  ROLE_LABELS,
+  StatStrip,
+  UsersTable,
+  type AssignableRole,
+} from './users/UsersTable';
+import {
+  plural,
+  type AccessModel,
+  type InsiderDialog,
+} from './users/accessModel';
+import {
+  indexRules,
+  isServerInsider,
+  matchesSubscriptionFilter,
+  parseSubscriptionFilter,
+  ruleRowMatchesSearch,
+  ruleRows,
+  rulesForUser,
+  showsRuleRows,
+  type SubscriptionFilter,
+} from './users/insiderAccess';
 
-const DATE_FORMAT = 'MMM d, yyyy';
 const DEBOUNCE_MS = 300;
 
-function subscriptionBadge(user: AdminUser) {
-  if (user.subscriptionStatus === 'insider_access') {
-    return (
-      <Badge className="bg-indigo-600/20 text-indigo-400 border-indigo-600/30">
-        Insider Access
-      </Badge>
-    );
-  }
-
-  if (user.hasPaidAccess) {
-    const label =
-      user.subscriptionTier === 'free'
-        ? 'Active'
-        : user.subscriptionTier.charAt(0).toUpperCase() +
-          user.subscriptionTier.slice(1);
-
-    return (
-      <Badge className="bg-emerald-600/20 text-emerald-400 border-emerald-600/30">
-        {label}
-        {user.cancelAtPeriodEnd ? ' (canceling)' : ''}
-      </Badge>
-    );
-  }
-
-  if (user.subscriptionStatus === 'past_due') {
-    return (
-      <Badge className="bg-amber-600/20 text-amber-400 border-amber-600/30">
-        Past Due
-      </Badge>
-    );
-  }
-
-  if (user.subscriptionStatus === 'canceled') {
-    return (
-      <Badge className="bg-red-600/20 text-red-400 border-red-600/30">
-        Canceled
-      </Badge>
-    );
-  }
-
-  return (
-    <Badge
-      variant="secondary"
-      className="bg-white/5 text-white/50 border-white/10"
-    >
-      Free
-    </Badge>
-  );
-}
-
-function roleBadge(role: AdminUser['role']) {
-  switch (role) {
-    case 'admin':
-      return (
-        <Badge className="bg-purple-600/20 text-purple-400 border-purple-600/30">
-          Admin
-        </Badge>
-      );
-    case 'teacher':
-      return (
-        <Badge className="bg-blue-600/20 text-blue-400 border-blue-600/30">
-          Teacher
-        </Badge>
-      );
-    case 'student':
-      return (
-        <Badge className="bg-white/5 text-white/50 border-white/10">
-          Student
-        </Badge>
-      );
-    case 'editor':
-      return (
-        <Badge className="bg-teal-600/20 text-teal-300 border-teal-600/30">
-          Content editor
-        </Badge>
-      );
-  }
-}
-
 /**
- * Roles an admin can assign. `admin` is not among them — the API refuses to
- * reassign an admin account, and there is no promotion path to one here.
+ * Everyone registered, with insider access managed where it shows: in each
+ * account's Subscription cell. Rules no account row can hold — domain rules
+ * and emails granted before their owner signed up — are rows of their own.
+ * /console/free-access redirects here filtered to insider access.
  */
-const ASSIGNABLE_ROLES = ['student', 'teacher', 'editor'] as const;
-type AssignableRole = (typeof ASSIGNABLE_ROLES)[number];
-
-const ROLE_LABELS: Record<AssignableRole, string> = {
-  student: 'Student',
-  teacher: 'Teacher',
-  editor: 'Content editor',
-};
-
 export const AdminUsersPage = () => {
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
-  const [subscriptionFilter, setSubscriptionFilter] = useState<string>('all');
+  // In the URL, so the old Insider Access link can land pre-filtered.
+  const [params, setParams] = useSearchParams();
+  const subscriptionFilter = parseSubscriptionFilter(
+    params.get('subscription'),
+  );
+  const setSubscriptionFilter = (next: SubscriptionFilter) =>
+    setParams(
+      (prev) => {
+        const out = new URLSearchParams(prev);
+        if (next === 'all') out.delete('subscription');
+        else out.set('subscription', next);
+        return out;
+      },
+      { replace: true },
+    );
+
   // The role change is now an explicit destination rather than a toggle. With a
   // single "Revert to Student" item, an editor's row read as one click away
   // from demotion and the dialog never said which role it was moving them to.
@@ -150,10 +92,20 @@ export const AdminUsersPage = () => {
     user: AdminUser;
     role: AssignableRole;
   } | null>(null);
+  const [dialog, setDialog] = useState<InsiderDialog | null>(null);
 
   const updateRole = useUpdateUserRole();
 
-  const displayName = (user: AdminUser) => user.username ?? user.nickname;
+  // Dialogs here open from page state, so Radix can't return focus on close;
+  // the control that opened one is remembered and refocused instead.
+  const returnFocus = useRef<HTMLElement | null>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const restoreFocus = () => {
+    const target = returnFocus.current;
+    (target?.isConnected ? target : searchRef.current)?.focus();
+  };
+
+  const roleName = (user: AdminUser) => user.username ?? user.nickname;
 
   const handleConfirmRoleChange = () => {
     if (!confirmChange) return;
@@ -162,18 +114,13 @@ export const AdminUsersPage = () => {
       { id: user.id, role },
       {
         onSuccess: () => {
-          toast({
-            title: 'Role updated',
-            description: `${displayName(user)} is now a ${ROLE_LABELS[role].toLowerCase()}. They may need to sign out and back in for it to take effect.`,
+          toast.success('Role updated', {
+            description: `${roleName(user)} is now a ${ROLE_LABELS[role].toLowerCase()}. They may need to sign out and back in for it to take effect.`,
           });
           setConfirmChange(null);
         },
         onError: (err) => {
-          toast({
-            variant: 'destructive',
-            title: 'Could not change role',
-            description: err.message,
-          });
+          toast.error('Could not change role', { description: err.message });
           setConfirmChange(null);
         },
       },
@@ -187,51 +134,145 @@ export const AdminUsersPage = () => {
     return () => clearTimeout(handler);
   }, [searchInput]);
 
-  const { data: allUsers = [], isLoading } = useAdminUsers({
+  const usersQuery = useAdminUsers({
     search: debouncedSearch || undefined,
     role: roleFilter !== 'all' ? (roleFilter as AdminUser['role']) : undefined,
   });
+  // Everyone, whatever the table is filtered to: the stats, domain counts and
+  // "no account yet" all need the whole list. Unfiltered, it's the table's
+  // own query (same key), so it costs nothing extra.
+  const everyoneQuery = useAdminUsers({});
+  const rulesQuery = useFreeAccessRules();
 
-  const users =
-    subscriptionFilter === 'all'
-      ? allUsers
-      : allUsers.filter((user) => {
-          switch (subscriptionFilter) {
-            case 'active':
-              return (
-                user.hasPaidAccess &&
-                user.subscriptionStatus !== 'insider_access'
-              );
-            case 'insider_access':
-              return user.subscriptionStatus === 'insider_access';
-            case 'past_due':
-              return user.subscriptionStatus === 'past_due';
-            case 'canceled':
-              return user.subscriptionStatus === 'canceled';
-            case 'free':
-              return (
-                !user.hasPaidAccess &&
-                user.subscriptionStatus !== 'past_due' &&
-                user.subscriptionStatus !== 'canceled'
-              );
-            default:
-              return true;
-          }
-        });
+  const rules = useMemo(() => rulesQuery.data ?? [], [rulesQuery.data]);
+  const index = useMemo(() => indexRules(rules), [rules]);
+  const now = new Date();
+
+  // The table's rows can be fresher than the unfiltered list (a sign-up
+  // since); merge them in so a new account doesn't read as "no account yet".
+  const knownAccounts = useMemo(() => {
+    if (!everyoneQuery.data) return undefined;
+    const byId = new Map(everyoneQuery.data.map((user) => [user.id, user]));
+    for (const user of usersQuery.data ?? []) byId.set(user.id, user);
+    return [...byId.values()];
+  }, [everyoneQuery.data, usersQuery.data]);
+
+  const model: AccessModel = {
+    ready: !!rulesQuery.data,
+    rules,
+    index,
+    everyone: knownAccounts,
+    now,
+    fetchedAt: usersQuery.dataUpdatedAt
+      ? new Date(usersQuery.dataUpdatedAt)
+      : now,
+    syncing: usersQuery.isFetching || rulesQuery.isFetching,
+    refresh: () => {
+      void rulesQuery.refetch();
+      void usersQuery.refetch();
+    },
+    rememberFocus: (element) => {
+      returnFocus.current = element;
+    },
+    restoreFocus,
+  };
+
+  const allRuleRows =
+    rulesQuery.data && knownAccounts ? ruleRows(rules, knownAccounts, now) : [];
+  const visibleRuleRows = showsRuleRows(roleFilter, subscriptionFilter)
+    ? allRuleRows.filter((row) =>
+        ruleRowMatchesSearch(row.rule, debouncedSearch),
+      )
+    : [];
+
+  const accessFor = (user: AdminUser) =>
+    rulesQuery.data ? rulesForUser(user.email, index, now) : null;
+  const users = (usersQuery.data ?? []).filter((user) =>
+    matchesSubscriptionFilter(
+      user,
+      subscriptionFilter,
+      accessFor(user) ?? { expired: [] },
+    ),
+  );
+
+  const everyone = everyoneQuery.data;
+  const preGranted = allRuleRows.filter(
+    (row) =>
+      row.health === 'active' &&
+      (row.kind === 'pre-granted' || row.accountCount === 0),
+  ).length;
+
+  const usersLoading = usersQuery.isLoading;
+  const usersFailed = usersQuery.isError && !usersQuery.data;
+  const rulesFailed = rulesQuery.isError && !rulesQuery.data;
+  const domainRuleCount = visibleRuleRows.filter(
+    (row) => row.kind === 'domain',
+  ).length;
+  const preGrantedRowCount = visibleRuleRows.length - domainRuleCount;
+
+  const showAccounts = (rule: FreeAccessRule) => {
+    setSearchInput(`@${rule.value}`);
+    setDebouncedSearch(`@${rule.value}`);
+  };
 
   return (
     <div className="animate-fade-in-bottom space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Users</h1>
-        <p className="text-muted-foreground">
-          View all registered users and their subscription status
-        </p>
-      </div>
+      <ConsolePageHeader
+        title="Users"
+        description="Everyone registered and their subscription. Grant or change insider access from the Subscription column."
+        actions={
+          <Button
+            disabled={!model.ready}
+            onClick={(event) => {
+              returnFocus.current = event.currentTarget;
+              setDialog({ kind: 'add' });
+            }}
+          >
+            <Plus className="mr-2 size-4" />
+            Add insider access
+          </Button>
+        }
+      />
+
+      <StatStrip
+        stats={[
+          {
+            label: 'Total users',
+            value: everyone ? everyone.length.toLocaleString() : '—',
+          },
+          {
+            label: 'Paying',
+            value: everyone
+              ? everyone
+                  .filter(
+                    (user) => user.hasPaidAccess && !isServerInsider(user),
+                  )
+                  .length.toLocaleString()
+              : '—',
+          },
+          {
+            label: 'Insider access',
+            value: everyone
+              ? everyone.filter(isServerInsider).length.toLocaleString()
+              : '—',
+            hint: 'Accounts with access now',
+          },
+          {
+            label: 'Pre-granted',
+            value:
+              rulesQuery.data && knownAccounts
+                ? preGranted.toLocaleString()
+                : '—',
+            hint: 'Emails and domains waiting for a sign-up',
+          },
+        ]}
+      />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
+            ref={searchRef}
             className="w-64 rounded-full pl-9"
             placeholder="Search by name or email"
             value={searchInput}
@@ -252,7 +293,9 @@ export const AdminUsersPage = () => {
         </Select>
         <Select
           value={subscriptionFilter}
-          onValueChange={setSubscriptionFilter}
+          onValueChange={(value) =>
+            setSubscriptionFilter(value as SubscriptionFilter)
+          }
         >
           <SelectTrigger className="w-48">
             <SelectValue placeholder="All subscriptions" />
@@ -268,95 +311,111 @@ export const AdminUsersPage = () => {
         </Select>
       </div>
 
-      {isLoading ? (
+      {rulesFailed && (
+        // Not "no rules": that would invite re-granting access that exists.
+        <ConsoleCallout
+          title="Couldn’t load insider access rules"
+          tone="warning"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span>
+              Badges still show, but insider access can’t be changed until the
+              rules load.
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => void rulesQuery.refetch()}
+            >
+              <RotateCw className="mr-2 size-3.5" />
+              Try again
+            </Button>
+          </div>
+        </ConsoleCallout>
+      )}
+
+      {rulesQuery.data &&
+        !knownAccounts &&
+        !everyoneQuery.isLoading &&
+        !usersFailed && (
+          <p className="text-sm text-white/55">
+            Emails granted before sign-up and domain rules appear once the full
+            user list loads.{' '}
+            <button
+              className="underline underline-offset-4 hover:text-white"
+              type="button"
+              onClick={() => void everyoneQuery.refetch()}
+            >
+              Retry
+            </button>
+          </p>
+        )}
+
+      {usersLoading ? (
         <div className="space-y-2">
           {Array.from({ length: 8 }).map((_, i) => (
             <Skeleton key={i} className="h-12 w-full" />
           ))}
         </div>
-      ) : users.length === 0 ? (
+      ) : usersFailed ? (
+        <ConsoleCallout tone="danger" title="Couldn’t load users">
+          {usersQuery.error instanceof Error
+            ? usersQuery.error.message
+            : 'The users request failed.'}
+        </ConsoleCallout>
+      ) : users.length === 0 && visibleRuleRows.length === 0 ? (
         <div className="py-12 text-center text-muted-foreground">
           {debouncedSearch ||
           roleFilter !== 'all' ||
           subscriptionFilter !== 'all'
-            ? 'No users found matching your filters'
-            : 'No users found'}
+            ? 'Nothing matches these filters'
+            : 'No users yet'}
         </div>
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Subscription</TableHead>
-              <TableHead>Tier</TableHead>
-              <TableHead>Joined</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>
-                  {user.fullName || user.nickname}
-                  {user.username && (
-                    <span className="ml-1.5 text-xs text-muted-foreground">
-                      @{user.username}
-                    </span>
-                  )}
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {user.email || '-'}
-                </TableCell>
-                <TableCell>
-                  {user.role === 'admin' ? (
-                    roleBadge(user.role)
-                  ) : (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          className="h-auto gap-1 px-2 py-1"
-                        >
-                          {roleBadge(user.role)}
-                          <ChevronDown className="size-3.5 text-muted-foreground" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start">
-                        {/* The role name alone. The dropdown hangs off the
-                            user's current role badge, so "change this to X" is
-                            already what it means — spelling that out made every
-                            option longer without saying anything. */}
-                        {ASSIGNABLE_ROLES.filter(
-                          (role) => role !== user.role,
-                        ).map((role) => (
-                          <DropdownMenuItem
-                            key={role}
-                            onSelect={() => setConfirmChange({ user, role })}
-                          >
-                            {ROLE_LABELS[role]}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-                </TableCell>
-                <TableCell>{subscriptionBadge(user)}</TableCell>
-                <TableCell className="capitalize">
-                  {user.subscriptionTier}
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {format(new Date(user.createdAt), DATE_FORMAT)}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <>
+          {usersQuery.isRefetchError && (
+            <p className="text-sm text-amber-200/80">
+              Couldn’t refresh — showing earlier results.{' '}
+              <button
+                className="underline underline-offset-4 hover:text-white"
+                type="button"
+                onClick={() => void usersQuery.refetch()}
+              >
+                Retry
+              </button>
+            </p>
+          )}
+          <UsersTable
+            accessFor={accessFor}
+            model={model}
+            ruleRows={visibleRuleRows}
+            users={users}
+            onChangeRole={(user, role, trigger) => {
+              returnFocus.current = trigger;
+              setConfirmChange({ user, role });
+            }}
+            onOpen={setDialog}
+            onShowAccounts={showAccounts}
+          />
+          <div className="text-xs text-muted-foreground">
+            {[
+              plural(users.length, 'user'),
+              domainRuleCount > 0 && plural(domainRuleCount, 'domain rule'),
+              preGrantedRowCount > 0 &&
+                plural(preGrantedRowCount, 'pre-granted email'),
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </div>
+        </>
       )}
 
-      <div className="text-xs text-muted-foreground">
-        {users.length} user{users.length !== 1 ? 's' : ''}
-      </div>
+      <InsiderAccessDialogs
+        dialog={dialog}
+        model={model}
+        onClose={() => setDialog(null)}
+        onOpen={setDialog}
+      />
 
       <AlertDialog
         open={!!confirmChange}
@@ -364,12 +423,17 @@ export const AdminUsersPage = () => {
           if (!open) setConfirmChange(null);
         }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            restoreFocus();
+          }}
+        >
           <AlertDialogHeader>
             <AlertDialogTitle>Change user role</AlertDialogTitle>
             <AlertDialogDescription>
               {confirmChange
-                ? `Change ${displayName(confirmChange.user)} from ${
+                ? `Change ${roleName(confirmChange.user)} from ${
                     ROLE_LABELS[confirmChange.user.role as AssignableRole] ??
                     confirmChange.user.role
                   } to ${ROLE_LABELS[confirmChange.role]}?${

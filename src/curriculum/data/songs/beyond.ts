@@ -16,6 +16,70 @@ export const beyond: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Nate Mercereau',
+      role: 'producer',
+      artistGlobeId: 'nate-mercereau',
+    },
+    {
+      name: 'Nate Mercereau',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'nate-mercereau',
+    },
+    { name: 'Ricky Reed', role: 'producer', artistGlobeId: 'ricky-reed' },
+    { name: 'Ricky Reed', role: 'songwriter', artistGlobeId: 'ricky-reed' },
+    {
+      name: 'Nate Mercereau',
+      role: 'performer',
+      artistGlobeId: 'nate-mercereau',
+    },
+    { name: 'Joshua Block', role: 'songwriter', artistGlobeId: 'joshua-block' },
+    {
+      name: 'Nate Mercereau',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'nate-mercereau',
+    },
+    {
+      name: 'Nate Mercereau',
+      role: 'songwriter',
+      artistGlobeId: 'nate-mercereau',
+    },
+    {
+      name: 'Nate Mercereau',
+      role: 'engineer',
+      artistGlobeId: 'nate-mercereau',
+    },
+    { name: 'Manny Marroquin', role: 'engineer' },
+    { name: 'Chris Galland', role: 'engineer' },
+    {
+      name: 'Nate Mercereau',
+      role: 'performer',
+      instrument: 'organ',
+      artistGlobeId: 'nate-mercereau',
+    },
+    {
+      name: 'Austin Jenkins',
+      role: 'songwriter',
+      artistGlobeId: 'austin-jenkins',
+    },
+    { name: 'Ethan Shumaker', role: 'engineer' },
+    { name: 'Leon Bridges', role: 'songwriter', artistGlobeId: 'leon-bridges' },
+    {
+      name: 'Justin Tranter',
+      role: 'songwriter',
+      artistGlobeId: 'justin-tranter',
+    },
+    {
+      name: 'Leon Bridges',
+      role: 'vocals',
+      artistGlobeId: 'leon-bridges',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'leon-bridges-good-thing', track: 4 }],
 
   sections: [
     {

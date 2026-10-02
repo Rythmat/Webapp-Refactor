@@ -16,6 +16,24 @@ export const give_me_one_reason: Song = {
   difficulty: 2,
   genreTags: ['blues', 'pop'],
   techniques: [],
+  session: { studioId: 'the-site' },
+  credits: [
+    { name: 'Don Gehman', role: 'producer', artistGlobeId: 'don-gehman' },
+    {
+      name: 'Tracy Chapman',
+      role: 'songwriter',
+      artistGlobeId: 'tracy-chapman',
+    },
+    { name: 'Don Gehman', role: 'engineer', artistGlobeId: 'don-gehman' },
+    {
+      name: 'Tracy Chapman',
+      role: 'vocals',
+      artistGlobeId: 'tracy-chapman',
+      primary: true,
+    },
+    { name: 'Tracy Chapman', role: 'producer', artistGlobeId: 'tracy-chapman' },
+  ],
+  releases: [{ releaseId: 'tracy-chapman-new-beginning', track: 9 }],
 
   sections: [
     {

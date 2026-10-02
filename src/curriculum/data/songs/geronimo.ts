@@ -16,6 +16,67 @@ export const geronimo: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'analog-heart-studios' },
+  credits: [
+    {
+      name: 'George Sheppard',
+      role: 'performer',
+      artistGlobeId: 'george-sheppard',
+    },
+    { name: 'Amy Sheppard', role: 'songwriter', artistGlobeId: 'amy-sheppard' },
+    { name: 'Stuart Stuart', role: 'producer', artistGlobeId: 'stuart-stuart' },
+    {
+      name: 'Emma Sheppard',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'emma-sheppard',
+    },
+    {
+      name: 'George Sheppard',
+      role: 'vocals',
+      artistGlobeId: 'george-sheppard',
+    },
+    {
+      name: 'George Sheppard',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'george-sheppard',
+    },
+    {
+      name: 'George Sheppard',
+      role: 'songwriter',
+      artistGlobeId: 'george-sheppard',
+    },
+    {
+      name: 'Dean Gordon',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'dean-gordon',
+    },
+    { name: 'Jason Bovino', role: 'songwriter', artistGlobeId: 'jason-bovino' },
+    { name: 'Jason Bovino', role: 'performer', artistGlobeId: 'jason-bovino' },
+    { name: 'Amy Sheppard', role: 'vocals', artistGlobeId: 'amy-sheppard' },
+    { name: 'Stuart Stuart', role: 'engineer', artistGlobeId: 'stuart-stuart' },
+    {
+      name: 'George Sheppard',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'george-sheppard',
+    },
+    {
+      name: 'Jason Bovino',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'jason-bovino',
+    },
+    {
+      name: 'Jason Bovino',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'jason-bovino',
+    },
+  ],
+  releases: [{ releaseId: 'sheppard-bombs-away', track: 1 }],
 
   sections: [
     {

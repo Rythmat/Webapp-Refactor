@@ -11,6 +11,7 @@ import { useState, type FC } from 'react';
 import { SCALES } from '@/curriculum/engine/genreGeneration/scaleRegistry';
 import type { ActivitySectionId } from '@/curriculum/types/activity';
 import type { ActivityStepV2 } from '@/curriculum/types/activity.v2';
+import { CONSOLE_LABEL, CONSOLE_PANEL, consoleTabClass } from '../../ui/styles';
 import {
   DetailCell,
   IconButton,
@@ -154,14 +155,16 @@ export const LessonLevelEditor: FC<{
   return (
     <div className="flex flex-col gap-5">
       {/* ── Level parameters ── */}
-      <div className="grid grid-cols-2 gap-x-6 gap-y-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 md:grid-cols-4">
+      <div
+        className={`${CONSOLE_PANEL} grid grid-cols-2 gap-x-6 gap-y-3 p-4 md:grid-cols-4`}
+      >
         <DetailCell label="Lesson title" className="col-span-2">
           <InlineText
             value={flow.title}
             onChange={(value) => patch({ title: value })}
             placeholder="Funk Foundations"
             ariaLabel="Lesson title"
-            className="text-base font-medium text-white"
+            className="text-base font-medium tracking-[-0.01em] text-white"
           />
         </DetailCell>
         <DetailCell label="Default key">
@@ -248,18 +251,14 @@ export const LessonLevelEditor: FC<{
             <button
               key={section.id}
               type="button"
-              className={`rounded-lg border px-3.5 py-1.5 text-sm transition-colors ${
-                isActive
-                  ? 'border-2 border-[#4a9eff] bg-[#1a3a5c] font-semibold text-[#4a9eff]'
-                  : 'border-white/20 bg-white/[0.03] text-white/60 hover:text-white'
-              }`}
+              className={consoleTabClass(isActive)}
               onClick={() => {
                 setActiveId(section.id);
                 setExpanded(null);
               }}
             >
               {section.id} {section.name}
-              <span className="ml-1.5 text-xs opacity-60">
+              <span className="text-xs opacity-60">
                 {section.steps?.length ?? 0}
               </span>
             </button>
@@ -269,7 +268,7 @@ export const LessonLevelEditor: FC<{
         {freeSectionId && (
           <button
             type="button"
-            className="inline-flex items-center gap-1 rounded-lg border border-dashed border-white/20 px-3 py-1.5 text-sm text-white/40 transition-colors hover:border-white/40 hover:text-white"
+            className="inline-flex items-center gap-1 rounded-full border border-dashed border-white/15 px-3 py-1.5 text-sm text-white/45 transition-colors hover:border-white/30 hover:text-white"
             onClick={addSection}
           >
             <Plus className="size-3.5" />
@@ -279,22 +278,20 @@ export const LessonLevelEditor: FC<{
       </div>
 
       {!active ? (
-        <p className="rounded-xl border border-dashed border-white/10 p-8 text-center text-sm text-white/30">
+        <p className="rounded-xl border border-dashed border-white/10 p-8 text-center text-sm text-white/45">
           This level has no sections yet. Add section A to start.
         </p>
       ) : (
         <>
           {/* ── Active section ── */}
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-xs uppercase tracking-wide text-white/30">
-              Section {active.id}
-            </span>
+            <span className={CONSOLE_LABEL}>Section {active.id}</span>
             <InlineText
               value={active.name}
               onChange={(value) => patchSection({ name: value })}
               placeholder="Section name"
               ariaLabel={`Section ${active.id} name`}
-              className="text-lg font-medium text-white"
+              className="text-lg font-medium tracking-[-0.01em] text-white"
             />
             <span className="ml-auto">
               <IconButton
@@ -321,10 +318,7 @@ export const LessonLevelEditor: FC<{
               const isOpen = expanded === index;
               const preset = PRESET_BY_ID[presetForStep(step)];
               return (
-                <div
-                  key={index}
-                  className="overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.02]"
-                >
+                <div key={index} className={`overflow-hidden ${CONSOLE_PANEL}`}>
                   <div className="flex items-center gap-3 px-3 py-2">
                     <button
                       type="button"
@@ -409,7 +403,7 @@ export const LessonLevelEditor: FC<{
 
             <button
               type="button"
-              className="flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-white/15 py-3 text-sm text-white/40 transition-colors hover:border-white/40 hover:bg-white/[0.03] hover:text-white"
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-white/15 py-3 text-sm text-white/45 transition-colors hover:border-white/30 hover:bg-white/[0.04] hover:text-white"
               onClick={() => {
                 const index = active.steps?.length ?? 0;
                 patchSteps((steps) => [...steps, newStep(flow, active, index)]);

@@ -16,6 +16,28 @@ export const hey_ya: Song = {
   difficulty: 2,
   genreTags: ['hip-hop'],
   techniques: [],
+  credits: [
+    { name: 'John Frye', role: 'engineer' },
+    { name: 'Neal Pogue', role: 'engineer' },
+    {
+      name: 'André Benjamin',
+      role: 'songwriter',
+      artistGlobeId: 'andre-benjamin',
+    },
+    { name: 'André 3000', role: 'vocals', artistGlobeId: 'andre-3000' },
+    { name: 'Pete Novak', role: 'engineer' },
+    { name: 'André 3000', role: 'producer', artistGlobeId: 'andre-3000' },
+    { name: 'Kevin Kendrick', role: 'performer' },
+    { name: 'Robert Hannon', role: 'engineer' },
+    { name: 'André 3000', role: 'performer', artistGlobeId: 'andre-3000' },
+    {
+      name: 'André 3000',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'andre-3000',
+    },
+  ],
+  releases: [{ releaseId: 'outkast-speakerboxxx-the-love-below' }],
 
   sections: [
     {

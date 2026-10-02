@@ -16,6 +16,47 @@ export const all_about_that_bass: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Meghan Trainor',
+      role: 'vocals',
+      artistGlobeId: 'meghan-trainor',
+      primary: true,
+    },
+    { name: 'Kevin Kadish', role: 'songwriter', artistGlobeId: 'kevin-kadish' },
+    { name: 'David Baron', role: 'performer', instrument: 'hammond-organ' },
+    {
+      name: 'Meghan Trainor',
+      role: 'songwriter',
+      artistGlobeId: 'meghan-trainor',
+    },
+    { name: 'David Baron', role: 'performer', instrument: 'baritone-sax' },
+    {
+      name: 'Kevin Kadish',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'kevin-kadish',
+    },
+    { name: 'Kevin Kadish', role: 'producer', artistGlobeId: 'kevin-kadish' },
+    {
+      name: 'Meghan Trainor',
+      role: 'performer',
+      instrument: 'handclaps',
+      artistGlobeId: 'meghan-trainor',
+      primary: true,
+    },
+    { name: 'Kevin Kadish', role: 'engineer', artistGlobeId: 'kevin-kadish' },
+    {
+      name: 'Meghan Trainor',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'meghan-trainor',
+      primary: true,
+    },
+    { name: 'Kevin Kadish', role: 'performer', artistGlobeId: 'kevin-kadish' },
+    { name: 'David Baron', role: 'performer', instrument: 'piano' },
+  ],
+  releases: [{ releaseId: 'meghan-trainor-title' }],
 
   sections: [
     {

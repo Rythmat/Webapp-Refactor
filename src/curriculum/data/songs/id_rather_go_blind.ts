@@ -16,6 +16,36 @@ export const id_rather_go_blind: Song = {
   difficulty: 2,
   genreTags: ['blues'],
   techniques: [],
+  session: { studioId: 'fame-studios' },
+  credits: [
+    { name: 'Spooner Oldham', role: 'performer', instrument: 'organ' },
+    { name: 'Floyd Newman', role: 'performer' },
+    { name: 'Spooner Oldham', role: 'performer', instrument: 'piano' },
+    { name: 'Rick Hall', role: 'engineer', artistGlobeId: 'rick-hall' },
+    { name: 'Albert Lowe Jr.', role: 'performer' },
+    { name: 'Billy Foster', role: 'songwriter', artistGlobeId: 'billy-foster' },
+    { name: 'Gene “Bowlegs” Miller', role: 'performer', instrument: 'trumpet' },
+    { name: 'Rick Hall', role: 'arranger', artistGlobeId: 'rick-hall' },
+    { name: 'Roger Hawkins', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Jimmy Johnson', role: 'performer' },
+    { name: 'Rick Hall', role: 'producer', artistGlobeId: 'rick-hall' },
+    { name: 'Carl Banks', role: 'performer', instrument: 'organ' },
+    {
+      name: 'Etta James',
+      role: 'vocals',
+      artistGlobeId: 'etta-james',
+      primary: true,
+    },
+    {
+      name: 'Ellington Jordan',
+      role: 'songwriter',
+      artistGlobeId: 'ellington-jordan',
+    },
+    { name: 'David Hood', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Aaron Varnell', role: 'performer' },
+    { name: 'Charles Chalmers', role: 'performer' },
+  ],
+  releases: [{ releaseId: 'etta-james-tell-mama' }],
 
   sections: [
     {

@@ -16,6 +16,66 @@ export const until_you_come_back_to_me_thats_what_im_gonna_do: Song = {
   difficulty: 3,
   genreTags: ['rnb'],
   techniques: [],
+  session: { studioId: 'atlantic-studios' },
+  credits: [
+    {
+      name: 'Morris Broadnax',
+      role: 'songwriter',
+      artistGlobeId: 'morris-broadnax',
+    },
+    {
+      name: 'Bernard “Pretty” Purdie',
+      role: 'performer',
+      instrument: 'drum-kit',
+    },
+    { name: 'Ann S. Clark', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Joe Farrell', role: 'performer', instrument: 'flute' },
+    { name: 'Donny Hathaway', role: 'performer', instrument: 'electric-piano' },
+    { name: 'Arif Mardin', role: 'arranger', artistGlobeId: 'arif-mardin' },
+    { name: 'Chuck Rainey', role: 'performer' },
+    {
+      name: 'Aretha Franklin',
+      role: 'vocals',
+      artistGlobeId: 'aretha-franklin',
+      primary: true,
+    },
+    { name: 'Richard Tee', role: 'performer', instrument: 'organ' },
+    { name: 'Ken Bichel', role: 'performer', instrument: 'synthesizer' },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    {
+      name: 'Margaret Branch',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Pat Smith', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Arif Mardin', role: 'producer', artistGlobeId: 'arif-mardin' },
+    { name: 'Arif Mardin', role: 'engineer', artistGlobeId: 'arif-mardin' },
+    { name: 'Hugh McCracken', role: 'performer' },
+    {
+      name: 'Aretha Franklin',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'aretha-franklin',
+      primary: true,
+    },
+    { name: 'Lew Hahn', role: 'engineer' },
+    {
+      name: 'Aretha Franklin',
+      role: 'producer',
+      artistGlobeId: 'aretha-franklin',
+    },
+    { name: 'Jerry Wexler', role: 'producer', artistGlobeId: 'jerry-wexler' },
+    {
+      name: 'Clarence Paul',
+      role: 'songwriter',
+      artistGlobeId: 'clarence-paul',
+    },
+  ],
+  releases: [{ releaseId: 'aretha-franklin-let-me-in-your-life' }],
 
   sections: [
     {

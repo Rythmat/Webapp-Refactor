@@ -16,6 +16,20 @@ export const earth_angel: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Dootsie Williams',
+      role: 'songwriter',
+      artistGlobeId: 'dootsie-williams',
+    },
+    {
+      name: 'Curtis Williams',
+      role: 'songwriter',
+      artistGlobeId: 'curtis-williams',
+    },
+    { name: 'Gaynel Hodge', role: 'songwriter', artistGlobeId: 'gaynel-hodge' },
+    { name: 'Jesse Belvin', role: 'songwriter', artistGlobeId: 'jesse-belvin' },
+  ],
 
   sections: [
     {

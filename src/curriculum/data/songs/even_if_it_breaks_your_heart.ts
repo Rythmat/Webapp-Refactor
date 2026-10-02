@@ -16,6 +16,13 @@ export const even_if_it_breaks_your_heart: Song = {
   difficulty: 2,
   genreTags: ['folk'],
   techniques: [],
+  credits: [
+    { name: 'Will Hoge', role: 'songwriter', artistGlobeId: 'will-hoge' },
+    { name: 'Mike Wrucke', role: 'producer', artistGlobeId: 'mike-wrucke' },
+    { name: 'Eric Paslay', role: 'songwriter', artistGlobeId: 'eric-paslay' },
+    { name: 'Mike Wrucke', role: 'engineer', artistGlobeId: 'mike-wrucke' },
+  ],
+  releases: [{ releaseId: 'eli-young-band-life-at-best', track: 1 }],
 
   sections: [
     {

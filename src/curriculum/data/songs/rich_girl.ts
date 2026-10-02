@@ -4,7 +4,7 @@ export const rich_girl: Song = {
   id: 'rich_girl',
   title: 'Rich Girl',
   artist: 'Hall & Oates',
-  year: undefined,
+  year: 1976,
 
   historicalDescription:
     "Hall & Oates release 'Rich Girl', becoming their first number one hit on the Billboard Hot 100. Built around a biting portrait of a wealthy woman insulated from consequence, the song announces the Philadelphia duo as a major commercial force — blending blue-eyed soul and soft rock into a formula that will dominate the late 1970s and beyond.",
@@ -17,6 +17,10 @@ export const rich_girl: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Daryl Hall', role: 'songwriter', artistGlobeId: 'daryl-hall' },
+  ],
+  releases: [{ releaseId: 'hall-and-oates-bigger-than-both-of-us' }],
 
   sections: [
     {

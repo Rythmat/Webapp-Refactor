@@ -4,10 +4,10 @@ export const ordinary_people: Song = {
   id: 'ordinary_people',
   title: 'Ordinary People',
   artist: 'John Legend',
-  year: undefined,
+  year: 2004,
 
   historicalDescription:
-    "Joe Legend releases 'Ordinary People', a slow-burning pop ballad that strips romance down to its raw, unglamorous truth. Rather than chasing radio gloss, the song lingers in the quiet tensions of real relationships — the kind that don't resolve neatly. It resonates with listeners who recognize love as work, not fantasy.",
+    "John Legend releases 'Ordinary People', a slow-burning pop ballad that strips romance down to its raw, unglamorous truth. Rather than chasing radio gloss, the song lingers in the quiet tensions of real relationships — the kind that don't resolve neatly. It resonates with listeners who recognize love as work, not fantasy.",
   key: 'B♭ major',
   keyRoot: 70,
   mode: 'major',
@@ -17,6 +17,25 @@ export const ordinary_people: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'John Legend',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'john-legend',
+      primary: true,
+    },
+    { name: 'will.i.am', role: 'songwriter', artistGlobeId: 'will-i-am' },
+    {
+      name: 'John Legend',
+      role: 'vocals',
+      artistGlobeId: 'john-legend',
+      primary: true,
+    },
+    { name: 'John Legend', role: 'producer', artistGlobeId: 'john-legend' },
+    { name: 'John Legend', role: 'songwriter', artistGlobeId: 'john-legend' },
+  ],
+  releases: [{ releaseId: 'john-legend-get-lifted', track: 8 }],
 
   sections: [
     {

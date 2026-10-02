@@ -4,7 +4,7 @@ export const lady_marmalade_aguilera: Song = {
   id: 'lady_marmalade_aguilera',
   title: 'Lady Marmalade',
   artist: 'Christina Aguilera, Lil’ Kim, Mya, Pink',
-  year: undefined,
+  year: 2001,
 
   historicalDescription:
     "Christina Aguilera, Lil' Kim, Mya, and Pink unite for 'Lady Marmalade', a supergroup collaboration recorded for the Moulin Rouge! soundtrack. The track reimagines LaBelle's 1975 funk classic as a brash, era-defining pop anthem, crashing to the top of charts worldwide and proving that female artists from radically different genres — R&B, hip hop, pop, and rock — could share a stage and steal it entirely.",
@@ -17,6 +17,36 @@ export const lady_marmalade_aguilera: Song = {
   difficulty: 2,
   genreTags: ['funk', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'Dylan Dresdow', role: 'engineer' },
+    {
+      name: 'Christina Aguilera',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'christina-aguilera',
+    },
+    {
+      name: 'Lil’ Kim',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'lil-kim',
+    },
+    { name: 'Missy Elliott', role: 'producer', artistGlobeId: 'missy-elliott' },
+    { name: 'Ron Fair', role: 'producer', artistGlobeId: 'ron-fair' },
+    {
+      name: 'Mýa',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'mya',
+    },
+    { name: 'Michael C. Ross', role: 'engineer' },
+    { name: 'Bob Crewe', role: 'songwriter', artistGlobeId: 'bob-crewe' },
+    { name: 'Rockwilder', role: 'producer', artistGlobeId: 'rockwilder' },
+    { name: 'Brian B. Springer', role: 'engineer' },
+    { name: 'Pink', role: 'performer', primary: true, artistGlobeId: 'pink' },
+    { name: 'Kenny Nolan', role: 'songwriter', artistGlobeId: 'kenny-nolan' },
+    { name: 'Dave Pensado', role: 'engineer' },
+  ],
 
   sections: [
     {

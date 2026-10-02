@@ -1,6 +1,6 @@
-import type { HistoricalEvent } from '@/components/atlas/types';
+import type { GlobeEventRecord } from '@/content/records/types';
 
-export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
+export const MUSICFORMEDIA_EVENTS: GlobeEventRecord[] = [
   // =============================================
   // OPERA TO MUSICAL THEATER
   // =============================================
@@ -21,6 +21,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'dramma per musica',
     ],
     videoId: '8Gb844K7DIQ',
+    artistIds: ['monteverdi'],
+    placeId: 'mantua',
   },
   {
     id: 'evt-media-vienna-1786-figaro',
@@ -45,6 +47,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'burgtheater',
     ],
     videoId: 'jIr15B23oOc',
+    artistIds: ['mozart'],
+    placeId: 'vienna',
   },
   {
     id: 'evt-media-venice-1853-traviata',
@@ -68,6 +72,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'romanticism',
     ],
     videoId: 'zxljpUmasgQ',
+    artistIds: ['verdi'],
+    placeId: 'venice',
   },
   {
     id: 'evt-media-turin-1896-boheme',
@@ -86,6 +92,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'romanticism',
     ],
     videoId: 'H2cJidZKb9g',
+    placeId: 'turin',
   },
   {
     id: 'evt-media-london-1878-savoy',
@@ -109,6 +116,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'victorian era',
     ],
     videoId: 'qVAScymkGsY',
+    placeId: 'london',
   },
   {
     id: 'evt-media-nyc-1911-treemonisha',
@@ -133,6 +141,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'pulitzer',
     ],
     videoId: 'OLyh2jCvzG0',
+    artistIds: ['scott-joplin'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-media-nyc-1935-porgy',
@@ -157,6 +167,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'african american',
     ],
     videoId: 'VAuTouBhN5k',
+    placeId: 'new-york',
   },
   {
     id: 'evt-media-nyc-1943-oklahoma',
@@ -181,6 +192,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'golden age',
     ],
     videoId: 'O5APc0z49wg',
+    placeId: 'new-york',
   },
   {
     id: 'evt-media-nyc-1957-westsidestory',
@@ -205,6 +217,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'romeo and juliet',
     ],
     videoId: 'ZC8OmyywAWM',
+    placeId: 'new-york',
   },
   {
     id: 'evt-media-nyc-1970-company',
@@ -228,6 +241,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'modern musical',
     ],
     videoId: '04zBxmsE7zw',
+    placeId: 'new-york',
   },
   {
     id: 'evt-media-london-1971-superstar',
@@ -253,6 +267,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'concept album',
     ],
     videoId: 'KJDgUoAQC8Y',
+    placeId: 'london',
   },
   {
     id: 'evt-media-nyc-1996-rent',
@@ -278,6 +293,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'rock musical',
     ],
     videoId: '2Ga5JnwBOzE',
+    placeId: 'new-york',
   },
   {
     id: 'evt-media-nyc-2015-hamilton',
@@ -303,6 +319,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'american history',
     ],
     videoId: 'r69-fohpJ3o',
+    placeId: 'new-york',
   },
 
   // =============================================
@@ -330,6 +347,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'early cinema',
     ],
     videoId: 'TC0otEEpQ8I',
+    placeId: 'new-york',
   },
   {
     id: 'evt-media-la-1927-jazzsinger',
@@ -354,6 +372,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'hollywood',
     ],
     videoId: 'qfWvRESbveM',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-la-1933-kingkong',
@@ -377,6 +396,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'golden age hollywood',
     ],
     videoId: 'wTdOjpGhvPs',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-la-1940-fantasia',
@@ -401,6 +421,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'fantasound',
     ],
     videoId: 'ZClKwA8k564',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-la-1960-psycho',
@@ -425,6 +446,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'paramount',
     ],
     videoId: 'yRsOp-g4MTE',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-la-1961-moonriver',
@@ -449,6 +471,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'cool jazz',
     ],
     videoId: 'CYcSiHRPYKA',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-london-1962-bond',
@@ -473,6 +496,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'theme song',
     ],
     videoId: 'EHoMPdUHr8M',
+    artistIds: ['john-barry'],
+    placeId: 'london',
   },
   {
     id: 'evt-media-la-1966-missionimpossible',
@@ -498,6 +523,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'spy music',
     ],
     videoId: 'O07WucFwdq8',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-rome-1966-morricone',
@@ -523,6 +549,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'italian cinema',
     ],
     videoId: 'mfRFET2UZok',
+    placeId: 'rome',
   },
   {
     id: 'evt-media-la-1967-quincyjones',
@@ -547,6 +574,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'united artists',
     ],
     videoId: 'LFTl2gHMOPA',
+    artistIds: ['quincy-jones'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-memphis-1971-shaft',
@@ -571,6 +600,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'funk soundtrack',
     ],
     videoId: 'Q429AOpL_ds',
+    artistIds: ['isaac-hayes'],
+    placeId: 'memphis',
   },
   {
     id: 'evt-media-la-1969-bacharach',
@@ -595,6 +626,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'brill building',
     ],
     videoId: 'p63dLKuXUXE',
+    artistIds: ['burt-bacharach', 'hal-david'],
+    placeId: 'los-angeles',
   },
 
   // =============================================
@@ -623,6 +656,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'blockbuster',
     ],
     videoId: 'E-sX2Y0W8l0',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-la-1977-starwars',
@@ -648,6 +682,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'force theme',
     ],
     videoId: 'e9lapdvLSGw',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-munich-1978-moroder',
@@ -672,6 +707,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'moog',
     ],
     videoId: 'tYGnxGYqYFI',
+    artistIds: ['giorgio-moroder'],
+    placeId: 'munich',
   },
   {
     id: 'evt-media-london-1981-chariots',
@@ -697,6 +734,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'greek',
     ],
     videoId: '8a-HfNE3EIo',
+    placeId: 'london',
   },
   {
     id: 'evt-media-tokyo-1987-sakamoto',
@@ -721,6 +759,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'east meets west',
     ],
     videoId: '2lbi8o_i7Bs',
+    artistIds: ['david-byrne'],
+    placeId: 'tokyo',
   },
   {
     id: 'evt-media-la-1989-elfman',
@@ -745,6 +785,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'dark orchestral',
     ],
     videoId: '8JtDHoK9KL8',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-london-1994-lionking',
@@ -769,6 +810,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'media ventures',
     ],
     videoId: 'Waa3PgUyapw',
+    artistIds: ['elton-john'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-tokyo-1984-ghibli',
@@ -793,6 +836,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'anime',
     ],
     videoId: 'eKC3_9gRrOI',
+    artistIds: ['joe-hisaishi'],
+    placeId: 'tokyo',
   },
   {
     id: 'evt-media-wellington-2001-lotr',
@@ -819,6 +864,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'tolkien',
     ],
     videoId: 'IzQh2Lhv4vQ',
+    placeId: 'wellington',
   },
   {
     id: 'evt-media-la-2005-santaolalla-bbm',
@@ -843,6 +889,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'guitar',
     ],
     videoId: 'uqatoAp3abE',
+    artistIds: ['gustavo-santaolalla'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-london-2007-greenwood',
@@ -868,6 +916,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'strings',
     ],
     videoId: 'TQEov7T9Zz8',
+    artistIds: ['jonny-greenwood', 'radiohead'],
+    placeId: 'london',
   },
   {
     id: 'evt-media-chennai-2008-rahman',
@@ -894,6 +944,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'indian cinema',
     ],
     videoId: 'aYXsE1dJdiw',
+    placeId: 'chennai',
   },
   {
     id: 'evt-media-la-2010-socialnetwork',
@@ -920,6 +971,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'ambient',
     ],
     videoId: '0BqJNEV9QVE',
+    artistIds: ['trent-reznor', 'atticus-ross'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-london-2010-inception',
@@ -944,6 +997,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'blockbuster',
     ],
     videoId: 'va1oiojnGrA',
+    artistIds: ['edith-piaf'],
+    placeId: 'london',
   },
 
   // =============================================
@@ -971,6 +1026,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'theme song era',
     ],
     videoId: 'LpGXzKs3lrk',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-la-1990-lawandorder',
@@ -995,6 +1051,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'television',
     ],
     videoId: 'VRQcke3XcnE',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-la-1990-twinpeaks',
@@ -1020,6 +1077,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'prestige tv',
     ],
     videoId: 'jtGL2Tqfdws',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-la-2011-gameofthrones',
@@ -1045,6 +1103,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'orchestral',
     ],
     videoId: 'rZk2C9Ol6gk',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-nyc-2018-succession',
@@ -1069,6 +1128,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'hip hop classical',
     ],
     videoId: 'LlgWqcHXD8w',
+    placeId: 'new-york',
   },
   {
     id: 'evt-media-la-2019-mandalorian',
@@ -1094,6 +1154,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'spaghetti western',
     ],
     videoId: 'rXJa1YcV6OQ',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-la-2021-whitelotus',
@@ -1118,6 +1179,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'electronic',
     ],
     videoId: 'Q-xTYfAjQEU',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-la-2004-bsg',
@@ -1143,6 +1205,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'percussion',
     ],
     videoId: 'Th4sczrRSWk',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-la-2013-houseofcards',
@@ -1168,6 +1231,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'prestige tv',
     ],
     videoId: 'bx2b5NAS3y4',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-nyc-2009-madmen',
@@ -1192,6 +1256,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'licensed music',
     ],
     videoId: 'vD12mZiFPtM',
+    placeId: 'new-york',
   },
 
   // =============================================
@@ -1221,6 +1286,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'kyoto',
     ],
     videoId: 'NTa6Xbzfq1U',
+    placeId: 'kyoto',
   },
   {
     id: 'evt-media-kyoto-1986-zelda',
@@ -1246,6 +1312,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       '8-bit',
     ],
     videoId: 'dBNJ5cAxcQ8',
+    placeId: 'kyoto',
   },
   {
     id: 'evt-media-tokyo-1987-finalfantasy',
@@ -1270,6 +1337,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'tokyo',
     ],
     videoId: 'fHyIdyrxd5U',
+    placeId: 'tokyo',
   },
   {
     id: 'evt-media-tokyo-1991-streetsofrage',
@@ -1294,6 +1362,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       '16-bit',
     ],
     videoId: '73yLg3UjJK0',
+    placeId: 'tokyo',
   },
   {
     id: 'evt-media-twycross-1998-banjokazooie',
@@ -1318,6 +1387,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'leicestershire',
     ],
     videoId: '-J4F4w7E_N0',
+    placeId: 'twycross',
   },
   {
     id: 'evt-media-seattle-2001-halo',
@@ -1343,6 +1413,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'fps',
     ],
     videoId: '-iPzww7jGjI',
+    placeId: 'seattle',
   },
   {
     id: 'evt-media-copenhagen-2007-assassinscreed',
@@ -1368,6 +1439,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'open world',
     ],
     videoId: 'FSVHx23ByhM',
+    placeId: 'copenhagen',
   },
   {
     id: 'evt-media-la-2012-journey',
@@ -1393,6 +1465,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'indie game',
     ],
     videoId: 'CEClFWa_GcQ',
+    artistIds: ['journey'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-melbourne-2016-doom',
@@ -1417,6 +1491,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'modular synth',
     ],
     videoId: 'eH9Xmq8-yOM',
+    placeId: 'melbourne',
   },
   {
     id: 'evt-media-la-2013-lastofus',
@@ -1442,6 +1517,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'hbo adaptation',
     ],
     videoId: 'xqjdeVUXK0c',
+    artistIds: ['gustavo-santaolalla'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-la-2005-vglive',
@@ -1466,6 +1543,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'symphony',
     ],
     videoId: 'DZjv0VcAlzE',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-seattle-2018-celeste',
@@ -1490,6 +1568,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'minecraft',
     ],
     videoId: '1rwAvUvvQzQ',
+    placeId: 'seattle',
   },
 
   // =============================================
@@ -1519,6 +1598,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'franchise',
     ],
     videoId: 'dNv8b8Ee0zc',
+    placeId: 'tokyo',
   },
   {
     id: 'evt-media-la-2018-godsofwar',
@@ -1544,6 +1624,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'choral',
     ],
     videoId: 'UReZ6Ky5ISc',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-la-2020-ffviiremake',
@@ -1569,6 +1650,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'nostalgia',
     ],
     videoId: 'y9OwMPZppMg',
+    placeId: 'tokyo',
   },
 
   // =============================================
@@ -1598,6 +1680,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'berlin',
     ],
     videoId: 'JCd6hT0Gn0M',
+    placeId: 'berlin',
   },
   {
     id: 'evt-media-la-2016-lalaland',
@@ -1623,6 +1706,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'ryan gosling',
     ],
     videoId: '0pdqf4P9MB8',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-la-2018-blackpanther',
@@ -1649,6 +1733,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'senegalese music',
     ],
     videoId: 'WMFAsidiQfc',
+    artistIds: ['kendrick-lamar'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-la-2017-getout',
@@ -1674,6 +1760,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'blumhouse',
     ],
     videoId: '8UKCpDeA82c',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-nyc-2021-tick',
@@ -1699,6 +1786,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'musical film',
     ],
     videoId: 'YJserno8tyU',
+    placeId: 'new-york',
   },
 
   // =============================================
@@ -1726,6 +1814,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'barbershop quartet',
     ],
     videoId: '1ckB1_uyKGQ',
+    placeId: 'minneapolis',
   },
   {
     id: 'evt-media-nyc-1970-manilow',
@@ -1751,6 +1840,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'commercial',
     ],
     videoId: 'KTZTEZvvAxg',
+    artistIds: ['barry-manilow'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-media-london-1971-coke',
@@ -1775,6 +1866,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'anthem',
     ],
     videoId: '1VM2eLhvsSM',
+    placeId: 'london',
   },
   {
     id: 'evt-media-vienna-1994-intel',
@@ -1799,6 +1891,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'corporate sound',
     ],
     videoId: 'sVafplZCsjU',
+    placeId: 'vienna',
   },
   {
     id: 'evt-media-nyc-1999-moby',
@@ -1823,6 +1916,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'independent music',
     ],
     videoId: 'atyvdC15HFA',
+    placeId: 'new-york',
   },
   {
     id: 'evt-media-cupertino-2003-ipod',
@@ -1848,6 +1942,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'tech culture',
     ],
     videoId: 'mpM5nzSEyXE',
+    placeId: 'cupertino',
   },
   {
     id: 'evt-media-pasadena-1993-superbowl',
@@ -1873,6 +1968,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'cultural event',
     ],
     videoId: '61E40Yv0C-U',
+    artistIds: ['michael-jackson'],
+    placeId: 'pasadena',
   },
   {
     id: 'evt-media-la-2017-tiktok',
@@ -1897,6 +1994,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'short form video',
     ],
     videoId: 'S1m-KgEpoow',
+    placeId: 'los-angeles',
   },
 
   // =============================================
@@ -1926,6 +2024,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'p2p',
     ],
     videoId: '6kIEtk8uQ3Q',
+    artistIds: ['metallica'],
+    placeId: 'san-mateo',
   },
   {
     id: 'evt-media-cupertino-2003-itunes',
@@ -1950,6 +2050,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'single track',
     ],
     videoId: 'NF9o46zK5Jo',
+    placeId: 'cupertino',
   },
   {
     id: 'evt-media-sanbruno-2005-youtube',
@@ -1974,6 +2075,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'viral',
     ],
     videoId: 'E0Y8OEo_zOc',
+    placeId: 'san-bruno',
   },
   {
     id: 'evt-media-berlin-2008-soundcloud',
@@ -1998,6 +2100,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'xxxtentacion',
     ],
     videoId: '7nD6GgjHRb4',
+    placeId: 'berlin',
   },
   {
     id: 'evt-media-oakland-2008-bandcamp',
@@ -2022,6 +2125,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'ethan diamond',
     ],
     videoId: 'UdEVuHo3Ku0',
+    placeId: 'oakland',
   },
   {
     id: 'evt-media-stockholm-2008-spotify',
@@ -2046,6 +2150,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'swedish tech',
     ],
     videoId: 'cwGB95OtgxA',
+    placeId: 'stockholm',
   },
   {
     id: 'evt-media-la-2022-renaissance',
@@ -2072,6 +2177,8 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'dance music',
     ],
     videoId: 'e0ggnLmBWmY',
+    artistIds: ['beyonce'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-media-toronto-2024-drakevsken',
@@ -2097,5 +2204,7 @@ export const MUSICFORMEDIA_EVENTS: HistoricalEvent[] = [
       'toronto',
     ],
     videoId: 'xpVfcZ0ZcFM',
+    artistIds: ['drake', 'kendrick-lamar'],
+    placeId: 'toronto',
   },
 ];

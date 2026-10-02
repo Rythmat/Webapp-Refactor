@@ -16,6 +16,28 @@ export const you_make_me_feel_like_a_natural_woman: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  session: { studioId: 'a-m-studios' },
+  credits: [
+    { name: 'Lou Adler', role: 'producer', artistGlobeId: 'lou-adler' },
+    {
+      name: 'Carole King',
+      role: 'performer',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    { name: 'Charles Larkey', role: 'performer', instrument: 'upright-bass' },
+    {
+      name: 'Carole King',
+      role: 'vocals',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    { name: 'Gerry Goffin', role: 'songwriter', artistGlobeId: 'gerry-goffin' },
+    { name: 'Jerry Wexler', role: 'songwriter', artistGlobeId: 'jerry-wexler' },
+    { name: 'Hank Cicalo', role: 'engineer' },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+  ],
+  releases: [{ releaseId: 'carole-king-tapestry' }],
 
   sections: [
     {

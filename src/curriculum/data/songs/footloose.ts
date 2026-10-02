@@ -4,7 +4,7 @@ export const footloose: Song = {
   id: 'footloose',
   title: 'Footloose',
   artist: 'Kenny Loggins / Nathan East',
-  year: undefined,
+  year: 1984,
 
   historicalDescription:
     "Kenny Loggins records 'Footloose', the explosive title track for the 1984 film of the same name. The song becomes an anthem for teenage rebellion and freedom, topping the charts and cementing Loggins as the king of the movie soundtrack — a role he'd already claimed with 'Danger Zone' and 'I'm Alright'. It captures the irresistible energy of mid-80s pop-rock at its most joyful.",

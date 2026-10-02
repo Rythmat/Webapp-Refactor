@@ -16,6 +16,12 @@ export const die_a_happy_man: Song = {
   difficulty: 2,
   genreTags: ['folk', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'Thomas Rhett', role: 'songwriter', artistGlobeId: 'thomas-rhett' },
+    { name: 'Sean Douglas', role: 'songwriter', artistGlobeId: 'sean-douglas' },
+    { name: 'Joe London', role: 'songwriter', artistGlobeId: 'joe-london' },
+  ],
+  releases: [{ releaseId: 'thomas-rhett-tangled-up', track: 4 }],
 
   sections: [
     {

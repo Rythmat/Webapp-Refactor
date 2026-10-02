@@ -1986,7 +1986,7 @@ export function useScoreEditing({
                 left: (beat?.x ?? box.x) - 2,
                 top: box.y - 22 * scale,
                 width: 72 * scale,
-                fontFamily: 'serif',
+                fontFamily: "'Glacial Indifference', system-ui, sans-serif",
                 fontWeight: 700,
                 fontSize: CHORD_FONT_SIZE * scale,
                 lineHeight: 1,
@@ -2024,8 +2024,8 @@ export function useScoreEditing({
               cursor: dragged ? 'grabbing' : 'grab',
               opacity: dragged ? 0.75 : 1,
               transform: 'translateX(-50%)',
-              // The lead sheet's own chord type: bold serif at 16px.
-              fontFamily: 'serif',
+              // The lead sheet's own chord type: bold Glacial at 16px.
+              fontFamily: "'Glacial Indifference', system-ui, sans-serif",
               fontWeight: 700,
               fontSize: CHORD_FONT_SIZE * (layout?.scale ?? 1),
               zIndex: 5,
@@ -2199,7 +2199,9 @@ export function useScoreEditing({
                       className="whitespace-nowrap px-0.5"
                       style={{
                         color: 'var(--color-text)',
-                        fontFamily: glyph ? 'Bravura' : 'serif',
+                        fontFamily: glyph
+                          ? 'Bravura'
+                          : "'Glacial Indifference', system-ui, sans-serif",
                         fontSize: glyph ? 20 : 12,
                         fontStyle: glyph ? 'normal' : 'italic',
                         fontWeight: glyph ? 400 : 600,

@@ -21,6 +21,8 @@
  * not a migration.
  */
 
+import { REPO_TABLES } from '@/content/vocabulary/repo';
+
 export interface Genre {
   /** Slug half of `genre:<id>`. */
   id: string;
@@ -32,62 +34,29 @@ export interface Genre {
 }
 
 /**
- * The twelve the song library already normalises to, plus Classical, which the
- * globe needs and the curriculum does not teach yet.
+ * The genres, in the order the Vocabulary page and the pickers list them:
+ * the twelve the song library already normalises to, the regional umbrellas,
+ * and Classical, which the globe needs and the curriculum does not teach yet.
+ *
+ * They are data now, one per line in src/content/vocabulary/genres.json,
+ * which the console edits (the owner's call, 30 Sep 2026); this module
+ * re-exports what `src/content/vocabulary/repo.ts` builds from that file, so
+ * every reader sees the same exports it did when the list was code.
+ *
+ * REGIONAL UMBRELLAS
+ *
+ * The globe is a history of all music; the curriculum teaches a Western
+ * popular subset. 275 traditions had no parent among the twelve — Griot,
+ * Qawwali, Maqam, Amapiano, Powwow. Rather than force them under Pop or
+ * gather them into a single "World Music" bucket, they sit under the region
+ * they come from. Slugs mirror the globe's own region ids so a genre and a
+ * place can be tied together.
+ *
+ * `getGenre` looks a genre up by id; `TAUGHT_GENRES` is the curriculum's own
+ * set, the song library's. Whether a genre is taught is code's call even in
+ * the file: the console never changes it, and a new genre is never taught.
  */
-export const GENRES: readonly Genre[] = [
-  { id: 'rock', name: 'Rock', taught: true },
-  { id: 'pop', name: 'Pop', taught: true },
-  { id: 'funk', name: 'Funk', taught: true },
-  { id: 'folk', name: 'Folk', taught: true },
-  { id: 'rnb', name: 'R&B', taught: true },
-  { id: 'jazz', name: 'Jazz', taught: true },
-  { id: 'hip-hop', name: 'Hip Hop', taught: true },
-  { id: 'reggae', name: 'Reggae', taught: true },
-  { id: 'latin', name: 'Latin', taught: true },
-  { id: 'blues', name: 'Blues', taught: true },
-  { id: 'electronic', name: 'Electronic', taught: true },
-  { id: 'jam-band', name: 'Jam Band', taught: true },
-  // ── Regional umbrellas ──
-  // The globe is a history of all music; the curriculum teaches a Western
-  // popular subset. 275 traditions had no parent among the twelve — Griot,
-  // Qawwali, Maqam, Amapiano, Powwow. Rather than force them under Pop or
-  // gather them into a single "World Music" bucket, they sit under the region
-  // they come from. Slugs mirror the globe's own region ids so a genre and a
-  // place can be tied together.
-  { id: 'west-african', name: 'West African', taught: false },
-  { id: 'east-african', name: 'East African', taught: false },
-  { id: 'north-african', name: 'North African', taught: false },
-  { id: 'central-african', name: 'Central African', taught: false },
-  { id: 'south-african', name: 'Southern African', taught: false },
-  { id: 'west-asian', name: 'West Asian', taught: false },
-  { id: 'central-asian', name: 'Central Asian', taught: false },
-  { id: 'south-asian', name: 'South Asian', taught: false },
-  { id: 'east-asian', name: 'East Asian', taught: false },
-  { id: 'southeast-asian', name: 'Southeast Asian', taught: false },
-  { id: 'east-european', name: 'East European', taught: false },
-  { id: 'west-european', name: 'West European', taught: false },
-  { id: 'south-european', name: 'South European', taught: false },
-  { id: 'caribbean', name: 'Caribbean', taught: false },
-  {
-    id: 'indigenous-american',
-    name: 'Indigenous American',
-    taught: false,
-  },
-  { id: 'oceanian', name: 'Oceanian', taught: false },
-  {
-    id: 'classical',
-    name: 'Classical',
-    taught: false,
-    note: 'On the globe (Classical, Opera, Film Scoring) but not yet a lesson family or a charted genre. Expected to become taught.',
-  },
-];
-
-const GENRE_BY_ID = new Map(GENRES.map((g) => [g.id, g]));
-export const getGenre = (id: string): Genre | undefined => GENRE_BY_ID.get(id);
-
-/** Genres the curriculum actually teaches — the song library's own set. */
-export const TAUGHT_GENRES: readonly Genre[] = GENRES.filter((g) => g.taught);
+export const { GENRES, getGenre, TAUGHT_GENRES } = REPO_TABLES;
 
 /**
  * How a song's `genreTags` value spells a genre id.
@@ -120,9 +89,14 @@ export const SONG_TAG_TO_GENRE: Record<string, string> = {
  * `r&b`, where the graph says `rnb` — so it needs the same translation
  * `genreTags` needs.
  *
- * `gospel` and `african` are deliberately absent. Gospel is a tradition the
- * twelve do not name, and `african` is too broad for any of the regional
- * umbrellas — west-african and south-african are different places. Both are
+ * A value is a genre id or, like an artist's `genreIds`, a subgenre id from
+ * `SUBGENRE_PARENT`: the edge lands on whichever level the id belongs to, and
+ * a subgenre walks up to its genre from there. `gospel` is the one subgenre —
+ * the owner filed the style under the Atlas's existing Gospel (30 Sep 2026),
+ * which the twelve do not name.
+ *
+ * `african` is deliberately absent. It is too broad for any of the regional
+ * umbrellas — west-african and south-african are different places — so it is
  * left unmapped rather than forced somewhere plausible-looking.
  */
 export const PROGRESSION_STYLE_TO_GENRE: Record<string, string> = {
@@ -140,4 +114,6 @@ export const PROGRESSION_STYLE_TO_GENRE: Record<string, string> = {
   'jam-band': 'jam-band',
   electronic: 'electronic',
   rock: 'rock',
+  // A subgenre (under Funk in genreTags.ts), not one of the genres above.
+  gospel: 'gospel',
 };

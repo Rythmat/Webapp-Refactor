@@ -54,6 +54,8 @@ interface LearnNotationViewProps {
   /** Chord symbols to draw above the staff, one per harmonic change. */
   chordSymbols?: readonly LessonChordSymbol[];
   toggle: ReactNode;
+  /** The header strip holding `toggle` (default); the guitar lesson has none. */
+  showHeader?: boolean;
 }
 
 export function LearnNotationView({
@@ -75,6 +77,7 @@ export function LearnNotationView({
   height,
   chordSymbols,
   toggle,
+  showHeader = true,
 }: LearnNotationViewProps) {
   const [layout, setLayout] = useState<StaffLayout | null>(null);
   // Rebuild only when the notes themselves change, not on every playhead frame.
@@ -138,16 +141,18 @@ export function LearnNotationView({
         border: '1px solid var(--color-border)',
       }}
     >
-      <div
-        className="relative z-30 flex shrink-0 items-center gap-2 px-2"
-        style={{
-          height: HEADER_HEIGHT,
-          background: 'rgba(25,25,25,0.95)',
-          borderBottom: '1px solid rgba(120,120,120,0.25)',
-        }}
-      >
-        {toggle}
-      </div>
+      {showHeader && (
+        <div
+          className="relative z-30 flex shrink-0 items-center gap-2 px-2"
+          style={{
+            height: HEADER_HEIGHT,
+            background: 'rgba(25,25,25,0.95)',
+            borderBottom: '1px solid rgba(120,120,120,0.25)',
+          }}
+        >
+          {toggle}
+        </div>
+      )}
       <div className="relative flex min-h-0 flex-1 flex-col">
         <GrandStaff
           score={score}

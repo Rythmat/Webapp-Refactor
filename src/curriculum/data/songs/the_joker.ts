@@ -16,6 +16,41 @@ export const the_joker: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'John King',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'john-king',
+    },
+    {
+      name: 'Steve Miller',
+      role: 'performer',
+      instrument: 'slide-guitar',
+      artistGlobeId: 'steve-miller',
+    },
+    { name: 'Steve Miller', role: 'producer', artistGlobeId: 'steve-miller' },
+    {
+      name: 'Ahmet Ertegun',
+      role: 'songwriter',
+      artistGlobeId: 'ahmet-ertegun',
+    },
+    { name: 'Steve Miller', role: 'vocals', artistGlobeId: 'steve-miller' },
+    {
+      name: 'Steve Miller',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'steve-miller',
+    },
+    { name: 'Eddie Curtis', role: 'songwriter', artistGlobeId: 'eddie-curtis' },
+    {
+      name: 'Gerald Johnson',
+      role: 'performer',
+      artistGlobeId: 'gerald-johnson',
+    },
+    { name: 'Steve Miller', role: 'songwriter', artistGlobeId: 'steve-miller' },
+  ],
+  releases: [{ releaseId: 'steve-miller-band-the-joker' }],
 
   sections: [
     {

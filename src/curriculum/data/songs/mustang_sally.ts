@@ -16,6 +16,34 @@ export const mustang_sally: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  session: { studioId: 'fame-studios' },
+  credits: [
+    { name: 'Spooner Oldham', role: 'performer' },
+    { name: 'Tom Dowd', role: 'engineer', artistGlobeId: 'tom-dowd' },
+    {
+      name: 'Sir Mack Rice',
+      role: 'songwriter',
+      artistGlobeId: 'sir-mack-rice',
+    },
+    { name: 'Roger Hawkins', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Gene “Bowlegs” Miller', role: 'performer', instrument: 'trumpet' },
+    { name: 'Chips Moman', role: 'performer' },
+    { name: 'Tommy Cogbill', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Jerry Wexler', role: 'producer', artistGlobeId: 'jerry-wexler' },
+    { name: 'Eddie Logan', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Charles Chalmers', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Jimmy Johnson', role: 'performer' },
+    { name: 'Rick Hall', role: 'producer', artistGlobeId: 'rick-hall' },
+    { name: 'Gilbert Caples', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Rick Hall', role: 'engineer', artistGlobeId: 'rick-hall' },
+    {
+      name: 'Wilson Pickett',
+      role: 'vocals',
+      artistGlobeId: 'wilson-pickett',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'wilson-pickett-the-wicked-pickett' }],
 
   sections: [
     {

@@ -16,6 +16,69 @@ export const thats_what_i_like: Song = {
   difficulty: 3,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'glenwood-place-studios' },
+  credits: [
+    {
+      name: 'The Stereotypes',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'the-stereotypes',
+    },
+    {
+      name: 'Shampoo Press & Curl',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'shampoo-press-and-curl',
+    },
+    { name: 'Jonathan Yip', role: 'songwriter', artistGlobeId: 'jonathan-yip' },
+    {
+      name: 'James Fauntleroy',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'james-fauntleroy',
+    },
+    {
+      name: 'Philip Lawrence',
+      role: 'songwriter',
+      artistGlobeId: 'philip-lawrence',
+    },
+    {
+      name: 'Philip Lawrence',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'philip-lawrence',
+    },
+    {
+      name: 'Ray McCullough',
+      role: 'songwriter',
+      artistGlobeId: 'ray-mccullough',
+    },
+    {
+      name: 'Jeremy Reeves',
+      role: 'songwriter',
+      artistGlobeId: 'jeremy-reeves',
+    },
+    { name: 'Serban Ghenea', role: 'engineer' },
+    { name: 'Ray Romulus', role: 'songwriter', artistGlobeId: 'ray-romulus' },
+    {
+      name: 'Bruno Mars',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'bruno-mars',
+      primary: true,
+    },
+    { name: 'Eric Hernandez', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Bruno Mars', role: 'songwriter', artistGlobeId: 'bruno-mars' },
+    { name: 'Charles Moniz', role: 'engineer' },
+    { name: 'Brody Brown', role: 'songwriter', artistGlobeId: 'brody-brown' },
+    {
+      name: 'James Fauntleroy',
+      role: 'songwriter',
+      artistGlobeId: 'james-fauntleroy',
+    },
+    { name: 'John Hanes', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'bruno-mars-24k-magic' }],
 
   sections: [
     {

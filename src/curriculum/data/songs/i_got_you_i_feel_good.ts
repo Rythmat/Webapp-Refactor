@@ -16,6 +16,36 @@ export const i_got_you_i_feel_good: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  session: { studioId: 'criteria-studios' },
+  credits: [
+    { name: 'Joe Dupars', role: 'performer', instrument: 'trumpet' },
+    { name: 'Eldee Williams', role: 'performer', instrument: 'tenor-sax' },
+    {
+      name: 'James Brown',
+      role: 'vocals',
+      artistGlobeId: 'james-brown',
+      primary: true,
+    },
+    { name: 'Nat Jones', role: 'performer', instrument: 'alto-sax' },
+    { name: 'Al Brisco Clark', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'James Brown', role: 'producer', artistGlobeId: 'james-brown' },
+    { name: 'Nat Jones', role: 'performer', instrument: 'organ' },
+    { name: 'Jimmy Nolen', role: 'performer' },
+    { name: 'James Brown', role: 'songwriter', artistGlobeId: 'james-brown' },
+    { name: 'Mike Ridley', role: 'performer', instrument: 'trumpet' },
+    { name: 'Levi Rasbury', role: 'performer', instrument: 'trombone' },
+    { name: 'Alfonzo Kellum', role: 'performer' },
+    {
+      name: 'Maceo Parker',
+      role: 'performer',
+      instrument: 'alto-sax',
+      artistGlobeId: 'maceo-parker',
+    },
+    { name: 'Melvin Parker', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Bernard Odum', role: 'performer' },
+    { name: 'Ron Tooley', role: 'performer', instrument: 'trumpet' },
+    { name: 'St. Clair Pinckney', role: 'performer', instrument: 'tenor-sax' },
+  ],
 
   sections: [
     {

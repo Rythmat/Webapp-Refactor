@@ -16,6 +16,9 @@ export const hallelujah_i_love_her_so: Song = {
   difficulty: 3,
   genreTags: ['jazz', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'Ray Charles', role: 'songwriter', artistGlobeId: 'ray-charles' },
+  ],
 
   sections: [
     {

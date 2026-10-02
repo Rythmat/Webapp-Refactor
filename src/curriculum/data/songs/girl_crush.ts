@@ -16,6 +16,16 @@ export const girl_crush: Song = {
   difficulty: 2,
   genreTags: ['folk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Hillary Lindsey',
+      role: 'songwriter',
+      artistGlobeId: 'hillary-lindsey',
+    },
+    { name: 'Lori McKenna', role: 'songwriter', artistGlobeId: 'lori-mckenna' },
+    { name: 'Liz Rose', role: 'songwriter', artistGlobeId: 'liz-rose' },
+  ],
+  releases: [{ releaseId: 'little-big-town-pain-killer' }],
 
   sections: [
     {

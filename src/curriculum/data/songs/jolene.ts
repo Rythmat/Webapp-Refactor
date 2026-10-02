@@ -16,6 +16,43 @@ export const jolene: Song = {
   difficulty: 2,
   genreTags: ['folk'],
   techniques: [],
+  session: { studioId: 'rca-studio-b' },
+  credits: [
+    { name: 'Dolores Edgin', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Dolly Parton',
+      role: 'vocals',
+      artistGlobeId: 'dolly-parton',
+      primary: true,
+    },
+    { name: 'Tom Pick', role: 'engineer' },
+    { name: 'Joe Babcock', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Dolly Parton', role: 'songwriter', artistGlobeId: 'dolly-parton' },
+    { name: 'Mack Magaha', role: 'performer', instrument: 'violin' },
+    { name: 'Jimmy Colvard', role: 'performer', instrument: 'electric-guitar' },
+    {
+      name: 'Dolly Parton',
+      role: 'performer',
+      artistGlobeId: 'dolly-parton',
+      primary: true,
+    },
+    { name: 'Bob Ferguson', role: 'producer', artistGlobeId: 'bob-ferguson' },
+    { name: 'Bobby Dyson', role: 'performer' },
+    { name: 'Johnny Gimble', role: 'performer', instrument: 'violin' },
+    {
+      name: 'Hurshel Wiginton',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Bobby Thompson', role: 'performer', instrument: 'banjo' },
+    { name: 'June Page', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Buck Trent', role: 'performer', instrument: 'banjo' },
+    { name: 'Dave Kirby', role: 'performer' },
+    { name: 'Stu Basore', role: 'performer', instrument: 'pedal-steel' },
+    { name: 'Hargus “Pig” Robbins', role: 'performer', instrument: 'piano' },
+    { name: 'Kenny Malone', role: 'performer', instrument: 'drum-kit' },
+  ],
+  releases: [{ releaseId: 'dolly-parton-jolene' }],
 
   sections: [
     {

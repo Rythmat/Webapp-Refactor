@@ -8,6 +8,10 @@
 // number as a 1-7 chip. Optional layers: a hairline between the two tonics
 // labelled 'octave', dashed outlines where the pentatonic skips 4 and 7, and
 // an (i) popover.
+//
+// The lesson variant says it in two lines — 'C major scale (i)' over the box,
+// 'Position 7 · finger 1 on fret 7' under it — and keeps the octave and
+// pentatonic legends in the (i).
 
 import { memo, useMemo } from 'react';
 import { theoryString } from '@/curriculum/data/guitar/theoryNotes';
@@ -74,6 +78,7 @@ export const ScaleBox = memo(function ScaleBox({
   showOctave = false,
   ghosts,
   about,
+  variant = 'default',
 }: ScaleBoxProps) {
   const model = useMemo(() => {
     const open: GuitarStringNumber[] = [];
@@ -134,7 +139,16 @@ export const ScaleBox = memo(function ScaleBox({
       labelMode === 'fingers'
         ? theoryString('position.label', { startFret: anchor })
         : undefined;
-    return { open, dots, label, connectors, ghostCount, caption };
+    return {
+      open,
+      dots,
+      label,
+      connectors,
+      ghostCount,
+      caption,
+      anchor,
+      hasOctave: octave !== null,
+    };
   }, [
     playOrder,
     fretStart,
@@ -147,6 +161,104 @@ export const ScaleBox = memo(function ScaleBox({
     showOctave,
     ghosts,
   ]);
+
+  if (variant === 'lesson') {
+    // 'C Major Scale' → 'C major scale': the key keeps its capital.
+    const title = name.replace(/ \S+/g, (word) => word.toLowerCase());
+    const hasInfo = !!about?.length || model.ghostCount > 0 || model.hasOctave;
+    return (
+      <div
+        data-scale-box
+        data-variant="lesson"
+        className="inline-flex flex-col items-start gap-1"
+      >
+        <div className="flex h-6 items-center gap-1">
+          <span
+            data-title
+            className="whitespace-nowrap text-sm font-bold leading-none text-[#e8e8f0]"
+          >
+            {title}
+          </span>
+          {hasInfo && (
+            <TheoryInfoButton
+              variant="lesson"
+              label={`About the ${name}`}
+              heading={title}
+              details={
+                (model.hasOctave || model.ghostCount > 0) && (
+                  <div data-legend className="space-y-1 text-white/55">
+                    {model.hasOctave && (
+                      <div className="flex items-center gap-1.5">
+                        <svg
+                          aria-hidden
+                          width={12}
+                          height={12}
+                          viewBox="0 0 12 12"
+                        >
+                          <line
+                            x1={1}
+                            y1={11}
+                            x2={11}
+                            y2={1}
+                            stroke={DIAGRAM_INK}
+                            strokeOpacity={0.6}
+                          />
+                        </svg>
+                        {theoryString('octave.label')}
+                      </div>
+                    )}
+                    {model.ghostCount > 0 && (
+                      <div
+                        data-ghost-legend
+                        className="flex items-center gap-1.5"
+                      >
+                        <svg
+                          aria-hidden
+                          width={12}
+                          height={12}
+                          viewBox="-6 -6 12 12"
+                        >
+                          <circle
+                            r={4.5}
+                            fill="none"
+                            stroke={DIAGRAM_INK}
+                            strokeOpacity={0.6}
+                            strokeDasharray="1.6 1.6"
+                          />
+                        </svg>
+                        {theoryString('ghost.label')}
+                      </div>
+                    )}
+                  </div>
+                )
+              }
+              notes={about ?? []}
+            />
+          )}
+        </div>
+        <FretDiagram
+          variant="lesson"
+          startFret={fretStart}
+          rows={fretEnd - fretStart + 1}
+          muted={unusedStrings}
+          open={model.open}
+          dots={model.dots}
+          keyColor={keyColor}
+          size={size}
+          mirrored={mirrored}
+          ariaLabel={model.label}
+          connectors={model.connectors}
+          ghosts={ghosts}
+        />
+        <div data-position className="text-xs text-white/55">
+          {theoryString('position.label', { startFret: model.anchor }).replace(
+            ':',
+            ' ·',
+          )}
+        </div>
+      </div>
+    );
+  }
 
   const small = size === 'sm';
   const diagram = (

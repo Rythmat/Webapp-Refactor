@@ -72,14 +72,28 @@ const loadEvents = async (): Promise<{
 
 let hydration: Promise<void> | null = null;
 
-export const ensureAtlasContent = (): Promise<void> => {
-  hydration ??= loadEvents().then(({ events, from }) => {
+const hydrate = () =>
+  loadEvents().then(({ events, from }) => {
     MUSIC_HISTORY.length = 0;
     MUSIC_HISTORY.push(...events);
     source = from;
     contentGeneration += 1;
   });
 
+export const ensureAtlasContent = (): Promise<void> => {
+  hydration ??= hydrate();
+  return hydration;
+};
+
+/**
+ * Load the published bundle again and swap it in place, bumping the
+ * generation so every derived cache rebuilds. For the console's publish (the
+ * DEV content mock): readers keep the previous data until the new data lands,
+ * and the generation only ever rises — resetting it to 0 and hydrating again
+ * would land back on 1, which caches built at 1 would take for "unchanged".
+ */
+export const refreshAtlasContent = (): Promise<void> => {
+  hydration = hydrate();
   return hydration;
 };
 

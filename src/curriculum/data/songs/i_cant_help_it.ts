@@ -16,6 +16,58 @@ export const i_cant_help_it: Song = {
   difficulty: 2,
   genreTags: ['funk', 'pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Michael Jackson',
+      role: 'vocals',
+      artistGlobeId: 'michael-jackson',
+      primary: true,
+    },
+    { name: 'Louis Johnson', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Kim Hutchcroft', role: 'performer', instrument: 'flute' },
+    { name: 'Jerry Hey', role: 'performer', instrument: 'trumpet' },
+    { name: 'Kim Hutchcroft', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Gary Grant', role: 'performer', instrument: 'trumpet' },
+    { name: 'Greg Phillinganes', role: 'performer', instrument: 'synthesizer' },
+    { name: 'Kim Hutchcroft', role: 'performer', instrument: 'baritone-sax' },
+    { name: 'Johnny Mandel', role: 'arranger' },
+    { name: 'Bruce Swedien', role: 'engineer', artistGlobeId: 'bruce-swedien' },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    {
+      name: 'Greg Phillinganes',
+      role: 'performer',
+      instrument: 'electric-piano',
+    },
+    { name: 'Gerald Vinci', role: 'performer', instrument: 'violin' },
+    {
+      name: 'John “JR” Robinson',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'john-jr-robinson',
+    },
+    { name: 'Paulinho da Costa', role: 'performer', instrument: 'percussion' },
+    { name: 'Jerry Hey', role: 'performer' },
+    { name: 'Jerry Hey', role: 'arranger' },
+    {
+      name: 'Bill Reichenbach, Jr.',
+      role: 'performer',
+      instrument: 'trombone',
+    },
+    { name: 'Larry Williams', role: 'performer', instrument: 'alto-sax' },
+    {
+      name: 'Susaye Greene',
+      role: 'songwriter',
+      artistGlobeId: 'susaye-greene',
+    },
+    { name: 'Larry Williams', role: 'performer', instrument: 'flute' },
+    { name: 'Quincy Jones', role: 'producer' },
+    { name: 'Larry Williams', role: 'performer', instrument: 'tenor-sax' },
+  ],
+  releases: [{ releaseId: 'michael-jackson-off-the-wall' }],
 
   sections: [
     {

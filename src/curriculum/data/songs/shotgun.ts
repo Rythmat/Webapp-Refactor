@@ -4,7 +4,7 @@ export const shotgun: Song = {
   id: 'shotgun',
   title: 'Shotgun',
   artist: 'Jr Walker and the Allstars',
-  year: undefined,
+  year: 1965,
 
   historicalDescription:
     "Jr. Walker and the All Stars release 'Shotgun', a raw, saxophone-driven blast of energy that stands apart from the polished Motown sound dominating the era. Walker's honking, gritty sax leads the charge where most Motown acts feature smooth vocals, making 'Shotgun' an irresistible dance floor igniter. It becomes one of the label's most visceral and enduring hits.",

@@ -38,9 +38,10 @@ import { suggestedCountFor } from './unitCoverage';
 
 const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-/** Amber diagonal hatch for a non-school (holiday/break) day column. */
+/** Diagonal hatch for a non-school (holiday/break) day column — the same
+ *  neutral white hatch as the month view (CalendarView). */
 const HATCH_HOLIDAY =
-  'repeating-linear-gradient(45deg, rgba(251,191,36,0.07) 0, rgba(251,191,36,0.07) 1px, transparent 1px, transparent 7px)';
+  'repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 7px)';
 /** App accent (teal) — the "today" highlight. */
 const TODAY_ACCENT = '#7ecfcf';
 
@@ -276,7 +277,7 @@ export const WeekView = ({
               {holidayLike && (
                 <span
                   style={{ fontSize: CAL_FONT.holiday }}
-                  className="truncate uppercase tracking-wide text-amber-200/70"
+                  className="truncate uppercase tracking-wide text-white/50"
                   title={nonSchool?.label}
                 >
                   {nonSchool?.label}

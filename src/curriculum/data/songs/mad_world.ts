@@ -16,6 +16,45 @@ export const mad_world: Song = {
   difficulty: 2,
   genreTags: ['electronic', 'pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Roland Orzabal',
+      role: 'performer',
+      artistGlobeId: 'roland-orzabal',
+    },
+    {
+      name: 'Manny Elias',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'manny-elias',
+    },
+    { name: 'Chris Hughes', role: 'producer', artistGlobeId: 'chris-hughes' },
+    {
+      name: 'Chris Hughes',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'chris-hughes',
+    },
+    {
+      name: 'Roland Orzabal',
+      role: 'songwriter',
+      artistGlobeId: 'roland-orzabal',
+    },
+    { name: 'Curt Smith', role: 'performer', artistGlobeId: 'curt-smith' },
+    { name: 'Chris Hughes', role: 'conductor', artistGlobeId: 'chris-hughes' },
+    { name: 'Phil Palmer', role: 'performer' },
+    { name: 'Ian Stanley', role: 'performer', artistGlobeId: 'ian-stanley' },
+    { name: 'Ross Cullum', role: 'producer', artistGlobeId: 'ross-cullum' },
+    { name: 'Curt Smith', role: 'vocals', artistGlobeId: 'curt-smith' },
+    { name: 'Ross Cullum', role: 'performer', artistGlobeId: 'ross-cullum' },
+    {
+      name: 'Curt Smith',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'curt-smith',
+    },
+  ],
+  releases: [{ releaseId: 'tears-for-fears-the-hurting' }],
 
   sections: [
     {

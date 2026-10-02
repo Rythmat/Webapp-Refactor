@@ -14,10 +14,11 @@ import {
 
 /**
  * Public landing page (`/`, logged-out visitors), inside the shared
- * `LandingShell`: the hero horizon, the five-module bento row, then the module
- * sections with a sticky sidebar table of contents (each with its live guided
- * demo), the "Connected" demo (one song through Learn, Globe and Studio),
- * then the closing "Try for free" section (the hero, mirrored).
+ * `LandingShell`: the hero horizon, the five-module bento row (not on phones),
+ * then the module sections with a sticky sidebar table of contents (each
+ * with its live guided demo), the "Connected" demo (one song through Learn,
+ * Globe and Studio), then the closing "Try for free" section (the hero,
+ * mirrored).
  */
 export const LandingPage = () => {
   return (

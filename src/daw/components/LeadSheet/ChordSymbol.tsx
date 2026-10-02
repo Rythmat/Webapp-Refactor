@@ -196,7 +196,8 @@ export const ChordSymbol = memo(function ChordSymbol({
             height: '100%',
             fontSize: '14px',
             fontWeight: 'bold',
-            fontFamily: 'serif',
+            fontFamily:
+              "'Glacial Indifference', 'Haskoy', system-ui, sans-serif",
             background: 'var(--color-surface-2)',
             color: 'var(--color-text)',
             border: '1px solid var(--color-accent, #8b5cf6)',
@@ -216,7 +217,7 @@ export const ChordSymbol = memo(function ChordSymbol({
         y={y}
         fontSize={16}
         fontWeight="bold"
-        fontFamily="serif"
+        fontFamily="'Glacial Indifference', 'Haskoy', system-ui, sans-serif"
         fill="currentColor"
         style={{
           cursor: isDragging ? 'grabbing' : 'grab',

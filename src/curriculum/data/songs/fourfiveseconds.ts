@@ -4,7 +4,7 @@ export const fourfiveseconds: Song = {
   id: 'fourfiveseconds',
   title: 'FourFiveSeconds',
   artist: 'Rihanna, Kanye West and Paul McCartney',
-  year: undefined,
+  year: 2015,
 
   historicalDescription:
     "Rihanna, Kanye West, and Paul McCartney release 'FourFiveSeconds', a stark, stripped-back pop-rock collaboration that stuns listeners with its raw simplicity. Three of music's biggest names — spanning rock royalty, hip hop, and R&B — strip away production excess to deliver something deeply human. The unlikely pairing signals a new era of genre-defying superstar collaborations.",

@@ -1,6 +1,6 @@
-import type { HistoricalEvent } from '@/components/atlas/types';
+import type { GlobeEventRecord } from '@/content/records/types';
 
-export const ROCK_EVENTS: HistoricalEvent[] = [
+export const ROCK_EVENTS: GlobeEventRecord[] = [
   {
     id: 'evt-elvis-memphis-1954',
     year: 1954,
@@ -17,6 +17,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'rockabilly',
     ],
     videoId: 'gj0Rz-uP4Mk',
+    artistIds: ['elvis-presley'],
+    placeId: 'memphis',
   },
   {
     id: 'evt-doors-la-1965',
@@ -41,6 +43,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'psychedelic rock',
     ],
     videoId: '4U3eYkvY9pE',
+    artistIds: ['the-doors'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-punk-london-1976',
@@ -60,6 +64,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'anarchy',
     ],
     videoId: 'TVVgwD3pktc',
+    artistIds: ['sex-pistols', 'the-clash'],
+    placeId: 'london',
   },
   {
     id: 'evt-grunge-seattle-1991',
@@ -79,6 +85,9 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'generation x',
     ],
     videoId: 'hTWKbfoikeg',
+    artistIds: ['nirvana', 'kurt-cobain'],
+    songIds: ['smells_like_teen_spirit'],
+    placeId: 'seattle',
   },
   {
     id: 'evt-psychedelic-sf-1967',
@@ -104,6 +113,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'acid rock',
     ],
     videoId: 'wi-TDU1btAM',
+    artistIds: ['grateful-dead', 'janis-joplin'],
+    placeId: 'san-francisco',
   },
   {
     id: 'evt-beatles-liverpool-1963',
@@ -114,7 +125,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
     description:
       'The Beatles release "Please Please Me" and Beatlemania grips Britain. Having honed their craft at the Cavern Club and in Hamburg\'s Reeperbahn, John, Paul, George, and Ringo transform popular music forever. Liverpool\'s Merseybeat scene launches dozens of bands into the charts.',
     tags: [
-      'beatles',
+      'the beatles',
       'cavern club',
       'merseybeat',
       'brian epstein',
@@ -123,6 +134,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'george martin',
     ],
     videoId: 'IRF6nmqcbxo',
+    artistIds: ['the-beatles', 'george-martin'],
+    placeId: 'liverpool',
   },
   {
     id: 'evt-newwave-london-1981',
@@ -143,6 +156,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'new wave',
     ],
     videoId: 'HkMfDBuWQow',
+    placeId: 'london',
   },
   {
     id: 'evt-britpop-london-1995',
@@ -163,6 +177,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'cool britannia',
     ],
     videoId: 'cmpRLQZkTb8',
+    artistIds: ['oasis', 'noel-gallagher'],
+    placeId: 'london',
   },
   {
     id: 'evt-indie-brooklyn-2005',
@@ -183,6 +199,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'death by audio',
     ],
     videoId: 'oo8hQ2gZX6Y',
+    artistIds: ['yeah-yeah-yeahs'],
+    placeId: 'brooklyn',
   },
   {
     id: 'evt-austin-sxsw-2007',
@@ -202,6 +220,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'music industry',
     ],
     videoId: '2qtaUnRdHTY',
+    placeId: 'austin',
   },
   {
     id: 'evt-pubrock-melbourne-1975',
@@ -227,6 +246,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'nick cave',
     ],
     videoId: 'sfN2Hw5Cd3U',
+    artistIds: ['ac-dc', 'angus-young'],
+    placeId: 'melbourne',
   },
   {
     id: 'evt-anatolian-rock-istanbul-1972',
@@ -252,6 +273,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'istanbul',
     ],
     videoId: 'JRQGif7Y7Kg',
+    placeId: 'istanbul',
   },
   {
     id: 'evt-moondog-cleveland-1952',
@@ -272,6 +294,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'radio',
     ],
     videoId: 'ZmuOw_oaPJY',
+    placeId: 'cleveland',
   },
   {
     id: 'evt-chuck-berry-stlouis-1955',
@@ -290,6 +313,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'rock and roll',
     ],
     videoId: 'GDWP2mqCTE0',
+    artistIds: ['chuck-berry'],
+    placeId: 'st-louis',
   },
   {
     id: 'evt-pixies-boston-1988',
@@ -310,6 +335,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'mission of burma',
     ],
     videoId: 'nOl_2h01WrQ',
+    artistIds: ['pixies'],
+    placeId: 'boston',
   },
   {
     id: 'evt-indie-portland-2003',
@@ -329,6 +356,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'indie rock',
     ],
     videoId: 'CTAud5O7Qqk',
+    artistIds: ['elliott-smith'],
+    placeId: 'portland',
   },
   {
     id: 'evt-chinese-rock-beijing-1986',
@@ -353,6 +382,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'yaogun',
     ],
     videoId: 'Vj05Zi435i0',
+    artistIds: ['cui-jian'],
+    placeId: 'beijing',
   },
   {
     id: 'evt-zamrock-lusaka-1974',
@@ -378,6 +409,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'crate digging',
     ],
     videoId: 'OqFhpe3ZBlg',
+    artistIds: ['witch'],
+    placeId: 'lusaka',
   },
   {
     id: 'evt-black-metal-oslo-1993',
@@ -398,6 +431,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'norwegian metal',
     ],
     videoId: 'HjvL9q50eao',
+    placeId: 'oslo',
   },
   {
     id: 'evt-metal-helsinki-2006',
@@ -422,6 +456,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'finnish metal',
     ],
     videoId: 'gAh9NRGNhUU',
+    artistIds: ['lordi'],
+    placeId: 'helsinki',
   },
   {
     id: 'evt-u2-dublin-1983',
@@ -447,6 +483,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'irish music',
     ],
     videoId: 'Olb6Fgup1uI',
+    artistIds: ['war', 'sinead-oconnor'],
+    placeId: 'dublin',
   },
   {
     id: 'evt-plastic-people-prague-1976',
@@ -471,6 +509,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'czech rock',
     ],
     videoId: 'cMlV_rjlKrc',
+    placeId: 'prague',
   },
   {
     id: 'evt-punk-zagreb-1978',
@@ -490,6 +529,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'new wave',
     ],
     videoId: 'XUxKuuneSlM',
+    placeId: 'zagreb',
   },
   {
     id: 'evt-bijelo-dugme-sarajevo-1974',
@@ -514,6 +554,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'balkan rock',
     ],
     videoId: 'v1cwZFRgxec',
+    artistIds: ['bijelo-dugme'],
+    placeId: 'sarajevo',
   },
   {
     id: 'evt-underground-minsk-2000',
@@ -533,6 +575,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'cultural resistance',
     ],
     videoId: 'PVdlsp1WIPU',
+    placeId: 'minsk',
   },
   {
     id: 'evt-khmerrock-phnompenh-1967',
@@ -557,6 +600,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'khmer rouge',
     ],
     videoId: 'v4dvKFJUQOY',
+    artistIds: ['sinn-sisamouth', 'ros-sereysothea'],
+    placeId: 'phnom-penh',
   },
   {
     id: 'evt-dikir-kualalumpur-1985',
@@ -580,6 +625,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'power ballad',
     ],
     videoId: 'wbwEEoVUrIo',
+    placeId: 'kuala-lumpur',
   },
   {
     id: 'evt-splitenz-auckland-1980',
@@ -604,6 +650,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'dunedin sound',
     ],
     videoId: 'wiqBlKnb91A',
+    placeId: 'auckland',
   },
   {
     id: 'evt-arcade-fire-montreal-2004',
@@ -628,6 +675,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'montreal indie',
     ],
     videoId: '4Z9C52dETGk',
+    placeId: 'montreal',
   },
   {
     id: 'evt-rush-toronto-1974',
@@ -652,6 +700,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       '2112',
     ],
     videoId: 'auLBLk4ibAk',
+    artistIds: ['rush'],
+    placeId: 'toronto',
   },
   {
     id: 'evt-doa-vancouver-1978',
@@ -676,6 +726,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'hardcore 81',
     ],
     videoId: 'VXeWoiESbPI',
+    placeId: 'vancouver',
   },
   {
     id: 'evt-newporn-vancouver-2000',
@@ -700,6 +751,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'power pop',
     ],
     videoId: '_KZANuDcRO4',
+    placeId: 'vancouver',
   },
   {
     id: 'evt-guesswho-winnipeg-1965',
@@ -724,6 +776,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'prairie rock',
     ],
     videoId: '5MyeHH5uJzY',
+    artistIds: ['randy-bachman'],
+    placeId: 'winnipeg',
   },
   {
     id: 'evt-weakerthans-winnipeg-2000',
@@ -748,6 +802,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'prairie',
     ],
     videoId: 'Y3NEpsc80KM',
+    placeId: 'winnipeg',
   },
   {
     id: 'evt-sloan-halifax-1992',
@@ -772,6 +827,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'nova scotia indie',
     ],
     videoId: 'm5rBodTZYeU',
+    artistIds: ['sloan', 'erics-trip'],
+    placeId: 'halifax',
   },
   {
     id: 'evt-eric-trip-moncton-1993',
@@ -797,6 +854,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'maritime indie',
     ],
     videoId: 'oFNbgL_5xWk',
+    artistIds: ['erics-trip'],
+    placeId: 'moncton',
   },
   {
     id: 'evt-subpop-seattle-1988',
@@ -817,6 +876,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'alternative',
     ],
     videoId: 'pG229CMrvPw',
+    placeId: 'seattle',
   },
   {
     id: 'evt-deathmetal-tampa-1990',
@@ -837,6 +897,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'extreme metal',
     ],
     videoId: 'lyPvUIt_YWg',
+    placeId: 'tampa',
   },
   {
     id: 'evt-halloffame-cleveland-1986',
@@ -857,6 +918,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'heritage',
     ],
     videoId: 'Qa_k8N7o670',
+    placeId: 'cleveland',
   },
   {
     id: 'evt-boston-boston-1976',
@@ -877,6 +939,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'new wave',
     ],
     videoId: 't4QK8RxCAwo',
+    artistIds: ['the-cars'],
+    placeId: 'boston',
   },
   {
     id: 'evt-killrockstars-portland-1991',
@@ -897,6 +961,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'pacific northwest',
     ],
     videoId: 'RDkHjT9AwY8',
+    artistIds: ['elliott-smith', 'sleater-kinney'],
+    placeId: 'portland',
   },
   {
     id: 'evt-whamcity-baltimore-2007',
@@ -917,6 +983,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'diy',
     ],
     videoId: '-rHNe83QSdU',
+    artistIds: ['dan-deacon'],
+    placeId: 'baltimore',
   },
   {
     id: 'evt-minorthreat-washingtondc-1981',
@@ -942,6 +1010,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'diy',
     ],
     videoId: 'gsAu-nOg3Tw',
+    artistIds: ['minor-threat'],
+    placeId: 'washington-dc',
   },
   {
     id: 'evt-ginblossoms-phoenix-1993',
@@ -962,6 +1032,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'power pop',
     ],
     videoId: 'ah5gAkna3jI',
+    artistIds: ['gin-blossoms'],
+    placeId: 'phoenix',
   },
   {
     id: 'evt-jimmyeatworld-phoenix-2001',
@@ -982,6 +1054,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'alternative',
     ],
     videoId: 'Ft1lxiWFbDk',
+    placeId: 'phoenix',
   },
   {
     id: 'evt-rockabilly-littlerock-1955',
@@ -1007,6 +1080,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       '1950s',
     ],
     videoId: 'TvGb4utHM0w',
+    placeId: 'little-rock',
   },
   {
     id: 'evt-redrocks-denver-1971',
@@ -1027,6 +1101,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'legendary venue',
     ],
     videoId: 'HLe__Rp1zBY',
+    placeId: 'denver',
   },
   {
     id: 'evt-thefray-denver-2005',
@@ -1047,6 +1122,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'indie scene',
     ],
     videoId: 'cjVQ36NhbMk',
+    artistIds: ['the-fray', 'devotchka'],
+    placeId: 'denver',
   },
   {
     id: 'evt-hardcore-hartford-1984',
@@ -1067,6 +1144,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'underground',
     ],
     videoId: 'rsZdEfxvsmU',
+    placeId: 'hartford',
   },
   {
     id: 'evt-hatebreed-hartford-2000',
@@ -1087,6 +1165,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'heavy music',
     ],
     videoId: 'HB3tmC2f3t0',
+    artistIds: ['hatebreed'],
+    placeId: 'hartford',
   },
   {
     id: 'evt-diypunk-wilmington-1993',
@@ -1111,6 +1191,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'indie',
       'mid-atlantic',
     ],
+    placeId: 'wilmington',
   },
   {
     id: 'evt-builttospill-boise-1992',
@@ -1131,6 +1212,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'lo-fi',
     ],
     videoId: 'ih-PSg9VrPU',
+    placeId: 'boise',
   },
   {
     id: 'evt-treefort-boise-2015',
@@ -1151,6 +1233,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'emerging scene',
     ],
     videoId: 'KcanoW9L0VE',
+    placeId: 'boise',
   },
   {
     id: 'evt-mellencamp-indianapolis-1982',
@@ -1176,6 +1259,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'blue collar',
     ],
     videoId: 'CWsFSORdUZI',
+    placeId: 'indianapolis',
   },
   {
     id: 'evt-slipknot-desmoines-1999',
@@ -1196,6 +1280,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'extreme music',
     ],
     videoId: 'SWqVK6HsFWk',
+    artistIds: ['slipknot'],
+    placeId: 'des-moines',
   },
   {
     id: 'evt-8035fest-desmoines-2008',
@@ -1216,6 +1302,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'festival',
     ],
     videoId: 'hv9Sbhj5EjM',
+    placeId: 'des-moines',
   },
   {
     id: 'evt-embarrassment-wichita-1983',
@@ -1236,6 +1323,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'angular guitar',
     ],
     videoId: '1ALfWzN38l0',
+    artistIds: ['the-embarrassment'],
+    placeId: 'wichita',
   },
   {
     id: 'evt-slint-louisville-1991',
@@ -1261,6 +1350,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'kentucky',
     ],
     videoId: 'ElKQf7P1G9E',
+    artistIds: ['slint'],
+    placeId: 'louisville',
   },
   {
     id: 'evt-mmj-louisville-2003',
@@ -1286,6 +1377,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'kentucky',
     ],
     videoId: '2xbVokrLutc',
+    placeId: 'louisville',
   },
   {
     id: 'evt-portlandmusic-portland-2012',
@@ -1306,6 +1398,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'maine',
     ],
     videoId: 'qu9ILY8alIk',
+    placeId: 'portland-me',
   },
   {
     id: 'evt-wilma-missoula-2014',
@@ -1326,6 +1419,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'concert hall',
     ],
     videoId: 'nN_JJdiHAAA',
+    placeId: 'missoula',
   },
   {
     id: 'evt-saddlecreek-omaha-1996',
@@ -1346,6 +1440,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'cursive',
     ],
     videoId: 'PADNByfFKD8',
+    placeId: 'omaha',
   },
   {
     id: 'evt-brighteyes-omaha-2005',
@@ -1366,6 +1461,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'nebraska',
     ],
     videoId: '3TYVWtj4f48',
+    artistIds: ['bright-eyes'],
+    placeId: 'omaha',
   },
   {
     id: 'evt-killers-lasvegas-2003',
@@ -1391,6 +1488,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'nevada',
     ],
     videoId: 'gGdGFtwCNBE',
+    artistIds: ['the-killers'],
+    placeId: 'las-vegas',
   },
   {
     id: 'evt-hardcore-manchester-1990',
@@ -1415,6 +1514,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'basement shows',
       'new hampshire',
     ],
+    placeId: 'manchester-nh',
   },
   {
     id: 'evt-indiescene-manchester-2010',
@@ -1439,6 +1539,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'new england',
       'diy',
     ],
+    placeId: 'manchester-nh',
   },
   {
     id: 'evt-shins-albuquerque-2001',
@@ -1464,6 +1565,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'new mexico',
     ],
     videoId: 'zYwCmcB0XMw',
+    artistIds: ['the-shins'],
+    placeId: 'albuquerque',
   },
   {
     id: 'evt-indierock-fargo-2008',
@@ -1484,6 +1587,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'fargo-moorhead',
     ],
     videoId: '0tbqkpfukeA',
+    placeId: 'fargo',
   },
   {
     id: 'evt-tulsasound-tulsa-1972',
@@ -1504,6 +1608,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'swamp boogie',
     ],
     videoId: '2-yuTGlay-c',
+    artistIds: ['leon-russell', 'jj-cale'],
+    placeId: 'tulsa',
   },
   {
     id: 'evt-lightningbolt-providence-1995',
@@ -1524,6 +1630,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'rhode island',
     ],
     videoId: 'LdrFIDehTpQ',
+    artistIds: ['lightning-bolt'],
+    placeId: 'providence',
   },
   {
     id: 'evt-artrock-providence-2002',
@@ -1544,6 +1652,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'rhode island',
     ],
     videoId: 'XtrGwgW3yoA',
+    placeId: 'providence',
   },
   {
     id: 'evt-indierock-siouxfalls-2010',
@@ -1569,6 +1678,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'community',
     ],
     videoId: '2NgzEXsfgWU',
+    placeId: 'sioux-falls',
   },
   {
     id: 'evt-theused-saltlakecity-2001',
@@ -1594,6 +1704,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'debut album',
     ],
     videoId: 'aJXRFcyWgdk',
+    artistIds: ['the-used'],
+    placeId: 'salt-lake-city',
   },
   {
     id: 'evt-neontrees-saltlakecity-2010',
@@ -1619,6 +1731,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'imagine dragons',
     ],
     videoId: 'gM7Hlg75Mlo',
+    artistIds: ['neon-trees'],
+    placeId: 'salt-lake-city',
   },
   {
     id: 'evt-gwar-richmond-1985',
@@ -1639,6 +1753,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'virginia',
     ],
     videoId: 'WIx3l6Upmd4',
+    artistIds: ['gwar'],
+    placeId: 'richmond',
   },
   {
     id: 'evt-lambofgod-richmond-2004',
@@ -1659,6 +1775,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'new american metal',
     ],
     videoId: '2EW-GmOwxKc',
+    artistIds: ['lamb-of-god'],
+    placeId: 'richmond',
   },
   {
     id: 'evt-summerfest-milwaukee-1968',
@@ -1679,6 +1797,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'multi-genre',
     ],
     videoId: 'yBAdt4H2wQE',
+    placeId: 'milwaukee',
   },
   {
     id: 'evt-violentfemmes-milwaukee-1983',
@@ -1699,17 +1818,19 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'wisconsin',
     ],
     videoId: 'ER11UkoGj7c',
+    artistIds: ['violent-femmes'],
+    placeId: 'milwaukee',
   },
   {
     id: 'evt-merseybeat-liverpool-1963',
     year: 1963,
     location: { lat: 53.4084, lng: -2.9916, city: 'Liverpool', country: 'UK' },
     genre: ['Merseybeat', 'Pop Rock'],
-    title: 'Beatles & the Merseybeat Explosion',
+    title: 'The Beatles & the Merseybeat Explosion',
     description:
       "Fusing American rock & roll, Motown harmonies, and skiffle's DIY spirit, the Beatles turned Liverpool's Cavern Club scene into a worldwide phenomenon. Merseybeat's melodic sophistication and studio experimentation opened the door for psychedelia, progressive rock, and the concept of the self-contained songwriting band.",
     tags: [
-      'beatles',
+      'the beatles',
       'merseybeat',
       'cavern club',
       'british invasion',
@@ -1718,6 +1839,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'liverpool',
     ],
     videoId: 'NCtzkaL2t_Y',
+    artistIds: ['the-beatles'],
+    placeId: 'liverpool',
   },
   {
     id: 'evt-raga-rock-mumbai-1965',
@@ -1737,6 +1860,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'psychedelic',
     ],
     videoId: 'aNb0u0UVunk',
+    artistIds: ['ravi-shankar', 'george-harrison'],
+    placeId: 'mumbai',
   },
   {
     id: 'evt-psychedelia-sf-1967',
@@ -1761,6 +1886,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'san francisco',
     ],
     videoId: 'punY63zAeBw',
+    artistIds: ['grateful-dead'],
+    placeId: 'san-francisco',
   },
   {
     id: 'evt-heavy-metal-birmingham-1970',
@@ -1780,6 +1907,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'doom',
     ],
     videoId: '0lVdMbUx1_k',
+    placeId: 'birmingham-uk',
   },
   {
     id: 'evt-group-sounds-tokyo-1966',
@@ -1799,6 +1927,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'tokyo',
     ],
     videoId: 'cjPKP0EvFoo',
+    placeId: 'tokyo',
   },
   {
     id: 'evt-arabic-indie-beirut-2005',
@@ -1823,6 +1952,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'aub',
     ],
     videoId: '5vvr7KXAfck',
+    artistIds: ['mashrou-leila'],
+    placeId: 'beirut',
   },
   {
     id: 'evt-aboriginal-melbourne-1991',
@@ -1848,6 +1979,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'indigenous',
     ],
     videoId: 'Jf-jHCdafZY',
+    placeId: 'melbourne',
   },
   {
     id: 'evt-sister-rosetta-tharpe-nyc-1945',
@@ -1872,6 +2004,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'female guitarist',
     ],
     videoId: 'Y9a49oFalZE',
+    artistIds: ['sister-rosetta-tharpe'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-tina-turner-la-1966',
@@ -1895,6 +2029,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'female rock pioneer',
     ],
     videoId: '11rqDAq6sfY',
+    artistIds: ['tina-turner', 'phil-spector'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-carole-kaye-la-1963',
@@ -1919,6 +2055,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'la session scene',
     ],
     videoId: 'QEH-wfo7nPo',
+    artistIds: ['carole-kaye'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-carole-king-la-1971',
@@ -1943,6 +2081,9 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'grammy',
     ],
     videoId: 'HOs9iFWgXUg',
+    artistIds: ['carole-king'],
+    songIds: ['tapestry', 'its_too_late'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-janis-joplin-sf-1967',
@@ -1968,6 +2109,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'psychedelic',
     ],
     videoId: 'X1zFnyEe3nE',
+    artistIds: ['janis-joplin', 'big-brother'],
+    placeId: 'san-francisco',
   },
   {
     id: 'evt-led-zeppelin-london-1971',
@@ -1987,6 +2130,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'classic rock',
     ],
     videoId: 'QkF3oxziUI4',
+    artistIds: ['led-zeppelin', 'jimmy-page', 'robert-plant', 'john-bonham'],
+    placeId: 'london',
   },
   {
     id: 'evt-pink-floyd-london-1973',
@@ -2006,6 +2151,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'abbey road studios',
     ],
     videoId: 'k9ynZnEBtvw',
+    artistIds: ['pink-floyd', 'roger-waters', 'david-gilmour'],
+    placeId: 'london',
   },
   {
     id: 'evt-queen-london-1975',
@@ -2025,6 +2172,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'glam',
     ],
     videoId: 'vidMdwNOeIw',
+    artistIds: ['queen', 'freddie-mercury', 'brian-may'],
+    placeId: 'london',
   },
   {
     id: 'evt-patti-smith-nyc-1975',
@@ -2050,6 +2199,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'beat poetry',
     ],
     videoId: 'oNMnWTNCFSU',
+    artistIds: ['patti-smith'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-stevie-nicks-la-1975',
@@ -2074,6 +2225,9 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'female rock pioneer',
     ],
     videoId: 'UVJNA8qpGZs',
+    artistIds: ['stevie-nicks', 'fleetwood-mac', 'lindsey-buckingham'],
+    songIds: ['dreams'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-heart-seattle-1976',
@@ -2093,6 +2247,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'seattle',
     ],
     videoId: 'gQDJ45qJHBQ',
+    placeId: 'seattle',
   },
   {
     id: 'evt-blondie-nyc-1978',
@@ -2117,6 +2272,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'female rock pioneer',
     ],
     videoId: 'WGU_4-5RaxU',
+    placeId: 'new-york',
   },
   {
     id: 'evt-clash-london-1979',
@@ -2136,6 +2292,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'reggae punk',
     ],
     videoId: 'EfK-WX2pa8c',
+    placeId: 'london',
   },
   {
     id: 'evt-pretenders-london-1980',
@@ -2154,6 +2311,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'female rock pioneer',
     ],
     videoId: '0H6re3PCP3E',
+    artistIds: ['chrissie-hynde'],
+    placeId: 'london',
   },
   {
     id: 'evt-talking-heads-nyc-1980',
@@ -2179,6 +2338,9 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'once in a lifetime',
     ],
     videoId: '5IsSpAOD6K8',
+    artistIds: ['talking-heads', 'david-byrne', 'brian-eno'],
+    songIds: ['once_in_a_lifetime'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-joan-jett-nyc-1981',
@@ -2203,6 +2365,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'diy',
     ],
     videoId: 'wMsazR6Tnf8',
+    artistIds: ['joan-jett'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-metallica-sf-1986',
@@ -2227,6 +2391,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'bay area thrash',
     ],
     videoId: '6xjJ2XIbGRk',
+    artistIds: ['metallica'],
+    placeId: 'san-francisco',
   },
   {
     id: 'evt-sonic-youth-nyc-1988',
@@ -2252,6 +2418,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'dgc',
     ],
     videoId: 'x9r0renJWuY',
+    artistIds: ['sonic-youth'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-bikini-kill-olympia-1990',
@@ -2272,6 +2440,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'diy',
     ],
     videoId: 'L0oeqAQ1qE8',
+    artistIds: ['bikini-kill'],
+    placeId: 'olympia',
   },
   {
     id: 'evt-my-bloody-valentine-london-1991',
@@ -2291,6 +2461,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'guitar texture',
     ],
     videoId: 'FyYMzEplnfU',
+    artistIds: ['my-bloody-valentine'],
+    placeId: 'london',
   },
   {
     id: 'evt-pearl-jam-seattle-1991',
@@ -2311,6 +2483,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'ticketmaster',
     ],
     videoId: 'qM0zINtulhM',
+    artistIds: ['pearl-jam'],
+    placeId: 'seattle',
   },
   {
     id: 'evt-rhcp-la-1991',
@@ -2335,6 +2509,13 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'under the bridge',
     ],
     videoId: '_AAixJwhy2M',
+    artistIds: [
+      'red-hot-chili-peppers',
+      'flea',
+      'john-frusciante',
+      'rick-rubin',
+    ],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-rage-la-1992',
@@ -2359,6 +2540,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'los angeles',
     ],
     videoId: 'bWXazVhlyxQ',
+    artistIds: ['rage-against-the-machine'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-pj-harvey-london-1993',
@@ -2378,6 +2561,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'dorset',
     ],
     videoId: '8PlaNe3mXl8',
+    artistIds: ['pj-harvey'],
+    placeId: 'london',
   },
   {
     id: 'evt-hole-la-1994',
@@ -2402,6 +2587,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'grunge',
     ],
     videoId: '4Q1Kh9JkACc',
+    artistIds: ['hole'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-soundgarden-seattle-1994',
@@ -2421,6 +2608,9 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'seattle',
     ],
     videoId: 'T0_zzCLLRvE',
+    artistIds: ['soundgarden', 'chris-cornell', 'kim-thayil'],
+    songIds: ['black_hole_sun'],
+    placeId: 'seattle',
   },
   {
     id: 'evt-alanis-morissette-la-1995',
@@ -2446,6 +2636,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'ottawa',
     ],
     videoId: 'ziCW-clqrqo',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-garbage-madison-1995',
@@ -2465,6 +2656,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'female rock pioneer',
     ],
     videoId: 'ypr18UmxOas',
+    artistIds: ['garbage'],
+    placeId: 'madison',
   },
   {
     id: 'evt-foo-fighters-seattle-1995',
@@ -2484,6 +2677,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'alternative rock',
     ],
     videoId: 'eBG7P-K-r1Y',
+    artistIds: ['foo-fighters', 'dave-grohl', 'nirvana'],
+    placeId: 'seattle',
   },
   {
     id: 'evt-sleater-kinney-olympia-1997',
@@ -2504,6 +2699,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'indie rock',
     ],
     videoId: 'pVp6A0Ufots',
+    artistIds: ['sleater-kinney'],
+    placeId: 'olympia',
   },
   {
     id: 'evt-strokes-nyc-2001',
@@ -2528,6 +2725,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'new york',
     ],
     videoId: 'RHrGj1IyE0Y',
+    artistIds: ['the-strokes'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-tool-la-2001',
@@ -2552,6 +2751,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'art metal',
     ],
     videoId: 'Y7JG63IuaWs',
+    artistIds: ['tool'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-white-stripes-detroit-2003',
@@ -2572,6 +2773,9 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'analog',
     ],
     videoId: 'wzDG0jA3XVY',
+    artistIds: ['white-stripes', 'jack-white'],
+    songIds: ['seven_nation_army'],
+    placeId: 'detroit',
   },
   {
     id: 'evt-yeah-yeah-yeahs-nyc-2003',
@@ -2596,6 +2800,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'female rock pioneer',
     ],
     videoId: 'oIIxlgcuQRU',
+    artistIds: ['yeah-yeah-yeahs'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-arctic-monkeys-sheffield-2006',
@@ -2616,6 +2822,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'indie rock',
     ],
     videoId: 'mUKhbFUeoSk',
+    placeId: 'sheffield',
   },
   {
     id: 'evt-paramore-franklin-2007',
@@ -2636,6 +2843,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'female rock pioneer',
     ],
     videoId: '0y50vTR4sEY',
+    artistIds: ['paramore', 'hayley-williams'],
+    placeId: 'franklin',
   },
   {
     id: 'evt-st-vincent-nyc-2011',
@@ -2660,6 +2869,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'experimental',
     ],
     videoId: 'vDGmAJ4-J_I',
+    artistIds: ['st-vincent'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-tame-impala-perth-2015',
@@ -2685,6 +2896,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'australia',
     ],
     videoId: 'LnKUD_OztRE',
+    placeId: 'perth',
   },
   {
     id: 'evt-karen-carpenter-la-1970',
@@ -2710,6 +2922,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'female pioneer',
     ],
     videoId: 'NpQRsXrduc8',
+    artistIds: ['karen-carpenter'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-little-richard-macon-1955',
@@ -2731,6 +2945,8 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'pioneer',
     ],
     videoId: 'ivhauEr3KxU',
+    artistIds: ['little-richard'],
+    placeId: 'macon',
   },
   {
     id: 'evt-buddy-holly-lubbock-1957',
@@ -2752,5 +2968,7 @@ export const ROCK_EVENTS: HistoricalEvent[] = [
       'day the music died',
     ],
     videoId: 'M4TfFTmITLo',
+    artistIds: ['buddy-holly'],
+    placeId: 'lubbock',
   },
 ];

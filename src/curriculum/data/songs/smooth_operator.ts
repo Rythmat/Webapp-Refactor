@@ -16,6 +16,15 @@ export const smooth_operator: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Sade Adu', role: 'songwriter', artistGlobeId: 'sade-adu' },
+    {
+      name: 'Raymond St. John',
+      role: 'songwriter',
+      artistGlobeId: 'raymond-st-john',
+    },
+  ],
+  releases: [{ releaseId: 'sade-diamond-life' }],
 
   sections: [
     {

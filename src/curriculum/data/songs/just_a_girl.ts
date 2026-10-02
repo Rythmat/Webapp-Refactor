@@ -16,6 +16,71 @@ export const just_a_girl: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Gwen Stefani', role: 'vocals', artistGlobeId: 'gwen-stefani' },
+    {
+      name: 'Matthew Wilder',
+      role: 'producer',
+      artistGlobeId: 'matthew-wilder',
+    },
+    { name: 'Phil Kaffel', role: 'engineer' },
+    {
+      name: 'Tony Kanal',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'tony-kanal',
+    },
+    {
+      name: 'No Doubt',
+      role: 'performer',
+      ensemble: true,
+      artistGlobeId: 'no-doubt',
+      primary: true,
+    },
+    {
+      name: 'Eric Stefani',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'eric-stefani',
+    },
+    { name: 'Paul Palmer', role: 'engineer' },
+    {
+      name: 'Matthew Wilder',
+      role: 'performer',
+      artistGlobeId: 'matthew-wilder',
+    },
+    { name: 'Gwen Stefani', role: 'songwriter', artistGlobeId: 'gwen-stefani' },
+    { name: 'George Landress', role: 'engineer' },
+    {
+      name: 'Phil Jordan',
+      role: 'performer',
+      instrument: 'trumpet',
+      artistGlobeId: 'phil-jordan',
+    },
+    { name: 'Eric Stefani', role: 'performer', artistGlobeId: 'eric-stefani' },
+    {
+      name: 'Gabrial McNair',
+      role: 'performer',
+      instrument: 'trombone',
+      artistGlobeId: 'gabrial-mcnair',
+    },
+    {
+      name: 'Adrian Young',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'adrian-young',
+    },
+    {
+      name: 'Adrian Young',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'adrian-young',
+    },
+    { name: 'Tom Dumont', role: 'performer', artistGlobeId: 'tom-dumont' },
+    { name: 'David J. Holman', role: 'engineer' },
+    { name: 'Tom Dumont', role: 'songwriter', artistGlobeId: 'tom-dumont' },
+  ],
+  releases: [{ releaseId: 'no-doubt-tragic-kingdom', track: 3 }],
 
   sections: [
     {

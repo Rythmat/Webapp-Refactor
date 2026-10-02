@@ -16,6 +16,22 @@ export const ophelia: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Robbie Robertson',
+      role: 'songwriter',
+      artistGlobeId: 'robbie-robertson',
+    },
+    {
+      name: 'The Band',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'the-band',
+    },
+  ],
+  releases: [
+    { releaseId: 'the-band-northern-lights-southern-cross', track: 3 },
+  ],
 
   sections: [
     {

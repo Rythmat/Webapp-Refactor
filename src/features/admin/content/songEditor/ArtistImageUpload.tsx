@@ -138,7 +138,7 @@ export const ArtistImageUpload = ({
         {...getRootProps()}
         className={cn(
           'group relative aspect-square h-36 flex-shrink-0 cursor-pointer overflow-hidden rounded-2xl md:h-40',
-          isDragActive && 'ring-2 ring-[#7ecfcf]',
+          isDragActive && 'ring-2 ring-white/60',
         )}
         title="Drop or click to upload artist image"
       >

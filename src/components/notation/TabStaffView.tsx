@@ -73,14 +73,26 @@ const NOTE_PADDING = 28;
  */
 const HALF_NOTE_STEM = 18;
 /**
- * The fret digits are 9pt at scale 1. Scale grows them to fill a tall panel
- * and shrinks a long step to fit, but not below what reads at arm's length.
+ * The fret digits are 9pt (12px) at scale 1. Scale grows them to fill a tall
+ * panel, to about 24px on a one-line step. A step whose lines don't all fit
+ * at scale 1 isn't shrunk to fit: it pages, a line at a time, at the largest
+ * scale up to 1 where one line fits (never below what reads at arm's length).
  */
 const MIN_SCALE = 0.85;
-const MAX_SCALE = 1.6;
+const MAX_SCALE = 2;
+const PAGE_SCALE = 1;
 const SCALE_STEP = 0.05;
 /** Top line to bottom: string 1 (high e) to string 6. */
 const STRING_NAMES = ['e', 'B', 'G', 'D', 'A', 'E'];
+/**
+ * String names and bar numbers: the app's type, 10 drawing units (px at
+ * scale 1) but never under 12px on screen.
+ */
+const LABEL_FONT = 'Glacial Indifference';
+const LABEL_SIZE = 10;
+const LABEL_MIN_PX = 12;
+/** Baseline below a string line that centres a label on it, in ems. */
+const LABEL_DROP = 0.34;
 /** A rest centred on six lines: the middle space, as 'b/4' is on five. */
 const REST_KEY = 'a/4';
 
@@ -241,12 +253,98 @@ interface Anchor {
 }
 
 export interface TabRenderOptions {
-  /** Scale (0.85–1.6) so every system fits the height when possible. */
+  /**
+   * Scale (1–2) so every system fits the height; when they can't all fit at
+   * 1, page a line at a time instead (see chooseTabScale).
+   */
   fitHeight: boolean;
+}
+
+/** The scales tried, largest first, in SCALE_STEP steps. */
+function scalesBetween(max: number, min: number): number[] {
+  const scales: number[] = [];
+  for (let s = max; s >= min - 1e-6; s -= SCALE_STEP) {
+    scales.push(Math.round(s * 100) / 100);
+  }
+  return scales;
+}
+
+export interface TabScaleChoice {
+  scale: number;
+  /**
+   * The lines don't all fit the height: the view shows the playhead's line
+   * at the top and turns to the next one as the playhead reaches it.
+   */
+  paged: boolean;
+}
+
+/**
+ * The scale a TAB is drawn at. Fitting a height: the largest scale from 2
+ * down to 1 at which every line fits; failing that, it pages — the largest
+ * scale from 1 down to 0.85 at which one line fits (0.85 if none does).
+ * Without a height to fit: 1, or less when a bar is too wide for the width.
+ * A bar always has to fit the width.
+ */
+export function chooseTabScale({
+  fitHeight,
+  height,
+  systemHeight,
+  fitsWidth,
+  linesAt,
+}: {
+  fitHeight: boolean;
+  /** The panel's height, px. */
+  height: number;
+  /** One line's height at scale 1, px. */
+  systemHeight: number;
+  /** A bar fits the width at this scale. */
+  fitsWidth: (scale: number) => boolean;
+  /** How many lines the TAB wraps onto at this scale. */
+  linesAt: (scale: number) => number;
+}): TabScaleChoice {
+  if (!fitHeight || height <= 0) {
+    return {
+      scale: fitsWidth(1)
+        ? 1
+        : (scalesBetween(1, MIN_SCALE).find((s) => s < 1 && fitsWidth(s)) ??
+          MIN_SCALE),
+      paged: false,
+    };
+  }
+  const whole = scalesBetween(MAX_SCALE, PAGE_SCALE).find(
+    (s) => fitsWidth(s) && linesAt(s) * systemHeight * s <= height,
+  );
+  if (whole !== undefined) return { scale: whole, paged: false };
+  const page =
+    scalesBetween(PAGE_SCALE, MIN_SCALE).find(
+      (s) => fitsWidth(s) && systemHeight * s <= height,
+    ) ?? MIN_SCALE;
+  // Paged only when the lines still don't all fit: a one-line step, or one
+  // held under scale 1 by its width alone, has nothing to page through.
+  if (linesAt(page) * systemHeight * page <= height) {
+    return { scale: page, paged: false };
+  }
+  // Paged: the lines that fit are drawn just large enough to fill the panel,
+  // so the next line never shows cut off under the last (a phone's one-line
+  // panel showed the top of line 2 under line 1). The width still decides.
+  const perPage = Math.max(1, Math.floor(height / (systemHeight * page)));
+  const fill = Math.min(
+    MAX_SCALE,
+    Math.floor((height / (perPage * systemHeight)) * 100) / 100,
+  );
+  const filled =
+    fill > page
+      ? fitsWidth(fill)
+        ? fill
+        : scalesBetween(fill, page).find((s) => s > page && fitsWidth(s))
+      : undefined;
+  return { scale: filled ?? page, paged: true };
 }
 
 export interface TabRendered {
   scale: number;
+  /** One line shows at a time and the view turns to the playhead's line. */
+  paged: boolean;
   height: number;
   /** Unscaled height of one system. */
   systemHeight: number;
@@ -314,19 +412,13 @@ export function renderTabSystem(
     });
   };
 
-  const scales: number[] = [];
-  for (let s = MAX_SCALE; s >= MIN_SCALE - 1e-6; s -= SCALE_STEP) {
-    scales.push(Math.round(s * 100) / 100);
-  }
-  const scale =
-    options.fitHeight && height > 0
-      ? (scales.find(
-          (s) =>
-            fitsWidth(s) && layoutAt(s).length * SYSTEM_HEIGHT * s <= height,
-        ) ?? MIN_SCALE)
-      : fitsWidth(1)
-        ? 1
-        : (scales.find((s) => s < 1 && fitsWidth(s)) ?? MIN_SCALE);
+  const { scale, paged } = chooseTabScale({
+    fitHeight: options.fitHeight,
+    height,
+    systemHeight: SYSTEM_HEIGHT,
+    fitsWidth,
+    linesAt: (s) => layoutAt(s).length,
+  });
   const systems = layoutAt(scale);
 
   const renderer = new vf.Renderer(host, vf.Renderer.Backends.SVG);
@@ -336,6 +428,7 @@ export function renderTabSystem(
 
   const rendered: TabRendered = {
     scale,
+    paged,
     height: systems.length * SYSTEM_HEIGHT * scale,
     systemHeight: SYSTEM_HEIGHT,
     barlines: [],
@@ -349,6 +442,10 @@ export function renderTabSystem(
     digits: new Map(),
   };
   const lastMeasure = measureCount - 1;
+  // Drawn at `scale`: a label this size in drawing units reads at 12px or more.
+  const labelSize = Math.max(LABEL_SIZE, LABEL_MIN_PX / scale);
+  // In px: VexFlow reads a bare number as points.
+  const labelFont = `${Math.round(labelSize * 100) / 100}px`;
 
   systems.forEach((system, systemIndex) => {
     const systemY = systemIndex * SYSTEM_HEIGHT;
@@ -358,13 +455,13 @@ export function renderTabSystem(
     // String names on every line of every system, not only the first: a
     // reader who looks down mid-piece still knows which line is which string.
     ctx.openGroup('string-names');
-    ctx.setFont('Arial', 10);
+    ctx.setFont(LABEL_FONT, labelFont);
     STRING_NAMES.forEach((name, i) => {
       const nameWidth = ctx.measureText(name).width;
       ctx.fillText(
         name,
         (NAME_WIDTH - nameWidth) / 2,
-        topLine + i * LINE_GAP + 3.5,
+        topLine + i * LINE_GAP + labelSize * LABEL_DROP,
       );
     });
     ctx.closeGroup();
@@ -391,7 +488,7 @@ export function renderTabSystem(
       if (first) {
         firstNoteX = stave.getNoteStartX();
         ctx.openGroup('measure-number');
-        ctx.setFont('Arial', 10);
+        ctx.setFont(LABEL_FONT, labelFont);
         ctx.fillText(String(measure.number), x + 2, topLine - 5);
         ctx.closeGroup();
       }
@@ -659,7 +756,9 @@ export function TabStaffView({
     if (!container || !rendered || playheadSystem === undefined) return;
     const top = rendered.systems[playheadSystem].y * rendered.scale;
     const bottom = top + rendered.systemHeight * rendered.scale;
+    // Paged, the line being played is always the one at the top.
     if (
+      (rendered.paged && Math.abs(container.scrollTop - top) >= 1) ||
       top < container.scrollTop ||
       bottom > container.scrollTop + container.clientHeight
     ) {
@@ -675,19 +774,15 @@ export function TabStaffView({
       ref={containerRef}
       className={`ma-grand-staff ma-tab-staff relative overflow-y-auto overflow-x-hidden ${className ?? ''}`}
       style={style}
+      data-tab-paged={rendered?.paged || undefined}
     >
       {error ? (
-        <div className="p-4 text-xs" style={{ color: 'var(--color-text-dim)' }}>
+        <div className="p-4 text-xs text-white/55">
           TAB couldn&apos;t be drawn.
         </div>
       ) : (
         !rendered && (
-          <div
-            className="p-4 text-xs"
-            style={{ color: 'var(--color-text-dim)' }}
-          >
-            Loading TAB…
-          </div>
+          <div className="p-4 text-xs text-white/55">Loading TAB…</div>
         )
       )}
       <div className="relative" style={{ height: rendered?.height }}>
@@ -710,8 +805,9 @@ export function TabStaffView({
               width: 2,
               height: rendered.playheadHeight * rendered.scale,
               transform: `translate(${playhead.x * rendered.scale}px, ${(playhead.y + rendered.playheadTop) * rendered.scale}px)`,
-              background: 'var(--ma-playhead, rgba(126, 207, 207, 0.85))',
-              boxShadow: '0 0 6px rgba(126, 207, 207, 0.6)',
+              // The text colour at 90%, flat: the key colour is kept for
+              // the notes, and nothing on the TAB glows.
+              background: 'var(--ma-playhead, rgba(232, 232, 240, 0.9))',
               willChange: 'transform',
             }}
           />

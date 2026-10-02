@@ -5,8 +5,10 @@ import {
   ChordDiagramCard,
   chordRgbFor,
 } from '@/components/songLibrary/ChordDiagramCard';
+import { Button } from '@/components/ui/button';
 import { chordNameToMidi } from '@/curriculum/songLibrary/chordParser';
 import type { ChordHit, SongMode } from '@/curriculum/types/songLibrary';
+import { CONSOLE_LABEL } from '../../ui/styles';
 import { InlineNumber, InlineText } from './Editable';
 
 /**
@@ -67,9 +69,9 @@ export const ChordEditDialog: FC<{
                 onChange={(value) => patch({ degree: value })}
                 placeholder="Degree, e.g. 1 maj"
                 ariaLabel="Chord degree"
-                className="block text-sm text-white/40"
+                className="block text-sm text-white/45"
               />
-              <p className="mt-1 text-[10px] text-white/25">
+              <p className="mt-1 text-[10px] text-white/45">
                 Degree is the source of truth; the name is display only.
               </p>
             </>
@@ -78,9 +80,7 @@ export const ChordEditDialog: FC<{
             <div className="border-t border-white/[0.06] px-5 py-3">
               <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/70">
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="text-[10px] uppercase tracking-wide text-white/30">
-                    Beat
-                  </span>
+                  <span className={CONSOLE_LABEL}>Beat</span>
                   <InlineNumber
                     value={hit.beat}
                     onChange={(value) => patch({ beat: value ?? 1 })}
@@ -92,9 +92,7 @@ export const ChordEditDialog: FC<{
                   />
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="text-[10px] uppercase tracking-wide text-white/30">
-                    Beats held
-                  </span>
+                  <span className={CONSOLE_LABEL}>Beats held</span>
                   <InlineNumber
                     value={hit.duration}
                     onChange={(value) => patch({ duration: value ?? 1 })}
@@ -105,9 +103,7 @@ export const ChordEditDialog: FC<{
                   />
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="text-[10px] uppercase tracking-wide text-white/30">
-                    Voicing
-                  </span>
+                  <span className={CONSOLE_LABEL}>Voicing</span>
                   <InlineText
                     value={hit.voicingHint}
                     onChange={(value) =>
@@ -123,7 +119,7 @@ export const ChordEditDialog: FC<{
               <div className="mt-3 flex items-center justify-between">
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1.5 text-xs text-white/40 transition-colors hover:text-red-400"
+                  className="inline-flex items-center gap-1.5 text-xs text-white/45 transition-colors hover:text-red-400"
                   onClick={() => {
                     onDelete();
                     onClose();
@@ -132,13 +128,9 @@ export const ChordEditDialog: FC<{
                   <Trash2 className="size-3.5" />
                   Remove chord
                 </button>
-                <button
-                  type="button"
-                  className="rounded-md bg-white/10 px-3 py-1 text-xs text-white/80 transition-colors hover:bg-white/20"
-                  onClick={onClose}
-                >
+                <Button type="button" size="sm" onClick={onClose}>
                   Done
-                </button>
+                </Button>
               </div>
             </div>
           }

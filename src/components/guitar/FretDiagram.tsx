@@ -7,6 +7,12 @@
 // never text: every label is placed at a mirrored x, not flipped. Optional
 // layers: hollow neck inlays up the neck, an octave hairline, dashed ghost
 // outlines, a quality-tone inner ring and key-number chips.
+//
+// The lesson variant is quieter: a white/30 frame that turns to a 2px key
+// colour frame only while its chord is the one to play (a still ring round
+// it once heard), a neutral nut and barres, and fret numbers and dot digits
+// at 12px on screen. Its lines of text, and fading it once done, belong to
+// the box that uses it.
 
 import { Check } from 'lucide-react';
 import { memo, type SVGAttributes } from 'react';
@@ -43,6 +49,17 @@ const OPEN_LABEL_R = 6;
 /** Slightly wider than a dot, so the barre's key colour frames its dots. */
 const BARRE_HALF = DOT_R + 1;
 const PX_PER_UNIT = { sm: 0.85, md: 1.25 } as const;
+/**
+ * The lesson variant's sizes: 'md' fits a 208px band with two lines of text
+ * above it, 'sm' a 168px one.
+ */
+export const LESSON_PX_PER_UNIT = { sm: 1, md: 1.2 } as const;
+/** Lesson type, in px on screen. */
+const LESSON_LABEL_PX = 12;
+/** A two-character glyph in a dot ('♭3') may be smaller. */
+const LESSON_PAIR_PX = 9;
+const LESSON_FRAME = 'rgba(255, 255, 255, 0.3)';
+const LESSON_FRET_LABEL = 'rgba(255, 255, 255, 0.45)';
 
 // Neutral paint for everything that is not the key colour.
 export const DIAGRAM_INK = '#ecebf2';
@@ -142,7 +159,24 @@ function StateMark({ state, r }: { state: DiagramDotState; r: number }) {
   return null;
 }
 
-function Dot({ dot, x, y }: { dot: FretDiagramDot; x: number; y: number }) {
+/** A dot's label size in drawing units: the book's, or fixed px in a lesson. */
+function dotLabelSize(label: string, lessonScale: number | null): number {
+  if (lessonScale === null) return label.length > 1 ? 7 : 8.5;
+  return (label.length > 1 ? LESSON_PAIR_PX : LESSON_LABEL_PX) / lessonScale;
+}
+
+function Dot({
+  dot,
+  x,
+  y,
+  lessonScale,
+}: {
+  dot: FretDiagramDot;
+  x: number;
+  y: number;
+  /** px per unit in the lesson variant; null draws the book's sizes. */
+  lessonScale: number | null;
+}) {
   const state = dot.state ?? 'idle';
   const done = state === 'done';
   return (
@@ -188,7 +222,7 @@ function Dot({ dot, x, y }: { dot: FretDiagramDot; x: number; y: number }) {
           <text
             textAnchor="middle"
             dominantBaseline="central"
-            fontSize={dot.label.length > 1 ? 7 : 8.5}
+            fontSize={dotLabelSize(dot.label, lessonScale)}
             fontWeight={700}
             fill={DIAGRAM_INK_DARK}
           >
@@ -238,13 +272,16 @@ export const FretDiagram = memo(function FretDiagram({
   connectors = [],
   ghosts = [],
   headerExtra,
+  variant = 'default',
 }: FretDiagramProps & {
   /** Printed under the title, e.g. the Hybrid Number System label '2 min7'. */
   subtitle?: string;
 }) {
   const boxH = rows * FRET_GAP;
   const height = TOP + boxH + BOTTOM;
-  const scale = PX_PER_UNIT[size];
+  const lesson = variant === 'lesson';
+  const scale = (lesson ? LESSON_PX_PER_UNIT : PX_PER_UNIT)[size];
+  const lessonScale = lesson ? scale : null;
   const emphasised = state === 'current' || state === 'heard';
 
   const xOf = (string: GuitarStringNumber) =>
@@ -283,69 +320,114 @@ export const FretDiagram = memo(function FretDiagram({
       role="img"
       aria-label={ariaLabel}
       data-diagram-state={state}
+      data-variant={lesson ? 'lesson' : undefined}
       className={cn(
         'inline-flex flex-col items-center',
-        state === 'done' && 'opacity-50',
+        // A lesson box fades as a whole, its lines with it.
+        state === 'done' && !lesson && 'opacity-50',
       )}
     >
-      {(title || subtitle || headerExtra || state === 'done') && (
-        <div className="flex flex-col items-center leading-tight">
-          <div
-            data-title
-            className={cn(
-              'flex items-center gap-1 font-semibold',
-              size === 'sm' ? 'text-xs' : 'text-sm',
-            )}
-            style={{ color: keyColor }}
-          >
-            {title}
-            {state === 'done' && (
-              <Check aria-hidden className="h-3.5 w-3.5" data-done-check />
-            )}
-          </div>
-          {subtitle && (
-            <div
-              className={size === 'sm' ? 'text-[10px]' : 'text-xs'}
-              style={{ color: 'var(--color-text-dim, #9a9aab)' }}
-            >
-              {subtitle}
+      {lesson
+        ? (title || subtitle || headerExtra) && (
+            <div className="flex flex-col items-center leading-tight">
+              {title && (
+                <div data-title className="text-sm font-bold text-[#e8e8f0]">
+                  {title}
+                </div>
+              )}
+              {subtitle && (
+                <div className="text-xs text-white/55">{subtitle}</div>
+              )}
+              {headerExtra}
+            </div>
+          )
+        : (title || subtitle || headerExtra || state === 'done') && (
+            <div className="flex flex-col items-center leading-tight">
+              <div
+                data-title
+                className={cn(
+                  'flex items-center gap-1 font-semibold',
+                  size === 'sm' ? 'text-xs' : 'text-sm',
+                )}
+                style={{ color: keyColor }}
+              >
+                {title}
+                {state === 'done' && (
+                  <Check aria-hidden className="h-3.5 w-3.5" data-done-check />
+                )}
+              </div>
+              {subtitle && (
+                <div
+                  className={size === 'sm' ? 'text-[10px]' : 'text-xs'}
+                  style={{ color: 'var(--color-text-dim, #9a9aab)' }}
+                >
+                  {subtitle}
+                </div>
+              )}
+              {headerExtra}
             </div>
           )}
-          {headerExtra}
-        </div>
-      )}
       <svg
         aria-hidden
         viewBox={`0 0 ${WIDTH} ${height}`}
         width={WIDTH * scale}
         height={height * scale}
       >
-        {state === 'heard' && (
+        {state === 'heard' &&
+          (lesson ? (
+            // Still, not pulsing: a ring just outside the frame.
+            <rect
+              data-heard-ring
+              x={SIDE - 4 / scale}
+              y={TOP - 4 / scale}
+              width={BOX_W + 8 / scale}
+              height={boxH + 8 / scale}
+              rx={3 / scale}
+              fill="none"
+              stroke={keyColor}
+              strokeWidth={1 / scale}
+              strokeOpacity={0.6}
+            />
+          ) : (
+            <rect
+              data-glow
+              className="motion-safe:animate-pulse"
+              x={SIDE}
+              y={TOP}
+              width={BOX_W}
+              height={boxH}
+              rx={2}
+              fill="none"
+              stroke={keyColor}
+              strokeWidth={6}
+              strokeOpacity={0.35}
+            />
+          ))}
+        {lesson ? (
           <rect
-            data-glow
-            className="motion-safe:animate-pulse"
+            data-frame
             x={SIDE}
             y={TOP}
             width={BOX_W}
             height={boxH}
-            rx={2}
             fill="none"
+            stroke={emphasised ? keyColor : LESSON_FRAME}
+            // 2px on screen when current, a hairline otherwise.
+            strokeWidth={(emphasised ? 2 : 1) / scale}
+          />
+        ) : (
+          <rect
+            data-frame
+            x={SIDE}
+            y={TOP}
+            width={BOX_W}
+            height={boxH}
+            fill={emphasised ? keyColor : 'none'}
+            fillOpacity={emphasised ? 0.1 : undefined}
             stroke={keyColor}
-            strokeWidth={6}
-            strokeOpacity={0.35}
+            strokeWidth={emphasised ? 2.25 : 1.25}
           />
         )}
-        <rect
-          data-frame
-          x={SIDE}
-          y={TOP}
-          width={BOX_W}
-          height={boxH}
-          fill={emphasised ? keyColor : 'none'}
-          fillOpacity={emphasised ? 0.1 : undefined}
-          stroke={keyColor}
-          strokeWidth={emphasised ? 2.25 : 1.25}
-        />
         {[2, 3, 4, 5].map((string) => {
           const x = xOf(string as GuitarStringNumber);
           return (
@@ -379,7 +461,7 @@ export const FretDiagram = memo(function FretDiagram({
             x2={SIDE + BOX_W}
             y1={TOP}
             y2={TOP}
-            stroke={keyColor}
+            stroke={lesson ? DIAGRAM_INK : keyColor}
             strokeWidth={4.5}
             strokeLinecap="square"
           />
@@ -404,8 +486,8 @@ export const FretDiagram = memo(function FretDiagram({
             y={TOP + (i + 0.5) * FRET_GAP}
             textAnchor={mirrored ? 'start' : 'end'}
             dominantBaseline="central"
-            fontSize={9}
-            fill={FRET_LABEL}
+            fontSize={lesson ? LESSON_LABEL_PX / scale : 9}
+            fill={lesson ? LESSON_FRET_LABEL : FRET_LABEL}
           >
             {startFret + i}
           </text>
@@ -447,19 +529,22 @@ export const FretDiagram = memo(function FretDiagram({
                 strokeOpacity={0.6}
                 strokeWidth={0.75}
               />
-              <text
-                x={(x1 + x2) / 2}
-                y={(y1 + y2) / 2}
-                textAnchor="middle"
-                dominantBaseline="central"
-                fontSize={6.5}
-                fill={FRET_LABEL}
-                stroke={DIAGRAM_INK_DARK}
-                strokeWidth={2.5}
-                paintOrder="stroke"
-              >
-                {label}
-              </text>
+              {/* Too small to read at lesson size; the box's (i) says it. */}
+              {!lesson && (
+                <text
+                  x={(x1 + x2) / 2}
+                  y={(y1 + y2) / 2}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fontSize={6.5}
+                  fill={FRET_LABEL}
+                  stroke={DIAGRAM_INK_DARK}
+                  strokeWidth={2.5}
+                  paintOrder="stroke"
+                >
+                  {label}
+                </text>
+              )}
             </g>
           );
         })}
@@ -521,7 +606,15 @@ export const FretDiagram = memo(function FretDiagram({
                 <text
                   textAnchor="middle"
                   dominantBaseline="central"
-                  fontSize={label.length > 1 ? 6.5 : 8}
+                  fontSize={
+                    lesson
+                      ? // 12px like the dots' (a pair 9px), even where the O
+                        // is drawn small: nothing in the lesson reads smaller.
+                        dotLabelSize(label, scale)
+                      : label.length > 1
+                        ? 6.5
+                        : 8
+                  }
                   fontWeight={700}
                   fill={DIAGRAM_INK}
                 >
@@ -548,10 +641,19 @@ export const FretDiagram = memo(function FretDiagram({
               width={Math.abs(a - b) + BARRE_HALF * 2}
               height={BARRE_HALF * 2}
               rx={BARRE_HALF}
-              fill={keyColor}
+              fill={lesson ? DIAGRAM_INK : keyColor}
               // Fades with its dots once they're done.
-              fillOpacity={barreDotState === 'done' ? 0.2 : 0.5}
-              stroke={keyColor}
+              fillOpacity={
+                lesson
+                  ? barreDotState === 'done'
+                    ? 0.1
+                    : 0.25
+                  : barreDotState === 'done'
+                    ? 0.2
+                    : 0.5
+              }
+              stroke={lesson ? DIAGRAM_INK : keyColor}
+              strokeOpacity={lesson ? 0.6 : undefined}
               strokeWidth={1.25}
             />
           );
@@ -562,21 +664,27 @@ export const FretDiagram = memo(function FretDiagram({
             dot={dot}
             x={xOf(dot.string)}
             y={yOf(dot.fret)}
+            lessonScale={lessonScale}
           />
         ))}
       </svg>
-      {caption && (
-        <div
-          data-caption
-          className={cn(
-            'tabular-nums',
-            size === 'sm' ? 'text-[10px]' : 'text-xs',
-          )}
-          style={{ color: 'var(--color-text-dim, #9a9aab)' }}
-        >
-          {caption}
-        </div>
-      )}
+      {caption &&
+        (lesson ? (
+          <div data-caption className="text-xs text-white/55">
+            {caption}
+          </div>
+        ) : (
+          <div
+            data-caption
+            className={cn(
+              'tabular-nums',
+              size === 'sm' ? 'text-[10px]' : 'text-xs',
+            )}
+            style={{ color: 'var(--color-text-dim, #9a9aab)' }}
+          >
+            {caption}
+          </div>
+        ))}
     </div>
   );
 });

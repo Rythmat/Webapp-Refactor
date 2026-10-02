@@ -16,6 +16,25 @@ export const tapestry: Song = {
   difficulty: 3,
   genreTags: ['pop'],
   techniques: [],
+  session: { studioId: 'a-m-studios' },
+  credits: [
+    { name: 'Hank Cicalo', role: 'engineer' },
+    { name: 'Lou Adler', role: 'producer', artistGlobeId: 'lou-adler' },
+    {
+      name: 'Carole King',
+      role: 'performer',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    {
+      name: 'Carole King',
+      role: 'vocals',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+  ],
+  releases: [{ releaseId: 'carole-king-tapestry' }],
 
   sections: [
     {

@@ -16,6 +16,14 @@ export const jesus_etc: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Wilco', role: 'producer', ensemble: true, artistGlobeId: 'wilco' },
+    { name: 'Jeff Tweedy', role: 'songwriter', artistGlobeId: 'jeff-tweedy' },
+    { name: 'Jeff Tweedy', role: 'vocals', artistGlobeId: 'jeff-tweedy' },
+    { name: 'Jay Bennett', role: 'songwriter', artistGlobeId: 'jay-bennett' },
+    { name: 'Jim O’Rourke', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'wilco-yankee-hotel-foxtrot', track: 5 }],
 
   sections: [
     {

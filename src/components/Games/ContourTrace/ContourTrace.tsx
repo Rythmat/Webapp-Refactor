@@ -477,7 +477,7 @@ export default function Constellations({
       // Note label — always shown at the center of the star so players
       // can see which note it represents before hitting it.
       const fontSize = Math.max(8, radius * 1.1);
-      ctx.font = `bold ${fontSize}px sans-serif`;
+      ctx.font = `bold ${fontSize}px 'Glacial Indifference', system-ui, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       // Show only the pitch class (e.g. "C", "Eb") — drop the octave number.
@@ -952,7 +952,7 @@ export default function Constellations({
           {/* Scale display — sits near the top of the play field, centered. */}
           {phase === 'playing' && activeScale && (
             <div className="pointer-events-none absolute inset-x-0 top-0 z-[2] flex flex-col items-center pt-4 text-center">
-              <div className="text-xl font-semibold text-white font-serif">
+              <div className="text-xl font-semibold text-white">
                 {activeScale.title}
               </div>
               {(difficulty === 'easy' || difficulty === 'medium') && (
@@ -965,9 +965,7 @@ export default function Constellations({
 
           {phase === 'ready' && (
             <div className="absolute inset-0 z-[2] bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center">
-              <h3 className="text-3xl font-serif italic text-white mb-2">
-                Connect the Stars
-              </h3>
+              <h3 className="text-3xl text-white mb-2">Connect the Stars</h3>
               <p className="text-zinc-400 mb-6 max-w-sm text-center">
                 Stars fly toward you from the void. Hover over each star to play
                 its note and connect the constellation — choose wisely!

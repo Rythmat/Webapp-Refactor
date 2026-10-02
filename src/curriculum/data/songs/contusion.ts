@@ -16,6 +16,36 @@ export const contusion: Song = {
   difficulty: 3,
   genreTags: ['funk', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Josie James', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Artece May', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Greg Phillinganes', role: 'performer' },
+    { name: 'Raymond Pounds', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Wonderlove', role: 'performer', ensemble: true },
+    { name: 'Nathan Watts', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Shirley Brewer', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Stevie Wonder', role: 'arranger', artistGlobeId: 'stevie-wonder' },
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+    { name: 'Michael Gray', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Ben Bridges', role: 'performer' },
+    {
+      name: 'Michael Sembello',
+      role: 'performer',
+      artistGlobeId: 'michael-sembello',
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-songs-in-the-key-of-life' }],
 
   sections: [
     {

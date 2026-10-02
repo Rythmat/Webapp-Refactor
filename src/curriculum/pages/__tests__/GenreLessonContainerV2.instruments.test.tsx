@@ -3,7 +3,8 @@
  * The one lesson container, played on both instruments.
  *
  * Piano must behave exactly as it always has: its keyboard, MIDI in, no
- * microphone, piano scoring. Guitar reads from TAB with the guitar visuals,
+ * microphone, piano scoring. Guitar has its own screen (guitar/layout): it
+ * reads from TAB with the guitar visuals, its buttons are in the action bar,
  * and a MIDI guitar playing the book's scale position finishes an
  * out-of-time step through the guitar evaluation hook.
  *
@@ -202,9 +203,18 @@ describe('GenreLessonContainerV2 on piano and guitar', () => {
   it('guitar: TAB and guitar visuals; a MIDI guitar finishes the scale step', async () => {
     const flow = buildGuitarAppliedTheoryFundamentalsFlow('C');
     const { container } = renderLesson(flow);
+    expect(container.querySelector('[data-guitar-layout]')).not.toBeNull();
     expect(container.querySelector('[data-guitar-visuals]')).not.toBeNull();
-    expect(screen.getByRole('radio', { name: 'Tablature' })).toBeTruthy();
     expect(screen.queryByRole('radio', { name: 'Piano roll' })).toBeNull();
+    // TAB or notation is a lesson setting now, not a toggle over the TAB.
+    const gear = screen.getByRole('button', { name: 'Lesson settings' });
+    fireEvent.click(gear);
+    const settings = screen.getByRole('dialog', { name: 'Lesson settings' });
+    expect(
+      within(settings).getByRole('radio', { name: 'Tablature' }),
+    ).toBeChecked();
+    fireEvent.click(gear);
+    expect(screen.queryByRole('dialog')).toBeNull();
     // How the step listens, and its pass mark, before the take.
     expect(container.querySelector('[data-guitar-mode]')?.textContent).toMatch(
       /Wait for me.*Pass mark 75%/,
@@ -232,21 +242,34 @@ describe('GenreLessonContainerV2 on piano and guitar', () => {
     renderLesson(flow);
     fireEvent.click(screen.getByRole('button', { name: /^B Chords/ }));
     // Entering Section B the first time in a key: where the chords come
-    // from, in place of the start card, until it's closed — once per key.
+    // from waits in About this step (its dot says there's something new);
+    // nothing opens by itself and nothing covers the TAB.
     const card = () =>
       screen.queryByRole('region', { name: 'Chords come from the scale' });
-    expect(card()).not.toBeNull();
-    expect(screen.queryByRole('button', { name: 'Play Now' })).toBeNull();
-    fireEvent.click(within(card()!).getByRole('button', { name: 'Got it' }));
+    const about = () =>
+      screen.getByRole('button', { name: /^About this step/ });
     expect(card()).toBeNull();
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Play Now' })).toBeTruthy();
+    expect(about()).toHaveAttribute('data-unseen', 'true');
+    fireEvent.click(about());
+    const sheet = screen.getByRole('dialog', { name: /^About this step/ });
+    expect(
+      within(sheet).getByRole('region', { name: 'Chords come from the scale' }),
+    ).toBeTruthy();
+    fireEvent.click(within(sheet).getByRole('button', { name: 'Close' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: /^A Melody/ }));
     fireEvent.click(screen.getByRole('button', { name: /^B Chords/ }));
-    expect(card()).toBeNull();
-    // B2.1 — Play Chords 1,2,3,4 (Out of Time).
+    expect(screen.queryByRole('dialog')).toBeNull();
+    // B2.1 — Play Chords 1,2,3,4 (Out of Time): the title without its code,
+    // the whole activity line on hover.
     for (let i = 0; i < 8; i++) {
       fireEvent.keyDown(window, { key: 'ArrowRight' });
     }
-    expect(screen.getByText(/B2\.1: Play Chords 1,2,3,4/)).toBeTruthy();
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Play Chords 1,2,3,4' }),
+    ).toHaveAttribute('title', 'B2.1: Play Chords 1,2,3,4 (Out of Time)');
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Play Now' }));
     });
@@ -342,10 +365,12 @@ describe('GenreLessonContainerV2 guitar practice tools', () => {
       screen.queryByRole('button', { name: 'Count it myself' }),
     ).toBeNull();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Show mistakes' }));
-    expect(screen.queryByRole('heading', { name: /0%/ })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Back to result' }));
-    expect(screen.getByRole('heading', { name: /0%/ })).toBeTruthy();
+    // The mistakes are marked on the TAB beside the result: nothing to open.
+    expect(
+      document.querySelector('[data-guitar-result-legend]')?.textContent,
+    ).toMatch(/Marked on the TAB/);
+    expect(screen.queryByRole('button', { name: 'Show mistakes' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Back to result' })).toBeNull();
     expect(screen.getByRole('button', { name: /^Loop bars? 1/ })).toBeTruthy();
   });
 
@@ -380,7 +405,7 @@ describe('GenreLessonContainerV2 guitar practice tools', () => {
     await act(() => settle());
     expect(status()).toMatch(/Tap a bar to loop it/);
     // Back leaves practice; Play Now would grade the whole step.
-    fireEvent.click(screen.getByRole('button', { name: '← Back' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Back' }));
     expect(screen.getByRole('button', { name: 'Play Now' })).toBeTruthy();
   });
 
@@ -399,6 +424,8 @@ describe('GenreLessonContainerV2 guitar practice tools', () => {
     expect(
       screen.getByRole('heading', { name: '✓ Counted by you' }),
     ).toBeTruthy();
+    // The step list marks it as the student's own count.
+    fireEvent.click(screen.getByRole('button', { name: /^Step \d+ of \d+/ }));
     expect(
       screen.getByRole('button', { name: /A1\.\d.*: counted by you$/ }),
     ).toBeTruthy();
@@ -450,9 +477,7 @@ describe('GenreLessonContainerV2 guitar input', () => {
     stable.guitar = handle;
     renderLesson(buildGuitarAppliedTheoryFundamentalsFlow('C'));
     expect(handle.setEvaluationMode).toHaveBeenLastCalledWith('off');
-    expect(
-      screen.getByRole('button', { name: /set up|guitar input/i }),
-    ).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Set up guitar' })).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: 'Play Now' }));
     expect(await screen.findByRole('dialog')).toBeTruthy();

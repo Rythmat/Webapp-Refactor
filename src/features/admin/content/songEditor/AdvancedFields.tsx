@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import type { AudioSource, Song } from '@/curriculum/types/songLibrary';
+import { CONSOLE_LABEL } from '../../ui/styles';
 
 /**
  * A collapsed disclosure for schema fields that aren't on the published page
@@ -38,7 +39,7 @@ export const AdvancedFields = ({
   };
 
   return (
-    <div className="border-t border-white/[0.06] pt-3">
+    <div className="border-t border-white/[0.08] pt-3">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -55,9 +56,7 @@ export const AdvancedFields = ({
       {open && (
         <div className="mt-3 grid max-w-3xl gap-4 md:grid-cols-2">
           <div>
-            <Label className="mb-1.5 block text-xs text-muted-foreground">
-              ID / slug
-            </Label>
+            <Label className={`mb-1.5 block ${CONSOLE_LABEL}`}>ID / slug</Label>
             <Input
               value={song.id}
               placeholder="auto-generated from title if blank"
@@ -65,7 +64,7 @@ export const AdvancedFields = ({
             />
           </div>
           <div>
-            <Label className="mb-1.5 block text-xs text-muted-foreground">
+            <Label className={`mb-1.5 block ${CONSOLE_LABEL}`}>
               Popularity (0–100)
             </Label>
             <Input
@@ -82,7 +81,7 @@ export const AdvancedFields = ({
             />
           </div>
           <div className="md:col-span-2">
-            <Label className="mb-1.5 block text-xs text-muted-foreground">
+            <Label className={`mb-1.5 block ${CONSOLE_LABEL}`}>
               Techniques (comma-separated)
             </Label>
             <Input
@@ -94,7 +93,7 @@ export const AdvancedFields = ({
           </div>
           {ytIndex >= 0 && (
             <div>
-              <Label className="mb-1.5 block text-xs text-muted-foreground">
+              <Label className={`mb-1.5 block ${CONSOLE_LABEL}`}>
                 Video start offset (sec)
               </Label>
               <Input
@@ -110,7 +109,7 @@ export const AdvancedFields = ({
             </div>
           )}
           <div className="md:col-span-2">
-            <Label className="mb-1.5 block text-xs text-muted-foreground">
+            <Label className={`mb-1.5 block ${CONSOLE_LABEL}`}>
               Historical description (used for the Globe event card)
             </Label>
             <Textarea

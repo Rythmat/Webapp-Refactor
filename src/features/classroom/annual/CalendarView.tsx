@@ -51,7 +51,7 @@ type CalendarMode = 'month' | 'week';
 const HATCH_WEEKEND =
   'repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 7px)';
 const HATCH_HOLIDAY =
-  'repeating-linear-gradient(45deg, rgba(251,191,36,0.07) 0, rgba(251,191,36,0.07) 1px, transparent 1px, transparent 7px)';
+  'repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 7px)';
 /** App accent (teal) — used for the "today" cell. */
 const TODAY_ACCENT = '#7ecfcf';
 
@@ -530,7 +530,7 @@ const WeekRow = ({
               {isHolidayLike ? (
                 <span
                   style={{ fontSize: CAL_FONT.holiday }}
-                  className="min-w-0 truncate uppercase tracking-wide text-amber-200/70"
+                  className="min-w-0 truncate uppercase tracking-wide text-white/50"
                   title={nonSchool?.label}
                 >
                   {nonSchool?.label}

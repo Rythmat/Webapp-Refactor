@@ -16,6 +16,30 @@ export const dance_with_me_tonight: Song = {
   difficulty: 2,
   genreTags: ['jazz', 'pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Claude Kelly',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'claude-kelly',
+    },
+    { name: '2D', role: 'performer', instrument: 'synthesizer' },
+    {
+      name: 'Future Cut',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'future-cut',
+    },
+    { name: '2D', role: 'performer', instrument: 'percussion' },
+    { name: 'Steve Robson', role: 'songwriter', artistGlobeId: 'steve-robson' },
+    { name: 'Steve Robson', role: 'producer', artistGlobeId: 'steve-robson' },
+    { name: 'Steve Robson', role: 'performer', artistGlobeId: 'steve-robson' },
+    { name: 'Olly Murs', role: 'songwriter', artistGlobeId: 'olly-murs' },
+    { name: 'D-Cutz', role: 'performer' },
+    { name: 'Claude Kelly', role: 'songwriter', artistGlobeId: 'claude-kelly' },
+    { name: 'Steve Fitzmaurice', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'olly-murs-in-case-you-didnt-know', track: 3 }],
 
   sections: [
     {

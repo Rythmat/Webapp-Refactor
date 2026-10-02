@@ -19,6 +19,7 @@ import {
 
 import { useStore, type ViewType } from '@/daw/store';
 import { seekTo } from '@/daw/hooks/useTransport';
+import { FixedDigits } from '@/components/common/FixedDigits';
 import { NOTES } from '@prism/engine';
 import { ALL_GRID_VALUES } from '@/daw/utils/quantize';
 import { FileMenu } from './FileMenu';
@@ -107,13 +108,12 @@ function PositionDisplay() {
   const tsNum = useStore((s) => s.timeSignatureNumerator);
   const tsDen = useStore((s) => s.timeSignatureDenominator);
   return (
-    <div
-      className="min-w-14 text-center font-mono text-xs tracking-wider"
+    <FixedDigits
+      text={formatPosition(position, tsNum, tsDen)}
+      className="block min-w-14 text-center text-xs"
       style={{ color: 'var(--color-text)' }}
       title="Bar : Beat : Sixteenth"
-    >
-      {formatPosition(position, tsNum, tsDen)}
-    </div>
+    />
   );
 }
 
@@ -128,7 +128,7 @@ function ZoomIndicator() {
       title={`Timeline Zoom: ${Math.round(zoom * 100)}%  (Cmd+Scroll to zoom)`}
     >
       <span
-        className="font-mono text-[9px] font-medium"
+        className="text-[9px] font-medium tabular-nums"
         style={{ color: 'var(--color-text-dim)' }}
       >
         {Math.round(zoom * 100)}%
@@ -469,7 +469,7 @@ export const TransportBar = memo(function TransportBar({
             <button
               ref={tsButtonRef}
               onClick={() => setTsOpen((v) => !v)}
-              className="flex h-5 cursor-pointer items-center rounded px-1.5 font-mono text-[10px] font-medium transition-colors hover:bg-white/5"
+              className="flex h-5 cursor-pointer items-center rounded px-1.5 text-[10px] font-medium tabular-nums transition-colors hover:bg-white/5"
               style={{
                 backgroundColor: 'var(--color-surface-2)',
                 color: 'var(--color-text-dim)',
@@ -521,7 +521,7 @@ export const TransportBar = memo(function TransportBar({
                             setTimeSignature(n, d);
                             setTsOpen(false);
                           }}
-                          className="flex h-6 w-10 cursor-pointer items-center justify-center rounded font-mono text-[10px] font-medium transition-colors hover:bg-white/10"
+                          className="flex h-6 w-10 cursor-pointer items-center justify-center rounded text-[10px] font-medium tabular-nums transition-colors hover:bg-white/10"
                           style={{
                             backgroundColor: isActive
                               ? 'var(--color-accent)'
@@ -557,14 +557,14 @@ export const TransportBar = memo(function TransportBar({
                         }
                       }}
                       placeholder={String(tsNum)}
-                      className="h-5 w-8 rounded border bg-transparent text-center font-mono text-[10px] outline-none focus:ring-1"
+                      className="h-5 w-8 rounded border bg-transparent text-center text-[10px] tabular-nums outline-none focus:ring-1"
                       style={{
                         borderColor: 'var(--color-border)',
                         color: 'var(--color-text)',
                       }}
                     />
                     <span
-                      className="font-mono text-[10px]"
+                      className="text-[10px]"
                       style={{ color: 'var(--color-text-dim)' }}
                     >
                       /
@@ -572,7 +572,7 @@ export const TransportBar = memo(function TransportBar({
                     <select
                       value={customDen}
                       onChange={(e) => setCustomDen(e.target.value)}
-                      className="h-5 cursor-pointer rounded border bg-transparent font-mono text-[10px] outline-none focus:ring-1"
+                      className="h-5 cursor-pointer rounded border bg-transparent text-[10px] tabular-nums outline-none focus:ring-1"
                       style={{
                         borderColor: 'var(--color-border)',
                         color: 'var(--color-text)',
@@ -630,7 +630,7 @@ export const TransportBar = memo(function TransportBar({
               onKeyDown={(e) => {
                 if (e.key === 'Enter') commitBpm();
               }}
-              className="h-5 w-12 rounded border bg-transparent text-center font-mono text-[11px] outline-none focus:ring-1"
+              className="h-5 w-12 rounded border bg-transparent text-center text-[11px] tabular-nums outline-none focus:ring-1"
               style={{
                 borderColor: 'var(--color-border)',
                 color: 'var(--color-text)',

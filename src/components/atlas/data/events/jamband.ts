@@ -1,6 +1,6 @@
-import type { HistoricalEvent } from '@/components/atlas/types';
+import type { GlobeEventRecord } from '@/content/records/types';
 
-export const JAMBAND_EVENTS: HistoricalEvent[] = [
+export const JAMBAND_EVENTS: GlobeEventRecord[] = [
   {
     id: 'evt-phish-burlington-1983',
     year: 1983,
@@ -25,6 +25,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'vermont',
     ],
     videoId: 'y1DdKf4Ff_w',
+    artistIds: ['phish', 'trey-anastasio'],
+    placeId: 'burlington',
   },
   {
     id: 'evt-jamband-paloalto-1965-grateful-dead',
@@ -49,6 +51,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'counterculture',
     ],
     videoId: 'y1vJxFDVB_Y',
+    artistIds: ['grateful-dead', 'jerry-garcia'],
+    placeId: 'palo-alto',
   },
   {
     id: 'evt-jamband-sf-1970-grateful-dead',
@@ -73,6 +77,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'studio album',
     ],
     videoId: 'tuc6Jgwteak',
+    artistIds: ['grateful-dead', 'jerry-garcia'],
+    placeId: 'san-francisco',
   },
   {
     id: 'evt-jamband-nyc-1971-allman-brothers',
@@ -97,6 +103,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'improvisation',
     ],
     videoId: 'o640esugJXg',
+    placeId: 'new-york',
   },
   {
     id: 'evt-jamband-macon-1969-allman-brothers',
@@ -121,6 +128,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'big house',
     ],
     videoId: 'ZyuOUmVixA0',
+    placeId: 'macon',
   },
   {
     id: 'evt-jamband-burlington-1995-phish',
@@ -145,6 +153,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'jam-band',
     ],
     videoId: '-Ck7yd1nMbQ',
+    artistIds: ['phish'],
+    placeId: 'burlington',
   },
   {
     id: 'evt-jamband-athens-1986-widespread-panic',
@@ -169,6 +179,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'formation',
     ],
     videoId: 'l2lwAG_FyUc',
+    artistIds: ['widespread-panic'],
+    placeId: 'athens-us',
   },
   {
     id: 'evt-jamband-charlottesville-1991-dmb',
@@ -193,6 +205,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'jazz rock',
     ],
     videoId: 'CpZ3rKneQ7E',
+    artistIds: ['dave-matthews-band'],
+    placeId: 'charlottesville',
   },
   {
     id: 'evt-jamband-crestedbutte-1993-sci',
@@ -217,6 +231,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'formation',
     ],
     videoId: 'LSnb5TFfCYs',
+    artistIds: ['string-cheese-incident'],
+    placeId: 'crested-butte',
   },
   {
     id: 'evt-jamband-nyc-1991-mmw',
@@ -241,6 +257,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'improvisation',
     ],
     videoId: 'VCalkGgumTo',
+    placeId: 'new-york',
   },
   {
     id: 'evt-jamband-nyc-1994-govt-mule',
@@ -265,6 +282,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'southern rock',
     ],
     videoId: 'PBP8FnFOqak',
+    artistIds: ['govt-mule'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jamband-southbend-1997-umphreys',
@@ -289,6 +308,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'formation',
     ],
     videoId: 'sgrh_npu8no',
+    artistIds: ['umphreys-mcgee'],
+    placeId: 'south-bend',
   },
   {
     id: 'evt-jamband-buffalo-1989-moe',
@@ -313,6 +334,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'formation',
     ],
     videoId: 'YHwHcNfSbcU',
+    placeId: 'buffalo',
   },
   {
     id: 'evt-jamband-philadelphia-1999-lotus',
@@ -337,6 +359,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'formation',
     ],
     videoId: 'lJr9EnZethU',
+    artistIds: ['lotus'],
+    placeId: 'philadelphia',
   },
   {
     id: 'evt-jamband-boston-1992-lettuce',
@@ -361,6 +385,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'formation',
     ],
     videoId: 'ga47LBMfS8w',
+    artistIds: ['lettuce'],
+    placeId: 'boston',
   },
   {
     id: 'evt-jamband-utrecht-2014-snarky-puppy',
@@ -385,6 +411,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'michael league',
     ],
     videoId: 'L_XJ_s5IsQc',
+    artistIds: ['snarky-puppy'],
+    placeId: 'utrecht',
   },
   {
     id: 'evt-jamband-norwalk-2016-goose',
@@ -409,6 +437,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'formation',
     ],
     videoId: 'WsZ5dnW12Qk',
+    artistIds: ['goose'],
+    placeId: 'norwalk-us',
   },
   {
     id: 'evt-jamband-lansing-2019-billy-strings',
@@ -433,6 +463,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'psychedelic bluegrass',
     ],
     videoId: '2kGBYIILs58',
+    artistIds: ['billy-strings'],
+    placeId: 'lansing',
   },
   {
     id: 'evt-jamband-baltimore-2009-pppp',
@@ -457,6 +489,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'formation',
     ],
     videoId: '_FSy8sQ4o4g',
+    artistIds: ['pigeons-playing-ping-pong'],
+    placeId: 'baltimore',
   },
   {
     id: 'evt-jamband-nyc-1998-tab',
@@ -481,6 +515,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'nyc',
     ],
     videoId: 'dYOXPzcoPeA',
+    artistIds: ['trey-anastasio', 'phish'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jamband-jacksonville-1994-derek-trucks',
@@ -505,6 +541,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'formation',
     ],
     videoId: 'COsGSZ8BMRY',
+    placeId: 'jacksonville-us-q16568',
   },
   {
     id: 'evt-jamband-jacksonville-2010-ttb',
@@ -529,6 +566,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'grammy',
     ],
     videoId: 'DCKoHWsA01w',
+    artistIds: ['tedeschi-trucks-band', 'susan-tedeschi'],
+    placeId: 'jacksonville-us-q16568',
   },
   {
     id: 'evt-jamband-neworleans-1994-galactic',
@@ -553,6 +592,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'formation',
     ],
     videoId: '5BDZNO1mvBA',
+    artistIds: ['galactic'],
+    placeId: 'new-orleans',
   },
   {
     id: 'evt-jamband-neworleans-2003-dumpstaphunk',
@@ -577,6 +618,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'formation',
     ],
     videoId: 'e5wie5xwbcI',
+    artistIds: ['dumpstaphunk'],
+    placeId: 'new-orleans',
   },
   {
     id: 'evt-jamband-nyc-2019-vulfpeck',
@@ -601,6 +644,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'joe dart',
     ],
     videoId: 'rv4wf7bzfFE',
+    artistIds: ['vulfpeck', 'jack-stratton', 'joe-dart'],
+    placeId: 'new-york',
   },
   {
     id: 'evt-jamband-minneapolis-2017-cory-wong',
@@ -625,6 +670,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'prince influence',
     ],
     videoId: 'C5XPSwZefs4',
+    artistIds: ['cory-wong', 'vulfpeck'],
+    placeId: 'minneapolis',
   },
   {
     id: 'evt-jamband-nashville-1988-flecktones',
@@ -649,6 +696,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'bluegrass',
     ],
     videoId: 'rb1-QdS7kHU',
+    artistIds: ['bela-fleck'],
+    placeId: 'nashville',
   },
   {
     id: 'evt-jamband-sandiego-1998-kdtu',
@@ -674,6 +723,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'formation',
     ],
     videoId: 'lWOxMIQTj1I',
+    placeId: 'san-diego',
   },
   {
     id: 'evt-jamband-boston-2008-dopapod',
@@ -698,6 +748,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'formation',
     ],
     videoId: 'j5bYm2d5uWM',
+    artistIds: ['dopapod'],
+    placeId: 'boston',
   },
   {
     id: 'evt-jamband-brooklyn-2011-turkuaz',
@@ -723,6 +775,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'formation',
     ],
     videoId: 'k5MXlAAsRVY',
+    artistIds: ['turkuaz', 'talking-heads'],
+    placeId: 'brooklyn',
   },
   {
     id: 'evt-jamband-houston-2018-khruangbin',
@@ -747,6 +801,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'con todo el mundo',
     ],
     videoId: 'vWLJeqLPfSU',
+    artistIds: ['khruangbin'],
+    placeId: 'houston',
   },
   {
     id: 'evt-jamband-prescott-2009-spafford',
@@ -771,6 +827,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'formation',
     ],
     videoId: 'JnPpzxVQEfU',
+    artistIds: ['spafford'],
+    placeId: 'prescott',
   },
   {
     id: 'evt-jamband-kalamazoo-2000-greensky-bluegrass',
@@ -795,6 +853,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'formation',
     ],
     videoId: 'SgJWWLVz7tA',
+    artistIds: ['greensky-bluegrass'],
+    placeId: 'kalamazoo',
   },
   {
     id: 'evt-jamband-philadelphia-1995-disco-biscuits',
@@ -819,6 +879,8 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'upenn',
     ],
     videoId: '6RL0QFyAPn4',
+    artistIds: ['disco-biscuits'],
+    placeId: 'philadelphia',
   },
   {
     id: 'evt-jamband-castleton-2004-twiddle',
@@ -843,5 +905,7 @@ export const JAMBAND_EVENTS: HistoricalEvent[] = [
       'formation',
     ],
     videoId: 'HxjOPON_uBc',
+    artistIds: ['twiddle'],
+    placeId: 'castleton',
   },
 ];

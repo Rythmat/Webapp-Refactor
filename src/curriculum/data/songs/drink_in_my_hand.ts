@@ -16,6 +16,16 @@ export const drink_in_my_hand: Song = {
   difficulty: 2,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Eric Church', role: 'songwriter', artistGlobeId: 'eric-church' },
+    { name: 'Luke Laird', role: 'songwriter', artistGlobeId: 'luke-laird' },
+    {
+      name: 'Michael P. Heeney',
+      role: 'songwriter',
+      artistGlobeId: 'michael-p-heeney',
+    },
+  ],
+  releases: [{ releaseId: 'eric-church-chief' }],
 
   sections: [
     {

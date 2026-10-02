@@ -276,7 +276,7 @@ function StringVisualization({
               textAnchor="middle"
               fill="#71717a"
               fontSize={10}
-              fontFamily="monospace"
+              fontFamily="'Glacial Indifference', system-ui, sans-serif"
             >
               {i + 1}
             </text>
@@ -491,7 +491,7 @@ export default function HarmonicStrings({ onComplete }: HarmonicStringsProps) {
                 <span className="text-[10px] text-zinc-600 uppercase tracking-wider">
                   Frequency
                 </span>
-                <div className="text-sm text-zinc-300 font-mono">
+                <div className="text-sm text-zinc-300 tabular-nums">
                   {info.frequency.toFixed(1)} Hz
                 </div>
               </div>
@@ -506,7 +506,7 @@ export default function HarmonicStrings({ onComplete }: HarmonicStringsProps) {
                   <span className="text-[10px] text-zinc-600 uppercase tracking-wider">
                     ET Deviation
                   </span>
-                  <div className="text-sm text-zinc-300 font-mono">
+                  <div className="text-sm text-zinc-300 tabular-nums">
                     {info.cents > 0 ? '+' : ''}
                     {info.cents}¢
                   </div>
@@ -548,7 +548,7 @@ export default function HarmonicStrings({ onComplete }: HarmonicStringsProps) {
                     <button
                       key={h.number}
                       onClick={() => playHarmonic(h.number)}
-                      className={`flex-1 py-1.5 rounded-b text-xs font-mono transition-all ${
+                      className={`flex-1 py-1.5 rounded-b text-xs tabular-nums transition-all ${
                         active ? 'text-white' : 'text-zinc-500 hover:text-white'
                       }`}
                       style={{

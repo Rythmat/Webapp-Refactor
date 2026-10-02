@@ -16,6 +16,30 @@ export const keep_your_soul_together: Song = {
   difficulty: 3,
   genreTags: ['funk', 'jazz'],
   techniques: [],
+  session: { studioId: 'van-gelder-studio' },
+  credits: [
+    { name: 'Creed Taylor', role: 'producer', artistGlobeId: 'creed-taylor' },
+    { name: 'Junior Cook', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Ralph Penland', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Juno Lewis', role: 'performer', instrument: 'percussion' },
+    {
+      name: 'Freddie Hubbard',
+      role: 'songwriter',
+      artistGlobeId: 'freddie-hubbard',
+    },
+    {
+      name: 'Freddie Hubbard',
+      role: 'performer',
+      artistGlobeId: 'freddie-hubbard',
+      primary: true,
+    },
+    { name: 'Ron Carter', role: 'performer' },
+    { name: 'George Cables', role: 'performer', instrument: 'electric-piano' },
+    { name: 'Kent Brinkley', role: 'performer' },
+    { name: 'Rudy van Gelder', role: 'engineer' },
+    { name: 'Aurell Ray', role: 'performer' },
+  ],
+  releases: [{ releaseId: 'freddie-hubbard-keep-your-soul-together' }],
 
   sections: [
     {

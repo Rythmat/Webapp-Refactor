@@ -16,6 +16,31 @@ export const shake_your_body_down_to_the_ground: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Michael Jackson',
+      role: 'performer',
+      primary: true,
+      artistGlobeId: 'michael-jackson',
+    },
+    {
+      name: 'The Jacksons',
+      role: 'performer',
+      ensemble: true,
+      primary: true,
+      artistGlobeId: 'the-jackson-5',
+    },
+    {
+      name: 'Randy Jackson',
+      role: 'songwriter',
+      artistGlobeId: 'randy-jackson',
+    },
+    {
+      name: 'Michael Jackson',
+      role: 'songwriter',
+      artistGlobeId: 'michael-jackson',
+    },
+  ],
 
   sections: [
     {

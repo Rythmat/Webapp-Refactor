@@ -16,6 +16,36 @@ export const im_into_something_good: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Karl Green',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'karl-green',
+    },
+    { name: 'Gerry Goffin', role: 'songwriter', artistGlobeId: 'gerry-goffin' },
+    { name: 'Peter Noone', role: 'vocals', artistGlobeId: 'peter-noone' },
+    { name: 'Val Valentin', role: 'engineer' },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+    { name: 'Mickie Most', role: 'producer', artistGlobeId: 'mickie-most' },
+    {
+      name: 'Keith Hopwood',
+      role: 'performer',
+      artistGlobeId: 'keith-hopwood',
+    },
+    {
+      name: 'Derek Leckenby',
+      role: 'performer',
+      artistGlobeId: 'derek-leckenby',
+    },
+    {
+      name: 'Barry Whitwam',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'barry-whitwam',
+    },
+  ],
+  releases: [{ releaseId: 'hermans-hermits-introducing-hermans-hermits' }],
 
   sections: [
     {

@@ -19,7 +19,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { cn } from '@/components/utilities';
 import { useAdminProductFunnel } from '@/hooks/data/admin/useAdminTelemetry';
+import { ConsoleSectionTitle } from '../ui/ConsolePageHeader';
+import { CONSOLE_LABEL, CONSOLE_PANEL, CONSOLE_TABLE_HEAD } from '../ui/styles';
+import {
+  CHART_SERIES,
+  chartAxisProps,
+  chartGridProps,
+  chartTooltipProps,
+} from './chartTheme';
 import {
   TimeRangeSelect,
   useTimeRangeParams,
@@ -70,13 +79,22 @@ export const AdminProductFunnelPage = () => {
       ]
     : [];
 
-  const LEARNING_COLORS = ['#60a5fa', '#a78bfa', '#34d399', '#34d399'];
-  const SUBSCRIPTION_COLORS = ['#fbbf24', '#60a5fa', '#34d399'];
+  const LEARNING_COLORS = [
+    CHART_SERIES.blue,
+    CHART_SERIES.violet,
+    CHART_SERIES.green,
+    CHART_SERIES.green,
+  ];
+  const SUBSCRIPTION_COLORS = [
+    CHART_SERIES.amber,
+    CHART_SERIES.blue,
+    CHART_SERIES.green,
+  ];
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Product Funnel</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <ConsoleSectionTitle>Product Funnel</ConsoleSectionTitle>
         <TimeRangeSelect value={range} onChange={setRange} />
       </div>
 
@@ -93,34 +111,14 @@ export const AdminProductFunnelPage = () => {
       ) : (
         <>
           {/* Learning Funnel */}
-          <Card className="border border-white/10 bg-white/5 p-4">
-            <h3 className="mb-4 text-sm font-medium text-muted-foreground">
-              Learning Funnel
-            </h3>
+          <Card className={cn(CONSOLE_PANEL, 'p-4')}>
+            <h3 className={cn(CONSOLE_LABEL, 'mb-4')}>Learning Funnel</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={learningFunnelData}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="rgba(255,255,255,0.1)"
-                />
-                <XAxis
-                  dataKey="name"
-                  stroke="rgba(255,255,255,0.5)"
-                  tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
-                />
-                <YAxis
-                  stroke="rgba(255,255,255,0.5)"
-                  tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
-                />
-                <RechartsTooltip
-                  contentStyle={{
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 8,
-                  }}
-                  labelStyle={{ color: 'white' }}
-                  itemStyle={{ color: 'white' }}
-                />
+                <CartesianGrid {...chartGridProps} />
+                <XAxis {...chartAxisProps} dataKey="name" />
+                <YAxis {...chartAxisProps} />
+                <RechartsTooltip {...chartTooltipProps} />
                 <Bar dataKey="value" name="Count" radius={[4, 4, 0, 0]}>
                   {learningFunnelData.map((_, index) => (
                     <Cell key={index} fill={LEARNING_COLORS[index]} />
@@ -136,34 +134,14 @@ export const AdminProductFunnelPage = () => {
           </Card>
 
           {/* Subscription Funnel */}
-          <Card className="border border-white/10 bg-white/5 p-4">
-            <h3 className="mb-4 text-sm font-medium text-muted-foreground">
-              Subscription Funnel
-            </h3>
+          <Card className={cn(CONSOLE_PANEL, 'p-4')}>
+            <h3 className={cn(CONSOLE_LABEL, 'mb-4')}>Subscription Funnel</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={subscriptionFunnelData}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="rgba(255,255,255,0.1)"
-                />
-                <XAxis
-                  dataKey="name"
-                  stroke="rgba(255,255,255,0.5)"
-                  tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
-                />
-                <YAxis
-                  stroke="rgba(255,255,255,0.5)"
-                  tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12 }}
-                />
-                <RechartsTooltip
-                  contentStyle={{
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 8,
-                  }}
-                  labelStyle={{ color: 'white' }}
-                  itemStyle={{ color: 'white' }}
-                />
+                <CartesianGrid {...chartGridProps} />
+                <XAxis {...chartAxisProps} dataKey="name" />
+                <YAxis {...chartAxisProps} />
+                <RechartsTooltip {...chartTooltipProps} />
                 <Bar dataKey="value" name="Count" radius={[4, 4, 0, 0]}>
                   {subscriptionFunnelData.map((_, index) => (
                     <Cell key={index} fill={SUBSCRIPTION_COLORS[index]} />
@@ -174,15 +152,13 @@ export const AdminProductFunnelPage = () => {
           </Card>
 
           {/* Per-lesson stats */}
-          <Card className="border border-white/10 bg-white/5 p-4">
-            <h3 className="mb-4 text-sm font-medium text-muted-foreground">
-              Per-Lesson Stats
-            </h3>
+          <Card className={cn(CONSOLE_PANEL, 'p-4')}>
+            <h3 className={cn(CONSOLE_LABEL, 'mb-4')}>Per-Lesson Stats</h3>
             {data.perLessonStats.length === 0 ? (
               <p className="py-4 text-center text-muted-foreground">No data</p>
             ) : (
               <Table>
-                <TableHeader>
+                <TableHeader className={CONSOLE_TABLE_HEAD}>
                   <TableRow>
                     <TableHead>Lesson ID</TableHead>
                     <TableHead>Started</TableHead>
@@ -193,9 +169,7 @@ export const AdminProductFunnelPage = () => {
                 <TableBody>
                   {data.perLessonStats.map((row) => (
                     <TableRow key={row.lessonId}>
-                      <TableCell className="font-mono text-sm">
-                        {row.lessonId}
-                      </TableCell>
+                      <TableCell className="text-sm">{row.lessonId}</TableCell>
                       <TableCell>{row.started}</TableCell>
                       <TableCell>{row.completed}</TableCell>
                       <TableCell

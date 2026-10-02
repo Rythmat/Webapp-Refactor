@@ -7,9 +7,8 @@ import { WelcomeHeader } from '@/components/ClassroomLayout/dashboard/WelcomeHea
  */
 export const LearnQuickStart = () => {
   return (
-    // Match the Home dashboard font: `.learn-root` forces Inter, but this
-    // greeting copies Home's (which uses the app's Glacial Indifference), so its
-    // text must use it too.
+    // Match the Home dashboard's greeting, which sets Glacial Indifference
+    // explicitly (as `.learn-root` now does too).
     <div
       style={{
         fontFamily: "'Glacial Indifference', 'Haskoy', system-ui, sans-serif",

@@ -16,6 +16,48 @@ export const born_under_punches_the_heat_goes_on: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Chris Frantz', role: 'songwriter', artistGlobeId: 'chris-frantz' },
+    {
+      name: 'Brian Eno',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'brian-eno',
+    },
+    { name: 'Brian Eno', role: 'producer', artistGlobeId: 'brian-eno' },
+    { name: 'David Byrne', role: 'vocals', artistGlobeId: 'david-byrne' },
+    { name: 'Brian Eno', role: 'engineer', artistGlobeId: 'brian-eno' },
+    { name: 'John Potoker', role: 'engineer' },
+    { name: 'Brian Eno', role: 'arranger', artistGlobeId: 'brian-eno' },
+    { name: 'David Byrne', role: 'engineer', artistGlobeId: 'david-byrne' },
+    { name: 'David Byrne', role: 'songwriter', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Tina Weymouth',
+      role: 'songwriter',
+      artistGlobeId: 'tina-weymouth',
+    },
+    { name: 'Brian Eno', role: 'songwriter', artistGlobeId: 'brian-eno' },
+    { name: 'David Byrne', role: 'arranger', artistGlobeId: 'david-byrne' },
+    { name: 'Dave Jerden', role: 'engineer' },
+    {
+      name: 'Talking Heads',
+      role: 'arranger',
+      ensemble: true,
+      artistGlobeId: 'talking-heads',
+    },
+    {
+      name: 'Jerry Harrison',
+      role: 'songwriter',
+      artistGlobeId: 'jerry-harrison',
+    },
+    {
+      name: 'Talking Heads',
+      role: 'songwriter',
+      ensemble: true,
+      artistGlobeId: 'talking-heads',
+    },
+  ],
+  releases: [{ releaseId: 'talking-heads-remain-in-light' }],
 
   sections: [
     {

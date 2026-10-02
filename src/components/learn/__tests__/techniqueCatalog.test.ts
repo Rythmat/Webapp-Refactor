@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  GUITAR_TECHNIQUE_DATA,
   PIANO_TECHNIQUE_DATA,
   techniqueDataFor,
 } from '@/components/learn/techniqueCatalog';
@@ -24,14 +23,7 @@ describe('techniqueCatalog', () => {
     expect(techniqueDataFor('piano')).toBe(PIANO_TECHNIQUE_DATA);
   });
 
-  it('gives guitar its own Applied Theory tile with its own saved id', () => {
-    expect(techniqueDataFor('guitar')).toBe(GUITAR_TECHNIQUE_DATA);
-    expect(GUITAR_TECHNIQUE_DATA).toEqual([
-      expect.objectContaining({
-        title: 'Applied Theory Fundamentals',
-        route: '/curriculum/guitar/applied-theory-fundamentals',
-        savedId: 'guitar:applied-theory-fundamentals',
-      }),
-    ]);
+  it('has no guitar Technique tiles: guitar lives in Theory → Ionian (Major)', () => {
+    expect(techniqueDataFor('guitar')).toEqual([]);
   });
 });

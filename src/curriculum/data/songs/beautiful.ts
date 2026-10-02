@@ -16,6 +16,28 @@ export const beautiful: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'a-m-studios' },
+  credits: [
+    { name: 'Danny Kortchmar', role: 'performer', instrument: 'congas' },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+    {
+      name: 'Carole King',
+      role: 'performer',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    { name: 'Charles Larkey', role: 'performer', instrument: 'electric-bass' },
+    {
+      name: 'Carole King',
+      role: 'vocals',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    { name: "Joel O'Brien", role: 'performer', instrument: 'drum-kit' },
+    { name: 'Lou Adler', role: 'producer', artistGlobeId: 'lou-adler' },
+    { name: 'Hank Cicalo', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'carole-king-tapestry' }],
 
   sections: [
     {

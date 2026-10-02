@@ -16,6 +16,9 @@ export const papas_got_a_brand_new_bag: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'James Brown', role: 'songwriter', artistGlobeId: 'james-brown' },
+  ],
 
   sections: [
     {

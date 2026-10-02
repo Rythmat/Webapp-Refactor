@@ -16,6 +16,42 @@ export const across_the_universe: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'abbey-road-studios' },
+  credits: [
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    { name: 'Martin Benge', role: 'engineer' },
+    { name: 'Ringo Starr', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Ringo Starr', role: 'performer' },
+    { name: 'John Lennon', role: 'vocals', artistGlobeId: 'john-lennon' },
+    { name: 'Phil Spector', role: 'producer', artistGlobeId: 'phil-spector' },
+    { name: 'John Lennon', role: 'songwriter', artistGlobeId: 'john-lennon' },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'john-lennon',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'George Harrison', role: 'performer' },
+    { name: 'Ken Scott', role: 'engineer', artistGlobeId: 'ken-scott' },
+    { name: 'Peter Bown', role: 'engineer' },
+    { name: 'George Martin', role: 'producer' },
+    {
+      name: 'Paul McCartney',
+      role: 'songwriter',
+      artistGlobeId: 'paul-mccartney',
+    },
+  ],
+  releases: [{ releaseId: 'the-beatles-let-it-be', track: 4 }],
 
   sections: [
     {

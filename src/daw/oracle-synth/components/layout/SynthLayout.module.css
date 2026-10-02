@@ -20,7 +20,7 @@
     'footer';
   background: var(--color-bg, #101012);
   color: var(--color-text, #e8e8f0);
-  /* Font inherited from .daw-root (Inter) — no redeclaration needed. */
+  /* Font inherited from .daw-root (Glacial Indifference) — no redeclaration needed. */
   overflow: hidden;
   transform-origin: 0 0;
 }

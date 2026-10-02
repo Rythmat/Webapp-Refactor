@@ -12,6 +12,13 @@ The schema is written for you. It exists in the webapp repo in two forms and
 they are the same thing — one is the output of the other — so there is nothing
 to reconcile between them.
 
+> **Update, 29 September 2026:** copy `src/scripts/apiContract/songBodySchema.v1.ts`.
+> It is today's generated schema frozen under a name, recorded with its hash in
+> `src/scripts/apiContract/manifest.json`. `songBodySchema.ts` keeps being
+> regenerated and will gain the graph id fields (song schema level v2, see
+> `docs/console-content-graph-design.md`); v1 is the level to adopt first and
+> will not move under you.
+
 **1. The file.** `src/scripts/apiContract/songBodySchema.ts` is a complete,
 standalone Zod schema for a song body: every type, every enum, `.strict()`
 objects, and the doc comments carried over from the TypeScript so it reads as

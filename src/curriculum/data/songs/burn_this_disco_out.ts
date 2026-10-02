@@ -16,6 +16,53 @@ export const burn_this_disco_out: Song = {
   difficulty: 3,
   genreTags: ['funk', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'Kim Hutchcroft', role: 'performer', instrument: 'flute' },
+    { name: 'Jerry Hey', role: 'performer' },
+    {
+      name: 'Bill Reichenbach, Jr.',
+      role: 'performer',
+      instrument: 'trombone',
+    },
+    { name: 'Larry Williams', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Jerry Hey', role: 'arranger' },
+    { name: 'Larry Williams', role: 'performer', instrument: 'flute' },
+    { name: 'Bruce Swedien', role: 'engineer', artistGlobeId: 'bruce-swedien' },
+    { name: 'Larry Williams', role: 'performer', instrument: 'alto-sax' },
+    { name: 'Paulinho da Costa', role: 'performer', instrument: 'percussion' },
+    { name: 'Louis Johnson', role: 'performer', instrument: 'electric-bass' },
+    {
+      name: 'John “JR” Robinson',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'john-jr-robinson',
+    },
+    {
+      name: 'Greg Phillinganes',
+      role: 'performer',
+      instrument: 'electric-piano',
+    },
+    { name: 'David Williams', role: 'performer' },
+    { name: 'Kim Hutchcroft', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Marlo Henderson', role: 'performer' },
+    { name: 'Quincy Jones', role: 'producer' },
+    { name: 'Jerry Hey', role: 'performer', instrument: 'trumpet' },
+    {
+      name: 'Michael Jackson',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'michael-jackson',
+      primary: true,
+    },
+    { name: 'Kim Hutchcroft', role: 'performer', instrument: 'baritone-sax' },
+    {
+      name: 'Rod Temperton',
+      role: 'songwriter',
+      artistGlobeId: 'rod-temperton',
+    },
+    { name: 'Gary Grant', role: 'performer', instrument: 'trumpet' },
+  ],
+  releases: [{ releaseId: 'michael-jackson-off-the-wall' }],
 
   sections: [
     {

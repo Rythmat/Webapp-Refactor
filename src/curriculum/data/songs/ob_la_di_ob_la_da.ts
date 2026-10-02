@@ -16,6 +16,63 @@ export const ob_la_di_ob_la_da: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'abbey-road-studios' },
+  credits: [
+    { name: 'John Lennon', role: 'songwriter', artistGlobeId: 'john-lennon' },
+    { name: 'Ringo Starr', role: 'performer', instrument: 'handclaps' },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'john-lennon',
+    },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    {
+      name: 'George Harrison',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+    },
+    { name: 'Ringo Starr', role: 'performer', instrument: 'bongos' },
+    { name: 'Paul McCartney', role: 'vocals', artistGlobeId: 'paul-mccartney' },
+    {
+      name: 'Paul McCartney',
+      role: 'songwriter',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'Ringo Starr', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'handclaps',
+      artistGlobeId: 'john-lennon',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'handclaps',
+      artistGlobeId: 'paul-mccartney',
+    },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'john-lennon',
+    },
+    {
+      name: 'Paul McCartney',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'paul-mccartney',
+    },
+    { name: 'George Harrison', role: 'performer', instrument: 'handclaps' },
+    { name: 'Geoff Emerick', role: 'engineer' },
+    { name: 'George Martin', role: 'producer' },
+  ],
+  releases: [{ releaseId: 'the-beatles-the-beatles' }],
 
   sections: [
     {

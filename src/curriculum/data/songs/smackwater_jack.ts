@@ -16,6 +16,49 @@ export const smackwater_jack: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'a-m-studios' },
+  credits: [
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+    { name: 'Curtis Amy', role: 'performer', instrument: 'baritone-sax' },
+    { name: "Joel O'Brien", role: 'performer', instrument: 'drum-kit' },
+    { name: 'Merry Clayton', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Charles Larkey', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Julia Waters', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Gerry Goffin', role: 'songwriter', artistGlobeId: 'gerry-goffin' },
+    {
+      name: 'Carole King',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    { name: 'Lou Adler', role: 'producer', artistGlobeId: 'lou-adler' },
+    {
+      name: 'Danny Kortchmar',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    {
+      name: 'Carole King',
+      role: 'vocals',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    {
+      name: 'Carole King',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    {
+      name: 'Ralph Schuckett',
+      role: 'performer',
+      instrument: 'electric-piano',
+    },
+    { name: 'Hank Cicalo', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'carole-king-tapestry' }],
 
   sections: [
     {

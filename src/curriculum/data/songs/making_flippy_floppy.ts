@@ -16,6 +16,85 @@ export const making_flippy_floppy: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Jerry Harrison',
+      role: 'performer',
+      artistGlobeId: 'jerry-harrison',
+    },
+    {
+      name: 'Jerry Harrison',
+      role: 'songwriter',
+      artistGlobeId: 'jerry-harrison',
+    },
+    { name: 'Butch Jones', role: 'engineer' },
+    {
+      name: 'Chris Frantz',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'chris-frantz',
+    },
+    {
+      name: 'Chris Frantz',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'chris-frantz',
+    },
+    { name: 'David Byrne', role: 'songwriter', artistGlobeId: 'david-byrne' },
+    {
+      name: 'David Byrne',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'david-byrne',
+    },
+    {
+      name: 'Chris Frantz',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'chris-frantz',
+    },
+    { name: 'David Byrne', role: 'performer', artistGlobeId: 'david-byrne' },
+    { name: 'Alex Weir', role: 'performer' },
+    { name: 'David Byrne', role: 'vocals', artistGlobeId: 'david-byrne' },
+    {
+      name: 'Talking Heads',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'talking-heads',
+    },
+    { name: 'Chris Frantz', role: 'songwriter', artistGlobeId: 'chris-frantz' },
+    {
+      name: 'Tina Weymouth',
+      role: 'songwriter',
+      artistGlobeId: 'tina-weymouth',
+    },
+    {
+      name: 'Tina Weymouth',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'tina-weymouth',
+    },
+    {
+      name: 'Jerry Harrison',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'jerry-harrison',
+    },
+    { name: 'Alex Sadkin', role: 'engineer' },
+    {
+      name: 'Tina Weymouth',
+      role: 'performer',
+      artistGlobeId: 'tina-weymouth',
+    },
+    { name: 'Shankar', role: 'performer', instrument: 'violin' },
+    {
+      name: 'Tina Weymouth',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'tina-weymouth',
+    },
+  ],
+  releases: [{ releaseId: 'talking-heads-speaking-in-tongues' }],
 
   sections: [
     {

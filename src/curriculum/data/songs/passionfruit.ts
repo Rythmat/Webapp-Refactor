@@ -4,7 +4,7 @@ export const passionfruit: Song = {
   id: 'passionfruit',
   title: 'Passionfruit',
   artist: 'Drake/Scary Pockets',
-  year: undefined,
+  year: 2017,
 
   historicalDescription:
     "Scary Pockets reimagine Drake's 'Passionfruit' as a live-band funk workout, stripping away the minimalist R&B production and rebuilding it from the groove up. The cover highlights how deeply the original's melody and chord structure translate across genres — a testament to Drake's songwriting reaching far beyond hip hop and pop audiences.",
@@ -17,6 +17,18 @@ export const passionfruit: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Nana Rogues', role: 'songwriter', artistGlobeId: 'nana-rogues' },
+    { name: 'Noel Cadastre', role: 'engineer' },
+    { name: '40', role: 'songwriter', artistGlobeId: '40' },
+    { name: 'Nana Rogues', role: 'producer', artistGlobeId: 'nana-rogues' },
+    { name: 'Zoë Kravitz', role: 'vocals' },
+    { name: 'Moodymann', role: 'vocals' },
+    { name: 'Greg Moffet', role: 'engineer' },
+    { name: 'Drake', role: 'songwriter', artistGlobeId: 'drake' },
+    { name: 'Noel Campbell', role: 'engineer' },
+    { name: '40', role: 'engineer', artistGlobeId: '40' },
+  ],
 
   sections: [
     {

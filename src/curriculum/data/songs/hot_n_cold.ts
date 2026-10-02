@@ -16,6 +16,51 @@ export const hot_n_cold: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Dr. Luke', role: 'producer', artistGlobeId: 'dr-luke' },
+    { name: 'Nick Banns', role: 'engineer' },
+    { name: 'Dr. Luke', role: 'performer', artistGlobeId: 'dr-luke' },
+    { name: 'benny blanco', role: 'producer', artistGlobeId: 'benny-blanco' },
+    {
+      name: 'Dr. Luke',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'dr-luke',
+    },
+    { name: 'Tina Kennedy', role: 'engineer' },
+    { name: 'Max Martin', role: 'songwriter', artistGlobeId: 'max-martin' },
+    {
+      name: 'benny blanco',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'benny-blanco',
+    },
+    { name: 'Serban Ghenea', role: 'engineer' },
+    { name: 'Max Martin', role: 'performer', artistGlobeId: 'max-martin' },
+    { name: 'Sam Holland', role: 'engineer' },
+    {
+      name: 'Dr. Luke',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'dr-luke',
+    },
+    {
+      name: 'Łukasz Gottwald',
+      role: 'songwriter',
+      artistGlobeId: 'ukasz-gottwald',
+    },
+    { name: 'Emily Wright', role: 'engineer' },
+    { name: 'Tatiana Gottwald', role: 'engineer' },
+    { name: 'Katy Perry', role: 'songwriter', artistGlobeId: 'katy-perry' },
+    { name: 'John Hanes', role: 'engineer' },
+    {
+      name: 'Katy Perry',
+      role: 'vocals',
+      artistGlobeId: 'katy-perry',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'katy-perry-one-of-the-boys', track: 7 }],
 
   sections: [
     {

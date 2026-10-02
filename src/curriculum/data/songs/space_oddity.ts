@@ -16,6 +16,52 @@ export const space_oddity: Song = {
   difficulty: 3,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'trident-studios' },
+  credits: [
+    { name: 'Paul Buckmaster', role: 'arranger' },
+    { name: 'David Bowie', role: 'songwriter', artistGlobeId: 'david-bowie' },
+    {
+      name: 'David Bowie',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'Rick Wakeman', role: 'performer' },
+    { name: 'Herbie Flowers', role: 'performer' },
+    { name: 'Paul Buckmaster', role: 'performer', instrument: 'cello' },
+    {
+      name: 'David Bowie',
+      role: 'performer',
+      instrument: 'handclaps',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'David Bowie', role: 'arranger', artistGlobeId: 'david-bowie' },
+    {
+      name: 'David Bowie',
+      role: 'performer',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'Mick Wayne', role: 'performer', instrument: 'electric-guitar' },
+    { name: 'Gus Dudgeon', role: 'producer', artistGlobeId: 'gus-dudgeon' },
+    {
+      name: 'David Bowie',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    {
+      name: 'David Bowie',
+      role: 'vocals',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'Terry Cox', role: 'performer', instrument: 'drum-kit' },
+  ],
+  releases: [{ releaseId: 'david-bowie-david-bowie' }],
 
   sections: [
     {

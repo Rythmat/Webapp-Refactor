@@ -16,6 +16,24 @@ export const ho_hey: Song = {
   difficulty: 2,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  session: { studioId: 'bear-creek-studios' },
+  credits: [
+    {
+      name: 'Wesley Schultz',
+      role: 'songwriter',
+      artistGlobeId: 'wesley-schultz',
+    },
+    { name: 'Ryan Hadlock', role: 'engineer', artistGlobeId: 'ryan-hadlock' },
+    { name: 'Ryan Hadlock', role: 'producer', artistGlobeId: 'ryan-hadlock' },
+    {
+      name: 'Jeremiah Fraites',
+      role: 'songwriter',
+      artistGlobeId: 'jeremiah-fraites',
+    },
+    { name: 'Jerry Streeter', role: 'engineer' },
+    { name: 'Kevin Augunas', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'the-lumineers-the-lumineers', track: 5 }],
 
   sections: [
     {

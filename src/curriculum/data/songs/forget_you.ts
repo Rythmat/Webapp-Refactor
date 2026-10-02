@@ -16,6 +16,18 @@ export const forget_you: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Bruno Mars', role: 'songwriter', artistGlobeId: 'bruno-mars' },
+    { name: 'Ari Levine', role: 'songwriter', artistGlobeId: 'ari-levine' },
+    { name: 'CeeLo Green', role: 'songwriter', artistGlobeId: 'ceelo-green' },
+    { name: 'Brody Brown', role: 'songwriter', artistGlobeId: 'brody-brown' },
+    {
+      name: 'Philip Lawrence',
+      role: 'songwriter',
+      artistGlobeId: 'philip-lawrence',
+    },
+  ],
+  releases: [{ releaseId: 'ceelo-green-the-lady-killer', track: 3 }],
 
   sections: [
     {

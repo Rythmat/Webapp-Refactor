@@ -16,6 +16,34 @@ export const santeria: Song = {
   difficulty: 2,
   genreTags: ['reggae', 'rock'],
   techniques: [],
+  session: { studioId: 'pedernales-recording-studio' },
+  credits: [
+    { name: 'Eric Wilson', role: 'performer', artistGlobeId: 'eric-wilson' },
+    { name: 'Bradley Nowell', role: 'vocals', artistGlobeId: 'bradley-nowell' },
+    { name: 'Paul Leary', role: 'engineer', artistGlobeId: 'paul-leary' },
+    {
+      name: 'Bud Gaugh',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'bud-gaugh',
+    },
+    { name: 'Eric Wilson', role: 'songwriter', artistGlobeId: 'eric-wilson' },
+    { name: 'Paul Leary', role: 'producer', artistGlobeId: 'paul-leary' },
+    {
+      name: 'Bradley Nowell',
+      role: 'songwriter',
+      artistGlobeId: 'bradley-nowell',
+    },
+    { name: 'Bud Gaugh', role: 'songwriter', artistGlobeId: 'bud-gaugh' },
+    {
+      name: 'Bradley Nowell',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'bradley-nowell',
+    },
+    { name: 'Stuart Sullivan', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'sublime-sublime', track: 6 }],
 
   sections: [
     {

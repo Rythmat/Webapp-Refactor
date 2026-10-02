@@ -117,6 +117,19 @@ export interface PianoRollProps {
   instrument?: LessonInstrument;
   /** Guitar TAB only: drawn over the TAB from its layout (practice tools). */
   tabOverlay?: (layout: StaffLayout | null) => React.ReactNode;
+  /**
+   * Guitar only: the TAB / Notation switch in a header strip over the music
+   * (default). The guitar lesson layout moves that choice to its settings and
+   * passes false: no switch, and neither face draws a header.
+   */
+  guitarViewToggle?: boolean;
+  /**
+   * Guitar TAB, in time: the step is in its preview, so a TAB parked before
+   * the music opens on bar 1 rather than on the empty count-in bar (a
+   * phone's one-line TAB would show that bar alone). Off by default, and
+   * between two passes of a practice loop.
+   */
+  tabOpensOnMusic?: boolean;
 }
 
 // ===== Helpers =====
@@ -293,6 +306,8 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
   chordSymbols,
   instrument = 'piano',
   tabOverlay,
+  guitarViewToggle = true,
+  tabOpensOnMusic = false,
 }) => {
   const laneList = buildLaneList(
     events,
@@ -467,10 +482,21 @@ const GenrePianoRoll: React.FC<PianoRollProps> = ({
       performanceMeta,
       height: rowHeight + (showTimeline ? 40 : 0),
       chordSymbols,
-      toggle: <GuitarViewToggle view={guitarView} onChange={setGuitarView} />,
+      ...(guitarViewToggle
+        ? {
+            toggle: (
+              <GuitarViewToggle view={guitarView} onChange={setGuitarView} />
+            ),
+          }
+        : { toggle: null, showHeader: false }),
     };
     return guitarView === 'tab' ? (
-      <LearnTabView {...face} overlay={tabOverlay} />
+      <LearnTabView
+        {...face}
+        overlay={tabOverlay}
+        playing={playing}
+        openOnMusic={tabOpensOnMusic}
+      />
     ) : (
       <LearnNotationView
         {...face}

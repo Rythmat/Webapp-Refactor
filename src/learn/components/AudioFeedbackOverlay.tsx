@@ -157,7 +157,7 @@ export const AudioFeedbackOverlay = memo(function AudioFeedbackOverlay({
               fontSize: 16,
               fontWeight: 700,
               color: '#60a5fa',
-              fontFamily: 'monospace',
+              fontFamily: 'inherit',
             }}
           >
             {primaryNote.name}
@@ -166,7 +166,8 @@ export const AudioFeedbackOverlay = memo(function AudioFeedbackOverlay({
             style={{
               fontSize: 10,
               color: 'rgba(96, 165, 250, 0.7)',
-              fontFamily: 'monospace',
+              fontFamily: 'inherit',
+              fontVariantNumeric: 'tabular-nums',
             }}
           >
             {primaryNote.octave}
@@ -190,7 +191,7 @@ export const AudioFeedbackOverlay = memo(function AudioFeedbackOverlay({
           style={{
             fontSize: 10,
             color: 'rgba(255, 255, 255, 0.5)',
-            fontFamily: 'monospace',
+            fontFamily: 'inherit',
           }}
         >
           {noteDisplay}

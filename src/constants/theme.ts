@@ -8,12 +8,19 @@ export const SCREEN_SIZES = {
   xl: 1536,
 };
 
+/**
+ * The brand steps, in the landing look: the white pill and its hover/active
+ * greys. Brand yellow (#FFCC33 and its family) was retired from the UI on
+ * 29 Sep 2026; yellow now appears only where it means something — A's key
+ * colour below is the same hue, which is why it could not stay a UI accent.
+ * These are fallbacks; src/styles/appTheme.css sets the live values.
+ */
 const COLORS = {
-  'brand-darker': '#F2920C',
-  'brand-dark': '#FFB219',
-  'brand-base': '#FFCC33',
-  'brand-light': '#FFE873',
-  'brand-lighter': '#FFF9B2',
+  'brand-darker': '#D1D1D3', // active, white/82
+  'brand-dark': '#E6E6E8', // hover, white/90
+  'brand-base': '#FFFFFF',
+  'brand-light': '#FFFFFF',
+  'brand-lighter': '#FFFFFF',
 };
 
 const SEMANTIC_COLORS = {
@@ -68,6 +75,21 @@ export const KEY_OF_COLORS = {
   F: '#F8A8C5',
 };
 
+/**
+ * A theme colour that a surface can re-skin by setting `--ui-<name>` (an HSL
+ * triplet, e.g. `0 0% 100%`). Unset, the fallback is exactly `hex`.
+ * `src/styles/appTheme.css` sets them on `:root` — the root rather than a
+ * wrapper, so Radix portals pick them up too.
+ */
+const themed = (name: string, hex: string) => {
+  const { h, s, l } = colord(hex).toHsl();
+  return `hsl(var(--ui-${name}, ${h} ${s}% ${l}%) / <alpha-value>)`;
+};
+
+const BRAND_COLORS = Object.fromEntries(
+  Object.entries(COLORS).map(([name, hex]) => [name, themed(name, hex)]),
+);
+
 export const theme: Config['theme'] = {
   container: {
     padding: '1rem',
@@ -114,65 +136,71 @@ export const theme: Config['theme'] = {
         'fade-in-bottom 0.4s cubic-bezier(0.39, 0.575, 0.565, 1)',
     },
     colors: {
-      ...COLOR_SURFACES,
+      'surface-box': themed('surface-box', COLOR_SURFACES['surface-box']),
       ...COLOR_SHADES,
-      ...COLORS,
+      ...BRAND_COLORS,
       ...COLOR_GREYS,
       ...SEMANTIC_COLORS,
       primary: {
         // Primary UI elements like buttons, active states.
-        DEFAULT: colord(COLORS['brand-base']).toHslString(),
+        DEFAULT: themed('primary', COLORS['brand-base']),
         // Text/icon color on primary background.
-        foreground: colord(COLOR_GREYS['grey-darkest']).toHslString(),
+        foreground: themed('primary-foreground', COLOR_GREYS['grey-darkest']),
       },
       secondary: {
         // Secondary UI elements like less prominent buttons or highlights.
-        DEFAULT: colord(COLORS['brand-dark']).toHslString(),
+        DEFAULT: themed('secondary', COLORS['brand-dark']),
         // Text/icon color on secondary background.
-        foreground: colord(COLOR_GREYS['grey-lightest']).toHslString(),
+        foreground: themed(
+          'secondary-foreground',
+          COLOR_GREYS['grey-lightest'],
+        ),
       },
       // Default page background.
-      background: colord(COLOR_GREYS['grey-darkest']).toHslString(),
+      background: themed('background', COLOR_GREYS['grey-darkest']),
       // Default text/icon color on the page background.
-      foreground: colord(COLOR_GREYS['grey-lightest']).toHslString(),
+      foreground: themed('foreground', COLOR_GREYS['grey-lightest']),
       card: {
         // Background color for card-like components.
-        DEFAULT: colord(COLOR_GREYS['grey-dark']).toHslString(),
+        DEFAULT: themed('card', COLOR_GREYS['grey-dark']),
         // Text/icon color on card background.
-        foreground: colord(COLOR_GREYS['grey-lightest']).toHslString(),
+        foreground: themed('card-foreground', COLOR_GREYS['grey-lightest']),
       },
       cream: {
         // Custom color for cream-like backgrounds.
-        DEFAULT: colord(COLORS['brand-lighter']).toHslString(),
+        DEFAULT: themed('cream', COLORS['brand-lighter']),
         // Text/icon color on cream background.
-        dark: colord(COLORS['brand-darker']).toHslString(),
+        dark: themed('cream-dark', COLORS['brand-darker']),
       },
       // Background for popovers, tooltips, dropdown menus.
       popover: {
-        DEFAULT: colord(COLORS['brand-dark']).toHslString(),
-        foreground: colord(COLOR_GREYS['grey-lightest']).toHslString(),
+        DEFAULT: themed('popover', COLORS['brand-dark']),
+        foreground: themed('popover-foreground', COLOR_GREYS['grey-lightest']),
       },
       // Muted backgrounds for subtle elements, often used for disabled states or secondary text.
       muted: {
-        DEFAULT: colord(COLOR_GREYS['grey-dark']).toHslString(),
-        foreground: colord(COLOR_GREYS['grey-lighter']).toHslString(),
+        DEFAULT: themed('muted', COLOR_GREYS['grey-dark']),
+        foreground: themed('muted-foreground', COLOR_GREYS['grey-lighter']),
       },
       // Accent color for elements like borders on focused inputs, highlights.
       accent: {
-        DEFAULT: colord(COLORS['brand-darker']).toHslString(),
-        foreground: colord(COLOR_GREYS['grey-lightest']).toHslString(),
+        DEFAULT: themed('accent', COLORS['brand-darker']),
+        foreground: themed('accent-foreground', COLOR_GREYS['grey-lightest']),
       },
       // Destructive actions like delete buttons, error messages.
       destructive: {
-        DEFAULT: colord(SEMANTIC_COLORS['danger-darker']).toHslString(),
-        foreground: colord(COLOR_GREYS['grey-lightest']).toHslString(),
+        DEFAULT: themed('destructive', SEMANTIC_COLORS['danger-darker']),
+        foreground: themed(
+          'destructive-foreground',
+          COLOR_GREYS['grey-lightest'],
+        ),
       },
       // Borders for components like inputs, cards, dividers.
-      border: colord(COLOR_GREYS['grey-dark']).toHslString(),
+      border: themed('border', COLOR_GREYS['grey-dark']),
       // Border color specifically for input fields.
-      input: colord(COLOR_GREYS['grey-dark']).toHslString(),
+      input: themed('input', COLOR_GREYS['grey-dark']),
       // Focus rings for interactive elements.
-      ring: colord(COLOR_GREYS['grey-dark']).toHslString(),
+      ring: themed('ring', COLOR_GREYS['grey-dark']),
       chart: {
         '1': 'hsl(var(--chart-1))',
         '2': 'hsl(var(--chart-2))',

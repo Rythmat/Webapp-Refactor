@@ -16,6 +16,53 @@ export const where_is_the_love: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'George Pajon, Jr.',
+      role: 'songwriter',
+      artistGlobeId: 'george-pajon-jr',
+    },
+    { name: 'Fergie', role: 'vocals', artistGlobeId: 'fergie' },
+    {
+      name: 'Black Eyed Peas',
+      role: 'performer',
+      ensemble: true,
+      primary: true,
+      artistGlobeId: 'black-eyed-peas',
+    },
+    { name: 'will.i.am', role: 'songwriter', artistGlobeId: 'will-i-am' },
+    {
+      name: 'Mike Fratantuno',
+      role: 'songwriter',
+      artistGlobeId: 'mike-fratantuno',
+    },
+    { name: 'Ron Fair', role: 'arranger', artistGlobeId: 'ron-fair' },
+    { name: 'Ron Fair', role: 'producer', artistGlobeId: 'ron-fair' },
+    { name: 'Tony Maserati', role: 'engineer' },
+    {
+      name: 'Justin Timberlake',
+      role: 'vocals',
+      primary: true,
+      artistGlobeId: 'justin-timberlake',
+    },
+    { name: 'apl.de.ap', role: 'songwriter', artistGlobeId: 'apl-de-ap' },
+    { name: 'will.i.am', role: 'vocals', artistGlobeId: 'will-i-am' },
+    { name: 'J. Curtis', role: 'songwriter', artistGlobeId: 'j-curtis' },
+    {
+      name: 'Justin Timberlake',
+      role: 'songwriter',
+      artistGlobeId: 'justin-timberlake',
+    },
+    { name: 'apl.de.ap', role: 'vocals', artistGlobeId: 'apl-de-ap' },
+    { name: 'Dylan Dresdow', role: 'engineer' },
+    { name: 'Printz Board', role: 'songwriter', artistGlobeId: 'printz-board' },
+    { name: 'Taboo', role: 'songwriter', artistGlobeId: 'taboo' },
+    { name: 'will.i.am', role: 'producer', artistGlobeId: 'will-i-am' },
+    { name: 'Ron Fair', role: 'conductor', artistGlobeId: 'ron-fair' },
+    { name: 'Tal Herzberg', role: 'engineer' },
+    { name: 'Taboo', role: 'vocals', artistGlobeId: 'taboo' },
+  ],
+  releases: [{ releaseId: 'black-eyed-peas-elephunk', track: 13 }],
 
   sections: [
     {

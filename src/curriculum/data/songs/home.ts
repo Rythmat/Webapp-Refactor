@@ -16,6 +16,21 @@ export const home: Song = {
   difficulty: 2,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Alexander Ebert',
+      role: 'songwriter',
+      artistGlobeId: 'alexander-ebert',
+    },
+    {
+      name: 'Jade Castrinos',
+      role: 'songwriter',
+      artistGlobeId: 'jade-castrinos',
+    },
+  ],
+  releases: [
+    { releaseId: 'edward-sharpe-and-the-magnetic-zeros-up-from-below' },
+  ],
 
   sections: [
     {

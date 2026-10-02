@@ -1,0 +1,2900 @@
+{
+  "genres": [
+    {
+      "id": "blues",
+      "name": "Blues",
+      "taught": true
+    },
+    {
+      "id": "caribbean",
+      "name": "Caribbean",
+      "taught": false
+    },
+    {
+      "id": "central-african",
+      "name": "Central African",
+      "taught": false
+    },
+    {
+      "id": "central-asian",
+      "name": "Central Asian",
+      "taught": false
+    },
+    {
+      "id": "classical",
+      "name": "Classical",
+      "taught": false
+    },
+    {
+      "id": "east-african",
+      "name": "East African",
+      "taught": false
+    },
+    {
+      "id": "east-asian",
+      "name": "East Asian",
+      "taught": false
+    },
+    {
+      "id": "east-european",
+      "name": "East European",
+      "taught": false
+    },
+    {
+      "id": "electronic",
+      "name": "Electronic",
+      "taught": true
+    },
+    {
+      "id": "folk",
+      "name": "Folk",
+      "taught": true
+    },
+    {
+      "id": "funk",
+      "name": "Funk",
+      "taught": true
+    },
+    {
+      "id": "hip-hop",
+      "name": "Hip Hop",
+      "taught": true
+    },
+    {
+      "id": "indigenous-american",
+      "name": "Indigenous American",
+      "taught": false
+    },
+    {
+      "id": "jam-band",
+      "name": "Jam Band",
+      "taught": true
+    },
+    {
+      "id": "jazz",
+      "name": "Jazz",
+      "taught": true
+    },
+    {
+      "id": "latin",
+      "name": "Latin",
+      "taught": true
+    },
+    {
+      "id": "north-african",
+      "name": "North African",
+      "taught": false
+    },
+    {
+      "id": "oceanian",
+      "name": "Oceanian",
+      "taught": false
+    },
+    {
+      "id": "pop",
+      "name": "Pop",
+      "taught": true
+    },
+    {
+      "id": "reggae",
+      "name": "Reggae",
+      "taught": true
+    },
+    {
+      "id": "rnb",
+      "name": "R&B",
+      "taught": true
+    },
+    {
+      "id": "rock",
+      "name": "Rock",
+      "taught": true
+    },
+    {
+      "id": "south-african",
+      "name": "Southern African",
+      "taught": false
+    },
+    {
+      "id": "south-asian",
+      "name": "South Asian",
+      "taught": false
+    },
+    {
+      "id": "south-european",
+      "name": "South European",
+      "taught": false
+    },
+    {
+      "id": "southeast-asian",
+      "name": "Southeast Asian",
+      "taught": false
+    },
+    {
+      "id": "west-african",
+      "name": "West African",
+      "taught": false
+    },
+    {
+      "id": "west-asian",
+      "name": "West Asian",
+      "taught": false
+    },
+    {
+      "id": "west-european",
+      "name": "West European",
+      "taught": false
+    }
+  ],
+  "subgenres": [
+    {
+      "id": "aboriginal-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "abstract-hip-hop",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "acid-house",
+      "parent": "electronic"
+    },
+    {
+      "id": "acid-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "acoustic",
+      "parent": "folk"
+    },
+    {
+      "id": "acoustic-blues",
+      "parent": "blues"
+    },
+    {
+      "id": "acoustic-rock",
+      "parent": "folk"
+    },
+    {
+      "id": "acoustic-soul",
+      "parent": "funk"
+    },
+    {
+      "id": "adult-contemporary",
+      "parent": "pop"
+    },
+    {
+      "id": "afar-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "afghan-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "african-hip-hop",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "afro-caribbean",
+      "parent": "west-african"
+    },
+    {
+      "id": "afro-cuban",
+      "parent": "latin"
+    },
+    {
+      "id": "afro-cuban-jazz",
+      "parent": "latin"
+    },
+    {
+      "id": "afro-funk",
+      "parent": "funk"
+    },
+    {
+      "id": "afro-fusion",
+      "parent": "jazz"
+    },
+    {
+      "id": "afro-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "afro-manding",
+      "parent": "west-african"
+    },
+    {
+      "id": "afro-peruvian",
+      "parent": "west-african"
+    },
+    {
+      "id": "afro-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "afro-portuguese",
+      "parent": "west-african"
+    },
+    {
+      "id": "afro-psych",
+      "parent": "west-african"
+    },
+    {
+      "id": "afro-soul",
+      "parent": "funk"
+    },
+    {
+      "id": "afrobeat",
+      "parent": "west-african"
+    },
+    {
+      "id": "afrobeats",
+      "parent": "west-african"
+    },
+    {
+      "id": "afroswing",
+      "parent": "jazz"
+    },
+    {
+      "id": "alt-country",
+      "parent": "folk"
+    },
+    {
+      "id": "alternative",
+      "parent": "rock"
+    },
+    {
+      "id": "alternative-hip-hop",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "alternative-metal",
+      "parent": "rock"
+    },
+    {
+      "id": "alternative-r-b",
+      "parent": "funk"
+    },
+    {
+      "id": "alternative-reggae",
+      "parent": "reggae"
+    },
+    {
+      "id": "alternative-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "amapiano",
+      "parent": "electronic"
+    },
+    {
+      "id": "ambient",
+      "parent": "electronic"
+    },
+    {
+      "id": "ambient-techno",
+      "parent": "electronic"
+    },
+    {
+      "id": "americana",
+      "parent": "folk"
+    },
+    {
+      "id": "anatolian-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "andalusi-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "andalusian",
+      "parent": "north-african"
+    },
+    {
+      "id": "andalusian-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "andean",
+      "parent": "indigenous-american"
+    },
+    {
+      "id": "andean-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "appalachian",
+      "parent": "folk"
+    },
+    {
+      "id": "arabian-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "arabic-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "arabic-indie",
+      "parent": "rock"
+    },
+    {
+      "id": "arabic-indie-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "arabic-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "armenian-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "armenian-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "art-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "art-punk",
+      "parent": "rock"
+    },
+    {
+      "id": "art-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "avant-garde",
+      "parent": "jazz"
+    },
+    {
+      "id": "avant-garde-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "azerbaijani-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "azerbaijani-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "bachata",
+      "parent": "latin"
+    },
+    {
+      "id": "baile-funk",
+      "parent": "funk"
+    },
+    {
+      "id": "balearic-beat",
+      "parent": "electronic"
+    },
+    {
+      "id": "ballad",
+      "parent": "pop"
+    },
+    {
+      "id": "ballet",
+      "parent": "classical"
+    },
+    {
+      "id": "baroque",
+      "parent": "classical"
+    },
+    {
+      "id": "baul",
+      "parent": "south-asian"
+    },
+    {
+      "id": "bebop",
+      "parent": "jazz"
+    },
+    {
+      "id": "benga",
+      "parent": "east-african"
+    },
+    {
+      "id": "bengali-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "bhutanese-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "big-band",
+      "parent": "jazz"
+    },
+    {
+      "id": "black-metal",
+      "parent": "rock"
+    },
+    {
+      "id": "blue-eyed-soul",
+      "parent": "funk"
+    },
+    {
+      "id": "bluegrass",
+      "parent": "folk"
+    },
+    {
+      "id": "blues-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "blues-rock",
+      "parent": "blues"
+    },
+    {
+      "id": "bluesy-pop",
+      "parent": "blues"
+    },
+    {
+      "id": "bolero",
+      "parent": "latin"
+    },
+    {
+      "id": "bollywood",
+      "parent": "south-asian"
+    },
+    {
+      "id": "bongo-flava",
+      "parent": "east-african"
+    },
+    {
+      "id": "boogie",
+      "parent": "blues"
+    },
+    {
+      "id": "bossa-nova",
+      "parent": "latin"
+    },
+    {
+      "id": "bouyon",
+      "parent": "caribbean"
+    },
+    {
+      "id": "brazilian-hip-hop",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "british-blues",
+      "parent": "blues"
+    },
+    {
+      "id": "britpop",
+      "parent": "rock"
+    },
+    {
+      "id": "bubblegum-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "burmese-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "c-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "california-reggae",
+      "parent": "reggae"
+    },
+    {
+      "id": "calypso",
+      "parent": "caribbean"
+    },
+    {
+      "id": "cambodian-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "cape-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "carnatic",
+      "parent": "south-asian"
+    },
+    {
+      "id": "celtic",
+      "parent": "folk"
+    },
+    {
+      "id": "central-asian-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "cha-cha-cha",
+      "parent": "latin"
+    },
+    {
+      "id": "chaabi",
+      "parent": "north-african"
+    },
+    {
+      "id": "chamber-folk",
+      "parent": "classical"
+    },
+    {
+      "id": "chamber-jazz",
+      "parent": "classical"
+    },
+    {
+      "id": "chamber-music",
+      "parent": "classical"
+    },
+    {
+      "id": "chamber-pop",
+      "parent": "classical"
+    },
+    {
+      "id": "chanson",
+      "parent": "west-european"
+    },
+    {
+      "id": "charanga",
+      "parent": "latin"
+    },
+    {
+      "id": "chicago-blues",
+      "parent": "blues"
+    },
+    {
+      "id": "chicha",
+      "parent": "latin"
+    },
+    {
+      "id": "chinese-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "chopped-screwed",
+      "parent": "west-african"
+    },
+    {
+      "id": "choral",
+      "parent": "classical"
+    },
+    {
+      "id": "chutney",
+      "parent": "caribbean"
+    },
+    {
+      "id": "city-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "classic-blues",
+      "parent": "blues"
+    },
+    {
+      "id": "classic-country",
+      "parent": "folk"
+    },
+    {
+      "id": "classic-folk-rock",
+      "parent": "folk"
+    },
+    {
+      "id": "classic-jazz-pop",
+      "parent": "jazz"
+    },
+    {
+      "id": "classic-motown",
+      "parent": "funk"
+    },
+    {
+      "id": "classic-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "classic-pop-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "classic-r-b",
+      "parent": "funk"
+    },
+    {
+      "id": "classic-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "classic-rock-pop",
+      "parent": "rock"
+    },
+    {
+      "id": "classic-soul",
+      "parent": "funk"
+    },
+    {
+      "id": "classical-fusion",
+      "parent": "classical"
+    },
+    {
+      "id": "congolese-rumba",
+      "parent": "central-african"
+    },
+    {
+      "id": "conscious-rap",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "contemporary-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "cool-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "country",
+      "parent": "folk"
+    },
+    {
+      "id": "country-ballad",
+      "parent": "folk"
+    },
+    {
+      "id": "country-blues",
+      "parent": "blues"
+    },
+    {
+      "id": "country-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "country-pop",
+      "parent": "folk"
+    },
+    {
+      "id": "country-pop-ballad",
+      "parent": "folk"
+    },
+    {
+      "id": "country-rock",
+      "parent": "folk"
+    },
+    {
+      "id": "coupe-decale",
+      "parent": "west-african"
+    },
+    {
+      "id": "court-music",
+      "parent": "classical"
+    },
+    {
+      "id": "crunk",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "cuban-hip-hop",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "cumbia",
+      "parent": "latin"
+    },
+    {
+      "id": "cumbia-peruana",
+      "parent": "latin"
+    },
+    {
+      "id": "cumbia-rock",
+      "parent": "latin"
+    },
+    {
+      "id": "cumbia-sonidera",
+      "parent": "latin"
+    },
+    {
+      "id": "cumbia-villera",
+      "parent": "latin"
+    },
+    {
+      "id": "dance",
+      "parent": "pop"
+    },
+    {
+      "id": "dance-music",
+      "parent": "pop"
+    },
+    {
+      "id": "dance-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "dancehall",
+      "parent": "reggae"
+    },
+    {
+      "id": "dangdut",
+      "parent": "southeast-asian"
+    },
+    {
+      "id": "danzon",
+      "parent": "latin"
+    },
+    {
+      "id": "dark-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "death-metal",
+      "parent": "rock"
+    },
+    {
+      "id": "delta-blues",
+      "parent": "blues"
+    },
+    {
+      "id": "dembow",
+      "parent": "reggae"
+    },
+    {
+      "id": "desert-blues",
+      "parent": "blues"
+    },
+    {
+      "id": "desert-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "disco",
+      "parent": "funk"
+    },
+    {
+      "id": "dixieland",
+      "parent": "jazz"
+    },
+    {
+      "id": "downtempo",
+      "parent": "electronic"
+    },
+    {
+      "id": "drill",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "drum-and-bass",
+      "parent": "electronic"
+    },
+    {
+      "id": "dub",
+      "parent": "reggae"
+    },
+    {
+      "id": "dubstep",
+      "parent": "reggae"
+    },
+    {
+      "id": "duduk",
+      "parent": "classical"
+    },
+    {
+      "id": "east-coast-rap",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "easy-listening",
+      "parent": "pop"
+    },
+    {
+      "id": "ecm-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "edm",
+      "parent": "electronic"
+    },
+    {
+      "id": "electric-blues",
+      "parent": "blues"
+    },
+    {
+      "id": "electro-cumbia",
+      "parent": "latin"
+    },
+    {
+      "id": "electro-funk",
+      "parent": "funk"
+    },
+    {
+      "id": "electronic-rock",
+      "parent": "electronic"
+    },
+    {
+      "id": "electronica",
+      "parent": "electronic"
+    },
+    {
+      "id": "electropop",
+      "parent": "electronic"
+    },
+    {
+      "id": "emo",
+      "parent": "rock"
+    },
+    {
+      "id": "ethio-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "ethiopian",
+      "parent": "east-african"
+    },
+    {
+      "id": "european-reggae",
+      "parent": "reggae"
+    },
+    {
+      "id": "europop",
+      "parent": "pop"
+    },
+    {
+      "id": "ewe-drumming",
+      "parent": "west-african"
+    },
+    {
+      "id": "experimental",
+      "parent": "rock"
+    },
+    {
+      "id": "experimental-hip-hop",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "extreme-metal",
+      "parent": "rock"
+    },
+    {
+      "id": "fado",
+      "parent": "south-european"
+    },
+    {
+      "id": "fado-timorense",
+      "parent": "south-european"
+    },
+    {
+      "id": "fijian-choral",
+      "parent": "classical"
+    },
+    {
+      "id": "fijian-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "filipino-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "film-scoring",
+      "parent": "classical"
+    },
+    {
+      "id": "filmi",
+      "parent": "south-asian"
+    },
+    {
+      "id": "flamenco",
+      "parent": "latin"
+    },
+    {
+      "id": "folk-ballad",
+      "parent": "folk"
+    },
+    {
+      "id": "folk-blues",
+      "parent": "blues"
+    },
+    {
+      "id": "folk-pop",
+      "parent": "folk"
+    },
+    {
+      "id": "folk-punk",
+      "parent": "folk"
+    },
+    {
+      "id": "folk-rock",
+      "parent": "folk"
+    },
+    {
+      "id": "folk-song",
+      "parent": "folk"
+    },
+    {
+      "id": "folk-soul",
+      "parent": "funk"
+    },
+    {
+      "id": "free-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "funk-fusion",
+      "parent": "jazz"
+    },
+    {
+      "id": "funk-pop",
+      "parent": "funk"
+    },
+    {
+      "id": "funk-rock",
+      "parent": "funk"
+    },
+    {
+      "id": "funky",
+      "parent": "funk"
+    },
+    {
+      "id": "funky-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "funky-jazz-soul",
+      "parent": "jazz"
+    },
+    {
+      "id": "funky-motown",
+      "parent": "funk"
+    },
+    {
+      "id": "funky-pop",
+      "parent": "funk"
+    },
+    {
+      "id": "funky-reggae",
+      "parent": "reggae"
+    },
+    {
+      "id": "funky-soul",
+      "parent": "funk"
+    },
+    {
+      "id": "funky-soul-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "future-soul",
+      "parent": "funk"
+    },
+    {
+      "id": "g-funk",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "gagaku",
+      "parent": "east-asian"
+    },
+    {
+      "id": "gamelan",
+      "parent": "southeast-asian"
+    },
+    {
+      "id": "garage-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "garage-rock-revival",
+      "parent": "rock"
+    },
+    {
+      "id": "georgian-polyphony",
+      "parent": "classical"
+    },
+    {
+      "id": "ghana",
+      "parent": "west-african"
+    },
+    {
+      "id": "glam-pop",
+      "parent": "rock"
+    },
+    {
+      "id": "glam-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "gnawa",
+      "parent": "north-african"
+    },
+    {
+      "id": "go-go",
+      "parent": "funk"
+    },
+    {
+      "id": "gospel",
+      "parent": "funk"
+    },
+    {
+      "id": "gospel-choir",
+      "parent": "funk"
+    },
+    {
+      "id": "gospel-rap",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "greek-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "grime",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "griot",
+      "parent": "west-african"
+    },
+    {
+      "id": "griot-tradition",
+      "parent": "west-african"
+    },
+    {
+      "id": "groove-metal",
+      "parent": "rock"
+    },
+    {
+      "id": "group-sounds",
+      "parent": "rock"
+    },
+    {
+      "id": "grunge",
+      "parent": "rock"
+    },
+    {
+      "id": "grunge-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "gulf-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "gully-rap",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "gumbe",
+      "parent": "west-african"
+    },
+    {
+      "id": "hard-bop",
+      "parent": "jazz"
+    },
+    {
+      "id": "hard-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "hardcore",
+      "parent": "rock"
+    },
+    {
+      "id": "hardcore-punk",
+      "parent": "rock"
+    },
+    {
+      "id": "hardcore-rap",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "hawaiian",
+      "parent": "oceanian"
+    },
+    {
+      "id": "heartland-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "heavy-metal",
+      "parent": "rock"
+    },
+    {
+      "id": "highlife",
+      "parent": "west-african"
+    },
+    {
+      "id": "hill-country-blues",
+      "parent": "blues"
+    },
+    {
+      "id": "hindustani-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "hip-hop-r-b",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "hip-hop-soul",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "hipco",
+      "parent": "west-african"
+    },
+    {
+      "id": "hiplife",
+      "parent": "west-african"
+    },
+    {
+      "id": "hot-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "house",
+      "parent": "electronic"
+    },
+    {
+      "id": "hyperpop",
+      "parent": "pop"
+    },
+    {
+      "id": "idm",
+      "parent": "electronic"
+    },
+    {
+      "id": "impressionism",
+      "parent": "classical"
+    },
+    {
+      "id": "indian-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "indian-hip-hop",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "indie",
+      "parent": "rock"
+    },
+    {
+      "id": "indie-dance",
+      "parent": "rock"
+    },
+    {
+      "id": "indie-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "indie-folk-rock",
+      "parent": "folk"
+    },
+    {
+      "id": "indie-hip-hop",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "indie-pop",
+      "parent": "rock"
+    },
+    {
+      "id": "indie-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "indigenous",
+      "parent": "indigenous-american"
+    },
+    {
+      "id": "indonesian-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "industrial",
+      "parent": "electronic"
+    },
+    {
+      "id": "iraqi-maqam",
+      "parent": "west-asian"
+    },
+    {
+      "id": "irish-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "island-reggae",
+      "parent": "reggae"
+    },
+    {
+      "id": "iso-polyphony",
+      "parent": "classical"
+    },
+    {
+      "id": "j-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "jam-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "jangle-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "japanese-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "japanese-hip-hop",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "japanese-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "javanese-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "jazz-ballad",
+      "parent": "jazz"
+    },
+    {
+      "id": "jazz-funk",
+      "parent": "jazz"
+    },
+    {
+      "id": "jazz-fusion",
+      "parent": "jazz"
+    },
+    {
+      "id": "jazz-rap",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "jazz-waltz",
+      "parent": "jazz"
+    },
+    {
+      "id": "jazzy-pop",
+      "parent": "jazz"
+    },
+    {
+      "id": "jingles",
+      "parent": "pop"
+    },
+    {
+      "id": "juju",
+      "parent": "west-african"
+    },
+    {
+      "id": "jungle",
+      "parent": "electronic"
+    },
+    {
+      "id": "junkanoo",
+      "parent": "caribbean"
+    },
+    {
+      "id": "k-hip-hop",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "k-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "kaiso",
+      "parent": "caribbean"
+    },
+    {
+      "id": "kazakh-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "kenyan-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "khaleeji-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "khaliji",
+      "parent": "west-asian"
+    },
+    {
+      "id": "khmer-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "khmer-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "kompa",
+      "parent": "caribbean"
+    },
+    {
+      "id": "kora-music",
+      "parent": "west-african"
+    },
+    {
+      "id": "korean-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "krautrock",
+      "parent": "rock"
+    },
+    {
+      "id": "kuduro",
+      "parent": "electronic"
+    },
+    {
+      "id": "kwaito",
+      "parent": "south-african"
+    },
+    {
+      "id": "kyrgyz-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "latin-alternative",
+      "parent": "latin"
+    },
+    {
+      "id": "latin-boogaloo",
+      "parent": "latin"
+    },
+    {
+      "id": "latin-folk",
+      "parent": "latin"
+    },
+    {
+      "id": "latin-funk",
+      "parent": "latin"
+    },
+    {
+      "id": "latin-hip-hop",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "latin-jazz",
+      "parent": "latin"
+    },
+    {
+      "id": "latin-pop",
+      "parent": "latin"
+    },
+    {
+      "id": "latin-rock",
+      "parent": "latin"
+    },
+    {
+      "id": "latin-trap",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "latin-urban",
+      "parent": "latin"
+    },
+    {
+      "id": "lebanese-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "lounge-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "lovers-rock",
+      "parent": "reggae"
+    },
+    {
+      "id": "luk-thung",
+      "parent": "southeast-asian"
+    },
+    {
+      "id": "mahraganat",
+      "parent": "south-asian"
+    },
+    {
+      "id": "makossa",
+      "parent": "west-african"
+    },
+    {
+      "id": "malay-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "malay-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "malaysian-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "maldivian-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "malipenga",
+      "parent": "west-african"
+    },
+    {
+      "id": "maluf",
+      "parent": "north-african"
+    },
+    {
+      "id": "mambo",
+      "parent": "latin"
+    },
+    {
+      "id": "mande",
+      "parent": "west-african"
+    },
+    {
+      "id": "mande-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "mandopop",
+      "parent": "pop"
+    },
+    {
+      "id": "maori-music",
+      "parent": "oceanian"
+    },
+    {
+      "id": "maqam",
+      "parent": "west-asian"
+    },
+    {
+      "id": "mardi-gras-indian",
+      "parent": "south-asian"
+    },
+    {
+      "id": "mariachi",
+      "parent": "classical"
+    },
+    {
+      "id": "maskandi",
+      "parent": "reggae"
+    },
+    {
+      "id": "math-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "mbalax",
+      "parent": "west-african"
+    },
+    {
+      "id": "mbaqanga",
+      "parent": "south-african"
+    },
+    {
+      "id": "mediterranean-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "memphis-blues",
+      "parent": "blues"
+    },
+    {
+      "id": "mento",
+      "parent": "reggae"
+    },
+    {
+      "id": "merengue",
+      "parent": "latin"
+    },
+    {
+      "id": "merseybeat",
+      "parent": "rock"
+    },
+    {
+      "id": "metal",
+      "parent": "rock"
+    },
+    {
+      "id": "metalcore",
+      "parent": "rock"
+    },
+    {
+      "id": "minimal-techno",
+      "parent": "electronic"
+    },
+    {
+      "id": "minimalism",
+      "parent": "classical"
+    },
+    {
+      "id": "minimalist-funk",
+      "parent": "classical"
+    },
+    {
+      "id": "modal-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "mongolian-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "moorish-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "morna",
+      "parent": "west-african"
+    },
+    {
+      "id": "motown",
+      "parent": "funk"
+    },
+    {
+      "id": "motswako",
+      "parent": "south-african"
+    },
+    {
+      "id": "mpb",
+      "parent": "latin"
+    },
+    {
+      "id": "mugham",
+      "parent": "west-asian"
+    },
+    {
+      "id": "musical-theatre",
+      "parent": "pop"
+    },
+    {
+      "id": "native-american",
+      "parent": "indigenous-american"
+    },
+    {
+      "id": "nauruan-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "neapolitan-song",
+      "parent": "south-european"
+    },
+    {
+      "id": "neo-bop",
+      "parent": "jazz"
+    },
+    {
+      "id": "neo-psychedelia",
+      "parent": "rock"
+    },
+    {
+      "id": "neo-soul",
+      "parent": "funk"
+    },
+    {
+      "id": "nepali-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "new-jack-swing",
+      "parent": "jazz"
+    },
+    {
+      "id": "new-orleans-funk",
+      "parent": "funk"
+    },
+    {
+      "id": "new-orleans-r-b",
+      "parent": "funk"
+    },
+    {
+      "id": "new-wave",
+      "parent": "rock"
+    },
+    {
+      "id": "newari-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "noise",
+      "parent": "rock"
+    },
+    {
+      "id": "noise-pop",
+      "parent": "rock"
+    },
+    {
+      "id": "noise-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "norteno",
+      "parent": "latin"
+    },
+    {
+      "id": "north-korean-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "nu-metal",
+      "parent": "rock"
+    },
+    {
+      "id": "nueva-canci-u00f3n",
+      "parent": "latin"
+    },
+    {
+      "id": "nueva-cancion",
+      "parent": "latin"
+    },
+    {
+      "id": "nuevo-tango",
+      "parent": "latin"
+    },
+    {
+      "id": "old-time",
+      "parent": "folk"
+    },
+    {
+      "id": "omani-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "opera",
+      "parent": "classical"
+    },
+    {
+      "id": "opm",
+      "parent": "southeast-asian"
+    },
+    {
+      "id": "orchestral",
+      "parent": "classical"
+    },
+    {
+      "id": "orchestral-jazz",
+      "parent": "classical"
+    },
+    {
+      "id": "ottoman-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "outlaw-country",
+      "parent": "folk"
+    },
+    {
+      "id": "p-funk",
+      "parent": "funk"
+    },
+    {
+      "id": "pacific-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "pacific-reggae",
+      "parent": "reggae"
+    },
+    {
+      "id": "pansori",
+      "parent": "east-asian"
+    },
+    {
+      "id": "pashto-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "peking-opera",
+      "parent": "classical"
+    },
+    {
+      "id": "persian-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "persian-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "philadelphia-soul",
+      "parent": "funk"
+    },
+    {
+      "id": "piedmont-blues",
+      "parent": "blues"
+    },
+    {
+      "id": "political-rap",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "political-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "polynesian-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "polyphony",
+      "parent": "classical"
+    },
+    {
+      "id": "pop-ballad",
+      "parent": "pop"
+    },
+    {
+      "id": "pop-ballad-slow-rubato",
+      "parent": "pop"
+    },
+    {
+      "id": "pop-punk",
+      "parent": "rock"
+    },
+    {
+      "id": "pop-rap",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "pop-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "pop-waltz",
+      "parent": "pop"
+    },
+    {
+      "id": "post-bop",
+      "parent": "jazz"
+    },
+    {
+      "id": "post-dubstep",
+      "parent": "reggae"
+    },
+    {
+      "id": "post-grunge",
+      "parent": "rock"
+    },
+    {
+      "id": "post-hardcore",
+      "parent": "rock"
+    },
+    {
+      "id": "post-punk",
+      "parent": "rock"
+    },
+    {
+      "id": "post-punk-revival",
+      "parent": "rock"
+    },
+    {
+      "id": "post-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "post-soviet-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "power-ballad",
+      "parent": "pop"
+    },
+    {
+      "id": "power-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "powwow",
+      "parent": "indigenous-american"
+    },
+    {
+      "id": "progressive-metal",
+      "parent": "rock"
+    },
+    {
+      "id": "progressive-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "protest",
+      "parent": "folk"
+    },
+    {
+      "id": "protest-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "protest-music",
+      "parent": "folk"
+    },
+    {
+      "id": "proto-punk",
+      "parent": "rock"
+    },
+    {
+      "id": "psychedelic",
+      "parent": "rock"
+    },
+    {
+      "id": "psychedelic-funk",
+      "parent": "funk"
+    },
+    {
+      "id": "psychedelic-rap",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "psychedelic-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "psychedelic-soul",
+      "parent": "funk"
+    },
+    {
+      "id": "psytrance",
+      "parent": "electronic"
+    },
+    {
+      "id": "pub-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "punk",
+      "parent": "rock"
+    },
+    {
+      "id": "punk-blues",
+      "parent": "blues"
+    },
+    {
+      "id": "punk-funk",
+      "parent": "funk"
+    },
+    {
+      "id": "punk-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "punta",
+      "parent": "caribbean"
+    },
+    {
+      "id": "punta-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "pygmy-polyphony",
+      "parent": "classical"
+    },
+    {
+      "id": "qawwali",
+      "parent": "south-asian"
+    },
+    {
+      "id": "r-and-b",
+      "parent": "funk"
+    },
+    {
+      "id": "raga-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "ragga",
+      "parent": "reggae"
+    },
+    {
+      "id": "ragga-soca",
+      "parent": "reggae"
+    },
+    {
+      "id": "ragtime",
+      "parent": "jazz"
+    },
+    {
+      "id": "rai",
+      "parent": "north-african"
+    },
+    {
+      "id": "ranchera",
+      "parent": "latin"
+    },
+    {
+      "id": "rap",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "rap-metal",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "rap-rock",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "rebetiko",
+      "parent": "south-european"
+    },
+    {
+      "id": "reggae-en-espa-u00f1ol",
+      "parent": "reggae"
+    },
+    {
+      "id": "reggae-fusion",
+      "parent": "reggae"
+    },
+    {
+      "id": "reggae-pop",
+      "parent": "reggae"
+    },
+    {
+      "id": "reggae-revival",
+      "parent": "reggae"
+    },
+    {
+      "id": "reggaeton",
+      "parent": "reggae"
+    },
+    {
+      "id": "revolutionary-opera",
+      "parent": "classical"
+    },
+    {
+      "id": "riot-grrrl",
+      "parent": "rock"
+    },
+    {
+      "id": "rock-and-roll",
+      "parent": "rock"
+    },
+    {
+      "id": "rock-en-espa-u00f1ol",
+      "parent": "rock"
+    },
+    {
+      "id": "rock-en-espanol",
+      "parent": "rock"
+    },
+    {
+      "id": "rock-latino",
+      "parent": "latin"
+    },
+    {
+      "id": "rock-pop",
+      "parent": "rock"
+    },
+    {
+      "id": "rock-roll",
+      "parent": "rock"
+    },
+    {
+      "id": "rock-shuffle",
+      "parent": "rock"
+    },
+    {
+      "id": "rockabilly",
+      "parent": "rock"
+    },
+    {
+      "id": "rocksteady",
+      "parent": "reggae"
+    },
+    {
+      "id": "rodeo-country",
+      "parent": "folk"
+    },
+    {
+      "id": "romantic",
+      "parent": "classical"
+    },
+    {
+      "id": "roots-reggae",
+      "parent": "reggae"
+    },
+    {
+      "id": "rumba-congolaise",
+      "parent": "central-african"
+    },
+    {
+      "id": "sacred",
+      "parent": "classical"
+    },
+    {
+      "id": "sacred-music",
+      "parent": "classical"
+    },
+    {
+      "id": "sad-girl-indie",
+      "parent": "rock"
+    },
+    {
+      "id": "salegy",
+      "parent": "east-african"
+    },
+    {
+      "id": "salsa",
+      "parent": "latin"
+    },
+    {
+      "id": "salsa-romantica",
+      "parent": "classical"
+    },
+    {
+      "id": "samba",
+      "parent": "latin"
+    },
+    {
+      "id": "samba-de-roda",
+      "parent": "latin"
+    },
+    {
+      "id": "samba-reggae",
+      "parent": "reggae"
+    },
+    {
+      "id": "samba-rock",
+      "parent": "latin"
+    },
+    {
+      "id": "samoan-choral",
+      "parent": "classical"
+    },
+    {
+      "id": "scandinavian-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "screamo",
+      "parent": "rock"
+    },
+    {
+      "id": "sega",
+      "parent": "south-african"
+    },
+    {
+      "id": "sesotho-traditional",
+      "parent": "folk"
+    },
+    {
+      "id": "shashmaqam",
+      "parent": "west-asian"
+    },
+    {
+      "id": "shock-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "shoegaze",
+      "parent": "rock"
+    },
+    {
+      "id": "shuffle-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "singer-songwriter",
+      "parent": "folk"
+    },
+    {
+      "id": "ska",
+      "parent": "reggae"
+    },
+    {
+      "id": "ska-punk",
+      "parent": "reggae"
+    },
+    {
+      "id": "ska-revival",
+      "parent": "reggae"
+    },
+    {
+      "id": "ska-rock",
+      "parent": "reggae"
+    },
+    {
+      "id": "slack-key-guitar",
+      "parent": "oceanian"
+    },
+    {
+      "id": "slow-swing",
+      "parent": "jazz"
+    },
+    {
+      "id": "soca",
+      "parent": "caribbean"
+    },
+    {
+      "id": "soft-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "somali-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "somali-music",
+      "parent": "west-african"
+    },
+    {
+      "id": "son-cubano",
+      "parent": "latin"
+    },
+    {
+      "id": "soukous",
+      "parent": "central-african"
+    },
+    {
+      "id": "soul",
+      "parent": "funk"
+    },
+    {
+      "id": "soul-blues",
+      "parent": "blues"
+    },
+    {
+      "id": "soul-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "soul-r-b",
+      "parent": "funk"
+    },
+    {
+      "id": "southern-hip-hop",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "southern-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "southern-soul",
+      "parent": "funk"
+    },
+    {
+      "id": "spanish-african-fusion",
+      "parent": "jazz"
+    },
+    {
+      "id": "spiritual-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "sri-lankan-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "standards",
+      "parent": "pop"
+    },
+    {
+      "id": "steelpan",
+      "parent": "caribbean"
+    },
+    {
+      "id": "stick-dance",
+      "parent": "pop"
+    },
+    {
+      "id": "straight-eighth-classic-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "straight-eighth-funk",
+      "parent": "funk"
+    },
+    {
+      "id": "straight-eighth-funky-soul",
+      "parent": "funk"
+    },
+    {
+      "id": "straight-eighth-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "straight-eighth-pop-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "straight-eighth-rock",
+      "parent": "rock"
+    },
+    {
+      "id": "string-band",
+      "parent": "folk"
+    },
+    {
+      "id": "sudanese-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "sufi-music",
+      "parent": "west-asian"
+    },
+    {
+      "id": "swazi-traditional",
+      "parent": "folk"
+    },
+    {
+      "id": "swing",
+      "parent": "jazz"
+    },
+    {
+      "id": "symphonic",
+      "parent": "classical"
+    },
+    {
+      "id": "synth-pop",
+      "parent": "electronic"
+    },
+    {
+      "id": "tabla",
+      "parent": "south-asian"
+    },
+    {
+      "id": "tajik-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "talking-blues",
+      "parent": "blues"
+    },
+    {
+      "id": "tango",
+      "parent": "latin"
+    },
+    {
+      "id": "techno",
+      "parent": "electronic"
+    },
+    {
+      "id": "technopop",
+      "parent": "electronic"
+    },
+    {
+      "id": "teen-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "texas-blues",
+      "parent": "blues"
+    },
+    {
+      "id": "thai-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "thai-funk",
+      "parent": "funk"
+    },
+    {
+      "id": "thrash-metal",
+      "parent": "rock"
+    },
+    {
+      "id": "throat-singing",
+      "parent": "central-asian"
+    },
+    {
+      "id": "timba",
+      "parent": "latin"
+    },
+    {
+      "id": "tongan-choral",
+      "parent": "classical"
+    },
+    {
+      "id": "township-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "township-jive",
+      "parent": "south-african"
+    },
+    {
+      "id": "township-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "traditional",
+      "parent": "folk"
+    },
+    {
+      "id": "traditional-ballad",
+      "parent": "folk"
+    },
+    {
+      "id": "trance",
+      "parent": "electronic"
+    },
+    {
+      "id": "trap",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "tribal-funk",
+      "parent": "funk"
+    },
+    {
+      "id": "tropicalia",
+      "parent": "latin"
+    },
+    {
+      "id": "tuareg-blues",
+      "parent": "blues"
+    },
+    {
+      "id": "turbo-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "turkish-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "turkish-pop",
+      "parent": "pop"
+    },
+    {
+      "id": "turkmen-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "tuvaluan-choral",
+      "parent": "classical"
+    },
+    {
+      "id": "twarab",
+      "parent": "east-african"
+    },
+    {
+      "id": "uk-dance",
+      "parent": "pop"
+    },
+    {
+      "id": "uk-drill",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "uk-garage",
+      "parent": "rock"
+    },
+    {
+      "id": "uk-hip-hop",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "underground-hip-hop",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "vaudeville",
+      "parent": "pop"
+    },
+    {
+      "id": "vietnamese-classical",
+      "parent": "classical"
+    },
+    {
+      "id": "vietnamese-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "vocal-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "vodou-drumming",
+      "parent": "caribbean"
+    },
+    {
+      "id": "vodun-music",
+      "parent": "west-african"
+    },
+    {
+      "id": "warba",
+      "parent": "west-african"
+    },
+    {
+      "id": "wassoulou",
+      "parent": "funk"
+    },
+    {
+      "id": "west-coast-hip-hop",
+      "parent": "hip-hop"
+    },
+    {
+      "id": "west-coast-jazz",
+      "parent": "jazz"
+    },
+    {
+      "id": "western",
+      "parent": "folk"
+    },
+    {
+      "id": "world-blues",
+      "parent": "blues"
+    },
+    {
+      "id": "xinyao",
+      "parent": "southeast-asian"
+    },
+    {
+      "id": "yayue",
+      "parent": "east-asian"
+    },
+    {
+      "id": "yemeni-folk",
+      "parent": "folk"
+    },
+    {
+      "id": "yoruba",
+      "parent": "west-african"
+    },
+    {
+      "id": "yoruba-music",
+      "parent": "west-african"
+    },
+    {
+      "id": "zamrock",
+      "parent": "rock"
+    },
+    {
+      "id": "zouglou",
+      "parent": "west-african"
+    },
+    {
+      "id": "zulu-pop",
+      "parent": "pop"
+    }
+  ],
+  "songGenreTags": [
+    "blues",
+    "electronic",
+    "folk",
+    "funk",
+    "hip-hop",
+    "jam-band",
+    "jazz",
+    "latin",
+    "pop",
+    "reggae",
+    "rnb",
+    "rock"
+  ],
+  "progressionStyles": [
+    "african",
+    "blues",
+    "electronic",
+    "folk",
+    "funk",
+    "gospel",
+    "hip-hop",
+    "jam-band",
+    "jazz",
+    "latin",
+    "neo-soul",
+    "pop",
+    "r&b",
+    "reggae",
+    "rock"
+  ],
+  "instruments": [
+    {
+      "id": "accordion",
+      "name": "Accordion",
+      "section": "keys"
+    },
+    {
+      "id": "acoustic-guitar",
+      "name": "Acoustic Guitar",
+      "section": "guitar"
+    },
+    {
+      "id": "alto-sax",
+      "name": "Alto Saxophone",
+      "section": "woodwind"
+    },
+    {
+      "id": "backing-vocals",
+      "name": "Backing Vocals",
+      "section": "voice"
+    },
+    {
+      "id": "banjo",
+      "name": "Banjo",
+      "section": "guitar"
+    },
+    {
+      "id": "baritone-sax",
+      "name": "Baritone Saxophone",
+      "section": "woodwind"
+    },
+    {
+      "id": "bongos",
+      "name": "Bongos",
+      "section": "percussion"
+    },
+    {
+      "id": "celesta",
+      "name": "Celesta",
+      "section": "keys"
+    },
+    {
+      "id": "cello",
+      "name": "Cello",
+      "section": "strings"
+    },
+    {
+      "id": "clarinet",
+      "name": "Clarinet",
+      "section": "woodwind"
+    },
+    {
+      "id": "clavinet",
+      "name": "Clavinet",
+      "section": "keys"
+    },
+    {
+      "id": "congas",
+      "name": "Congas",
+      "section": "percussion"
+    },
+    {
+      "id": "cowbell",
+      "name": "Cowbell",
+      "section": "percussion"
+    },
+    {
+      "id": "drum-kit",
+      "name": "Drum Kit",
+      "section": "drums"
+    },
+    {
+      "id": "drum-machine",
+      "name": "Drum Machine",
+      "section": "drums"
+    },
+    {
+      "id": "electric-bass",
+      "name": "Electric Bass",
+      "section": "bass"
+    },
+    {
+      "id": "electric-guitar",
+      "name": "Electric Guitar",
+      "section": "guitar"
+    },
+    {
+      "id": "electric-piano",
+      "name": "Electric Piano",
+      "section": "keys"
+    },
+    {
+      "id": "fender-rhodes",
+      "name": "Fender Rhodes",
+      "section": "keys"
+    },
+    {
+      "id": "flute",
+      "name": "Flute",
+      "section": "woodwind"
+    },
+    {
+      "id": "french-horn",
+      "name": "French Horn",
+      "section": "brass"
+    },
+    {
+      "id": "gong",
+      "name": "Gong",
+      "section": "percussion"
+    },
+    {
+      "id": "hammond-organ",
+      "name": "Hammond Organ",
+      "section": "keys"
+    },
+    {
+      "id": "handclaps",
+      "name": "Handclaps",
+      "section": "percussion"
+    },
+    {
+      "id": "harmonica",
+      "name": "Harmonica",
+      "section": "woodwind"
+    },
+    {
+      "id": "harp",
+      "name": "Harp",
+      "section": "strings"
+    },
+    {
+      "id": "harpsichord",
+      "name": "Harpsichord",
+      "section": "keys"
+    },
+    {
+      "id": "horn-section",
+      "name": "Horn Section",
+      "section": "brass"
+    },
+    {
+      "id": "lead-vocals",
+      "name": "Lead Vocals",
+      "section": "voice"
+    },
+    {
+      "id": "mandolin",
+      "name": "Mandolin",
+      "section": "guitar"
+    },
+    {
+      "id": "marimba",
+      "name": "Marimba",
+      "section": "percussion"
+    },
+    {
+      "id": "organ",
+      "name": "Organ",
+      "section": "keys"
+    },
+    {
+      "id": "pedal-steel",
+      "name": "Pedal Steel Guitar",
+      "section": "guitar"
+    },
+    {
+      "id": "percussion",
+      "name": "Percussion",
+      "section": "percussion"
+    },
+    {
+      "id": "piano",
+      "name": "Piano",
+      "section": "keys"
+    },
+    {
+      "id": "sampler",
+      "name": "Sampler",
+      "section": "electronic"
+    },
+    {
+      "id": "sitar",
+      "name": "Sitar",
+      "section": "guitar"
+    },
+    {
+      "id": "slide-guitar",
+      "name": "Slide Guitar",
+      "section": "guitar"
+    },
+    {
+      "id": "soprano-sax",
+      "name": "Soprano Saxophone",
+      "section": "woodwind"
+    },
+    {
+      "id": "string-section",
+      "name": "String Section",
+      "section": "strings"
+    },
+    {
+      "id": "strings-and-horns",
+      "name": "Strings and Horns",
+      "section": "other"
+    },
+    {
+      "id": "synth-bass",
+      "name": "Synth Bass",
+      "section": "bass"
+    },
+    {
+      "id": "synthesizer",
+      "name": "Synthesizer",
+      "section": "electronic"
+    },
+    {
+      "id": "tambourine",
+      "name": "Tambourine",
+      "section": "percussion"
+    },
+    {
+      "id": "tenor-sax",
+      "name": "Tenor Saxophone",
+      "section": "woodwind"
+    },
+    {
+      "id": "theremin",
+      "name": "Theremin",
+      "section": "electronic"
+    },
+    {
+      "id": "timbales",
+      "name": "Timbales",
+      "section": "percussion"
+    },
+    {
+      "id": "trombone",
+      "name": "Trombone",
+      "section": "brass"
+    },
+    {
+      "id": "trumpet",
+      "name": "Trumpet",
+      "section": "brass"
+    },
+    {
+      "id": "tuba",
+      "name": "Tuba",
+      "section": "brass"
+    },
+    {
+      "id": "turntables",
+      "name": "Turntables",
+      "section": "electronic"
+    },
+    {
+      "id": "ukulele",
+      "name": "Ukulele",
+      "section": "guitar"
+    },
+    {
+      "id": "upright-bass",
+      "name": "Upright Bass",
+      "section": "bass"
+    },
+    {
+      "id": "vibraphone",
+      "name": "Vibraphone",
+      "section": "percussion"
+    },
+    {
+      "id": "viola",
+      "name": "Viola",
+      "section": "strings"
+    },
+    {
+      "id": "violin",
+      "name": "Violin",
+      "section": "strings"
+    },
+    {
+      "id": "vocoder",
+      "name": "Vocoder",
+      "section": "electronic"
+    },
+    {
+      "id": "whistle",
+      "name": "Whistle",
+      "section": "other"
+    },
+    {
+      "id": "wurlitzer",
+      "name": "Wurlitzer",
+      "section": "keys"
+    }
+  ],
+  "vibes": [
+    "aggressive",
+    "cool",
+    "dark",
+    "dreamy",
+    "emotional",
+    "fun",
+    "happy",
+    "hypnotic",
+    "intriguing",
+    "melancholic",
+    "rebellious",
+    "romantic",
+    "sexy",
+    "sophisticated",
+    "spiritual",
+    "triumphant"
+  ],
+  "modes": [
+    "aeolian",
+    "dorian",
+    "ionian",
+    "locrian",
+    "lydian",
+    "major",
+    "minor",
+    "mixolydian",
+    "phrygian"
+  ],
+  "regions": [
+    "central-africa",
+    "central-america",
+    "central-asia",
+    "east-africa",
+    "east-asia",
+    "east-europe",
+    "north-africa",
+    "north-america",
+    "north-asia",
+    "north-europe",
+    "oceania",
+    "south-africa",
+    "south-america",
+    "south-asia",
+    "southeast-asia",
+    "west-africa",
+    "west-asia",
+    "west-europe"
+  ],
+  "eras": [
+    {
+      "id": "ancient",
+      "label": "Ancient & Medieval",
+      "yearStart": 500,
+      "yearEnd": 1399
+    },
+    {
+      "id": "renaissance",
+      "label": "Renaissance & Baroque",
+      "yearStart": 1400,
+      "yearEnd": 1749
+    },
+    {
+      "id": "classical-romantic",
+      "label": "Classical & Romantic",
+      "yearStart": 1750,
+      "yearEnd": 1899
+    },
+    {
+      "id": "early-modern",
+      "label": "Early Modern",
+      "yearStart": 1900,
+      "yearEnd": 1945
+    },
+    {
+      "id": "postwar",
+      "label": "Postwar & Revolution",
+      "yearStart": 1946,
+      "yearEnd": 1979
+    },
+    {
+      "id": "electronic-hiphop",
+      "label": "Electronic & Hip Hop",
+      "yearStart": 1980,
+      "yearEnd": 1999
+    },
+    {
+      "id": "global-digital",
+      "label": "Global Digital",
+      "yearStart": 2000,
+      "yearEnd": 2100
+    }
+  ]
+}

@@ -1,208 +1,98 @@
-import {
-  Activity,
-  CircleHelp,
-  CloudUpload,
-  DatabaseBackup,
-  FileText,
-  Ratio,
-  Shield,
-  Users,
-} from 'lucide-react';
-import { useState } from 'react';
-import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
-import { CreditsBadge } from '@/components/CreditsBadge';
-import { Logo } from '@/components/Logo';
-import { BetaHelp } from '@/components/ui/beta-help';
+import { Activity, Users } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { CortexIcon } from '@/components/icons/CortexIcon';
 import { cn } from '@/components/utilities';
-import { AdminRoutes, LegalRoutes } from '@/constants/routes';
+import { AdminRoutes } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
-import { isContentEditor } from '@/features/admin/consoleRoles';
-import { ClassroomSwitcher } from '@/features/teacher/components/ClassroomSwitcher';
-import { SidebarMainNavItem } from './SidebarMainNavItem';
-import { SidebarSecondaryNavItem } from './SidebarSecondaryNavItem';
+import { isConsoleAdmin, isConsoleRole } from '@/features/admin/consoleRoles';
+import { toConsolePath } from '@/features/admin/content/mirror/mirrorPaths';
+import { useConsoleAppPath } from '@/features/admin/content/mirror/useConsoleAppPath';
+// Which pages are Cortex's (tiny and eager-safe, eagerBoundary.test.ts).
+import { isCortexSectionPath } from '@/features/admin/table/tablePaths';
+import { ClassroomSidebar } from './ClassroomSidebar';
+import { isRouteActive, SidebarMainNavItem } from './SidebarMainNavItem';
 import { UserWidget } from './UserWidget';
+import '@/components/ClassroomLayout/dashboard/dashboard.css';
+
 interface SidebarProps {
-  isCollapsed?: boolean;
-  onToggleCollapse?: () => void;
   className?: string;
 }
 
-export const Sidebar = ({
-  className,
-  isCollapsed = false,
-  onToggleCollapse,
-}: SidebarProps) => {
+/**
+ * The console's sidebar is the app's own sidebar (owner, 29 Sep 2026: "the
+ * admin console to mirror the app, with the addition of … Users and
+ * Telemetry").
+ *
+ * Every app item opens the console's copy of that page, and is highlighted
+ * when that section is showing — including on a kind's table, which belongs
+ * to the section the kind lives in. Office shows for every console role: in
+ * the console it is the curriculum Music Atlas ships.
+ *
+ * Below a divider sit the console's own sections. Cortex is for every
+ * console role: the Atlas as a graph, its default view, and as tables (the
+ * owner renamed the old "Table" item Cortex on 1 Oct 2026). It is lit on the
+ * graph's pages and on every table, and alone: it is not an app page, so no
+ * app item lights up there. Admins also get Users and Telemetry; editors
+ * never do (AdminPages enforces the same for typed URLs).
+ */
+export const Sidebar = ({ className }: SidebarProps) => {
   const { role } = useAuthContext();
-  const [helpOpen, setHelpOpen] = useState(false);
+  const { pathname } = useLocation();
+  const activeAppPath = useConsoleAppPath();
 
-  const renderNavigation = () => {
-    // Content editors get the Content tab and nothing else — their work is
-    // proposals an admin approves, so Users, Telemetry, Insider Access and
-    // Publishing are all out of scope. AdminPages enforces the same split for
-    // typed URLs; this only decides what is offered.
-    if (isContentEditor(role)) {
-      return (
-        <ul className="flex flex-1 flex-col gap-y-1 pt-4">
-          <SidebarMainNavItem
-            icon={FileText}
-            isCollapsed={isCollapsed}
-            label="Content"
-            to={AdminRoutes.contentKind({ kind: 'activity_flow' })}
-          />
-        </ul>
-      );
-    }
-
-    // Admin navigation
-    if (role === 'admin') {
-      return (
-        <ul className="flex flex-1 flex-col gap-y-1 pt-4">
-          <SidebarMainNavItem
-            icon={Users}
-            isCollapsed={isCollapsed}
-            label="Users"
-            to={AdminRoutes.users()}
-          />
-          <SidebarMainNavItem
-            icon={Shield}
-            isCollapsed={isCollapsed}
-            label="Insider Access"
-            to={AdminRoutes.freeAccess()}
-          />
-          <SidebarMainNavItem
-            icon={Activity}
-            isCollapsed={isCollapsed}
-            label="Telemetry"
-            to={AdminRoutes.telemetry()}
-          />
-          <SidebarMainNavItem
-            icon={FileText}
-            isCollapsed={isCollapsed}
-            label="Content"
-            to={AdminRoutes.contentKind({ kind: 'activity_flow' })}
-          />
-          <SidebarMainNavItem
-            icon={CloudUpload}
-            isCollapsed={isCollapsed}
-            label="Publishing"
-            to={AdminRoutes.releases()}
-          />
-          {/* A one-off migration, but an unreachable page is a page nobody
-              runs — and this one decides whether the store is current. */}
-          <SidebarMainNavItem
-            icon={DatabaseBackup}
-            isCollapsed={isCollapsed}
-            label="Import songs"
-            to={AdminRoutes.songImport()}
-          />
-        </ul>
-      );
-    }
-
-    // Default navigation or teacher without classroom
-    return (
-      <ul className="flex flex-1 flex-col space-y-1">
+  const consoleSection = isConsoleRole(role) && (
+    <>
+      <hr
+        className="mx-2 mt-6 border-0 border-t border-white/15"
+        role="separator"
+      />
+      <ul className="mt-6 flex flex-col gap-1">
         <SidebarMainNavItem
-          icon={Ratio}
-          isCollapsed={isCollapsed}
-          label="Overview"
-          to={AdminRoutes.root()}
+          icon={CortexIcon}
+          label="Cortex"
+          to={AdminRoutes.cortex()}
+          active={isCortexSectionPath(pathname)}
+          isCollapsed
+          glyphClassName="h-5 w-5"
         />
+        {isConsoleAdmin(role) && (
+          <>
+            <SidebarMainNavItem
+              icon={Users}
+              label="Users"
+              to={AdminRoutes.users()}
+              active={isRouteActive(pathname, AdminRoutes.users())}
+              isCollapsed
+              glyphClassName="h-5 w-5"
+            />
+            <SidebarMainNavItem
+              icon={Activity}
+              label="Telemetry"
+              to={AdminRoutes.telemetry()}
+              active={isRouteActive(pathname, AdminRoutes.telemetry())}
+              isCollapsed
+              glyphClassName="h-5 w-5"
+            />
+          </>
+        )}
       </ul>
-    );
-  };
+    </>
+  );
 
   return (
-    <aside
-      className={cn(
-        'relative flex h-full animate-fade-in-bottom flex-col space-y-4 bg-black/20 backdrop-blur-2xl border-r border-white/[0.08]',
-        className,
-      )}
-    >
-      <div className="relative z-10 flex flex-1 flex-col space-y-4 p-6 text-gray-800">
-        {/* Header */}
-        <div className="relative">
-          <div className="flex items-center gap-2">
-            <Logo className={cn('relative transition-all')} />
-            {/* {!isCollapsed && (
-              <span className="text-xl font-semibold text-white transition-all">
-                Music Atlas
-              </span>
-            )} */}
+    // The app's sidebar reads its tokens from `.dashboard-root`.
+    <div className={cn('dashboard-root flex h-full', className)}>
+      <ClassroomSidebar
+        className="flex-shrink-0"
+        lens={{ hrefFor: toConsolePath, activeAppPath }}
+        showAllSections
+        extraSection={consoleSection}
+        footer={
+          <div className="flex justify-center pt-2">
+            <UserWidget isCollapsed />
           </div>
-
-          <div className="group pointer-events-none absolute -top-8 right-[-4.5rem] p-8">
-            <button
-              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              className="pointer-events-auto flex size-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 opacity-0 transition-all duration-200 hover:bg-gray-200 group-hover:opacity-100"
-              onClick={onToggleCollapse}
-            >
-              {isCollapsed ? <HiChevronRight /> : <HiChevronLeft />}
-            </button>
-          </div>
-        </div>
-
-        {/* Classroom switcher for teachers */}
-        {role === 'teacher' && !isCollapsed && (
-          <div className="mb-4">
-            <ClassroomSwitcher />
-          </div>
-        )}
-
-        {renderNavigation()}
-
-        {/* Help / Info toggle */}
-        <div>
-          <button
-            aria-label={helpOpen ? 'Hide help links' : 'Show help links'}
-            className={cn(
-              'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-foreground/60 transition-colors hover:text-white',
-              helpOpen && 'text-white',
-              isCollapsed && 'justify-center',
-            )}
-            onClick={() => setHelpOpen(!helpOpen)}
-          >
-            <CircleHelp className="h-5 w-5 shrink-0" />
-            {!isCollapsed && <span className="text-sm">Help & Info</span>}
-          </button>
-
-          {helpOpen && (
-            <ul
-              className={cn(
-                'flex flex-col space-y-1 text-sm',
-                !isCollapsed && 'mt-1 pl-3',
-              )}
-            >
-              <SidebarSecondaryNavItem
-                external
-                label="Support"
-                to="mailto:aaron@musicatlas.io"
-              />
-              <SidebarSecondaryNavItem
-                external
-                label="Licensing"
-                to={LegalRoutes.licensing()}
-              />
-              <SidebarSecondaryNavItem
-                external
-                label="Privacy Policy"
-                to={LegalRoutes.privacyPolicy()}
-              />
-              <SidebarSecondaryNavItem
-                external
-                label="Terms of Use"
-                to={LegalRoutes.termsOfService()}
-              />
-            </ul>
-          )}
-        </div>
-
-        <CreditsBadge isCollapsed={isCollapsed} />
-
-        <UserWidget className="z-0 mt-2" isCollapsed={isCollapsed} />
-
-        {!isCollapsed && <BetaHelp />}
-      </div>
-    </aside>
+        }
+      />
+    </div>
   );
 };

@@ -94,14 +94,38 @@ describe('searchStatic', () => {
     expect(course?.results.some((r) => r.to === '/curriculum/jazz')).toBe(true);
   });
 
-  it('finds the guitar course (rollout flag on in dev and tests)', () => {
-    const courses = searchStatic('guitar').find(
-      (g) => g.category === 'courses',
-    );
-    expect(courses?.results[0]).toMatchObject({
-      title: 'Guitar: Applied Theory Fundamentals',
-      to: '/curriculum/guitar/applied-theory-fundamentals',
+  it('finds guitar under Theory → Ionian (Major) (rollout flag on in dev and tests)', () => {
+    const groups = searchStatic('guitar');
+    const theory = groups.find((g) => g.category === 'theory');
+    expect(theory?.results[0]).toMatchObject({
+      id: 'theory-guitar-ionian',
+      title: 'Guitar: Ionian (Major)',
+      subtitle: 'The Guitar Atlas',
+      to: '/learn/guitar/ionian',
     });
+    // No longer a course.
+    const courses = groups.find((g) => g.category === 'courses');
+    expect(courses?.results.some((r) => r.title.startsWith('Guitar'))).not.toBe(
+      true,
+    );
+    expect(
+      searchStatic('tablature')
+        .find((g) => g.category === 'theory')
+        ?.results.map((r) => r.to),
+    ).toContain('/learn/guitar/ionian');
+  });
+
+  it('lists the guitar Ionian after the piano one', () => {
+    for (const query of ['ionian', 'major', 'ionian (major)']) {
+      const theory = searchStatic(query).find((g) => g.category === 'theory');
+      const links = theory?.results.map((r) => r.to);
+      expect(links?.[0]).toBe('/learn/ionian');
+      expect(links).toContain('/learn/guitar/ionian');
+    }
+    expect(
+      searchStatic('guitar ionian').find((g) => g.category === 'theory')
+        ?.results[0]?.to,
+    ).toBe('/learn/guitar/ionian');
   });
 
   it('matches a real song by its title and links to /songs/:id', () => {

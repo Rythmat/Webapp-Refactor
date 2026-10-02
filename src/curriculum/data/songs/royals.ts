@@ -16,6 +16,16 @@ export const royals: Song = {
   difficulty: 1,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'golden-age-west' },
+  credits: [
+    { name: 'Lorde', role: 'songwriter', artistGlobeId: 'lorde' },
+    { name: 'Joel Little', role: 'performer', artistGlobeId: 'joel-little' },
+    { name: 'Joel Little', role: 'engineer', artistGlobeId: 'joel-little' },
+    { name: 'Joel Little', role: 'producer', artistGlobeId: 'joel-little' },
+    { name: 'Joel Little', role: 'songwriter', artistGlobeId: 'joel-little' },
+    { name: 'Lorde', role: 'vocals', artistGlobeId: 'lorde', primary: true },
+  ],
+  releases: [{ releaseId: 'lorde-pure-heroine', track: 3 }],
 
   sections: [
     {

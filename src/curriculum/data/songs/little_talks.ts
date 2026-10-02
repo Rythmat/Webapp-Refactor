@@ -16,6 +16,40 @@ export const little_talks: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Aron Arnarsson',
+      role: 'engineer',
+      artistGlobeId: 'aron-arnarsson',
+    },
+    { name: 'Craig Silvey', role: 'engineer' },
+    {
+      name: 'Of Monsters and Men',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'of-monsters-and-men',
+    },
+    {
+      name: 'Aron Arnarsson',
+      role: 'producer',
+      artistGlobeId: 'aron-arnarsson',
+    },
+    {
+      name: 'Of Monsters and Men',
+      role: 'songwriter',
+      ensemble: true,
+      artistGlobeId: 'of-monsters-and-men',
+    },
+    { name: 'Nanna', role: 'songwriter', artistGlobeId: 'nanna' },
+    {
+      name: 'Ragnar þórhallsson',
+      role: 'songwriter',
+      artistGlobeId: 'ragnar-orhallsson',
+    },
+  ],
+  releases: [
+    { releaseId: 'of-monsters-and-men-my-head-is-an-animal', track: 5 },
+  ],
 
   sections: [
     {

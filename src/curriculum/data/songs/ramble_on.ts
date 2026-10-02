@@ -16,6 +16,13 @@ export const ramble_on: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Jimmy Page', role: 'producer', artistGlobeId: 'jimmy-page' },
+    { name: 'Robert Plant', role: 'songwriter', artistGlobeId: 'robert-plant' },
+    { name: 'Eddie Kramer', role: 'engineer' },
+    { name: 'Jimmy Page', role: 'songwriter', artistGlobeId: 'jimmy-page' },
+  ],
+  releases: [{ releaseId: 'led-zeppelin-led-zeppelin-ii', track: 7 }],
 
   sections: [
     {

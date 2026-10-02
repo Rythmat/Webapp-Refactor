@@ -16,6 +16,82 @@ export const could_you_be_loved: Song = {
   difficulty: 2,
   genreTags: ['funk', 'reggae'],
   techniques: [],
+  session: { studioId: 'tuff-gong-studios' },
+  credits: [
+    { name: 'Junior Marvin', role: 'performer', instrument: 'electric-guitar' },
+    { name: 'Alvin “Seeco” Patterson', role: 'performer' },
+    {
+      name: 'Aston “Family Man” Barrett',
+      role: 'performer',
+      instrument: 'electric-bass',
+    },
+    {
+      name: 'Alvin “Seeco” Patterson',
+      role: 'performer',
+      instrument: 'percussion',
+    },
+    {
+      name: 'Bob Marley & The Wailers',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'bob-marley-and-the-wailers',
+    },
+    {
+      name: 'Bob Marley',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'bob-marley',
+      primary: true,
+    },
+    { name: 'Al Anderson', role: 'performer', instrument: 'electric-guitar' },
+    {
+      name: 'Alvin “Seeco” Patterson',
+      role: 'performer',
+      instrument: 'tambourine',
+    },
+    { name: 'Tyrone Downie', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Earl “Wya” Lindo',
+      role: 'performer',
+      instrument: 'hammond-organ',
+    },
+    {
+      name: 'Marcia Griffiths',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Junior Marvin', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Judy Mowatt', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Earl “Wya” Lindo', role: 'performer', instrument: 'clavinet' },
+    { name: 'Bob Marley', role: 'songwriter', artistGlobeId: 'bob-marley' },
+    {
+      name: 'Bob Marley & The Wailers',
+      role: 'performer',
+      ensemble: true,
+      artistGlobeId: 'bob-marley-and-the-wailers',
+    },
+    { name: 'Rita Marley', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Carlton “Carly” Barrett',
+      role: 'performer',
+      instrument: 'drum-kit',
+    },
+    {
+      name: 'Bob Marley',
+      role: 'vocals',
+      artistGlobeId: 'bob-marley',
+      primary: true,
+    },
+    { name: 'Chris Blackwell', role: 'engineer' },
+    {
+      name: 'Aston “Family Man” Barrett',
+      role: 'performer',
+      instrument: 'piano',
+    },
+    { name: 'The Wailers', role: 'engineer', ensemble: true },
+    { name: 'Errol Brown', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'bob-marley-and-the-wailers-uprising', track: 8 }],
 
   sections: [
     {

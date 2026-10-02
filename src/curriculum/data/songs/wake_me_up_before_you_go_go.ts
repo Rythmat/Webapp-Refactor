@@ -16,6 +16,27 @@ export const wake_me_up_before_you_go_go: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'George Michael',
+      role: 'songwriter',
+      artistGlobeId: 'george-michael',
+    },
+    { name: 'Tommy Eyre', role: 'performer' },
+    { name: 'Chris Porter', role: 'engineer' },
+    { name: 'David Baptiste', role: 'performer' },
+    {
+      name: 'George Michael',
+      role: 'arranger',
+      artistGlobeId: 'george-michael',
+    },
+    {
+      name: 'George Michael',
+      role: 'producer',
+      artistGlobeId: 'george-michael',
+    },
+  ],
+  releases: [{ releaseId: 'wham-make-it-big' }],
 
   sections: [
     {

@@ -36,8 +36,38 @@
   }
 }
 
+/* Guitar TAB: centred in the empty count-in bar rather than under the staff
+   (CountOff placement="countInBar"). Without a box it takes the whole parent. */
+.notation-countoff.is-in-bar {
+  inset: 0;
+  align-items: center;
+}
+
+/* tone="neutral": one size, beat 1 in the text colour, the rest dimmer, and a
+   fade with no scale. */
+.notation-countoff-number.is-neutral {
+  font-size: 64px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.45);
+  opacity: 1;
+  animation-name: notation-countoff-fade;
+}
+
+.notation-countoff-number.is-neutral.is-downbeat {
+  font-size: 64px;
+  color: #e8e8f0;
+  text-shadow: none;
+}
+
+@keyframes notation-countoff-fade {
+  from {
+    opacity: 0.25;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .notation-countoff-number {
+  .notation-countoff-number,
+  .notation-countoff-number.is-neutral {
     animation: none;
   }
 }

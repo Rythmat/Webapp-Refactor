@@ -16,6 +16,52 @@ export const take_me_home_country_roads: Song = {
   difficulty: 2,
   genreTags: ['folk'],
   techniques: [],
+  credits: [
+    { name: 'Eric Weissberg', role: 'performer', instrument: 'pedal-steel' },
+    { name: 'Gary Chester', role: 'performer' },
+    { name: 'Frank Owens', role: 'performer', instrument: 'piano' },
+    { name: 'John Denver', role: 'songwriter', artistGlobeId: 'john-denver' },
+    { name: 'Taffy Nivert', role: 'songwriter', artistGlobeId: 'taffy-nivert' },
+    { name: 'Dick Kniss', role: 'performer', instrument: 'upright-bass' },
+    { name: 'Bill Danoff', role: 'songwriter', artistGlobeId: 'bill-danoff' },
+    { name: 'Bill Danoff', role: 'performer', artistGlobeId: 'bill-danoff' },
+    {
+      name: 'Starland Vocal Band',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      ensemble: true,
+    },
+    {
+      name: 'Bill Danoff',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'bill-danoff',
+    },
+    { name: 'Ray Hall', role: 'engineer' },
+    { name: 'Milt Okun', role: 'producer', artistGlobeId: 'milt-okun' },
+    {
+      name: 'Taffy Nivert',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'taffy-nivert',
+    },
+    { name: 'Eric Weissberg', role: 'performer', instrument: 'banjo' },
+    {
+      name: 'John Denver',
+      role: 'vocals',
+      artistGlobeId: 'john-denver',
+      primary: true,
+    },
+    {
+      name: 'John Denver',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'john-denver',
+      primary: true,
+    },
+    { name: 'Michael Taylor', role: 'performer' },
+  ],
+  releases: [{ releaseId: 'john-denver-poems-prayers-promises' }],
 
   sections: [
     {

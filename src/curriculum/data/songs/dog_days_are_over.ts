@@ -16,6 +16,76 @@ export const dog_days_are_over: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'miloco-studios' },
+  credits: [
+    {
+      name: 'Isabella Summers',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'isabella-summers',
+    },
+    {
+      name: 'James Ellis Ford',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'james-ellis-ford',
+    },
+    {
+      name: 'Isabella Summers',
+      role: 'producer',
+      artistGlobeId: 'isabella-summers',
+    },
+    { name: 'Ian Burdge', role: 'performer', instrument: 'cello' },
+    {
+      name: 'Isabella Summers',
+      role: 'songwriter',
+      artistGlobeId: 'isabella-summers',
+    },
+    { name: 'Bruce White', role: 'performer', instrument: 'viola' },
+    { name: 'Sally Herbert', role: 'performer', instrument: 'violin' },
+    { name: 'Jimmy Robertson', role: 'engineer' },
+    {
+      name: 'Tom Moth',
+      role: 'performer',
+      instrument: 'harp',
+      artistGlobeId: 'tom-moth',
+    },
+    { name: 'Florence Welch', role: 'vocals', artistGlobeId: 'florence-welch' },
+    { name: 'Everton Nelson', role: 'performer', instrument: 'violin' },
+    {
+      name: 'Christopher Lloyd Hayden',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'christopher-lloyd-hayden',
+    },
+    {
+      name: 'James Ellis Ford',
+      role: 'producer',
+      artistGlobeId: 'james-ellis-ford',
+    },
+    {
+      name: 'James Ellis Ford',
+      role: 'engineer',
+      artistGlobeId: 'james-ellis-ford',
+    },
+    {
+      name: 'James Ellis Ford',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'james-ellis-ford',
+    },
+    {
+      name: 'Florence Welch',
+      role: 'songwriter',
+      artistGlobeId: 'florence-welch',
+    },
+    {
+      name: 'Robert Ackroyd',
+      role: 'performer',
+      artistGlobeId: 'robert-ackroyd',
+    },
+  ],
+  releases: [{ releaseId: 'florence-and-the-machine-lungs', track: 1 }],
 
   sections: [
     {

@@ -16,6 +16,47 @@ export const lovely_day: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    {
+      name: 'Skip Scarborough',
+      role: 'songwriter',
+      artistGlobeId: 'skip-scarborough',
+    },
+    {
+      name: 'Clarence McDonald',
+      role: 'performer',
+      artistGlobeId: 'clarence-mcdonald',
+    },
+    {
+      name: 'Clarence McDonald',
+      role: 'arranger',
+      artistGlobeId: 'clarence-mcdonald',
+    },
+    {
+      name: 'Clarence McDonald',
+      role: 'producer',
+      artistGlobeId: 'clarence-mcdonald',
+    },
+    { name: 'Jerry Knight', role: 'performer', instrument: 'electric-bass' },
+    {
+      name: 'Bill Withers',
+      role: 'vocals',
+      artistGlobeId: 'bill-withers',
+      primary: true,
+    },
+    { name: 'Russ Kunkel', role: 'performer' },
+    { name: 'Bill Withers', role: 'producer', artistGlobeId: 'bill-withers' },
+    {
+      name: 'Ralph MacDonald',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'ralph-macdonald',
+    },
+    { name: 'Ray Parker Jr.', role: 'performer' },
+    { name: 'Russ Kunkel', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Bill Withers', role: 'songwriter', artistGlobeId: 'bill-withers' },
+  ],
+  releases: [{ releaseId: 'bill-withers-menagerie' }],
 
   sections: [
     {

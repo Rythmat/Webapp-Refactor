@@ -169,12 +169,7 @@ export function JamLobby() {
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-3">
             <Music size={24} className="text-purple-400" />
-            <h1
-              className="text-3xl font-semibold text-white"
-              style={{ fontFamily: '"Playfair Display", serif' }}
-            >
-              Jam Room
-            </h1>
+            <h1 className="text-3xl font-semibold text-white">Jam Room</h1>
           </div>
           <p className="text-sm text-zinc-500">
             Play piano and drums together in real-time with friends.
@@ -218,7 +213,7 @@ export function JamLobby() {
                 if (e.key === 'Enter') handleJoin();
               }}
               placeholder="Enter room code..."
-              className="flex-1 bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-purple-500 transition-colors font-mono"
+              className="flex-1 bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-purple-500 transition-colors tracking-wide"
             />
             <Button
               onClick={handleJoin}
@@ -246,7 +241,7 @@ export function JamLobby() {
                   disabled={joiningRecent === room.id}
                   className="flex items-center justify-between px-3 py-2 bg-zinc-900 hover:bg-zinc-800 rounded-lg text-sm transition-colors disabled:opacity-50"
                 >
-                  <span className="text-zinc-400 font-mono text-xs">
+                  <span className="text-zinc-400 text-xs tracking-wide">
                     {room.id}
                   </span>
                   <span className="flex items-center gap-1.5">

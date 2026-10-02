@@ -16,6 +16,48 @@ export const counting_stars: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Noel Zancanella',
+      role: 'producer',
+      artistGlobeId: 'noel-zancanella',
+    },
+    { name: 'Ryan Tedder', role: 'songwriter', artistGlobeId: 'ryan-tedder' },
+    { name: 'Drew Brown', role: 'performer' },
+    { name: 'Smith Carlson', role: 'engineer' },
+    { name: 'Ryan Tedder', role: 'vocals', artistGlobeId: 'ryan-tedder' },
+    { name: 'HarpEri', role: 'performer', instrument: 'harp' },
+    {
+      name: 'Brent Kutzle',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'brent-kutzle',
+    },
+    {
+      name: 'Zachary Filkins',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'zachary-filkins',
+    },
+    { name: 'David McGlohon', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Ryan Tedder', role: 'performer', artistGlobeId: 'ryan-tedder' },
+    { name: 'Joe Zook', role: 'engineer' },
+    { name: 'Bobbie Gordon', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Ryan Tedder', role: 'producer', artistGlobeId: 'ryan-tedder' },
+    {
+      name: 'Zachary Filkins',
+      role: 'performer',
+      artistGlobeId: 'zachary-filkins',
+    },
+    { name: 'Brent Kutzle', role: 'performer', artistGlobeId: 'brent-kutzle' },
+    {
+      name: 'Eddie Fisher',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'eddie-fisher',
+    },
+  ],
+  releases: [{ releaseId: 'one-republic-native', track: 1 }],
 
   sections: [
     {

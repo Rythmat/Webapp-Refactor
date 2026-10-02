@@ -16,6 +16,46 @@ export const the_man_who_sold_the_world: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Mick Ronson', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Mick Woodmansey', role: 'performer', instrument: 'percussion' },
+    { name: 'Mick Woodmansey', role: 'performer' },
+    { name: 'Tony Visconti', role: 'producer', artistGlobeId: 'tony-visconti' },
+    { name: 'Ken Scott', role: 'engineer', artistGlobeId: 'ken-scott' },
+    { name: 'David Bowie', role: 'songwriter', artistGlobeId: 'david-bowie' },
+    {
+      name: 'David Bowie',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'Eddy Offord', role: 'engineer' },
+    { name: 'Ralph Mace', role: 'performer', instrument: 'synthesizer' },
+    { name: 'Mick Ronson', role: 'performer', instrument: 'electric-guitar' },
+    {
+      name: 'David Bowie',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    {
+      name: 'Tony Visconti',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'tony-visconti',
+    },
+    { name: 'Gerald Chevin', role: 'engineer' },
+    { name: 'Mick Woodmansey', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'David Bowie',
+      role: 'vocals',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'david-bowie-the-man-who-sold-the-world' }],
 
   sections: [
     {

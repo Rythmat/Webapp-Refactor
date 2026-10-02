@@ -16,6 +16,16 @@ export const best_of_my_love: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Al McKay', role: 'songwriter', artistGlobeId: 'al-mckay' },
+    { name: 'Al McKay', role: 'producer', artistGlobeId: 'al-mckay' },
+    {
+      name: 'Maurice White',
+      role: 'songwriter',
+      artistGlobeId: 'maurice-white',
+    },
+  ],
+  releases: [{ releaseId: 'the-emotions-rejoice' }],
 
   sections: [
     {

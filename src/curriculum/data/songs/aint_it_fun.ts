@@ -16,6 +16,22 @@ export const aint_it_fun: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Justin Meldal‐Johnsen',
+      role: 'producer',
+      artistGlobeId: 'justin-meldal-johnsen',
+    },
+    { name: 'Ken Andrews', role: 'engineer' },
+    { name: 'Taylor York', role: 'songwriter', artistGlobeId: 'taylor-york' },
+    { name: 'Taylor York', role: 'producer', artistGlobeId: 'taylor-york' },
+    {
+      name: 'Hayley Williams',
+      role: 'songwriter',
+      artistGlobeId: 'hayley-williams',
+    },
+  ],
+  releases: [{ releaseId: 'paramore-paramore', track: 6 }],
 
   sections: [
     {

@@ -16,6 +16,18 @@ export const dont_you_worry_bout_a_thing: Song = {
   difficulty: 3,
   genreTags: ['funk', 'latin'],
   techniques: [],
+  credits: [
+    { name: 'Stevie Wonder', role: 'arranger', artistGlobeId: 'stevie-wonder' },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    { name: 'Yusuf Roahman', role: 'performer' },
+    { name: 'Sheila Wilkerson', role: 'performer', instrument: 'bongos' },
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-innervisions' }],
 
   sections: [
     {

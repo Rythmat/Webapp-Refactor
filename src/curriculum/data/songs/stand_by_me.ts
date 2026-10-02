@@ -16,6 +16,12 @@ export const stand_by_me: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    { name: 'Jerry Leiber', role: 'songwriter', artistGlobeId: 'jerry-leiber' },
+    { name: 'Ben E. King', role: 'songwriter', artistGlobeId: 'ben-e-king' },
+    { name: 'Mike Stoller', role: 'songwriter', artistGlobeId: 'mike-stoller' },
+  ],
+  releases: [{ releaseId: 'ben-e-king-dont-play-that-song' }],
 
   sections: [
     {

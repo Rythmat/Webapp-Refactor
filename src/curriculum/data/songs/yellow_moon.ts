@@ -16,6 +16,72 @@ export const yellow_moon: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Joel Roux Neville',
+      role: 'songwriter',
+      artistGlobeId: 'joel-roux-neville',
+    },
+    {
+      name: 'Cyril Neville',
+      role: 'performer',
+      artistGlobeId: 'cyril-neville',
+    },
+    {
+      name: 'Aaron Neville',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'aaron-neville',
+    },
+    { name: 'Aaron Neville', role: 'vocals', artistGlobeId: 'aaron-neville' },
+    {
+      name: 'Aaron Neville',
+      role: 'performer',
+      artistGlobeId: 'aaron-neville',
+    },
+    {
+      name: 'Charles Neville',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'charles-neville',
+    },
+    { name: 'Tony Hall', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Malcolm Burn', role: 'engineer' },
+    { name: 'Willie Green III', role: 'performer' },
+    {
+      name: 'Charles Neville',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'charles-neville',
+    },
+    { name: 'Brian Stoltz', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Charles Neville',
+      role: 'performer',
+      artistGlobeId: 'charles-neville',
+    },
+    {
+      name: 'Aaron Neville',
+      role: 'songwriter',
+      artistGlobeId: 'aaron-neville',
+    },
+    { name: 'Brian Stoltz', role: 'performer' },
+    { name: 'Tony Hall', role: 'performer', instrument: 'percussion' },
+    { name: 'Tony Hall', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Cyril Neville', role: 'vocals', artistGlobeId: 'cyril-neville' },
+    {
+      name: 'Cyril Neville',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'cyril-neville',
+    },
+    { name: 'Willie Green III', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Daniel Lanois', role: 'engineer', artistGlobeId: 'daniel-lanois' },
+    { name: 'Art Neville', role: 'performer', artistGlobeId: 'art-neville' },
+    { name: 'Brian Stoltz', role: 'performer', instrument: 'percussion' },
+    { name: 'Art Neville', role: 'vocals', artistGlobeId: 'art-neville' },
+  ],
+  releases: [{ releaseId: 'the-neville-brothers-yellow-moon', track: 2 }],
 
   sections: [
     {

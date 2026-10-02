@@ -205,7 +205,7 @@ export function PianoKeyboard({
         className={cn(
           whiteKeyClass,
           {
-            'bg-primary animate-piano-key-press': !!activeNote,
+            'bg-zinc-300 animate-piano-key-press': !!activeNote,
           },
           gaming && !vertical && isLastWhiteInOctave && 'mr-0',
           gaming && vertical && isLastWhiteInOctave && 'mb-0',

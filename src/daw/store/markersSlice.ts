@@ -18,7 +18,7 @@ export interface MarkersSlice {
   updateMarker: (id: string, updates: Partial<Omit<Marker, 'id'>>) => void;
 }
 
-const DEFAULT_MARKER_COLOR = '#f59e0b';
+const DEFAULT_MARKER_COLOR = '#e8e8f0';
 
 export const createMarkersSlice: StateCreator<
   AllSlices,

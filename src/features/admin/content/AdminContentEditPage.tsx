@@ -1,14 +1,6 @@
-import {
-  ArrowLeft,
-  Eye,
-  Info,
-  Loader2,
-  Save,
-  SlidersHorizontal,
-  Trash2,
-} from 'lucide-react';
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Eye, Loader2, Save, SlidersHorizontal, Trash2 } from 'lucide-react';
+import { useMemo, useState, type ReactNode } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,27 +15,33 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/components/utilities';
 import { AdminRoutes } from '@/constants/routes';
-import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import {
-  useApproveContentEdit,
-  useContentItem,
-  useContentTemplate,
-  useDeleteContentItem,
-  useDiscardContentEdit,
-  useRejectContentEdit,
-  useSaveContentItem,
   type ContentKind,
   type ContentStatus,
 } from '@/hooks/data/admin/useAdminContent';
-import { isContentEditor } from '../consoleRoles';
+import { ConsoleBadge } from '../ui/ConsoleBadge';
+import { ConsoleCallout } from '../ui/ConsoleCallout';
+import { ConsolePageHeader } from '../ui/ConsolePageHeader';
+import { CONSOLE_LABEL, consoleTabClass } from '../ui/styles';
+import { ContentItemEditor } from './itemEditor/ContentItemEditor';
+import { useContentItemEditor } from './itemEditor/useContentItemEditor';
 import {
-  CONTENT_KINDS,
   getPath,
   isContentKind,
   jsonRemainder,
   setPath,
   type FieldSpec,
 } from './kinds';
+import {
+  deleteQuestion,
+  REPO_NO_STATUS_LABEL,
+  REPO_READ_ONLY_LABEL,
+  repoReadOnlyFile,
+  repoReadOnlyNote,
+  repoStatusNote,
+  statusChoices,
+} from './repo/repoCopy';
+import { useRepoMode } from './repo/useRepoMode';
 import { EditReviewBanner } from './review/EditReview';
 import {
   GlobeEventVisualEditor,
@@ -81,41 +79,63 @@ type View = 'visual' | 'fields';
 
 export const AdminContentEditPage = () => {
   const params = useParams();
+  // An unknown kind used to open silently as a globe event — a typo in a URL
+  // became an editor for the wrong thing, and saving it wrote there.
+  if (!isContentKind(params.kind)) return <UnknownKind kind={params.kind} />;
+  return <KindEditPage kind={params.kind} />;
+};
+
+const UnknownKind = ({ kind }: { kind: string | undefined }) => (
+  <div className="space-y-6">
+    <ConsolePageHeader
+      title="Nothing to edit here"
+      backTo={AdminRoutes.contentKind({ kind: 'song' })}
+      backLabel="Records"
+    />
+    <ConsoleCallout
+      tone="warning"
+      title={`“${kind ?? ''}” is not a content kind`}
+    >
+      The console has no editor for this kind, or the content API does not serve
+      it yet. Open the item from the content list instead.
+    </ConsoleCallout>
+  </div>
+);
+
+const KindEditPage = ({ kind }: { kind: ContentKind }) => {
+  const params = useParams();
   const navigate = useNavigate();
-  const kind: ContentKind = isContentKind(params.kind)
-    ? params.kind
-    : 'globe_event';
-  const spec = CONTENT_KINDS[kind];
-  const isNew = params.id === 'new';
+  const editor = useContentItemEditor({ kind, itemId: params.id ?? 'new' });
+  const {
+    spec,
+    isNew,
+    isEditor,
+    existing,
+    template,
+    body,
+    applyBody,
+    loading,
+    jsonSeed,
+    jsonError,
+    setJsonError,
+    saving,
+    saveError,
+    review,
+  } = editor;
   const hasVisual = VISUAL_KINDS.includes(kind);
-  // A "full editor" owns the whole body and replaces the form + JSON pane.
-  const FullEditor = spec.FullEditor;
-
-  const { role } = useAuthContext();
-  // An editor's save is a proposal: the API decides that from the session, so
-  // this only changes what the page offers and what it calls things.
-  const isEditor = isContentEditor(role);
-
-  const existing = useContentItem(isNew ? undefined : params.id);
-  const template = useContentTemplate(isNew ? kind : undefined);
-  const save = useSaveContentItem();
-  const remove = useDeleteContentItem();
-  const approve = useApproveContentEdit();
-  const reject = useRejectContentEdit();
-  const discard = useDiscardContentEdit();
-  const reviewBusy = approve.isPending || reject.isPending || discard.isPending;
-
-  const [status, setStatus] = useState<ContentStatus>('draft');
-  const [body, setBody] = useState<Record<string, unknown> | null>(null);
   const [view, setView] = useState<View>(hasVisual ? 'visual' : 'fields');
-  // Bumped to re-seed the uncontrolled JSON textarea from the current body.
-  const [jsonSeed, setJsonSeed] = useState(0);
-  const [jsonError, setJsonError] = useState<string | null>(null);
-  const [dirty, setDirty] = useState(false);
-  // Editors only: a one-line "what I changed", shown to whoever reviews it.
-  const [submitNote, setSubmitNote] = useState('');
-  // Editors only: abandon a sent-back draft and start again from the live body.
-  const [restartFromLive, setRestartFromLive] = useState(false);
+  const listRoute = AdminRoutes.contentKind({ kind });
+  // Repo mode (a save goes straight into the repo's files) has no drafts but
+  // a song's, so the status control and the delete question say so, as the
+  // full editor's do (repo/repoCopy.ts).
+  // The literal DEV gate here, not only in the hook, lets the build drop
+  // every repo branch below (useRepoMode.ts).
+  const repoMode = useRepoMode();
+  const repo = import.meta.env.DEV && repoMode;
+  const statuses = statusChoices(kind, repo);
+  // A kind repo mode serves but never writes (the artist locations): no
+  // status, no Save and no Delete, since every one would be refused.
+  const readOnlyFile = repo ? repoReadOnlyFile(kind) : null;
 
   // The typed form and the visual editor each own a slice of the body; the JSON
   // pane owns whatever is left. Splitting on the union keeps all three from ever
@@ -125,140 +145,39 @@ export const AdminContentEditPage = () => {
     [spec],
   );
 
-  /** Edit the in-memory body and flag unsaved changes. */
-  const applyBody = (next: Record<string, unknown>) => {
-    setBody(next);
-    setDirty(true);
-  };
-
-  // For "New …", prefer the kind's local default (e.g. a song's 4-bar starter)
-  // over the backend template, so new items are deterministic and don't depend
-  // on the remote skeleton. Memoized (keyed only on isNew/spec) so its identity
-  // is stable and the seeding effect runs once. Kinds without a local default
-  // still seed from the template.
-  const defaultBody = useMemo(
-    () => (isNew ? (spec.makeDefault?.() ?? null) : null),
-    [isNew, spec],
-  );
-  // An editor opening an item they have already submitted must pick up THEIR
-  // proposed version, not the live one — otherwise resubmitting would silently
-  // throw away the work sitting in the queue. An admin always sees the live
-  // body; the proposal is something they act on through the banner instead.
-  const seed = isNew
-    ? (defaultBody ?? template.data?.body)
-    : isEditor && existing.data?.pendingBody && !restartFromLive
-      ? existing.data.pendingBody
-      : existing.data?.body;
-
-  /**
-   * Re-seed only when the server's version of this item actually moved.
-   *
-   * Keyed on updatedAt/editState rather than on the query result's identity,
-   * which changes on every refetch: react-query hands back a fresh object each
-   * time (SuperJSON revives Dates, so structural sharing cannot dedupe it), and
-   * an effect keyed on that would wipe unsaved edits whenever anything
-   * invalidated the content queries. Keying on the id ALONE has the opposite
-   * failure — approving an edit rewrites the body server-side and the pane
-   * would keep showing the pre-approval version, one Save away from reverting
-   * it. The version key covers both.
-   */
-  const seedKey = isNew
-    ? 'new'
-    : `${existing.data?.id ?? ''}:${
-        existing.data?.updatedAt
-          ? new Date(existing.data.updatedAt).getTime()
-          : ''
-      }:${existing.data?.editState ?? ''}:${restartFromLive ? 'live' : ''}`;
-  const seededKey = useRef<string | null>(null);
-  useEffect(() => {
-    if (!seed || seededKey.current === seedKey) return;
-    seededKey.current = seedKey;
-    setBody(seed as Record<string, unknown>);
-    setJsonSeed((value) => value + 1);
-    if (!isNew && existing.data) setStatus(existing.data.status);
-    setDirty(false);
-  }, [seed, seedKey, isNew, existing.data]);
-
-  // Warn before losing unsaved edits on a hard navigation / tab close.
-  useEffect(() => {
-    if (!dirty) return;
-    const handler = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = '';
-    };
-    window.addEventListener('beforeunload', handler);
-    return () => window.removeEventListener('beforeunload', handler);
-  }, [dirty]);
-
   const remainderKeys = useMemo(
     () => (body ? Object.keys(jsonRemainder(body, ownedKeys)) : []),
     [body, ownedKeys],
   );
 
+  // A "full editor" owns the whole body and replaces the form + JSON pane.
+  if (spec.FullEditor) {
+    return (
+      <ContentItemEditor
+        editor={editor}
+        backTo={listRoute}
+        backLabel="Back to list"
+        onSaved={() => navigate(listRoute)}
+        onDeleted={() => navigate(listRoute)}
+      />
+    );
+  }
+
   const showView = (next: View) => {
     // The pane is uncontrolled, so it has to be re-seeded whenever the body may
     // have moved on underneath it.
-    if (next === 'fields') setJsonSeed((value) => value + 1);
+    if (next === 'fields') editor.reseedJson();
     setView(next);
   };
 
   const onSave = async () => {
-    if (!body) return;
-
-    setJsonError(null);
-
-    const slug = String(body.id ?? '').trim();
-    if (!slug) {
-      setJsonError('This item needs an "id" — it becomes the slug.');
-      return;
-    }
-    setJsonError(null);
-
-    await save.mutateAsync({
-      kind,
-      slug,
-      body,
-      // An editor never sets status — the API ignores it for them, and sending
-      // one would only make the button lie about what it does.
-      status: isEditor ? undefined : status,
-      note: isEditor ? submitNote.trim() || undefined : undefined,
-    });
-    setDirty(false);
-    navigate(AdminRoutes.contentKind({ kind }));
+    const result = await editor.save().catch(() => null);
+    if (result) navigate(listRoute);
   };
 
-  /** The review banner's props, shared by both layouts below. */
-  const reviewBanner = !isNew && existing.data?.editState && (
-    <EditReviewBanner
-      state={existing.data.editState}
-      pendingNote={existing.data.pendingNote}
-      reviewNote={existing.data.reviewNote}
-      submittedAt={existing.data.pendingAt}
-      isEditor={isEditor}
-      liveBody={existing.data.body}
-      pendingBody={existing.data.pendingBody}
-      busy={reviewBusy}
-      onRestartFromLive={isEditor ? () => setRestartFromLive(true) : undefined}
-      onApprove={
-        isEditor ? undefined : () => void approve.mutateAsync(existing.data!.id)
-      }
-      onReject={
-        isEditor
-          ? undefined
-          : (note) => void reject.mutateAsync({ id: existing.data!.id, note })
-      }
-      onDiscard={() => void discard.mutateAsync(existing.data!.id)}
-    />
-  );
-
-  const loading = isNew
-    ? defaultBody
-      ? false
-      : template.isLoading
-    : existing.isLoading;
   if (loading || !body) {
     return (
-      <div className="space-y-3 p-6">
+      <div className="space-y-3">
         <Skeleton className="h-10 w-64" />
         <Skeleton className="h-64 w-full" />
       </div>
@@ -271,24 +190,35 @@ export const AdminContentEditPage = () => {
 
   // Publishing status is an admin's call. An editor proposes content; whether
   // it goes live is decided by the approval, so showing them a control that
-  // cannot take effect would only mislead.
-  const statusSelect = isEditor ? null : (
+  // cannot take effect would only mislead. In repo mode only a song has one.
+  const statusSelect = isEditor ? null : readOnlyFile ? (
+    <ConsoleBadge tone="muted" title={repoReadOnlyNote(readOnlyFile)}>
+      {REPO_READ_ONLY_LABEL}
+    </ConsoleBadge>
+  ) : statuses ? (
     <Select
-      value={status}
-      onValueChange={(value) => {
-        setStatus(value as ContentStatus);
-        setDirty(true);
-      }}
+      value={editor.status}
+      onValueChange={(value) => editor.setStatus(value as ContentStatus)}
     >
-      <SelectTrigger className="w-32">
+      <SelectTrigger
+        className="w-32"
+        aria-label="Status"
+        title={repo ? repoStatusNote(kind) : undefined}
+      >
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="draft">Draft</SelectItem>
-        <SelectItem value="published">Published</SelectItem>
-        <SelectItem value="archived">Archived</SelectItem>
+        {statuses.map((choice) => (
+          <SelectItem key={choice.value} value={choice.value}>
+            {choice.label}
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
+  ) : (
+    <ConsoleBadge tone="muted" title={repoStatusNote(kind)}>
+      {REPO_NO_STATUS_LABEL}
+    </ConsoleBadge>
   );
 
   const noteField = isEditor && (
@@ -296,14 +226,14 @@ export const AdminContentEditPage = () => {
       className="w-56"
       aria-label="What changed"
       placeholder="What changed? (optional)"
-      value={submitNote}
-      onChange={(event) => setSubmitNote(event.target.value)}
+      value={editor.submitNote}
+      onChange={(event) => editor.setSubmitNote(event.target.value)}
     />
   );
 
-  const saveButton = (
-    <Button onClick={onSave} disabled={save.isPending}>
-      {save.isPending ? (
+  const saveButton = !readOnlyFile && (
+    <Button onClick={() => void onSave()} disabled={saving}>
+      {saving ? (
         <Loader2 className="mr-2 size-4 animate-spin" />
       ) : (
         <Save className="mr-2 size-4" />
@@ -316,128 +246,108 @@ export const AdminContentEditPage = () => {
   // item out of the next release with no proposal shape to review first, which
   // is exactly what the editor role exists to prevent. The confirm is here
   // because this button used to fire on a single click.
-  const deleteButton = !isNew && !isEditor && existing.data && (
-    <Button
-      variant="ghost"
-      size="icon"
-      aria-label={`Delete ${spec.singular}`}
-      onClick={async () => {
-        if (
-          !window.confirm(
-            `Delete “${existing.data!.title}”? It drops out of the next publish for this kind.`,
-          )
-        )
-          return;
-        await remove.mutateAsync(existing.data!.id);
-        navigate(AdminRoutes.contentKind({ kind }));
-      }}
-    >
-      <Trash2 className="size-4" />
-    </Button>
-  );
+  const deleteButton = !isNew &&
+    !isEditor &&
+    !readOnlyFile &&
+    existing.data && (
+      <Button
+        variant="ghost"
+        size="icon"
+        aria-label={`Delete ${spec.singular}`}
+        onClick={async () => {
+          if (!window.confirm(deleteQuestion(existing.data!.title, repo)))
+            return;
+          if (await editor.remove()) navigate(listRoute);
+        }}
+      >
+        <Trash2 className="size-4" />
+      </Button>
+    );
 
-  // Full-editor kinds (e.g. Song) render only their editor under a slim bar —
-  // no scalar form, no JSON pane.
-  if (FullEditor) {
-    return (
-      <div className="flex flex-col">
-        <div
-          className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] px-4 py-2"
-          style={{ background: '#101012' }}
-        >
-          <div className="flex items-center gap-2">
-            <Button asChild size="icon" variant="ghost">
-              <Link
-                to={AdminRoutes.contentKind({ kind })}
-                aria-label="Back to list"
-              >
-                <ArrowLeft className="size-4" />
-              </Link>
-            </Button>
-            <h1 className="text-sm font-semibold">
-              {isNew
-                ? `New ${spec.singular}`
-                : (existing.data?.title ?? `Edit ${spec.singular}`)}
-            </h1>
-          </div>
-          <div className="flex items-center gap-2">
-            {(save.error || jsonError) && (
-              <span className="max-w-64 truncate text-xs text-red-400">
-                {jsonError ?? save.error?.message}
-              </span>
-            )}
-            {dirty && (
-              <span className="text-xs font-medium text-amber-400">
-                Unsaved
-              </span>
+  return (
+    <div className="flex flex-col gap-6">
+      <ConsolePageHeader
+        backLabel="Back to list"
+        backTo={listRoute}
+        title={
+          isNew
+            ? `New ${spec.singular}`
+            : (existing.data?.title ?? `Edit ${spec.singular}`)
+        }
+        actions={
+          <>
+            {hasVisual && (
+              <div className="flex gap-1.5">
+                <ViewTab
+                  active={view === 'visual'}
+                  onClick={() => showView('visual')}
+                  icon={<Eye className="size-3.5" />}
+                  label="Editor"
+                />
+                <ViewTab
+                  active={view === 'fields'}
+                  onClick={() => showView('fields')}
+                  icon={<SlidersHorizontal className="size-3.5" />}
+                  label="Fields & JSON"
+                />
+              </div>
             )}
             {noteField}
             {statusSelect}
             {deleteButton}
             {saveButton}
-          </div>
-        </div>
-        {reviewBanner && <div className="px-4 pt-3">{reviewBanner}</div>}
-        <FullEditor body={body} onChange={applyBody} />
-      </div>
-    );
-  }
+          </>
+        }
+      />
 
-  return (
-    <div className="flex flex-col gap-6 p-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Button asChild size="icon" variant="ghost">
-            <Link
-              to={AdminRoutes.contentKind({ kind })}
-              aria-label="Back to list"
-            >
-              <ArrowLeft className="size-4" />
-            </Link>
-          </Button>
-          <h1 className="text-2xl font-semibold">
-            {isNew
-              ? `New ${spec.singular}`
-              : (existing.data?.title ?? `Edit ${spec.singular}`)}
-          </h1>
-        </div>
-        <div className="flex items-center gap-2">
-          {hasVisual && (
-            <div className="flex rounded-lg border border-white/10 p-0.5">
-              <ViewTab
-                active={view === 'visual'}
-                onClick={() => showView('visual')}
-                icon={<Eye className="size-3.5" />}
-                label="Editor"
-              />
-              <ViewTab
-                active={view === 'fields'}
-                onClick={() => showView('fields')}
-                icon={<SlidersHorizontal className="size-3.5" />}
-                label="Fields & JSON"
-              />
-            </div>
-          )}
-          {noteField}
-          {statusSelect}
-          {deleteButton}
-          {saveButton}
-        </div>
-      </div>
-
-      {reviewBanner}
-
-      {isNew && template.data && (
-        <div className="flex gap-2 rounded-lg border border-blue-600/30 bg-blue-600/10 p-3 text-sm text-blue-200/90">
-          <Info className="mt-0.5 size-4 shrink-0" />
-          <span>{template.data.hint}</span>
-        </div>
+      {!isNew && existing.data?.editState && (
+        <EditReviewBanner
+          state={existing.data.editState}
+          pendingNote={existing.data.pendingNote}
+          reviewNote={existing.data.reviewNote}
+          submittedAt={existing.data.pendingAt}
+          isEditor={isEditor}
+          liveBody={existing.data.body}
+          pendingBody={existing.data.pendingBody}
+          busy={review.busy}
+          onRestartFromLive={isEditor ? review.restartFromLive : undefined}
+          onApprove={isEditor ? undefined : () => void review.approve()}
+          onReject={isEditor ? undefined : (note) => void review.reject(note)}
+          onDiscard={() => void review.discard()}
+        />
       )}
 
-      {(save.error || jsonError) && (
-        <div className="rounded-lg border border-red-600/30 bg-red-600/10 p-3 text-sm text-red-300">
-          {jsonError ?? save.error?.message}
-        </div>
+      {review.error && (
+        <ConsoleCallout tone="danger">{review.error.message}</ConsoleCallout>
+      )}
+
+      {isNew && template.data && (
+        <ConsoleCallout tone="info">{template.data.hint}</ConsoleCallout>
+      )}
+
+      {editor.stale ? (
+        // Changed elsewhere, in a field changed here too: the author chooses
+        // before anything is saved (useItemSession).
+        <ConsoleCallout tone="warning" title="Changed since you opened it">
+          <p>
+            {editor.stale.overlap.join(', ')} changed elsewhere, and here too.
+            Nothing is saved until you choose.
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Button size="sm" variant="ghost" onClick={editor.discardChanges}>
+              Reload theirs
+            </Button>
+            <Button size="sm" variant="ghost" onClick={editor.keepMine}>
+              Keep mine for those fields
+            </Button>
+          </div>
+        </ConsoleCallout>
+      ) : (
+        (saveError || jsonError) && (
+          <ConsoleCallout tone="danger">
+            {jsonError ?? saveError?.message}
+          </ConsoleCallout>
+        )
       )}
 
       {StructuredEditor && (
@@ -485,9 +395,9 @@ export const AdminContentEditPage = () => {
               <Textarea
                 key={`json-${jsonSeed}`}
                 rows={24}
-                className="font-mono text-xs"
+                className="text-xs"
                 defaultValue={JSON.stringify(
-                  jsonRemainder(body, spec.formKeys),
+                  jsonRemainder(body, ownedKeys),
                   null,
                   2,
                 )}
@@ -497,8 +407,10 @@ export const AdminContentEditPage = () => {
                       string,
                       unknown
                     >;
-                    // The typed form owns formKeys; the pane owns the rest.
-                    applyBody({ ...parsed, ...pickKeys(body, spec.formKeys) });
+                    // The typed form and the structured editor own their
+                    // keys; the pane owns the rest, so a stale copy of an
+                    // owned key in the pane never overwrites an edit.
+                    applyBody({ ...parsed, ...pickKeys(body, ownedKeys) });
                     setJsonError(null);
                   } catch {
                     setJsonError('The JSON pane is not valid JSON.');
@@ -512,9 +424,7 @@ export const AdminContentEditPage = () => {
 
       {!isNew && existing.data && existing.data.Revisions.length > 0 && (
         <div>
-          <h2 className="mb-2 text-sm font-medium text-muted-foreground">
-            Recent revisions
-          </h2>
+          <h2 className={cn(CONSOLE_LABEL, 'mb-2')}>Recent revisions</h2>
           <ul className="space-y-1 text-sm text-muted-foreground">
             {existing.data.Revisions.map((revision) => (
               <li key={revision.id}>
@@ -529,6 +439,11 @@ export const AdminContentEditPage = () => {
   );
 };
 
+/**
+ * Where the item is in the Table: its row, once it has a slug; the kind's
+ * table for a new one. Null for a kind no table holds (lessons, fundamentals,
+ * artist locations), whose list is the way back.
+ */
 const ViewTab = ({
   active,
   onClick,
@@ -543,12 +458,7 @@ const ViewTab = ({
   <button
     type="button"
     aria-pressed={active}
-    className={cn(
-      'flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs transition-colors',
-      active
-        ? 'bg-white/10 text-white'
-        : 'text-muted-foreground hover:text-white',
-    )}
+    className={consoleTabClass(active, 'sm')}
     onClick={onClick}
   >
     {icon}

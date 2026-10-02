@@ -6,9 +6,16 @@
 // root is drawn as a diamond. Mirroring moves geometry, never text. A marker
 // can show a finger, key number (as a rounded chip) or chord tone in place of
 // its note name, and brackets can mark fret pairs (half steps).
+//
+// The lesson variant is quieter: no board fill, frets white/15, strings
+// white/30, fret numbers white/45, and the key colour on one thing only — the
+// note to play now. The look-ahead, done and missed marks keep their shapes
+// in neutral ink. Its labels are 12px on screen up to a 208px neck and grow
+// with a larger one, so they never sit tiny inside large dots.
 
 import { memo, useEffect, useRef } from 'react';
 import { WRONG_NOTE_KEY_COLOR } from '@/components/Games/PianoRollPlay';
+import type { FretWindow } from '@/lib/guitar/fretboard';
 import type { GuitarStringNumber } from '@/lib/guitar/types';
 import { DIAGRAM_INK, DIAGRAM_INK_DARK, MarkShape } from './FretDiagram';
 import type {
@@ -28,6 +35,8 @@ const PAD_TOP = 13;
 const NECK_H = STRING_GAP * 5;
 const LABEL_Y = PAD_TOP + NECK_H + 20;
 const HEIGHT = LABEL_Y + 8;
+/** The neck's height in drawing units: a board drawn `h` px tall is h / this px a unit. */
+export const FRETBOARD_HEIGHT_UNITS = HEIGHT;
 const MARK_R = 8.5;
 const CROSS = 5;
 /** A bracket's rail sits this far from its string, clear of the markers. */
@@ -42,6 +51,43 @@ const STRING = 'rgba(232,232,240,0.45)';
 const NUT = '#d8d6cc';
 const INLAY = 'rgba(232,232,240,0.12)';
 const FRET_LABEL = 'rgba(232,232,240,0.62)';
+
+const LESSON_WIRE = 'rgba(255, 255, 255, 0.15)';
+const LESSON_STRING = 'rgba(255, 255, 255, 0.3)';
+const LESSON_FRET_LABEL = 'rgba(255, 255, 255, 0.45)';
+/** Lesson labels, in px on screen: their size up to a 208px neck. */
+const LESSON_LABEL_PX = 12;
+/** A two-character label ('♭3') inside a marker may be smaller. */
+const LESSON_PAIR_PX = 10;
+/**
+ * On a larger neck a lesson label keeps its share of the marker instead:
+ * this many drawing units (12px at 208px, about 21px at 377px).
+ */
+const LESSON_LABEL_UNITS = 8.5;
+const LESSON_PAIR_UNITS =
+  (LESSON_LABEL_UNITS * LESSON_PAIR_PX) / LESSON_LABEL_PX;
+/** A marker's label can't outgrow it, however short the neck is drawn. */
+const LESSON_LABEL_MAX = MARK_R * 1.45;
+
+/**
+ * A lesson label's size in drawing units, drawn at `unitsPerPx`: `px` on
+ * screen, or `units` once the neck is drawn large enough for that to be more.
+ */
+const lessonLabelSize = (unitsPerPx: number, px: number, units: number) =>
+  Math.max(unitsPerPx * px, units);
+
+/**
+ * How wide a fret window draws, in the height's drawing units: the padding,
+ * the open-string column when the nut shows, and each fret.
+ * `height × units / FRETBOARD_HEIGHT_UNITS` is its width in px.
+ */
+export function fretboardWidthUnits(
+  { min, max }: FretWindow,
+  showsNut = min === 0,
+): number {
+  const frets = max - Math.max(1, min) + 1;
+  return PAD_X + (showsNut ? OPEN_W : 0) + frets * FRET_W + PAD_X;
+}
 
 const SINGLE_INLAYS = new Set([3, 5, 7, 9, 15, 17, 19, 21]);
 const DOUBLE_INLAY = 12;
@@ -78,24 +124,30 @@ function MarkerBody({
   wrongColor,
   showLabel,
   chip,
+  lessonLabel,
 }: {
   marker: FretMarker;
   keyColor: string;
   wrongColor: string;
   showLabel: boolean;
   chip: boolean;
+  /** Lesson: drawing units per px on screen; null draws the book's look. */
+  lessonLabel: number | null;
 }) {
   const { role, isRoot: root } = marker;
   const text = marker.text ?? marker.label;
+  const lesson = lessonLabel !== null;
   if (role === 'wrong' || role === 'missed') {
     // A missed note was a target, so it keeps the key colour; its dashes are
-    // what set it apart from a wrong note's solid grey cross.
+    // what set it apart from a wrong note's solid grey cross. In a lesson the
+    // key colour is only for now, so the dashes do it in neutral ink.
     const missed = role === 'missed';
     const c = missed ? CROSS + 1 : CROSS;
     return (
       <path
         d={`M${-c} ${-c} L${c} ${c} M${c} ${-c} L${-c} ${c}`}
-        stroke={missed ? keyColor : wrongColor}
+        stroke={missed ? (lesson ? DIAGRAM_INK : keyColor) : wrongColor}
+        strokeOpacity={missed && lesson ? 0.55 : undefined}
         strokeWidth={missed ? 2 : 2.5}
         strokeDasharray={missed ? '1.8 1.8' : undefined}
         strokeLinecap={missed ? 'butt' : 'round'}
@@ -110,7 +162,26 @@ function MarkerBody({
     <text
       textAnchor="middle"
       dominantBaseline="central"
-      fontSize={role === 'played' ? 7.5 : 8}
+      fontSize={
+        lessonLabel !== null
+          ? Math.min(
+              text.length > 1
+                ? lessonLabelSize(
+                    lessonLabel,
+                    LESSON_PAIR_PX,
+                    LESSON_PAIR_UNITS,
+                  )
+                : lessonLabelSize(
+                    lessonLabel,
+                    LESSON_LABEL_PX,
+                    LESSON_LABEL_UNITS,
+                  ),
+              LESSON_LABEL_MAX,
+            )
+          : role === 'played'
+            ? 7.5
+            : 8
+      }
       fontWeight={700}
       fill={role === 'target' ? DIAGRAM_INK_DARK : DIAGRAM_INK}
       opacity={role === 'hint' ? 0.6 : undefined}
@@ -138,8 +209,9 @@ function MarkerBody({
           chip={chip}
           r={MARK_R}
           {...ring}
-          stroke={keyColor}
-          strokeWidth={2}
+          stroke={lesson ? DIAGRAM_INK : keyColor}
+          strokeOpacity={lesson ? 0.7 : undefined}
+          strokeWidth={lesson ? 1.5 : 2}
         />
       )}
       {role === 'target' && (
@@ -150,8 +222,8 @@ function MarkerBody({
           root={root}
           chip={chip}
           r={MARK_R}
-          fill={keyColor}
-          fillOpacity={0.45}
+          fill={lesson ? DIAGRAM_INK : keyColor}
+          fillOpacity={lesson ? 0.25 : 0.45}
         />
       )}
       {role === 'played' && (
@@ -203,10 +275,13 @@ function Bracket({
   bracket,
   x1,
   x2,
+  labelSize = 8,
 }: {
   bracket: FretBracket;
   x1: number;
   x2: number;
+  /** In drawing units; the lesson's is its label size. */
+  labelSize?: number;
 }) {
   const below = bracket.string === 1;
   const sign = below ? 1 : -1;
@@ -234,7 +309,7 @@ function Bracket({
         y={rail + sign * 5}
         textAnchor="middle"
         dominantBaseline="central"
-        fontSize={8}
+        fontSize={labelSize}
         fontWeight={700}
         fill={DIAGRAM_INK}
         stroke={RING_FILL}
@@ -288,6 +363,7 @@ export const Fretboard = memo(function Fretboard({
   labelShape = 'dot',
   brackets = [],
   scrollable = false,
+  variant = 'default',
 }: FretboardProps & {
   /**
    * Keep frets at their natural size (about 40 px) and scroll sideways when
@@ -306,7 +382,7 @@ export const Fretboard = memo(function Fretboard({
   );
   /** The nut, or the wire before the first drawn fret. */
   const edgeX = PAD_X + (hasNut ? OPEN_W : 0);
-  const width = edgeX + frets.length * FRET_W + PAD_X;
+  const width = fretboardWidthUnits({ min, max }, hasNut);
   const mx = (x: number) => (mirrored ? width - x : x);
   const wireX = (fret: number) => mx(edgeX + (fret - firstFret + 1) * FRET_W);
   const fretX = (fret: number) =>
@@ -337,6 +413,9 @@ export const Fretboard = memo(function Fretboard({
 
   // Scrolling: the neck's natural width at this height, and where the hand is.
   const pxPerUnit = height / HEIGHT;
+  const lesson = variant === 'lesson';
+  // Drawn at `pxPerUnit`: units per px on screen, so labels hold their size.
+  const lessonLabel = lesson ? 1 / pxPerUnit : null;
   const naturalWidth = Math.round(width * pxPerUnit);
   const focusXs = shown
     .filter((m) => FOCUS_ROLES.has(m.role))
@@ -367,14 +446,17 @@ export const Fretboard = memo(function Fretboard({
       height={height}
       style={scrollable ? { minWidth: naturalWidth } : undefined}
       data-mirrored={mirrored || undefined}
+      data-variant={lesson ? 'lesson' : undefined}
     >
-      <rect
-        x={PAD_X}
-        y={PAD_TOP}
-        width={width - PAD_X * 2}
-        height={NECK_H}
-        fill={BOARD}
-      />
+      {!lesson && (
+        <rect
+          x={PAD_X}
+          y={PAD_TOP}
+          width={width - PAD_X * 2}
+          height={NECK_H}
+          fill={BOARD}
+        />
+      )}
       {frets.map((fret) => {
         const x = fretX(fret);
         const ys =
@@ -401,7 +483,7 @@ export const Fretboard = memo(function Fretboard({
           x2={wireX(fret)}
           y1={PAD_TOP}
           y2={PAD_TOP + NECK_H}
-          stroke={WIRE}
+          stroke={lesson ? LESSON_WIRE : WIRE}
           strokeWidth={1.5}
         />
       ))}
@@ -411,7 +493,7 @@ export const Fretboard = memo(function Fretboard({
         x2={mx(edgeX)}
         y1={PAD_TOP}
         y2={PAD_TOP + NECK_H}
-        stroke={hasNut ? NUT : WIRE}
+        stroke={hasNut ? NUT : lesson ? LESSON_WIRE : WIRE}
         strokeWidth={hasNut ? 5 : 1.5}
       />
       {([1, 2, 3, 4, 5, 6] as const).map((string) => (
@@ -421,7 +503,7 @@ export const Fretboard = memo(function Fretboard({
           x2={mx(width - PAD_X)}
           y1={stringY(string)}
           y2={stringY(string)}
-          stroke={STRING}
+          stroke={lesson ? LESSON_STRING : STRING}
           // Thicker toward the low strings, as on a guitar.
           strokeWidth={0.8 + (string - 1) * 0.25}
         />
@@ -432,6 +514,18 @@ export const Fretboard = memo(function Fretboard({
           bracket={bracket}
           x1={fretX(bracket.fromFret)}
           x2={fretX(bracket.toFret)}
+          {...(lessonLabel !== null
+            ? {
+                labelSize: Math.min(
+                  lessonLabelSize(
+                    lessonLabel,
+                    LESSON_LABEL_PX,
+                    LESSON_LABEL_UNITS,
+                  ),
+                  LESSON_LABEL_MAX,
+                ),
+              }
+            : {})}
         />
       ))}
       {shown.map((marker) => (
@@ -451,6 +545,7 @@ export const Fretboard = memo(function Fretboard({
             wrongColor={wrongColor}
             showLabel={showNoteNames}
             chip={labelShape === 'chip'}
+            lessonLabel={lessonLabel}
           />
         </g>
       ))}
@@ -461,8 +556,16 @@ export const Fretboard = memo(function Fretboard({
           x={fretX(fret)}
           y={LABEL_Y}
           textAnchor="middle"
-          fontSize={9}
-          fill={FRET_LABEL}
+          fontSize={
+            lessonLabel === null
+              ? 9
+              : lessonLabelSize(
+                  lessonLabel,
+                  LESSON_LABEL_PX,
+                  LESSON_LABEL_UNITS,
+                )
+          }
+          fill={lesson ? LESSON_FRET_LABEL : FRET_LABEL}
         >
           {fret}
         </text>
@@ -474,7 +577,13 @@ export const Fretboard = memo(function Fretboard({
     <div
       ref={scrollerRef}
       data-fretboard-scroller
-      className="w-full overflow-x-auto overflow-y-hidden [scrollbar-width:thin]"
+      className={
+        lesson
+          ? // As the lesson's chord strip: it scrolls without a bar, which
+            // would otherwise sit below a neck drawn to its band's height.
+            'w-full overflow-x-auto overflow-y-hidden [scrollbar-width:none]'
+          : 'w-full overflow-x-auto overflow-y-hidden [scrollbar-width:thin]'
+      }
     >
       {svg}
     </div>

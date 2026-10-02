@@ -1,0 +1,18 @@
+/* ── Console-only rules (scoped to html.console-theme) ──────────────────
+   The landing look's colours are app-wide now (src/styles/appTheme.css), so
+   the console no longer re-skins anything by colour. DashboardLayout still
+   sets `console-theme` on <html> — rather than on its own root, so Radix
+   portals mounted on <body> match — for the rules below.
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* One typeface for the whole console — including shared student components
+   its own editors embed, `font-mono` IDs and anything portalled to <body>.
+   `!important` because some of those set `fontFamily` inline.
+
+   Except inside `.console-mirror`, the console's view of the app as students
+   see it: there the app's own type applies, so the song chart keeps its serif
+   notation exactly as it does in the app (owner, 29 Sep 2026). */
+html.console-theme body,
+html.console-theme body *:not(.console-mirror *) {
+  font-family: 'Glacial Indifference', system-ui, sans-serif !important;
+}

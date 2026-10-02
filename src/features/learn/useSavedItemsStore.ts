@@ -11,6 +11,32 @@ interface SavedItemsState {
   setSaved: (kind: SavedItemKind, id: string, value: boolean) => void;
 }
 
+/** Guitar's key centers used to be a Technique tile, saved under this key. */
+const LEGACY_GUITAR_TECHNIQUE_KEY =
+  'technique:guitar:applied-theory-fundamentals';
+/** They are now Theory → Ionian (Major), which is saved by its mode. */
+const IONIAN_KEY = 'mode:ionian';
+
+const SAVED_ITEMS_VERSION = 1;
+
+/**
+ * Bring stored saves up to date.
+ * v0 → v1: a saved guitar Technique tile becomes a saved Ionian (Major), where
+ * guitar's key centers now live. Everything else is kept as it was.
+ */
+export function migrateSavedItems(
+  persisted: unknown,
+  version: number,
+): SavedItemsState {
+  const state = (persisted ?? {}) as Partial<SavedItemsState>;
+  const saved: Record<string, true> = { ...state.saved };
+  if (version < 1 && saved[LEGACY_GUITAR_TECHNIQUE_KEY]) {
+    delete saved[LEGACY_GUITAR_TECHNIQUE_KEY];
+    saved[IONIAN_KEY] = true;
+  }
+  return { ...state, saved } as SavedItemsState;
+}
+
 export const useSavedItemsStore = create<SavedItemsState>()(
   persist(
     (set, get) => ({
@@ -44,6 +70,8 @@ export const useSavedItemsStore = create<SavedItemsState>()(
     }),
     {
       name: 'music-atlas-saved-learn-items',
+      version: SAVED_ITEMS_VERSION,
+      migrate: migrateSavedItems,
     },
   ),
 );

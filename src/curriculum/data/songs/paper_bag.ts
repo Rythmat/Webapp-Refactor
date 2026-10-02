@@ -16,6 +16,40 @@ export const paper_bag: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Don Sweeney', role: 'performer', instrument: 'french-horn' },
+    { name: 'Fiona Apple', role: 'songwriter', artistGlobeId: 'fiona-apple' },
+    {
+      name: 'Fiona Apple',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'fiona-apple',
+      primary: true,
+    },
+    { name: 'Rich Costey', role: 'engineer' },
+    { name: 'Paul Loredo', role: 'performer', instrument: 'french-horn' },
+    { name: 'Jon Brion', role: 'producer', artistGlobeId: 'jon-brion' },
+    { name: 'Jean Marinelli', role: 'performer', instrument: 'french-horn' },
+    { name: 'John Noreyko', role: 'performer', instrument: 'french-horn' },
+    { name: 'John Bainbridge', role: 'arranger' },
+    {
+      name: 'Fiona Apple',
+      role: 'vocals',
+      artistGlobeId: 'fiona-apple',
+      primary: true,
+    },
+    { name: 'Wendell Kelly', role: 'performer', instrument: 'french-horn' },
+    { name: 'Mike Elizondo', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Jon Brion', role: 'engineer', artistGlobeId: 'jon-brion' },
+    { name: 'Matt Chamberlain', role: 'performer', instrument: 'drum-kit' },
+  ],
+  releases: [
+    {
+      releaseId:
+        'fiona-apple-when-the-pawn-hits-the-conflicts-he-thinks-like-a-king-what-he-knows-throws-the-blows-when-he-goes-to-the-fight-and-hell-win-the-whole-thing-fore-he-enters-the-ring-theres-no-body-to-batter-when-your-mind-is-your-might-so-when-you-go-solo-you-hold-your-own-hand-and-remember-that-depth-is-the-greatest-of-heights-and-if-you-know-where-you-stand-then-you-know-where-to-land-and-if-you-fall-it-wont-matter-cuz-youll-know-that-youre-right',
+      track: 5,
+    },
+  ],
 
   sections: [
     {

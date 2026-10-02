@@ -17,6 +17,19 @@ export const tears_of_a_clown: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    { name: 'Henry Cosby', role: 'songwriter', artistGlobeId: 'henry-cosby' },
+    {
+      name: 'Smokey Robinson',
+      role: 'songwriter',
+      artistGlobeId: 'smokey-robinson',
+    },
+  ],
 
   sections: [
     {

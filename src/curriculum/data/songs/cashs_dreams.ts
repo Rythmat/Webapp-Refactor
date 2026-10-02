@@ -4,7 +4,7 @@ export const cashs_dreams: Song = {
   id: 'cashs_dreams',
   title: 'Cash’s Dreams',
   artist: 'Soulive',
-  year: undefined,
+  year: 1999,
 
   historicalDescription:
     "Soulive, the Hammond-organ-driven trio from New York, blend jazz improvisation and deep funk into an instrumental groove that carries the spirit of the organ combos of the 1960s into the jam band era. 'Cash's Dreams' captures their signature approach — tight rhythmic interplay anchored by the Hammond, with space left open for improvisation and feel. Their sound helps revive and reframe funk and soul jazz for a new generation of listeners.",

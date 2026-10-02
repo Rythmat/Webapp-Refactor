@@ -16,6 +16,34 @@ export const faith: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'George Michael',
+      role: 'producer',
+      artistGlobeId: 'george-michael',
+    },
+    {
+      name: 'George Michael',
+      role: 'arranger',
+      artistGlobeId: 'george-michael',
+    },
+    {
+      name: 'George Michael',
+      role: 'vocals',
+      artistGlobeId: 'george-michael',
+      primary: true,
+    },
+    { name: 'Hugh Burns', role: 'performer' },
+    { name: 'Chris Cameron', role: 'performer', instrument: 'organ' },
+    {
+      name: 'George Michael',
+      role: 'songwriter',
+      artistGlobeId: 'george-michael',
+    },
+    { name: 'Chris Porter', role: 'engineer' },
+    { name: 'Deon Estus', role: 'performer' },
+  ],
+  releases: [{ releaseId: 'george-michael-faith' }],
 
   sections: [
     {

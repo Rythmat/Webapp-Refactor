@@ -16,6 +16,7 @@ export const dance_with_my_daughter: Song = {
   difficulty: 2,
   genreTags: ['folk', 'pop'],
   techniques: [],
+  releases: [{ releaseId: 'jason-blaine-country-side', track: 12 }],
 
   sections: [
     {

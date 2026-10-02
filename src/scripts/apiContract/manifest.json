@@ -1,0 +1,73 @@
+{
+  "artifactsVersion": 3,
+  "draftVersion": 4,
+  "description": "Contract artifacts the content API copies from this repo. Each file's sha256 is recorded here, and __tests__/manifest.test.ts fails when a file changes without its hash being updated. artifactsVersion is the version last handed over to the API, and each file's handedOff is its hash at that hand-off. A file whose sha256 differs from its handedOff is part of the open draft, draftVersion, which is artifactsVersion + 1 while any file differs and absent otherwise; the test holds both to that. At a hand-off, artifactsVersion becomes draftVersion, every handedOff becomes its file's sha256, and draftVersion is removed. A file first added in the draft has a handedOff of 64 zeros until then. The API reports the version it runs in GET /capabilities, so the console can tell when the server's copy is older. See docs/console-content-api-contract.md.",
+  "songSchemaLevels": {
+    "v1": {
+      "file": "songBodySchema.v1.ts",
+      "sha256": "57c2506aa23d85656b09425361a81fcaccd185c7ed9216fbb0466e73f4b4acc5",
+      "note": "Frozen. Accepts credits, session, composer, relatedRecordings (with Credit.artistGlobeId, origin.artistGlobeId). Adopt first."
+    },
+    "v2": {
+      "file": "songBodySchema.v2.ts",
+      "sha256": "be805cfec35d31d59c574ccdf09c4158e124838bc3ec13e14f237ddc2b57338b",
+      "note": "Frozen for the version 4 draft, and handed off with it at the end of phase E. Adds to v1: releases[], subgenreIds, session.studioId/labelId/placeId/source, credits[].source, relatedRecordings[].source (all optional). songBodySchema.ts is regenerated from src/curriculum/types/songLibrary.ts and says the same until new song fields open level v3. The globe_event body's credits are generated from the same Credit, so at the version 4 hand-off they are v2's."
+    }
+  },
+  "files": [
+    {
+      "file": "songBodySchema.v1.ts",
+      "sha256": "57c2506aa23d85656b09425361a81fcaccd185c7ed9216fbb0466e73f4b4acc5",
+      "handedOff": "57c2506aa23d85656b09425361a81fcaccd185c7ed9216fbb0466e73f4b4acc5",
+      "what": "Song body, level v1 (frozen). Adopt first."
+    },
+    {
+      "file": "songBodySchema.v2.ts",
+      "sha256": "be805cfec35d31d59c574ccdf09c4158e124838bc3ec13e14f237ddc2b57338b",
+      "handedOff": "0000000000000000000000000000000000000000000000000000000000000000",
+      "what": "Song body, level v2 (frozen for the version 4 draft)."
+    },
+    {
+      "file": "songBodySchema.ts",
+      "sha256": "04c5ec153086c2fa3bcf4642c309f3b1e740021c2034d44f257f6a3801006aac",
+      "handedOff": "27c1abbb99d176dfeecaafb5a67ba4ed433b7b4c6b3b7034dfb2c028b4f33651",
+      "what": "Song body, latest (regenerated from songLibrary.ts)."
+    },
+    {
+      "file": "recordBodySchemas.ts",
+      "sha256": "9325b3e1d03c6f85584f8eab970f62335d979bf0b7084debbbc780b1628f5025",
+      "handedOff": "2a7141551e54cbea864ea27b4e1dd70334dbd3e895e0dd92fa0a71655bdc18ca",
+      "what": "Bodies of the record kinds (artist, release, studio, label, globe_city) and of globe_event (v2)."
+    },
+    {
+      "file": "refPaths.ts",
+      "sha256": "606157058c937fb0ad53b7ddc308e22359740599c77b7349790a0701e949e25f",
+      "handedOff": "1c0834649e4a0edcf6cdd151bb923a417f5c15d0c2c450ea1d89ace13087d63f",
+      "what": "Every reference-bearing body path: validation, rename/merge rewriting."
+    },
+    {
+      "file": "suggestionSchema.ts",
+      "sha256": "f0a1520df61c07bfb58aec083f4aec4d9097fbf93a357d913c6cd07d09eb5c06",
+      "handedOff": "0000000000000000000000000000000000000000000000000000000000000000",
+      "what": "A suggestion and the owner's decision about one (contract §10): the rows of the importer's artifacts, GET /suggestions, POST /suggestions/decisions and decisions.json. Generated from src/content/suggestions/types.ts."
+    },
+    {
+      "file": "vocabulary.generated.json",
+      "sha256": "78ec0a852dbd88e0887a603a76bdbc251a9e638b55b296e0be7da6897c07f038",
+      "handedOff": "78ec0a852dbd88e0887a603a76bdbc251a9e638b55b296e0be7da6897c07f038",
+      "what": "Code-owned vocabularies (genres, instruments, modes, vibes, regions, eras)."
+    },
+    {
+      "file": "slugPatterns.generated.json",
+      "sha256": "783baa5acf4eb84b0283aeaa6b59b91742bccd62ff188ede87e7da0f8fbc8ab6",
+      "handedOff": "783baa5acf4eb84b0283aeaa6b59b91742bccd62ff188ede87e7da0f8fbc8ab6",
+      "what": "Identity field and slug pattern (regex source) per content kind."
+    },
+    {
+      "file": "../../content/graph/slugs.ts",
+      "sha256": "ece6e30324cbfdfa93f9a8d3c0c0899398f6627533b32cca3727674600d52f44",
+      "handedOff": "ece6e30324cbfdfa93f9a8d3c0c0899398f6627533b32cca3727674600d52f44",
+      "what": "toSlug, artistSlug, normalizeArtistName. Import-free; copy as-is, never port."
+    }
+  ]
+}

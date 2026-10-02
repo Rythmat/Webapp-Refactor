@@ -16,6 +16,28 @@ export const golden: Song = {
   difficulty: 2,
   genreTags: ['hip-hop'],
   techniques: [],
+  credits: [
+    { name: 'Serban Ghenea', role: 'engineer' },
+    { name: 'Darrell Robinson', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Anthony Bell', role: 'performer', artistGlobeId: 'anthony-bell' },
+    { name: 'Anthony Bell', role: 'producer', artistGlobeId: 'anthony-bell' },
+    { name: 'Anthony Bell', role: 'songwriter', artistGlobeId: 'anthony-bell' },
+    { name: 'Jill Scott', role: 'songwriter', artistGlobeId: 'jill-scott' },
+    { name: 'Pete Kuzma', role: 'performer', instrument: 'piano' },
+    {
+      name: 'Jill Scott',
+      role: 'vocals',
+      artistGlobeId: 'jill-scott',
+      primary: true,
+    },
+    { name: 'Harold Robinson', role: 'performer' },
+  ],
+  releases: [
+    {
+      releaseId: 'jill-scott-beautifully-human-words-and-sounds-vol-2',
+      track: 3,
+    },
+  ],
 
   sections: [
     {

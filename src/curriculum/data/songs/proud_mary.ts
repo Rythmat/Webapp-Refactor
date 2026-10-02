@@ -4,7 +4,7 @@ export const proud_mary: Song = {
   id: 'proud_mary',
   title: 'Proud Mary',
   artist: 'Ike and Tina Turner',
-  year: undefined,
+  year: 1971,
 
   historicalDescription:
     "Ike and Tina Turner transform John Fogerty's swampy Creedence Clearwater Revival hit into something altogether wilder — a slow-burning soul sermon that erupts into a frenzy. Tina's raw, electrifying vocal performance turns 'Proud Mary' into a showcase for one of the most powerful voices in R&B history. Their version becomes the definitive reading of the song, earning them their first Grammy.",
@@ -17,6 +17,25 @@ export const proud_mary: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    {
+      name: 'The Ikettes',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      ensemble: true,
+    },
+    { name: 'Tina Turner', role: 'vocals', artistGlobeId: 'tina-turner' },
+    { name: 'John Fogerty', role: 'songwriter', artistGlobeId: 'john-fogerty' },
+    {
+      name: 'Ike Turner & the Kings of Rhythm',
+      role: 'performer',
+      ensemble: true,
+    },
+    { name: 'Brent Maher', role: 'engineer' },
+    { name: 'Ike Turner', role: 'vocals' },
+    { name: 'Ike Turner', role: 'producer' },
+  ],
+  releases: [{ releaseId: 'ike-and-tina-turner-workin-together' }],
 
   sections: [
     {

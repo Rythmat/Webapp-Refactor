@@ -16,6 +16,30 @@ export const like_a_prayer: Song = {
   difficulty: 2,
   genreTags: ['pop'],
   techniques: [],
+  credits: [
+    { name: 'Madonna', role: 'songwriter', artistGlobeId: 'madonna' },
+    {
+      name: 'Madonna',
+      role: 'vocals',
+      artistGlobeId: 'madonna',
+      primary: true,
+    },
+    {
+      name: 'Patrick Leonard',
+      role: 'producer',
+      artistGlobeId: 'patrick-leonard',
+    },
+    {
+      name: 'Patrick Leonard',
+      role: 'songwriter',
+      artistGlobeId: 'patrick-leonard',
+    },
+    { name: 'Bill Bottrell', role: 'engineer', artistGlobeId: 'bill-bottrell' },
+    { name: 'Guy Pratt', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Madonna', role: 'producer', artistGlobeId: 'madonna' },
+    { name: 'Michael Vail Blum', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'madonna-like-a-prayer', track: 1 }],
 
   sections: [
     {

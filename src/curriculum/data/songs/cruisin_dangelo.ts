@@ -16,6 +16,32 @@ export const cruisin_dangelo: Song = {
   difficulty: 2,
   genreTags: ['hip-hop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Marvin Tarplin',
+      role: 'songwriter',
+      artistGlobeId: 'marvin-tarplin',
+    },
+    { name: 'Dunn Pearson, Jr.', role: 'arranger' },
+    { name: 'Tim Latham', role: 'engineer' },
+    { name: 'D’Angelo', role: 'producer', artistGlobeId: 'dangelo' },
+    {
+      name: 'Smokey Robinson',
+      role: 'songwriter',
+      artistGlobeId: 'smokey-robinson',
+    },
+    { name: 'G-Spot', role: 'engineer' },
+    {
+      name: 'D’Angelo',
+      role: 'vocals',
+      artistGlobeId: 'dangelo',
+      primary: true,
+    },
+    { name: 'D’Angelo', role: 'arranger', artistGlobeId: 'dangelo' },
+    { name: 'Butch Jones', role: 'engineer' },
+    { name: 'Dunn Pearson, Jr.', role: 'conductor' },
+  ],
+  releases: [{ releaseId: 'dangelo-brown-sugar', track: 7 }],
 
   sections: [
     {

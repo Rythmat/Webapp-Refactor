@@ -16,6 +16,21 @@ export const get_down_tonight: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Richard Finch',
+      role: 'songwriter',
+      artistGlobeId: 'richard-finch',
+    },
+    {
+      name: 'Harry Wayne Casey',
+      role: 'songwriter',
+      artistGlobeId: 'harry-wayne-casey',
+    },
+  ],
+  releases: [
+    { releaseId: 'kc-and-the-sunshine-band-kc-and-the-sunshine-band' },
+  ],
 
   sections: [
     {

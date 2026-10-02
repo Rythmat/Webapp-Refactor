@@ -16,6 +16,34 @@ export const fly_like_an_eagle: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'cbs-studios-san-francisco' },
+  credits: [
+    { name: 'Steve Miller', role: 'vocals', artistGlobeId: 'steve-miller' },
+    { name: 'Joachim Young', role: 'performer', instrument: 'hammond-organ' },
+    { name: 'Steve Miller', role: 'songwriter', artistGlobeId: 'steve-miller' },
+    { name: 'Mike Fusaro', role: 'engineer' },
+    { name: 'Steve Miller', role: 'producer', artistGlobeId: 'steve-miller' },
+    { name: 'Jim Gaines', role: 'engineer' },
+    {
+      name: 'Lonnie Turner',
+      role: 'performer',
+      artistGlobeId: 'lonnie-turner',
+    },
+    {
+      name: 'Gary Mallaber',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'gary-mallaber',
+    },
+    {
+      name: 'Steve Miller',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'steve-miller',
+    },
+    { name: 'Steve Miller', role: 'performer', artistGlobeId: 'steve-miller' },
+  ],
+  releases: [{ releaseId: 'steve-miller-band-fly-like-an-eagle' }],
 
   sections: [
     {

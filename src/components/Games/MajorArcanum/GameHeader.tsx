@@ -65,7 +65,7 @@ export function GameHeader({
         {
           label: 'Multiplier',
           value: `x${multiplier}`,
-          valueClassName: 'font-bold text-yellow-400',
+          valueClassName: 'font-bold text-white',
         },
       ]}
     />

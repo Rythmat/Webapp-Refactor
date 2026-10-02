@@ -16,6 +16,33 @@ export const honky_tonk_women: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Mick Taylor', role: 'performer', artistGlobeId: 'mick-taylor' },
+    { name: 'Mick Jagger', role: 'songwriter', artistGlobeId: 'mick-jagger' },
+    {
+      name: 'Ian Stewart',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'ian-stewart',
+    },
+    {
+      name: 'Keith Richards',
+      role: 'songwriter',
+      artistGlobeId: 'keith-richards',
+    },
+    { name: 'Mack Vickery', role: 'songwriter', artistGlobeId: 'mack-vickery' },
+    {
+      name: 'Nanette Workman',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    {
+      name: 'Jimmy Miller',
+      role: 'performer',
+      instrument: 'cowbell',
+      artistGlobeId: 'jimmy-miller',
+    },
+  ],
 
   sections: [
     {

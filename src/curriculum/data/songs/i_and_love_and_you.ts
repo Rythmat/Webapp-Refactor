@@ -16,6 +16,12 @@ export const i_and_love_and_you: Song = {
   difficulty: 2,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Bob Crawford', role: 'songwriter', artistGlobeId: 'bob-crawford' },
+    { name: 'Seth Avett', role: 'songwriter', artistGlobeId: 'seth-avett' },
+    { name: 'Scott Avett', role: 'songwriter', artistGlobeId: 'scott-avett' },
+  ],
+  releases: [{ releaseId: 'the-avett-brothers-i-and-love-and-you', track: 1 }],
 
   sections: [
     {

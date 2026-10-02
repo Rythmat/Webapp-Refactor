@@ -4,7 +4,7 @@ export const pumped_up_for_kicks: Song = {
   id: 'pumped_up_for_kicks',
   title: 'Pumped Up For Kicks',
   artist: 'Foster The People',
-  year: undefined,
+  year: 2010,
 
   historicalDescription:
     "Foster The People release 'Pumped Up Kicks', an unsettling indie pop earworm wrapped in a whistling, sun-drenched melody that masks deeply dark lyrical subject matter. The contrast between its breezy, danceable sound and its disturbing narrative becomes a cultural talking point, catapulting the Los Angeles band from obscurity to global recognition and defining a new wave of indie pop crossover success.",

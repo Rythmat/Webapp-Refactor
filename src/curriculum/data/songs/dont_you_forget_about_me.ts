@@ -16,6 +16,20 @@ export const dont_you_forget_about_me: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Keith Forsey', role: 'producer', artistGlobeId: 'keith-forsey' },
+    {
+      name: 'Simple Minds',
+      role: 'performer',
+      ensemble: true,
+      artistGlobeId: 'simple-minds',
+      primary: true,
+    },
+    { name: 'Keith Forsey', role: 'songwriter', artistGlobeId: 'keith-forsey' },
+    { name: 'Steve Schiff', role: 'songwriter', artistGlobeId: 'steve-schiff' },
+    { name: 'Jez Coad', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'simple-minds-once-upon-a-time', track: 1 }],
 
   sections: [
     {

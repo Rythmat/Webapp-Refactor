@@ -16,6 +16,29 @@ export const wicked_game: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Christine Wall', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Chris Isaak', role: 'songwriter', artistGlobeId: 'chris-isaak' },
+    { name: 'James Calvin Wilsey', role: 'performer' },
+    { name: 'Mark Needham', role: 'engineer' },
+    { name: 'Kenney Dale Johnson', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Erik Jacobsen', role: 'producer', artistGlobeId: 'erik-jacobsen' },
+    {
+      name: 'Chris Isaak',
+      role: 'vocals',
+      artistGlobeId: 'chris-isaak',
+      primary: true,
+    },
+    { name: 'Cynthia Lloyd', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Rowland Salley', role: 'performer', instrument: 'electric-bass' },
+    {
+      name: 'Chris Isaak',
+      role: 'performer',
+      artistGlobeId: 'chris-isaak',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'chris-isaak-heart-shaped-world', track: 5 }],
 
   sections: [
     {

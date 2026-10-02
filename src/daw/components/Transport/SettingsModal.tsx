@@ -534,9 +534,9 @@ function ChannelToggle({
       onClick={onClick}
       className="cursor-pointer rounded px-2.5 py-1 text-[11px] font-medium transition-colors"
       style={{
-        backgroundColor: active ? '#f59e0b' : 'var(--color-surface-2)',
-        color: active ? '#1a1a1a' : 'var(--color-text-dim)',
-        border: `1px solid ${active ? '#f59e0b' : 'var(--color-border)'}`,
+        backgroundColor: active ? '#ffffff' : 'var(--color-surface-2)',
+        color: active ? '#101012' : 'var(--color-text-dim)',
+        border: `1px solid ${active ? '#ffffff' : 'var(--color-border)'}`,
         minWidth: label ? 48 : 32,
       }}
     >

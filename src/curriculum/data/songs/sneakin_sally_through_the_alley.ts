@@ -16,6 +16,19 @@ export const sneakin_sally_through_the_alley: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Allen Toussaint',
+      role: 'songwriter',
+      artistGlobeId: 'allen-toussaint',
+    },
+    {
+      name: 'Steve Smith',
+      role: 'producer',
+      artistGlobeId: 'steve-smith-70s-producer-engineer-mainly-island-records',
+    },
+  ],
+  releases: [{ releaseId: 'robert-palmer-sneakin-sally-through-the-alley' }],
 
   sections: [
     {

@@ -3,7 +3,7 @@ import type { Song } from '@/curriculum/types/songLibrary';
 export const californication: Song = {
   id: 'californication',
   title: 'Californication',
-  artist: 'The Red Hot Chili Peppers',
+  artist: 'Red Hot Chili Peppers',
   year: 1999,
   historicalDescription:
     "The Red Hot Chili Peppers release 'Californication', the title track from their landmark 1999 album, marking a vulnerable and melodic turn for the band after years of funk-rock aggression. Written during Anthony Kiedis's struggle with addiction and the return of guitarist John Frusciante, the song captures Hollywood's seductive yet corrosive mythology — sex, fame, and destruction wrapped in a quiet, hypnotic riff.",
@@ -16,6 +16,24 @@ export const californication: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Rick Rubin', role: 'producer', artistGlobeId: 'rick-rubin' },
+    { name: 'Jim Scott', role: 'engineer', artistGlobeId: 'jim-scott' },
+    { name: 'Chad Smith', role: 'songwriter', artistGlobeId: 'chad-smith' },
+    { name: 'Greg Kurstin', role: 'performer', artistGlobeId: 'greg-kurstin' },
+    { name: 'Flea', role: 'songwriter', artistGlobeId: 'flea' },
+    {
+      name: 'John Frusciante',
+      role: 'songwriter',
+      artistGlobeId: 'john-frusciante',
+    },
+    {
+      name: 'Anthony Kiedis',
+      role: 'songwriter',
+      artistGlobeId: 'anthony-kiedis',
+    },
+  ],
+  releases: [{ releaseId: 'red-hot-chili-peppers-californication', track: 6 }],
 
   sections: [
     {

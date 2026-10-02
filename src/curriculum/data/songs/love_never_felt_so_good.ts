@@ -4,7 +4,7 @@ export const love_never_felt_so_good: Song = {
   id: 'love_never_felt_so_good',
   title: 'Love Never Felt So Good',
   artist: 'Michael Jackson and Justin Timberlake',
-  year: undefined,
+  year: 2014,
 
   historicalDescription:
     "A posthumous Michael Jackson recording featuring Justin Timberlake, 'Love Never Felt So Good' surfaces decades after its original demo was laid down, reminding the world of Jackson's effortless pop instinct. The collaboration bridges generations, pairing Jackson's timeless groove with Timberlake's modern vocal presence — a bittersweet reminder of what the King of Pop left behind.",
@@ -17,6 +17,29 @@ export const love_never_felt_so_good: Song = {
   difficulty: 3,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Paul Anka', role: 'songwriter', artistGlobeId: 'paul-anka' },
+    { name: 'Adam Blackstone', role: 'performer' },
+    {
+      name: 'Michael Jackson',
+      role: 'vocals',
+      primary: true,
+      artistGlobeId: 'michael-jackson',
+    },
+    {
+      name: 'Michael Jackson',
+      role: 'songwriter',
+      artistGlobeId: 'michael-jackson',
+    },
+    {
+      name: 'Justin Timberlake',
+      role: 'vocals',
+      primary: true,
+      artistGlobeId: 'justin-timberlake',
+    },
+    { name: 'Dan Warner', role: 'performer' },
+  ],
+  releases: [{ releaseId: 'michael-jackson-xscape', track: 17 }],
 
   sections: [
     {

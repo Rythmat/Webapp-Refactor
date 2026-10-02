@@ -5,14 +5,19 @@
  * so curriculum pages get sidebar, auth protection, and identical UI.
  */
 
-import { lazy, useState, useEffect, useMemo } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
+import {
+  Navigate,
+  useLocation,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import { FundamentalsLessonContainer } from '@/components/learn/FundamentalsLessonContainer';
 import { FundamentalsOverview } from '@/components/learn/FundamentalsOverview';
 import { GenreLessonContainer } from '@/components/learn/GenreLessonContainer';
 import { GenreOverview } from '@/components/learn/GenreOverview';
 import { RequirePremium } from '@/components/ui/RequirePremium';
-import { CurriculumRoutes } from '@/constants/routes';
+import { CurriculumRoutes, LearnRoutes } from '@/constants/routes';
 import { AppContext } from '@/contexts/AppContext';
 import { ProtectedPage } from '@/contexts/AuthContext';
 import { AppliedTheoryFundamentalsKeyPicker } from '@/curriculum/components/AppliedTheoryFundamentalsKeyPicker';
@@ -50,11 +55,19 @@ const GenreOverviewRoute = () => {
   );
 };
 
-// Guitar lessons load on demand: the guitar views, book data and TAB
-// renderer stay out of the piano path's bundle.
-const GuitarAppliedTheoryFundamentalsLesson = lazy(
-  () => import('@/curriculum/pages/GuitarAppliedTheoryFundamentalsLesson'),
-);
+/**
+ * Guitar used to live here, as a twin of Applied Theory Fundamentals. It is
+ * now Learn → Theory → Ionian (Major) on guitar; old links (the picker, a
+ * key's lesson, any ?section=) land on the same place there.
+ */
+const LegacyGuitarRedirect = () => {
+  const { key } = useParams<{ key?: string }>();
+  const { search } = useLocation();
+  const to = key
+    ? LearnRoutes.guitarLesson({ mode: 'ionian', key })
+    : LearnRoutes.guitarOverview({ mode: 'ionian' });
+  return <Navigate replace to={`${to}${search}`} />;
+};
 
 const AppliedTheoryFundamentalsLessonRoute = () => {
   const { key } = useParams<{ key: string }>();
@@ -152,11 +165,11 @@ export function curriculumPages() {
       },
       {
         path: CurriculumRoutes.guitarAppliedTheoryFundamentals.definition,
-        element: <AppliedTheoryFundamentalsKeyPicker instrument="guitar" />,
+        element: <LegacyGuitarRedirect />,
       },
       {
         path: CurriculumRoutes.guitarAppliedTheoryFundamentalsLesson.definition,
-        element: <GuitarAppliedTheoryFundamentalsLesson />,
+        element: <LegacyGuitarRedirect />,
       },
       {
         path: CurriculumRoutes.genre.definition,

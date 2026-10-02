@@ -16,6 +16,32 @@ export const a_long_walk: Song = {
   difficulty: 2,
   genreTags: ['hip-hop'],
   techniques: [],
+  credits: [
+    { name: 'Andre Harris', role: 'songwriter', artistGlobeId: 'andre-harris' },
+    { name: 'George Glass', role: 'engineer' },
+    { name: 'Vidal Davis', role: 'engineer', artistGlobeId: 'vidal-davis' },
+    { name: 'Andre Harris', role: 'producer', artistGlobeId: 'andre-harris' },
+    { name: 'Serban Ghenea', role: 'engineer' },
+    { name: 'Vidal Davis', role: 'producer', artistGlobeId: 'vidal-davis' },
+    { name: 'Don Stevens', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Andre Harris', role: 'performer', artistGlobeId: 'andre-harris' },
+    {
+      name: 'Jill Scott',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'jill-scott',
+      primary: true,
+    },
+    { name: 'Vidal Davis', role: 'arranger', artistGlobeId: 'vidal-davis' },
+    { name: 'Jill Scott', role: 'arranger', artistGlobeId: 'jill-scott' },
+    { name: 'Jill Scott', role: 'songwriter', artistGlobeId: 'jill-scott' },
+  ],
+  releases: [
+    {
+      releaseId: 'jill-scott-who-is-jill-scott-words-and-sounds-vol-1',
+      track: 5,
+    },
+  ],
 
   sections: [
     {

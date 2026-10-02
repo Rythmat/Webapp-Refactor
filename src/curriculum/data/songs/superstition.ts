@@ -16,6 +16,43 @@ export const superstition: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  session: { studioId: 'electric-lady-studios' },
+  credits: [
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'clavinet',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Malcolm Cecil', role: 'engineer' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Robert Margouleff', role: 'engineer' },
+    { name: 'Steve Madaio', role: 'performer', instrument: 'trumpet' },
+    { name: 'Joan DeCola', role: 'engineer' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'synthesizer',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Trevor Lawrence', role: 'performer' },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    { name: 'Austin Godsey', role: 'engineer' },
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-talking-book', track: 6 }],
 
   sections: [
     {

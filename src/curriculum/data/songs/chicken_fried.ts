@@ -16,6 +16,36 @@ export const chicken_fried: Song = {
   difficulty: 1,
   genreTags: ['folk', 'pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Sally Smithwick',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    {
+      name: 'John Driskell Hopkins',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'john-driskell-hopkins',
+    },
+    { name: 'Jen Lowe', role: 'performer', instrument: 'percussion' },
+    { name: 'Mark Van Allen', role: 'performer', instrument: 'pedal-steel' },
+    {
+      name: 'John Driskell Hopkins',
+      role: 'producer',
+      artistGlobeId: 'john-driskell-hopkins',
+    },
+    { name: 'Zac Brown', role: 'producer', artistGlobeId: 'zac-brown' },
+    {
+      name: 'Wyatt Durrette',
+      role: 'songwriter',
+      artistGlobeId: 'wyatt-durrette',
+    },
+    { name: 'Dani Bianchini', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Rin Vinson', role: 'performer' },
+    { name: 'Zac Brown', role: 'songwriter', artistGlobeId: 'zac-brown' },
+  ],
+  releases: [{ releaseId: 'zac-brown-band-home-grown', track: 3 }],
 
   sections: [
     {

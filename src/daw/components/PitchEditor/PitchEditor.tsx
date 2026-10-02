@@ -172,7 +172,7 @@ export function PitchEditor({
         ctx.lineTo(w, rowY);
         ctx.stroke();
         ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-        ctx.font = 'bold 8px Inter, monospace';
+        ctx.font = "bold 8px 'Glacial Indifference', system-ui, sans-serif";
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'right';
         ctx.fillText(noteName(midiNote), w - 4, rowY + ROW_H / 2);
@@ -230,7 +230,7 @@ export function PitchEditor({
       if (isBar) {
         const barNum = beat / beatsPerBar + 1;
         ctx.fillStyle = '#7a7a90';
-        ctx.font = '10px Inter, sans-serif';
+        ctx.font = "10px 'Glacial Indifference', system-ui, sans-serif";
         ctx.fillText(String(barNum), x + 4, h / 2);
       }
     }
@@ -458,7 +458,7 @@ export function PitchEditor({
       // Edit indicator — small arrow showing shift direction
       if (edit && seg.midiNote !== edit.targetMidiNote) {
         ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-        ctx.font = '8px Inter, sans-serif';
+        ctx.font = "8px 'Glacial Indifference', system-ui, sans-serif";
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'left';
         const shift = edit.targetMidiNote - seg.midiNote;
@@ -786,7 +786,7 @@ export function PitchEditor({
 
         {selectedSegId && (
           <span
-            className="font-mono text-[10px]"
+            className="min-w-14 text-[10px]"
             style={{ color: 'var(--color-text)' }}
           >
             {(() => {

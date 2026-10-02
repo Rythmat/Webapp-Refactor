@@ -4,7 +4,7 @@ export const i_love_rock_n_roll: Song = {
   id: 'i_love_rock_n_roll',
   title: 'I Love Rock ‘N’ Roll',
   artist: 'Joan Jett & The Blackhearts',
-  year: undefined,
+  year: 1981,
 
   historicalDescription:
     "Joan Jett & The Blackhearts release 'I Love Rock 'N' Roll', a stomping declaration of pure rock devotion that becomes one of the defining anthems of the early 1980s. Originally recorded by The Arrows in 1975, Jett's ferocious reinvention makes it entirely her own — spending seven weeks at #1 and cementing her status as one of rock's most unapologetic voices.",
@@ -17,6 +17,48 @@ export const i_love_rock_n_roll: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Kenny Laguna',
+      role: 'performer',
+      instrument: 'organ',
+      artistGlobeId: 'kenny-laguna',
+    },
+    { name: 'Jake Hooker', role: 'songwriter', artistGlobeId: 'jake-hooker' },
+    { name: 'Kenny Laguna', role: 'producer', artistGlobeId: 'kenny-laguna' },
+    { name: 'Joan Jett', role: 'vocals', artistGlobeId: 'joan-jett' },
+    { name: 'Ricky Byrd', role: 'performer' },
+    {
+      name: 'Kenny Laguna',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'kenny-laguna',
+    },
+    { name: 'Gary Ryan', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Glen Kolotkin', role: 'engineer' },
+    { name: 'Joan Jett', role: 'performer', artistGlobeId: 'joan-jett' },
+    { name: 'Alan Merrill', role: 'songwriter', artistGlobeId: 'alan-merrill' },
+    {
+      name: 'Lee Crystal',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'lee-crystal',
+    },
+    { name: 'Jerry Gabenelli', role: 'engineer' },
+    {
+      name: 'Kenny Laguna',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'kenny-laguna',
+    },
+    { name: 'Gary Ryan', role: 'performer', instrument: 'electric-bass' },
+    {
+      name: 'Ritchie Cordell',
+      role: 'producer',
+      artistGlobeId: 'ritchie-cordell',
+    },
+  ],
+  releases: [{ releaseId: 'joan-jett-and-the-blackhearts-i-love-rock-n-roll' }],
 
   sections: [
     {

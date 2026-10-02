@@ -365,7 +365,7 @@ export const LeadSheetMeasure = memo(function LeadSheetMeasure({
             fontSize={16}
             fontWeight="bold"
             textAnchor="middle"
-            fontFamily="serif"
+            fontFamily="'Glacial Indifference', 'Haskoy', system-ui, sans-serif"
           >
             {restBars}
           </text>

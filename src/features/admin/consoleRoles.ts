@@ -29,13 +29,12 @@ export const isContentEditor = (role: UserRole | null): boolean =>
   role === 'editor';
 
 /**
- * Where a console user should land.
+ * Where a console user should land: admins on Users, editors on the app's
+ * Home as the console mirrors it (their work is the content).
  *
  * An editor sent to the Users page — the admin default — would be bounced
  * straight back out, so the index redirect and the in-console catch-all both
  * ask this rather than hardcoding a destination.
  */
 export const consoleHomeRoute = (role: UserRole | null): string =>
-  isContentEditor(role)
-    ? AdminRoutes.contentKind({ kind: 'activity_flow' })
-    : AdminRoutes.users();
+  isContentEditor(role) ? `${AdminRoutes.content()}/home` : AdminRoutes.users();

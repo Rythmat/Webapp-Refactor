@@ -16,6 +16,20 @@ export const rock_with_you: Song = {
   difficulty: 3,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Rod Temperton',
+      role: 'songwriter',
+      artistGlobeId: 'rod-temperton',
+    },
+    {
+      name: 'Michael Jackson',
+      role: 'vocals',
+      artistGlobeId: 'michael-jackson',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'michael-jackson-off-the-wall' }],
 
   sections: [
     {

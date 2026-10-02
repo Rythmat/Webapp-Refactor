@@ -16,6 +16,53 @@ export const dont_start_now: Song = {
   difficulty: 2,
   genreTags: ['funk', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'Drew Jurecka', role: 'performer', instrument: 'violin' },
+    { name: 'Drew Jurecka', role: 'engineer' },
+    { name: 'Drew Jurecka', role: 'arranger' },
+    {
+      name: 'Caroline Ailin',
+      role: 'songwriter',
+      artistGlobeId: 'caroline-ailin',
+    },
+    { name: 'Emily Warren', role: 'songwriter', artistGlobeId: 'emily-warren' },
+    {
+      name: 'Ian Kirkpatrick',
+      role: 'songwriter',
+      artistGlobeId: 'ian-kirkpatrick',
+    },
+    {
+      name: 'Caroline Ailin',
+      role: 'producer',
+      artistGlobeId: 'caroline-ailin',
+    },
+    {
+      name: 'Ian Kirkpatrick',
+      role: 'producer',
+      artistGlobeId: 'ian-kirkpatrick',
+    },
+    { name: 'Drew Jurecka', role: 'performer', instrument: 'viola' },
+    { name: 'Dua Lipa', role: 'songwriter', artistGlobeId: 'dua-lipa' },
+    {
+      name: 'Dua Lipa',
+      role: 'vocals',
+      artistGlobeId: 'dua-lipa',
+      primary: true,
+    },
+    { name: 'Josh Gudwin', role: 'engineer' },
+    {
+      name: 'Ian Kirkpatrick',
+      role: 'engineer',
+      artistGlobeId: 'ian-kirkpatrick',
+    },
+    {
+      name: 'Emily Warren',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'emily-warren',
+    },
+  ],
+  releases: [{ releaseId: 'dua-lipa-future-nostalgia' }],
 
   sections: [
     {

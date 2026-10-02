@@ -16,6 +16,82 @@ export const shut_up_and_dance: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'rancho-pagzilla' },
+  credits: [
+    { name: 'Kevin Ray', role: 'performer' },
+    {
+      name: 'Nicholas Petricca',
+      role: 'performer',
+      artistGlobeId: 'nicholas-petricca',
+    },
+    {
+      name: 'Ryan McMahon',
+      role: 'producer',
+      artistGlobeId: 'ryan-mcmahon-canadian-singer-songwriter',
+    },
+    { name: 'Tim Pagnotta', role: 'engineer', artistGlobeId: 'tim-pagnotta' },
+    { name: 'Kuk Harrell', role: 'engineer', artistGlobeId: 'kuk-harrell' },
+    { name: 'Eli Maiman', role: 'songwriter', artistGlobeId: 'eli-maiman' },
+    {
+      name: 'Nicholas Petricca',
+      role: 'songwriter',
+      artistGlobeId: 'nicholas-petricca',
+    },
+    {
+      name: 'Sean Waugaman',
+      role: 'songwriter',
+      artistGlobeId: 'sean-waugaman',
+    },
+    {
+      name: 'Sean Waugaman',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'sean-waugaman',
+    },
+    { name: 'Tim Pagnotta', role: 'producer', artistGlobeId: 'tim-pagnotta' },
+    { name: 'Ben Berger', role: 'songwriter', artistGlobeId: 'ben-berger' },
+    { name: 'Kevin Ray', role: 'songwriter', artistGlobeId: 'kevin-ray' },
+    {
+      name: 'Sean Waugaman',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'sean-waugaman',
+    },
+    {
+      name: 'Nicholas Petricca',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'nicholas-petricca',
+    },
+    {
+      name: 'Eli Maiman',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'eli-maiman',
+    },
+    { name: 'Neal Avron', role: 'engineer' },
+    { name: 'Ben Berger', role: 'producer', artistGlobeId: 'ben-berger' },
+    { name: 'Kevin Ray', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Nicholas Petricca',
+      role: 'vocals',
+      artistGlobeId: 'nicholas-petricca',
+    },
+    { name: 'Jarett Holmes', role: 'engineer' },
+    {
+      name: 'Ryan McMahon',
+      role: 'songwriter',
+      artistGlobeId: 'ryan-mcmahon-la-based-producer-and-songwriter',
+    },
+    {
+      name: 'Eli Maiman',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'eli-maiman',
+    },
+    { name: 'Marcos Tovar', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'walk-the-moon-talking-is-hard', track: 3 }],
 
   sections: [
     {

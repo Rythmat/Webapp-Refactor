@@ -24,6 +24,7 @@ import {
 } from '@/components/atlas/context/AppContext';
 import { CITIES } from '@/components/atlas/data';
 import type { AtlasArtist } from '@/components/atlas/data/artists';
+import { songIdForEvent } from '@/components/atlas/data/songEventAliases';
 import { useAtlasNavigate } from '@/components/atlas/navigation/useAtlasNavigate';
 import type { HistoricalEvent } from '@/components/atlas/types';
 import { getEventsForLocation } from '@/components/atlas/utils/getEventsForLocation';
@@ -33,15 +34,17 @@ import { SongRoutes } from '@/constants/routes';
  * Back to the chart this event was made from.
  *
  * The song library's globe icon goes one way; this is the return trip. A song
- * event's id IS `song-<songId>`, so the link needs no lookup — which matters,
- * because the atlas route only hydrates globe events. Reading the song library
- * here to confirm the chart exists would mean pulling a 3.3MB bundle to decide
- * whether to draw an icon; `songEventLinks.test.ts` guards the mapping instead.
+ * event's id IS `song-<songId>`, or names its song in `songEventAliases.ts`
+ * (a second recording with its own pin), so the link needs no lookup — which
+ * matters, because the atlas route only hydrates globe events. Reading the
+ * song library here to confirm the chart exists would mean pulling a 3.3MB
+ * bundle to decide whether to draw an icon; `songEventLinks.test.ts` guards
+ * the mapping instead.
  */
 const LeadSheetButton = ({ event }: { event: HistoricalEvent }) => {
   const navigate = useNavigate();
-  if (!event.id.startsWith('song-')) return null;
-  const songId = event.id.slice('song-'.length);
+  const songId = songIdForEvent(event.id);
+  if (!songId) return null;
   return (
     <button
       aria-label="Open the lead sheet"

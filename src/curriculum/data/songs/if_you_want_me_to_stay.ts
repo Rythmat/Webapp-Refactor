@@ -4,7 +4,7 @@ export const if_you_want_me_to_stay: Song = {
   id: 'if_you_want_me_to_stay',
   title: 'If You Want Me To Stay',
   artist: 'Sly and the Family Stone',
-  year: undefined,
+  year: 1973,
 
   historicalDescription:
     "Sly and the Family Stone release 'If You Want Me To Stay', a hypnotic funk statement that doubles as a personal ultimatum from Sly Stone himself — demanding respect and space on his own terms. The track's locked groove and understated cool stand in stark contrast to the chaotic turbulence surrounding the band at the time, capturing a genius in tension with his own fame.",
@@ -17,6 +17,10 @@ export const if_you_want_me_to_stay: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Sly Stone', role: 'songwriter', artistGlobeId: 'sly-stone' },
+  ],
+  releases: [{ releaseId: 'sly-and-the-family-stone-fresh' }],
 
   sections: [
     {

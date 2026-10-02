@@ -16,6 +16,31 @@ export const only_the_good_die_young: Song = {
   difficulty: 2,
   genreTags: ['jazz', 'pop'],
   techniques: [],
+  session: { studioId: 'a-r-recording-studio-1958-1989' },
+  credits: [
+    { name: 'Richie Cannata', role: 'performer', instrument: 'organ' },
+    { name: 'Billy Joel', role: 'songwriter', artistGlobeId: 'billy-joel' },
+    {
+      name: 'Billy Joel',
+      role: 'vocals',
+      artistGlobeId: 'billy-joel',
+      primary: true,
+    },
+    { name: 'Phil Ramone', role: 'engineer', artistGlobeId: 'phil-ramone' },
+    { name: 'Phil Ramone', role: 'producer', artistGlobeId: 'phil-ramone' },
+    { name: 'Richie Cannata', role: 'performer' },
+    { name: 'Liberty DeVitto', role: 'performer', instrument: 'drum-kit' },
+    {
+      name: 'Billy Joel',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'billy-joel',
+      primary: true,
+    },
+    { name: 'Doug Stegmeyer', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Jim Boyer', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'billy-joel-the-stranger' }],
 
   sections: [
     {

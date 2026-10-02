@@ -49,6 +49,30 @@ describe('learnNoteStyles', () => {
       expect([...styles.keys()]).toEqual(['a', 'b']);
     });
 
+    it('marks a note the playhead passed unplayed only when asked (guitar TAB)', () => {
+      const missed = { color: 'rgba(255, 255, 255, 0.3)' };
+      const state = {
+        inTime: true,
+        performanceMeta: { a: { startTick: 40 } },
+        playheadTick: 1000,
+        keyColor: KEY,
+      };
+      // By default a passed note keeps its plain look, as the staff draws it.
+      expect([...learnNoteStyles(events, state)]).toEqual([
+        ['a', { color: `${KEY}b3` }],
+        ['c', { color: KEY, glow: true }],
+      ]);
+      expect([...learnNoteStyles(events, { ...state, missed })]).toEqual([
+        ['a', { color: `${KEY}b3` }],
+        ['b', missed],
+        ['c', { color: KEY, glow: true }],
+      ]);
+      // Out of time there is no playhead to pass a note.
+      expect(
+        learnNoteStyles(events, { ...state, inTime: false, missed }).size,
+      ).toBe(0);
+    });
+
     it('falls back to the accent colour without a key colour', () => {
       const styles = learnNoteStyles(events, {
         inTime: true,

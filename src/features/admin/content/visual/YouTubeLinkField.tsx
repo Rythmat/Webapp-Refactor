@@ -3,6 +3,8 @@ import { Link2, VideoOff } from 'lucide-react';
 import { useEffect, useState, type FC, type ReactNode } from 'react';
 import { AtlasVideo } from '@/components/atlas/components/UI/AtlasVideo';
 import { cn } from '@/components/utilities';
+import { CONSOLE_LABEL } from '../../ui/styles';
+import { extractYouTubeId } from './youTubeId';
 
 /**
  * The video slot in the visual editors: a link input where the student sees a
@@ -13,17 +15,7 @@ import { cn } from '@/components/utilities';
  * which of those the schema stores.
  */
 
-const ID_PATTERN = /^[a-zA-Z0-9_-]{11}$/;
-
-export function extractYouTubeId(input: string): string | null {
-  const trimmed = input.trim();
-  if (!trimmed) return null;
-  if (ID_PATTERN.test(trimmed)) return trimmed;
-  const match = trimmed.match(
-    /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/|v\/))([a-zA-Z0-9_-]{11})/,
-  );
-  return match?.[1] ?? null;
-}
+export { extractYouTubeId };
 
 export const youTubeWatchUrl = (videoId: string) =>
   `https://www.youtube.com/watch?v=${videoId}`;
@@ -54,9 +46,7 @@ export const YouTubeLinkField: FC<{
 
   return (
     <div className={cn('flex flex-col gap-2', className)}>
-      <label className="text-[10px] uppercase tracking-wide text-white/30">
-        {label}
-      </label>
+      <label className={CONSOLE_LABEL}>{label}</label>
 
       <div className="flex items-center gap-2">
         <div className="relative min-w-0 flex-1">
@@ -66,8 +56,8 @@ export const YouTubeLinkField: FC<{
             placeholder="https://www.youtube.com/watch?v=…"
             className={cn(
               'w-full rounded-lg border bg-black/30 py-1.5 pl-8 pr-2 text-xs text-white/80 outline-none',
-              'placeholder:text-white/25 focus:ring-1 focus:ring-[#60a5fa]',
-              invalid ? 'border-red-500/50' : 'border-white/10',
+              'placeholder:text-white/25 focus:ring-1 focus:ring-white/40',
+              invalid ? 'border-red-500/50' : 'border-white/[0.08]',
             )}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}

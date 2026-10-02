@@ -16,6 +16,71 @@ export const three_little_birds: Song = {
   difficulty: 2,
   genreTags: ['reggae'],
   techniques: [],
+  credits: [
+    { name: 'Aston “Family Man” Barrett', role: 'performer' },
+    { name: 'Chris Blackwell', role: 'engineer' },
+    { name: 'Tyrone Downie', role: 'performer' },
+    {
+      name: 'Aston “Family Man” Barrett',
+      role: 'performer',
+      instrument: 'percussion',
+    },
+    {
+      name: 'Carlton “Carly” Barrett',
+      role: 'performer',
+      instrument: 'percussion',
+    },
+    { name: 'Rita Marley', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Tyrone Downie', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Alvin “Seeco” Patterson',
+      role: 'performer',
+      instrument: 'percussion',
+    },
+    {
+      name: 'Bob Marley',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'bob-marley',
+      primary: true,
+    },
+    {
+      name: 'Carlton “Carly” Barrett',
+      role: 'performer',
+      instrument: 'drum-kit',
+    },
+    { name: 'Junior Marvin', role: 'performer' },
+    {
+      name: 'Bob Marley',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'bob-marley',
+      primary: true,
+    },
+    {
+      name: 'Bob Marley & The Wailers',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'bob-marley-and-the-wailers',
+    },
+    { name: 'Aston “Family Man” Barrett', role: 'engineer' },
+    {
+      name: 'Marcia Griffiths',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    {
+      name: 'Bob Marley',
+      role: 'vocals',
+      artistGlobeId: 'bob-marley',
+      primary: true,
+    },
+    { name: 'Karl Pitterson', role: 'engineer' },
+    { name: 'Bob Marley', role: 'songwriter', artistGlobeId: 'bob-marley' },
+    { name: 'Tyrone Downie', role: 'performer', instrument: 'percussion' },
+    { name: 'Judy Mowatt', role: 'performer', instrument: 'backing-vocals' },
+  ],
+  releases: [{ releaseId: 'bob-marley-and-the-wailers-exodus', track: 9 }],
 
   sections: [
     {

@@ -16,6 +16,46 @@ export const a_go_go: Song = {
   difficulty: 2,
   genreTags: ['funk', 'jazz', 'rnb'],
   techniques: [],
+  session: { studioId: 'power-station-at-berkleenyc' },
+  credits: [
+    { name: 'Billy Martin', role: 'performer' },
+    {
+      name: 'John Scofield',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'john-scofield',
+      primary: true,
+    },
+    { name: 'John Medeski', role: 'performer', instrument: 'organ' },
+    { name: 'Chris Wood', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Chris Wood', role: 'performer', instrument: 'upright-bass' },
+    { name: 'Lee Townsend', role: 'producer', artistGlobeId: 'lee-townsend' },
+    {
+      name: 'John Scofield',
+      role: 'performer',
+      instrument: 'whistle',
+      artistGlobeId: 'john-scofield',
+      primary: true,
+    },
+    {
+      name: 'John Scofield',
+      role: 'songwriter',
+      artistGlobeId: 'john-scofield',
+    },
+    {
+      name: 'John Scofield',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'john-scofield',
+      primary: true,
+    },
+    { name: 'Joe Ferla', role: 'engineer' },
+    { name: 'Billy Martin', role: 'performer', instrument: 'tambourine' },
+    { name: 'John Medeski', role: 'performer', instrument: 'piano' },
+    { name: 'John Medeski', role: 'performer', instrument: 'clavinet' },
+    { name: 'John Medeski', role: 'performer', instrument: 'wurlitzer' },
+  ],
+  releases: [{ releaseId: 'john-scofield-a-go-go', track: 1 }],
 
   sections: [
     {

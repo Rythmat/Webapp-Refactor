@@ -2,6 +2,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { InstrumentSelector } from '@/components/ClassroomLayout/dashboard/InstrumentSelector';
 import { cn } from '@/components/utilities';
 import { LearnRoutes } from '@/constants/routes';
+import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
 
 interface Tab {
   slug: string; // ?tab= value this tab activates
@@ -23,11 +24,15 @@ const TABS: Tab[] = [
  * InstrumentSelector. The
  * sub-tabs are plain text at the same size as the "Learn" heading (no pill
  * chrome or highlight) and navigate via the `?tab=` param LearnInlet reads.
+ * Guitar has no Technique lessons yet, so its Technique tab is hidden.
  */
 export const LearnTabBar = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const active = params.get('tab') ?? '';
+  const instrument = useLearnInstrument();
+  const tabs =
+    instrument === 'guitar' ? TABS.filter((t) => t.slug !== 'Technique') : TABS;
 
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 md:gap-x-6">
@@ -47,7 +52,7 @@ export const LearnTabBar = () => {
       </Link>
 
       {/* Sub-tabs — plain text links at the same size as the "Learn" heading. */}
-      {TABS.map(({ slug, label }) => (
+      {tabs.map(({ slug, label }) => (
         <Link
           key={slug}
           to={`?tab=${slug}`}
@@ -62,12 +67,15 @@ export const LearnTabBar = () => {
         </Link>
       ))}
 
-      {/* Instrument selector, pushed to the far right. Only Technique changes
-          with the instrument today, so switching opens it. */}
+      {/* Instrument selector, pushed to the far right. Switching opens a tab
+          with that instrument's lessons: guitar lives in Theory → Ionian
+          (Major); piano stays on Theory, or else opens Technique. */}
       <div className="ml-auto">
         <InstrumentSelector
-          onChange={() => {
-            if (active !== 'Technique') navigate('?tab=Technique');
+          onChange={(next) => {
+            const tab =
+              next === 'guitar' || active === 'Theory' ? 'Theory' : 'Technique';
+            if (active !== tab) navigate(`?tab=${tab}`);
           }}
         />
       </div>

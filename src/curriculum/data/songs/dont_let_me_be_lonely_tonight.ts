@@ -16,6 +16,12 @@ export const dont_let_me_be_lonely_tonight: Song = {
   difficulty: 2,
   genreTags: ['folk', 'rock'],
   techniques: [],
+  credits: [
+    { name: 'Peter Asher', role: 'producer', artistGlobeId: 'peter-asher' },
+    { name: 'James Taylor', role: 'songwriter', artistGlobeId: 'james-taylor' },
+    { name: 'Robert Appère', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'james-taylor-one-man-dog' }],
 
   sections: [
     {

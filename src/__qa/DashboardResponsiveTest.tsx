@@ -37,7 +37,6 @@ export const DashboardResponsiveTest = () => {
         background: '#0a0a0a',
         minHeight: '100vh',
         color: '#e8e8f0',
-        fontFamily: 'system-ui, sans-serif',
       }}
     >
       <header

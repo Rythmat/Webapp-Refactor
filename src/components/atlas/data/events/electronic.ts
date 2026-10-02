@@ -1,6 +1,6 @@
-import type { HistoricalEvent } from '@/components/atlas/types';
+import type { GlobeEventRecord } from '@/content/records/types';
 
-export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
+export const ELECTRONIC_EVENTS: GlobeEventRecord[] = [
   {
     id: 'evt-techno-berlin-1991',
     year: 1991,
@@ -19,6 +19,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'juan atkins',
     ],
     videoId: 'afE85PTuXPc',
+    artistIds: ['tresor'],
+    placeId: 'berlin',
   },
   {
     id: 'evt-krautrock-dusseldorf-1974',
@@ -43,6 +45,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'motorik',
     ],
     videoId: '-ncwiAC2ACg',
+    artistIds: ['kraftwerk'],
+    placeId: 'dusseldorf',
   },
   {
     id: 'evt-house-chicago-1984',
@@ -63,6 +67,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'acid house',
     ],
     videoId: 'bxHqt8sKo08',
+    placeId: 'chicago',
   },
   {
     id: 'evt-electronic-ibiza-1988',
@@ -83,6 +88,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'summer of love',
     ],
     videoId: '1m6H6DB9TQg',
+    placeId: 'ibiza',
   },
   {
     id: 'evt-trip-hop-bristol-1994',
@@ -103,6 +109,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'dummy',
     ],
     videoId: '-jNFZB3IVUI',
+    artistIds: ['tricky'],
+    placeId: 'bristol',
   },
   {
     id: 'evt-edm-miami-2006',
@@ -123,6 +131,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'dj culture',
     ],
     videoId: 'qKOn6prnEDk',
+    placeId: 'miami',
   },
   {
     id: 'evt-kuduro-luanda-2005',
@@ -143,6 +152,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'dance',
     ],
     videoId: '4CkXhtw7UNk',
+    placeId: 'luanda',
   },
   {
     id: 'evt-amapiano-joburg-2019',
@@ -168,6 +178,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'south africa',
     ],
     videoId: 'IZyH4Y-gnOE',
+    placeId: 'johannesburg',
   },
   {
     id: 'evt-techno-detroit-1985',
@@ -187,6 +198,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'model 500',
     ],
     videoId: 'X_-5Qcdretg',
+    placeId: 'detroit',
   },
   {
     id: 'evt-baltimore-club-baltimore-1993',
@@ -207,6 +219,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'bass music',
     ],
     videoId: 'YUHNXVsbQ58',
+    placeId: 'baltimore',
   },
   {
     id: 'evt-melbourne-indie-2015',
@@ -232,6 +245,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'psychedelic',
     ],
     videoId: 'd33C8IE7WnQ',
+    artistIds: ['flume'],
+    placeId: 'melbourne',
   },
   {
     id: 'evt-bjork-reykjavik-1993',
@@ -256,6 +271,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'icelandic music',
     ],
     videoId: 'xndxQWlpvts',
+    placeId: 'reykjavik',
   },
   {
     id: 'evt-edm-amsterdam-2005',
@@ -280,6 +296,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'dutch edm',
     ],
     videoId: 'DVAvlby1CwA',
+    placeId: 'amsterdam',
   },
   {
     id: 'evt-new-beat-brussels-1988',
@@ -304,6 +321,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'belgian electronic',
     ],
     videoId: 'U47XsAjP-ME',
+    placeId: 'brussels',
   },
   {
     id: 'evt-minimal-techno-bucharest-2007',
@@ -328,6 +346,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'black sea',
     ],
     videoId: '7uB5OztCCWE',
+    placeId: 'bucharest',
   },
   {
     id: 'evt-sea-dance-podgorica-2014',
@@ -353,6 +372,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'european festival',
     ],
     videoId: 'kvCb1QRSvCo',
+    placeId: 'budva',
   },
   {
     id: 'evt-laibach-ljubljana-1980',
@@ -377,6 +397,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'north korea concert',
     ],
     videoId: 'tFH45PewVd4',
+    artistIds: ['laibach'],
+    placeId: 'ljubljana',
   },
   {
     id: 'evt-psytrance-telaviv-1995',
@@ -400,6 +422,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'tel aviv nightlife',
     ],
     videoId: '5Cq6VqwmZws',
+    placeId: 'tel-aviv',
   },
   {
     id: 'evt-mdlbeast-riyadh-2019',
@@ -423,6 +446,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'electronic festival',
     ],
     videoId: 'Gg6rG8Jm2Ls',
+    artistIds: ['david-guetta'],
+    placeId: 'riyadh',
   },
   {
     id: 'evt-bassiani-tbilisi-2014',
@@ -447,6 +472,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'electronic',
     ],
     videoId: 'AOoDhJ6Sxg8',
+    placeId: 'tbilisi',
   },
   {
     id: 'evt-electronic-dusseldorf-1979',
@@ -472,6 +498,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'futurism',
     ],
     videoId: '7Mz2UuLS6oM',
+    artistIds: ['kraftwerk'],
+    placeId: 'dusseldorf',
   },
   {
     id: 'evt-acid-house-london-1986',
@@ -492,6 +520,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'second summer of love',
     ],
     videoId: 'Voe50betJ74',
+    placeId: 'london',
   },
   {
     id: 'evt-balearic-ibiza-1988',
@@ -511,6 +540,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'summer of love',
     ],
     videoId: 'ApQeSpD5yl8',
+    placeId: 'ibiza',
   },
   {
     id: 'evt-madchester-manchester-1988',
@@ -530,6 +560,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'factory records',
     ],
     videoId: 'NcJ0Vdig91Y',
+    placeId: 'manchester-uk',
   },
   {
     id: 'evt-jungle-london-1993',
@@ -550,6 +581,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'bass music',
     ],
     videoId: 'PzYcK_bKz_8',
+    placeId: 'london',
   },
   {
     id: 'evt-french-touch-paris-1996',
@@ -569,6 +601,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'ed banger',
     ],
     videoId: 'tf3GKcxOna0',
+    artistIds: ['daft-punk'],
+    placeId: 'paris',
   },
   {
     id: 'evt-asian-underground-london-1998',
@@ -589,6 +623,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'london',
     ],
     videoId: 'RO_pQoYQBfA',
+    artistIds: ['talvin-singh'],
+    placeId: 'london',
   },
   {
     id: 'evt-kuduro-luanda-2000',
@@ -609,6 +645,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'global bass',
     ],
     videoId: '-kVcD7cwKdc',
+    placeId: 'luanda',
   },
   {
     id: 'evt-amapiano-johannesburg-2019',
@@ -635,6 +672,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'soweto',
     ],
     videoId: 'SNqRp-L7oF0',
+    placeId: 'johannesburg',
   },
   {
     id: 'evt-dubstep-burial-london-2007',
@@ -655,6 +693,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'nocturnal',
     ],
     videoId: 'GbfrgJls7n4',
+    placeId: 'london',
   },
   {
     id: 'evt-skrillex-la-2010',
@@ -681,6 +720,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'bass music',
     ],
     videoId: 'V2VmcuOEqEg',
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-flying-lotus-la-2010',
@@ -706,6 +746,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'los angeles',
     ],
     videoId: 'MB3O1kV61As',
+    artistIds: ['flying-lotus', 'thundercat'],
+    placeId: 'los-angeles',
   },
   {
     id: 'evt-caribou-swim-2010',
@@ -726,6 +768,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'crossover',
     ],
     videoId: '7Kz1rfxD22o',
+    placeId: 'london',
   },
   {
     id: 'evt-james-blake-london-2011',
@@ -746,6 +789,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'r&b',
     ],
     videoId: 'cDohRTUpW_E',
+    artistIds: ['james-blake'],
+    placeId: 'london',
   },
   {
     id: 'evt-flume-sydney-2012',
@@ -770,6 +815,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'glitch',
     ],
     videoId: 'jE4jTdaFQZc',
+    artistIds: ['flume'],
+    placeId: 'sydney',
   },
   {
     id: 'evt-nina-kraviz-irkutsk-2012',
@@ -796,6 +843,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'berlin',
     ],
     videoId: 'gduXC9vwieE',
+    artistIds: ['nina-kraviz'],
+    placeId: 'irkutsk',
   },
   {
     id: 'evt-disclosure-settle-london-2013',
@@ -816,6 +865,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       '2-step',
     ],
     videoId: '0dCi0f8esIk',
+    artistIds: ['sam-smith'],
+    placeId: 'london',
   },
   {
     id: 'evt-jon-hopkins-immunity-2013',
@@ -836,6 +887,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'electronic',
     ],
     videoId: '1t3fk4QPlD4',
+    artistIds: ['brian-eno'],
+    placeId: 'london',
   },
   {
     id: 'evt-moderat-berlin-2013',
@@ -856,6 +909,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'club music',
     ],
     videoId: 'BNXIUeCFO1w',
+    placeId: 'berlin',
   },
   {
     id: 'evt-jamie-xx-london-2015',
@@ -877,6 +931,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'steel drums',
     ],
     videoId: 'hTGJfRPLe08',
+    placeId: 'london',
   },
   {
     id: 'evt-bonobo-migration-2017',
@@ -902,6 +957,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'organic',
     ],
     videoId: 'HNiBPYFdgPs',
+    placeId: 'brighton',
   },
   {
     id: 'evt-four-tet-london-2017',
@@ -923,6 +979,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'genre-fluid',
     ],
     videoId: 'UDaDUWTZzuQ',
+    placeId: 'london',
   },
   {
     id: 'evt-peggy-gou-seoul-2018',
@@ -948,6 +1005,8 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'representation',
     ],
     videoId: 'PU2py1lsFCc',
+    artistIds: ['peggy-gou'],
+    placeId: 'seoul',
   },
   {
     id: 'evt-sophie-oil-london-2018',
@@ -969,6 +1028,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'avant-pop',
     ],
     videoId: 'PB5tnokRFS0',
+    placeId: 'london',
   },
   {
     id: 'evt-floating-points-manchester-2019',
@@ -990,6 +1050,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'electronic jazz',
     ],
     videoId: 'fiONTIh8mzw',
+    placeId: 'manchester-uk',
   },
   {
     id: 'evt-charlotte-de-witte-ghent-2019',
@@ -1011,6 +1072,7 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'female pioneer',
     ],
     videoId: 'ls6R2-Nacrk',
+    placeId: 'ghent',
   },
   {
     id: 'evt-arca-kick-2020',
@@ -1037,5 +1099,6 @@ export const ELECTRONIC_EVENTS: HistoricalEvent[] = [
       'bjork',
     ],
     videoId: 'UWkANbUYWLI',
+    placeId: 'caracas',
   },
 ];

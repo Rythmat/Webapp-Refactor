@@ -16,6 +16,21 @@ export const whip_it: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'the-record-plant-sausalito' },
+  credits: [
+    {
+      name: 'Gerald Casale',
+      role: 'songwriter',
+      artistGlobeId: 'gerald-casale',
+    },
+    { name: 'DEVO', role: 'producer', ensemble: true, artistGlobeId: 'devo' },
+    {
+      name: 'Mark Mothersbaugh',
+      role: 'songwriter',
+      artistGlobeId: 'mark-mothersbaugh',
+    },
+  ],
+  releases: [{ releaseId: 'devo-freedom-of-choice' }],
 
   sections: [
     {

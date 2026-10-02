@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { cn } from '@/components/utilities';
 import {
   IGNORED_GENRE_TAGS,
   INSTRUMENT_TAGS,
@@ -11,6 +12,8 @@ import {
   INSTRUMENT_SECTIONS,
   SESSION_INSTRUMENTS,
 } from '@/curriculum/data/instruments';
+import { ConsolePageHeader } from '../ui/ConsolePageHeader';
+import { CONSOLE_PANEL } from '../ui/styles';
 
 /**
  * The Atlas's vocabularies, and what it hasn't placed yet.
@@ -32,9 +35,9 @@ const Panel: React.FC<{
   hint?: string;
   children: React.ReactNode;
 }> = ({ title, count, hint, children }) => (
-  <section className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
+  <section className={cn(CONSOLE_PANEL, 'p-5')}>
     <header className="mb-3 flex items-baseline gap-2">
-      <h2 className="font-medium text-white/85">{title}</h2>
+      <h2 className="text-[15px] tracking-[-0.01em] text-white">{title}</h2>
       <span className="text-sm text-white/35">{count}</span>
       {hint && <span className="ml-auto text-xs text-white/30">{hint}</span>}
     </header>
@@ -77,20 +80,24 @@ export const AdminVocabularyPage = () => {
   const ignored = IGNORED_GENRE_TAGS.filter(match);
 
   return (
-    <div className="flex flex-col gap-5 p-6">
-      <header className="flex flex-wrap items-baseline gap-3">
-        <h1 className="text-lg font-medium text-white/90">Vocabulary</h1>
-        <p className="text-sm text-white/40">
-          What the Atlas can say, and what it hasn&rsquo;t placed yet. Edited in
-          code — songs and progressions pick from these.
-        </p>
-        <input
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          placeholder="Filter…"
-          className="ml-auto min-w-0 rounded border border-white/10 bg-white/5 px-2 py-1 text-sm text-white/85 focus:border-white/30 focus:outline-none"
-        />
-      </header>
+    <div className="flex flex-col gap-5">
+      <ConsolePageHeader
+        title="Vocabulary"
+        description={
+          <p>
+            What the Atlas can say, and what it hasn&rsquo;t placed yet. Edited
+            in code — songs and progressions pick from these.
+          </p>
+        }
+        actions={
+          <input
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Filter…"
+            className="min-w-0 rounded-md border border-white/[0.08] bg-white/[0.02] px-3 py-1.5 text-sm text-white/85 placeholder:text-white/35 focus:border-white/30 focus:outline-none"
+          />
+        }
+      />
 
       {/* ── The unplaced queue: the reason this page exists ── */}
       <Panel
@@ -191,7 +198,7 @@ export const AdminVocabularyPage = () => {
                       {i.name}
                       {i.worldInstrumentId && (
                         <span
-                          className="ml-1 text-[#7ecfcf]"
+                          className="ml-1 text-white"
                           title="Also in Instruments of the World on the globe"
                         >
                           ◆

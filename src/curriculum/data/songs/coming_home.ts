@@ -16,6 +16,17 @@ export const coming_home: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    { name: 'Leon Bridges', role: 'songwriter', artistGlobeId: 'leon-bridges' },
+    { name: 'Chris Vivion', role: 'songwriter', artistGlobeId: 'chris-vivion' },
+    { name: 'Joshua Block', role: 'songwriter', artistGlobeId: 'joshua-block' },
+    {
+      name: 'Austin Jenkins',
+      role: 'songwriter',
+      artistGlobeId: 'austin-jenkins',
+    },
+  ],
+  releases: [{ releaseId: 'leon-bridges-coming-home', track: 1 }],
 
   sections: [
     {

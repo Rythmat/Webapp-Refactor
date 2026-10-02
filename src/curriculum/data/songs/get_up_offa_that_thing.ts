@@ -16,6 +16,31 @@ export const get_up_offa_that_thing: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  session: { studioId: 'criteria-studios' },
+  credits: [
+    { name: 'Yamma Brown', role: 'songwriter', artistGlobeId: 'yamma-brown' },
+    { name: 'Deanna Brown', role: 'songwriter', artistGlobeId: 'deanna-brown' },
+    { name: 'Russell Crimes', role: 'performer', instrument: 'trumpet' },
+    { name: 'Robert Coleman', role: 'performer' },
+    {
+      name: '“Sweet” Charles Sherrell',
+      role: 'performer',
+      instrument: 'clavinet',
+    },
+    { name: 'St. Clair Pinckney', role: 'performer', instrument: 'tenor-sax' },
+    {
+      name: 'James Brown',
+      role: 'vocals',
+      artistGlobeId: 'james-brown',
+      primary: true,
+    },
+    { name: 'Deidre Brown', role: 'songwriter', artistGlobeId: 'deidre-brown' },
+    { name: 'Melvin Parker', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Hollie Ferris', role: 'performer', instrument: 'trombone' },
+    { name: 'James Brown', role: 'arranger', artistGlobeId: 'james-brown' },
+    { name: 'James Brown', role: 'producer', artistGlobeId: 'james-brown' },
+    { name: 'Jimmy Nolen', role: 'performer' },
+  ],
 
   sections: [
     {

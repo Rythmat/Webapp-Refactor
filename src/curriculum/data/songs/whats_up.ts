@@ -16,6 +16,56 @@ export const whats_up: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'David Tickle', role: 'engineer', artistGlobeId: 'david-tickle' },
+    { name: 'Paul Dieter', role: 'engineer' },
+    { name: 'Linda Perry', role: 'vocals', artistGlobeId: 'linda-perry' },
+    { name: 'Roger Rocha', role: 'performer', artistGlobeId: 'roger-rocha' },
+    {
+      name: 'Dawn Richardson',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'dawn-richardson',
+    },
+    { name: 'David Tickle', role: 'producer', artistGlobeId: 'david-tickle' },
+    {
+      name: 'Linda Perry',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'linda-perry',
+    },
+    {
+      name: 'Linda Perry',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'linda-perry',
+    },
+    { name: 'Laurent Tardy', role: 'performer', instrument: 'piano' },
+    { name: 'Laurent Tardy', role: 'engineer' },
+    { name: 'Mark Hensley', role: 'engineer' },
+    { name: 'Linda Perry', role: 'songwriter', artistGlobeId: 'linda-perry' },
+    {
+      name: 'Christa Hillhouse',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'christa-hillhouse',
+    },
+    {
+      name: 'Christa Hillhouse',
+      role: 'performer',
+      artistGlobeId: 'christa-hillhouse',
+    },
+    { name: 'Jesse Kanner', role: 'engineer' },
+    { name: 'Kent Matcke', role: 'engineer' },
+    {
+      name: 'Louis Metoyer',
+      role: 'performer',
+      artistGlobeId: 'louis-metoyer',
+    },
+  ],
+  releases: [
+    { releaseId: '4-non-blondes-bigger-better-faster-more', track: 3 },
+  ],
 
   sections: [
     {

@@ -16,6 +16,41 @@ export const its_too_late: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'a-m-studios' },
+  credits: [
+    { name: 'Lou Adler', role: 'producer', artistGlobeId: 'lou-adler' },
+    { name: 'Danny Kortchmar', role: 'performer', instrument: 'congas' },
+    { name: 'Curtis Amy', role: 'performer', instrument: 'soprano-sax' },
+    {
+      name: 'Danny Kortchmar',
+      role: 'performer',
+      instrument: 'electric-guitar',
+    },
+    {
+      name: 'Ralph Schuckett',
+      role: 'performer',
+      instrument: 'electric-piano',
+    },
+    { name: 'Charles Larkey', role: 'performer', instrument: 'electric-bass' },
+    {
+      name: 'Carole King',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+    { name: 'Hank Cicalo', role: 'engineer' },
+    { name: 'Toni Stern', role: 'songwriter', artistGlobeId: 'toni-stern' },
+    { name: "Joel O'Brien", role: 'performer', instrument: 'drum-kit' },
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+    {
+      name: 'Carole King',
+      role: 'vocals',
+      artistGlobeId: 'carole-king',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'carole-king-tapestry' }],
 
   sections: [
     {

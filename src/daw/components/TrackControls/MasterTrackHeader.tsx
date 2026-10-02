@@ -161,7 +161,7 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
           />
         </Slider.Root>
         <span
-          className="ml-0.5 w-8 shrink-0 text-right font-mono text-[9px] tabular-nums"
+          className="ml-0.5 w-8 shrink-0 text-right text-[9px] tabular-nums"
           style={{ color: 'var(--color-text-dim)' }}
         >
           {masterVolume === 0

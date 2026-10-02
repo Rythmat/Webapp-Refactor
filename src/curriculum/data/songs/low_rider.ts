@@ -16,6 +16,49 @@ export const low_rider: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Andrew Berliner', role: 'engineer' },
+    { name: 'Ed Barton', role: 'engineer' },
+    { name: 'Lee Oskar', role: 'songwriter', artistGlobeId: 'lee-oskar' },
+    {
+      name: 'Jerry Goldstein',
+      role: 'songwriter',
+      artistGlobeId: 'jerry-goldstein',
+    },
+    {
+      name: 'Lonnie Jordan',
+      role: 'songwriter',
+      artistGlobeId: 'lonnie-jordan',
+    },
+    {
+      name: 'B.B. Dickerson',
+      role: 'songwriter',
+      artistGlobeId: 'b-b-dickerson',
+    },
+    {
+      name: 'Charles Miller',
+      role: 'songwriter',
+      artistGlobeId: 'charles-miller',
+    },
+    { name: 'Chris Huston', role: 'engineer' },
+    { name: 'Harold Brown', role: 'songwriter', artistGlobeId: 'harold-brown' },
+    {
+      name: 'Papa Dee Allen',
+      role: 'songwriter',
+      artistGlobeId: 'papa-dee-allen',
+    },
+    {
+      name: 'Howard E. Scott',
+      role: 'songwriter',
+      artistGlobeId: 'howard-e-scott',
+    },
+    {
+      name: 'Jerry Goldstein',
+      role: 'producer',
+      artistGlobeId: 'jerry-goldstein',
+    },
+  ],
+  releases: [{ releaseId: 'war-why-cant-we-be-friends', track: 7 }],
 
   sections: [
     {

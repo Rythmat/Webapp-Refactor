@@ -7,7 +7,7 @@ import {
 import type { HistoricalEvent } from '@/components/atlas/types';
 
 const LINK_CLASS =
-  'rounded-sm underline decoration-white/30 decoration-dotted underline-offset-2 transition-colors hover:text-[#fbbf24] hover:decoration-[#fbbf24] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]';
+  'rounded-sm underline decoration-white/30 decoration-dotted underline-offset-2 transition-colors hover:bg-white/10 hover:decoration-solid hover:decoration-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60';
 
 /**
  * An event title with every artist it names turned into a link to that
@@ -94,7 +94,7 @@ export function ArtistChips({
       {artists.map((artist) => (
         <button
           key={artist.slug}
-          className="inline-flex items-center gap-1 rounded-full border border-[#fbbf24]/40 bg-[#fbbf24]/10 px-2 py-0.5 text-xs font-medium text-[#fde68a] transition-colors hover:bg-[#fbbf24]/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#60a5fa]"
+          className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/10 px-2 py-0.5 text-xs font-medium text-white/90 transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
           title={`Everything on the globe about ${artist.name}`}
           type="button"
           onClick={(e) => {
@@ -105,7 +105,7 @@ export function ArtistChips({
           <Mic2 aria-hidden className="size-3" />
           {artist.name}
           {artist.eventIds.length > 1 && (
-            <span className="text-[#fde68a]/60">{artist.eventIds.length}</span>
+            <span className="text-white/50">{artist.eventIds.length}</span>
           )}
         </button>
       ))}

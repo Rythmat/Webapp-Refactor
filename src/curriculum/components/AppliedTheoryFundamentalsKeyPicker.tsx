@@ -5,14 +5,10 @@
  * (src/components/learn/ModeOverview.tsx) — same 12-key list and layout
  * approach, simplified (no per-key resume state; Phase 1 has one flow,
  * not a per-key lesson history to resume).
- *
- * Shared by piano and guitar: the same twelve key centers, in the order the
- * Piano and Guitar Atlas books print them, opening that instrument's lesson.
  */
 
 import { useNavigate } from 'react-router';
 import { CurriculumRoutes } from '@/constants/routes';
-import type { LearnInstrument } from '@/features/learn/useInstrumentStore';
 import { colorForKeyMode } from '@/lib/modeColorShift';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 
@@ -33,33 +29,8 @@ const CHROMATIC_KEYS: KeyTile[] = [
   { label: 'F', semitone: 5 },
 ];
 
-const COPY: Record<
-  LearnInstrument,
-  { title: string; blurb: string; lessonRoute: (key: string) => string }
-> = {
-  piano: {
-    title: 'Applied Theory Fundamentals',
-    blurb:
-      'Pick a key center to practice scales, melodies, and chords in — you can switch keys any time.',
-    lessonRoute: (key) =>
-      CurriculumRoutes.appliedTheoryFundamentalsLesson({ key }),
-  },
-  guitar: {
-    title: 'Applied Theory Fundamentals — Guitar',
-    blurb:
-      'Pick a key center from The Guitar Atlas to practice its scales, chord shapes, and Music Maps — you can switch keys any time.',
-    lessonRoute: (key) =>
-      CurriculumRoutes.guitarAppliedTheoryFundamentalsLesson({ key }),
-  },
-};
-
-export function AppliedTheoryFundamentalsKeyPicker({
-  instrument = 'piano',
-}: {
-  instrument?: LearnInstrument;
-} = {}) {
+export function AppliedTheoryFundamentalsKeyPicker() {
   const navigate = useNavigate();
-  const copy = COPY[instrument];
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
@@ -67,10 +38,11 @@ export function AppliedTheoryFundamentalsKeyPicker({
         className="text-2xl font-semibold"
         style={{ color: 'var(--color-text)' }}
       >
-        {copy.title}
+        Applied Theory Fundamentals
       </h1>
       <p className="mt-2 text-sm" style={{ color: 'var(--color-text-dim)' }}>
-        {copy.blurb}
+        Pick a key center to practice scales, melodies, and chords in — you can
+        switch keys any time.
       </p>
 
       <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
@@ -82,7 +54,13 @@ export function AppliedTheoryFundamentalsKeyPicker({
             <button
               key={tile.label}
               type="button"
-              onClick={() => navigate(copy.lessonRoute(keyParam))}
+              onClick={() =>
+                navigate(
+                  CurriculumRoutes.appliedTheoryFundamentalsLesson({
+                    key: keyParam,
+                  }),
+                )
+              }
               className="rounded-lg p-4 text-left text-sm font-bold transition-colors duration-150 glass-panel-sm cursor-pointer"
               style={{
                 color: tileColor,

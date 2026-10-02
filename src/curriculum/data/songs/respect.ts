@@ -16,6 +16,45 @@ export const respect: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  session: { studioId: 'atlantic-studios' },
+  credits: [
+    { name: 'Otis Redding', role: 'songwriter', artistGlobeId: 'otis-redding' },
+    { name: 'Tommy Cogbill', role: 'performer', instrument: 'electric-bass' },
+    { name: 'Tom Dowd', role: 'arranger', artistGlobeId: 'tom-dowd' },
+    { name: 'Melvin Lastie', role: 'performer' },
+    {
+      name: 'Carolyn Franklin',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    {
+      name: 'Aretha Franklin',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'aretha-franklin',
+      primary: true,
+    },
+    { name: 'Charles Chalmers', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Jimmy Johnson', role: 'performer' },
+    { name: 'Roger Hawkins', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Spooner Oldham', role: 'performer', instrument: 'organ' },
+    { name: 'Tom Dowd', role: 'conductor', artistGlobeId: 'tom-dowd' },
+    { name: 'Tom Dowd', role: 'engineer', artistGlobeId: 'tom-dowd' },
+    { name: 'Willie Bridges', role: 'performer', instrument: 'baritone-sax' },
+    { name: 'Erma Franklin', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Aretha Franklin',
+      role: 'vocals',
+      artistGlobeId: 'aretha-franklin',
+      primary: true,
+    },
+    { name: 'King Curtis', role: 'performer', instrument: 'tenor-sax' },
+    { name: 'Arif Mardin', role: 'arranger', artistGlobeId: 'arif-mardin' },
+    { name: 'Jerry Wexler', role: 'producer', artistGlobeId: 'jerry-wexler' },
+  ],
+  releases: [
+    { releaseId: 'aretha-franklin-i-never-loved-a-man-the-way-i-love-you' },
+  ],
 
   sections: [
     {

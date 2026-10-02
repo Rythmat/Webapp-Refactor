@@ -16,6 +16,96 @@ export const ordinary_pain: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Charity McCrary',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'synth-bass',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Sundray Tucker', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Madelaine "Gypsie" Jones',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    {
+      name: 'Terry Hendricks',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    { name: 'Linda McCrary', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Stevie Wonder', role: 'arranger', artistGlobeId: 'stevie-wonder' },
+    { name: 'Stevie Wonder', role: 'producer', artistGlobeId: 'stevie-wonder' },
+    { name: 'Shirley Brewer', role: 'vocals' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'songwriter',
+      artistGlobeId: 'stevie-wonder',
+    },
+    {
+      name: 'Syreeta',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'syreeta',
+    },
+    {
+      name: 'Mary Lee Whitney',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    {
+      name: 'Michael Sembello',
+      role: 'performer',
+      artistGlobeId: 'michael-sembello',
+    },
+    {
+      name: 'Stevie Wonder',
+      role: 'vocals',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    { name: 'Lynda Laurence', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Hank Redd', role: 'performer', instrument: 'alto-sax' },
+    {
+      name: 'Stevie Wonder',
+      role: 'performer',
+      instrument: 'fender-rhodes',
+      artistGlobeId: 'stevie-wonder',
+      primary: true,
+    },
+    {
+      name: 'Deniece Williams',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'deniece-williams',
+    },
+    {
+      name: 'Minnie Riperton',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+  ],
+  releases: [{ releaseId: 'stevie-wonder-songs-in-the-key-of-life' }],
 
   sections: [
     {

@@ -16,6 +16,19 @@ export const one_way_out: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'Sonny Boy Williamson',
+      role: 'songwriter',
+      artistGlobeId: 'sonny-boy-williamson',
+    },
+    {
+      name: 'Marshall E. Sehorn',
+      role: 'songwriter',
+      artistGlobeId: 'marshall-e-sehorn',
+    },
+    { name: 'Elmore James', role: 'songwriter', artistGlobeId: 'elmore-james' },
+  ],
 
   sections: [
     {

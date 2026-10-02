@@ -116,8 +116,13 @@ describe('MistakeMarkersOverlay', () => {
     // No note drawn at 960: halfway across bar 1 (x 400–800).
     expect(noNote.left).toBe('600px');
     const button = screen.getAllByRole('button')[0];
-    // Under the stems: the bottom of the measure box.
-    expect(parseFloat(button.style.top)).toBeGreaterThan(28 + 128 - 20);
+    // At the foot of the stems (the measure box runs 28 → 156), with the
+    // hit area — and so the mark — never below the box: on a TAB paged one
+    // line at a time, anything lower shows at the top of the next page.
+    const boxBottom = 28 + 128;
+    expect(parseFloat(button.style.top) + 36).toBe(boxBottom);
+    expect(button).toHaveClass('items-end');
+    expect(button.style.paddingBottom).toBe('1px');
   });
 
   it('works out of time too, with no count-in', () => {
@@ -165,6 +170,68 @@ describe('MistakeMarkersOverlay', () => {
     );
     fireEvent.click(screen.getByRole('button', { name: /Loop bar 2$/ }));
     expect(onLoopBar).toHaveBeenCalledWith(1);
+  });
+
+  it('tells mistakes apart by shape, in monochrome', () => {
+    const { container } = render(
+      <MistakeMarkersOverlay
+        layout={fakeLayout()}
+        outcomes={[
+          outcome(480, 'missed'),
+          outcome(960, 'wrong'),
+          outcome(1440, 'hit', -200),
+          outcome(1920, 'hit', 200),
+          outcome(2400, 'unclear'),
+        ]}
+        countInOffset={BAR}
+        onLoopBar={() => {}}
+      />,
+    );
+    const buttons = screen.getAllByRole('button');
+    expect(
+      buttons.map((b) => [
+        b.getAttribute('data-mistake'),
+        b.getAttribute('data-shape'),
+      ]),
+    ).toEqual([
+      ['missed', 'disc'],
+      ['wrong', 'ring'],
+      ['early', 'faintRing'],
+      ['late', 'faintRing'],
+      ['unclear', 'dashedRing'],
+    ]);
+    const mark = (i: number) =>
+      buttons[i].querySelector<HTMLElement>('[data-mark]')!;
+    // Missed: a filled disc; the others hollow, their edges telling them apart.
+    expect(mark(0).style.background).toBe('rgb(232, 232, 240)');
+    expect(mark(1).style.border).toBe('1.5px solid rgba(255, 255, 255, 0.6)');
+    expect(mark(2).style.border).toBe('1.5px solid rgba(255, 255, 255, 0.3)');
+    expect(mark(4).style.border).toBe('1.5px dashed rgba(255, 255, 255, 0.6)');
+    // No red, orange or blue: they read as C, G and D♭'s key colours.
+    const html = container.innerHTML;
+    expect(html).not.toMatch(/#f87171|#fb923c|#60a5fa/i);
+    expect(html).not.toMatch(/248, 113, 113|251, 146, 60|96, 165, 250/);
+    expect(html).not.toMatch(/(text|bg|border)-(red|orange|blue|sky)-/);
+  });
+
+  it('draws a 24px mark in a 36px target', () => {
+    render(
+      <MistakeMarkersOverlay
+        layout={fakeLayout()}
+        outcomes={[outcome(480, 'missed')]}
+        countInOffset={BAR}
+        onLoopBar={() => {}}
+      />,
+    );
+    const button = screen.getByRole('button');
+    expect(button.style.width).toBe('36px');
+    expect(button.style.height).toBe('36px');
+    const mark = button.querySelector<HTMLElement>('[data-mark]')!;
+    expect(mark.style.width).toBe('24px');
+    expect(mark.style.height).toBe('24px');
+    expect(mark.getAttribute('aria-hidden')).toBe('true');
+    // Its glyph is 12px type.
+    expect(mark.className).toContain('text-xs');
   });
 
   it('draws nothing for a clean take or a missing layout', () => {

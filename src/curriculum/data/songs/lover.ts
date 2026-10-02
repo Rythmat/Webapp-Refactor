@@ -16,6 +16,58 @@ export const lover: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'electric-lady-studios' },
+  credits: [
+    { name: 'Taylor Swift', role: 'producer', artistGlobeId: 'taylor-swift' },
+    {
+      name: 'Jack Antonoff',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'jack-antonoff',
+    },
+    { name: 'Laura Sisk', role: 'engineer' },
+    { name: 'Serban Ghenea', role: 'engineer' },
+    { name: 'Jack Antonoff', role: 'producer', artistGlobeId: 'jack-antonoff' },
+    {
+      name: 'Jack Antonoff',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'jack-antonoff',
+    },
+    { name: 'Jack Antonoff', role: 'engineer', artistGlobeId: 'jack-antonoff' },
+    {
+      name: 'Taylor Swift',
+      role: 'vocals',
+      artistGlobeId: 'taylor-swift',
+      primary: true,
+    },
+    {
+      name: 'Jack Antonoff',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'jack-antonoff',
+    },
+    {
+      name: 'Jack Antonoff',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'jack-antonoff',
+    },
+    { name: 'Taylor Swift', role: 'songwriter', artistGlobeId: 'taylor-swift' },
+    {
+      name: 'Jack Antonoff',
+      role: 'performer',
+      artistGlobeId: 'jack-antonoff',
+    },
+    {
+      name: 'Jack Antonoff',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'jack-antonoff',
+    },
+    { name: 'John Hanes', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'taylor-swift-lover', track: 3 }],
 
   sections: [
     {

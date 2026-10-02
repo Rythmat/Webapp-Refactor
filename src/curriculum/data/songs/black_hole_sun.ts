@@ -16,6 +16,46 @@ export const black_hole_sun: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Ben Shepherd', role: 'performer', artistGlobeId: 'ben-shepherd' },
+    { name: 'Jeff Fura', role: 'producer', artistGlobeId: 'jeff-fura' },
+    {
+      name: 'Matt Cameron',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'matt-cameron',
+    },
+    {
+      name: 'Chris Cornell',
+      role: 'performer',
+      artistGlobeId: 'chris-cornell',
+    },
+    {
+      name: 'Chris Cornell',
+      role: 'songwriter',
+      artistGlobeId: 'chris-cornell',
+    },
+    {
+      name: 'Michael Beinhorn',
+      role: 'producer',
+      artistGlobeId: 'michael-beinhorn',
+    },
+    { name: 'Chris Cornell', role: 'vocals', artistGlobeId: 'chris-cornell' },
+    {
+      name: 'Brendan O’Brien',
+      role: 'engineer',
+      artistGlobeId: 'brendan-obrien',
+    },
+    { name: 'Kim Thayil', role: 'performer', artistGlobeId: 'kim-thayil' },
+    {
+      name: 'Soundgarden',
+      role: 'producer',
+      ensemble: true,
+      artistGlobeId: 'soundgarden',
+    },
+    { name: 'Jason Corsaro', role: 'engineer' },
+  ],
+  releases: [{ releaseId: 'soundgarden-superunknown', track: 7 }],
 
   sections: [
     {

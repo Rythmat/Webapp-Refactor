@@ -16,6 +16,15 @@ export const le_freak: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    { name: 'Nile Rodgers', role: 'songwriter', artistGlobeId: 'nile-rodgers' },
+    {
+      name: 'Bernard Edwards',
+      role: 'songwriter',
+      artistGlobeId: 'bernard-edwards',
+    },
+  ],
+  releases: [{ releaseId: 'chic-cest-chic' }],
 
   sections: [
     {

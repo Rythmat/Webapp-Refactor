@@ -16,6 +16,11 @@ export const one_fine_day: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Carole King', role: 'songwriter', artistGlobeId: 'carole-king' },
+    { name: 'Gerry Goffin', role: 'songwriter', artistGlobeId: 'gerry-goffin' },
+  ],
+  releases: [{ releaseId: 'the-chiffons-one-fine-day' }],
 
   sections: [
     {

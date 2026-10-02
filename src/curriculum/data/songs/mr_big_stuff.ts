@@ -16,6 +16,24 @@ export const mr_big_stuff: Song = {
   difficulty: 2,
   genreTags: ['funk'],
   techniques: [],
+  credits: [
+    {
+      name: 'Ralph Williams',
+      role: 'songwriter',
+      artistGlobeId: 'ralph-williams',
+    },
+    {
+      name: 'Joseph Broussard',
+      role: 'songwriter',
+      artistGlobeId: 'joseph-broussard',
+    },
+    {
+      name: 'Carrol Washington',
+      role: 'songwriter',
+      artistGlobeId: 'carrol-washington',
+    },
+  ],
+  releases: [{ releaseId: 'jean-knight-mr-big-stuff' }],
 
   sections: [
     {

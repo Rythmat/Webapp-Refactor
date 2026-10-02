@@ -16,6 +16,50 @@ export const gimme_shelter: Song = {
   difficulty: 1,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    { name: 'Nicky Hopkins', role: 'performer', instrument: 'piano' },
+    {
+      name: 'Bill Wyman',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'bill-wyman',
+    },
+    {
+      name: 'Keith Richards',
+      role: 'performer',
+      artistGlobeId: 'keith-richards',
+    },
+    { name: 'Glyn Johns', role: 'engineer', artistGlobeId: 'glyn-johns' },
+    {
+      name: 'Jimmy Miller',
+      role: 'performer',
+      instrument: 'percussion',
+      artistGlobeId: 'jimmy-miller',
+    },
+    { name: 'Keith Richards', role: 'vocals', artistGlobeId: 'keith-richards' },
+    {
+      name: 'Charlie Watts',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'charlie-watts',
+    },
+    { name: 'Mick Jagger', role: 'vocals', artistGlobeId: 'mick-jagger' },
+    { name: 'Mick Jagger', role: 'songwriter', artistGlobeId: 'mick-jagger' },
+    {
+      name: 'Keith Richards',
+      role: 'songwriter',
+      artistGlobeId: 'keith-richards',
+    },
+    {
+      name: 'Mick Jagger',
+      role: 'performer',
+      instrument: 'harmonica',
+      artistGlobeId: 'mick-jagger',
+    },
+    { name: 'Jimmy Miller', role: 'producer', artistGlobeId: 'jimmy-miller' },
+    { name: 'Merry Clayton', role: 'vocals' },
+  ],
+  releases: [{ releaseId: 'the-rolling-stones-let-it-bleed' }],
 
   sections: [
     {

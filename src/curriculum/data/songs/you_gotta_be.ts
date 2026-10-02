@@ -16,6 +16,24 @@ export const you_gotta_be: Song = {
   difficulty: 2,
   genreTags: ['rnb'],
   techniques: [],
+  credits: [
+    { name: 'Des’ree', role: 'producer', artistGlobeId: 'desree' },
+    { name: 'Des’ree', role: 'songwriter', artistGlobeId: 'desree' },
+    {
+      name: 'Ashley Ingram',
+      role: 'songwriter',
+      artistGlobeId: 'ashley-ingram',
+    },
+    { name: 'Mark “Spike” Stent', role: 'engineer' },
+    { name: 'Ashley Ingram', role: 'producer', artistGlobeId: 'ashley-ingram' },
+    {
+      name: 'Ashley Ingram',
+      role: 'performer',
+      artistGlobeId: 'ashley-ingram',
+    },
+    { name: 'Ashley Ingram', role: 'arranger', artistGlobeId: 'ashley-ingram' },
+  ],
+  releases: [{ releaseId: 'desree-i-aint-movin', track: 3 }],
 
   sections: [
     {

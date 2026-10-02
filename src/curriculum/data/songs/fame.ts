@@ -16,6 +16,32 @@ export const fame: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  credits: [
+    {
+      name: 'David Bowie',
+      role: 'vocals',
+      artistGlobeId: 'david-bowie',
+      primary: true,
+    },
+    { name: 'David Bowie', role: 'engineer', artistGlobeId: 'david-bowie' },
+    { name: 'Harry Maslin', role: 'engineer', artistGlobeId: 'harry-maslin' },
+    { name: 'David Bowie', role: 'producer', artistGlobeId: 'david-bowie' },
+    { name: 'David Bowie', role: 'songwriter', artistGlobeId: 'david-bowie' },
+    { name: 'John Lennon', role: 'songwriter', artistGlobeId: 'john-lennon' },
+    {
+      name: 'John Lennon',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'john-lennon',
+    },
+    { name: 'Harry Maslin', role: 'producer', artistGlobeId: 'harry-maslin' },
+    {
+      name: 'Carlos Alomar',
+      role: 'songwriter',
+      artistGlobeId: 'carlos-alomar',
+    },
+  ],
+  releases: [{ releaseId: 'david-bowie-young-americans' }],
 
   sections: [
     {

@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/components/utilities';
+import { CONSOLE_LABEL } from '../../ui/styles';
 
 /**
  * Click-to-edit primitives for the visual content editors.
@@ -33,10 +34,10 @@ import { cn } from '@/components/utilities';
 
 /** Dotted hover outline that marks a region as editable. */
 const EDIT_AFFORDANCE =
-  'cursor-text rounded transition-colors hover:bg-white/10 hover:outline hover:outline-1 hover:outline-dashed hover:outline-white/25';
+  'cursor-text rounded transition-colors hover:bg-white/[0.04] hover:outline hover:outline-1 hover:outline-dashed hover:outline-white/25 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40';
 
 const INPUT_RESET =
-  'bg-transparent outline-none ring-1 ring-[#60a5fa] rounded px-0.5 -mx-0.5';
+  'bg-transparent outline-none ring-1 ring-white/60 rounded px-0.5 -mx-0.5';
 
 /**
  * Size a single-line input to its content in `ch`, so the field occupies the
@@ -310,7 +311,7 @@ export const InlineSelect: FC<{
         aria-label={ariaLabel}
         className={cn(
           'h-auto w-auto gap-1 border-none bg-transparent px-1 py-0 shadow-none',
-          'hover:bg-white/10 focus:ring-1 focus:ring-[#60a5fa]',
+          'hover:bg-white/[0.04] focus:ring-1 focus:ring-white/40',
           className,
         )}
       >
@@ -423,11 +424,11 @@ export const DetailCell: FC<{
   label: string;
   children: ReactNode;
   className?: string;
-}> = ({ label, children, className }) => (
-  <div className={cn('min-w-0', className)}>
-    <div className="text-[10px] uppercase tracking-wide text-white/30">
-      {label}
-    </div>
+  /** The body paths it edits: its `data-field` anchor. */
+  field?: string;
+}> = ({ label, children, className, field }) => (
+  <div data-field={field} className={cn('min-w-0', className)}>
+    <div className={CONSOLE_LABEL}>{label}</div>
     <div className="text-sm text-white/80">{children}</div>
   </div>
 );

@@ -16,6 +16,24 @@ export const no_diggity_blackstreet: Song = {
   difficulty: 2,
   genreTags: ['hip-hop'],
   techniques: [],
+  credits: [
+    { name: 'Queen Pen', role: 'songwriter', artistGlobeId: 'queen-pen' },
+    {
+      name: 'William "Skylz" Stewart',
+      role: 'songwriter',
+      artistGlobeId: 'william-skylz-stewart',
+    },
+    { name: 'Dr. Dre', role: 'songwriter', artistGlobeId: 'dr-dre' },
+    {
+      name: 'Chauncey Hannibal',
+      role: 'songwriter',
+      artistGlobeId: 'chauncey-hannibal',
+    },
+    { name: 'Chet Faker', role: 'producer', artistGlobeId: 'chet-faker' },
+    { name: 'Richard Vick', role: 'songwriter', artistGlobeId: 'richard-vick' },
+    { name: 'Teddy Riley', role: 'songwriter', artistGlobeId: 'teddy-riley' },
+    { name: 'Bill Withers', role: 'songwriter', artistGlobeId: 'bill-withers' },
+  ],
 
   sections: [
     {

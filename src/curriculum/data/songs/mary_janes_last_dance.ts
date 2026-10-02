@@ -16,6 +16,45 @@ export const mary_janes_last_dance: Song = {
   difficulty: 2,
   genreTags: ['rock'],
   techniques: [],
+  session: { studioId: 'ocean-way-studio-d' },
+  credits: [
+    {
+      name: 'Benmont Tench',
+      role: 'performer',
+      instrument: 'piano',
+      artistGlobeId: 'benmont-tench',
+    },
+    { name: 'Richard Dodd', role: 'engineer' },
+    { name: 'Rick Rubin', role: 'producer', artistGlobeId: 'rick-rubin' },
+    { name: 'Jim Scott', role: 'engineer', artistGlobeId: 'jim-scott' },
+    {
+      name: 'Howie Epstein',
+      role: 'performer',
+      instrument: 'electric-bass',
+      artistGlobeId: 'howie-epstein',
+    },
+    { name: 'Tom Petty', role: 'producer', artistGlobeId: 'tom-petty' },
+    {
+      name: 'Benmont Tench',
+      role: 'performer',
+      instrument: 'organ',
+      artistGlobeId: 'benmont-tench',
+    },
+    { name: 'Tom Petty', role: 'songwriter', artistGlobeId: 'tom-petty' },
+    {
+      name: 'Mike Campbell',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'mike-campbell',
+    },
+    { name: 'Mike Campbell', role: 'producer', artistGlobeId: 'mike-campbell' },
+    {
+      name: 'Stan Lynch',
+      role: 'performer',
+      instrument: 'drum-kit',
+      artistGlobeId: 'stan-lynch',
+    },
+  ],
 
   sections: [
     {

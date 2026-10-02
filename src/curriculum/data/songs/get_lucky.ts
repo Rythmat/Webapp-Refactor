@@ -16,6 +16,39 @@ export const get_lucky: Song = {
   difficulty: 2,
   genreTags: ['funk', 'pop'],
   techniques: [],
+  credits: [
+    {
+      name: 'Daft Punk',
+      role: 'performer',
+      ensemble: true,
+      primary: true,
+      artistGlobeId: 'daft-punk',
+    },
+    {
+      name: 'Pharrell Williams',
+      role: 'vocals',
+      primary: true,
+      artistGlobeId: 'pharrell-williams',
+    },
+    {
+      name: 'Pharrell Williams',
+      role: 'songwriter',
+      artistGlobeId: 'pharrell-williams',
+    },
+    {
+      name: 'Thomas Bangalter',
+      role: 'songwriter',
+      artistGlobeId: 'thomas-bangalter',
+    },
+    { name: 'Nile Rodgers', role: 'performer', artistGlobeId: 'nile-rodgers' },
+    {
+      name: 'Guy‐Manuel de Homem‐Christo',
+      role: 'songwriter',
+      artistGlobeId: 'guy-manuel-de-homem-christo',
+    },
+    { name: 'Nile Rodgers', role: 'songwriter', artistGlobeId: 'nile-rodgers' },
+  ],
+  releases: [{ releaseId: 'daft-punk-random-access-memories' }],
 
   sections: [
     {

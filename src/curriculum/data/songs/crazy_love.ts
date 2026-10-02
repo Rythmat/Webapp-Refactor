@@ -16,6 +16,22 @@ export const crazy_love: Song = {
   difficulty: 2,
   genreTags: ['pop', 'rock'],
   techniques: [],
+  session: { studioId: 'a-r-recording-studio-1958-1989' },
+  credits: [
+    { name: 'Van Morrison', role: 'songwriter', artistGlobeId: 'van-morrison' },
+    { name: 'Jackie Verdell', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Cissy Houston', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Elliot Scheiner', role: 'engineer' },
+    { name: 'Judy Clay', role: 'performer', instrument: 'backing-vocals' },
+    { name: 'Van Morrison', role: 'producer', artistGlobeId: 'van-morrison' },
+    {
+      name: 'Van Morrison',
+      role: 'vocals',
+      artistGlobeId: 'van-morrison',
+      primary: true,
+    },
+  ],
+  releases: [{ releaseId: 'van-morrison-moondance' }],
 
   sections: [
     {

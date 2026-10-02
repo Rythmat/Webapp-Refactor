@@ -16,6 +16,72 @@ export const something_to_talk_about: Song = {
   difficulty: 2,
   genreTags: ['folk', 'pop'],
   techniques: [],
+  credits: [
+    { name: 'Bonnie Raitt', role: 'producer', artistGlobeId: 'bonnie-raitt' },
+    {
+      name: 'Bonnie Raitt',
+      role: 'performer',
+      instrument: 'slide-guitar',
+      artistGlobeId: 'bonnie-raitt',
+      primary: true,
+    },
+    { name: 'Ed Cherney', role: 'engineer' },
+    {
+      name: 'Bonnie Raitt',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+      artistGlobeId: 'bonnie-raitt',
+      primary: true,
+    },
+    { name: 'Debra Dobkin', role: 'performer', instrument: 'percussion' },
+    {
+      name: 'Bonnie Raitt',
+      role: 'vocals',
+      artistGlobeId: 'bonnie-raitt',
+      primary: true,
+    },
+    { name: 'Don Was', role: 'producer', artistGlobeId: 'don-was' },
+    { name: 'Curt Bisquera', role: 'performer', instrument: 'drum-kit' },
+    { name: 'Harry Bowens', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'Sweet Pea Atkinson',
+      role: 'performer',
+      instrument: 'backing-vocals',
+    },
+    {
+      name: 'Stephen Bruton',
+      role: 'performer',
+      instrument: 'acoustic-guitar',
+    },
+    { name: 'Scott Thurston', role: 'performer' },
+    { name: 'David Lasley', role: 'performer', instrument: 'backing-vocals' },
+    {
+      name: 'James Hutchinson',
+      role: 'performer',
+      instrument: 'electric-bass',
+    },
+    {
+      name: 'Bonnie Raitt',
+      role: 'performer',
+      instrument: 'electric-guitar',
+      artistGlobeId: 'bonnie-raitt',
+      primary: true,
+    },
+    {
+      name: 'Bonnie Raitt',
+      role: 'performer',
+      instrument: 'backing-vocals',
+      artistGlobeId: 'bonnie-raitt',
+      primary: true,
+    },
+    {
+      name: 'Shirley Eikhard',
+      role: 'songwriter',
+      artistGlobeId: 'shirley-eikhard',
+    },
+    { name: 'Ricky Fataar', role: 'performer', instrument: 'drum-kit' },
+  ],
+  releases: [{ releaseId: 'bonnie-raitt-luck-of-the-draw', track: 1 }],
 
   sections: [
     {

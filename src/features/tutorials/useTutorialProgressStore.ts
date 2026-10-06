@@ -10,7 +10,7 @@ interface TutorialProgressState {
 }
 
 /**
- * Persists which Studio tutorials the user has finished, so the Lessons picker
+ * Persists which Studio tutorials the user has finished, so the Production tab
  * can show a "Completed" badge across sessions. Client-side localStorage, same
  * pattern as `useAwardEarnedStore` / `useSeenChallengesStore`.
  */

@@ -1,6 +1,6 @@
-import { AudioWaveform, Plus } from 'lucide-react';
+import { AudioWaveform } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { HexWaveBackground } from '@/components/ui/hex-wave-background';
 import { StudioRoutes } from '@/constants/routes';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
@@ -36,14 +36,7 @@ const ProjectHexTile = ({ seed }: { seed: string }) => {
  * touched first, via `studioProjectsApi.list`). A tile opens that project in the
  * DAW editor (`/studio/editor?project=<id>`).
  */
-interface StudioRecentProjectsProps {
-  /** When set, show a "View Project Library +" pill linking here (dashboard use). */
-  viewAllTo?: string;
-}
-
-export const StudioRecentProjects = ({
-  viewAllTo,
-}: StudioRecentProjectsProps = {}) => {
+export const StudioRecentProjects = () => {
   const token = useAuthToken();
   const navigate = useNavigate();
   const [projects, setProjects] = useState<StudioProjectSummary[] | null>(null);
@@ -75,22 +68,11 @@ export const StudioRecentProjects = ({
       aria-label="Recent Projects"
       className="flex flex-col gap-4 md:gap-5"
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 md:gap-3">
-          <AudioWaveform className="h-7 w-7 text-white/85 md:h-8 md:w-8" />
-          <h2 className="text-xl font-medium text-white md:text-2xl">
-            Recent Projects
-          </h2>
-        </div>
-        {viewAllTo && (
-          <Link
-            to={viewAllTo}
-            className="flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm text-white/80 transition-colors hover:border-white/25 hover:text-white md:text-base"
-          >
-            <span>View Project Library</span>
-            <Plus className="h-5 w-5" />
-          </Link>
-        )}
+      <div className="flex items-center gap-2 md:gap-3">
+        <AudioWaveform className="h-7 w-7 text-white/85 md:h-8 md:w-8" />
+        <h2 className="text-xl font-medium text-white md:text-2xl">
+          Recent Projects
+        </h2>
       </div>
 
       {projects === null ? (

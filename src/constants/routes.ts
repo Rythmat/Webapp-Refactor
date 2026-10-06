@@ -662,6 +662,9 @@ export const StudioRoutes = {
 
   /** The DAW editor. The `/studio` index now shows the Studio Dashboard. */
   editor: createRouteDefinition('/editor', { prefix: studioPrefix }),
+
+  /** The Production tab — step-by-step DAW lessons, each opening the editor. */
+  production: createRouteDefinition('/production', { prefix: studioPrefix }),
 };
 
 const gamesPrefix = '/arcade';

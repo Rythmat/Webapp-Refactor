@@ -37,7 +37,6 @@ import {
   type LibraryCategory,
 } from '@/daw/data/libraryItems';
 import { InsightContent } from './InsightContent';
-import { LessonPicker } from '@/daw/components/Tutorial/LessonPicker';
 
 // ── Icon lookup ─────────────────────────────────────────────────────────
 
@@ -222,9 +221,6 @@ export function LibraryPanel() {
                 className="flex-1 overflow-y-auto"
                 style={{ scrollbarWidth: 'none' }}
               >
-                {/* Step-by-step Studio tutorials, above Templates. */}
-                {!searchQuery && <LessonPicker />}
-
                 {LIBRARY_CATEGORIES.map((cat) => {
                   const items = filteredLibraryItems.filter(
                     (i) => i.category === cat,

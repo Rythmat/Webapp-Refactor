@@ -17,6 +17,7 @@ import { PrismSuggestionModal } from '@/daw/components/Prism/PrismSuggestionModa
 import { SettingsModal } from '@/daw/components/Transport/SettingsModal';
 import { RecordingLimitModal } from '@/daw/components/Transport/RecordingLimitModal';
 import { TutorialLayer } from '@/daw/components/Tutorial/TutorialLayer';
+import { getTutorial } from '@/daw/components/Tutorial/tutorials';
 import { TransportBar } from '@/daw/components/Transport/TransportBar';
 import { useAudioEngine } from '@/daw/hooks/useAudioEngine';
 import { useAutosave } from '@/daw/hooks/useAutosave';
@@ -195,6 +196,25 @@ function DawAppInner() {
         }
       } else {
         showError('That demo could not be found.');
+      }
+      clearQuery();
+      return;
+    }
+
+    // Studio Dashboard "Production" tab: run a step-by-step lesson in a fresh
+    // session, so its first steps (add/select a track) start from a clean slate.
+    // An unknown lesson id falls back to the usual restore, so a bad link
+    // never clears the session.
+    const tutorialParam = params.get('tutorial');
+    if (tutorialParam) {
+      bootedRef.current = true;
+      if (getTutorial(tutorialParam)) {
+        clearLocalSession();
+        resetSessionToEmpty();
+        useStore.getState().startTutorial(tutorialParam);
+      } else {
+        showError('That lesson could not be found.');
+        restoreLocalSessionIfPresent();
       }
       clearQuery();
       return;

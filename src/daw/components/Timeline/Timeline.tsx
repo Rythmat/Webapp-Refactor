@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
+import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
@@ -338,6 +339,7 @@ function snapTick(tick: number, gridTicks: number): number {
 // ── Timeline ────────────────────────────────────────────────────────────
 
 export function Timeline() {
+  useDevCommitCount('Timeline');
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const clipRectsRef = useRef<ClipRect[]>([]);
   const dragRef = useRef<DragState | null>(null);

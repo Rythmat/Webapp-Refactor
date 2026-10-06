@@ -17,6 +17,7 @@ import {
   Hash,
 } from 'lucide-react';
 
+import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useStore, type ViewType } from '@/daw/store';
 import { seekTo } from '@/daw/hooks/useTransport';
 import { FixedDigits } from '@/components/common/FixedDigits';
@@ -143,6 +144,7 @@ export const TransportBar = memo(function TransportBar({
   onInit,
   isReady,
 }: TransportBarProps) {
+  useDevCommitCount('TransportBar');
   const isPlaying = useStore((s) => s.isPlaying);
   const isRecording = useStore((s) => s.isRecording);
   const isCountingIn = useStore((s) => s.isCountingIn);

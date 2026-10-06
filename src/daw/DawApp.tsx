@@ -70,6 +70,11 @@ import type {
 import { isScaleLesson } from '@/lib/learn/scaleLessons';
 import { isDiatonicMode } from '@prism/engine';
 import { showError } from '@/util/toast';
+import { audioEngine } from '@/daw/audio/AudioEngine';
+import { DevProfiler, devMark, useDevCommitCount } from '@/daw/dev/DevProfiler';
+
+// Dev-only: when the editor chunk finished evaluating (scripts/studio-perf).
+devMark('module');
 
 function DawAppInner() {
   const { isReady, initEngine } = useAudioEngine();
@@ -83,6 +88,13 @@ function DawAppInner() {
   useMidiInputRouting();
   useStudioMonitor(isReady, authToken);
   useCollabAudioLoader(authToken);
+  useDevCommitCount('DawAppInner');
+
+  // Dev-only load-timeline marks for scripts/studio-perf.
+  useEffect(() => devMark('mounted'), []);
+  useEffect(() => {
+    if (isReady) devMark('engine-ready');
+  }, [isReady]);
   useAudioChordDetection();
   useGuitarMidiDetection();
   useTheme();
@@ -476,9 +488,11 @@ function DawAppInner() {
     const w = window as unknown as {
       __MA_STORE__?: unknown;
       __MA_SYNTH_STORE__?: unknown;
+      __MA_AUDIO_ENGINE__?: unknown;
     };
     w.__MA_STORE__ = useStore;
     w.__MA_SYNTH_STORE__ = useSynthStore;
+    w.__MA_AUDIO_ENGINE__ = audioEngine;
   }, []);
 
   return (
@@ -488,22 +502,30 @@ function DawAppInner() {
     >
       <MeshGradientBg />
       {currentView === 'practice' && practiceSession ? (
-        <PracticeTrackView
-          session={practiceSession}
-          isReady={isReady}
-          onInit={initEngine}
-        />
+        <DevProfiler id="PracticeTrackView">
+          <PracticeTrackView
+            session={practiceSession}
+            isReady={isReady}
+            onInit={initEngine}
+          />
+        </DevProfiler>
       ) : (
-        <TransportBar onInit={initEngine} isReady={isReady} />
+        <DevProfiler id="TransportBar">
+          <TransportBar onInit={initEngine} isReady={isReady} />
+        </DevProfiler>
       )}
       {currentView === 'practice' && practiceSession ? null : currentView ===
           'arrange' || currentView === 'practice' ? (
         <>
           <div className="flex flex-1 overflow-hidden">
             <div className="flex flex-1 flex-col overflow-hidden">
-              <TimelineWithHeaders isReady={isReady} />
+              <DevProfiler id="TimelineWithHeaders">
+                <TimelineWithHeaders isReady={isReady} />
+              </DevProfiler>
             </div>
-            <LibraryPanel />
+            <DevProfiler id="LibraryPanel">
+              <LibraryPanel />
+            </DevProfiler>
             {isCollabActive && (
               <>
                 <UserList open={userListOpen} onClose={toggleUserList} />
@@ -511,18 +533,28 @@ function DawAppInner() {
               </>
             )}
           </div>
-          <ChannelStrip />
+          <DevProfiler id="ChannelStrip">
+            <ChannelStrip />
+          </DevProfiler>
           <PianoRollModal />
           <PitchEditorModal />
         </>
       ) : currentView === 'leadsheet' ? (
-        <LeadSheetView />
+        <DevProfiler id="LeadSheetView">
+          <LeadSheetView />
+        </DevProfiler>
       ) : currentView === 'score' ? (
-        <ScoreView />
+        <DevProfiler id="ScoreView">
+          <ScoreView />
+        </DevProfiler>
       ) : (
         <div className="flex flex-1 overflow-hidden">
-          <StudioView isReady={isReady} />
-          <LibraryPanel />
+          <DevProfiler id="StudioView">
+            <StudioView isReady={isReady} />
+          </DevProfiler>
+          <DevProfiler id="LibraryPanel">
+            <LibraryPanel />
+          </DevProfiler>
           {isCollabActive && (
             <>
               <UserList open={userListOpen} onClose={toggleUserList} />

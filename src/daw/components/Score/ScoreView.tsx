@@ -5,6 +5,7 @@ import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { useMe } from '@/hooks/data/auth/useMe';
 import '../LeadSheet/leadsheet-print.css';
+import { useLeadSheetPrint } from '../LeadSheet/useLeadSheetPrint';
 import { NoteEditorBar } from './NoteEditorBar';
 import { ScorePalettes } from './ScorePalettes';
 import { ScorePartsPanel } from './ScorePartsPanel';
@@ -25,6 +26,8 @@ import { inches } from '@/lib/notation/pageLayout';
 const PRINT_TITLE_INSET = inches(0.85);
 
 export function ScoreView() {
+  // The score prints through the lead sheet's print rules (its named page).
+  useLeadSheetPrint();
   const tracks = useStore((s) => s.tracks);
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);

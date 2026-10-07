@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useStore } from '@/daw/store';
+import { useDawBodyTokens } from '@/daw/hooks/useDawBodyTokens';
 import { useMspModuleCompletion } from '@/features/classroom/msp';
 import { useTutorialProgressStore } from '@/features/tutorials/useTutorialProgressStore';
 import { getTutorial } from './tutorials';
@@ -42,6 +43,11 @@ export function TutorialLayer() {
   // Classroom app-route bridge: inert unless this tutorial was opened from a
   // live slide. Fires once when the tutorial completes.
   const { reportCompletion } = useMspModuleCompletion();
+  // The overlay portals to <body>, outside .daw-root. It holds the DAW tokens
+  // there itself (daw.css aliases them onto body.daw-active), so the coach
+  // card resolves them from its first frame without anything copied onto the
+  // portal, and never depends on someone else having set the class.
+  useDawBodyTokens();
 
   const tutorial = useMemo(() => getTutorial(activeId), [activeId]);
   const total = tutorial?.steps.length ?? 0;
@@ -50,32 +56,6 @@ export function TutorialLayer() {
   const isValidated = !!(step?.check || step?.synthCheck);
 
   const [confettiKey, setConfettiKey] = useState(0);
-  const [themeVars, setThemeVars] = useState<Record<string, string>>({});
-
-  // The portal mounts on document.body, OUTSIDE .daw-root where the theme
-  // tokens (--color-*) are scoped — so copy them onto the portal container,
-  // otherwise every var(--color-*) below resolves to nothing (and one invalid
-  // var() in a box-shadow drops the whole spotlight). Re-read per tutorial in
-  // case the DAW theme changed.
-  useEffect(() => {
-    const root = document.querySelector('.daw-root');
-    if (!root) return;
-    const cs = getComputedStyle(root);
-    const next: Record<string, string> = {};
-    for (const key of [
-      '--color-accent',
-      '--color-surface',
-      '--color-surface-2',
-      '--color-surface-3',
-      '--color-border',
-      '--color-text',
-      '--color-text-dim',
-    ]) {
-      const v = cs.getPropertyValue(key).trim();
-      if (v) next[key] = v;
-    }
-    setThemeVars(next);
-  }, [activeId]);
 
   // Apply the step's preconditions when it becomes active.
   useEffect(() => {
@@ -152,7 +132,6 @@ export function TutorialLayer() {
         inset: 0,
         zIndex: 60,
         pointerEvents: 'none',
-        ...(themeVars as React.CSSProperties),
       }}
     >
       <style>{PULSE_KEYFRAMES}</style>

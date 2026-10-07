@@ -8,6 +8,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogOut } from 'lucide-react';
 import { useStore } from '@/daw/store/index';
+import { useDawBodyTokens } from '@/daw/hooks/useDawBodyTokens';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import {
   saveCurrentProjectToCloud,
@@ -28,6 +29,10 @@ export function LeaveSavePrompt() {
   const { token, userId } = useAuthContext();
   const { leaveRoom } = useCollab();
   const [saving, setSaving] = useState(false);
+  // Portaled to <body>, outside .daw-root: it holds the DAW tokens there
+  // itself, and for as long as it is mounted, so the card stays opaque
+  // through its exit animation too.
+  useDawBodyTokens();
 
   // The host disconnecting flips us to 'disconnected'. In that case the session
   // is already over, so there's nothing to cancel back into.
@@ -117,7 +122,7 @@ export function LeaveSavePrompt() {
           {/* Centering wrapper — flex (not translate) so framer-motion's scale
               animation can't clobber the centering transform. */}
           <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Modal */}
+            {/* Modal: an opaque card, its tokens from body.daw-active. */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -126,7 +131,6 @@ export function LeaveSavePrompt() {
               style={{
                 backgroundColor: 'var(--color-surface-2)',
                 border: '1px solid var(--color-border)',
-                backdropFilter: 'blur(24px)',
               }}
             >
               {/* Header */}
@@ -134,7 +138,7 @@ export function LeaveSavePrompt() {
                 <LogOut
                   size={14}
                   strokeWidth={2}
-                  style={{ color: 'var(--color-accent)' }}
+                  style={{ color: 'var(--color-text)' }}
                 />
                 <span
                   className="text-sm font-semibold"
@@ -155,15 +159,17 @@ export function LeaveSavePrompt() {
                 in a new solo project.
               </p>
 
-              {/* Actions */}
+              {/* Actions. Saving is the choice that keeps the work, so it is
+                  the one white pill; the others stay quiet, with no inline
+                  background so their hover step shows. */}
               <div className="flex flex-col gap-2">
                 <button
                   onClick={() => void handleSaveAndLeave()}
                   disabled={saving}
-                  className="rounded-md py-2 text-xs font-medium transition-colors hover:brightness-110 disabled:opacity-50"
+                  className="rounded-full py-2 text-xs font-semibold transition-[filter] hover:brightness-90 disabled:opacity-50"
                   style={{
-                    backgroundColor: 'var(--color-accent)',
-                    color: '#fff',
+                    backgroundColor: '#fff',
+                    color: '#101012',
                     border: 'none',
                   }}
                 >
@@ -172,11 +178,10 @@ export function LeaveSavePrompt() {
                 <button
                   onClick={() => void handleDiscardSessionChanges()}
                   disabled={saving}
-                  className="rounded-md py-2 text-xs font-medium transition-colors hover:bg-white/5 disabled:opacity-50"
+                  className="rounded-full py-2 text-xs font-medium transition-colors hover:bg-white/5 disabled:opacity-50"
                   style={{
                     color: 'var(--color-text)',
                     border: '1px solid var(--color-border)',
-                    background: 'none',
                   }}
                 >
                   Discard this session's changes
@@ -185,12 +190,8 @@ export function LeaveSavePrompt() {
                   <button
                     onClick={() => setLeavePrompt(false)}
                     disabled={saving}
-                    className="rounded-md py-1.5 text-[11px] transition-colors hover:bg-white/5 disabled:opacity-50"
-                    style={{
-                      color: 'var(--color-text-dim)',
-                      background: 'none',
-                      border: 'none',
-                    }}
+                    className="rounded-full py-1.5 text-xs transition-colors hover:bg-white/5 disabled:opacity-50"
+                    style={{ color: 'var(--color-text-dim)', border: 'none' }}
                   >
                     Cancel
                   </button>

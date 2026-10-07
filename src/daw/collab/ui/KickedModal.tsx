@@ -62,10 +62,10 @@ export function KickedModal() {
 
               <button
                 onClick={() => setKicked(false)}
-                className="rounded-md py-2 text-xs font-medium transition-colors hover:brightness-110"
+                className="rounded-full py-2 text-xs font-semibold transition-[filter] hover:brightness-90"
                 style={{
-                  backgroundColor: 'var(--color-accent)',
-                  color: '#fff',
+                  backgroundColor: '#fff',
+                  color: '#101012',
                   border: 'none',
                 }}
               >

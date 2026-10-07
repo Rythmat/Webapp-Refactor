@@ -270,9 +270,10 @@ function MainView({
                           onClick={() => handleSelectChannelCount(opt.value)}
                           className="cursor-pointer px-3 py-1.5 text-xs hover:bg-white/10"
                           style={{
-                            color: isSelected
-                              ? 'var(--color-accent)'
-                              : 'var(--color-text)',
+                            color: 'var(--color-text)',
+                            backgroundColor: isSelected
+                              ? 'rgba(255, 255, 255, 0.10)'
+                              : undefined,
                           }}
                         >
                           {label}
@@ -609,10 +610,9 @@ function DeviceDropdown({
               onClick={() => onSelect(d.id)}
               className="cursor-pointer truncate px-3 py-1.5 text-xs hover:bg-white/10"
               style={{
-                color:
-                  d.id === selectedId
-                    ? 'var(--color-accent)'
-                    : 'var(--color-text)',
+                color: 'var(--color-text)',
+                backgroundColor:
+                  d.id === selectedId ? 'rgba(255, 255, 255, 0.10)' : undefined,
               }}
             >
               {d.label}

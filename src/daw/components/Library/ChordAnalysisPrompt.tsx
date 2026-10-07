@@ -33,10 +33,15 @@ function PromptButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="flex h-8 items-center gap-1.5 rounded-full px-4 text-xs font-semibold transition-opacity hover:opacity-90 disabled:opacity-40"
+      className={`flex h-8 items-center gap-1.5 rounded-full px-4 text-xs font-semibold disabled:opacity-40 ${
+        // The white pill darkens on hover, as the editor's other white pills do.
+        primary
+          ? 'transition-[filter] hover:brightness-90'
+          : 'transition-opacity hover:opacity-90'
+      }`}
       style={
         primary
-          ? { backgroundColor: 'var(--color-accent)', color: '#0b1216' }
+          ? { backgroundColor: '#fff', color: '#101012' }
           : { border: '1px solid var(--color-border)', ...dim }
       }
     >

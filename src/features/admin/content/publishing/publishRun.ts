@@ -21,14 +21,23 @@ import {
  * stops at the first failure rather than shipping around it.
  */
 
-/** Referenced kinds first (docs/console-content-api-contract.md, publish order). */
+/**
+ * Referenced kinds first (docs/console-content-api-contract.md, publish
+ * order): the vocabularies the records name, then places, labels, studios,
+ * artists, records and songs, then the globe events derived from songs and
+ * artists' places (docs/console-backend-integration.md, cascades).
+ */
 export const PUBLISH_ORDER: readonly ContentKind[] = [
+  'genre',
+  'subgenre',
+  'instrument',
   'globe_city',
   'label',
   'studio',
   'artist',
   'release',
   'song',
+  'globe_event',
 ];
 
 export interface PublishRunState {

@@ -95,6 +95,20 @@ function envDirForWorktree() {
 }
 
 /**
+ * The env for a dev server the checks start: the dev auth bypass, a dep
+ * cache of its own, and a worktree's env files from the main checkout.
+ */
+export function studioServerEnv() {
+  const env = {
+    VITE_DEV_AUTH_BYPASS: '1',
+    VITE_CACHE_DIR: join(ROOT, 'node_modules/.vite-studio-perf'),
+  };
+  const envDir = envDirForWorktree();
+  if (envDir) env.VITE_ENV_DIR = envDir;
+  return env;
+}
+
+/**
  * Chrome flags. Audio may start without a click so checks are deterministic
  * (the editor still inits its engine on its first gesture). `--gpu=metal`
  * (the default on a Mac, as in scripts/graphSmoke.mjs) draws with the real
@@ -131,16 +145,10 @@ export async function withStudio(check, fn, argv) {
   let server = null;
   let base = args.reuse;
   if (!base) {
-    const env = {
-      VITE_DEV_AUTH_BYPASS: '1',
-      VITE_CACHE_DIR: join(ROOT, 'node_modules/.vite-studio-perf'),
-    };
-    const envDir = envDirForWorktree();
-    if (envDir) env.VITE_ENV_DIR = envDir;
     server = await startServer({
       root: ROOT,
       port,
-      env,
+      env: studioServerEnv(),
       logFile: join(outDir, 'vite.log'),
     });
     base = `http://localhost:${port}`;

@@ -54,3 +54,9 @@ src/scripts/enrichment/_cache/
 # Claude Code local state
 .claude/settings.local.json
 .claude/genre-planning/
+
+# Studio perf check runs (baselines and goldens under docs/studio-perf are committed)
+docs/studio-perf/runs/
+# Per-run evidence a baseline does not need: lesson screenshots, raw golden dumps
+docs/studio-perf/baselines/**/shots/
+docs/studio-perf/baselines/**/actual/

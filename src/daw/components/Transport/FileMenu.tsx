@@ -39,7 +39,11 @@ import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { loadCloudProjectAudio } from '@/lib/studio-assets/load-audio';
 import { PartialUploadError } from '@/lib/studio-assets/upload-pending';
 import { showError, showSuccess } from '@/components/utils/toast';
-import { ExportAudioDialog } from './ExportAudioDialog';
+import {
+  DEFAULT_EXPORT_CHOICES,
+  ExportAudioDialog,
+  type ExportChoices,
+} from './ExportAudioDialog';
 import type { MidiNoteEvent } from '@prism/engine';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -113,6 +117,9 @@ export function FileMenu() {
   const [cloudListError, setCloudListError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [exportAudioOpen, setExportAudioOpen] = useState(false);
+  const [exportChoices, setExportChoices] = useState<ExportChoices>(
+    DEFAULT_EXPORT_CHOICES,
+  );
 
   const refreshCloudProjects = useCallback(async () => {
     if (!token) return;
@@ -310,28 +317,13 @@ export function FileMenu() {
       const sequences = importMidiFile(arrayBuffer);
 
       const state = useStore.getState();
-      const COLORS = [
-        '#8b5cf6',
-        '#a855f7',
-        '#f59e0b',
-        '#f97316',
-        '#22c55e',
-        '#3b82f6',
-        '#ef4444',
-        '#06b6d4',
-      ];
 
       for (let i = 0; i < sequences.length; i++) {
         const seq = sequences[i];
         const ppq = seq.ticksPerQuarterNote;
-        const color = COLORS[i % COLORS.length];
 
-        const trackId = state.addTrack(
-          'midi',
-          'oracle-synth',
-          seq.trackName,
-          color,
-        );
+        // addTrack picks the colour from the track palette.
+        const trackId = state.addTrack('midi', 'oracle-synth', seq.trackName);
 
         const events: MidiNoteEvent[] = seq.events.map((ev: MidiNoteEvent) => ({
           ...ev,
@@ -640,10 +632,18 @@ export function FileMenu() {
         </DropdownMenu.Portal>
       </DropdownMenu.Root>
 
-      <ExportAudioDialog
-        open={exportAudioOpen}
-        onOpenChange={setExportAudioOpen}
-      />
+      {/* Mounted only while open: it subscribes to the whole track list, so
+          an always-mounted dialog re-rendered the transport bar's region on
+          every track edit (shell-17). The student's format, bit depth and
+          range live here instead, so they carry over to the next export. */}
+      {exportAudioOpen && (
+        <ExportAudioDialog
+          open
+          onOpenChange={setExportAudioOpen}
+          choices={exportChoices}
+          onChoicesChange={setExportChoices}
+        />
+      )}
     </>
   );
 }

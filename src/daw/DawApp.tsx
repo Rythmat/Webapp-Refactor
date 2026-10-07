@@ -1,12 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { DEV_AUTH_BYPASS } from '@/auth/devBypass';
 import './daw.css';
 import { ChannelStrip } from '@/daw/components/ChannelStrip/ChannelStrip';
 import { LibraryPanel } from '@/daw/components/Library/LibraryPanel';
-import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import { PianoRollModal } from '@/daw/components/PianoRoll/PianoRollModal';
 import { ChordAnalysisPrompt } from '@/daw/components/Library/ChordAnalysisPrompt';
-import { PitchEditorModal } from '@/daw/components/PitchEditor/PitchEditorModal';
 import { LeadSheetView } from '@/daw/components/LeadSheet/LeadSheetView';
 import { SetListUpdatePrompt } from '@/daw/components/LeadSheet/SendToSetList';
 import { ScoreView } from '@/daw/components/Score/ScoreView';
@@ -19,9 +17,15 @@ import { RecordingLimitModal } from '@/daw/components/Transport/RecordingLimitMo
 import { RecordGuard } from '@/daw/components/Transport/RecordGuard';
 import { TutorialLayer } from '@/daw/components/Tutorial/TutorialLayer';
 import { getTutorial } from '@/daw/components/Tutorial/tutorials';
+import { UpgradeLessonDialog } from '@/daw/components/Tutorial/UpgradeLessonDialog';
+import { useLessonAccess } from '@/daw/components/Tutorial/useLessonAccess';
 import { TransportBar } from '@/daw/components/Transport/TransportBar';
-import { useAudioEngine } from '@/daw/hooks/useAudioEngine';
+import {
+  useAudioEngine,
+  useStartAudioOnGesture,
+} from '@/daw/hooks/useAudioEngine';
 import { useAutosave } from '@/daw/hooks/useAutosave';
+import { useDawBodyTokens } from '@/daw/hooks/useDawBodyTokens';
 import { useKeyboardShortcuts } from '@/daw/hooks/useKeyboardShortcuts';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
@@ -107,13 +111,20 @@ function DawAppInner() {
     (!auth.isAuth0Loading &&
       !auth.isBootstrapLoading &&
       !auth.isAuth0Authenticated);
+  // A Prism lesson needs Premium (owner decision 8): its link waits until the
+  // student's plan is known, then a free student gets the upgrade prompt.
+  const lessonAccessFor = useLessonAccess();
+  const [upgradeLessonId, setUpgradeLessonId] = useState<string | null>(null);
   const { joinRoom, joinRoomById, joinRoomAwaitingHost, createAndJoinRoom } =
     useCollab();
   useTransport();
   usePlaybackEngine(isReady, authToken);
   useKeyboardShortcuts(authToken);
-  useAutosave(userId);
+  // MIDI input before the autosave: React cleans up effects in the order they
+  // are declared, so a take kept as the editor closes (useMidiRecording) lands
+  // while the autosave still listens, and its unmount flush writes it.
   useMidiInputRouting();
+  useAutosave(userId);
   useStudioMonitor(isReady, authToken);
   useCollabAudioLoader(authToken);
   useDevCommitCount('DawAppInner');
@@ -126,6 +137,10 @@ function DawAppInner() {
   useAudioChordDetection();
   useGuitarMidiDetection();
   useTheme();
+  // Portaled dialogs and popovers read the DAW palette from body.daw-active
+  // (daw.css) while the editor is mounted. Interim: 2.1 moves the tokens to
+  // :root and deletes the hook.
+  useDawBodyTokens();
   const currentView = useStore((s) => s.currentView);
   const practiceSession = useStore((s) => s.practiceSession);
   const userListOpen = useStore((s) => s.userListOpen);
@@ -134,9 +149,9 @@ function DawAppInner() {
   const toggleChatPanel = useStore((s) => s.toggleChatPanel);
   const isCollabActive = useStore((s) => s.isCollabActive);
 
-  useEffect(() => {
-    initUndoTracking();
-  }, []);
+  // One set of undo auto-capture listeners however often the editor mounts;
+  // the cleanup releases this mount's claim on them (shell-06).
+  useEffect(() => initUndoTracking(), []);
 
   // Decide what to load when the studio boots. The home page routes here with
   // `?project=<id>` to open a saved project, `?new=1` to start fresh, or one
@@ -302,8 +317,22 @@ function DawAppInner() {
     // Studio Dashboard "Production" tab: run a step-by-step lesson in a fresh
     // session, so its first steps (add/select a track) start from a clean slate.
     // The reset ends any lesson already running; this one starts after it.
+    //
+    // A Premium lesson waits until the student's plan is known (useIsPremium
+    // says false for everyone until then, and a premium student must never be
+    // turned away), then a free student is turned away here, before anything
+    // is cleared: the session carries on as a plain boot would, under the
+    // upgrade prompt, and the link is consumed so a refresh doesn't ask again.
     if (intent.kind === 'tutorial') {
+      const access = lessonAccessFor(intent.tutorialId);
+      if (access === 'wait') return;
       bootedRef.current = true;
+      if (access === 'upgrade') {
+        setUpgradeLessonId(intent.tutorialId);
+        resumeLocalSession();
+        clearQuery();
+        return;
+      }
       void open(() => useStore.getState().startTutorial(intent.tutorialId), {
         reopenable: true,
       });
@@ -508,20 +537,12 @@ function DawAppInner() {
     joinRoomById,
     joinRoomAwaitingHost,
     createAndJoinRoom,
+    lessonAccessFor,
   ]);
 
-  useEffect(() => {
-    if (isReady) return;
-    const handler = () => {
-      initEngine();
-    };
-    document.addEventListener('click', handler, { once: true });
-    document.addEventListener('keydown', handler, { once: true });
-    return () => {
-      document.removeEventListener('click', handler);
-      document.removeEventListener('keydown', handler);
-    };
-  }, [isReady, initEngine]);
+  // Start audio on the first click or key press; a start that fails is logged
+  // and retried on the next one (engine-hooks-23).
+  useStartAudioOnGesture(isReady, initEngine);
 
   // ── Disable trackpad swipe-to-navigate inside the DAW ───────────────────
   // A two-finger horizontal swipe on a Mac trackpad triggers the browser's
@@ -561,7 +582,6 @@ function DawAppInner() {
       className="daw-root flex-1 min-h-0 w-full flex flex-col overflow-hidden"
       style={{ backgroundColor: 'var(--color-bg)' }}
     >
-      <MeshGradientBg />
       {currentView === 'practice' && practiceSession ? (
         <DevProfiler id="PracticeTrackView">
           <PracticeTrackView
@@ -598,7 +618,6 @@ function DawAppInner() {
             <ChannelStrip />
           </DevProfiler>
           <PianoRollModal />
-          <PitchEditorModal />
         </>
       ) : currentView === 'leadsheet' ? (
         <DevProfiler id="LeadSheetView">
@@ -627,10 +646,14 @@ function DawAppInner() {
       <ChordAnalysisPrompt />
       <SetListUpdatePrompt />
       <SettingsModal />
-      <PrismSuggestionModal />
+      <PrismSuggestionModal audioReady={isReady} />
       <RecordingLimitModal />
       <RecordGuard />
       <TutorialLayer />
+      <UpgradeLessonDialog
+        lessonId={upgradeLessonId}
+        onClose={() => setUpgradeLessonId(null)}
+      />
     </div>
   );
 }

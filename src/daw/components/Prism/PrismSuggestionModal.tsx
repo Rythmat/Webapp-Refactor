@@ -139,7 +139,17 @@ function defaultGmProgram(
 
 // ── Main Modal ─────────────────────────────────────────────────────────────
 
-export function PrismSuggestionModal() {
+/**
+ * `audioReady` is the editor's audio-started flag (useAudioEngine's isReady).
+ * The modal can open before the first audio gesture, for example when a
+ * student's first action is right-clicking the timeline, so the preview
+ * player waits for it rather than asking an engine that doesn't exist yet.
+ */
+export function PrismSuggestionModal({
+  audioReady = true,
+}: {
+  audioReady?: boolean;
+}) {
   const isOpen = useStore((s) => s.prismSuggestOpen);
   const suggestions = useStore((s) => s.prismSuggestSets);
   const activeIdx = useStore((s) => s.prismSuggestActiveIdx);
@@ -188,9 +198,13 @@ export function PrismSuggestionModal() {
         ? BASS_PROGRAMS
         : [];
 
-  // Initialize standalone SoundFontAdapter when modal opens
+  // Initialize standalone SoundFontAdapter when modal opens. Before the first
+  // audio gesture there is no engine: getContext() would throw and the route
+  // error page would replace the editor. The effect runs again once audio
+  // starts. (Don't init the engine from here: init() isn't idempotent and
+  // would build a second master chain.)
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || !audioReady || !audioEngine.getIsInitialized()) return;
 
     const program = defaultGmProgram(trackInfo.instrument, trackInfo.gmProgram);
     setPreviewProgram(program);
@@ -211,7 +225,7 @@ export function PrismSuggestionModal() {
         previewAdapterRef.current = null;
       }
     };
-  }, [isOpen, trackInfo.instrument, trackInfo.gmProgram]);
+  }, [isOpen, audioReady, trackInfo.instrument, trackInfo.gmProgram]);
 
   // Handle sound picker change
   const handleSoundChange = useCallback((newProgram: number) => {

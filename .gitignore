@@ -50,6 +50,8 @@ src/curriculum/data/songs/_generated_index.ts
 # The suggestion importer's per-URL response cache (importSuggestions.ts);
 # `**/_*.json` does not reach files inside the folder
 src/scripts/enrichment/_cache/
+# The content API's cutover seed (src/scripts/apiContract/exportSeed.ts)
+/seed-export/
 
 # Claude Code local state
 .claude/settings.local.json

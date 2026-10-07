@@ -30,6 +30,10 @@ const KINDS: Record<string, [Identity, keyof typeof SLUG_PATTERN | null]> = {
   activity_flow: ['id', null],
   fundamentals_flow: ['id', null],
   artist_location: ['id', null],
+  // The vocabularies, editable since 30 Sep 2026 (vocabularyRecordSchemas.ts).
+  genre: ['id', 'genre'],
+  subgenre: ['id', 'subgenre'],
+  instrument: ['id', 'instrument'],
 };
 
 export function buildSlugPatterns() {

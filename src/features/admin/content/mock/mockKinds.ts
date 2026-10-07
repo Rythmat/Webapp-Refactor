@@ -15,9 +15,10 @@ import type { ContentMockMode } from './mockSwitch';
  *
  * The vocabulary kinds are the exception: genres, subgenres and session
  * instruments are the repo's own data (src/content/vocabulary/*.json), which
- * only repo mode serves, and the contract has no kind for them (the API's
- * copy is `vocabulary.generated.json`). Their identity is `id`, in the
- * graph's kebab-case grammar for them (`SLUG_PATTERN`).
+ * only repo mode serves here. The contract gained kinds for them at artifacts
+ * version 4 (`vocabularyRecordSchemas.ts`; docs/console-backend-integration.md).
+ * Their identity is `id`, in the graph's kebab-case grammar for them
+ * (`SLUG_PATTERN`).
  */
 
 export type Body = Record<string, unknown>;

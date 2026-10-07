@@ -1,6 +1,5 @@
 {
-  "artifactsVersion": 3,
-  "draftVersion": 4,
+  "artifactsVersion": 4,
   "description": "Contract artifacts the content API copies from this repo. Each file's sha256 is recorded here, and __tests__/manifest.test.ts fails when a file changes without its hash being updated. artifactsVersion is the version last handed over to the API, and each file's handedOff is its hash at that hand-off. A file whose sha256 differs from its handedOff is part of the open draft, draftVersion, which is artifactsVersion + 1 while any file differs and absent otherwise; the test holds both to that. At a hand-off, artifactsVersion becomes draftVersion, every handedOff becomes its file's sha256, and draftVersion is removed. A file first added in the draft has a handedOff of 64 zeros until then. The API reports the version it runs in GET /capabilities, so the console can tell when the server's copy is older. See docs/console-content-api-contract.md.",
   "songSchemaLevels": {
     "v1": {
@@ -24,31 +23,31 @@
     {
       "file": "songBodySchema.v2.ts",
       "sha256": "be805cfec35d31d59c574ccdf09c4158e124838bc3ec13e14f237ddc2b57338b",
-      "handedOff": "0000000000000000000000000000000000000000000000000000000000000000",
+      "handedOff": "be805cfec35d31d59c574ccdf09c4158e124838bc3ec13e14f237ddc2b57338b",
       "what": "Song body, level v2 (frozen for the version 4 draft)."
     },
     {
       "file": "songBodySchema.ts",
       "sha256": "04c5ec153086c2fa3bcf4642c309f3b1e740021c2034d44f257f6a3801006aac",
-      "handedOff": "27c1abbb99d176dfeecaafb5a67ba4ed433b7b4c6b3b7034dfb2c028b4f33651",
+      "handedOff": "04c5ec153086c2fa3bcf4642c309f3b1e740021c2034d44f257f6a3801006aac",
       "what": "Song body, latest (regenerated from songLibrary.ts)."
     },
     {
       "file": "recordBodySchemas.ts",
       "sha256": "9325b3e1d03c6f85584f8eab970f62335d979bf0b7084debbbc780b1628f5025",
-      "handedOff": "2a7141551e54cbea864ea27b4e1dd70334dbd3e895e0dd92fa0a71655bdc18ca",
+      "handedOff": "9325b3e1d03c6f85584f8eab970f62335d979bf0b7084debbbc780b1628f5025",
       "what": "Bodies of the record kinds (artist, release, studio, label, globe_city) and of globe_event (v2)."
     },
     {
       "file": "refPaths.ts",
       "sha256": "606157058c937fb0ad53b7ddc308e22359740599c77b7349790a0701e949e25f",
-      "handedOff": "1c0834649e4a0edcf6cdd151bb923a417f5c15d0c2c450ea1d89ace13087d63f",
+      "handedOff": "606157058c937fb0ad53b7ddc308e22359740599c77b7349790a0701e949e25f",
       "what": "Every reference-bearing body path: validation, rename/merge rewriting."
     },
     {
       "file": "suggestionSchema.ts",
       "sha256": "f0a1520df61c07bfb58aec083f4aec4d9097fbf93a357d913c6cd07d09eb5c06",
-      "handedOff": "0000000000000000000000000000000000000000000000000000000000000000",
+      "handedOff": "f0a1520df61c07bfb58aec083f4aec4d9097fbf93a357d913c6cd07d09eb5c06",
       "what": "A suggestion and the owner's decision about one (contract §10): the rows of the importer's artifacts, GET /suggestions, POST /suggestions/decisions and decisions.json. Generated from src/content/suggestions/types.ts."
     },
     {
@@ -59,9 +58,27 @@
     },
     {
       "file": "slugPatterns.generated.json",
-      "sha256": "783baa5acf4eb84b0283aeaa6b59b91742bccd62ff188ede87e7da0f8fbc8ab6",
-      "handedOff": "783baa5acf4eb84b0283aeaa6b59b91742bccd62ff188ede87e7da0f8fbc8ab6",
+      "sha256": "03d8831278adb8d5908d93c4b8ac8c0d25994dedbd479778b529b57c9a35137e",
+      "handedOff": "03d8831278adb8d5908d93c4b8ac8c0d25994dedbd479778b529b57c9a35137e",
       "what": "Identity field and slug pattern (regex source) per content kind."
+    },
+    {
+      "file": "progressionBodySchema.ts",
+      "sha256": "93bdc5224b2633e97693d877cd535ebb8f65faeb8d9669371248f6ae386ae24b",
+      "handedOff": "93bdc5224b2633e97693d877cd535ebb8f65faeb8d9669371248f6ae386ae24b",
+      "what": "Body of the chord_progression kind. Import-free copy of the app schema, held to it by its test."
+    },
+    {
+      "file": "progressionRules.generated.json",
+      "sha256": "8ac2c478f68ddb81d9ba3aceb2599333e452c12e50c01178246e0ac8bceabef0",
+      "handedOff": "8ac2c478f68ddb81d9ba3aceb2599333e452c12e50c01178246e0ac8bceabef0",
+      "what": "The rules a chord progression keeps: chord spellings Prism knows, 2 to 7 chords, the fields derived from the chords, spelling fixes for the duplicate check."
+    },
+    {
+      "file": "vocabularyRecordSchemas.ts",
+      "sha256": "78c3b2c13b8a18f32e1c5b9db3730a6df958954cae5eb0028914bf5fa2e19865",
+      "handedOff": "78c3b2c13b8a18f32e1c5b9db3730a6df958954cae5eb0028914bf5fa2e19865",
+      "what": "Bodies of the vocabulary kinds (genre, subgenre, instrument). Import-free copy of src/content/vocabulary/schemas.ts, held to it by its test."
     },
     {
       "file": "../../content/graph/slugs.ts",

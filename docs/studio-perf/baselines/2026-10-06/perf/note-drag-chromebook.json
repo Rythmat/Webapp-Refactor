@@ -1,0 +1,475 @@
+{
+ "scenario": "note-drag",
+ "profile": "chromebook",
+ "meta": {
+  "date": "2026-10-07T01:08:08.330Z",
+  "base": "http://localhost:5263",
+  "commit": "f96b3ecc",
+  "dirty": true,
+  "chrome": "153.0.8010.12",
+  "gpu": "metal",
+  "windows": {
+   "quick": false,
+   "repeat": 3,
+   "idleMs": 10000,
+   "playbackLeadMs": 1000,
+   "playbackMs": 20000,
+   "dragMs": 4000,
+   "gestureGapMs": 1000,
+   "viewGapMs": 1500,
+   "audioTimeoutMs": 60000,
+   "silenceMs": 10000
+  },
+  "loop": true,
+  "loadLimits": {
+   "cores": 14,
+   "busyAbove": 4.7,
+   "baseline": true,
+   "maxLoad": 4.7
+  },
+  "profileSettings": {
+   "viewport": {
+    "width": 1366,
+    "height": 655
+   },
+   "deviceScaleFactor": 1,
+   "cpuThrottle": 4,
+   "network": {
+    "downloadKbps": 10000,
+    "uploadKbps": 5000,
+    "latencyMs": 40
+   }
+  }
+ },
+ "runSeconds": 27.1,
+ "machine": {
+  "cores": 14,
+  "load1mStart": 3.71,
+  "load1mEnd": 4.73,
+  "cpuBusy": 0.19
+ },
+ "setup": {
+  "query": "?demo=demo-midnight-groove",
+  "openMs": 2744,
+  "audioMs": 1494,
+  "settle": {
+   "quiet": true,
+   "ms": 1816
+  },
+  "pageCheckMs": 100.7,
+  "calm": {
+   "calm": true,
+   "ms": 1004
+  }
+ },
+ "pick": {
+  "trackId": "e98b3407-983d-49a6-b962-f7cfc82fa5a7",
+  "track": "Lead",
+  "instrument": "oracle-synth",
+  "clipId": "demo-clip-5",
+  "clipStartTick": 0,
+  "eventIndex": 6,
+  "note": {
+   "note": 72,
+   "startTick": 3840,
+   "durationTicks": 960
+  }
+ },
+ "spot": {
+  "grab": {
+   "x": 172,
+   "y": 543.859375
+  },
+  "view": {
+   "left": 120,
+   "top": 510.859375,
+   "right": 1366,
+   "bottom": 576.859375
+  },
+  "rowH": 12,
+  "pixelsPerTick": 0.08333333333333333,
+  "zoom": "H:100% V:100%",
+  "scroll": {
+   "top": 261,
+   "left": 280
+  },
+  "reachX": 30,
+  "reachY": 18
+ },
+ "stats": {
+  "gestures": 3,
+  "movesPerSecond": {
+   "median": 11.5,
+   "min": 11.2,
+   "max": 11.5,
+   "n": 3
+  },
+  "writesPerSecond": {
+   "median": 22.062350119904078,
+   "min": 21.634615384615383,
+   "max": 22.115384615384613,
+   "n": 3
+  },
+  "commitsPerSecond": {
+   "median": 61.37,
+   "min": 61.09,
+   "max": 67.12,
+   "n": 3
+  },
+  "writesPerMove": {
+   "median": 2,
+   "min": 2,
+   "max": 2,
+   "n": 3
+  },
+  "writesPerGesture": {
+   "median": 92,
+   "min": 90,
+   "max": 92,
+   "n": 3
+  },
+  "commitsPerMove": {
+   "median": 5.64,
+   "min": 5.54,
+   "max": 6.09,
+   "n": 3
+  },
+  "longTaskMsPerMove": {
+   "median": 55.7,
+   "min": 54.7,
+   "max": 57.8,
+   "n": 3
+  },
+  "frameP95": {
+   "median": 83.4,
+   "min": 83.4,
+   "max": 83.4,
+   "n": 3
+  },
+  "longTasks": {
+   "count": 81,
+   "totalMs": 7678
+  },
+  "keysPerMove": {
+   "tracks": 1,
+   "liveAudioPeaks": 1
+  },
+  "regionCommitsPerMove": {
+   "TimelineWithHeaders": 5.74,
+   "TransportBar": 2.5,
+   "Timeline": 2,
+   "ChannelStrip": 1.02,
+   "LibraryPanel": 1,
+   "DawAppInner": 1
+  }
+ },
+ "gestures": [
+  {
+   "moves": 45,
+   "movesPerSecond": 11.2,
+   "seconds": 4.16,
+   "storeWrites": 90,
+   "reactCommits": 254,
+   "longTasks": {
+    "count": 27,
+    "totalMs": 2600
+   },
+   "longAnimationFrames": {
+    "count": 29,
+    "blockingMs": 1198
+   },
+   "frameP95": 83.4,
+   "perMove": {
+    "storeWrites": 2,
+    "reactCommits": 5.64,
+    "longTaskMs": 57.8
+   },
+   "regionCommits": {
+    "TransportBar": 113,
+    "TimelineWithHeaders": 253,
+    "LibraryPanel": 45,
+    "ChannelStrip": 46,
+    "Timeline": 90,
+    "DawAppInner": 45
+   },
+   "watch": {
+    "writes": 90,
+    "keys": {
+     "tracks": 45,
+     "liveAudioPeaks": 45
+    },
+    "target": {
+     "initial": "3840:72",
+     "final": "3360:72",
+     "writes": 36,
+     "distinctValues": 9,
+     "changed": true
+    },
+    "clipWrites": 45,
+    "otherTracksChanged": []
+   },
+   "probes": {
+    "seconds": 4.16,
+    "frames": 120,
+    "frameMs": {
+     "p50": 16.7,
+     "p95": 83.4,
+     "max": 100.10000000000036
+    },
+    "longTasks": {
+     "count": 27,
+     "totalMs": 2600
+    },
+    "longAnimationFrames": {
+     "count": 29,
+     "blockingMs": 1198
+    },
+    "appRafCallsPerSecond": 415.12,
+    "reactCommitsPerSecond": 61.09,
+    "storeWritesPerSecond": 21.65,
+    "storeKeys": [
+     {
+      "key": "tracks",
+      "perSecond": 10.82
+     },
+     {
+      "key": "liveAudioPeaks",
+      "perSecond": 10.82
+     }
+    ],
+    "regions": {
+     "TransportBar": {
+      "commitsPerSecond": 27.18,
+      "msPerSecond": 62.53
+     },
+     "TimelineWithHeaders": {
+      "commitsPerSecond": 60.85,
+      "msPerSecond": 136.61
+     },
+     "LibraryPanel": {
+      "commitsPerSecond": 10.82,
+      "msPerSecond": 54.04
+     },
+     "ChannelStrip": {
+      "commitsPerSecond": 11.06,
+      "msPerSecond": 30.09
+     },
+     "Timeline": {
+      "commitsPerSecond": 21.65,
+      "msPerSecond": 0
+     },
+     "DawAppInner": {
+      "commitsPerSecond": 10.82,
+      "msPerSecond": 0
+     }
+    }
+   }
+  },
+  {
+   "moves": 46,
+   "movesPerSecond": 11.5,
+   "seconds": 4.16,
+   "storeWrites": 92,
+   "reactCommits": 255,
+   "longTasks": {
+    "count": 27,
+    "totalMs": 2561
+   },
+   "longAnimationFrames": {
+    "count": 28,
+    "blockingMs": 1159
+   },
+   "frameP95": 83.4,
+   "perMove": {
+    "storeWrites": 2,
+    "reactCommits": 5.54,
+    "longTaskMs": 55.7
+   },
+   "regionCommits": {
+    "TransportBar": 115,
+    "TimelineWithHeaders": 254,
+    "LibraryPanel": 46,
+    "ChannelStrip": 47,
+    "Timeline": 92,
+    "DawAppInner": 46
+   },
+   "watch": {
+    "writes": 92,
+    "keys": {
+     "tracks": 46,
+     "liveAudioPeaks": 46
+    },
+    "target": {
+     "initial": "3840:72",
+     "final": "3360:72",
+     "writes": 36,
+     "distinctValues": 9,
+     "changed": true
+    },
+    "clipWrites": 46,
+    "otherTracksChanged": []
+   },
+   "probes": {
+    "seconds": 4.16,
+    "frames": 122,
+    "frameMs": {
+     "p50": 16.7,
+     "p95": 83.4,
+     "max": 100
+    },
+    "longTasks": {
+     "count": 27,
+     "totalMs": 2561
+    },
+    "longAnimationFrames": {
+     "count": 28,
+     "blockingMs": 1159
+    },
+    "appRafCallsPerSecond": 422.37,
+    "reactCommitsPerSecond": 61.37,
+    "storeWritesPerSecond": 22.14,
+    "storeKeys": [
+     {
+      "key": "tracks",
+      "perSecond": 11.07
+     },
+     {
+      "key": "liveAudioPeaks",
+      "perSecond": 11.07
+     }
+    ],
+    "regions": {
+     "TransportBar": {
+      "commitsPerSecond": 27.68,
+      "msPerSecond": 62.14
+     },
+     "TimelineWithHeaders": {
+      "commitsPerSecond": 61.13,
+      "msPerSecond": 128.52
+     },
+     "LibraryPanel": {
+      "commitsPerSecond": 11.07,
+      "msPerSecond": 51.65
+     },
+     "ChannelStrip": {
+      "commitsPerSecond": 11.31,
+      "msPerSecond": 29.55
+     },
+     "Timeline": {
+      "commitsPerSecond": 22.14,
+      "msPerSecond": 0
+     },
+     "DawAppInner": {
+      "commitsPerSecond": 11.07,
+      "msPerSecond": 0
+     }
+    }
+   }
+  },
+  {
+   "moves": 46,
+   "movesPerSecond": 11.5,
+   "seconds": 4.17,
+   "storeWrites": 92,
+   "reactCommits": 280,
+   "longTasks": {
+    "count": 27,
+    "totalMs": 2517
+   },
+   "longAnimationFrames": {
+    "count": 27,
+    "blockingMs": 1116
+   },
+   "frameP95": 83.4,
+   "perMove": {
+    "storeWrites": 2,
+    "reactCommits": 6.09,
+    "longTaskMs": 54.7
+   },
+   "regionCommits": {
+    "TransportBar": 115,
+    "TimelineWithHeaders": 279,
+    "LibraryPanel": 46,
+    "ChannelStrip": 47,
+    "Timeline": 92,
+    "DawAppInner": 46
+   },
+   "watch": {
+    "writes": 92,
+    "keys": {
+     "tracks": 46,
+     "liveAudioPeaks": 46
+    },
+    "target": {
+     "initial": "3840:72",
+     "final": "3360:72",
+     "writes": 34,
+     "distinctValues": 9,
+     "changed": true
+    },
+    "clipWrites": 46,
+    "otherTracksChanged": []
+   },
+   "probes": {
+    "seconds": 4.17,
+    "frames": 133,
+    "frameMs": {
+     "p50": 16.7,
+     "p95": 83.4,
+     "max": 83.40000000000146
+    },
+    "longTasks": {
+     "count": 27,
+     "totalMs": 2517
+    },
+    "longAnimationFrames": {
+     "count": 27,
+     "blockingMs": 1116
+    },
+    "appRafCallsPerSecond": 457.61,
+    "reactCommitsPerSecond": 67.12,
+    "storeWritesPerSecond": 22.05,
+    "storeKeys": [
+     {
+      "key": "tracks",
+      "perSecond": 11.03
+     },
+     {
+      "key": "liveAudioPeaks",
+      "perSecond": 11.03
+     }
+    ],
+    "regions": {
+     "TransportBar": {
+      "commitsPerSecond": 27.57,
+      "msPerSecond": 58.97
+     },
+     "TimelineWithHeaders": {
+      "commitsPerSecond": 66.88,
+      "msPerSecond": 136.35
+     },
+     "LibraryPanel": {
+      "commitsPerSecond": 11.03,
+      "msPerSecond": 49.31
+     },
+     "ChannelStrip": {
+      "commitsPerSecond": 11.27,
+      "msPerSecond": 27.42
+     },
+     "Timeline": {
+      "commitsPerSecond": 22.05,
+      "msPerSecond": 0
+     },
+     "DawAppInner": {
+      "commitsPerSecond": 11.03,
+      "msPerSecond": 0
+     }
+    }
+   }
+  }
+ ],
+ "problems": [
+  "the machine was busy (1-minute load average 4.73, limit 4.7), so these timings are not a baseline"
+ ],
+ "pageErrors": []
+}

@@ -43,7 +43,7 @@ const UNIT_TESTS = [
   'src/daw/persistence/__tests__/persistenceMatrix.test.ts',
   'src/daw/hooks/__tests__/autosaveStarvation.test.ts',
   'src/daw/components/Tutorial/__tests__/tutorialAnchors.test.ts',
-  'src/daw/persistence/__tests__/fixtures/v2/manifest.test.ts',
+  'src/daw/persistence/__tests__/fixtures/manifest.test.ts',
 ];
 
 /** Browser suites, in the order they run. `server: false` builds instead. */

@@ -85,12 +85,13 @@
  * walkthrough's own step drivers, lessonDrivers.mjs) and the kitchen sink.
  * Each is booted in a fresh context, the autosave ('musicAtlas:daw:autosave',
  * src/lib/studio-projects/localSession.ts) is left to flush, and its raw
- * value is written to src/daw/persistence/__tests__/fixtures/v2/<name>.json,
- * formatted by Prettier (so the repo's lint passes) and checked lossless:
- * JSON.stringify(JSON.parse(file)) is the stored string byte for byte, whose
- * SHA-256 manifest.json records (manifest.test.ts there re-checks it). Once
- * codec v3 (milestone 1.3) makes the editor write another version, capture
- * refuses rather than overwrite the v2 set.
+ * value is written to src/daw/persistence/__tests__/fixtures/v2/<name>.json
+ * (or --fixtures-dir: fixtures/v2-1.2/ holds the dialect milestones 1.1 and
+ * 1.2 write), formatted by Prettier (so the repo's lint passes) and checked
+ * lossless: JSON.stringify(JSON.parse(file)) is the stored string byte for
+ * byte, whose SHA-256 manifest.json records (fixtures/manifest.test.ts
+ * re-checks every folder). Once codec v3 (milestone 1.3) makes the editor
+ * write another version, capture refuses rather than overwrite a v2 set.
  *
  * Reports go to docs/studio-perf/runs/roundtrip/ (or --out): every difference
  * with its values in roundtrip-<profile>.json, and summary.md, which
@@ -521,9 +522,34 @@ async function autosaveTimestamp(page) {
 }
 
 /**
- * Waits until the autosave has been written after the last store write and
- * the store has stayed still since; returns the raw stored string. With
- * `allowMissing`, an autosave that never comes back is returned as null.
+ * Whether the stored autosave already holds what the editor would write now,
+ * its playhead aside. The autosave is written only when a field it saves
+ * changes, so after a trailing write to a field it doesn't save (a lesson's
+ * step status, a selection) its timestamp stays older than the last store
+ * write although nothing is left to flush.
+ */
+async function autosaveIsCurrent(page, raw) {
+  return page.evaluate(async (stored) => {
+    try {
+      const devModule = (url) => import(url);
+      const { serializeSession, sessionFingerprint } = await devModule(
+        '/src/daw/persistence/SessionSerializer.ts',
+      );
+      return (
+        sessionFingerprint(JSON.parse(stored)) ===
+        sessionFingerprint(serializeSession())
+      );
+    } catch {
+      return false;
+    }
+  }, raw);
+}
+
+/**
+ * Waits until the autosave has been written after the last store write (or
+ * already matches the store, see autosaveIsCurrent) and the store has stayed
+ * still since; returns the raw stored string. With `allowMissing`, an
+ * autosave that never comes back is returned as null.
  */
 async function waitForAutosave(
   page,
@@ -550,8 +576,9 @@ async function waitForAutosave(
     if (
       state.raw &&
       state.lastWrite > 0 &&
-      state.timestamp >= state.lastWrite &&
-      state.now - state.lastWrite >= quietMs
+      state.now - state.lastWrite >= quietMs &&
+      (state.timestamp >= state.lastWrite ||
+        (await autosaveIsCurrent(page, state.raw)))
     ) {
       return state.raw;
     }
@@ -1785,11 +1812,7 @@ async function captureFixtures(run) {
     console.log(`  captured ${target.name} (${fixtures.at(-1).bytes} bytes)`);
   }
   // A fixture this capture no longer makes would be stale: remove it.
-  const keep = new Set([
-    ...fixtures.map((f) => f.file),
-    'manifest.json',
-    'manifest.test.ts',
-  ]);
+  const keep = new Set([...fixtures.map((f) => f.file), 'manifest.json']);
   for (const name of readdirSync(dir)) {
     if (name.endsWith('.json') && !keep.has(name)) rmSync(join(dir, name));
   }

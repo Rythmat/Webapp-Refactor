@@ -1,5 +1,11 @@
 # Console content: the API contract, for Ryan
 
+> **Start with [`console-backend-integration.md`](console-backend-integration.md)**
+> (6 October 2026). It orders this work, adds the vocabulary and
+> progression kinds, the cutover seed and the cascades, and records the
+> owner's later rules. **Where the two disagree, it wins.** Artifacts
+> version 4 is handed over: `manifest.json` has no open draft.
+
 Written 29 September 2026. **Draft, sent at checkpoint 1a.** It is finalized
 at checkpoint 1i together with a contract test suite; items marked **Later**
 are outlined here and specified then. Updated 30 September 2026 after the
@@ -492,13 +498,17 @@ Missing optional values project as `null`, and `tags` as `[]`. In the
 template, the identity field takes the `?slug=` value the template endpoint
 already accepts, or `''`. Import seeds as `published`, then release the kind
 (`POST /releases`) so they are in its live release: they are what the app
-shows today, and nothing reads the new bundles yet.
+shows today, and nothing reads the new bundles yet. **The seed counts in this
+table are superseded:** the cutover seed is one export of everything the
+repo holds (`console-backend-integration.md` §5).
 
 **The artist body** is the handoff's `{ slug, name, aliases }` extended:
 `group`, `members[]`, `basedInPlaceId`, `activeFrom`, `activeTo`,
 `genreIds`, `instrumentIds`, `labelIds`, `influencedBy[]`, `bio`,
 `externalIds`, `unverified`, `source`. There is no image field:
-`song.artistImageRef` owns artwork.
+`song.artistImageRef` owns artwork. (Since the owner's rule of 30 Sep 2026
+no stored body carries `externalIds` or an outside catalogue's `source`;
+`console-backend-integration.md` §7.)
 
 - `influencedBy: { artistId, unverified?, source? }[]` sits on the influenced
   artist. It is the one relationship an editor states outright (see
@@ -692,14 +702,14 @@ credits?: Credit[];
 **Song v2** (`songBodySchema.v2.ts`, frozen; `songBodySchema.ts` says the
 same; v1 stays frozen and keeps rejecting all of these):
 
-| Field                                                              | Meaning                                                                                                       |
-| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
-| `releases[]`: `{ releaseId, track?, unverified?, source? }`        | The records it appears on, first issue first. A release's `labelId` is the song's label.                      |
-| `subgenreIds[]`                                                    | Subgenre ids (`subgenres[].id`), finer than `genreTags`.                                                      |
-| `session.studioId`                                                 | The studio's record. `session.studio` stays the text shown.                                                   |
-| `session.labelId`                                                  | The label's record, read only when the song has no `releases`. `session.label` stays the text shown.          |
-| `session.placeId`                                                  | Where it was recorded, a `globe_city` id. `session.city` stays the text shown. It never moves the song's pin. |
-| `session.source`, `credits[].source`, `relatedRecordings[].source` | Where the fact came from: `'musicbrainz'`, `'liner notes'`, a URL.                                            |
+| Field                                                              | Meaning                                                                                                             |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `releases[]`: `{ releaseId, track?, unverified?, source? }`        | The records it appears on, first issue first. A release's `labelId` is the song's label.                            |
+| `subgenreIds[]`                                                    | Subgenre ids (`subgenres[].id`), finer than `genreTags`.                                                            |
+| `session.studioId`                                                 | The studio's record. `session.studio` stays the text shown.                                                         |
+| `session.labelId`                                                  | The label's record, read only when the song has no `releases`. `session.label` stays the text shown.                |
+| `session.placeId`                                                  | Where it was recorded, a `globe_city` id. `session.city` stays the text shown. It never moves the song's pin.       |
+| `session.source`, `credits[].source`, `relatedRecordings[].source` | Where the fact came from: `'liner notes'`, a URL; never an outside catalogue (`console-backend-integration.md` §7). |
 
 - The display text stays, because it is what the song page shows. When the
   console links a studio, label or city whose text is empty, or still the
@@ -713,14 +723,14 @@ same; v1 stays frozen and keeps rejecting all of these):
 - Report song `schemaVersion: 2` once `songBodySchema.v2.ts` is the
   validator. The console turns the v2 fields on only then.
 
-**Requested: an export `revision`.** Each `GET /export` item gains
+**Required (was requested): an export `revision`.** Each `GET /export` item gains
 `revision: number`, bumped on every stored change to that item (`body`,
 `pendingBody`, `status` or `editState`). The console's working graph keys
 its rebuild on a fingerprint of every row; today it hashes each body to
 make one, and a revision would replace that. Optional: without it the
 console keeps hashing.
 
-**Requested with it: a revision check on `PUT /items`.** The request may
+**Required with it (was requested): a revision check on `PUT /items`.** The Table sends it on every cell save. The request may
 carry `expectedRevision`, the `revision` the editor started from; when the
 item has moved since, answer 409 `REVISION_CONFLICT` with the current
 `revision` and write nothing. Without the field, today's upsert. The console
@@ -1125,7 +1135,9 @@ dialog and for "Rests on …" on a card.
   accept cannot narrow the guesses. An accepted value loses `unverified`
   and gains `source` (the providers, merged into any `source` there; a
   credit's `https://musicbrainz.org/artist/<mbid>` stays, as it is the only
-  place that MBID is kept). Accepting a value already there but unverified
+  place that MBID is kept). **Superseded (owner, 30 Sep 2026):** an accept
+  writes the value bare, with no `source`, link or outside id
+  (`console-backend-integration.md` §7). Accepting a value already there but unverified
   confirms it. Linking `session.studioId` or `session.labelId` fills
   `session.studio` or `session.label` from the record's name when it is
   empty or still the name of the record being replaced; typed text is
@@ -1144,7 +1156,9 @@ dialog and for "Rests on …" on a card.
   release, label or studio with no MusicBrainz id on either side) only when
   its body is the same, `unverified` and `source` aside. An artist is never
   reused without the same MusicBrainz id: namesakes are the commonest wrong
-  match. `requires` never lists
+  match. (Since the owner's rule of 30 Sep 2026 no body holds such an id, so
+  the reuse by id lives only in the importer's tooling;
+  `console-backend-integration.md` §7.) `requires` never lists
   the item itself: a Label row targets the release it labels, which its
   Album row makes, so until then it answers 404 saying so; once the release
   exists it writes into it, edited or not.
@@ -1454,15 +1468,20 @@ The names and format are fixed now, because each new kind's import ends with
 a release (priority 4) and the publish checks read live releases
 (priority 7). What the app reads from them, and when, is Later.
 
-| Kind         | Bundle     |
-| ------------ | ---------- |
-| `artist`     | `artists`  |
-| `release`    | `releases` |
-| `studio`     | `studios`  |
-| `label`      | `labels`   |
-| `globe_city` | `places`   |
+| Kind                | Bundle         |
+| ------------------- | -------------- |
+| `artist`            | `artists`      |
+| `release`           | `releases`     |
+| `studio`            | `studios`      |
+| `label`             | `labels`       |
+| `globe_city`        | `places`       |
+| `chord_progression` | `progressions` |
+| `genre`             | `genres`       |
+| `subgenre`          | `subgenres`    |
+| `instrument`        | `instruments`  |
 
-Progressions and the Teach kinds follow later. If `globe_city` already
+The last four are from `console-backend-integration.md` §4.4. The Teach
+kinds follow later. If `globe_city` already
 publishes under another name on your side, keep that name and report it. The
 rest is specified at checkpoint 1i.
 
@@ -1485,9 +1504,11 @@ is a field on the artist record, `influencedBy`, which derives artist → artist
 in that file, code-owned, and the console flags an artist influence that
 merely restates one of them.
 
-**Vocabularies stay in code.** Genres, subgenres, instruments, modes, vibes,
-regions and eras have no endpoints. `vocabulary.generated.json` is the API's
-copy, for validation only.
+**Vocabularies stay in code.** Superseded for genres, subgenres and
+instruments: the owner made them editable (30 Sep 2026), so they are content
+kinds (`console-backend-integration.md` §4.2). Modes, vibes, regions and
+eras still have no endpoints. `vocabulary.generated.json` is the API's copy,
+for validation.
 
 **`unverified` is kept, not hidden.** Credits, sessions, related recordings,
 members, influences and whole records can carry `unverified`, and `source`

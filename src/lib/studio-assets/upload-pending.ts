@@ -103,6 +103,24 @@ export class PartialUploadError extends Error {
   }
 }
 
+/**
+ * Stamp `assetId` on every audio clip that has no asset yet and plays
+ * `buffer`. Clips cut from one recording (split halves, record-over
+ * remainders) and duplicates play it through the same decoded buffer under
+ * their own ids (AudioBufferStore.shareClipAudio), so one upload covers them
+ * all. A clip deleted meanwhile simply isn't found.
+ */
+function stampAssetOnClipsPlaying(buffer: AudioBuffer, assetId: string): void {
+  const state = useStore.getState();
+  for (const track of state.tracks) {
+    for (const clip of track.audioClips) {
+      if (!clip.assetId && getAudioBuffer(clip.id) === buffer) {
+        state.updateAudioClip(track.id, clip.id, { assetId });
+      }
+    }
+  }
+}
+
 // Clips whose audio is currently being uploaded by uploadRecordedClip (the
 // immediate-on-record path), keyed by clip id. uploadPendingAudioClips awaits
 // these instead of starting its own upload, so a Save fired mid-record-upload
@@ -150,15 +168,10 @@ export async function uploadRecordedClip(
       channels: buffer.numberOfChannels,
     });
 
-    // Guard against the clip having been deleted while the upload was in flight.
-    const stillExists = useStore
-      .getState()
-      .tracks.some((t) => t.audioClips.some((c) => c.id === clipId));
-    if (stillExists) {
-      useStore.getState().updateAudioClip(trackId, clipId, {
-        assetId: asset.id,
-      });
-    }
+    // The take, and any halves or remainders cut from it while the upload
+    // was in flight: they play the same recording, and a refresh before the
+    // next Save would otherwise lose the ones with new ids.
+    stampAssetOnClipsPlaying(buffer, asset.id);
   })();
 
   recordingUploadsInFlight.set(clipId, upload);
@@ -272,6 +285,9 @@ export async function uploadPendingAudioClips(
   }
 
   const pending: PendingClip[] = [];
+  // Clips cut from one recording share its buffer: upload it once, and the
+  // stamp below covers every clip playing it.
+  const queued = new Set<AudioBuffer>();
   for (const track of useStore.getState().tracks) {
     for (const clip of track.audioClips) {
       if (clip.assetId) continue;
@@ -282,6 +298,8 @@ export async function uploadPendingAudioClips(
         );
         continue;
       }
+      if (queued.has(buffer)) continue;
+      queued.add(buffer);
       pending.push({ trackId: track.id, clipId: clip.id, buffer });
     }
   }
@@ -317,7 +335,7 @@ export async function uploadPendingAudioClips(
     ...pendingSamplers.map((p) => samplerBufferKey(p.sampleId)),
   ];
   const results = await Promise.allSettled([
-    ...pending.map(async ({ trackId, clipId, buffer }) => {
+    ...pending.map(async ({ clipId, buffer }) => {
       const payload = await pickUploadPayload(clipId, buffer);
       const asset = await uploadAndFinalizeAsset(token, {
         projectId,
@@ -331,11 +349,10 @@ export async function uploadPendingAudioClips(
         channels: buffer.numberOfChannels,
       });
 
-      // Stamp the live asset id onto the clip so the next save round-trips it
-      // and a partial-success retry doesn't re-upload this clip.
-      useStore.getState().updateAudioClip(trackId, clipId, {
-        assetId: asset.id,
-      });
+      // Stamp the live asset id onto every clip playing this recording so the
+      // next save round-trips them and a partial-success retry doesn't
+      // re-upload it.
+      stampAssetOnClipsPlaying(buffer, asset.id);
     }),
     ...pendingSamplers.map(async ({ trackId, sampleId, buffer }) => {
       const bufferKey = samplerBufferKey(sampleId);

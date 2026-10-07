@@ -17,6 +17,8 @@ import { TrackControlsPanel } from '@/daw/components/Controls/TrackControlsPanel
 import { EffectsPanel } from '@/daw/components/Effects/EffectsPanel';
 import { PrismPanel } from '@/daw/components/Prism/PrismPanel';
 import { auditionNote } from '@/daw/audio/auditionNote';
+import { noteEditorOriginTick } from '@/daw/audio/noteEditorOrigin';
+import { TICKS_PER_BEAT } from '@/daw/utils/timelineScale';
 import { PianoRoll } from '@/daw/components/PianoRoll/PianoRoll';
 import { GroovesBrowser } from '@/daw/components/Controls/GroovesBrowser';
 import type { MidiNoteEvent } from '@prism/engine';
@@ -118,6 +120,7 @@ export function ChannelStrip() {
   const updateMidiClipEvents = useStore((s) => s.updateMidiClipEvents);
   const addMidiClip = useStore((s) => s.addMidiClip);
   const setSelectedClip = useStore((s) => s.setSelectedClip);
+  const tsNum = useStore((s) => s.timeSignatureNumerator);
 
   // Auto-open when a track is added
   useEffect(() => {
@@ -331,7 +334,17 @@ export function ChannelStrip() {
                 ((selectedClip && selectedClipTrack) || isMidiInstrument ? (
                   <PianoRoll
                     events={selectedClip?.events ?? []}
-                    clipStartTick={selectedClip?.startTick ?? 0}
+                    // Events are clip-relative: the roll starts at the clip's
+                    // own tick 0, and only its song-time overlays (playhead,
+                    // loop) use where the clip sits in the song.
+                    clipStartTick={
+                      selectedClip
+                        ? noteEditorOriginTick(
+                            selectedClip.events,
+                            TICKS_PER_BEAT * tsNum,
+                          )
+                        : 0
+                    }
                     timelineStartTick={selectedClip?.startTick ?? 0}
                     clipColor={
                       selectedClipTrack?.color ?? track?.color ?? '#888'

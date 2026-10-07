@@ -4,6 +4,8 @@ import { Sparkles } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { DRUM_PADS } from '@/daw/instruments/DrumMachineEngine';
 import { auditionNote } from '@/daw/audio/auditionNote';
+import { noteEditorOriginTick } from '@/daw/audio/noteEditorOrigin';
+import { TICKS_PER_BEAT } from '@/daw/utils/timelineScale';
 import { PianoRoll } from './PianoRoll';
 import type { MidiNoteEvent } from '@prism/engine';
 
@@ -17,6 +19,7 @@ export function PianoRollModal() {
   const tracks = useStore((s) => s.tracks);
   const setEditingClip = useStore((s) => s.setEditingClip);
   const updateMidiClipEvents = useStore((s) => s.updateMidiClipEvents);
+  const tsNum = useStore((s) => s.timeSignatureNumerator);
 
   const isOpen = editingClipId !== null && editingClipTrackId !== null;
 
@@ -84,11 +87,12 @@ export function PianoRollModal() {
     [editingClipTrackId],
   );
 
-  // Events are clip-relative; after a front-trim the clip sits at a non-zero
-  // startTick while its events still start near tick 0. Anchor the editor at
-  // whichever is smaller so notes never render off the left edge.
+  // Events are clip-relative, so the editor starts at the clip's own tick 0
+  // wherever the clip sits in the song (clip.startTick goes in
+  // timelineStartTick only). Mixing the song position into the origin made an
+  // emptied clip after bar 1 store its next note bars late.
   const pianoRollStartTick = clip
-    ? clip.events.reduce((min, e) => Math.min(min, e.startTick), clip.startTick)
+    ? noteEditorOriginTick(clip.events, TICKS_PER_BEAT * tsNum)
     : 0;
 
   // Drum tracks: label the key column with the same drum-pad codes (KCK, SNR, …)

@@ -27,6 +27,7 @@ import {
   type GridSize,
 } from '@/daw/utils/quantize';
 import { alternatingBarGroup } from '@/daw/utils/timelineScale';
+import { noteEditorOriginTick } from '@/daw/audio/noteEditorOrigin';
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -167,10 +168,14 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   const beatsPerBar = tsNum;
 
   const clip = track?.midiClips[0];
-  const clipStartTick = clip?.startTick ?? 0;
   const events = useMemo(() => clip?.events ?? [], [clip?.events]);
   const eventsRef = useRef(events);
   eventsRef.current = events;
+  // Events are clip-relative (playback adds clip.startTick), so the grid starts
+  // at the clip's own tick 0 and new hits are stored relative to it. Only the
+  // playhead, which runs in song ticks, needs where the clip sits in the song.
+  const originTick = noteEditorOriginTick(events, TICKS_PER_BEAT * beatsPerBar);
+  const songOffset = (clip?.startTick ?? 0) + originTick;
 
   // Kit selection lives in the store (persisted + collab-synced)
   const currentKit: DrumKitId = track?.drumKit ?? 'natural';
@@ -227,9 +232,9 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   const MIN_TICKS = TICKS_PER_BEAT * beatsPerBar * 4;
   const maxTick = events.reduce(
     (max, e) => Math.max(max, e.startTick + e.durationTicks),
-    clipStartTick + MIN_TICKS,
+    originTick + MIN_TICKS,
   );
-  const totalTicks = maxTick - clipStartTick + TICKS_PER_BEAT * 4;
+  const totalTicks = maxTick - originTick + TICKS_PER_BEAT * 4;
 
   const containerW = gridScrollRef.current?.clientWidth ?? 600;
   const MIN_ZOOM = Math.max(
@@ -499,7 +504,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       if (padIdx < 0) continue;
 
       const row = padIndexToRow(padIdx);
-      const relTick = ev.startTick - clipStartTick;
+      const relTick = ev.startTick - originTick;
       const x = relTick * pixelsPerTick;
       const noteW = Math.max(MIN_NOTE_W, ev.durationTicks * pixelsPerTick);
       const noteY = row * PAD_ROW_H;
@@ -536,7 +541,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     }
   }, [
     events,
-    clipStartTick,
+    originTick,
     selectedIndices,
     marqueeRect,
     gridW,
@@ -604,7 +609,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         if ((pass === 0 && isSelected) || (pass === 1 && !isSelected)) continue;
 
         const ev = currentEvents[i];
-        const relTick = ev.startTick - clipStartTick;
+        const relTick = ev.startTick - originTick;
         const x =
           relTick * pixelsPerTick + (ev.durationTicks * pixelsPerTick) / 2;
         const stemH = (ev.velocity / 127) * maxStemH;
@@ -645,7 +650,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
     }
   }, [
     events,
-    clipStartTick,
+    originTick,
     selectedIndices,
     gridW,
     pixelsPerTick,
@@ -692,7 +697,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         const padIdx = padIndexForNote(ev.note);
         if (padIdx < 0) continue;
         const row = padIndexToRow(padIdx);
-        const relTick = ev.startTick - clipStartTick;
+        const relTick = ev.startTick - originTick;
         const x = relTick * pixelsPerTick;
         const w = Math.max(MIN_NOTE_W, ev.durationTicks * pixelsPerTick);
         const noteY = row * PAD_ROW_H;
@@ -703,7 +708,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       }
       return null;
     },
-    [clipStartTick, pixelsPerTick],
+    [originTick, pixelsPerTick],
   );
 
   // ── Audition note ─────────────────────────────────────────────────────
@@ -740,7 +745,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
           setSelectedPad(pad.note);
 
           const gridTicks = GRID_VALUES[gridSize];
-          const clickTick = x / pixelsPerTick + clipStartTick;
+          const clickTick = x / pixelsPerTick + originTick;
           const snappedTick = snapToGrid(clickTick, gridSize);
 
           const newNote: MidiNoteEvent = {
@@ -783,7 +788,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
             const ev = currentEvents[noteIdx];
             setSelectedPad(canonicalNote(ev.note));
-            const relTick = ev.startTick - clipStartTick;
+            const relTick = ev.startTick - originTick;
             const noteX = relTick * pixelsPerTick;
             const noteW = Math.max(
               MIN_NOTE_W,
@@ -827,7 +832,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       velocity,
       getCanvasCoords,
       hitTestNote,
-      clipStartTick,
+      originTick,
       pixelsPerTick,
       gridSize,
       onChange,
@@ -860,7 +865,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
           const padIdx = padIndexForNote(ev.note);
           if (padIdx < 0) continue;
           const nrow = padIndexToRow(padIdx);
-          const nx = (ev.startTick - clipStartTick) * pixelsPerTick;
+          const nx = (ev.startTick - originTick) * pixelsPerTick;
           const nw = Math.max(MIN_NOTE_W, ev.durationTicks * pixelsPerTick);
           const ny = nrow * PAD_ROW_H;
           if (
@@ -893,7 +898,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
             const noteIdx = hitTestNote(x, y);
             if (noteIdx !== null) {
               const ev = eventsRef.current[noteIdx];
-              const relTick = ev.startTick - clipStartTick;
+              const relTick = ev.startTick - originTick;
               const noteX = relTick * pixelsPerTick;
               const noteW = Math.max(
                 MIN_NOTE_W,
@@ -917,7 +922,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         const padIdx = rowToPadIndex(row);
         const pad = DRUM_PADS[padIdx];
         const gridTicks = GRID_VALUES[gridSize];
-        const clickTick = x / pixelsPerTick + clipStartTick;
+        const clickTick = x / pixelsPerTick + originTick;
         const snappedTick = snapToGrid(clickTick, gridSize);
 
         if (
@@ -969,8 +974,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
         if (drag.mode === 'move') {
           // Derive the anchor's snapped tick + row delta, then shift the group.
-          const rawTick =
-            x / pixelsPerTick + clipStartTick - drag.grabTickOffset;
+          const rawTick = x / pixelsPerTick + originTick - drag.grabTickOffset;
           const snappedTick = snapToGrid(rawTick, gridSize);
           let tickDelta = snappedTick - anchorOrig.startTick;
 
@@ -1005,7 +1009,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
             };
           }
         } else if (drag.mode === 'resize') {
-          const endTick = x / pixelsPerTick + clipStartTick;
+          const endTick = x / pixelsPerTick + originTick;
           const snappedEnd = snapToGrid(endTick, gridSize);
           const newAnchorDur = Math.max(
             GRID_VALUES[gridSize],
@@ -1030,7 +1034,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
       tool,
       getCanvasCoords,
       hitTestNote,
-      clipStartTick,
+      originTick,
       pixelsPerTick,
       gridSize,
       onChange,
@@ -1083,7 +1087,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
 
       for (let i = 0; i < currentEvents.length; i++) {
         const ev = currentEvents[i];
-        const relTick = ev.startTick - clipStartTick;
+        const relTick = ev.startTick - originTick;
         const cx =
           relTick * pixelsPerTick + (ev.durationTicks * pixelsPerTick) / 2;
         const stemH = (ev.velocity / 127) * maxStemH;
@@ -1118,7 +1122,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
         onChange(updated);
       }
     },
-    [clipStartTick, pixelsPerTick, onChange, selectSingle],
+    [originTick, pixelsPerTick, onChange, selectSingle],
   );
 
   const handleVelMouseMove = useCallback(
@@ -1279,9 +1283,9 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   // ── Playhead position ─────────────────────────────────────────────────
   const playheadPx = useMemo(() => {
     if (!isPlaying) return -1;
-    const relTick = position - clipStartTick;
+    const relTick = position - songOffset;
     return relTick * pixelsPerTick;
-  }, [isPlaying, position, clipStartTick, pixelsPerTick]);
+  }, [isPlaying, position, songOffset, pixelsPerTick]);
 
   const currentKitLabel =
     DRUM_KITS.find((k) => k.id === currentKit)?.label ?? currentKit;

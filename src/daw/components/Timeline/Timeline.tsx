@@ -6,16 +6,15 @@ import { formatChordRegion } from '@/daw/utils/chordRegionNotation';
 import { useChordNotation } from '@/lib/chordNotation';
 import { seekTo } from '@/daw/hooks/useTransport';
 import { importMidiFile } from '@/daw/midi/MidiFileIO';
-import * as Tone from 'tone';
 import {
   getAudioBuffer,
   setAudioBuffer,
   setOriginalAudio,
-  removeAudioBuffer,
   computePeaks,
-  sliceBuffer,
   subscribeAudioBufferChanges,
 } from '@/daw/audio/AudioBufferStore';
+import { splitAudioClipAt } from './splitAudioClipAt';
+import { splitMidiClipAt } from './splitMidiClipAt';
 import {
   TICKS_PER_BEAT,
   ticksPerBar,
@@ -649,16 +648,18 @@ export function Timeline() {
         const effectiveTrackIndex = isMoving ? dragTrackRef.current : t;
         const effectiveY = effectiveTrackIndex * TRACK_HEIGHT + RULERS_HEIGHT;
 
+        // Events are clip-relative (playback adds clip.startTick), so notes
+        // are drawn from the clip's own tick 0, sized or not. Drawing a sized
+        // clip's notes from its song position put them off its left edge,
+        // leaving an empty box anywhere after bar 1 (a moved Prism take).
+        const eventsMinTick = 0;
         let clipDuration: number;
-        let eventsMinTick = clip.startTick;
         if (clip.durationTicks) {
           clipDuration = clip.durationTicks;
         } else if (clip.events.length > 0) {
-          // Events are clip-relative (playback adds clip.startTick), so an
-          // unsized clip is measured from its own tick 0 — NOT from its first
-          // note. Measuring from the first note collapses a rest at the front
-          // of the clip and drags the notes onto its leading edge.
-          eventsMinTick = 0;
+          // An unsized clip is measured from its own tick 0 — NOT from its
+          // first note. Measuring from the first note collapses a rest at the
+          // front of the clip and drags the notes onto its leading edge.
           clipDuration = clip.events.reduce(
             (max, e) => Math.max(max, e.startTick + e.durationTicks),
             0,
@@ -1606,99 +1607,15 @@ export function Timeline() {
 
         const rawTick = pixelToTick(x, currentZoom, currentScrollLeft);
         const splitTick = doSnap(rawTick);
-        const track = state.tracks.find((t) => t.id === hit.trackId);
-        if (!track) return;
 
-        // Try MIDI clip split
-        const midiClip = track.midiClips.find((c) => c.id === hit.clipId);
-        if (midiClip) {
-          const clipEnd = midiClip.durationTicks
-            ? midiClip.startTick + midiClip.durationTicks
-            : midiClip.events.reduce(
-                (max, ev) => Math.max(max, ev.startTick + ev.durationTicks),
-                midiClip.startTick,
-              );
-          if (splitTick <= midiClip.startTick || splitTick >= clipEnd) return;
-
-          const leftEvents = midiClip.events.filter(
-            (ev) => ev.startTick < splitTick,
-          );
-          const rightEvents = midiClip.events.filter(
-            (ev) => ev.startTick >= splitTick,
-          );
-
-          const leftId = `clip-split-${crypto.randomUUID().slice(0, 8)}`;
-          const rightId = `clip-split-${crypto.randomUUID().slice(0, 8)}`;
-
-          state.removeMidiClip(hit.trackId, midiClip.id);
-          state.addMidiClip(hit.trackId, {
-            ...midiClip,
-            id: leftId,
-            events: leftEvents,
-            durationTicks: splitTick - midiClip.startTick,
-          });
-          state.addMidiClip(hit.trackId, {
-            ...midiClip,
-            id: rightId,
-            startTick: splitTick,
-            events: rightEvents,
-            durationTicks: clipEnd - splitTick,
-          });
-          state.setSelectedClip(rightId, hit.trackId);
-          return;
-        }
-
-        // Audio clip split
-        const audioClip = track.audioClips.find((c) => c.id === hit.clipId);
-        if (audioClip) {
-          const clipEnd = audioClip.startTick + audioClip.duration;
-          if (splitTick <= audioClip.startTick || splitTick >= clipEnd) return;
-
-          const buffer = getAudioBuffer(audioClip.id);
-          if (!buffer) return;
-
-          const bpm = state.bpm;
-          const offsetTicks = splitTick - audioClip.startTick;
-          const offsetSeconds = (offsetTicks / 480) * (60 / bpm);
-          const splitSample = Math.round(offsetSeconds * buffer.sampleRate);
-
-          const rawCtx = Tone.getContext().rawContext;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const ctx =
-            (rawCtx as any)._nativeContext ?? (rawCtx as AudioContext);
-
-          const leftBuffer = sliceBuffer(ctx, buffer, 0, splitSample);
-          const rightBuffer = sliceBuffer(
-            ctx,
-            buffer,
-            splitSample,
-            buffer.length,
-          );
-
-          const leftId = `clip-split-${crypto.randomUUID().slice(0, 8)}`;
-          const rightId = `clip-split-${crypto.randomUUID().slice(0, 8)}`;
-
-          setAudioBuffer(leftId, leftBuffer);
-          setAudioBuffer(rightId, rightBuffer);
-          removeAudioBuffer(audioClip.id);
-
-          state.removeAudioClip(hit.trackId, audioClip.id);
-          state.addAudioClip(hit.trackId, {
-            id: leftId,
-            startTick: audioClip.startTick,
-            duration: offsetTicks,
-            fadeInTicks: audioClip.fadeInTicks,
-            fadeOutTicks: 0,
-          });
-          state.addAudioClip(hit.trackId, {
-            id: rightId,
-            startTick: splitTick,
-            duration: audioClip.duration - offsetTicks,
-            fadeInTicks: 0,
-            fadeOutTicks: audioClip.fadeOutTicks,
-          });
-          state.setSelectedClip(rightId, hit.trackId);
-        }
+        // A MIDI clip splits at the clip tick under the cursor, its right
+        // half's notes moved onto that half's start; an audio clip's halves
+        // both keep the recording (no slicing, no eviction), so undo and a
+        // reload still find the take. Each returns null for the other kind.
+        const rightId =
+          splitMidiClipAt(hit.trackId, hit.clipId, splitTick) ??
+          splitAudioClipAt(hit.trackId, hit.clipId, splitTick);
+        if (rightId) state.setSelectedClip(rightId, hit.trackId);
       }
     },
     [
@@ -1929,60 +1846,13 @@ export function Timeline() {
   const handleCtxSplitAtPlayhead = useCallback(() => {
     if (!ctxMenu?.audioClipId || !ctxMenu.audioTrackId) return;
     const state = useStore.getState();
-    const track = state.tracks.find((t) => t.id === ctxMenu.audioTrackId);
-    const clip = track?.audioClips.find((c) => c.id === ctxMenu.audioClipId);
-    if (!clip) {
-      setCtxMenu(null);
-      return;
-    }
-
-    const splitTick = state.position;
-    const clipEnd = clip.startTick + clip.duration;
-    if (splitTick <= clip.startTick || splitTick >= clipEnd) {
-      setCtxMenu(null);
-      return;
-    }
-
-    const buffer = getAudioBuffer(clip.id);
-    if (!buffer) {
-      setCtxMenu(null);
-      return;
-    }
-
-    const offsetTicks = splitTick - clip.startTick;
-    const offsetSeconds = (offsetTicks / 480) * (60 / state.bpm);
-    const splitSample = Math.round(offsetSeconds * buffer.sampleRate);
-
-    const rawCtx = Tone.getContext().rawContext;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ctx = (rawCtx as any)._nativeContext ?? (rawCtx as AudioContext);
-
-    const leftBuffer = sliceBuffer(ctx, buffer, 0, splitSample);
-    const rightBuffer = sliceBuffer(ctx, buffer, splitSample, buffer.length);
-
-    const leftId = `clip-split-${crypto.randomUUID().slice(0, 8)}`;
-    const rightId = `clip-split-${crypto.randomUUID().slice(0, 8)}`;
-
-    setAudioBuffer(leftId, leftBuffer);
-    setAudioBuffer(rightId, rightBuffer);
-    removeAudioBuffer(clip.id);
-
-    state.removeAudioClip(ctxMenu.audioTrackId, clip.id);
-    state.addAudioClip(ctxMenu.audioTrackId, {
-      id: leftId,
-      startTick: clip.startTick,
-      duration: offsetTicks,
-      fadeInTicks: clip.fadeInTicks,
-      fadeOutTicks: 0,
-    });
-    state.addAudioClip(ctxMenu.audioTrackId, {
-      id: rightId,
-      startTick: splitTick,
-      duration: clip.duration - offsetTicks,
-      fadeInTicks: 0,
-      fadeOutTicks: clip.fadeOutTicks,
-    });
-    state.setSelectedClip(rightId, ctxMenu.audioTrackId);
+    // Non-destructive, like the scissors: both halves keep the recording.
+    const rightId = splitAudioClipAt(
+      ctxMenu.audioTrackId,
+      ctxMenu.audioClipId,
+      state.position,
+    );
+    if (rightId) state.setSelectedClip(rightId, ctxMenu.audioTrackId);
     setCtxMenu(null);
   }, [ctxMenu]);
 
@@ -2015,7 +1885,8 @@ export function Timeline() {
 
   const handleCtxDeleteClip = useCallback(() => {
     if (!ctxMenu?.audioClipId || !ctxMenu.audioTrackId) return;
-    removeAudioBuffer(ctxMenu.audioClipId);
+    // The take's audio stays in memory, as the Delete key leaves it, so
+    // Cmd+Z brings back a clip that still plays (audio-core-07).
     useStore
       .getState()
       .removeAudioClip(ctxMenu.audioTrackId, ctxMenu.audioClipId);

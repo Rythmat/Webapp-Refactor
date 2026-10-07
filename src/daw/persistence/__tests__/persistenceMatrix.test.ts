@@ -957,10 +957,10 @@ describe('a browser refresh (local autosave) keeps', () => {
   it('the guitar pedal chain', kept(probes.pedalChain));
   it('the vocal pedal chain', kept(probes.vocalChain));
   it('the Oracle synth patch', kept(probes.oracleSynthPatch));
-  // state-reload-10: the track map omits trackRole, so it comes back undefined.
-  it.fails('the track role', kept(probes.trackRole));
-  // live-input-02: the track map omits audioInputChannel.
-  it.fails('the live input channel', kept(probes.inputChannel));
+  // state-reload-10: fixed in 1.1 (the track map carries trackRole).
+  it('the track role', kept(probes.trackRole));
+  // live-input-02: fixed in 1.1 (the track map carries audioInputChannel).
+  it('the live input channel', kept(probes.inputChannel));
   it('record arm, monitoring and input devices', kept(probes.inputRouting));
   it('MIDI clip notes, name and position', kept(probes.midiNotes));
   // state-reload-13: clips are written as {id, name, startTick, events} only.
@@ -1061,9 +1061,12 @@ describe('a cloud save and reopen (client codec, echo server) keeps', () => {
   it('the guitar pedal chain', kept(probes.pedalChain));
   it('the vocal pedal chain', kept(probes.vocalChain));
   it('the Oracle synth patch', kept(probes.oracleSynthPatch));
-  // state-reload-10: the cloud load re-guesses the role from the track name.
-  it.fails('the track role', kept(probes.trackRole));
+  // state-reload-10: fixed in 1.1 (the role rides in the track settings blob;
+  // only a save without it re-guesses from the name).
+  it('the track role', kept(probes.trackRole));
   // live-input-02: deserializeCloudProject sets audioInputChannel to null.
+  // Kept null on purpose in 1.1 (the channel is per-device, never cloud);
+  // the input views read null as mono input 1 instead (see the probe).
   it.fails('a live input channel', kept(probes.inputChannelPresent));
   it('MIDI clip notes, name and position', kept(probes.midiNotes));
   // state-reload-13
@@ -1098,24 +1101,42 @@ describe('a Chops sample saved before samples had ids', () => {
 });
 
 describe('chord ids after a refresh', () => {
-  // state-reload-05: the chord-id counter is module state, so the new page
-  // mints cr-1 again, the id of the first restored chord. Deleting the new
-  // chord then deletes that one instead.
-  it.fails(
-    'a chord added after a refresh can be deleted on its own',
-    async () => {
-      const before = await loadPage();
-      st(before).insertChordRegion(0, '1 major', 'C');
-      st(before).insertChordRegion(1920, '5 major', 'G');
+  // state-reload-05: fixed in 1.1. The chord-id counter was module state, so
+  // the new page minted cr-1 again, the id of the first restored chord, and
+  // deleting the new chord deleted that one instead. Chord ids are now random
+  // (prismSlice nextChordId), and a load gives repeated ids fresh ones.
+  it('a chord added after a refresh can be deleted on its own', async () => {
+    const before = await loadPage();
+    st(before).insertChordRegion(0, '1 major', 'C');
+    st(before).insertChordRegion(1920, '5 major', 'G');
 
-      const after = await refresh(before);
-      st(after).insertChordRegion(3840, '4 major', 'F');
-      st(after).deleteChordRegion(chordAt(after, 3840).id);
+    const after = await refresh(before);
+    st(after).insertChordRegion(3840, '4 major', 'F');
+    st(after).deleteChordRegion(chordAt(after, 3840).id);
 
-      expect(st(after).chordRegions.map((r) => r.name)).toEqual([
-        '1 major',
-        '5 major',
-      ]);
-    },
-  );
+    expect(st(after).chordRegions.map((r) => r.name)).toEqual([
+      '1 major',
+      '5 major',
+    ]);
+  });
+
+  // state-reload-05: a save from before random ids can hold two chords with
+  // one id (cr-1 on two pages). The restore gives the repeat a fresh id, so
+  // each chord can be deleted on its own.
+  it('a save holding one id twice restores two chords that can be told apart', async () => {
+    const before = await loadPage();
+    const twice = [
+      { ...CHORDS[0], id: 'cr-1' },
+      { ...CHORDS[1], id: 'cr-1' },
+    ];
+    before.store.setState({ chordRegions: twice });
+
+    const after = await refresh(before);
+    const ids = st(after).chordRegions.map((r) => r.id);
+    expect(ids[0]).toBe('cr-1');
+    expect(new Set(ids).size).toBe(2);
+
+    st(after).deleteChordRegion(chordAt(after, 1920).id);
+    expect(st(after).chordRegions.map((r) => r.noteName)).toEqual(['Dm7']);
+  });
 });

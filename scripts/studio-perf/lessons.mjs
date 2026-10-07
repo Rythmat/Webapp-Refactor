@@ -22,19 +22,37 @@
  * harness starts a bypass dev server of its own (see harness.mjs).
  *
  * Exit status 1 when a lesson stops with an error (each step it did not get
- * to counts as failed), when a step fails that KNOWN_FAILURES in
- * lessonDrivers.mjs does not list, and, with --baseline, on any regression.
+ * to counts as failed), when a step or a gate check fails that
+ * KNOWN_FAILURES in lessonDrivers.mjs does not list, and, with --baseline,
+ * on any regression.
  * A listed step that passes now is reported as fixed, so the list shrinks as
  * fixes land.
  *
  * The lessons come from the running app: the script imports tutorials.ts
  * through the dev server, so it always walks the lessons the editor has. Each
  * lesson runs in a fresh browser context from /studio/editor?tutorial=<id>.
- * The premium persona is the dev bypass's user as it is. The free student is
- * the same user with the bypass module (src/auth/devBypass.ts) served, to
- * that page only, with a free account's subscription, so Prism's premium lock
- * covers the Prism panel as it does for a real free student. For every step
- * the walkthrough:
+ * Both personas are the dev bypass's user, with the bypass module
+ * (src/auth/devBypass.ts) served to that page only with its plan flag
+ * (VITE_DEV_AUTH_BYPASS_PLAN) read as the persona's: the premium user, or a
+ * free student, whose account has no subscription, so Prism's premium lock
+ * covers the Prism panel as it does for a real free student.
+ *
+ * For the free student, a Premium lesson (`requiresPremium` in
+ * tutorialCatalog.ts: the lessons with steps in Prism) is expected not to run
+ * (owner decision 8), so its gate is checked instead of its steps, each in a
+ * fresh context (see runGatedLesson):
+ *
+ * - tile: on the Production tab (/studio/production) its tile wears the
+ *   Premium chip, and a click opens the upgrade prompt (the white-pill See
+ *   plans, and Not now, which closes it) without leaving the page;
+ * - link: a /studio/editor?tutorial=<id> link, opened over work the editor
+ *   has saved, starts no lesson, keeps that work open, and shows the same
+ *   prompt; after Not now the editor takes clicks again.
+ *
+ * A gate that holds is the lesson's pass. The free student walks the other
+ * lessons like the premium user, and the premium user walks them all.
+ *
+ * For every step the walkthrough:
  *
  * 1. waits for the coach card to show the step;
  * 2. checks the step's anchor: the first id of the step's `target` list that
@@ -67,7 +85,7 @@
  *
  * Writes report.json (every measurement) and summary.md (per lesson and per
  * step) to docs/studio-perf/runs/lessons/, and screenshots of failing steps
- * to shots/<profile>/<persona>/<lesson>/ beside them.
+ * (and gate checks) to shots/<profile>/<persona>/<lesson>/ beside them.
  */
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -97,8 +115,23 @@ const TUTORIALS_MODULE = '/src/daw/components/Tutorial/tutorials.ts';
 /** The dev auth bypass module, at the URL the app imports it from. */
 const BYPASS_MODULE = '/src/auth/devBypass.ts';
 
+/** How the bypass module reads its plan (VITE_DEV_AUTH_BYPASS_PLAN). */
+const BYPASS_PLAN_FLAG = /import\.meta\.env\.VITE_DEV_AUTH_BYPASS_PLAN\b/g;
+
 /** The personas, in the order a run takes them. */
 export const PERSONAS = ['premium', 'free'];
+
+/** The Studio dashboard's Production tab, where the lesson tiles are. */
+const PRODUCTION_PATH = '/studio/production';
+
+/** The upgrade prompt's title (src/daw/components/Tutorial/UpgradeLessonDialog.tsx). */
+const UPGRADE_TITLE = 'This lesson uses Prism, part of Premium';
+
+/** The editor's crash copy in localStorage (localSession.ts). */
+const AUTOSAVE_KEY = 'musicAtlas:daw:autosave';
+
+/** The work a gate's link is opened over: a named project with a track. */
+const GATE_WORK = { project: 'Lesson gate check', track: 'Gate check synth' };
 
 /** Playwright's own wait for a click, a pick or a menu to open. */
 const ACTION_TIMEOUT = 10_000;
@@ -550,29 +583,26 @@ function personasFrom(args) {
 }
 
 /**
- * Signs `page` in as `persona` before it navigates. The dev bypass always
- * serves an active subscription (DEV_BYPASS_SUBSCRIPTION in
- * src/auth/devBypass.ts); for the free student the module is served to this
- * page with that object turned into a free account's (no paid access, no
- * subscription status), which useIsPremium reads as not premium. No product
- * code changes, and no other page or server sees it.
+ * Signs `page` in as `persona` before it navigates. The dev bypass's plan
+ * comes from VITE_DEV_AUTH_BYPASS_PLAN (src/auth/devBypass.ts: 'free' gives a
+ * free account's subscription, which useIsPremium reads as not premium);
+ * the module is served to this page with that flag read as the persona's,
+ * whatever the server was started with. No product code changes, and no
+ * other page or server sees it.
  */
 async function applyPersona(page, persona) {
-  if (persona === 'premium') return;
   await page.route(
     (url) => url.pathname === BYPASS_MODULE,
     async (route) => {
       const response = await route.fetch();
-      const body = (await response.text())
-        .replace(/hasPaidAccess:\s*true/, 'hasPaidAccess: false')
-        .replace(
-          /subscriptionStatus:\s*(['"])active\1/,
-          'subscriptionStatus: null',
-        )
-        .replace(
-          /lastInvoiceStatus:\s*(['"])paid\1/,
-          'lastInvoiceStatus: null',
+      const source = await response.text();
+      const body = source.replace(BYPASS_PLAN_FLAG, JSON.stringify(persona));
+      if (body === source) {
+        // checkPersona then stops the lesson with the same question.
+        console.warn(
+          `${BYPASS_MODULE} no longer reads VITE_DEV_AUTH_BYPASS_PLAN; has it changed?`,
         );
+      }
       // Playwright keeps a content-length header it is given, and the body
       // changed length.
       const headers = { ...response.headers() };
@@ -625,6 +655,7 @@ async function readLessons(browser, base) {
         id: t.id,
         title: t.title,
         difficulty: t.difficulty,
+        requiresPremium: Boolean(t.requiresPremium),
         steps: t.steps.map((s) => ({
           id: s.id,
           stage: s.stage,
@@ -1387,6 +1418,317 @@ async function runLesson(env) {
   return run;
 }
 
+// ── Premium gate ────────────────────────────────────────────────────────
+
+/** A gate check before anything is known about it. */
+const newGateCheck = (id, describe) => ({
+  id,
+  describe,
+  pass: false,
+  reasons: [],
+  notes: [],
+  shots: [],
+  ms: null,
+  knownFailure: null,
+});
+
+/**
+ * Judges the upgrade prompt that is up on `page` (it fits the window, See
+ * plans is the white pill, Not now is there), then closes it with Not now.
+ */
+async function closeUpgradePrompt(page, check) {
+  const dialog = page.getByRole('dialog', { name: UPGRADE_TITLE });
+  const box = await dialog.boundingBox();
+  const { width, height } = page.viewportSize();
+  if (
+    !box ||
+    box.x < 0 ||
+    box.y < 0 ||
+    box.x + box.width > width + 0.5 ||
+    box.y + box.height > height + 0.5
+  ) {
+    check.reasons.push(`the prompt does not fit the ${width}×${height} window`);
+  }
+  const seePlans = dialog.getByRole('button', { name: 'See plans' });
+  if ((await seePlans.count()) !== 1) {
+    check.reasons.push('the prompt has no See plans button');
+  } else {
+    const background = await seePlans.evaluate(
+      (el) => getComputedStyle(el).backgroundColor,
+    );
+    if (background !== 'rgb(255, 255, 255)') {
+      check.reasons.push(
+        `See plans is not the white pill (its background is ${background})`,
+      );
+    }
+  }
+  const notNow = dialog.getByRole('button', { name: 'Not now' });
+  if ((await notNow.count()) !== 1) {
+    check.reasons.push('the prompt has no Not now button');
+    return;
+  }
+  await notNow.click({ timeout: ACTION_TIMEOUT });
+  const closed = await dialog.waitFor({ state: 'hidden', timeout: 5000 }).then(
+    () => true,
+    () => false,
+  );
+  if (!closed) check.reasons.push('Not now did not close the prompt');
+}
+
+/** Whether the upgrade prompt is up: the boot shows it once it decides. */
+const promptOrLessonUp = (title) =>
+  window.__MA_STORE__?.getState().activeTutorialId != null ||
+  [...document.querySelectorAll('[role="dialog"]')].some((d) =>
+    d.textContent.includes(title),
+  );
+
+/**
+ * The lesson's tile on the Production tab: it wears the Premium chip, offers
+ * a dialog, and its click opens the upgrade prompt without leaving the page.
+ */
+async function tileGate(env, check) {
+  const { page, base, lesson } = env;
+  await page.goto(`${base}${PRODUCTION_PATH}`, {
+    waitUntil: 'domcontentloaded',
+    timeout: 180_000,
+  });
+  const tile = page.locator(`button[data-lesson-id="${lesson.id}"]`);
+  await tile.waitFor({ state: 'visible', timeout: 120_000 });
+  env.run.subscription ??= await checkPersona(page, env.persona);
+  if ((await tile.getByText('Premium', { exact: true }).count()) === 0) {
+    check.reasons.push('its tile has no Premium chip');
+  }
+  // Until the subscription is known the tile opens the editor, whose boot
+  // decides; once it is known to be free, the tile offers the prompt.
+  const offered = await page
+    .waitForFunction(
+      (id) =>
+        document
+          .querySelector(`button[data-lesson-id="${id}"]`)
+          ?.getAttribute('aria-haspopup') === 'dialog',
+      lesson.id,
+      { timeout: 15_000, polling: 100 },
+    )
+    .then(
+      () => true,
+      () => false,
+    );
+  if (!offered) {
+    check.reasons.push('its tile does not offer the upgrade prompt');
+  }
+  await tile.click({ timeout: ACTION_TIMEOUT });
+  const dialog = page.getByRole('dialog', { name: UPGRADE_TITLE });
+  const shown = await dialog
+    .waitFor({ state: 'visible', timeout: 10_000 })
+    .then(
+      () => true,
+      () => false,
+    );
+  const url = new URL(page.url());
+  if (url.pathname !== PRODUCTION_PATH) {
+    check.reasons.push(
+      `the click left the page for ${url.pathname}${url.search}`,
+    );
+  }
+  if (!shown) {
+    check.reasons.push('no upgrade prompt appeared');
+    return;
+  }
+  await closeUpgradePrompt(page, check);
+}
+
+/**
+ * A ?tutorial=<id> link, loaded over work the editor has saved (a shared or
+ * bookmarked link): it starts no lesson, the work is still open, and the
+ * same prompt is up; after Not now the editor takes clicks again.
+ */
+async function linkGate(env, check) {
+  const { page, base, lesson } = env;
+  await openEditor(page, base, '?new=1');
+  env.run.subscription ??= await checkPersona(page, env.persona);
+  const tracksOf = () =>
+    window.__MA_STORE__
+      .getState()
+      .tracks.map((t) => `${t.instrument}: ${t.name}`);
+  const work = await page.evaluate(({ project, track }) => {
+    const s = window.__MA_STORE__.getState();
+    s.setProjectName(project);
+    s.addTrack('midi', 'oracle-synth', track);
+    return window.__MA_STORE__.getState().projectName;
+  }, GATE_WORK);
+  const workTracks = await page.evaluate(tracksOf);
+  const saved = await page
+    .waitForFunction(
+      ([key, name]) => (localStorage.getItem(key) ?? '').includes(name),
+      [AUTOSAVE_KEY, GATE_WORK.track],
+      { timeout: 15_000, polling: 200 },
+    )
+    .then(
+      () => true,
+      () => false,
+    );
+  if (!saved) {
+    check.reasons.push(
+      'the editor never saved the work to open the link over (no autosave)',
+    );
+    return;
+  }
+
+  await openEditor(page, base, `?tutorial=${encodeURIComponent(lesson.id)}`);
+  // The boot waits for the subscription, then shows the prompt (or, wrongly,
+  // starts the lesson); a second more catches a lesson that starts late.
+  await page
+    .waitForFunction(promptOrLessonUp, UPGRADE_TITLE, {
+      timeout: 20_000,
+      polling: 100,
+    })
+    .catch(() => {});
+  await page.waitForTimeout(1000);
+  const after = await page.evaluate(() => {
+    const s = window.__MA_STORE__.getState();
+    return {
+      lesson: s.activeTutorialId,
+      project: s.projectName,
+      search: window.location.search,
+    };
+  });
+  const afterTracks = await page.evaluate(tracksOf);
+  if (after.lesson) {
+    check.reasons.push(`the link started the lesson (${after.lesson})`);
+  }
+  if (
+    after.project !== work ||
+    JSON.stringify(afterTracks) !== JSON.stringify(workTracks)
+  ) {
+    check.reasons.push(
+      `the link replaced the work that was open: the editor has "${after.project}" with ${afterTracks.join(', ') || 'no tracks'}, not "${work}" with ${workTracks.join(', ')}`,
+    );
+  }
+  const dialog = page.getByRole('dialog', { name: UPGRADE_TITLE });
+  if (!(await dialog.isVisible())) {
+    check.reasons.push('no upgrade prompt appeared');
+  } else {
+    await closeUpgradePrompt(page, check);
+    // A modal blocks the page's pointer events while it is up.
+    const clickable = await page
+      .locator('[data-tutorial-id="add-track-button"]')
+      .click({ trial: true, timeout: 5000 })
+      .then(
+        () => true,
+        () => false,
+      );
+    if (!clickable) {
+      check.reasons.push(
+        'after Not now the editor does not take clicks (add-track-button)',
+      );
+    }
+  }
+  if (after.search) {
+    check.notes.push(
+      `the link stayed in the address bar (${after.search}), so a refresh asks again`,
+    );
+  }
+}
+
+/** The gate checks, in the order a gated lesson runs them. */
+const GATE_CHECKS = [
+  {
+    id: 'tile',
+    describe: `its tile on ${PRODUCTION_PATH} wears the Premium chip and opens the upgrade prompt, without leaving the page`,
+    run: tileGate,
+  },
+  {
+    id: 'link',
+    describe:
+      'a ?tutorial= link loaded over saved work starts no lesson, keeps the work open and shows the upgrade prompt',
+    run: linkGate,
+  },
+];
+
+async function shootGate(page, env, check) {
+  if (!env.shots) return;
+  const dir = join(
+    env.outDir,
+    'shots',
+    env.profile,
+    env.persona,
+    env.lesson.id,
+  );
+  mkdirSync(dir, { recursive: true });
+  const file = join(dir, `gate-${check.id}.png`);
+  try {
+    await page.screenshot({ path: file });
+    check.shots.push(relative(env.outDir, file));
+  } catch {
+    // A closed or crashed page has nothing to show.
+  }
+}
+
+/**
+ * A Premium lesson for the free student: expected not to run (owner
+ * decision 8), so its gate is checked instead of its steps, each check in a
+ * fresh context. The gate holding is the lesson's pass.
+ */
+async function runGatedLesson(env) {
+  const { browser, profile, persona, lesson } = env;
+  const run = {
+    profile,
+    persona,
+    lesson: lesson.id,
+    title: lesson.title,
+    gate: { pass: false, checks: [] },
+    steps: [],
+    // Not walked: neither applies.
+    ended: null,
+    completed: false,
+    subscription: null,
+    idle: null,
+    sampleRate: null,
+    error: null,
+    pageErrors: [],
+    consoleErrors: [],
+    errorSignatures: [],
+    ms: {},
+  };
+  const started = Date.now();
+  const consoleErrors = [];
+  for (const { id, describe, run: runCheck } of GATE_CHECKS) {
+    const check = newGateCheck(id, describe);
+    const checkStarted = Date.now();
+    let session = null;
+    try {
+      session = await newPage(browser, profile, { probes: false });
+      session.page.on('console', (msg) => {
+        if (msg.type() === 'error')
+          consoleErrors.push(msg.text().slice(0, 400));
+      });
+      await applyPersona(session.page, persona);
+      await runCheck({ ...env, run, page: session.page }, check);
+    } catch (error) {
+      check.reasons.push(`it stopped: ${short(error)}`);
+    }
+    check.pass = check.reasons.length === 0;
+    if (!check.pass && session) await shootGate(session.page, env, check);
+    run.pageErrors.push(...(session?.errors ?? []));
+    await session?.context.close().catch(() => {});
+    check.ms = Date.now() - checkStarted;
+    run.gate.checks.push(check);
+    console.log(
+      `[${profile}/${persona}] ${lesson.id} gate ${id}: ${check.pass ? 'pass' : 'FAIL'} (${seconds(check.ms)})${check.pass ? '' : ` — ${check.reasons[0]}`}`,
+    );
+  }
+  run.gate.pass = run.gate.checks.every((c) => c.pass);
+  run.consoleErrors = [...new Set(consoleErrors)].slice(0, 20);
+  run.errorSignatures = [
+    ...new Set([
+      ...consoleErrors.map(errorSignature),
+      ...run.pageErrors.map((e) => `uncaught: ${errorSignature(e)}`),
+    ]),
+  ].sort();
+  run.ms.total = Date.now() - started;
+  return run;
+}
+
 // ── Verdict ─────────────────────────────────────────────────────────────
 
 const personaOf = (run) => run.persona ?? 'premium';
@@ -1394,10 +1736,16 @@ const runKey = (run) => `${run.profile}/${personaOf(run)}/${run.lesson}`;
 const stepKey = (run, step) => `${runKey(run)}/${step.id}`;
 
 function totalsOf(runs) {
-  const steps = runs.flatMap((r) => r.steps);
+  const walked = runs.filter((r) => !r.gate);
+  const gated = runs.filter((r) => r.gate);
+  const steps = walked.flatMap((r) => r.steps);
   return {
     lessons: runs.length,
-    completed: runs.filter((r) => r.completed).length,
+    walked: walked.length,
+    completed: walked.filter((r) => r.completed).length,
+    // The free student's Premium lessons, and how many held their gate.
+    gated: gated.length,
+    gatesHeld: gated.filter((r) => r.gate.pass).length,
     errors: runs.filter((r) => r.error).length,
     steps: steps.length,
     failed: steps.filter((s) => !s.pass).length,
@@ -1406,18 +1754,23 @@ function totalsOf(runs) {
   };
 }
 
+/** A gate check's key, as KNOWN_FAILURES would list it. */
+const gateKey = (run, check) => `${runKey(run)}/gate:${check.id}`;
+
 /**
- * Failing steps against KNOWN_FAILURES (lessonDrivers.mjs): `unexpected`
- * fail the run; `fixed` are listed patterns whose every matching step in this
- * run passes, so they can come off the list.
+ * Failing steps and gate checks against KNOWN_FAILURES (lessonDrivers.mjs):
+ * `unexpected` fail the run; `fixed` are listed patterns whose every matching
+ * step in this run passes, so they can come off the list.
  */
 function checkKnown(runs) {
   const unexpected = [];
   const known = [];
   const matched = new Map();
   for (const run of runs) {
-    for (const step of run.steps) {
-      const key = stepKey(run, step);
+    const items = run.gate
+      ? run.gate.checks.map((check) => [gateKey(run, check), check])
+      : run.steps.map((step) => [stepKey(run, step), step]);
+    for (const [key, step] of items) {
       const pattern = knownFailureFor(key);
       if (pattern) {
         const m = matched.get(pattern) ?? { failing: 0, passing: 0 };
@@ -1467,6 +1820,27 @@ function compareWithBaseline(report, baselinePath) {
     const was = beforeRuns.get(runKey(run));
     if (!was) continue;
     const key = runKey(run);
+    if (run.gate || was.gate) {
+      // A Premium lesson the free student is turned away from (owner
+      // decision 8) has gate checks instead of steps: compare those.
+      if (!was.gate) {
+        note(fixed, key, 'gated now: the upgrade prompt, not a stuck lesson');
+        continue;
+      }
+      if (!run.gate) {
+        note(regressions, key, 'no longer gated: the lesson runs');
+        continue;
+      }
+      const before = new Map(was.gate.checks.map((c) => [c.id, c]));
+      for (const check of run.gate.checks) {
+        const old = before.get(check.id);
+        const at = gateKey(run, check);
+        if (old?.pass && !check.pass) {
+          note(regressions, at, `now fails: ${check.reasons[0]}`);
+        }
+        if (old && !old.pass && check.pass) note(fixed, at, 'passes now');
+      }
+    }
     if (was.completed && !run.completed) {
       note(regressions, key, 'no longer completes');
     }
@@ -1543,6 +1917,11 @@ function verdictOf(report, strict) {
   if (strict && totals.failed) {
     why.push(`--strict: ${totals.failed} step(s) fail`);
   }
+  if (strict && totals.gatesHeld < totals.gated) {
+    why.push(
+      `--strict: ${totals.gated - totals.gatesHeld} Premium lesson gate(s) fail`,
+    );
+  }
   return { pass: why.length === 0, strict, why };
 }
 
@@ -1608,8 +1987,50 @@ const idleText = (idle) =>
 
 const PERSONA_TEXT = {
   premium: "the dev bypass's premium user",
-  free: 'a free student (the bypass user served a free subscription, so Prism is locked)',
+  free: 'a free student (the bypass user on a free plan, so Prism is locked and the Premium lessons show the upgrade prompt instead of running)',
 };
+
+/** A gated run's cell in the lesson table's Completed column. */
+const gateCell = (run) =>
+  run.gate.pass
+    ? 'gated (upgrade prompt), as it should be'
+    : `GATE FAILED: ${run.gate.checks.find((c) => !c.pass)?.reasons[0] ?? ''}`;
+
+/** A gated run's own section: its checks instead of its steps. */
+function gateLines(run) {
+  const lines = [
+    `### ${run.title} (\`${run.lesson}\`), Premium: gated`,
+    '',
+    '| Check | What it checks | Result |',
+    '| --- | --- | --- |',
+  ];
+  for (const check of run.gate.checks) {
+    const result = check.pass
+      ? 'pass'
+      : check.knownFailure
+        ? 'FAIL (known)'
+        : 'FAIL';
+    lines.push(
+      `| \`${check.id}\` | ${cell(check.describe)} | ${result} (${seconds(check.ms)}) |`,
+    );
+  }
+  lines.push('');
+  for (const check of run.gate.checks) {
+    for (const reason of check.reasons) {
+      lines.push(`- **${check.id}** fails: ${md(reason)}`);
+    }
+    if (check.knownFailure) {
+      lines.push(
+        `- **${check.id}** is a known failure: ${md(check.knownFailure.why)}`,
+      );
+    }
+    for (const note of check.notes) {
+      lines.push(`- **${check.id}** note: ${md(note)}`);
+    }
+  }
+  lines.push('');
+  return lines;
+}
 
 async function summaryMarkdown(report) {
   const rates = [
@@ -1625,7 +2046,13 @@ async function summaryMarkdown(report) {
     '',
     'Driver: `click` is a real click (or menu pick) on or in the anchor, `select` an option picked in a `<select>`, `store` an action on the editor or synth store standing in for a drag, `next` the coach card’s Next button, `none` nothing (the step’s own preconditions satisfy it). Advanced: the time from the driver’s last action to the next step; a validated step waits 950 ms for its confetti first.',
     '',
-    `**Result: ${verdict.pass ? 'pass' : 'FAIL'}.** ${totals.steps - totals.failed}/${totals.steps} steps pass (${totals.warned} with warnings), ${totals.completed}/${totals.lessons} lessons complete${totals.errors ? `, ${totals.errors} stopped with an error` : ''}. ${known.known.length} failing step(s) are known (KNOWN_FAILURES in \`scripts/studio-perf/lessonDrivers.mjs\`, ${known.listed} entries).${verdict.why.length ? ` Failed because: ${verdict.why.join('; ')}.` : ''}`,
+    ...(totals.gated
+      ? [
+          "For the free student a Premium lesson (`requiresPremium` in `tutorialCatalog.ts`, the lessons with steps in Prism) is not walked: its gate is checked instead (owner decision 8), from its tile on the Production tab and from a `?tutorial=` link loaded over saved work, and a gate that holds is the lesson's pass.",
+          '',
+        ]
+      : []),
+    `**Result: ${verdict.pass ? 'pass' : 'FAIL'}.** ${totals.steps - totals.failed}/${totals.steps} steps pass (${totals.warned} with warnings), ${totals.completed}/${totals.walked} lessons complete${totals.gated ? `, ${totals.gatesHeld}/${totals.gated} Premium lessons gated for the free student` : ''}${totals.errors ? `, ${totals.errors} stopped with an error` : ''}. ${known.known.length} failing step(s) are known (KNOWN_FAILURES in \`scripts/studio-perf/lessonDrivers.mjs\`, ${known.listed} entries).${verdict.why.length ? ` Failed because: ${verdict.why.join('; ')}.` : ''}`,
     '',
   ];
   if (known.unexpected.length) {
@@ -1671,14 +2098,18 @@ async function summaryMarkdown(report) {
         '| --- | --- | --- | --- | --- | --- | --- |',
       );
       for (const run of runs) {
-        const failed = run.steps.filter((s) => !s.pass).length;
+        // A gated run counts its gate checks in the step columns.
+        const items = run.gate ? run.gate.checks : run.steps;
+        const failed = items.filter((s) => !s.pass).length;
         const completed = run.error
           ? `error: ${run.error}`
-          : run.completed
-            ? 'yes'
-            : 'no';
+          : run.gate
+            ? gateCell(run)
+            : run.completed
+              ? 'yes'
+              : 'no';
         lines.push(
-          `| \`${run.lesson}\` | ${run.steps.length} | ${run.steps.length - failed} | ${failed} | ${cell(completed)} | ${cell(idleText(run.idle))} | ${seconds(run.ms.total)} |`,
+          `| \`${run.lesson}\` | ${run.gate ? `${items.length} gate checks` : items.length} | ${items.length - failed} | ${failed} | ${cell(completed)} | ${cell(idleText(run.idle))} | ${seconds(run.ms.total)} |`,
         );
       }
       lines.push('');
@@ -1701,6 +2132,10 @@ async function summaryMarkdown(report) {
         lines.push('');
       }
       for (const run of runs) {
+        if (run.gate) {
+          lines.push(...gateLines(run));
+          continue;
+        }
         lines.push(
           `### ${run.title} (\`${run.lesson}\`)`,
           '',
@@ -1784,18 +2219,22 @@ export async function runLessons(argv) {
             );
           }
           for (const lesson of lessons) {
+            const lessonEnv = {
+              browser,
+              base,
+              profile,
+              persona,
+              lesson,
+              outDir,
+              shots: args.shots === undefined || flag(args.shots),
+              idleSeconds: idle,
+              stepTimeout: Number(args['step-timeout'] ?? 15) * 1000,
+            };
+            // The free student meets a Premium lesson's gate, not its steps.
             runs.push(
-              await runLesson({
-                browser,
-                base,
-                profile,
-                persona,
-                lesson,
-                outDir,
-                shots: args.shots === undefined || flag(args.shots),
-                idleSeconds: idle,
-                stepTimeout: Number(args['step-timeout'] ?? 15) * 1000,
-              }),
+              persona === 'free' && lesson.requiresPremium
+                ? await runGatedLesson(lessonEnv)
+                : await runLesson(lessonEnv),
             );
           }
         }
@@ -1813,6 +2252,7 @@ export async function runLessons(argv) {
         lessons: lessons.map((l) => ({
           id: l.id,
           title: l.title,
+          requiresPremium: l.requiresPremium,
           steps: l.steps.map((s) => ({
             id: s.id,
             targets: s.targets,
@@ -1835,7 +2275,7 @@ export async function runLessons(argv) {
       writeFileSync(mdFile, await summaryMarkdown(report));
       const { totals, verdict } = report;
       console.log(
-        `\n${totals.steps - totals.failed}/${totals.steps} steps pass (${totals.warned} with warnings, ${report.known.known.length} failing ones known), ${totals.completed}/${totals.lessons} lessons complete.\n${relative(ROOT, jsonFile)}\n${relative(ROOT, mdFile)}`,
+        `\n${totals.steps - totals.failed}/${totals.steps} steps pass (${totals.warned} with warnings, ${report.known.known.length} failing ones known), ${totals.completed}/${totals.walked} lessons complete${totals.gated ? `, ${totals.gatesHeld}/${totals.gated} Premium lessons gated for the free student` : ''}.\n${relative(ROOT, jsonFile)}\n${relative(ROOT, mdFile)}`,
       );
       if (report.known.fixed.length) {
         console.log(

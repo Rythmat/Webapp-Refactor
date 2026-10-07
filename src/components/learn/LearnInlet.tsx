@@ -1089,7 +1089,7 @@ const CardItem: React.FC<CardItemProps> = ({
   const toggleSavedItem = useSavedItemsStore((s) => s.toggleSaved);
 
   return (
-    <LockedFeatureOverlay locked={!!locked && !unavailable}>
+    <LockedFeatureOverlay locked={!!locked && !unavailable} label={title}>
       <div
         ref={highlightRef}
         role={unavailable ? 'group' : undefined}
@@ -1231,7 +1231,7 @@ const ListItem: React.FC<CardItemProps> = ({
   const toggleSavedItem = useSavedItemsStore((s) => s.toggleSaved);
 
   return (
-    <LockedFeatureOverlay locked={!!locked && !unavailable}>
+    <LockedFeatureOverlay locked={!!locked && !unavailable} label={title}>
       <button
         type="button"
         onClick={unavailable ? undefined : onSelect}

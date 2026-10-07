@@ -41,10 +41,11 @@
  * the step, and then does the least a student would do to go on. An error a
  * driver throws itself is recorded as the step's failure too.
  *
- * Every click and menu step has a fallback, because the free student meets
- * Prism's premium lock: the click fails (the step with it), and the fallback
- * puts the lesson where it expects to be, so its later steps are still
- * measured.
+ * Every click and menu step has a fallback: when the click fails (the step
+ * with it), the fallback puts the lesson where it expects to be, so its later
+ * steps are still measured. (The free student never meets Prism's premium
+ * lock in a lesson: a Premium lesson is gated, and lessons.mjs checks its
+ * gate instead of walking it.)
  *
  * KNOWN_FAILURES at the end of this file lists the steps that fail today,
  * each with the audit finding (or the new problem) that explains it. A run
@@ -1013,22 +1014,18 @@ export function driverFor(lessonId, stepId) {
 
 // ── Known failures ────────────────────────────────────────────────────────
 
-/** Why the free student's Prism steps fail (one reason, many steps). */
-const PRISM_LOCKED =
-  'ia-flows-14, prism-ui-23: Prism is premium-locked for a free student, yet the lesson starts anyway; the lock covers the panel (and lays it out taller than the dock, so it is clipped too)';
-
-/** `*` profiles, the free persona: each of `steps` of `lesson` is locked. */
-const prismLocked = (lesson, steps) =>
-  Object.fromEntries(steps.map((s) => [`*/free/${lesson}/${s}`, PRISM_LOCKED]));
-
 /**
  * The steps that fail today (the 1.0 baseline), as
  * `'<profile>/<persona>/<lesson>/<step>': '<audit finding>: why'`. A `*`
  * segment matches any value there and `a|b` either value, so a pattern is
  * only as wide as the runs where the step really fails (profiles differ: the
- * window decides what is cut). Findings are on branch studio/audit-archive;
- * "new" marks a problem the walkthrough found that the register does not
- * have yet.
+ * window decides what is cut). A Premium lesson's gate check for the free
+ * student is listed the same way, with `gate:<check>` for the step. Findings
+ * are on branch studio/audit-archive; "new" marks a problem the walkthrough
+ * found that the register does not have yet.
+ *
+ * (Milestone 1.2 took off the free student's Prism steps, ia-flows-14 and
+ * prism-ui-23: the four Prism lessons are gated for a free student now.)
  */
 export const KNOWN_FAILURES = {
   '*/*/edm-design-the-drop/saturate':
@@ -1049,30 +1046,6 @@ export const KNOWN_FAILURES = {
     'new: ?tutorial= boots an empty session and no step adds a track, so there is no automation button to click',
   'chromebook/*/indie-movement-and-dynamics/draw-volume':
     'new (nearest practice-tutorial-18): the coach card is clamped back over the wide automation lane',
-  ...prismLocked('make-first-track', [
-    'pick-key',
-    'add-chords',
-    'pick-genre',
-    'add-swing',
-    'experiment',
-    'create',
-  ]),
-  ...prismLocked('jazz-color-your-chords', [
-    'genre-jazz',
-    'mode-dorian',
-    'seventh-chord',
-    'four-chords',
-    'jazz-rhythm',
-    'swing',
-    'create',
-  ]),
-  ...prismLocked('edm-design-the-drop', [
-    'genre-edm',
-    'minor-mode',
-    'riff-chords',
-    'create',
-  ]),
-  ...prismLocked('rnb-mix-and-polish', ['genre-rnb']),
 };
 
 /** The KNOWN_FAILURES pattern that lists `key`, or null. */

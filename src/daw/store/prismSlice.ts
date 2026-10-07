@@ -1,6 +1,10 @@
 import type { StateCreator } from 'zustand';
 import type { AllSlices } from './index';
-import type { MidiClip, Track } from './tracksSlice';
+import {
+  isTrackLockedByRemote,
+  type MidiClip,
+  type Track,
+} from './tracksSlice';
 import { guessTrackRole } from '@/daw/utils/trackRole';
 import { DEFAULT_EFFECTS, type EffectSlotType } from '@/daw/audio/EffectChain';
 import { GROOVES, type GrooveItem } from '@/daw/data/groovesLibrary';
@@ -42,10 +46,14 @@ import {
 
 // ── Types ────────────────────────────────────────────────────────────────
 
-let _chordIdCounter = 0;
-/** Generate a stable unique ID for a ChordRegion. */
+/**
+ * Generate a stable unique ID for a ChordRegion. Random rather than counted:
+ * a counter restarts on every page load and on every collaborator's page,
+ * while restored and synced regions keep their ids, so it handed out
+ * duplicates that later edits then hit instead.
+ */
 export function nextChordId(): string {
-  return `cr-${++_chordIdCounter}`;
+  return crypto.randomUUID();
 }
 
 export type ChordRecordMode = 'replace' | 'locked' | 'merge';
@@ -752,6 +760,113 @@ function reconcileChordRegions(
   return respellLeadingChordRegions(
     result.sort((a, b) => a.startTick - b.startTick),
   );
+}
+
+/**
+ * Lay `incoming` over the chord lane across [rangeStart, rangeEnd): regions
+ * inside the range give way, regions outside it stay as they are, and a
+ * region crossing an edge keeps the part outside. Always a new array.
+ */
+export function replaceChordRegionsInRange(
+  existing: ChordRegion[],
+  incoming: ChordRegion[],
+  rangeStart: number,
+  rangeEnd: number,
+): ChordRegion[] {
+  const kept: ChordRegion[] = [];
+  for (const region of existing) {
+    if (region.endTick <= rangeStart || region.startTick >= rangeEnd) {
+      kept.push(region);
+      continue;
+    }
+    if (region.startTick < rangeStart) {
+      kept.push({ ...region, endTick: rangeStart });
+    }
+    if (region.endTick > rangeEnd) {
+      const tail: ChordRegion = {
+        ...region,
+        // A region spanning the whole range keeps its id on the head, so
+        // the tail needs one of its own.
+        id: region.startTick < rangeStart ? nextChordId() : region.id,
+        startTick: rangeEnd,
+      };
+      // The hit that started the chord is now before the tail, where it
+      // would colour notes the tail no longer covers.
+      if (tail.rawStartTick !== undefined && tail.rawStartTick < rangeEnd) {
+        delete tail.rawStartTick;
+      }
+      kept.push(tail);
+    }
+  }
+  return respellLeadingChordRegions(
+    [...kept, ...incoming].sort((a, b) => a.startTick - b.startTick),
+  );
+}
+
+// ── Prism takes ──────────────────────────────────────────────────────────
+// While the student tries variations, pressing Create again swaps out the
+// take it wrote last time rather than stacking another on the same bars.
+// Once a take is edited, moved or trimmed it is the student's, and Create
+// keeps it. Matched by id and content, not object identity, because undo and
+// redo bring clips back as copies.
+
+/** Clip id → the content Create wrote. */
+const prismTakes = new Map<string, string>();
+/** Roughly as far back as undo reaches. */
+const MAX_PRISM_TAKES = 50;
+
+/** A clip's content, comparable across copies (undo, collab sync). */
+function clipContent(clip: MidiClip): string {
+  return JSON.stringify([
+    clip.startTick,
+    clip.durationTicks ?? 0,
+    clip.name ?? '',
+    clip.events.map((e) => [
+      e.note,
+      e.velocity,
+      e.startTick,
+      e.durationTicks,
+      e.channel,
+    ]),
+    (clip.ccEvents ?? []).map((c) => [
+      c.tick,
+      c.controller,
+      c.value,
+      c.channel,
+    ]),
+  ]);
+}
+
+function rememberPrismTake(clip: MidiClip): void {
+  prismTakes.set(clip.id, clipContent(clip));
+  if (prismTakes.size > MAX_PRISM_TAKES) {
+    const oldest = prismTakes.keys().next().value;
+    if (oldest !== undefined) prismTakes.delete(oldest);
+  }
+}
+
+/**
+ * The newest of `clips` that Create wrote inside [rangeStart, rangeEnd) and
+ * nobody has touched since.
+ */
+function untouchedPrismTake(
+  clips: MidiClip[],
+  rangeStart: number,
+  rangeEnd: number,
+): MidiClip | undefined {
+  for (let i = clips.length - 1; i >= 0; i--) {
+    const clip = clips[i];
+    const written = prismTakes.get(clip.id);
+    if (
+      written !== undefined &&
+      clip.startTick >= rangeStart &&
+      clip.startTick + (clip.durationTicks ?? 0) <= rangeEnd &&
+      written === clipContent(clip)
+    ) {
+      return clip;
+    }
+  }
+  return undefined;
 }
 
 // ── Phase 9: Chord confidence scoring ────────────────────────────────────
@@ -1551,16 +1666,13 @@ export const createPrismSlice: StateCreator<
     });
   },
 
+  // Clears only the progression being built. The chord lane and the lead
+  // sheet layout belong to the song, so starting a new idea leaves them be.
   clearSequence: () =>
     set({
       chordSeq: [],
       stringSeq: [],
       availableNextChords: [],
-      chordRegions: [],
-      measuresPerLine: 4,
-      measureRowSizes: null,
-      measureRestMap: null,
-      measureFermatas: null,
     }),
 
   // ── Actions — generation (offloaded to Web Worker) ──
@@ -1593,32 +1705,73 @@ export const createPrismSlice: StateCreator<
     });
 
     worker.onmessage = (e) => {
-      const { events } = e.data;
+      const { events } = e.data as { events: MidiNoteEvent[] };
+      worker.terminate();
+      if (events.length === 0) return;
+
       const currentState = get();
+      const target = currentState.tracks.find((t) => t.id === trackId);
+      // The track can be deleted, or taken by a collaborator, while the
+      // worker runs; then nothing is written, chords included.
+      if (!target || isTrackLockedByRemote(currentState.remoteUsers, trackId)) {
+        return;
+      }
 
-      currentState.clearMidiClips(trackId);
-
+      // Create adds a clip and keeps the track's other clips. The
+      // progression still fills bars 1–4, as it always has.
+      const startTick = 0;
+      const endTick = 7680; // 4 bars (4 × 4 × 480)
       const clip: MidiClip = {
         id: crypto.randomUUID(),
-        startTick: 0,
-        durationTicks: 7680, // 4 bars (4 × 4 × 480)
+        startTick,
+        durationTicks: endTick - startTick,
         events,
       };
+      // Only a take Create wrote here and nobody has touched gives way. The
+      // new clip goes last, where collab peers put it.
+      const previousTake = untouchedPrismTake(
+        target.midiClips,
+        startTick,
+        endTick,
+      );
+      const midiClips = [
+        ...target.midiClips.filter((c) => c !== previousTake),
+        clip,
+      ];
+      rememberPrismTake(clip);
 
-      currentState.addMidiClip(trackId, clip);
-
-      // Derive chord regions using known chord names from stringSeq
+      // Derive chord regions using known chord names from stringSeq. They
+      // replace the chord lane only across the clip's bars; a locked lane
+      // ("Existing chords are protected") keeps its chords there and only
+      // takes new ones in the gaps. One set() for clips and chords, so undo
+      // and collab each see a single change.
+      const incoming = deriveChordRegions(
+        events,
+        rootMidi,
+        state.stringSeq,
+        state.mode,
+      );
       set({
-        chordRegions: deriveChordRegions(
-          events,
-          rootMidi,
-          state.stringSeq,
-          state.mode,
+        tracks: currentState.tracks.map((t) =>
+          t.id === trackId ? { ...t, midiClips } : t,
         ),
+        chordRegions:
+          currentState.chordRecordMode === 'locked'
+            ? reconcileChordRegions(
+                currentState.chordRegions,
+                incoming,
+                'locked',
+                rootMidi,
+                state.mode,
+              )
+            : replaceChordRegionsInRange(
+                currentState.chordRegions,
+                incoming,
+                startTick,
+                endTick,
+              ),
       });
       currentState.setClipColorMode('prism');
-
-      worker.terminate();
     };
   },
 

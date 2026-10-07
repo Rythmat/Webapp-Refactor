@@ -21,7 +21,6 @@ import {
 import {
   getTrackAudioState,
   subscribeEngineReady,
-  getEngineReadyVersion,
 } from '@/daw/hooks/usePlaybackEngine';
 import { GuitarFxAdapter } from '@/daw/instruments/GuitarFxAdapter';
 import { CRYSTAL_PATHS } from './CrystalIcons';
@@ -392,11 +391,18 @@ const DEFAULT_CHAIN: PedalBlock[] = [
 
 // ── Helper: get adapter if ready ────────────────────────────────────────
 
+// The engine registers a track's adapter before its init resolves and hands
+// it to the track engine after, right before it notifies engine-ready, so
+// reading it from the track engine means built and ready.
 function getAdapter(trackId: string): GuitarFxAdapter | null {
-  const state = getTrackAudioState(trackId);
-  if (state?.instrument instanceof GuitarFxAdapter) return state.instrument;
-  return null;
+  const instrument = getTrackAudioState(trackId)?.trackEngine.getInstrument();
+  return instrument instanceof GuitarFxAdapter ? instrument : null;
 }
+
+// Input 1, for a track with no saved channel (an older save, a cloud open, a
+// track that came from a collaborator): the channel label already shows it,
+// and the input stays connected instead of being dropped.
+const DEFAULT_INPUT_CHANNEL: AudioInputChannel = { mode: 'mono', channel: 0 };
 
 // ── GuitarBassView ──────────────────────────────────────────────────────
 
@@ -414,12 +420,18 @@ export function GuitarBassView({
   const audioInputChannel = useStore(
     (s) => s.tracks.find((t) => t.id === trackId)?.audioInputChannel ?? null,
   );
+  // The channel the input uses and the menu marks.
+  const inputChannel = audioInputChannel ?? DEFAULT_INPUT_CHANNEL;
   const globalInputDeviceId = useStore((s) => s.inputDeviceId);
   const bpm = useStore((s) => s.bpm);
   const updateTrack = useStore((s) => s.updateTrack);
   const [devices, setDevices] = useState<AudioInputDevice[]>([]);
   const [showDeviceMenu, setShowDeviceMenu] = useState(false);
   const [showChannelMenu, setShowChannelMenu] = useState(false);
+  // Counts picks from the device menu. Picking the device already in use is
+  // how a student retries an input that failed to open or went away, and it
+  // can leave the store unchanged, so the input effect also runs on a pick.
+  const [devicePicks, setDevicePicks] = useState(0);
   const meterRafRef = useRef(0);
   const meterBarRef = useRef<HTMLDivElement>(null);
   const [tunerActive, setTunerActive] = useState(false);
@@ -445,10 +457,14 @@ export function GuitarBassView({
   const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
   const [dragOverSlot, setDragOverSlot] = useState<number | null>(null);
 
-  // Re-render when instrument finishes async init
-  const readyVersion = useSyncExternalStore(
-    subscribeEngineReady,
-    getEngineReadyVersion,
+  // This track's adapter, once the engine has built it. The engine starts on
+  // the first click or key press, usually after this view mounted (always
+  // after a reload), so the engine-facing effects below depend on it and
+  // apply the device, chain and amp model when it arrives. Another track's
+  // instrument finishing its init leaves it unchanged, so nothing re-applies
+  // then (a chain sync rewires, and a model restore downloads the model).
+  const adapter = useSyncExternalStore(subscribeEngineReady, () =>
+    getAdapter(trackId),
   );
 
   // Enumerate audio input devices — auto-select first device globally if none configured
@@ -468,32 +484,32 @@ export function GuitarBassView({
   }, []);
 
   // Connect adapter to per-track input device + channel (falls back to system default)
+  // The channel goes first: the adapter keeps it for a stream still opening,
+  // so a slow open can't land an older channel over a newer pick.
   useEffect(() => {
-    const adapter = getAdapter(trackId);
     if (!adapter) return;
-    if (!globalInputDeviceId || !audioInputChannel) {
+    if (!globalInputDeviceId) {
       adapter.setDevice(null);
       return;
     }
-    adapter.setDevice(globalInputDeviceId).then(() => {
-      adapter.setChannelConfig(audioInputChannel);
-    });
-  }, [trackId, globalInputDeviceId, audioInputChannel]);
+    adapter.setChannelConfig(inputChannel);
+    adapter
+      .setDevice(globalInputDeviceId)
+      .catch((err) => console.warn('[LiveInput] Could not open input:', err));
+  }, [adapter, globalInputDeviceId, inputChannel, devicePicks]);
 
   // Mute monitoring when tuner is active to prevent feedback
   // (main monitoring sync is handled centrally in usePlaybackEngine)
   useEffect(() => {
     if (!tunerActive) return;
-    const adapter = getAdapter(trackId);
     adapter?.setMonitoring(false);
     return () => {
       const mon =
         useStore.getState().tracks.find((t) => t.id === trackId)?.monitoring ??
         false;
-      const a = getAdapter(trackId);
-      a?.setMonitoring(mon);
+      adapter?.setMonitoring(mon);
     };
-  }, [trackId, tunerActive]);
+  }, [trackId, tunerActive, adapter]);
 
   // Auto-load first bundled NAM model
   const autoLoadedRef = useRef(
@@ -502,7 +518,6 @@ export function GuitarBassView({
   useEffect(() => {
     const ampBlock = chain.find((b) => b.type === 'nam-amp');
     if (autoLoadedRef.current || ampBlock?.namModelId) return;
-    const adapter = getAdapter(trackId);
     if (!adapter) return;
     const entry = filteredModels[0];
     if (!entry?.url) return;
@@ -528,27 +543,10 @@ export function GuitarBassView({
         console.warn('[NAM] Auto-load fetch failed:', err);
         autoLoadedRef.current = false;
       });
-  }, [trackId, chain, readyVersion, instrumentFilter, filteredModels]);
-
-  // Restore persisted NAM model when engine becomes ready
-  useEffect(() => {
-    const ampBlock = chain.find((b) => b.type === 'nam-amp');
-    if (!ampBlock?.namModelId) return;
-    const adapter = getAdapter(trackId);
-    if (!adapter || adapter.isNamLoaded()) return;
-    const entry = BUNDLED_MODELS.find((m) => m.id === ampBlock.namModelId);
-    if (!entry?.url) return;
-    fetchBundledModel(entry.url)
-      .then(async (model) => {
-        await adapter.loadNamModel(model, entry.gainCompensation);
-        adapter.setAmpSimMode('nam');
-      })
-      .catch((err) => console.warn('[NAM] Restore failed:', err));
-  }, [trackId, readyVersion, chain]);
+  }, [adapter, chain, instrumentFilter, filteredModels]);
 
   // Sync full pedal chain to audio engine
   useEffect(() => {
-    const adapter = getAdapter(trackId);
     if (!adapter) return;
 
     adapter.syncChain(
@@ -559,7 +557,42 @@ export function GuitarBassView({
         namModelId: b.namModelId,
       })),
     );
-  }, [chain, trackId, bpm]);
+  }, [adapter, chain, bpm]);
+
+  // Restore persisted NAM model when engine becomes ready. It runs after the
+  // chain sync so isNamLoaded() asks the amp that sync just built or kept: a
+  // pedal inserted before the amp gets a fresh amp with no model. Chain edits
+  // re-run this while the model is still downloading, so a restore already
+  // under way for this adapter and model is not started again.
+  const namRestoreRef = useRef<{
+    adapter: GuitarFxAdapter;
+    modelId: string;
+  } | null>(null);
+  useEffect(() => {
+    const ampBlock = chain.find((b) => b.type === 'nam-amp');
+    if (!ampBlock?.namModelId) return;
+    if (!adapter || adapter.isNamLoaded()) return;
+    const pending = namRestoreRef.current;
+    if (
+      pending?.adapter === adapter &&
+      pending.modelId === ampBlock.namModelId
+    ) {
+      return;
+    }
+    const entry = BUNDLED_MODELS.find((m) => m.id === ampBlock.namModelId);
+    if (!entry?.url) return;
+    const restore = { adapter, modelId: entry.id };
+    namRestoreRef.current = restore;
+    fetchBundledModel(entry.url)
+      .then(async (model) => {
+        await adapter.loadNamModel(model, entry.gainCompensation);
+        adapter.setAmpSimMode('nam');
+      })
+      .catch((err) => console.warn('[NAM] Restore failed:', err))
+      .finally(() => {
+        if (namRestoreRef.current === restore) namRestoreRef.current = null;
+      });
+  }, [adapter, chain]);
 
   // Persist chain to store so it survives GuitarBassView unmount/remount
   useEffect(() => {
@@ -677,13 +710,12 @@ export function GuitarBassView({
     { label: '1-2', config: { mode: 'stereo', left: 0, right: 1 } },
   ];
 
-  const channelLabel = audioInputChannel
-    ? audioInputChannel.mode === 'stereo'
+  const channelLabel =
+    inputChannel.mode === 'stereo'
       ? '1-2'
-      : audioInputChannel.channel === 0
+      : inputChannel.channel === 0
         ? '1'
-        : '2'
-    : '1';
+        : '2';
 
   const selectedDeviceLabel =
     devices.find((d) => d.id === globalInputDeviceId)?.label ??
@@ -703,6 +735,7 @@ export function GuitarBassView({
         recordArmed: true,
         monitoring: true,
       });
+      setDevicePicks((n) => n + 1);
     },
     [trackId, updateTrack, audioInputChannel],
   );
@@ -841,7 +874,7 @@ export function GuitarBassView({
                     onClick={() => handleSelectChannel(opt.config)}
                     className="px-3 py-1.5 text-xs cursor-pointer hover:bg-white/10"
                     style={{
-                      color: configsMatch(opt.config, audioInputChannel)
+                      color: configsMatch(opt.config, inputChannel)
                         ? 'var(--color-accent)'
                         : 'var(--color-text)',
                     }}

@@ -30,8 +30,8 @@ import { useContainerScale } from '@/daw/hooks/useContainerScale';
 import styles from '@/daw/oracle-synth/components/layout/SynthLayout.module.css';
 
 // ── DawSynthLayout ────────────────────────────────────────────────────────
-// Mirrors oracle-synth's SynthLayout but with container-based scaling
-// (ResizeObserver) instead of viewport-based scaling (window dimensions).
+// The Oracle synth panel: the fixed 1440×932 grid in SynthLayout.module.css,
+// scaled to fit its container (useContainerScale, a ResizeObserver).
 
 interface DawSynthLayoutProps {
   engine: SynthEngine;

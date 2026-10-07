@@ -31,7 +31,11 @@ vi.mock('@/daw/instruments/SoundFontAdapter', () => ({
   },
 }));
 vi.mock('@/daw/audio/AudioEngine', () => ({
-  audioEngine: { getContext: () => ({}), getMasterGain: () => ({}) },
+  audioEngine: {
+    getIsInitialized: () => true,
+    getContext: () => ({}),
+    getMasterGain: () => ({}),
+  },
 }));
 
 import { useKeyboardShortcuts } from '../useKeyboardShortcuts';
@@ -371,25 +375,24 @@ describe('useKeyboardShortcuts: keys stay where the student is working', () => {
     expect(useStore.getState().isPlaying).toBe(true);
   });
 
-  it('keeps Space in the vocal pitch editor, which has no play button', () => {
+  it('treats a dialog as a dialog with an audio clip marked for editing', () => {
+    // The vocal pitch editor that used this mark is gone (decision 10), so
+    // the mark no longer turns a dialog into a note editor.
     useStore.setState({
       editingAudioClipId: 'take-1',
       editingAudioClipTrackId: 'vox',
     });
     renderHook(() => useKeyboardShortcuts('token'));
-    const editor = focusOn(
-      '<div role="dialog"><div tabindex="0">pitch</div></div>',
-      '[tabindex="0"]',
+    const button = focusOn(
+      '<div role="dialog"><button>Cancel</button></div>',
+      'button',
     );
 
     expectNoStoreChange(() => {
-      press('Delete', {}, editor);
-      press('ArrowRight', {}, editor);
+      press('Space', {}, button);
+      press('KeyZ', { metaKey: true }, button);
     });
-    expect(clip()?.startTick).toBe(1920);
-
-    press('Space', {}, editor);
-    expect(useStore.getState().isPlaying).toBe(true);
+    expect(smartUndo).not.toHaveBeenCalled();
   });
 
   it('never lets Cmd+D open the bookmark dialog over the editor', () => {

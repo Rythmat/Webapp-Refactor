@@ -93,11 +93,11 @@ function togglePlayback() {
 // - Option is held: the Score writes rests on ⌥R;
 // - focus is in a text field (only ⌘S still saves) or another form control
 //   (undo still works there);
-// - focus is in a dialog or menu, except the modal note editors (piano roll,
-//   vocal pitch editor), where Space and undo keep working.
+// - focus is in a dialog or menu, except the modal piano roll, where Space
+//   and undo keep working.
 // Clip and timeline keys (copy, paste, duplicate, select, delete, nudge,
 // tools, zoom to fit) act on the arrangement, so they run only in Create, and
-// not while a modal note editor is open or a widget with keys of its own has
+// not while the modal piano roll is open or a widget with keys of its own has
 // focus. ⌘A and ⌘D never fall through to the browser (select the page, add a
 // bookmark). On the practice screen only Space, R, L, Esc and ⌘S do anything.
 // ⌘+/⌘−/⌘0 are left to the browser's page zoom.
@@ -139,12 +139,10 @@ export function useKeyboardShortcuts(token: string | null) {
       if (isTextField(target)) return;
 
       const view = state.currentView;
-      // The modal piano roll and the vocal pitch editor are dialogs too, but
-      // editors with no transport of their own: Space and undo still work in
-      // them. Nothing else does, since clip keys would act on the clip behind.
-      const inNoteEditor =
-        view === 'arrange' &&
-        (state.editingClipId !== null || state.editingAudioClipId !== null);
+      // The modal piano roll is a dialog too, but an editor with no transport
+      // of its own: Space and undo still work in it. Nothing else does, since
+      // clip keys would act on the clip behind.
+      const inNoteEditor = view === 'arrange' && state.editingClipId !== null;
       if (!inNoteEditor && isInDialogOrMenu(target)) return;
 
       const practice = view === 'practice';
@@ -333,24 +331,15 @@ export function useKeyboardShortcuts(token: string | null) {
         return;
       }
 
-      // Cmd+N: Add new MIDI track (addTrack enforces the limit + notifies)
+      // Cmd+N: Add new MIDI track (addTrack enforces the limit + notifies,
+      // and picks the colour from the track palette)
       if (e.code === 'KeyN' && isMod) {
         if (practice) return;
         e.preventDefault();
-        const colors = [
-          '#8b5cf6',
-          '#06b6d4',
-          '#f59e0b',
-          '#ef4444',
-          '#10b981',
-          '#ec4899',
-        ];
-        const idx = state.tracks.length % colors.length;
         state.addTrack(
           'midi',
           'oracle-synth',
           `Track ${state.tracks.length + 1}`,
-          colors[idx],
         );
         return;
       }

@@ -1,0 +1,139 @@
+{
+  "fixture": "loop-range",
+  "rate": 48000,
+  "about": "Export of the loop region (bars 2-3 of three, 120 BPM): 808 drums and the sampled electric bass with a send to the Return A reverb. The bass note that starts in bar 1 sustains into the loop.",
+  "model": "live AudioContext at 48000 Hz (forced), Return A reverb IR decoded at that rate; render = renderProject({ range: 'loop', sampleRate: 48000 }); export = exportProjectAudio({ format: 'wav', range: 'loop' })",
+  "facts": [
+    "an EffectChain with every effect off delays the signal 8.67 ms; a track passes its own chain and the mastering chain (a send also its return's), so every onset lands about twice that late",
+    "File > Export Audio (WAV) fails on a 48000 Hz device: NotSupportedError: Failed to set the 'buffer' property on 'ConvolverNode': The buffer sample rate of 48000 does not match the context rate of 44100 Hz.",
+    "Tone's global context is left on the dead offline context afterwards",
+    "after the export, Play no longer moves the playhead (2 s from bar 1): live playback is broken until a reload",
+    "bass note started before the loop start is heard in the first loop bar: -120",
+    "drums: the first loop downbeat (bar 2) opens the render, at 0 s plus the chains latency: true"
+  ],
+  "engine": {
+    "effectChainLatencyMs": 8.67
+  },
+  "render": {
+    "status": "ok",
+    "sampleRate": 48000,
+    "length": 240000,
+    "channels": 2,
+    "durationSec": 5,
+    "toneContextRestored": true,
+    "features": {
+      "peak": 1.00034,
+      "peakDb": 0,
+      "silent": false,
+      "activeSec": [0.02, 4.995],
+      "onsetsSec": [0.02, 0.269, 0.519, 0.77, 1.018, 1.268, 1.519, 1.77, 2.02, 2.268, 2.519, 2.77, 3.018, 3.269, 3.519, 3.77],
+      "centroidHz": 1682,
+      "centroidTrack": {
+        "windowSec": 0.25,
+        "hz": [319, 1490, 4343, 3261, 1227, 1485, 4371, 3101, 1092, 1062, 3534, 2139, 1056, 976, 3128, 1818, 186, 123, 147, 273]
+      },
+      "rms20msDb": {
+        "windowSec": 0.02,
+        "floorDb": -120,
+        "channels": [
+          [-120, -23.5, -18.7, -15.6, -13.2, -12.4, -11, -9.9, -9.4, -9.5, -9.2, -8.2, -8.9, -10.3, -9.7, -9.7, -10.3, -9.3, -9, -10, -9.4, -9.1, -10.3, -9.8, -9.3, -11.5, -12.4, -13.1, -14.3, -13.8, -13.2, -14, -14, -12.8, -13.2, -13.7, -12.5, -12.9, -14.8, -14.2, -14.3, -15.2, -14.1, -13.9, -15, -14.3, -14.1, -15.4, -15, -14.7, -15.6, -9.1, -8.6, -8.4, -8.1, -8.6, -8.3, -8.1, -8.3, -8.9, -8.9, -8.2, -8.9, -10.4, -9.7, -9.7, -10.3, -9.3, -9, -10, -9.4, -9.1, -10.3, -9.8, -9.3, -11.5, -12.4, -13.1, -14.3, -13.8, -13.2, -14, -14, -12.8, -13.3, -13.7, -12.5, -12.9, -14.8, -14.2, -14.3, -15.2, -14.1, -13.9, -15.1, -14.3, -14.1, -15.4, -15, -14.7, -17.1, -9.3, -7.5, -6.7, -7.7, -8.1, -7.5, -7.4, -7.4, -7.7, -8.1, -7.6, -7.8, -9.4, -9, -8.9, -9.2, -8.2, -8.3, -9, -8.7, -8.4, -9.4, -9, -8.8, -10.1, -10.9, -11.3, -12.2, -11.7, -11.6, -12.1, -12.2, -11.4, -11.6, -12.1, -11, -11.2, -12.9, -12.7, -12.7, -13.2, -12.4, -12.3, -13.1, -12.5, -12.2, -13.3, -13.4, -13.3, -12.9, -8.8, -7.2, -5.8, -6.4, -6.5, -6.6, -6.4, -6.2, -6.2, -5.9, -6.6, -5.8, -6.8, -7, -7.3, -7.3, -6.6, -7.3, -8, -7, -6.9, -7.7, -8.1, -7.1, -8.5, -8, -9.1, -8.6, -8.5, -9, -9.8, -9.4, -9.2, -10.3, -10, -9.1, -9.3, -9.6, -10.7, -9.5, -9.9, -10.2, -10.1, -11, -9.8, -10.4, -11.4, -10.3, -10.4, -11.1, -14, -14.8, -16.3, -16.6, -16.5, -17.7, -18.2, -17.8, -18.7, -19.9, -19, -19.8, -21.3, -20.2, -20.9, -22.2, -21.5, -21.9, -23.4, -22.9, -22.9, -24.5, -24.2, -24, -27.3, -45, -46.2, -47.9, -47.8, -48.3, -49.3, -50.7, -51.5, -52.5, -54, -54.4, -54.8, -54.6, -54.5, -55.8, -56.5, -58.1, -58.2, -59.7, -60.3, -60.7, -60.8, -61.8, -62],
+          [-120, -23.5, -18.7, -15.6, -13.2, -12.4, -11, -9.9, -9.4, -9.5, -9.2, -8.2, -8.9, -10.4, -9.7, -9.7, -10.3, -9.3, -9, -10, -9.4, -9.1, -10.3, -9.8, -9.3, -11.5, -12.4, -13.1, -14.3, -13.8, -13.2, -14, -14, -12.8, -13.2, -13.7, -12.5, -12.9, -14.8, -14.2, -14.3, -15.2, -14.1, -13.9, -15, -14.3, -14.1, -15.4, -15, -14.7, -15.6, -9.2, -8.6, -8.4, -8.1, -8.6, -8.3, -8.1, -8.3, -8.9, -8.9, -8.2, -8.9, -10.4, -9.7, -9.7, -10.3, -9.3, -9, -10, -9.4, -9.1, -10.3, -9.8, -9.3, -11.5, -12.4, -13.1, -14.4, -13.8, -13.2, -14, -14, -12.8, -13.3, -13.7, -12.5, -12.9, -14.9, -14.3, -14.3, -15.2, -14.1, -13.9, -15.1, -14.3, -14.1, -15.4, -15, -14.7, -17.1, -9.3, -7.5, -6.7, -7.7, -8.2, -7.6, -7.4, -7.4, -7.6, -8, -7.5, -7.7, -8.9, -8.7, -8.7, -8.9, -8.2, -8.2, -8.8, -8.5, -8.4, -9.3, -8.9, -8.8, -9.9, -11.1, -11.4, -12, -11.7, -11.5, -11.9, -12.2, -11.4, -11.4, -12, -11, -11.1, -12.7, -12.6, -12.5, -12.9, -12.2, -12.1, -12.9, -12.3, -12, -13, -13.2, -13.1, -12.9, -8.7, -7.2, -6, -6.4, -6.5, -6.8, -6.6, -6.3, -7, -6.7, -7.3, -7, -7.8, -7.9, -8.1, -8, -7.7, -7.9, -8.6, -7.9, -7.7, -8.7, -8.9, -7.8, -9.7, -9.5, -10.2, -9.9, -9.6, -10, -11, -10.4, -10.5, -11.6, -10.9, -10.2, -10.6, -10.9, -12, -10.9, -11.5, -11.5, -11.4, -12.1, -11.3, -11.6, -12.5, -11.7, -11.8, -12.7, -15.3, -15.1, -16.9, -16.3, -16.1, -17.8, -18.5, -17.8, -18.8, -19.7, -19.1, -20, -21.1, -20.2, -20.8, -22.2, -21.5, -21.8, -23.4, -22.9, -22.9, -24.6, -24.2, -24.1, -27.1, -43.2, -43.8, -46.2, -47.3, -47.5, -49.1, -51.2, -53.3, -53.7, -56.9, -56.4, -57.6, -56.6, -58.1, -59.8, -60.5, -60.8, -60.7, -60.6, -60.6, -61.1, -61.3, -62, -63.4]
+        ]
+      }
+    },
+    "compare": "strict",
+    "timingDependent": [],
+    "repeatable": true,
+    "repeatMaxDeltaDb": 0
+  },
+  "stems": {
+    "Drums": {
+      "instrument": "drum-machine",
+      "status": "ok",
+      "sampleRate": 48000,
+      "length": 240000,
+      "channels": 2,
+      "durationSec": 5,
+      "toneContextRestored": true,
+      "features": {
+        "peak": 0.60354,
+        "peakDb": -4.39,
+        "silent": false,
+        "activeSec": [0.02, 4.667],
+        "onsetsSec": [0.02, 0.269, 0.519, 0.77, 1.018, 1.268, 1.519, 1.77, 2.02, 2.268, 2.519, 2.77, 3.018, 3.269, 3.519, 3.77],
+        "centroidHz": 1931,
+        "rms100msDb": {
+          "windowSec": 0.1,
+          "floorDb": -120,
+          "max": [-17.3, -10.3, -9.2, -9.6, -9.6, -12.9, -13.4, -13.6, -14.5, -14.7, -9.3, -8.4, -9.1, -9.6, -9.6, -12.9, -13.4, -13.6, -14.5, -14.7, -9.4, -8.4, -9.1, -9.6, -9.6, -12.9, -13.4, -13.5, -14.5, -14.7, -9.3, -8.4, -9.1, -9.6, -9.6, -12.9, -13.4, -13.6, -14.5, -14.7, -16.5, -18, -20.1, -22, -23.7, -34.1, -57.9, -71, -64.5, -63.3]
+        }
+      },
+      "compare": "strict",
+      "timingDependent": []
+    },
+    "Bass": {
+      "instrument": "bass-electric",
+      "status": "ok",
+      "sampleRate": 48000,
+      "length": 240000,
+      "channels": 2,
+      "durationSec": 5,
+      "toneContextRestored": true,
+      "features": {
+        "peak": 0.87156,
+        "peakDb": -1.19,
+        "silent": false,
+        "activeSec": [2.045, 4.857],
+        "onsetsSec": [2.045, 3.048],
+        "centroidHz": 384,
+        "rms100msDb": {
+          "windowSec": 0.1,
+          "floorDb": -120,
+          "max": [-120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -17.2, -14.3, -13.5, -14.2, -15, -15.6, -15.9, -16.3, -16.5, -16.8, -12.2, -9.6, -9.2, -9.9, -10, -10.5, -11.1, -11.6, -11.8, -12.2, -17.5, -28.2, -33.8, -36.2, -40.3, -45.4, -50.7, -54.5, -58.9, -66.2]
+        }
+      },
+      "compare": "strict",
+      "timingDependent": []
+    }
+  },
+  "export": {
+    "status": "error",
+    "error": {
+      "name": "NotSupportedError",
+      "message": "Failed to set the 'buffer' property on 'ConvolverNode': The buffer sample rate of 48000 does not match the context rate of 44100 Hz."
+    },
+    "toneContextRestored": false,
+    "playheadMovesAfter": false
+  },
+  "probes": [
+    {
+      "label": "bass note started before the loop start is heard in the first loop bar",
+      "kind": "levelAt",
+      "stem": "Bass",
+      "observed": -120
+    },
+    {
+      "label": "drums: the first loop downbeat (bar 2) opens the render, at 0 s plus the chains latency",
+      "kind": "onsetNear",
+      "stem": "Drums",
+      "observed": true,
+      "nearestOnsetSec": 0.02,
+      "offsetMs": 20
+    }
+  ],
+  "instrumentsReady": true,
+  "instruments": [
+    {
+      "name": "Drums",
+      "instrument": "drum-machine",
+      "state": "ready"
+    },
+    {
+      "name": "Bass",
+      "instrument": "bass-electric",
+      "state": "ready"
+    }
+  ],
+  "consoleErrors": [],
+  "pageErrors": []
+}

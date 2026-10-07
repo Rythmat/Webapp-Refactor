@@ -1,0 +1,105 @@
+{
+  "fixture": "oracle-two-notes",
+  "rate": 48000,
+  "about": "One Oracle synth track with the default patch playing C4 at 0.0-0.5 s and G4 at 1.0-1.5 s, 120 BPM (synth-engine-01: offline the engine schedules against ctx.currentTime and wall-clock timers).",
+  "model": "live AudioContext at 48000 Hz (forced), Return A reverb IR decoded at that rate; render = renderProject({ range: 'project', sampleRate: 48000 }); export = exportProjectAudio({ format: 'wav', range: 'project' })",
+  "facts": [
+    "an EffectChain with every effect off delays the signal 8.67 ms; a track passes its own chain and the mastering chain (a send also its return's), so every onset lands about twice that late",
+    "Lead (oracle-synth) renders differently from run to run (synth-engine-01: Oracle voices are freed by wall-clock timers while the offline render runs faster than real time, so which notes sound, and where their releases are cut, depends on how fast the machine renders); this mix is compared on its status, rate and length only",
+    "File > Export Audio (WAV) fails on a 48000 Hz device: NotSupportedError: Failed to set the 'buffer' property on 'ConvolverNode': The buffer sample rate of 48000 does not match the context rate of 44100 Hz.",
+    "Tone's global context is left on the dead offline context afterwards",
+    "after the export, Play no longer moves the playhead (2 s from bar 1): live playback is broken until a reload",
+    "note 1 (C4) sounds from 0.0 s (plus the chains latency): false",
+    "note 2 (G4) sounds from 1.0 s (plus the chains latency): true",
+    "level while note 1 holds: -120",
+    "level while note 2 holds: -15.6",
+    "level after both notes released (release 0.3 s): -15.7"
+  ],
+  "engine": {
+    "effectChainLatencyMs": 8.67
+  },
+  "render": {
+    "status": "ok",
+    "sampleRate": 48000,
+    "length": 168000,
+    "channels": 2,
+    "durationSec": 3.5,
+    "toneContextRestored": true,
+    "features": {
+      "peak": 0.51966,
+      "peakDb": -5.69,
+      "silent": false,
+      "activeSec": [1.018, 3.5],
+      "onsetsSec": [1.018],
+      "centroidHz": 3878,
+      "centroidTrack": {
+        "windowSec": 0.25,
+        "hz": [null, null, null, null, 3876, 3878, 3878, 3878, 3878, 3878, 3878, 3878, 3878, 3878]
+      },
+      "rms20msDb": {
+        "windowSec": 0.02,
+        "floorDb": -120,
+        "channels": [
+          [-120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -38.5, -14, -14, -14.8, -15.3, -15.4, -15.5, -15.5, -15.6, -15.7, -15.8, -15.7, -15.6, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.6, -15.7, -15.8, -15.7, -15.6, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.6, -15.7, -15.8, -15.7, -15.6, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.6, -15.7, -15.8, -15.7, -15.6, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.6, -15.7, -15.8, -15.7, -15.6, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7],
+          [-120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -38.5, -14, -14, -14.8, -15.3, -15.4, -15.5, -15.5, -15.6, -15.7, -15.8, -15.7, -15.6, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.6, -15.7, -15.8, -15.7, -15.6, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.6, -15.7, -15.8, -15.7, -15.6, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.6, -15.7, -15.8, -15.7, -15.6, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.6, -15.7, -15.8, -15.7, -15.6, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7, -15.6, -15.6, -15.7, -15.8, -15.8, -15.7]
+        ]
+      }
+    },
+    "compare": "structure",
+    "timingDependent": [
+      "Lead"
+    ],
+    "repeatable": true,
+    "repeatMaxDeltaDb": 0
+  },
+  "export": {
+    "status": "error",
+    "error": {
+      "name": "NotSupportedError",
+      "message": "Failed to set the 'buffer' property on 'ConvolverNode': The buffer sample rate of 48000 does not match the context rate of 44100 Hz."
+    },
+    "toneContextRestored": false,
+    "playheadMovesAfter": false
+  },
+  "probes": [
+    {
+      "label": "note 1 (C4) sounds from 0.0 s (plus the chains latency)",
+      "kind": "onsetNear",
+      "observed": false,
+      "nearestOnsetSec": 1.018,
+      "offsetMs": 1018
+    },
+    {
+      "label": "note 2 (G4) sounds from 1.0 s (plus the chains latency)",
+      "kind": "onsetNear",
+      "observed": true,
+      "nearestOnsetSec": 1.018,
+      "offsetMs": 18
+    },
+    {
+      "label": "level while note 1 holds",
+      "kind": "levelAt",
+      "observed": -120
+    },
+    {
+      "label": "level while note 2 holds",
+      "kind": "levelAt",
+      "observed": -15.6
+    },
+    {
+      "label": "level after both notes released (release 0.3 s)",
+      "kind": "levelAt",
+      "observed": -15.7
+    }
+  ],
+  "instrumentsReady": true,
+  "instruments": [
+    {
+      "name": "Lead",
+      "instrument": "oracle-synth",
+      "state": "ready"
+    }
+  ],
+  "consoleErrors": [],
+  "pageErrors": []
+}

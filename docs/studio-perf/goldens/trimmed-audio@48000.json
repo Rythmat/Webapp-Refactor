@@ -1,0 +1,97 @@
+{
+  "fixture": "trimmed-audio",
+  "rate": 48000,
+  "about": "Two audio clips cut from a generated beep train (beep k at k x 0.5 s, 400 + 100k Hz), 120 BPM: clip-trimmed starts at 1.0 s with offsetSeconds 0.75 and gain 0.5; clip-faded starts at 4.0 s with a 0.25 s fade-in and a 0.5 s fade-out.",
+  "model": "live AudioContext at 48000 Hz (forced), Return A reverb IR decoded at that rate; render = renderProject({ range: 'project', sampleRate: 48000 }); export = exportProjectAudio({ format: 'wav', range: 'project' })",
+  "facts": [
+    "an EffectChain with every effect off delays the signal 8.67 ms; a track passes its own chain and the mastering chain (a send also its return's), so every onset lands about twice that late",
+    "the whole bounce is silent",
+    "File > Export Audio (WAV) fails on a 48000 Hz device: NotSupportedError: Failed to set the 'buffer' property on 'ConvolverNode': The buffer sample rate of 48000 does not match the context rate of 44100 Hz.",
+    "Tone's global context is left on the dead offline context afterwards",
+    "after the export, Play no longer moves the playhead (2 s from bar 1): live playback is broken until a reload",
+    "clip-trimmed plays, offsetSeconds honoured: first beep at 1.25 s (1.00 s if ignored), plus the chains latency: null (no onsets)",
+    "clip-trimmed gain 0.5: its beep level minus clip-faded full-level beep (-6 dB when applied): null (both silent)",
+    "clip-faded fade-in: its first beep minus its second (negative when the fade is applied): null (both silent)",
+    "the page logged: [AudioClipScheduler] startSource failed: InvalidAccessError: Failed to execute 'connect' on 'AudioNode': cannot connect to an AudioNode belonging to a different audio context."
+  ],
+  "engine": {
+    "effectChainLatencyMs": 8.67
+  },
+  "render": {
+    "status": "ok",
+    "sampleRate": 48000,
+    "length": 360000,
+    "channels": 2,
+    "durationSec": 7.5,
+    "toneContextRestored": true,
+    "features": {
+      "peak": 0,
+      "peakDb": -120,
+      "silent": true,
+      "activeSec": null,
+      "onsetsSec": [],
+      "centroidHz": null,
+      "centroidTrack": {
+        "windowSec": 0.25,
+        "hz": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
+      },
+      "rms20msDb": {
+        "windowSec": 0.02,
+        "floorDb": -120,
+        "channels": [
+          [-120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120],
+          [-120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120]
+        ]
+      }
+    },
+    "compare": "strict",
+    "timingDependent": [],
+    "repeatable": true,
+    "repeatMaxDeltaDb": 0
+  },
+  "export": {
+    "status": "error",
+    "error": {
+      "name": "NotSupportedError",
+      "message": "Failed to set the 'buffer' property on 'ConvolverNode': The buffer sample rate of 48000 does not match the context rate of 44100 Hz."
+    },
+    "toneContextRestored": false,
+    "playheadMovesAfter": false
+  },
+  "probes": [
+    {
+      "label": "clip-trimmed plays, offsetSeconds honoured: first beep at 1.25 s (1.00 s if ignored), plus the chains latency",
+      "kind": "onsetNear",
+      "observed": null,
+      "note": "no onsets"
+    },
+    {
+      "label": "clip-trimmed gain 0.5: its beep level minus clip-faded full-level beep (-6 dB when applied)",
+      "kind": "levelDiff",
+      "observed": null,
+      "aDb": -120,
+      "bDb": -120,
+      "note": "both silent"
+    },
+    {
+      "label": "clip-faded fade-in: its first beep minus its second (negative when the fade is applied)",
+      "kind": "levelDiff",
+      "observed": null,
+      "aDb": -120,
+      "bDb": -120,
+      "note": "both silent"
+    }
+  ],
+  "instrumentsReady": true,
+  "instruments": [
+    {
+      "name": "Beeps",
+      "instrument": "none",
+      "state": "none"
+    }
+  ],
+  "consoleErrors": [
+    "[AudioClipScheduler] startSource failed: InvalidAccessError: Failed to execute 'connect' on 'AudioNode': cannot connect to an AudioNode belonging to a different audio context."
+  ],
+  "pageErrors": []
+}

@@ -1,0 +1,191 @@
+{
+  "fixture": "metronome-countin",
+  "rate": 48000,
+  "about": "The live-trace session: metronome on, 2-bar loop at 120 BPM; a recorded take (Vocals track, beep train trimmed by 0.5 s) across the loop, a dropped library sample (instrument-less audio track) on bar 2, 808 drums and an Oracle synth line on beats 1 and 3. Offline it shows the bounce has no metronome, with a stem per track.",
+  "model": "live AudioContext at 48000 Hz (forced), Return A reverb IR decoded at that rate; render = renderProject({ range: 'project', sampleRate: 48000 }); export = exportProjectAudio({ format: 'wav', range: 'project' })",
+  "facts": [
+    "an EffectChain with every effect off delays the signal 8.67 ms; a track passes its own chain and the mastering chain (a send also its return's), so every onset lands about twice that late",
+    "Lead (oracle-synth) renders differently from run to run (synth-engine-01: Oracle voices are freed by wall-clock timers while the offline render runs faster than real time, so which notes sound, and where their releases are cut, depends on how fast the machine renders); this mix is compared with loose tolerances, and its stem on status, rate and length only",
+    "File > Export Audio (WAV) fails on a 48000 Hz device: NotSupportedError: Failed to set the 'buffer' property on 'ConvolverNode': The buffer sample rate of 48000 does not match the context rate of 44100 Hz.",
+    "Tone's global context is left on the dead offline context afterwards",
+    "after the export, Play no longer moves the playhead (2 s from bar 1): live playback is broken until a reload",
+    "stem \"Sample\" (none) renders silent",
+    "the page logged: [AudioClipScheduler] startSource failed: InvalidAccessError: Failed to execute 'connect' on 'AudioNode': cannot connect to an AudioNode belonging to a different audio context.",
+    "the page logged: [AudioClipScheduler] startSourceNow failed: InvalidAccessError: Failed to execute 'connect' on 'AudioNode': cannot connect to an AudioNode belonging to a different audio context."
+  ],
+  "engine": {
+    "effectChainLatencyMs": 8.67
+  },
+  "render": {
+    "status": "ok",
+    "sampleRate": 48000,
+    "length": 288000,
+    "channels": 2,
+    "durationSec": 6,
+    "toneContextRestored": true,
+    "features": {
+      "peak": 1.00473,
+      "peakDb": 0.04,
+      "silent": false,
+      "activeSec": [0.018, 6],
+      "onsetsSec": [0.019, 0.269, 0.519, 0.77, 1.018],
+      "centroidHz": 3128,
+      "centroidTrack": {
+        "windowSec": 0.25,
+        "hz": [346, 1490, 3817, 3261, 2589, 2835, 3722, 3732, 2479, 2819, 3898, 3711, 3069, 3236, 3843, 3820, 3531, 3708, 3964, 3985, 3976, 3972, 3973, 3981]
+      },
+      "rms20msDb": {
+        "windowSec": 0.02,
+        "floorDb": -120,
+        "channels": [
+          [-50.8, -22.6, -17.2, -13.4, -11.1, -10.4, -11, -9.9, -9.4, -9.5, -9.2, -8.2, -8.9, -10.3, -9.7, -9.7, -10.3, -9.3, -9, -10, -9.4, -9.1, -10.3, -9.8, -9.3, -11.3, -7.8, -7.7, -8, -8, -8.7, -14, -14, -12.8, -13.2, -13.7, -12.5, -12.9, -14.8, -14.2, -14.3, -15.2, -14.1, -13.9, -15, -14.3, -14.1, -15.4, -15, -14.7, -15.3, -6.1, -6.1, -6.2, -5.8, -6.4, -7.8, -7.7, -8, -8.4, -8.3, -7.8, -8.5, -9.5, -9, -9, -9.7, -8.6, -8.5, -9.3, -8.9, -8.6, -9.3, -9.4, -8.7, -10.4, -7.1, -7.2, -7.4, -7.3, -8.2, -12, -12.6, -11.5, -11.6, -12.2, -11.1, -11.7, -12.4, -12.4, -12.6, -12.9, -12.3, -12.1, -13.1, -12.3, -12.2, -13.1, -12.9, -12.7, -13.5, -6.4, -6.1, -6, -5.8, -6.6, -7.8, -7.7, -7.9, -8.2, -8.6, -7.7, -8.3, -9.6, -9.1, -9.1, -9.3, -8.8, -8.5, -9.5, -8.7, -8.5, -9.7, -9.1, -8.8, -10.4, -7.2, -7.3, -8.2, -8.1, -8, -12.3, -11.8, -11.4, -11.9, -12.1, -11.2, -11.4, -12.8, -12.4, -12.4, -12.8, -12.4, -12.2, -12.8, -12.3, -12.3, -13.2, -12.7, -12.7, -13.1, -6, -5.7, -5.8, -5.9, -6.1, -7.5, -7.4, -7.4, -8.1, -7.9, -7.5, -7.9, -9.1, -8.5, -8.5, -8.9, -8.2, -8.2, -8.5, -8.5, -8.2, -8.9, -8.6, -8.2, -9.6, -6.8, -7, -7.5, -7.4, -7.9, -11.3, -11, -10.5, -10.8, -10.6, -10.6, -10.5, -11.3, -11.2, -11.1, -11.8, -10.9, -11.2, -11.4, -11.3, -11.1, -11.6, -11.5, -11.2, -12.4, -11.7, -11.8, -12.5, -12.2, -12.1, -12.3, -13, -12.6, -12.6, -13.2, -12.7, -12.9, -12.8, -12.9, -13.3, -13.2, -13.3, -13.2, -13.3, -13.2, -13.3, -13.5, -13.5, -13.5, -13.8, -13.6, -13.7, -13.7, -13.8, -13.8, -13.6, -14.2, -13.5, -13.7, -13.7, -13.8, -13.8, -13.6, -13.9, -13.8, -13.8, -13.8, -13.8, -13.8, -13.6, -13.7, -14.1, -13.6, -14, -13.7, -13.7, -13.6, -13.7, -13.9, -13.8, -13.9, -13.9, -13.7, -13.5, -13.8, -13.8, -13.9, -13.7, -14.1, -13.6, -13.6, -13.7, -13.8, -13.8, -13.7, -14, -13.8, -13.7, -13.8, -13.8, -13.7, -13.7, -13.6, -14.1, -13.6, -13.8, -13.8, -13.7, -13.7, -13.6, -14.1, -13.7, -13.8, -13.9, -13.8, -13.6, -13.7, -13.9, -13.9, -13.7, -14, -13.7, -13.5, -13.7],
+          [-50.8, -22.6, -17.2, -13.4, -11.1, -10.4, -11, -9.9, -9.4, -9.5, -9.2, -8.2, -8.9, -10.4, -9.7, -9.7, -10.3, -9.3, -9, -10, -9.4, -9.1, -10.3, -9.8, -9.3, -11.3, -7.8, -7.7, -8, -8, -8.7, -14, -14, -12.8, -13.2, -13.7, -12.5, -12.9, -14.8, -14.2, -14.3, -15.2, -14.1, -13.9, -15, -14.3, -14.1, -15.4, -15, -14.7, -15.3, -6.1, -6.1, -6.2, -5.8, -6.4, -7.8, -7.7, -8, -8.4, -8.3, -7.8, -8.5, -9.5, -9, -9, -9.7, -8.6, -8.5, -9.3, -8.9, -8.6, -9.3, -9.4, -8.7, -10.4, -7.1, -7.2, -7.4, -7.3, -8.2, -12, -12.6, -11.5, -11.6, -12.2, -11.1, -11.7, -12.5, -12.4, -12.6, -12.9, -12.3, -12.1, -13.1, -12.3, -12.2, -13.1, -12.9, -12.7, -13.5, -6.4, -6.1, -6, -5.8, -6.6, -7.8, -7.7, -7.9, -8.2, -8.6, -7.7, -8.3, -9.6, -9.1, -9.1, -9.3, -8.8, -8.5, -9.5, -8.7, -8.5, -9.7, -9.1, -8.8, -10.4, -7.2, -7.3, -8.2, -8.1, -8, -12.3, -11.8, -11.4, -11.9, -12.1, -11.2, -11.4, -12.8, -12.4, -12.4, -12.8, -12.4, -12.2, -12.8, -12.3, -12.3, -13.2, -12.7, -12.7, -13.1, -6, -5.7, -5.8, -5.9, -6.1, -7.5, -7.4, -7.4, -8.1, -7.9, -7.5, -7.9, -9.2, -8.5, -8.5, -8.9, -8.2, -8.2, -8.5, -8.5, -8.2, -8.9, -8.6, -8.2, -9.6, -6.8, -7, -7.5, -7.4, -7.9, -11.3, -11, -10.5, -10.8, -10.6, -10.6, -10.5, -11.3, -11.2, -11.1, -11.8, -10.9, -11.2, -11.4, -11.3, -11.1, -11.6, -11.5, -11.2, -12.4, -11.7, -11.8, -12.5, -12.2, -12.1, -12.3, -13, -12.6, -12.6, -13.2, -12.7, -12.9, -12.8, -12.9, -13.3, -13.2, -13.3, -13.2, -13.3, -13.2, -13.3, -13.5, -13.5, -13.5, -13.8, -13.6, -13.7, -13.7, -13.8, -13.8, -13.6, -14.2, -13.5, -13.7, -13.7, -13.8, -13.8, -13.6, -13.9, -13.8, -13.8, -13.8, -13.8, -13.8, -13.6, -13.7, -14.1, -13.6, -14, -13.7, -13.7, -13.6, -13.7, -13.9, -13.8, -13.9, -13.9, -13.7, -13.5, -13.8, -13.8, -13.9, -13.7, -14.1, -13.6, -13.6, -13.7, -13.8, -13.8, -13.7, -14, -13.8, -13.7, -13.8, -13.8, -13.7, -13.7, -13.6, -14.1, -13.6, -13.8, -13.8, -13.7, -13.7, -13.6, -14.1, -13.7, -13.8, -13.9, -13.8, -13.6, -13.7, -13.9, -13.9, -13.7, -14, -13.7, -13.5, -13.7]
+        ]
+      }
+    },
+    "compare": "loose",
+    "timingDependent": [
+      "Lead"
+    ],
+    "repeatable": true,
+    "repeatMaxDeltaDb": 0
+  },
+  "stems": {
+    "Take": {
+      "instrument": "vocal-fx",
+      "status": "ok",
+      "sampleRate": 48000,
+      "length": 288000,
+      "channels": 2,
+      "durationSec": 6,
+      "toneContextRestored": true,
+      "features": {
+        "peak": 0.49791,
+        "peakDb": -6.06,
+        "silent": false,
+        "activeSec": [0.018, 3.617],
+        "onsetsSec": [0.019, 0.518, 1.018, 1.518, 2.018, 2.518, 3.018, 3.518],
+        "centroidHz": 939,
+        "rms100msDb": {
+          "windowSec": 0.1,
+          "floorDb": -120,
+          "max": [-19.2, -21.2, -84.7, -90.5, -103.1, -9.8, -17.1, -100, -111, -107.6, -9.8, -17.1, -95.5, -100.9, -113.7, -9.8, -17.1, -107.8, -110.2, -117.3, -9.8, -17.1, -120, -120, -120, -9.8, -17.1, -104.1, -108.9, -120, -9.8, -17.1, -120, -120, -120, -9.8, -17.1, -110.9, -116, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120]
+        }
+      },
+      "compare": "strict",
+      "timingDependent": []
+    },
+    "Sample": {
+      "instrument": "none",
+      "status": "ok",
+      "sampleRate": 48000,
+      "length": 288000,
+      "channels": 2,
+      "durationSec": 6,
+      "toneContextRestored": true,
+      "features": {
+        "peak": 0,
+        "peakDb": -120,
+        "silent": true,
+        "activeSec": null,
+        "onsetsSec": [],
+        "centroidHz": null,
+        "rms100msDb": {
+          "windowSec": 0.1,
+          "floorDb": -120,
+          "max": [-120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -120]
+        }
+      },
+      "compare": "strict",
+      "timingDependent": []
+    },
+    "Drums": {
+      "instrument": "drum-machine",
+      "status": "ok",
+      "sampleRate": 48000,
+      "length": 288000,
+      "channels": 2,
+      "durationSec": 6,
+      "toneContextRestored": true,
+      "features": {
+        "peak": 0.60354,
+        "peakDb": -4.39,
+        "silent": false,
+        "activeSec": [0.02, 4.667],
+        "onsetsSec": [0.02, 0.269, 0.519, 0.77, 1.018, 1.268, 1.519, 1.77, 2.02, 2.268, 2.519, 2.77, 3.018, 3.269, 3.519, 3.77],
+        "centroidHz": 1931,
+        "rms100msDb": {
+          "windowSec": 0.1,
+          "floorDb": -120,
+          "max": [-17.3, -10.3, -9.2, -9.6, -9.6, -12.9, -13.4, -13.6, -14.5, -14.7, -9.3, -8.4, -9.1, -9.6, -9.6, -12.9, -13.4, -13.6, -14.5, -14.7, -9.4, -8.4, -9.1, -9.6, -9.6, -12.9, -13.4, -13.5, -14.5, -14.7, -9.3, -8.4, -9.1, -9.6, -9.6, -12.9, -13.4, -13.6, -14.5, -14.7, -16.5, -18, -20.1, -22, -23.7, -34.1, -57.9, -71, -64.5, -63.3, -68, -80.7, -74.7, -74.5, -77.1, -82.9, -95.2, -91.6, -88.4, -89.3]
+        }
+      },
+      "compare": "strict",
+      "timingDependent": []
+    },
+    "Lead": {
+      "instrument": "oracle-synth",
+      "status": "ok",
+      "sampleRate": 48000,
+      "length": 288000,
+      "channels": 2,
+      "durationSec": 6,
+      "toneContextRestored": true,
+      "features": {
+        "peak": 0.69511,
+        "peakDb": -3.16,
+        "silent": false,
+        "activeSec": [1.017, 6],
+        "onsetsSec": [1.018],
+        "centroidHz": 3919,
+        "rms100msDb": {
+          "windowSec": 0.1,
+          "floorDb": -120,
+          "max": [-120, -120, -120, -120, -120, -120, -120, -120, -120, -120, -16.3, -16.4, -16.6, -16.6, -16.6, -16.6, -16.6, -16.6, -16.6, -16.6, -16.6, -16.6, -16.6, -16.6, -16.6, -16.6, -16.6, -16.6, -16.6, -16.6, -13.6, -13.7, -13.8, -13.8, -13.7, -13.8, -13.7, -13.8, -13.8, -13.7, -13.8, -13.8, -13.7, -13.8, -13.8, -13.8, -13.8, -13.8, -13.8, -13.8, -13.7, -13.8, -13.8, -13.7, -13.8, -13.8, -13.7, -13.8, -13.8, -13.7]
+        }
+      },
+      "compare": "structure",
+      "timingDependent": [
+        "Lead"
+      ]
+    }
+  },
+  "export": {
+    "status": "error",
+    "error": {
+      "name": "NotSupportedError",
+      "message": "Failed to set the 'buffer' property on 'ConvolverNode': The buffer sample rate of 48000 does not match the context rate of 44100 Hz."
+    },
+    "toneContextRestored": false,
+    "playheadMovesAfter": false
+  },
+  "probes": [],
+  "instrumentsReady": true,
+  "instruments": [
+    {
+      "name": "Take",
+      "instrument": "vocal-fx",
+      "state": "ready"
+    },
+    {
+      "name": "Sample",
+      "instrument": "none",
+      "state": "none"
+    },
+    {
+      "name": "Drums",
+      "instrument": "drum-machine",
+      "state": "ready"
+    },
+    {
+      "name": "Lead",
+      "instrument": "oracle-synth",
+      "state": "ready"
+    }
+  ],
+  "consoleErrors": [
+    "[AudioClipScheduler] startSource failed: InvalidAccessError: Failed to execute 'connect' on 'AudioNode': cannot connect to an AudioNode belonging to a different audio context.",
+    "[AudioClipScheduler] startSourceNow failed: InvalidAccessError: Failed to execute 'connect' on 'AudioNode': cannot connect to an AudioNode belonging to a different audio context."
+  ],
+  "pageErrors": []
+}

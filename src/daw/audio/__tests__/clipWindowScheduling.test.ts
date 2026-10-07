@@ -10,9 +10,9 @@ import { splitAudioClip } from '../audioClipCuts';
 // ── Split halves on the scheduler, and every call that schedules a clip ────
 // A split half, a record-over remainder and a front-trimmed clip each play a
 // window of their recording, from offsetSeconds on. That only holds where
-// the clip's offset reaches AudioClipScheduler.scheduleClip, whose last
-// positional parameter falls back to 0: a call that drops it replays the
-// recording from its start (audio-core-03).
+// the clip's offset reaches AudioClipScheduler.scheduleClip: a call that drops
+// it replays the recording from its start (audio-core-03). scheduleClip takes
+// the clip itself, so every caller must hand it the clip.
 
 const { starts, transportJobs } = vi.hoisted(() => ({
   /** Buffer read position (s) of every source started. */
@@ -45,7 +45,17 @@ vi.mock('tone', () => {
 const BPM = 120;
 const SEC = 960; // ticks per second at 120 bpm
 const buffer = { duration: 10, numberOfChannels: 1 } as AudioBuffer;
-const engine = { getNativeInputNode: () => ({}) } as unknown as TrackEngine;
+const holdSource = () => ({
+  offset: { value: 0 },
+  connect() {},
+  disconnect() {},
+  start() {},
+  stop() {},
+});
+const engine = {
+  getNativeInputNode: () => ({}),
+  getInputNode: () => ({ context: { createConstantSource: holdSource } }),
+} as unknown as TrackEngine;
 
 /** A take at 2–8 s, front-trimmed by 1 s. */
 const take: AudioClip = {
@@ -63,18 +73,13 @@ const [, rightHalf] = splitAudioClip(take, 5 * SEC, BPM, 'right')!;
  * `fromTick`: the scheduleClip call usePlaybackEngine's Play makes.
  */
 function readsFrom(clip: AudioClip, fromTick: number): number {
-  new AudioClipScheduler().scheduleClip(
+  new AudioClipScheduler().scheduleClip({
     buffer,
-    clip.startTick,
-    clip.duration,
-    engine,
+    clip,
+    trackEngine: engine,
     fromTick,
-    BPM,
-    undefined,
-    clip.fadeInTicks,
-    clip.fadeOutTicks,
-    clip.offsetSeconds ?? 0,
-  );
+    bpm: BPM,
+  });
   for (const job of transportJobs.splice(0)) job(0);
   return starts.splice(0).pop()!;
 }
@@ -98,12 +103,13 @@ describe('a split half on the scheduler', () => {
   });
 });
 
-// ── Every scheduleClip call passes the clip's offset ───────────────────────
+// ── Every scheduleClip call passes the clip ────────────────────────────────
 
 const SRC = join(__dirname, '..', '..', '..');
 
-/** Each scheduleClip(...) call in `file` (under src/), by argument text. */
-function scheduleClipCalls(file: string): string[][] {
+/** Each scheduleClip({...}) call in `file` (under src/), as its option
+ *  properties: name → value text (a shorthand `clip` maps to 'clip'). */
+function scheduleClipCalls(file: string): Array<Record<string, string>> {
   const path = join(SRC, file);
   const source = ts.createSourceFile(
     path,
@@ -111,14 +117,28 @@ function scheduleClipCalls(file: string): string[][] {
     ts.ScriptTarget.Latest,
     true,
   );
-  const calls: string[][] = [];
+  const calls: Array<Record<string, string>> = [];
   const visit = (node: ts.Node) => {
     if (
       ts.isCallExpression(node) &&
       ts.isPropertyAccessExpression(node.expression) &&
       node.expression.name.text === 'scheduleClip'
     ) {
-      calls.push(node.arguments.map((a) => a.getText(source)));
+      const options: Record<string, string> = {};
+      const [arg] = node.arguments;
+      if (arg && ts.isObjectLiteralExpression(arg)) {
+        for (const prop of arg.properties) {
+          if (ts.isShorthandPropertyAssignment(prop)) {
+            options[prop.name.text] = prop.name.text;
+          } else if (
+            ts.isPropertyAssignment(prop) &&
+            ts.isIdentifier(prop.name)
+          ) {
+            options[prop.name.text] = prop.initializer.getText(source);
+          }
+        }
+      }
+      calls.push(options);
     }
     ts.forEachChild(node, visit);
   };
@@ -126,17 +146,18 @@ function scheduleClipCalls(file: string): string[][] {
   return calls;
 }
 
-const OFFSET_ARG = 9; // clipOffsetSeconds, the tenth parameter
-const passesOffset = (call: string[] | undefined) =>
-  /\bclip\.offsetSeconds\b/.test(call?.[OFFSET_ARG] ?? '');
+/** The option carries the store's clip (offset, fades and gain with it). The
+ *  bounce may shift its startTick to the render window, nothing else. */
+const passesClip = (call: Record<string, string> | undefined) =>
+  /^(clip|\{\s*\.\.\.clip,\s*startTick:[^,}]*,?\s*\})$/.test(call?.clip ?? '');
 
-/** usePlaybackEngine's call that starts clips from `fromArg` (5th argument). */
-const engineCall = (fromArg: string) =>
+/** usePlaybackEngine's call that starts clips from `fromTick`. */
+const engineCall = (fromTick: string) =>
   scheduleClipCalls('daw/hooks/usePlaybackEngine.ts').filter(
-    (args) => args[4] === fromArg,
+    (options) => options.fromTick === fromTick,
   );
 
-describe('scheduleClip callers pass the clip offset', () => {
+describe('scheduleClip callers pass the clip', () => {
   it('finds the bounce, Play and loop-lap calls', () => {
     expect(scheduleClipCalls('daw/audio/renderProject.ts')).toHaveLength(1);
     expect(engineCall('currentTick')).toHaveLength(1);
@@ -145,19 +166,14 @@ describe('scheduleClip callers pass the clip offset', () => {
 
   it('the bounce (renderProject)', () => {
     const [call] = scheduleClipCalls('daw/audio/renderProject.ts');
-    expect(passesOffset(call)).toBe(true);
+    expect(passesClip(call)).toBe(true);
   });
 
   it('Play, from the playhead (usePlaybackEngine)', () => {
-    expect(passesOffset(engineCall('currentTick')[0])).toBe(true);
+    expect(passesClip(engineCall('currentTick')[0])).toBe(true);
   });
 
-  // audio-core-03, made louder by non-destructive split (timeline-01): the
-  // loop handler's call stops at clip.fadeOutTicks, so from the second lap on
-  // split right halves, record-over remainders and trimmed clips replay their
-  // recording from its start. Flip to `it` with the one-line fix there
-  // (`clip.offsetSeconds ?? 0` as the tenth argument).
   it('loop laps, from the loop start (usePlaybackEngine)', () => {
-    expect(passesOffset(engineCall('loopStart')[0])).toBe(true);
+    expect(passesClip(engineCall('loopStart')[0])).toBe(true);
   });
 });

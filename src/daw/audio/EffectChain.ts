@@ -500,6 +500,9 @@ export class EffectChain {
   private multibandBypassed = true;
 
   private state: TrackEffectState;
+  // Whether update() has run: until then `state` is the constructor's default,
+  // not something anyone has heard.
+  private hasUpdated = false;
 
   constructor(ctx: AudioContext) {
     this.ctx = ctx;
@@ -1308,6 +1311,23 @@ export class EffectChain {
     });
   }
 
+  /** Set an EQ filter's frequency, gliding (~50 ms) rather than jumping. */
+  private setCutoff(
+    filter: BiquadFilterNode,
+    hz: number,
+    glide: boolean,
+  ): void {
+    const param = filter.frequency;
+    if (!glide) {
+      param.value = hz;
+      return;
+    }
+    const now = this.ctx.currentTime;
+    param.cancelScheduledValues(now);
+    param.setValueAtTime(param.value, now);
+    param.setTargetAtTime(hz, now, 0.05);
+  }
+
   // ── Update parameters ─────────────────────────────────────────────────
 
   update(newState: TrackEffectState): void {
@@ -1356,19 +1376,28 @@ export class EffectChain {
         needsRebuild = true;
       }
 
+      // Switching a band on or off moves a cut filter's cutoff a long way (a
+      // 30 Hz low cut goes to 1 Hz when off). A jump that far rings out as a
+      // low thump for about a second, which mastering Bypass would make on
+      // every A/B, so the cutoff glides there instead. A new chain's first
+      // update is not heard yet (and a bounce must start exact): it jumps.
+      const wasOn = this.state.eq.enabled && (oldBand?.enabled ?? false);
+      const isOn = newState.eq.enabled && band.enabled;
+      const glide = this.hasUpdated && isCut && wasOn !== isOn;
+
       for (const filter of this.eqFilterGroups[i]) {
-        if (!newState.eq.enabled || !band.enabled) {
+        if (!isOn) {
           if (band.type === 'lowcut') {
-            filter.frequency.value = 1;
+            this.setCutoff(filter, 1, glide);
           } else if (band.type === 'highcut') {
-            filter.frequency.value = 22050;
+            this.setCutoff(filter, 22050, glide);
           } else {
             filter.frequency.value = band.freq;
             filter.gain.value = 0;
           }
           filter.Q.value = band.Q;
         } else {
-          filter.frequency.value = band.freq;
+          this.setCutoff(filter, band.freq, glide);
           filter.gain.value = band.gain;
           filter.Q.value = band.Q;
         }
@@ -1527,6 +1556,7 @@ export class EffectChain {
     // Ducker (sidechain) — the loop reads live params from this.state (set
     // below), so we only manage its lifecycle here: run only while enabled.
     this.state = structuredClone(newState);
+    this.hasUpdated = true;
     // Gate loop lifecycle: run the 60Hz polling interval ONLY while the gate is
     // enabled. It's cheap per tick but there is one per track + master + every
     // return bus, so leaving them all running is needless main-thread pressure.

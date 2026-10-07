@@ -210,6 +210,13 @@ export function setTrackSynthState(
 
 // ── Engine application ─────────────────────────────────────────────────────
 
+export interface ApplySynthStateOptions {
+  /** The project tempo. Tempo is host state: the bpm a patch was saved with
+   *  is whatever the synth store held then (often its 120 default), so
+   *  tempo-synced LFOs and the arp follow the project instead when given. */
+  projectBpm?: number;
+}
+
 /**
  * Push a patch onto a track's SynthEngine. Mirrors the initial-sync block in
  * useSyncStoreToEngine so a loaded project's tracks play correctly even before
@@ -218,6 +225,7 @@ export function setTrackSynthState(
 export function applySynthStateToEngine(
   engine: SynthEngine,
   snap: SynthTrackState,
+  { projectBpm }: ApplySynthStateOptions = {},
 ): void {
   const s = normalizeSynthTrackState(snap);
   engine.setOscillatorParams(0, s.oscillators[0]);
@@ -238,7 +246,11 @@ export function applySynthStateToEngine(
   engine.setGlide(s.glide);
   engine.setSpread(s.spread);
   engine.setPitchBendRange(s.pitchBendRange);
-  engine.setBPM(s.bpm);
+  engine.setBPM(
+    projectBpm !== undefined && Number.isFinite(projectBpm)
+      ? projectBpm
+      : s.bpm,
+  );
   for (let i = 0; i < 4; i++) {
     for (let j = 0; j < 4; j++) {
       engine.setLFONodes(i, j, s.lfos[i].bars[j]);
@@ -258,6 +270,11 @@ export function applySynthStateToEngine(
   engine.setChorusParams(s.fx.chorus);
   engine.setPhaserParams(s.fx.phaser);
   engine.setDelayParams(s.fx.delay);
+  // Effects start disabled, so without this a patch's reverb is missing on
+  // reload and in every export until its panel opens; a disabled one also
+  // detaches the convolver it would otherwise run unheard. Pre-v3 patches
+  // have no reverb section, and its updateParams would throw on undefined.
+  if (s.fx.reverb) engine.setReverbParams(s.fx.reverb);
   engine.setCompressorParams(s.fx.compressor);
   engine.setRouting(s.routing);
   engine.setArpParams(s.arp);

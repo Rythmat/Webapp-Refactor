@@ -14,7 +14,9 @@
 //   • Per-track EffectChain (EQ/comp/reverb/delay/presence/de-esser/saturator/
 //     multiband), track volume + pan, mute/solo.
 //   • Post-fader aux sends → return buses (each its own EffectChain) → master.
-//   • Master volume + the mastering EffectChain.
+//   • Master volume + the mastering EffectChain as stored. The MASTER view's
+//     Bypass is a listening A/B (session-only, and shared in a collab room),
+//     so it never takes the mastering out of an export.
 //   • Parameter automation lanes (volume/pan/sends + rideable FX params) —
 //     scheduled as absolute-time AudioParam ramps (applyOfflineAutomation).
 //   • Master volume automation (Track automation's grammar, on the master gain).
@@ -42,11 +44,14 @@
 
 import * as Tone from 'tone';
 import { useStore } from '@/daw/store';
-import { EffectChain } from './EffectChain';
+import { audioEngine } from './AudioEngine';
+import { EffectChain, type TrackEffectState } from './EffectChain';
+import { ensureProcessedIr } from './reverbIR';
 import { TrackEngine } from './TrackEngine';
 import { isTrackAudible } from './trackAudibility';
 import { MidiScheduler } from './MidiScheduler';
 import { AudioClipScheduler } from './AudioClipScheduler';
+import { dropRepeatedTicks } from './transportTicks';
 import { getAudioBuffer, sliceBuffer } from './AudioBufferStore';
 import { TonewheelOrganEngine } from '@/daw/instruments/TonewheelOrganEngine';
 import {
@@ -74,6 +79,18 @@ const PPQ = 480;
 // Extra tail so reverb/delay/release aren't cut off at the project end.
 const TAIL_SECONDS = 2;
 const LOOP_TAIL_SECONDS = 1;
+// A bounce gives up on instruments that haven't loaded by then (e.g. a sample
+// CDN that never answers) rather than hang on "Rendering…" forever.
+const INSTRUMENT_LOAD_TIMEOUT_MS = 60_000;
+// Past this, a reverb whose real IR is still loading renders with the
+// synthetic one rather than hold the bounce up.
+const IR_PREPARE_TIMEOUT_MS = 10_000;
+// A bounce renders at the device's rate, kept to the two standard ones: an
+// interface at 96 kHz would cost 2–4× the memory and CPU for nothing a
+// classroom export can use, and a headset in call mode (16 kHz) would lose
+// everything above 8 kHz.
+const MIN_EXPORT_RATE = 44_100;
+const MAX_EXPORT_RATE = 48_000;
 
 /**
  * Family-A instruments (OracleSynth/SynthEngine, tonewheel organ, soundfont,
@@ -171,7 +188,9 @@ export async function renderProject(
     masterAutomation,
   } = state;
   const range: RenderRange = opts.range ?? 'project';
-  const sampleRate = opts.sampleRate ?? 44100;
+  // The rate Play runs at (within 44.1–48 kHz), so the file is what the
+  // student heard; the reverb IRs are decoded for whatever rate it is.
+  const sampleRate = opts.sampleRate ?? exportSampleRate(liveSampleRate());
 
   const { startTick, endTick, tail } = renderWindowTicks(state, range);
   const secPerTick = 60 / bpm / PPQ;
@@ -182,124 +201,207 @@ export async function renderProject(
   // ends, so collect every disposable and tear them all down afterwards — else
   // each export leaks N timers polling a dead graph forever.
   const disposables: Array<{ dispose(): void }> = [];
+  // Tone.Offline points Tone's global context (and with it the transport) at
+  // the offline one, and only points it back when the callback succeeds. Keep
+  // the live one to hand back after any failure: otherwise Play, the metronome
+  // and every transport-scheduled clip stay bound to a dead context until a
+  // reload (audio-core-01).
+  const live = Tone.getContext();
+  // Set once this call is over, so an instrument that loads after a timeout
+  // is dropped instead of scheduling its notes.
+  let settled = false;
 
-  const rendered = await Tone.Offline(
-    async (offlineCtx) => {
-      const transport = Tone.getTransport();
-      transport.PPQ = PPQ;
-      transport.bpm.value = bpm;
-      // The Tone-wrapped offline context; raw-node factories (createGain, …) are
-      // API-compatible, and Tone instruments follow this swapped global context.
-      const ctx = offlineCtx.rawContext as unknown as AudioContext;
+  try {
+    const rendered = await Tone.Offline(
+      async (offlineCtx) => {
+        const transport = Tone.getTransport();
+        // The offline clock can run a tick on a block edge twice (at 48 kHz,
+        // 3 to 5 beats in 16), and every note, clip and CC on it with it.
+        dropRepeatedTicks(transport);
+        transport.PPQ = PPQ;
+        transport.bpm.value = bpm;
+        // The Tone-wrapped offline context; raw-node factories (createGain, …)
+        // are API-compatible, and Tone instruments follow this swapped global
+        // context.
+        const ctx = offlineCtx.rawContext as unknown as AudioContext;
 
-      // Master → mastering chain → offline destination.
-      const master = ctx.createGain();
-      master.gain.value = masterVolume;
-      // Master volume automation rides over the fader value, as in playback.
-      applyOfflineLanes(
-        masterAutomation,
-        (paramId) => resolveMasterAutomationTargets(paramId, master),
-        startTick,
-        bpm,
-      );
-      const mastering = new EffectChain(ctx);
-      disposables.push(mastering);
-      mastering.update(masteringEffects);
-      master.connect(mastering.getInputNode());
-      mastering.getOutputNode().connect(ctx.destination);
+        await prepareReverbIrs(ctx, [
+          masteringEffects,
+          ...returns.map((ret) => ret.effects),
+          ...tracks
+            .filter((track) => isTrackAudible(track, tracks))
+            .map((track) => track.effects),
+        ]);
 
-      // Return buses: each EffectChain → returnGain → master.
-      const returnInputs = new Map<string, AudioNode>();
-      for (const ret of returns) {
-        const chain = new EffectChain(ctx);
-        disposables.push(chain);
-        chain.update(ret.effects);
-        const g = ctx.createGain();
-        g.gain.value = ret.volume;
-        chain.getOutputNode().connect(g);
-        g.connect(master);
-        returnInputs.set(ret.id, chain.getInputNode());
-      }
-
-      const inits: Array<Promise<void>> = [];
-
-      for (const track of tracks) {
-        // Same mute/solo rule as live playback (usePlaybackEngine), so a bounce
-        // is WYSIWYG vs. Play — including while soloing.
-        if (!isTrackAudible(track, tracks)) continue;
-
-        const te = new TrackEngine(ctx, master);
-        disposables.push(te);
-        te.setVolume(track.volume);
-        te.setPan(track.pan);
-        te.updateEffects(track.effects);
-        for (const [id, input] of returnInputs) {
-          te.setSend(id, track.sends?.[id] ?? 0, input);
-        }
-        // Parameter automation: schedule absolute-time ramps on the (now wired)
-        // volume/pan/send/FX params, shifted to the render window origin.
-        applyOfflineAutomation(te, track.automation, startTick, bpm);
-
-        // Instrument: init async (samplers/soundfont load samples), then apply
-        // per-track state and schedule its MIDI once ready.
-        const instrument = createInstrument(
-          track.instrument,
-          track.gmProgram,
-          track.drumKit,
-          track.bassVoice,
+        // Master → mastering chain → offline destination.
+        const master = ctx.createGain();
+        master.gain.value = masterVolume;
+        // Master volume automation rides over the fader value, as in playback.
+        applyOfflineLanes(
+          masterAutomation,
+          (paramId) => resolveMasterAutomationTargets(paramId, master),
+          startTick,
+          bpm,
         );
-        if (instrument) {
-          const ready = instrument
-            .init(asRunningContext(ctx), te.getInputNode())
-            .then(() => {
-              te.setInstrument(instrument);
-              if (instrument instanceof OracleSynthAdapter) {
-                const patch = getTrackSynthState(track.id);
-                const engine = instrument.getEngine();
-                if (patch && engine) applySynthStateToEngine(engine, patch);
-              } else if (instrument instanceof DrumMachineEngine) {
-                applyDrumPads(instrument, track);
-              } else if (instrument instanceof ChopsSampler) {
-                applyOfflineSampler(instrument, track, ctx);
-              } else if (
-                instrument instanceof TonewheelOrganEngine &&
-                track.organState
-              ) {
-                instrument.setState(track.organState);
-              }
-              scheduleTrackMidi(track, te, startTick);
-            })
-            .catch((err) => {
-              console.error(
-                `[renderProject] instrument init failed for "${track.name}":`,
-                err,
-              );
-            });
-          inits.push(ready);
+        const mastering = new EffectChain(ctx);
+        disposables.push(mastering);
+        mastering.update(masteringEffects);
+        master.connect(mastering.getInputNode());
+        mastering.getOutputNode().connect(ctx.destination);
+
+        // Return buses: each EffectChain → returnGain → master.
+        const returnInputs = new Map<string, AudioNode>();
+        for (const ret of returns) {
+          const chain = new EffectChain(ctx);
+          disposables.push(chain);
+          chain.update(ret.effects);
+          const g = ctx.createGain();
+          g.gain.value = ret.volume;
+          chain.getOutputNode().connect(g);
+          g.connect(master);
+          returnInputs.set(ret.id, chain.getInputNode());
         }
 
-        // Audio clips render regardless of instrument readiness.
-        scheduleTrackClips(track, te, bpm, startTick);
+        const inits: Array<Promise<void>> = [];
+
+        for (const track of tracks) {
+          // Same mute/solo rule as live playback (usePlaybackEngine), so a
+          // bounce is WYSIWYG vs. Play — including while soloing.
+          if (!isTrackAudible(track, tracks)) continue;
+
+          const te = new TrackEngine(ctx, master);
+          disposables.push(te);
+          te.setVolume(track.volume);
+          te.setPan(track.pan);
+          te.updateEffects(track.effects);
+          for (const [id, input] of returnInputs) {
+            te.setSend(id, track.sends?.[id] ?? 0, input);
+          }
+          // Parameter automation: schedule absolute-time ramps on the (now
+          // wired) volume/pan/send/FX params, shifted to the render window
+          // origin.
+          applyOfflineAutomation(te, track.automation, startTick, bpm);
+
+          // Instrument: init async (samplers/soundfont load samples), then
+          // apply per-track state and schedule its MIDI once ready.
+          const instrument = createInstrument(
+            track.instrument,
+            track.gmProgram,
+            track.drumKit,
+            track.bassVoice,
+          );
+          if (instrument) {
+            const ready = instrument
+              .init(asRunningContext(ctx), te.getInputNode())
+              .then(() => {
+                if (settled) {
+                  instrument.dispose();
+                  return;
+                }
+                te.setInstrument(instrument);
+                if (instrument instanceof OracleSynthAdapter) {
+                  const patch = getTrackSynthState(track.id);
+                  const engine = instrument.getEngine();
+                  if (patch && engine) {
+                    applySynthStateToEngine(engine, patch, { projectBpm: bpm });
+                  }
+                } else if (instrument instanceof DrumMachineEngine) {
+                  applyDrumPads(instrument, track);
+                } else if (instrument instanceof ChopsSampler) {
+                  applyOfflineSampler(instrument, track, ctx);
+                } else if (
+                  instrument instanceof TonewheelOrganEngine &&
+                  track.organState
+                ) {
+                  instrument.setState(track.organState);
+                }
+                scheduleTrackMidi(track, te, startTick);
+              })
+              .catch((err) => {
+                console.error(
+                  `[renderProject] instrument init failed for "${track.name}":`,
+                  err,
+                );
+              });
+            inits.push(ready);
+          }
+
+          // Audio clips render regardless of instrument readiness.
+          scheduleTrackClips(track, te, bpm, startTick);
+        }
+
+        await withTimeout(
+          Promise.all(inits),
+          INSTRUMENT_LOAD_TIMEOUT_MS,
+          'Export gave up waiting for instruments to load',
+        );
+        transport.start(0);
+      },
+      duration,
+      2,
+      sampleRate,
+    );
+    return rendered.get() as unknown as AudioBuffer;
+  } finally {
+    settled = true;
+    if (Tone.getContext() !== live) Tone.setContext(live);
+    // Tear down the graph so its gate/duck interval loops stop.
+    for (const d of disposables) {
+      try {
+        d.dispose();
+      } catch (err) {
+        console.warn('[renderProject] disposable cleanup failed:', err);
       }
-
-      await Promise.all(inits);
-      transport.start(0);
-    },
-    duration,
-    2,
-    sampleRate,
-  );
-
-  // Render done — tear down the graph so its gate/duck interval loops stop.
-  for (const d of disposables) {
-    try {
-      d.dispose();
-    } catch (err) {
-      console.warn('[renderProject] disposable cleanup failed:', err);
     }
   }
+}
 
-  return rendered.get() as unknown as AudioBuffer;
+/** The live engine's output rate (Tone's own context until the engine starts). */
+function liveSampleRate(): number {
+  return audioEngine.getSampleRate() || Tone.getContext().sampleRate;
+}
+
+/** The rate a bounce renders at on a device running at `liveRate`. */
+function exportSampleRate(liveRate: number): number {
+  if (!Number.isFinite(liveRate)) return MIN_EXPORT_RATE;
+  return Math.min(MAX_EXPORT_RATE, Math.max(MIN_EXPORT_RATE, liveRate));
+}
+
+/** `promise`, or a rejection with `message` once `ms` have passed. */
+function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  message: string,
+): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
+/**
+ * Decode the real IR of every reverb the bounce uses at the render's own rate
+ * before any chain is built, so each convolver gets it straight away instead of
+ * starting on the synthetic IR and swapping mid-render (the live engine only
+ * holds them at its rate). A slow load falls back to the synthetic IR.
+ */
+async function prepareReverbIrs(
+  ctx: BaseAudioContext,
+  chains: TrackEffectState[],
+): Promise<void> {
+  const loads = chains
+    .filter((fx) => fx.reverb?.enabled)
+    .map((fx) => ensureProcessedIr(ctx, fx.reverb.type, fx.reverb.decay));
+  if (loads.length === 0) return;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  await Promise.race([
+    Promise.all(loads),
+    new Promise<void>((resolve) => {
+      timer = setTimeout(resolve, IR_PREPARE_TIMEOUT_MS);
+    }),
+  ]);
+  clearTimeout(timer);
 }
 
 /** Schedule a track's MIDI clips onto the (offline) transport via the shared
@@ -337,18 +439,13 @@ function scheduleTrackClips(
   for (const clip of track.audioClips) {
     const buffer = getAudioBuffer(clip.id);
     if (!buffer) continue;
-    scheduler.scheduleClip(
+    scheduler.scheduleClip({
       buffer,
-      clip.startTick - startTick,
-      clip.duration,
-      te,
-      0,
+      clip: { ...clip, startTick: clip.startTick - startTick },
+      trackEngine: te,
+      fromTick: 0,
       bpm,
-      undefined,
-      clip.fadeInTicks ?? 0,
-      clip.fadeOutTicks ?? 0,
-      clip.offsetSeconds ?? 0,
-    );
+    });
   }
 }
 

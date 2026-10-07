@@ -3,6 +3,7 @@ import * as Tone from 'tone';
 import { useStore } from '@/daw/store';
 import { getPlaybackLoop } from '@/daw/store/transportSlice';
 import { audioEngine } from '@/daw/audio/AudioEngine';
+import { dropRepeatedTicks } from '@/daw/audio/transportTicks';
 
 // ── seekTo ──────────────────────────────────────────────────────────────
 // Seek playhead to a specific tick position. Syncs both Tone.Transport and
@@ -52,6 +53,19 @@ export function useTransport() {
     transport.loopEnd = `${loopEnd}i`;
   }, [loopEnabled, loopStart, loopEnd]);
 
+  // Leaving the editor stops playback. Its track engines are disposed on the
+  // way out, so the app-wide transport would only keep running the DAW's loop
+  // and tempo under other screens, and a stale isPlaying would restart it on
+  // the way back in.
+  useEffect(() => {
+    return () => {
+      const transport = Tone.getTransport();
+      if (transport.state === 'started') transport.pause();
+      const s = useStore.getState();
+      if (s.isPlaying || s.isCountingIn || s.isRecording) s.pause();
+    };
+  }, []);
+
   // Sync play / pause → Tone.Transport
   useEffect(() => {
     const transport = Tone.getTransport();
@@ -60,6 +74,9 @@ export function useTransport() {
       // was suspended/interrupted (sleep, tab background, iOS), transport.start
       // would silently produce no audio until the context resumes.
       void audioEngine.resumeIfNeeded();
+      // At 48 kHz Tone's clock repeats a tick every few seconds, and a note,
+      // clip or click on it would play twice: each tick runs once.
+      dropRepeatedTicks(transport);
       transport.ticks = useStore.getState().position;
       transport.start();
     } else {

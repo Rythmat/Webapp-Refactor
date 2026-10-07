@@ -1,4 +1,11 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import {
@@ -20,7 +27,7 @@ import {
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useStore, type ViewType } from '@/daw/store';
 import { seekTo } from '@/daw/hooks/useTransport';
-import { FixedDigits } from '@/components/common/FixedDigits';
+import { projectEndTick } from '@/daw/audio/renderProject';
 import { NOTES } from '@prism/engine';
 import { ALL_GRID_VALUES } from '@/daw/utils/quantize';
 import { FileMenu } from './FileMenu';
@@ -102,21 +109,58 @@ function formatPosition(ticks: number, numerator = 4, denominator = 4): string {
   return `${bar}:${beat}:${sixteenth}`;
 }
 
-// ── Position Display (isolated 60fps subscriber) ─────────────────────────
+// ── Position Display (its own memoised child) ────────────────────────────
+// The store's playhead position moves ~30 times a second while playing. React
+// renders this span once; a store subscription writes the bar:beat:sixteenth
+// text into it, and only when that text changes, so playback re-renders
+// neither the readout nor the bar around it (shell-17).
 
-function PositionDisplay() {
-  const position = useStore((s) => s.position);
-  const tsNum = useStore((s) => s.timeSignatureNumerator);
-  const tsDen = useStore((s) => s.timeSignatureDenominator);
+type StoreState = ReturnType<typeof useStore.getState>;
+
+const positionText = (s: StoreState): string =>
+  formatPosition(
+    s.position,
+    s.timeSignatureNumerator,
+    s.timeSignatureDenominator,
+  );
+
+/** FixedDigits' cell widths in em (src/components/common/FixedDigits.tsx):
+ *  each digit and colon sits in a cell of its own, so the readout holds
+ *  still while it counts. */
+const DIGIT_CELL_EM = 0.62;
+const COLON_CELL_EM = 0.32;
+
+/** The text in FixedDigits' cells. formatPosition writes digits and colons. */
+function writeReadout(el: HTMLElement, text: string): void {
+  el.replaceChildren(
+    ...Array.from(text, (ch) => {
+      const cell = document.createElement('span');
+      cell.textContent = ch;
+      const em = ch === ':' ? COLON_CELL_EM : DIGIT_CELL_EM;
+      // Centred, and free of inherited letter-spacing, as in FixedDigits.
+      cell.style.cssText = `display:inline-block;width:${em}em;text-align:center;letter-spacing:0`;
+      return cell;
+    }),
+  );
+}
+
+const PositionDisplay = memo(function PositionDisplay() {
+  const ref = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    writeReadout(el, positionText(useStore.getState()));
+    return useStore.subscribe(positionText, (text) => writeReadout(el, text));
+  }, []);
   return (
-    <FixedDigits
-      text={formatPosition(position, tsNum, tsDen)}
+    <span
+      ref={ref}
       className="block min-w-14 text-center text-xs"
       style={{ color: 'var(--color-text)' }}
       title="Bar : Beat : Sixteenth"
     />
   );
-}
+});
 
 // ── Zoom indicator ───────────────────────────────────────────────────────
 
@@ -199,8 +243,6 @@ export const TransportBar = memo(function TransportBar({
     [isReady, onInit],
   );
 
-  const tracks = useStore((s) => s.tracks);
-
   const handleStop = useCallback(() => withInit(stop), [withInit, stop]);
   const handleStopToZero = useCallback(
     () =>
@@ -245,19 +287,13 @@ export const TransportBar = memo(function TransportBar({
             return;
           }
         }
-        // Fallback: seek to end of content
-        let lastTick = 0;
-        for (const t of tracks) {
-          for (const clip of t.midiClips) {
-            for (const ev of clip.events) {
-              const end = clip.startTick + ev.startTick + ev.durationTicks;
-              if (end > lastTick) lastTick = end;
-            }
-          }
-        }
+        // Fallback: seek to the end of the content, audio clips included.
+        // Read here rather than subscribed: the bar would otherwise re-render
+        // on every track edit for this one button (shell-17).
+        const lastTick = projectEndTick(useStore.getState());
         if (lastTick > pos) seekTo(lastTick);
       }),
-    [withInit, tracks],
+    [withInit],
   );
   const handlePlayPause = useCallback(
     () => withInit(isPlaying ? pause : play),
@@ -425,7 +461,7 @@ export const TransportBar = memo(function TransportBar({
                   8,
                 left: keyButtonRef.current?.getBoundingClientRect().left ?? 0,
                 backgroundColor: 'var(--color-surface-2)',
-                border: 'var(--glass-border)',
+                border: '1px solid var(--color-border)',
                 backdropFilter: 'blur(24px)',
                 WebkitBackdropFilter: 'blur(24px)',
               }}
@@ -480,7 +516,7 @@ export const TransportBar = memo(function TransportBar({
                     left:
                       tsButtonRef.current?.getBoundingClientRect().left ?? 0,
                     backgroundColor: 'var(--color-surface-2)',
-                    border: 'var(--glass-border)',
+                    border: '1px solid var(--color-border)',
                     backdropFilter: 'blur(24px)',
                     WebkitBackdropFilter: 'blur(24px)',
                   }}
@@ -513,9 +549,9 @@ export const TransportBar = memo(function TransportBar({
                           className="flex h-6 w-10 cursor-pointer items-center justify-center rounded text-[10px] font-medium tabular-nums transition-colors hover:bg-white/10"
                           style={{
                             backgroundColor: isActive
-                              ? 'var(--color-accent)'
-                              : 'transparent',
-                            color: isActive ? '#000' : 'var(--color-text)',
+                              ? 'rgba(255, 255, 255, 0.10)'
+                              : undefined,
+                            color: 'var(--color-text)',
                             border: 'none',
                           }}
                         >
@@ -581,10 +617,10 @@ export const TransportBar = memo(function TransportBar({
                           setTsOpen(false);
                         }
                       }}
-                      className="ml-auto flex h-5 cursor-pointer items-center rounded px-1.5 text-[9px] font-medium uppercase transition-colors hover:bg-white/10"
+                      className="ml-auto flex h-6 cursor-pointer items-center rounded-full px-2.5 text-xs font-semibold transition-[filter] hover:brightness-90"
                       style={{
-                        backgroundColor: 'var(--color-accent)',
-                        color: '#000',
+                        backgroundColor: '#fff',
+                        color: '#101012',
                         border: 'none',
                       }}
                     >

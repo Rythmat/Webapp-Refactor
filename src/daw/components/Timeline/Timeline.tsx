@@ -1,4 +1,9 @@
-import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
+import { memo, useRef, useEffect, useCallback, useMemo, useState } from 'react';
+import { Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ProfileRoutes } from '@/constants/routes';
+import { useIsPremium } from '@/hooks/useIsPremium';
+import { PremiumBadge } from '@/daw/ui/PremiumBadge';
 import { useDevCommitCount } from '@/daw/dev/DevProfiler';
 import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
@@ -28,7 +33,6 @@ import {
   tickToTime,
   tickToTimePrecise,
 } from '@/daw/utils/timelineScale';
-import { PresenceCursors } from '@/daw/collab/ui/PresenceCursors';
 import {
   LOOP_STRIP_H,
   PLAYHEAD_COLOR,
@@ -335,6 +339,98 @@ function snapTick(tick: number, gridTicks: number): number {
   return Math.max(0, Math.round(tick / gridTicks) * gridTicks);
 }
 
+// ── Playhead ────────────────────────────────────────────────────────────
+// Subscribes to the transport position itself, as PianoRoll's Playhead does,
+// so playback's ~30 fps position writes repaint just this line instead of
+// re-rendering the whole Timeline (timeline-23).
+const TimelinePlayhead = memo(function TimelinePlayhead({
+  zoom,
+  scrollLeft,
+  maxX,
+  handleRef,
+}: {
+  zoom: number;
+  scrollLeft: number;
+  maxX: number;
+  /** Stable, so the handle is pinned to the ruler as it mounts, not on
+   *  every position update. */
+  handleRef: (node: HTMLDivElement | null) => void;
+}) {
+  const position = useStore((s) => s.position);
+  const x = tickToPixel(position, zoom, scrollLeft);
+  if (x < -2 || x > maxX + 2) return null;
+  return (
+    <div
+      className="pointer-events-none absolute inset-y-0"
+      style={{
+        width: 2,
+        backgroundColor: PLAYHEAD_COLOR,
+        transform: `translateX(${x}px)`,
+        willChange: 'transform',
+      }}
+    >
+      {/* Grab handle at the foot of the bar ruler (hit-tested by the canvas
+          via rulerPressTarget; the Timeline re-pins it on scroll). */}
+      <div
+        ref={handleRef}
+        style={{
+          position: 'absolute',
+          left: 1 - PLAYHEAD_HANDLE_W / 2,
+          borderLeft: `${PLAYHEAD_HANDLE_W / 2}px solid transparent`,
+          borderRight: `${PLAYHEAD_HANDLE_W / 2}px solid transparent`,
+          borderTop: `${PLAYHEAD_HANDLE_H}px solid ${PLAYHEAD_COLOR}`,
+        }}
+      />
+    </div>
+  );
+});
+
+// ── Prism suggestion menu item ──────────────────────────────────────────
+// Prism is part of Premium and stays locked in lessons (owner decision 8).
+// A free student sees the item locked, as Prism's dock tab is
+// (LockedFeatureOverlay), and is offered the plans instead of the modal.
+function PrismSuggestItem({
+  onSuggest,
+  onClose,
+}: {
+  onSuggest: () => void;
+  onClose: () => void;
+}) {
+  const { isPremium, isLoading } = useIsPremium();
+  const navigate = useNavigate();
+
+  if (isPremium) {
+    return (
+      <button
+        className="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-xs hover:bg-white/5"
+        style={{ color: 'var(--color-text)' }}
+        onClick={onSuggest}
+      >
+        <AnimatedBlobs size={30} />
+        Prism — Suggest Chords
+      </button>
+    );
+  }
+  return (
+    <button
+      className="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-xs hover:bg-white/5"
+      style={{ color: 'var(--color-text-dim)' }}
+      title="Prism is part of Premium. Subscribe to unlock it."
+      aria-label="Prism — Suggest Chords (Premium, locked)"
+      onClick={() => {
+        onClose();
+        // While the plan is loading a premium student looks free for a
+        // moment: the lock may show, but it never sends them away.
+        if (!isLoading) navigate(ProfileRoutes.plan.definition);
+      }}
+    >
+      <Lock size={14} strokeWidth={2} aria-hidden />
+      Prism — Suggest Chords
+      <PremiumBadge className="ml-auto" />
+    </button>
+  );
+}
+
 // ── Timeline ────────────────────────────────────────────────────────────
 
 export function Timeline() {
@@ -413,8 +509,9 @@ export function Timeline() {
   } | null>(null);
 
   // ── Store state ──
+  // Not the transport position: TimelinePlayhead subscribes to that itself,
+  // so playback doesn't re-render this component (timeline-23).
   const tracks = useStore((s) => s.tracks);
-  const position = useStore((s) => s.position);
   const bpm = useStore((s) => s.bpm);
   const selectedClipId = useStore((s) => s.selectedClipId);
   const selectedChordIds = useStore((s) => s.selectedChordIds);
@@ -1390,18 +1487,25 @@ export function Timeline() {
     };
   }, [draw]);
 
-  // ── CSS Playhead position ──────────────────────────────────────────
-  const playheadPx = useMemo(
-    () => tickToPixel(position, zoom, scrollLeft),
-    [position, zoom, scrollLeft],
-  );
-
   // ── Mouse coord helper ─────────────────────────────────────────────
 
   const getScrollTop = useCallback(() => {
     const el = canvasRef.current?.parentElement?.parentElement?.parentElement;
     return el?.scrollTop ?? 0;
   }, []);
+
+  // The playhead's grab handle, pinned to the foot of the bar ruler as it
+  // mounts; the scroll listener above keeps it there. A stable callback, so
+  // React doesn't detach and re-attach it, and re-measure, on every render.
+  const pinPlayheadHandle = useCallback(
+    (node: HTMLDivElement | null) => {
+      playheadHandleRef.current = node;
+      if (node) {
+        node.style.top = `${getScrollTop() + RULER_HEIGHT - PLAYHEAD_HANDLE_H}px`;
+      }
+    },
+    [getScrollTop],
+  );
 
   const getCanvasCoords = useCallback((e: React.MouseEvent | MouseEvent) => {
     const canvas = canvasRef.current;
@@ -1779,6 +1883,8 @@ export function Timeline() {
     useStore.getState().openPrismSuggestion(ctxMenu.tick, ctxMenu.blankTrackId);
     setCtxMenu(null);
   }, [ctxMenu]);
+
+  const closeCtxMenu = useCallback(() => setCtxMenu(null), []);
 
   const handleCtxMenuRename = useCallback(() => {
     if (!ctxMenu?.markerId) return;
@@ -2735,41 +2841,11 @@ export function Timeline() {
           </>
         )}
         {/* CSS playhead — GPU-accelerated, no canvas redraw needed */}
-        {playheadPx >= -2 && playheadPx <= containerWidth + 2 && (
-          <div
-            className="pointer-events-none absolute inset-y-0"
-            style={{
-              width: 2,
-              backgroundColor: PLAYHEAD_COLOR,
-              transform: `translateX(${playheadPx}px)`,
-              willChange: 'transform',
-            }}
-          >
-            {/* Grab handle at the foot of the bar ruler (hit-tested by the
-                canvas via rulerPressTarget; pinned on scroll above). */}
-            <div
-              ref={(node) => {
-                playheadHandleRef.current = node;
-                if (node) {
-                  node.style.top = `${
-                    getScrollTop() + RULER_HEIGHT - PLAYHEAD_HANDLE_H
-                  }px`;
-                }
-              }}
-              style={{
-                position: 'absolute',
-                left: 1 - PLAYHEAD_HANDLE_W / 2,
-                borderLeft: `${PLAYHEAD_HANDLE_W / 2}px solid transparent`,
-                borderRight: `${PLAYHEAD_HANDLE_W / 2}px solid transparent`,
-                borderTop: `${PLAYHEAD_HANDLE_H}px solid ${PLAYHEAD_COLOR}`,
-              }}
-            />
-          </div>
-        )}
-        {/* Remote collaborator cursors */}
-        <PresenceCursors
-          tickToPixel={(tick: number) => tickToPixel(tick, zoom, scrollLeft)}
-          containerWidth={containerWidth}
+        <TimelinePlayhead
+          zoom={zoom}
+          scrollLeft={scrollLeft}
+          maxX={containerWidth}
+          handleRef={pinPlayheadHandle}
         />
       </div>
       {/* Marker context menu */}
@@ -2880,14 +2956,10 @@ export function Timeline() {
                 </button>
               </>
             ) : ctxMenu.blankTrackId ? (
-              <button
-                className="flex w-full cursor-pointer items-center gap-2 px-3 py-1.5 text-left text-xs hover:bg-white/5"
-                style={{ color: 'var(--color-text)' }}
-                onClick={handlePrismSuggest}
-              >
-                <AnimatedBlobs size={30} />
-                Prism — Suggest Chords
-              </button>
+              <PrismSuggestItem
+                onSuggest={handlePrismSuggest}
+                onClose={closeCtxMenu}
+              />
             ) : (
               <button
                 className="w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-white/5"

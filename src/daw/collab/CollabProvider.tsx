@@ -19,6 +19,7 @@ import * as Y from 'yjs';
 import { IndexeddbPersistence } from 'y-indexeddb';
 import YPartyKitProvider from 'y-partykit/provider';
 import { Awareness } from 'y-protocols/awareness.js';
+import { shallow } from 'zustand/shallow';
 import { DEV_AUTH_BYPASS } from '@/auth/devBypass';
 import { showError } from '@/components/utils/toast';
 import { Env } from '@/constants/env';
@@ -114,6 +115,10 @@ const RECONNECT_MAX_MS = 2_500;
 // A 4401 is retried with a freshly issued token this many times before the
 // session ends; it can be a passing server-side key-fetch failure.
 const MAX_AUTH_RETRIES = 2;
+// Presence carries when this user last did something (lastActiveAt). Every
+// presence change reaches every peer and re-renders their editor, so it is
+// published at most this often, and only after activity (collab-02).
+const PRESENCE_ACTIVE_REFRESH_MS = 10_000;
 // Codes the server closes with after sending a message that says why (kicked,
 // full, not found, host left). handleServerMessage acts on the message; the
 // socket must just stay closed.
@@ -162,6 +167,10 @@ export function CollabProvider({ children }: CollabProviderProps) {
   const reconnectAttemptsRef = useRef(0);
   const authFailuresRef = useRef(0);
   const forceTokenRefreshRef = useRef(false);
+  // lastActiveAt's refresh (PRESENCE_ACTIVE_REFRESH_MS): the timer, which runs
+  // only while in a room, and when this user last changed their selection.
+  const presenceTimerRef = useRef<number | null>(null);
+  const lastActivityRef = useRef(0);
 
   // The latest values for the next connect, read through refs so a live
   // provider never holds a stale token.
@@ -210,6 +219,10 @@ export function CollabProvider({ children }: CollabProviderProps) {
     if (reconnectTimerRef.current !== null) {
       clearTimeout(reconnectTimerRef.current);
       reconnectTimerRef.current = null;
+    }
+    if (presenceTimerRef.current !== null) {
+      clearInterval(presenceTimerRef.current);
+      presenceTimerRef.current = null;
     }
 
     bridgeRef.current?.destroy();
@@ -545,22 +558,40 @@ export function CollabProvider({ children }: CollabProviderProps) {
         useStore.getState()._setConnectionStatus('disconnected');
       });
 
-      // Set up local presence with Auth0 user info
+      // Set up local presence with Auth0 user info. It starts from the
+      // selection as it stands: the presence sync below publishes only when
+      // the selection changes, so a track already selected would otherwise
+      // show no lock to peers.
       const colorIndex = provider.awareness.clientID % PRESENCE_COLORS.length;
+      const selection = useStore.getState();
 
       provider.awareness.setLocalState({
         userId: userId ?? '',
         userName: appUser?.nickname ?? appUser?.fullName ?? 'Anonymous',
         avatarUrl: appUser?.avatarUrl ?? '',
         color: PRESENCE_COLORS[colorIndex],
-        selectedTrackId: null,
-        selectedClipId: null,
+        selectedTrackId: selection.selectedTrackId,
+        selectedClipId: selection.selectedClipId,
         cursorTick: null,
         cursorTrackIndex: null,
         pianoRollCursor: null,
-        activity: 'idle',
+        activity: selection.editingClipId ? 'editing' : 'idle',
         lastActiveAt: Date.now(),
       } satisfies UserPresence);
+
+      // Publish lastActiveAt only when there was activity since it was last
+      // sent; an idle user sends nothing. teardown stops the timer.
+      presenceTimerRef.current = window.setInterval(() => {
+        const current =
+          provider.awareness.getLocalState() as UserPresence | null;
+        if (!current || current.lastActiveAt >= lastActivityRef.current) {
+          return;
+        }
+        provider.awareness.setLocalState({
+          ...current,
+          lastActiveAt: lastActivityRef.current,
+        });
+      }, PRESENCE_ACTIVE_REFRESH_MS);
 
       // Observe remote presence changes
       const onAwarenessChange = () => {
@@ -754,6 +785,11 @@ export function CollabProvider({ children }: CollabProviderProps) {
   }, []);
 
   // ── Presence sync from Zustand UI state ───────────────────────────────
+  // Every presence change goes to every peer, whose remoteUsers update
+  // re-renders their editor and whose own store write would, unchecked,
+  // publish back. The selector builds a new object on each call, so it is
+  // compared field by field: only a real selection change publishes, never
+  // the playhead or any other store write (collab-02, engine-hooks-15).
 
   useEffect(() => {
     return useStore.subscribe(
@@ -769,14 +805,16 @@ export function CollabProvider({ children }: CollabProviderProps) {
         if (!awareness) return;
         const current = awareness.getLocalState() as UserPresence | null;
         if (!current) return;
+        // Activity; its time goes out with the next lastActiveAt refresh.
+        lastActivityRef.current = Date.now();
         awareness.setLocalState({
           ...current,
           selectedTrackId: selection.selectedTrackId,
           selectedClipId: selection.selectedClipId,
-          lastActiveAt: Date.now(),
           activity: selection.editingClipId ? 'editing' : 'idle',
         });
       },
+      { equalityFn: shallow },
     );
   }, []);
 

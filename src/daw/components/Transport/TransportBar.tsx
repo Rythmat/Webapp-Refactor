@@ -30,7 +30,7 @@ import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { chordNotationLockTitle } from '@/daw/utils/chordRegionNotation';
 import { useChordNotation } from '@/lib/chordNotation';
 import { CollabToolbar } from '@/daw/collab/ui/CollabToolbar';
-import { ConfirmModal } from '@/daw/components/common/ConfirmModal';
+import { requestRecord } from '@/daw/commands/requestRecord';
 import { LeaveSavePrompt } from '@/daw/collab/ui/LeaveSavePrompt';
 import { KickedModal } from '@/daw/collab/ui/KickedModal';
 import { WaitingForSessionModal } from '@/daw/collab/ui/WaitingForSessionModal';
@@ -166,7 +166,6 @@ export const TransportBar = memo(function TransportBar({
   const play = useStore((s) => s.play);
   const pause = useStore((s) => s.pause);
   const stop = useStore((s) => s.stop);
-  const record = useStore((s) => s.record);
   const setCountInBars = useStore((s) => s.setCountInBars);
   const setBpm = useStore((s) => s.setBpm);
   const toggleMetronome = useStore((s) => s.toggleMetronome);
@@ -264,23 +263,11 @@ export const TransportBar = memo(function TransportBar({
     () => withInit(isPlaying ? pause : play),
     [withInit, isPlaying, pause, play],
   );
-  // Recording onto an audio track that already has a take overwrites whatever
-  // the new take rolls over in time — warn before starting.
-  const [overwriteConfirmOpen, setOverwriteConfirmOpen] = useState(false);
-  const startRecording = useCallback(
-    () => withInit(record),
-    [withInit, record],
-  );
+  // The same command as the R key: a take that would record over existing
+  // audio waits for RecordGuard's confirm, mounted at the editor root.
   const handleRecord = useCallback(() => {
-    const armedAudio = useStore
-      .getState()
-      .tracks.find((t) => t.type === 'audio' && t.recordArmed);
-    if (armedAudio && armedAudio.audioClips.length > 0) {
-      setOverwriteConfirmOpen(true);
-      return;
-    }
-    startRecording();
-  }, [startRecording]);
+    requestRecord(isReady ? undefined : onInit);
+  }, [isReady, onInit]);
 
   // Local state so the user can freely clear / type without the controlled
   // value snapping back on every keystroke.
@@ -939,17 +926,6 @@ export const TransportBar = memo(function TransportBar({
           </motion.button>
         </div>
       </div>
-
-      <ConfirmModal
-        open={overwriteConfirmOpen}
-        onOpenChange={setOverwriteConfirmOpen}
-        title="Overwrite existing recording?"
-        description="This track already has a recording. Starting a new recording will overwrite any audio it rolls over in time."
-        confirmLabel="Continue"
-        cancelLabel="Cancel"
-        destructive
-        onConfirm={startRecording}
-      />
     </div>
   );
 });

@@ -160,7 +160,17 @@ export interface UiSlice {
 
   // ── View switcher ──
   currentView: ViewType;
+  /**
+   * Switching to another view puts the clip selection, which only Create
+   * shows, away in `parkedClipSelection`, and coming back to Create restores
+   * it. The selected track stays.
+   */
   setCurrentView: (view: ViewType) => void;
+  /**
+   * The clip selected in Create while another view is showing. Selecting or
+   * clearing a clip meanwhile drops it.
+   */
+  parkedClipSelection: { clipId: string; trackId: string } | null;
   practiceSession: PracticeSession | null;
   setPracticeSession: (session: PracticeSession | null) => void;
 
@@ -320,8 +330,14 @@ export const createUiSlice: StateCreator<
 
   setActiveTool: (tool) => set({ activeTool: tool }),
 
+  // A selection made (or cleared) while away from Create replaces the one
+  // parked there.
   setSelectedClip: (clipId, trackId) =>
-    set({ selectedClipId: clipId, selectedClipTrackId: trackId }),
+    set({
+      selectedClipId: clipId,
+      selectedClipTrackId: trackId,
+      parkedClipSelection: null,
+    }),
 
   setEditingClip: (clipId, trackId) =>
     set({ editingClipId: clipId, editingClipTrackId: trackId }),
@@ -376,10 +392,46 @@ export const createUiSlice: StateCreator<
   practiceSession: null,
   setPracticeSession: (session) => set({ practiceSession: session }),
   setCurrentView: (view) =>
-    set({
-      currentView: view,
-      libraryOpen: view === 'arrange',
+    set((s) => {
+      const next: Partial<UiSlice> = {
+        currentView: view,
+        libraryOpen: view === 'arrange',
+      };
+      // Lesson steps re-assert the view they are already on: not a switch.
+      if (view === s.currentView) return next;
+      if (view !== 'arrange') {
+        // A clip selected in Create is out of sight in the other views, so
+        // nothing done there may act on it: it is parked until the student
+        // comes back. selectedTrackId stays, since lessons and Prism follow
+        // the selected track across views.
+        next.selectedClipId = null;
+        next.selectedClipTrackId = null;
+        if (s.currentView === 'arrange') {
+          next.parkedClipSelection =
+            s.selectedClipId && s.selectedClipTrackId
+              ? { clipId: s.selectedClipId, trackId: s.selectedClipTrackId }
+              : null;
+        }
+        return next;
+      }
+      // Back in Create, the timeline and the docked editor pick up the clip
+      // they had, unless it has been deleted meanwhile (or a clip is
+      // selected already).
+      const parked = s.parkedClipSelection;
+      if (parked && s.selectedClipId === null) {
+        const track = s.tracks.find((t) => t.id === parked.trackId);
+        const stillThere =
+          track?.midiClips.some((c) => c.id === parked.clipId) ||
+          track?.audioClips.some((c) => c.id === parked.clipId);
+        if (stillThere) {
+          next.selectedClipId = parked.clipId;
+          next.selectedClipTrackId = parked.trackId;
+        }
+      }
+      next.parkedClipSelection = null;
+      return next;
     }),
+  parkedClipSelection: null,
 
   // ── Library sidebar ──
   libraryOpen: true,

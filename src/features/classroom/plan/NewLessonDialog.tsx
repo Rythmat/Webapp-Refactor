@@ -1,11 +1,11 @@
 /**
  * NewLessonDialog — the single "New Lesson" flow. The teacher picks the Unit the
  * Lesson belongs to (defaulting to the current month's Unit) and a type (Blank /
- * Song Session / Genre Lesson), so every Lesson is assigned to a Unit on create.
+ * Generate from Cortex), so every Lesson is assigned to a Unit on create.
  * Blank lessons are created + assigned + scheduled here and open in the editor;
- * Song/Genre carry `?template=&unit=` into the deck wizard, which assigns there.
+ * Generate carries `?unit=` into the lesson generator, which assigns there.
  */
-import { Music2, PlusCircle, Sparkles, X, type LucideIcon } from 'lucide-react';
+import { PlusCircle, Waypoints, X, type LucideIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/components/utilities';
@@ -18,7 +18,7 @@ import { newBlankDay } from './newBlankDay';
 import { defaultUnitIdFor } from './useEnsureLessonUnits';
 import { useLocalPlan } from './useLocalPlan';
 
-type LessonType = 'blank' | 'song' | 'genre';
+type LessonType = 'blank' | 'cortex';
 
 interface NewLessonDialogProps {
   classroomId: string;
@@ -81,9 +81,7 @@ export const NewLessonDialog = ({
       navigate(TeacherRoutes.dayEditor({ classroomId, dayId: day.id }));
       return;
     }
-    navigate(
-      `${TeacherRoutes.deckWizard({ classroomId })}?template=${type}&unit=${uid}`,
-    );
+    navigate(`${TeacherRoutes.deckWizard({ classroomId })}?unit=${uid}`);
   };
 
   if (!isOpen) return null;
@@ -131,25 +129,18 @@ export const NewLessonDialog = ({
         <fieldset className="flex flex-col gap-2">
           <legend className="mb-1.5 text-sm text-white/60">Lesson type</legend>
           <TypeOption
+            icon={Waypoints}
+            label="Generate from Cortex"
+            desc="An artist or place from the Atlas, a group project, and time for students' own work"
+            active={type === 'cortex'}
+            onClick={() => setType('cortex')}
+          />
+          <TypeOption
             icon={PlusCircle}
             label="Blank Lesson"
-            desc="An empty 5-phase lesson to build from scratch"
+            desc="The five parts with general slides, to build yourself"
             active={type === 'blank'}
             onClick={() => setType('blank')}
-          />
-          <TypeOption
-            icon={Music2}
-            label="Song Session"
-            desc="Interactive lesson built around a song"
-            active={type === 'song'}
-            onClick={() => setType('song')}
-          />
-          <TypeOption
-            icon={Sparkles}
-            label="Genre Lesson"
-            desc="Guided lesson for a genre and level"
-            active={type === 'genre'}
-            onClick={() => setType('genre')}
           />
         </fieldset>
 

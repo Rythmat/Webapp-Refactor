@@ -10,6 +10,7 @@
  * the firewall is preserved). Autosave + publish/session gating are lifted
  * verbatim from DayEditor.
  */
+import { Waypoints } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { TeacherRoutes } from '@/constants/routes';
@@ -19,6 +20,7 @@ import type { Activity } from '../../content/types';
 import { PHASE_FULL_NAMES, PHASES } from '../../phases';
 import { publishDay } from '../../publish/publishDay';
 import { useTeacherConfig } from '../../settings/useTeacherConfig';
+import { isUngeneratedCortexDeck } from '../../slides/cortex/buildDeck';
 import { slideInteractionIds } from '../../slides/deck';
 import {
   deleteSlideAt,
@@ -309,12 +311,43 @@ export const SlideDeckEditor = () => {
   const contentTiles =
     selected.kind === 'content' ? (selected.launchTiles ?? []) : [];
 
+  // Open the lesson generator on this Day. Saved first, so no edit waits on
+  // the autosave; a generated lesson's slides are replaced only when the
+  // teacher saves the new one, but they are told before they go.
+  const openGenerator = () => {
+    if (
+      !isUngeneratedCortexDeck(draft.deck) &&
+      !window.confirm(
+        "Generating a lesson replaces this lesson's slides when you save it. Continue?",
+      )
+    )
+      return;
+    saveDay(draft);
+    navigate(
+      `${TeacherRoutes.deckWizard({ classroomId: cid })}?day=${encodeURIComponent(draft.id)}`,
+    );
+  };
+
   return (
     <div className="flex w-full flex-col">
       <EditorTopBar
         classroomId={cid}
         label={draft.label}
         onLabelChange={updateLabel}
+        generate={
+          canEdit ? (
+            <button
+              type="button"
+              onClick={openGenerator}
+              className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] px-4 text-sm text-[#e8e8f0] transition-colors hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+            >
+              <Waypoints className="h-4 w-4" />
+              {draft.deck?.templateRef?.focusId
+                ? 'Regenerate'
+                : 'Generate from Cortex'}
+            </button>
+          ) : undefined
+        }
         savedLabel={savedLabel}
         language={language}
         onLanguageChange={setLanguage}

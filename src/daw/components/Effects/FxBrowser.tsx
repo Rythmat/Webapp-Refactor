@@ -66,7 +66,7 @@ export function FxBrowser({
           FX
         </span>
         <span
-          className="text-[11px] tabular-nums"
+          className="text-[12px] tabular-nums"
           style={{ color: 'var(--color-text-dim)' }}
           title={`${activeEffects.length} of ${MAX_EFFECTS} effects`}
         >

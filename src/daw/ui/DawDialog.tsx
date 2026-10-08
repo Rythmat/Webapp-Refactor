@@ -178,7 +178,11 @@ export function DawDialog({ size = 'md', ...props }: DawDialogProps) {
       {...props}
       panelClassName={cn(
         'left-1/2 top-1/2 max-h-[calc(100dvh-48px)] w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 rounded-[var(--daw-radius-lg)] border',
+        // The open and close keyframes replace the whole transform, so they
+        // carry the -50% centring too; without it the panel opened from its
+        // corner at the middle of the window and slid into place.
         'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+        'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-1/2 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-1/2',
         DIALOG_SIZE[size],
       )}
     />

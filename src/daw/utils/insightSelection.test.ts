@@ -194,6 +194,35 @@ describe('note selection', () => {
     ]);
   });
 
+  it('takes a note drawn more than once (a looped clip) once, in order', () => {
+    // The same notes drawn again a loop later, last note first.
+    const looped = [
+      ...drawn,
+      bar('k', 3, 300, 40, 60),
+      bar('k', 2, 300, 28),
+      bar('k', 0, 300, 40),
+    ];
+    expect(notesInMarquee(looped, { x0: 90, y0: 25, x1: 400, y1: 45 })).toEqual(
+      [{ trackId: 'keys', clipId: 'k', noteIndices: [0, 1, 2, 3] }],
+    );
+  });
+
+  it('keeps every index of a dense clip, once each', () => {
+    // 3,000 notes, each drawn twice: a marquee over all of them.
+    const dense = Array.from({ length: 6000 }, (_, i) =>
+      bar('k', i % 3000, 100 + (i % 3000), 40, 1),
+    );
+    const [selection] = notesInMarquee(dense, {
+      x0: 0,
+      y0: 0,
+      x1: 5000,
+      y1: 100,
+    });
+    expect(selection.noteIndices).toHaveLength(3000);
+    expect(selection.noteIndices[0]).toBe(0);
+    expect(selection.noteIndices[2999]).toBe(2999);
+  });
+
   it('selects nothing when the marquee touches no note', () => {
     expect(notesInMarquee(drawn, { x0: 0, y0: 0, x1: 90, y1: 200 })).toEqual(
       [],

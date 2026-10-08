@@ -1,5 +1,3 @@
-/* eslint-disable sonarjs/cognitive-complexity */
-/* eslint-disable sonarjs/no-duplicated-branches */
 /* eslint-disable tailwindcss/classnames-order */
 /* eslint-disable tailwindcss/enforces-shorthand */
 import { useEffect, useMemo, useState } from 'react';
@@ -8,35 +6,26 @@ import { BookOpen, ChevronDown, Lightbulb } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import {
   NOTES,
-  CHORDS,
-  MODES,
-  noteNameLetter,
   noteNameInKey,
-  chordToneNamesInKey,
-  detectChordWithInversion,
   KEY_COLORS,
-  CHORD_COLORS,
-  getChordColor,
   ionianToModeLabel,
 } from '@prism/engine';
 import { LearnRoutes } from '@/constants/routes';
 import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import { useChordNotation } from '@/lib/chordNotation';
-import { chordModeContext } from './chordInKey';
 import { keyContext, liveChordLabels } from './insightNotation';
 import {
   FAMILY_MODES,
   MODE_DISPLAY,
   MODE_TO_SLUG,
   ROOT_TO_KEY_INDEX,
-  formatQuality,
-  intervalsToString,
-  rgbString,
-  findAllInterpretations,
-  type ChordInterpretation,
 } from './insightConstants';
-import { buildChordInsights, unisonChordLookup } from './buildChordInsights';
+import {
+  buildChordInsights,
+  buildLiveChord,
+  unisonChordLookup,
+} from './buildChordInsights';
 import { ChordCard } from './ChordCard';
 import { KeySection } from './KeySection';
 import { ChordSymbolsSection } from './ChordSymbolsSection';
@@ -94,146 +83,13 @@ export function InsightContent() {
   );
 
   // ── Live chord detection (audio or MIDI) ──
+  // Built by the same code as the chord cards below, so a chord gets the same
+  // colour, lesson links and alternatives whether it's played or written.
 
-  const liveChord = useMemo(() => {
-    if (activeNotes.size < 2) return null;
-
-    const sorted = [...activeNotes].sort((a, b) => a - b);
-    const match = detectChordWithInversion(sorted);
-    if (!match) return null;
-
-    const { quality, rootPc, inversion } = match;
-    const rootLetter = displayAccidentals(
-      rootNote !== null
-        ? noteNameInKey(rootPc, rootNote, mode)
-        : noteNameLetter(rootPc + 48),
-    );
-    const intervals = CHORDS[quality];
-    // Chord tones as one unit from the root (Rule 3): D major in G minor is D F# A.
-    const chordTones = chordToneNamesInKey(
-      rootPc,
-      intervals ?? [],
-      rootNote ?? 0,
-      rootNote !== null ? mode : undefined,
-    );
-
-    const INVERSION_LABELS = [
-      '',
-      '1st Inversion',
-      '2nd Inversion',
-      '3rd Inversion',
-    ];
-    const chordLabel =
-      inversion > 0
-        ? `${rootLetter} ${formatQuality(quality)} (${INVERSION_LABELS[inversion]})`
-        : `${rootLetter} ${formatQuality(quality)}`;
-
-    let hybrid: string | null = null;
-    let color: string | null = null;
-    let sessionMode: string | null = null;
-    let chordRootMode: string | null = null;
-    let parentKeyLetter: string | null = null;
-    let parentMode: string | null = null;
-    let isSessionParent = true;
-    let alternatives: ChordInterpretation[] = [];
-
-    if (rootNote !== null) {
-      const diff = (rootPc - rootNote + 12) % 12;
-      const ionian = MODES.ionian;
-      let degree = -1;
-      let modifier = 0;
-
-      for (let i = 0; i < ionian.length; i++) {
-        if (ionian[i] === diff) {
-          degree = i + 1;
-          break;
-        }
-      }
-      if (degree < 0) {
-        let flatDeg = -1,
-          sharpDeg = -1;
-        for (let i = 0; i < ionian.length; i++) {
-          if (ionian[i] === diff + 1 && flatDeg < 0) flatDeg = i + 1;
-          if (ionian[i] === diff - 1 && sharpDeg < 0) sharpDeg = i + 1;
-        }
-        const flatKey = flatDeg > 0 ? `b${flatDeg} ${quality}` : '';
-        const sharpKey = sharpDeg > 0 ? `#${sharpDeg} ${quality}` : '';
-        if (flatKey && CHORD_COLORS[flatKey] !== undefined) {
-          degree = flatDeg;
-          modifier = -1;
-        } else if (sharpKey && CHORD_COLORS[sharpKey] !== undefined) {
-          degree = sharpDeg;
-          modifier = 1;
-        } else if (flatDeg > 0) {
-          degree = flatDeg;
-          modifier = -1;
-        } else if (sharpDeg > 0) {
-          degree = sharpDeg;
-          modifier = 1;
-        }
-      }
-
-      if (degree > 0) {
-        const prefix = modifier === -1 ? '\u266D' : modifier === 1 ? '#' : '';
-        hybrid = `${prefix}${degree} ${formatQuality(quality)}`;
-
-        const degPrefix = modifier === -1 ? 'b' : modifier === 1 ? '#' : '';
-        const degreeName = `${degPrefix}${degree} ${quality}`;
-        const rootMidi = rootNote + 48;
-        const [r, g, b] = getChordColor(degreeName, rootMidi, mode);
-        color = rgbString(r, g, b);
-
-        const context = chordModeContext({
-          chordRootPc: rootPc,
-          quality,
-          intervals: intervals ?? [],
-          rootNote,
-          mode,
-          tonicName: displayAccidentals(
-            noteNameInKey(rootNote, rootNote, mode),
-          ),
-        });
-        chordRootMode = context.chordRootMode;
-        sessionMode = context.sessionMode;
-        isSessionParent = context.isSessionParent;
-        parentKeyLetter = displayAccidentals(
-          noteNameInKey(context.parentRootPc, rootNote, mode),
-        );
-        parentMode = context.parentMode;
-
-        const allInterps = findAllInterpretations(degreeName);
-        alternatives = allInterps.filter(
-          (i) => i.chordRootMode !== chordRootMode,
-        );
-      }
-    }
-
-    return {
-      chordLabel,
-      hybrid,
-      quality,
-      inversion,
-      rootLetter,
-      noteNames: sorted.map((n) =>
-        displayAccidentals(
-          chordTones.get(n % 12) ??
-            noteNameInKey(
-              n % 12,
-              rootNote ?? 0,
-              rootNote !== null ? mode : undefined,
-            ),
-        ),
-      ),
-      intervals: intervals ? intervalsToString(intervals) : '',
-      color,
-      sessionMode,
-      chordRootMode,
-      parentKeyLetter,
-      parentMode,
-      isSessionParent,
-      alternatives,
-    };
-  }, [activeNotes, rootNote, mode]);
+  const liveChord = useMemo(
+    () => buildLiveChord(activeNotes, rootNote, mode),
+    [activeNotes, rootNote, mode],
+  );
 
   // The live chord's label in the chosen notation (hybrid: as above).
   const liveLabels =

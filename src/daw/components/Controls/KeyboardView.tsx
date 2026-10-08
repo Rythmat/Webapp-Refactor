@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 import { studioRealtime } from '@/daw/collab/studioRealtime';
@@ -14,15 +14,13 @@ import { PRESETS } from '@/daw/data/instrumentPresets';
 import type { Track } from '@/daw/store/tracksSlice';
 
 /** The preset name to show: the saved one while it still matches the track's
- *  instrument, else the first preset for that instrument. */
+ *  instrument, else the first preset for that instrument. A name the catalog
+ *  no longer lists (a preset that only relabelled the track) falls back too,
+ *  so the label always names what the track plays. */
 function displayPresetName(track: Track | undefined): string {
   if (!track) return 'Studio Grand';
   const saved = PRESETS.find((p) => p.name === track.presetName);
-  if (
-    saved &&
-    (!saved.instrumentType || saved.instrumentType === track.instrument)
-  )
-    return saved.name;
+  if (saved && saved.instrumentType === track.instrument) return saved.name;
   if (track.instrument === 'piano-sampler') return 'Studio Grand';
   return (
     PRESETS.find((p) => p.instrumentType === track.instrument)?.name ??
@@ -187,7 +185,8 @@ export function KeyboardView({ trackId }: { trackId: string }) {
           Instrument
         </span>
 
-        {/* Preset selector */}
+        {/* Current preset. Browse is the way to change it: the arrows that
+            sat either side of the name had no handler. */}
         <div
           className="flex items-center gap-1 rounded-lg px-3 py-1"
           style={{
@@ -195,32 +194,12 @@ export function KeyboardView({ trackId }: { trackId: string }) {
             border: '1px solid var(--color-border)',
           }}
         >
-          <button
-            className="cursor-pointer p-0.5"
-            style={{
-              color: 'var(--color-text-dim)',
-              background: 'none',
-              border: 'none',
-            }}
-          >
-            <ChevronLeft size={14} />
-          </button>
           <span
             className="min-w-[100px] text-center text-xs font-medium"
             style={{ color: 'var(--color-text)' }}
           >
             {presetName}
           </span>
-          <button
-            className="cursor-pointer p-0.5"
-            style={{
-              color: 'var(--color-text-dim)',
-              background: 'none',
-              border: 'none',
-            }}
-          >
-            <ChevronRight size={14} />
-          </button>
         </div>
 
         {/* Browse button */}
@@ -305,9 +284,7 @@ export function KeyboardView({ trackId }: { trackId: string }) {
                   // Saved on the track so the name (and sound) reload.
                   updateTrack(trackId, {
                     presetName: preset.name,
-                    ...(preset.instrumentType && {
-                      instrument: preset.instrumentType,
-                    }),
+                    instrument: preset.instrumentType,
                     ...(preset.gmProgram !== undefined && {
                       gmProgram: preset.gmProgram,
                     }),

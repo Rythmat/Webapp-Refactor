@@ -5,15 +5,9 @@ import {
   Square,
   SkipBack,
   SkipForward,
-  Volume2,
   Heart,
   Hexagon,
   Shuffle,
-  MoreVertical,
-  Repeat,
-  Check,
-  ChevronUp,
-  ChevronDown,
   FileMusic,
 } from 'lucide-react';
 import {
@@ -23,13 +17,13 @@ import {
   getUniqueBpms,
   type GrooveItem,
 } from '@/daw/data/groovesLibrary';
-import { importMidiFile } from '@/daw/midi/MidiFileIO';
-import type { MidiNoteEvent } from '@prism/engine';
+import { loadGrooveEvents } from '@/daw/midi/loadGrooveEvents';
 import { useStore } from '@/daw/store';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 
 // ── Constants ──────────────────────────────────────────────────────────
 
+/** Studio's ticks per quarter note, the resolution loadGrooveEvents returns. */
 const OUR_PPQ = 480;
 
 const TAG_COLORS: Record<string, string> = {
@@ -70,8 +64,12 @@ interface GroovesBrowserProps {
 }
 
 export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
+  // Only controls that do something are shown. The "Your Library" filter, the
+  // row checkboxes, the preview's Loop and Volume, the row ⋮ menu and the
+  // Name sort arrows were removed: none of them was read by the list or the
+  // preview (dock-instruments-11).
+
   // Filters
-  const [myLibrary, setMyLibrary] = useState(false);
   const [bpmFilter, setBpmFilter] = useState<string>('All');
   const [genre, setGenre] = useState('All');
   const [showSavedOnly, setShowSavedOnly] = useState(false);
@@ -80,15 +78,12 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
   const [sortBy, setSortBy] = useState<SortMode>('newest');
   const [shuffleSeed, setShuffleSeed] = useState(0);
 
-  // Selection & saved
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  // Saved
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
 
   // Preview
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [loopEnabled, setLoopEnabled] = useState(false);
-  const [volume, setVolume] = useState(80);
   const previewTimeouts = useRef<number[]>([]);
 
   const addMidiClip = useStore((s) => s.addMidiClip);
@@ -151,15 +146,6 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
     });
   }, []);
 
-  const toggleSelected = useCallback((id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }, []);
-
   // ── Stop preview ───────────────────────────────────────────────────
 
   const stopPreview = useCallback(() => {
@@ -182,56 +168,35 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
         return;
       }
 
-      try {
-        const resp = await fetch(groove.url);
-        if (!resp.ok) {
-          setIsPlaying(false);
-          return;
-        }
-        const buf = await resp.arrayBuffer();
-        const sequences = importMidiFile(buf);
-        if (sequences.length === 0) {
-          setIsPlaying(false);
-          return;
-        }
-
-        const seq = sequences[0];
-        const ppq = seq.ticksPerQuarterNote;
-        const bpm = groove.bpm;
-        const msPerTick = 60_000 / bpm / OUR_PPQ;
-
-        const timeouts: number[] = [];
-        for (const evt of seq.events) {
-          const scaledStart = Math.round((evt.startTick / ppq) * OUR_PPQ);
-          const scaledDur = Math.round((evt.durationTicks / ppq) * OUR_PPQ);
-          const startMs = scaledStart * msPerTick;
-          const endMs = (scaledStart + scaledDur) * msPerTick;
-
-          timeouts.push(
-            window.setTimeout(() => {
-              entry.trackEngine.noteOn(evt.note, evt.velocity);
-            }, startMs),
-          );
-          timeouts.push(
-            window.setTimeout(() => {
-              entry.trackEngine.noteOff(evt.note);
-            }, endMs),
-          );
-        }
-
-        const maxMs = seq.events.reduce((max: number, evt: MidiNoteEvent) => {
-          const s = Math.round((evt.startTick / ppq) * OUR_PPQ);
-          const d = Math.round((evt.durationTicks / ppq) * OUR_PPQ);
-          return Math.max(max, (s + d) * msPerTick);
-        }, 0);
-        timeouts.push(
-          window.setTimeout(() => setIsPlaying(false), maxMs + 100),
-        );
-
-        previewTimeouts.current = timeouts;
-      } catch {
+      // The same fetch, parse and rescale as adding the groove (and as the
+      // practice tracks and demos), so a preview plays what Add would add.
+      const events = await loadGrooveEvents(groove.id);
+      if (!events) {
         setIsPlaying(false);
+        return;
       }
+
+      const msPerTick = 60_000 / groove.bpm / OUR_PPQ;
+      const timeouts: number[] = [];
+      let endMs = 0;
+      for (const evt of events) {
+        const startMs = evt.startTick * msPerTick;
+        const stopMs = (evt.startTick + evt.durationTicks) * msPerTick;
+        endMs = Math.max(endMs, stopMs);
+        timeouts.push(
+          window.setTimeout(() => {
+            entry.trackEngine.noteOn(evt.note, evt.velocity);
+          }, startMs),
+        );
+        timeouts.push(
+          window.setTimeout(() => {
+            entry.trackEngine.noteOff(evt.note);
+          }, stopMs),
+        );
+      }
+      timeouts.push(window.setTimeout(() => setIsPlaying(false), endMs + 100));
+
+      previewTimeouts.current = timeouts;
     },
     [trackId, stopPreview],
   );
@@ -240,32 +205,19 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
 
   const doLoadGroove = useCallback(
     async (groove: GrooveItem) => {
-      try {
-        const resp = await fetch(groove.url);
-        if (!resp.ok) return;
-        const buf = await resp.arrayBuffer();
-        const sequences = importMidiFile(buf);
-        if (sequences.length === 0) return;
+      // loadGrooveEvents logs a groove it can't fetch or parse; that adds
+      // nothing.
+      const events = await loadGrooveEvents(groove.id);
+      if (!events) return;
 
-        const seq = sequences[0];
-        const ppq = seq.ticksPerQuarterNote;
-        const events = seq.events.map((evt: MidiNoteEvent) => ({
-          ...evt,
-          startTick: Math.round((evt.startTick / ppq) * OUR_PPQ),
-          durationTicks: Math.round((evt.durationTicks / ppq) * OUR_PPQ),
-        }));
-
-        const clipId = `clip-groove-${crypto.randomUUID().slice(0, 8)}`;
-        addMidiClip(trackId, {
-          id: clipId,
-          name: groove.name,
-          startTick: 0,
-          events,
-        });
-        setSelectedClip(clipId, trackId);
-      } catch (err) {
-        console.error('Failed to load groove:', err);
-      }
+      const clipId = `clip-groove-${crypto.randomUUID().slice(0, 8)}`;
+      addMidiClip(trackId, {
+        id: clipId,
+        name: groove.name,
+        startTick: 0,
+        events,
+      });
+      setSelectedClip(clipId, trackId);
     },
     [trackId, addMidiClip, setSelectedClip],
   );
@@ -306,14 +258,6 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
         className="flex items-center gap-2 px-3 py-2 shrink-0 border-b"
         style={{ borderColor: 'var(--color-border)' }}
       >
-        {/* Your Library toggle */}
-        <FilterPill
-          label="Your Library"
-          active={myLibrary}
-          onClick={() => setMyLibrary((v) => !v)}
-          icon={<Check size={10} strokeWidth={2.5} />}
-        />
-
         {/* BPM dropdown */}
         <select
           value={bpmFilter}
@@ -339,6 +283,7 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
 
         {/* Genre dropdown */}
         <select
+          aria-label="Genre"
           value={genre}
           onChange={(e) => setGenre(e.target.value)}
           className="text-[10px] rounded-full px-3 py-1 cursor-pointer"
@@ -375,29 +320,23 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
       </div>
 
       {/* ── List header ───────────────────────────────────────────── */}
+      {/* Same gaps and column widths as GrooveRow, so Name and BPM sit over
+          their columns. */}
       <div
-        className="flex items-center px-3 py-1.5 shrink-0 border-b"
+        className="flex items-center gap-2.5 px-3 py-1.5 shrink-0 border-b"
         style={{ borderColor: 'var(--color-border)' }}
       >
+        {/* Spans the row's thumbnail and play button. */}
+        <span className="w-[56px] shrink-0" aria-hidden />
         <span
-          className="text-[9px] uppercase tracking-wider w-[52px] shrink-0"
-          style={{ color: 'var(--color-text-dim)' }}
-        >
-          Selection
-        </span>
-        <span
-          className="text-[9px] uppercase tracking-wider flex items-center gap-1 flex-1"
+          className="text-[11px] uppercase tracking-wider flex-1"
           style={{ color: 'var(--color-text-dim)' }}
         >
           Name
-          <span className="flex flex-col" style={{ lineHeight: 0 }}>
-            <ChevronUp size={7} strokeWidth={2} />
-            <ChevronDown size={7} strokeWidth={2} />
-          </span>
         </span>
 
         <span
-          className="text-[9px] uppercase tracking-wider w-[48px] shrink-0 text-right"
+          className="text-[11px] uppercase tracking-wider w-[48px] shrink-0 text-right"
           style={{ color: 'var(--color-text-dim)' }}
         >
           BPM
@@ -406,6 +345,7 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
         <div className="flex items-center justify-end gap-2 w-[84px] shrink-0">
           {/* Sort dropdown */}
           <select
+            aria-label="Sort grooves"
             value={sortBy}
             onChange={(e) => {
               setSortBy(e.target.value as SortMode);
@@ -419,7 +359,8 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
               outline: 'none',
             }}
           >
-            <option value="newest">Sort</option>
+            {/* One option per order: a "Sort" placeholder also meant
+                newest, so picking Newest showed "Sort" again. */}
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
             <option value="a-z">Alphabetical</option>
@@ -460,7 +401,6 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
               groove={groove}
               isActive={previewId === groove.id}
               isPlaying={previewId === groove.id && isPlaying}
-              isSelected={selectedIds.has(groove.id)}
               isSaved={savedIds.has(groove.id)}
               onPlay={() => {
                 if (previewId === groove.id && isPlaying) stopPreview();
@@ -468,7 +408,6 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
               }}
               onAdd={() => loadGroove(groove)}
               onToggleSaved={() => toggleSaved(groove.id)}
-              onToggleSelected={() => toggleSelected(groove.id)}
             />
           ))
         )}
@@ -568,38 +507,6 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
           >
             <Hexagon size={16} strokeWidth={1.5} />
           </button>
-
-          {/* Loop toggle */}
-          <button
-            onClick={() => setLoopEnabled((v) => !v)}
-            className="flex items-center justify-center w-6 h-6 rounded cursor-pointer shrink-0"
-            style={{
-              color: loopEnabled
-                ? 'var(--color-accent)'
-                : 'var(--color-text-dim)',
-              background: 'none',
-              border: 'none',
-            }}
-            title="Loop"
-          >
-            <Repeat size={13} strokeWidth={1.5} />
-          </button>
-
-          {/* Volume */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            <Volume2 size={12} style={{ color: 'var(--color-text-dim)' }} />
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={volume}
-              onChange={(e) => setVolume(Number(e.target.value))}
-              className="w-16 h-1 cursor-pointer"
-              style={{
-                accentColor: 'var(--color-text)',
-              }}
-            />
-          </div>
         </div>
       )}
 
@@ -728,22 +635,18 @@ function GrooveRow({
   groove,
   isActive,
   isPlaying,
-  isSelected,
   isSaved,
   onPlay,
   onAdd,
   onToggleSaved,
-  onToggleSelected,
 }: {
   groove: GrooveItem;
   isActive: boolean;
   isPlaying: boolean;
-  isSelected: boolean;
   isSaved: boolean;
   onPlay: () => void;
   onAdd: () => void;
   onToggleSaved: () => void;
-  onToggleSelected: () => void;
 }) {
   return (
     <div
@@ -760,19 +663,6 @@ function GrooveRow({
         if (!isActive) e.currentTarget.style.backgroundColor = 'transparent';
       }}
     >
-      {/* Checkbox */}
-      <button
-        onClick={onToggleSelected}
-        className="flex items-center justify-center w-4 h-4 rounded shrink-0 cursor-pointer"
-        style={{
-          border: '1px solid var(--color-border)',
-          backgroundColor: isSelected ? 'var(--color-accent)' : 'transparent',
-          color: isSelected ? '#000' : 'transparent',
-        }}
-      >
-        {isSelected && <Check size={10} strokeWidth={3} />}
-      </button>
-
       {/* Thumbnail */}
       <div
         className="w-8 h-8 rounded shrink-0 flex items-center justify-center"
@@ -861,18 +751,6 @@ function GrooveRow({
           title="Add to track"
         >
           <Hexagon size={14} strokeWidth={1.5} />
-        </button>
-
-        {/* Three-dot menu */}
-        <button
-          className="flex items-center justify-center w-6 h-6 rounded cursor-pointer"
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--color-text-dim)',
-          }}
-        >
-          <MoreVertical size={14} strokeWidth={1.5} />
         </button>
       </div>
     </div>

@@ -10,8 +10,8 @@ export interface GrooveItem {
   url: string;
 }
 
-export const GROOVE_GENRES = [
-  'All',
+/** The order the Genre filter lists genres in (see GROOVE_GENRES). */
+const GENRE_ORDER = [
   'Hip Hop',
   'Trap',
   'R&B',
@@ -25,9 +25,7 @@ export const GROOVE_GENRES = [
   'Funk',
   'Latin',
   'Afrobeat',
-] as const;
-
-export type GrooveGenre = (typeof GROOVE_GENRES)[number];
+];
 
 export const GROOVES: GrooveItem[] = [
   // 60 BPM
@@ -268,6 +266,21 @@ export const GROOVES: GrooveItem[] = [
     url: '/daw-assets/samples/midi/drum/rock-10-120bpm.mid',
   },
 ];
+
+/**
+ * The Genre filter's options: 'All', then every genre that has at least one
+ * groove, in GENRE_ORDER (a genre missing from it goes last). Built from the
+ * catalog so the filter never offers a genre that only shows "No grooves
+ * found", as Pop, Jazz, House and Afrobeat did.
+ */
+export const GROOVE_GENRES: readonly string[] = (() => {
+  const present = new Set(GROOVES.map((g) => g.genre));
+  const ordered = GENRE_ORDER.filter((g) => present.has(g));
+  const unordered = [...present]
+    .filter((g) => !GENRE_ORDER.includes(g))
+    .sort((a, b) => a.localeCompare(b));
+  return ['All', ...ordered, ...unordered];
+})();
 
 // ── Helpers ────────────────────────────────────────────────────────────
 

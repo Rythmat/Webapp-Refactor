@@ -7,8 +7,9 @@ import { DRUM_KIT_CONFIGS, DRUM_PADS, type DrumKitId } from './drumKits';
 export { DRUM_KIT_CONFIGS, DRUM_KITS, DRUM_PADS } from './drumKits';
 export type { DrumKitConfig, DrumKitId, DrumPadDef } from './drumKits';
 
-// Map any MIDI note to its canonical pad note (for routing through pad chain)
-function canonicalPadNote(note: number): number {
+// Map any MIDI note to its canonical pad note (for routing through pad chain).
+// The drum grid places notes on its rows with it too, so both agree.
+export function canonicalPadNote(note: number): number {
   switch (note) {
     case 35:
     case 36:

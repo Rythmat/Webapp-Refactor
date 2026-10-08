@@ -17,6 +17,7 @@ import {
   DRUM_KITS,
   DRUM_KIT_CONFIGS,
   DRUM_PADS,
+  canonicalPadNote,
   type DrumKitId,
 } from '@/daw/instruments/DrumMachineEngine';
 import type { MidiNoteEvent } from '@prism/engine';
@@ -89,49 +90,9 @@ function padIndexToRow(padIdx: number): number {
   return NUM_PADS - 1 - padIdx;
 }
 
-/** Map any MIDI note to canonical pad note */
-function canonicalNote(note: number): number {
-  switch (note) {
-    case 35:
-    case 36:
-      return 36;
-    case 37:
-    case 38:
-    case 39:
-      return 38;
-    case 40:
-      return 40;
-    case 42:
-      return 42;
-    case 44:
-      return 44;
-    case 46:
-      return 46;
-    case 48:
-    case 50:
-      return 48;
-    case 45:
-    case 47:
-      return 45;
-    case 41:
-    case 43:
-      return 41;
-    case 49:
-    case 52:
-    case 55:
-    case 57:
-      return 49;
-    case 51:
-    case 53:
-      return 51;
-    default:
-      return 36;
-  }
-}
-
 /** Find DRUM_PADS index for a MIDI note */
 function padIndexForNote(note: number): number {
-  const cn = canonicalNote(note);
+  const cn = canonicalPadNote(note);
   return DRUM_PADS.findIndex((p) => p.note === cn);
 }
 
@@ -184,7 +145,6 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedPad, setSelectedPad] = useState<number>(36);
-  const [sampleEditorOpen, setSampleEditorOpen] = useState(false);
   const [velLaneOpen, setVelLaneOpen] = useState(false);
 
   const [tool, setTool] = useState<Tool>('draw');
@@ -787,7 +747,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
             }
 
             const ev = currentEvents[noteIdx];
-            setSelectedPad(canonicalNote(ev.note));
+            setSelectedPad(canonicalPadNote(ev.note));
             const relTick = ev.startTick - originTick;
             const noteX = relTick * pixelsPerTick;
             const noteW = Math.max(
@@ -933,7 +893,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
           const currentEvents = eventsRef.current;
           const exists = currentEvents.some(
             (ev) =>
-              canonicalNote(ev.note) === pad.note &&
+              canonicalPadNote(ev.note) === pad.note &&
               ev.startTick === snappedTick,
           );
           if (!exists) {
@@ -1694,48 +1654,8 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
           </AnimatePresence>
         </div>
       </div>
-
-      {/* ── Collapsible Sample Editor ────────────────────────────── */}
-      <div
-        className="shrink-0 border-t"
-        style={{ borderColor: 'var(--color-border)' }}
-      >
-        <button
-          onClick={() => setSampleEditorOpen((o) => !o)}
-          className="flex items-center gap-1.5 w-full px-3 py-1.5 text-[9px] font-semibold uppercase tracking-wider cursor-pointer"
-          style={{
-            color: 'var(--color-text-dim)',
-            background: 'none',
-            border: 'none',
-          }}
-        >
-          {sampleEditorOpen ? (
-            <ChevronDown size={10} />
-          ) : (
-            <ChevronRight size={10} />
-          )}
-          Sample
-          <span
-            className="font-normal normal-case"
-            style={{ color: 'var(--color-text-dim)', opacity: 0.6 }}
-          >
-            — {DRUM_PADS.find((p) => p.note === selectedPad)?.label ?? 'Kick'}
-          </span>
-        </button>
-        <AnimatePresence>
-          {sampleEditorOpen && (
-            <motion.div
-              initial={{ height: 0 }}
-              animate={{ height: 80 }}
-              exit={{ height: 0 }}
-              transition={SPRING}
-              className="overflow-hidden"
-            >
-              <SampleWaveformPreview padNote={selectedPad} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+      {/* No "Sample" section under the grid: it drew the same made-up
+          envelope for every pad, not the pad's sample. */}
     </div>
   );
 }
@@ -1924,79 +1844,5 @@ function MiniKnob({
         strokeLinecap="round"
       />
     </svg>
-  );
-}
-
-// ── Sample Waveform Preview ─────────────────────────────────────────────
-
-function SampleWaveformPreview({ padNote }: { padNote: number }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const padDef = DRUM_PADS.find((p) => p.note === padNote);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const dpr = window.devicePixelRatio || 1;
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    ctx.scale(dpr, dpr);
-
-    ctx.fillStyle = 'rgba(255,255,255,0.02)';
-    ctx.fillRect(0, 0, w, h);
-
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(0, h / 2);
-    ctx.lineTo(w, h / 2);
-    ctx.stroke();
-
-    ctx.fillStyle = 'rgba(255,255,255,0.12)';
-    ctx.beginPath();
-    ctx.moveTo(0, h / 2);
-    for (let x = 0; x < w; x++) {
-      const t = x / w;
-      const env = Math.exp(-t * 6);
-      const noise =
-        Math.sin(t * 80) * 0.5 +
-        Math.sin(t * 200) * 0.3 +
-        Math.sin(t * 40) * 0.2;
-      const amp = env * noise * (h / 2) * 0.8;
-      ctx.lineTo(x, h / 2 - amp);
-    }
-    for (let x = w - 1; x >= 0; x--) {
-      const t = x / w;
-      const env = Math.exp(-t * 6);
-      const noise =
-        Math.sin(t * 80) * 0.5 +
-        Math.sin(t * 200) * 0.3 +
-        Math.sin(t * 40) * 0.2;
-      const amp = env * noise * (h / 2) * 0.8;
-      ctx.lineTo(x, h / 2 + amp);
-    }
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    ctx.font = "10px 'Glacial Indifference', system-ui, sans-serif";
-    ctx.fillText(padDef?.label ?? 'Sample', 8, 14);
-  }, [padNote, padDef]);
-
-  return (
-    <div className="px-3 pb-2" style={{ height: 72 }}>
-      <canvas
-        ref={canvasRef}
-        className="w-full rounded"
-        style={{
-          height: 64,
-          border: '1px solid var(--color-border)',
-        }}
-      />
-    </div>
   );
 }

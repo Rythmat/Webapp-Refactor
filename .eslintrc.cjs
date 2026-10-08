@@ -128,5 +128,122 @@ module.exports = {
         'sonarjs/cognitive-complexity': 'off',
       },
     },
+    {
+      // The Studio editor's design guardrails, for NEW code only (overhaul
+      // plan 2.1): the primitives (src/daw/ui) and the shell built from
+      // them (src/daw/shell). Colours come from src/daw/ui/tokens.ts, the
+      // one file allowed to spell them; text stays at 11 px or more; and
+      // stacking comes from the token scale. Legacy src/daw is not covered.
+      files: [
+        'src/daw/ui/**/*.ts',
+        'src/daw/ui/**/*.tsx',
+        'src/daw/shell/**/*.ts',
+        'src/daw/shell/**/*.tsx',
+      ],
+      excludedFiles: [
+        'src/daw/ui/tokens.ts',
+        '**/__tests__/**',
+        '**/*.test.ts',
+        '**/*.test.tsx',
+      ],
+      rules: {
+        'no-restricted-syntax': [
+          'error',
+          // Colour literals: hex anywhere, rgb()/hsl() with numbers in them.
+          {
+            selector:
+              'Literal[value=/#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})(?![0-9a-zA-Z_-])/]',
+            message:
+              'No hex colours outside src/daw/ui/tokens.ts: use a token (bg-daw-*, text-daw-*, dawVar(), getDawPalette()).',
+          },
+          {
+            selector:
+              'TemplateElement[value.raw=/#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})(?![0-9a-zA-Z_-])/]',
+            message:
+              'No hex colours outside src/daw/ui/tokens.ts: use a token (bg-daw-*, text-daw-*, dawVar(), getDawPalette()).',
+          },
+          {
+            selector:
+              'JSXText[value=/#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})(?![0-9a-zA-Z_-])/]',
+            message: 'No hex colours outside src/daw/ui/tokens.ts.',
+          },
+          {
+            selector: 'Literal[value=/(?:rgba?|hsla?)\\(\\s*\\d/]',
+            message:
+              'No rgb()/hsl() colours outside src/daw/ui/tokens.ts: add a token.',
+          },
+          {
+            selector: 'TemplateElement[value.raw=/(?:rgba?|hsla?)\\(\\s*\\d/]',
+            message:
+              'No rgb()/hsl() colours outside src/daw/ui/tokens.ts: add a token.',
+          },
+          // Text under 11 px: Tailwind sizes, style objects, SVG and canvas.
+          {
+            selector:
+              'Literal[value=/\\btext-\\[(?:length:)?(?:(?:\\d|10)(?:\\.\\d+)?px|0?\\.(?:[0-5]\\d*|6(?:[0-8]\\d*)?)r?em)\\]/]',
+            message:
+              'Text stays at 11 px or more (12 px unless an uppercase micro label): use TYPE_CLASS.',
+          },
+          {
+            selector:
+              'TemplateElement[value.raw=/\\btext-\\[(?:length:)?(?:(?:\\d|10)(?:\\.\\d+)?px|0?\\.(?:[0-5]\\d*|6(?:[0-8]\\d*)?)r?em)\\]/]',
+            message:
+              'Text stays at 11 px or more (12 px unless an uppercase micro label): use TYPE_CLASS.',
+          },
+          {
+            selector: 'Property[key.name="fontSize"] > Literal[value<11]',
+            message: 'Text stays at 11 px or more: use the TYPE tokens.',
+          },
+          {
+            selector:
+              'Property[key.name="fontSize"] > Literal[value=/^(?:\\d|10)(?:\\.\\d+)?px$/]',
+            message: 'Text stays at 11 px or more: use the TYPE tokens.',
+          },
+          {
+            selector:
+              'JSXAttribute[name.name="fontSize"] > JSXExpressionContainer > Literal[value<11]',
+            message: 'Text stays at 11 px or more: use the TYPE tokens.',
+          },
+          {
+            selector:
+              'JSXAttribute[name.name="fontSize"] > Literal[value=/^(?:\\d|10)(?:\\.\\d+)?(?:px)?$/]',
+            message: 'Text stays at 11 px or more: use the TYPE tokens.',
+          },
+          {
+            selector:
+              'AssignmentExpression[left.property.name="font"] Literal[value=/(?:^|\\s)(?:\\d|10)(?:\\.\\d+)?px/]',
+            message: 'Canvas text stays at 11 px or more.',
+          },
+          {
+            selector:
+              'AssignmentExpression[left.property.name="font"] TemplateElement[value.raw=/(?:^|\\s)(?:\\d|10)(?:\\.\\d+)?px/]',
+            message: 'Canvas text stays at 11 px or more.',
+          },
+          // Literal z-indexes: take a layer from the Z scale instead.
+          {
+            selector: 'Property[key.name="zIndex"] > Literal[value!=/^var\\(/]',
+            message:
+              'No literal z-index: use a layer, z-[var(--daw-z-<layer>)] or Z.<layer> from tokens.ts.',
+          },
+          {
+            selector: 'Property[key.name="zIndex"] > UnaryExpression',
+            message:
+              'No literal z-index: use a layer, z-[var(--daw-z-<layer>)] or Z.<layer> from tokens.ts.',
+          },
+          {
+            selector:
+              'Literal[value=/(?:^|[\\s:])-?z-(?:\\d+|\\[-?\\d+\\])(?![\\w-])/]',
+            message:
+              'No literal z-index class: use z-[var(--daw-z-<layer>)] from the token scale.',
+          },
+          {
+            selector:
+              'TemplateElement[value.raw=/(?:^|[\\s:])-?z-(?:\\d+|\\[-?\\d+\\])(?![\\w-])/]',
+            message:
+              'No literal z-index class: use z-[var(--daw-z-<layer>)] from the token scale.',
+          },
+        ],
+      },
+    },
   ],
 };

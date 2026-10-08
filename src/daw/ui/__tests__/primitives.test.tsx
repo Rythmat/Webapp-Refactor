@@ -262,6 +262,19 @@ describe('Chip', () => {
     const button = screen.getByRole('button', { name: 'Song' });
     expect(button).toHaveClass('rounded-full');
     expect(button.querySelector('[aria-hidden]')).not.toBeNull();
+    // As a control it shows the kit's focus ring, not the browser's outline.
+    expect(button).toHaveClass(
+      'outline-none',
+      'focus-visible:outline-2',
+      'focus-visible:outline-daw-focus',
+    );
+  });
+
+  it('has no focus ring when it is only a label', () => {
+    render(<Chip>4 tracks</Chip>);
+    expect(screen.getByText('4 tracks')).not.toHaveClass(
+      'focus-visible:outline-daw-focus',
+    );
   });
 });
 

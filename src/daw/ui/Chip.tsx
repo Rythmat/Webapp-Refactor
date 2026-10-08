@@ -2,7 +2,7 @@ import { Slot, Slottable } from '@radix-ui/react-slot';
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cn } from '@/components/utilities';
 import { onColor } from './color';
-import { TYPE_CLASS } from './styles';
+import { FOCUS_RING, TYPE_CLASS } from './styles';
 
 export type ChipTone = 'neutral' | 'record' | 'warning' | 'success';
 
@@ -66,6 +66,9 @@ export const Chip = forwardRef<HTMLSpanElement, ChipProps>(function Chip(
         dashed
           ? 'border border-dashed border-daw-outline bg-transparent text-daw-text-3'
           : TONE[tone],
+        // A chip that is a control (a trigger) shows the kit's focus ring,
+        // not the browser's default outline.
+        asChild && FOCUS_RING,
         className,
       )}
       style={

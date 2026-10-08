@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { cn } from '@/components/utilities';
 import { IconButton } from './IconButton';
-import { TYPE_CLASS } from './styles';
+import { OVERLAY_MOTION, TYPE_CLASS } from './styles';
 import { useReturnFocus } from './useReturnFocus';
 
 export type DawDialogSize = 'sm' | 'md' | 'lg' | 'full';
@@ -102,7 +102,12 @@ function OverlayFrame({
         <DialogPrimitive.Trigger asChild>{trigger}</DialogPrimitive.Trigger>
       )}
       <DialogPortal>
-        <DialogOverlay className="z-[var(--daw-z-modal)] bg-daw-scrim duration-daw-base" />
+        <DialogOverlay
+          className={cn(
+            'z-[var(--daw-z-modal)] bg-daw-scrim',
+            OVERLAY_MOTION.base,
+          )}
+        />
         <DialogPrimitive.Content
           // Without a description, say so, rather than point at nothing.
           {...(description ? {} : { 'aria-describedby': undefined })}
@@ -121,7 +126,8 @@ function OverlayFrame({
           }}
           className={cn(
             'fixed z-[var(--daw-z-modal)] flex flex-col border-daw-hairline bg-daw-popover text-daw-text shadow-2xl shadow-black/60 outline-none',
-            'duration-daw-base data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+            'data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+            OVERLAY_MOTION.base,
             TYPE_CLASS.body,
             panelClassName,
             className,

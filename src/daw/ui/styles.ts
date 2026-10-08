@@ -40,9 +40,21 @@ export const TRANSITION =
   'transition-[background-color,border-color,color,opacity,transform] duration-daw-fast ease-daw';
 
 /**
+ * How an overlay on the kit opens and closes (dialogs, sheets, menus,
+ * selects, popovers, tooltips): at a motion step, and not at all under
+ * reduced motion. The kit animates them with `data-[state=open]:animate-in`
+ * and `data-[state=closed]:animate-out`, which carry their own 150 ms at a
+ * higher specificity than a plain duration class, so the step is set under
+ * the same two state variants as well.
+ */
+export const OVERLAY_MOTION = {
+  fast: 'duration-daw-fast data-[state=open]:duration-daw-fast data-[state=closed]:duration-daw-fast motion-reduce:!animate-none',
+  base: 'duration-daw-base data-[state=open]:duration-daw-base data-[state=closed]:duration-daw-base motion-reduce:!animate-none',
+} as const;
+
+/**
  * The surface every floating panel shares: menus, popovers, selects and
  * tooltips. Opaque (never glass), with a hairline and a soft shadow, above
  * dialogs in the stacking order.
  */
-export const FLOATING_SURFACE =
-  'z-[var(--daw-z-popover)] rounded-[var(--daw-radius-md)] border border-daw-hairline bg-daw-popover text-daw-text shadow-xl shadow-black/40 duration-daw-fast';
+export const FLOATING_SURFACE = `z-[var(--daw-z-popover)] rounded-[var(--daw-radius-md)] border border-daw-hairline bg-daw-popover text-daw-text shadow-xl shadow-black/40 ${OVERLAY_MOTION.fast}`;

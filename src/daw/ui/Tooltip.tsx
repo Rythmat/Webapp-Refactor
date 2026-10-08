@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/tooltip';
 import { cn } from '@/components/utilities';
 import { Kbd } from './Kbd';
-import { TYPE_CLASS } from './styles';
+import { OVERLAY_MOTION, TYPE_CLASS } from './styles';
 
 export interface TooltipProps {
   /** The tip. For an icon button this is its label. */
@@ -44,7 +44,8 @@ export function Tooltip({
           sideOffset={6}
           collisionPadding={8}
           className={cn(
-            'z-[var(--daw-z-tooltip)] flex items-center gap-2 rounded-[var(--daw-radius-sm)] border border-daw-hairline bg-daw-popover px-2 py-1 text-daw-text shadow-lg shadow-black/40 duration-daw-fast',
+            'z-[var(--daw-z-tooltip)] flex items-center gap-2 rounded-[var(--daw-radius-sm)] border border-daw-hairline bg-daw-popover px-2 py-1 text-daw-text shadow-lg shadow-black/40',
+            OVERLAY_MOTION.fast,
             TYPE_CLASS.label,
           )}
         >

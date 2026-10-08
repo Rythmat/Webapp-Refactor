@@ -1,12 +1,32 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from '@testing-library/react';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import postcss, { type AtRule } from 'postcss';
 import tailwindcss from 'tailwindcss';
 import loadConfig from 'tailwindcss/loadConfig';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { DawDialog } from '../DawDialog';
+import { Button } from '../Button';
+import { DawDialog, Sheet } from '../DawDialog';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+} from '../Menu';
+import { Popover, PopoverContent, PopoverTrigger } from '../Popover';
+import { Select } from '../Select';
+import { Tooltip } from '../Tooltip';
 import { installDomShims } from './dom';
 
 // ── Overlay motion, through the real Tailwind config ────────────────────────
@@ -136,5 +156,141 @@ describe('DawDialog', () => {
     expect(closing.get('animation-name')).toBe('exit');
     expect(closing.get('--tw-exit-translate-x')).toBe('-50%');
     expect(closing.get('--tw-exit-translate-y')).toBe('-50%');
+  }, 30_000);
+});
+
+/** The overlays, each rendered open, by the element that animates. */
+const OVERLAYS: Array<{
+  name: string;
+  step: 'fast' | 'base';
+  open(): Element;
+}> = [
+  {
+    name: 'a DawDialog',
+    step: 'base',
+    open() {
+      render(<DawDialog open title="Export audio" />);
+      return screen.getByRole('dialog');
+    },
+  },
+  {
+    name: "a DawDialog's scrim",
+    step: 'base',
+    open() {
+      render(<DawDialog open title="Export audio" />);
+      return screen.getByRole('dialog').previousElementSibling!;
+    },
+  },
+  {
+    name: 'a Sheet',
+    step: 'base',
+    open() {
+      render(<Sheet open title="Add a track" />);
+      return screen.getByRole('dialog');
+    },
+  },
+  {
+    name: 'a Menu',
+    step: 'fast',
+    open() {
+      render(
+        <Menu open>
+          <MenuTrigger asChild>
+            <Button>More</Button>
+          </MenuTrigger>
+          <MenuContent>
+            <MenuItem>Rename</MenuItem>
+          </MenuContent>
+        </Menu>,
+      );
+      return screen.getByRole('menu');
+    },
+  },
+  {
+    name: 'a ContextMenu',
+    step: 'fast',
+    open() {
+      render(
+        <ContextMenu>
+          <ContextMenuTrigger>Clip</ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuItem>Copy</ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>,
+      );
+      fireEvent.contextMenu(screen.getByText('Clip'));
+      return screen.getByRole('menu');
+    },
+  },
+  {
+    name: "a Select's list",
+    step: 'fast',
+    open() {
+      render(
+        <Select
+          label="Format"
+          open
+          defaultValue="wav"
+          options={[
+            { value: 'wav', label: 'WAV' },
+            { value: 'mp3', label: 'MP3' },
+          ]}
+        />,
+      );
+      return screen.getByRole('listbox');
+    },
+  },
+  {
+    name: 'a Popover',
+    step: 'fast',
+    open() {
+      render(
+        <Popover open>
+          <PopoverTrigger asChild>
+            <Button>Key</Button>
+          </PopoverTrigger>
+          <PopoverContent>C major</PopoverContent>
+        </Popover>,
+      );
+      return screen.getByRole('dialog');
+    },
+  },
+  {
+    name: 'a Tooltip',
+    step: 'fast',
+    open() {
+      render(
+        <Tooltip content="Loop">
+          <Button>Loop</Button>
+        </Tooltip>,
+      );
+      // Keyboard focus opens it at once.
+      act(() => screen.getByRole('button', { name: 'Loop' }).focus());
+      return screen.getByRole('tooltip').parentElement!;
+    },
+  },
+];
+
+describe.each(OVERLAYS)('$name', ({ step, open }) => {
+  it(`opens and closes at the ${step} motion step`, async () => {
+    const element = open();
+    const opening = await computed(element);
+    expect(opening.get('animation-name')).toBe('enter');
+    expect(opening.get('animation-duration')).toBe(`var(--daw-motion-${step})`);
+
+    element.setAttribute('data-state', 'closed');
+    const closing = await computed(element);
+    expect(closing.get('animation-name')).toBe('exit');
+    expect(closing.get('animation-duration')).toBe(`var(--daw-motion-${step})`);
+  }, 30_000);
+
+  it('does not move at all under reduced motion', async () => {
+    const element = open();
+    const opening = await computed(element, { reducedMotion: true });
+    expect(opening.get('animation-name')).toBe('none');
+
+    element.setAttribute('data-state', 'closed');
+    const closing = await computed(element, { reducedMotion: true });
+    expect(closing.get('animation-name')).toBe('none');
   }, 30_000);
 });

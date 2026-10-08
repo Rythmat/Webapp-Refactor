@@ -175,6 +175,19 @@ describe('repair', () => {
     expect(obeysMajorChordRule(repaired, overC)).toBe(true);
   });
 
+  it('repairs the note before when a move leaves it unresolved', () => {
+    // B♭ is the 4 of F and resolves to A, F's 3. But A is the 4 of E, the
+    // next chord, and ends the phrase unresolved: moved onto G♯, it leaves
+    // the B♭ hanging, so the B♭ falls to A as well.
+    const FtoE: ChordWindow[] = [
+      { rootPc: 5, majorThird: true, startTick: 0, endTick: Q },
+      { rootPc: 4, majorThird: true, startTick: Q, endTick: 2 * Q },
+    ];
+    const repaired = repairMajorChordRule(line([70, A]), FtoE);
+    expect(repaired.map((n) => n.midi)).toEqual([A, 68]);
+    expect(obeysMajorChordRule(repaired, FtoE)).toBe(true);
+  });
+
   it('always yields a melody that obeys the rule', () => {
     const chords: ChordWindow[] = [
       { rootPc: 0, majorThird: true, startTick: 0, endTick: 3840 },

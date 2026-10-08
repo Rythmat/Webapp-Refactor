@@ -152,10 +152,13 @@ export function usePartPlayer() {
       }, events);
       transport.bpm.value = part.tempo;
       transport.swing = 0;
+      const starting = transport.state !== 'started';
+      // Clear what an earlier session left on the timeline BEFORE scheduling
+      // this part: cancel() removes everything scheduled, the part included.
+      if (starting) transport.cancel();
       applyTransportLoop();
       tonePart.start(0);
-      if (transport.state !== 'started') {
-        transport.cancel();
+      if (starting) {
         transport.ticks = Math.round(
           (loopRef.current.enabled ? loopRef.current.start : 0) * s,
         );

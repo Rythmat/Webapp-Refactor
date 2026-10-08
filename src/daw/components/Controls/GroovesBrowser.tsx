@@ -17,13 +17,13 @@ import {
   getUniqueBpms,
   type GrooveItem,
 } from '@/daw/data/groovesLibrary';
-import { importMidiFile } from '@/daw/midi/MidiFileIO';
-import type { MidiNoteEvent } from '@prism/engine';
+import { loadGrooveEvents } from '@/daw/midi/loadGrooveEvents';
 import { useStore } from '@/daw/store';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 
 // ── Constants ──────────────────────────────────────────────────────────
 
+/** Studio's ticks per quarter note, the resolution loadGrooveEvents returns. */
 const OUR_PPQ = 480;
 
 const TAG_COLORS: Record<string, string> = {
@@ -168,56 +168,35 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
         return;
       }
 
-      try {
-        const resp = await fetch(groove.url);
-        if (!resp.ok) {
-          setIsPlaying(false);
-          return;
-        }
-        const buf = await resp.arrayBuffer();
-        const sequences = importMidiFile(buf);
-        if (sequences.length === 0) {
-          setIsPlaying(false);
-          return;
-        }
-
-        const seq = sequences[0];
-        const ppq = seq.ticksPerQuarterNote;
-        const bpm = groove.bpm;
-        const msPerTick = 60_000 / bpm / OUR_PPQ;
-
-        const timeouts: number[] = [];
-        for (const evt of seq.events) {
-          const scaledStart = Math.round((evt.startTick / ppq) * OUR_PPQ);
-          const scaledDur = Math.round((evt.durationTicks / ppq) * OUR_PPQ);
-          const startMs = scaledStart * msPerTick;
-          const endMs = (scaledStart + scaledDur) * msPerTick;
-
-          timeouts.push(
-            window.setTimeout(() => {
-              entry.trackEngine.noteOn(evt.note, evt.velocity);
-            }, startMs),
-          );
-          timeouts.push(
-            window.setTimeout(() => {
-              entry.trackEngine.noteOff(evt.note);
-            }, endMs),
-          );
-        }
-
-        const maxMs = seq.events.reduce((max: number, evt: MidiNoteEvent) => {
-          const s = Math.round((evt.startTick / ppq) * OUR_PPQ);
-          const d = Math.round((evt.durationTicks / ppq) * OUR_PPQ);
-          return Math.max(max, (s + d) * msPerTick);
-        }, 0);
-        timeouts.push(
-          window.setTimeout(() => setIsPlaying(false), maxMs + 100),
-        );
-
-        previewTimeouts.current = timeouts;
-      } catch {
+      // The same fetch, parse and rescale as adding the groove (and as the
+      // practice tracks and demos), so a preview plays what Add would add.
+      const events = await loadGrooveEvents(groove.id);
+      if (!events) {
         setIsPlaying(false);
+        return;
       }
+
+      const msPerTick = 60_000 / groove.bpm / OUR_PPQ;
+      const timeouts: number[] = [];
+      let endMs = 0;
+      for (const evt of events) {
+        const startMs = evt.startTick * msPerTick;
+        const stopMs = (evt.startTick + evt.durationTicks) * msPerTick;
+        endMs = Math.max(endMs, stopMs);
+        timeouts.push(
+          window.setTimeout(() => {
+            entry.trackEngine.noteOn(evt.note, evt.velocity);
+          }, startMs),
+        );
+        timeouts.push(
+          window.setTimeout(() => {
+            entry.trackEngine.noteOff(evt.note);
+          }, stopMs),
+        );
+      }
+      timeouts.push(window.setTimeout(() => setIsPlaying(false), endMs + 100));
+
+      previewTimeouts.current = timeouts;
     },
     [trackId, stopPreview],
   );
@@ -226,32 +205,19 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
 
   const doLoadGroove = useCallback(
     async (groove: GrooveItem) => {
-      try {
-        const resp = await fetch(groove.url);
-        if (!resp.ok) return;
-        const buf = await resp.arrayBuffer();
-        const sequences = importMidiFile(buf);
-        if (sequences.length === 0) return;
+      // loadGrooveEvents logs a groove it can't fetch or parse; that adds
+      // nothing.
+      const events = await loadGrooveEvents(groove.id);
+      if (!events) return;
 
-        const seq = sequences[0];
-        const ppq = seq.ticksPerQuarterNote;
-        const events = seq.events.map((evt: MidiNoteEvent) => ({
-          ...evt,
-          startTick: Math.round((evt.startTick / ppq) * OUR_PPQ),
-          durationTicks: Math.round((evt.durationTicks / ppq) * OUR_PPQ),
-        }));
-
-        const clipId = `clip-groove-${crypto.randomUUID().slice(0, 8)}`;
-        addMidiClip(trackId, {
-          id: clipId,
-          name: groove.name,
-          startTick: 0,
-          events,
-        });
-        setSelectedClip(clipId, trackId);
-      } catch (err) {
-        console.error('Failed to load groove:', err);
-      }
+      const clipId = `clip-groove-${crypto.randomUUID().slice(0, 8)}`;
+      addMidiClip(trackId, {
+        id: clipId,
+        name: groove.name,
+        startTick: 0,
+        events,
+      });
+      setSelectedClip(clipId, trackId);
     },
     [trackId, addMidiClip, setSelectedClip],
   );

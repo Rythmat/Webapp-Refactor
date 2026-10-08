@@ -17,6 +17,7 @@ import {
   DRUM_KITS,
   DRUM_KIT_CONFIGS,
   DRUM_PADS,
+  canonicalPadNote,
   type DrumKitId,
 } from '@/daw/instruments/DrumMachineEngine';
 import type { MidiNoteEvent } from '@prism/engine';
@@ -89,49 +90,9 @@ function padIndexToRow(padIdx: number): number {
   return NUM_PADS - 1 - padIdx;
 }
 
-/** Map any MIDI note to canonical pad note */
-function canonicalNote(note: number): number {
-  switch (note) {
-    case 35:
-    case 36:
-      return 36;
-    case 37:
-    case 38:
-    case 39:
-      return 38;
-    case 40:
-      return 40;
-    case 42:
-      return 42;
-    case 44:
-      return 44;
-    case 46:
-      return 46;
-    case 48:
-    case 50:
-      return 48;
-    case 45:
-    case 47:
-      return 45;
-    case 41:
-    case 43:
-      return 41;
-    case 49:
-    case 52:
-    case 55:
-    case 57:
-      return 49;
-    case 51:
-    case 53:
-      return 51;
-    default:
-      return 36;
-  }
-}
-
 /** Find DRUM_PADS index for a MIDI note */
 function padIndexForNote(note: number): number {
-  const cn = canonicalNote(note);
+  const cn = canonicalPadNote(note);
   return DRUM_PADS.findIndex((p) => p.note === cn);
 }
 
@@ -786,7 +747,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
             }
 
             const ev = currentEvents[noteIdx];
-            setSelectedPad(canonicalNote(ev.note));
+            setSelectedPad(canonicalPadNote(ev.note));
             const relTick = ev.startTick - originTick;
             const noteX = relTick * pixelsPerTick;
             const noteW = Math.max(
@@ -932,7 +893,7 @@ export function DrumMachineView({ trackId }: DrumMachineViewProps) {
           const currentEvents = eventsRef.current;
           const exists = currentEvents.some(
             (ev) =>
-              canonicalNote(ev.note) === pad.note &&
+              canonicalPadNote(ev.note) === pad.note &&
               ev.startTick === snappedTick,
           );
           if (!exists) {

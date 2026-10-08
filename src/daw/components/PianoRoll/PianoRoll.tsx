@@ -1,4 +1,11 @@
-import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
+import {
+  useRef,
+  useEffect,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MousePointer2,
@@ -13,6 +20,8 @@ import {
   type MidiNoteEvent,
 } from '@prism/engine';
 import { RollViewToggle } from '@/components/notation/RollViewToggle';
+import { mintNoteId } from '@/daw/model/noteIds';
+import { useSessionGeneration } from '@/daw/session/useSessionGeneration';
 import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import type { ChordRegion } from '@/daw/store/prismSlice';
@@ -40,6 +49,14 @@ import {
 import type { LoopState } from '@/daw/store/transportSlice';
 import { useRollView } from '@/lib/notation';
 import { StudioNotationView } from './StudioNotationView';
+import {
+  needsRepaint,
+  paintRect,
+  preparePaintCanvas,
+  sizeHitSurface,
+  visibleRect,
+  type PaintedWindow,
+} from './viewportCanvas';
 
 type Tool = 'select' | 'draw' | 'erase';
 
@@ -231,6 +248,14 @@ interface PianoRollProps {
    *  whenever the selection changes — e.g. so the host can send them to
    *  Insight. */
   onSelectionChange?: (indices: number[]) => void;
+  /**
+   * The clip `events` belong to; null for a blank roll, whose first note
+   * makes its clip. The selection is indices into `events`, so it is let go
+   * when the roll moves to another clip, or stays mounted through a load:
+   * kept, it would pick (and Delete would remove) the notes at the same
+   * indices in the next clip.
+   */
+  clipId?: string | null;
 }
 
 export function PianoRoll({
@@ -243,6 +268,7 @@ export function PianoRoll({
   onAuditionNote,
   loopScope = 'project',
   onSelectionChange,
+  clipId,
 }: PianoRollProps) {
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
@@ -271,6 +297,16 @@ export function PianoRoll({
   const gridScrollRef = useRef<HTMLDivElement>(null);
   const velCanvasRef = useRef<HTMLCanvasElement>(null);
   const velScrollRef = useRef<HTMLDivElement>(null);
+  // The ruler, grid and velocity canvases above are hit surfaces with empty
+  // bitmaps; these paint the visible window behind them (viewportCanvas.ts).
+  const rulerPaintRef = useRef<HTMLCanvasElement>(null);
+  const gridPaintRef = useRef<HTMLCanvasElement>(null);
+  const velPaintRef = useRef<HTMLCanvasElement>(null);
+  const paintedRef = useRef<{
+    ruler?: PaintedWindow;
+    grid?: PaintedWindow;
+    vel?: PaintedWindow;
+  }>({});
 
   // Default to a quarter-note grid so every drawn beat line is a snap target.
   // A coarser default (e.g. 1/2) leaves beats 2 and 4 of each bar unreachable
@@ -306,6 +342,18 @@ export function PianoRoll({
   const selectSingle = useCallback((i: number | null) => {
     setSelectedIndices(i === null ? new Set() : new Set([i]));
   }, []);
+  // The selection belongs to the clip and the session it was made in (see
+  // clipId). The generation moves on with every load of the project, which
+  // can leave the roll mounted over the new project's notes. Cleared before
+  // paint, so no stale selection is drawn or acted on.
+  const generation = useSessionGeneration();
+  const selectionScope = useRef({ clipId, generation });
+  useLayoutEffect(() => {
+    const scope = selectionScope.current;
+    if (scope.clipId === clipId && scope.generation === generation) return;
+    selectionScope.current = { clipId, generation };
+    setSelectedIndices(new Set());
+  }, [clipId, generation]);
   useEffect(() => {
     onSelectionChange?.([...selectedIndices].sort((a, b) => a - b));
   }, [selectedIndices, onSelectionChange]);
@@ -473,10 +521,9 @@ export function PianoRoll({
 
   // ── Draw Ruler ──────────────────────────────────────────────────────────
   const drawRuler = useCallback(() => {
-    const canvas = rulerCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const canvas = rulerPaintRef.current;
+    const surface = rulerCanvasRef.current;
+    if (!canvas || !surface) return;
 
     const colors = containerRef.current
       ? getThemeColors(containerRef.current)
@@ -494,13 +541,15 @@ export function PianoRoll({
       : gridW;
     const h = RULER_H;
 
-    if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
+    sizeHitSurface(surface, w, h);
+    const win = paintRect(
+      rulerContainer ? visibleRect(rulerContainer) : { x: 0, y: 0, w, h },
+      w,
+      h,
+    );
+    const ctx = preparePaintCanvas(canvas, win, dpr);
+    if (!ctx) return;
+    paintedRef.current.ruler = { rect: win, contentW: w, contentH: h };
 
     ctx.fillStyle = colors.bg;
     ctx.fillRect(0, 0, w, h);
@@ -529,9 +578,14 @@ export function PianoRoll({
     // Bar-number lane
     const laneH = h - LOOP_STRIP_H;
     const totalBeats = Math.ceil(totalTicks / TICKS_PER_BEAT);
+    // Only the beats in the painted window, starting a little to its left so
+    // the number of a bar that opens just off it still runs into view.
+    const beatPx = TICKS_PER_BEAT * pixelsPerTick;
+    const firstBeat = Math.max(0, Math.floor((win.x - 40) / beatPx));
+    const lastBeat = Math.min(totalBeats, Math.ceil((win.x + win.w) / beatPx));
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    for (let beat = 0; beat <= totalBeats; beat++) {
+    for (let beat = firstBeat; beat <= lastBeat; beat++) {
       const x = beat * TICKS_PER_BEAT * pixelsPerTick;
       const isBar = beat % beatsPerBar === 0;
 
@@ -572,10 +626,9 @@ export function PianoRoll({
 
   // ── Draw Grid + Notes ───────────────────────────────────────────────────
   const drawGrid = useCallback(() => {
-    const canvas = gridCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const canvas = gridPaintRef.current;
+    const surface = gridCanvasRef.current;
+    if (!canvas || !surface) return;
 
     const container = gridScrollRef.current;
     if (!container) return;
@@ -593,20 +646,24 @@ export function PianoRoll({
     const w = Math.max(container.clientWidth, gridW);
     const h = gridH;
 
-    if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
+    sizeHitSurface(surface, w, h);
+    const win = paintRect(visibleRect(container), w, h);
+    const ctx = preparePaintCanvas(canvas, win, dpr);
+    if (!ctx) return;
+    paintedRef.current.grid = { rect: win, contentW: w, contentH: h };
 
     // Clear — matches theme
     ctx.fillStyle = colors.bg;
     ctx.fillRect(0, 0, w, h);
 
     // ── Row backgrounds (same lane shading as Learn's piano roll) ────────
-    for (let i = 0; i < VIEW_RANGE; i++) {
+    // Rows, lines and notes are drawn only where they meet the window.
+    const firstRow = Math.max(0, Math.floor(win.y / rowH));
+    const lastRow = Math.min(
+      VIEW_RANGE - 1,
+      Math.floor((win.y + win.h) / rowH),
+    );
+    for (let i = firstRow; i <= lastRow; i++) {
       const midiNote = VIEW_MAX - i;
       const rowY = i * rowH;
       ctx.fillStyle = pianoRollLaneBackground(midiNote);
@@ -617,7 +674,13 @@ export function PianoRoll({
 
     // ── Vertical grid lines (beats + bars) ─────────────────────────────
     const totalBeats = Math.ceil(totalTicks / TICKS_PER_BEAT);
-    for (let beat = 0; beat <= totalBeats; beat++) {
+    const beatPx = TICKS_PER_BEAT * pixelsPerTick;
+    const firstBeat = Math.max(0, Math.floor(win.x / beatPx) - 1);
+    const lastBeat = Math.min(
+      totalBeats,
+      Math.ceil((win.x + win.w) / beatPx) + 1,
+    );
+    for (let beat = firstBeat; beat <= lastBeat; beat++) {
       const x = beat * TICKS_PER_BEAT * pixelsPerTick;
       const isBar = beat % beatsPerBar === 0;
 
@@ -637,9 +700,15 @@ export function PianoRoll({
     const gridTicks = GRID_VALUES[gridSize];
     if (gridTicks < TICKS_PER_BEAT) {
       const totalGridLines = Math.ceil(totalTicks / gridTicks);
+      const linePx = gridTicks * pixelsPerTick;
+      const firstLine = Math.max(0, Math.floor(win.x / linePx) - 1);
+      const lastLine = Math.min(
+        totalGridLines,
+        Math.ceil((win.x + win.w) / linePx) + 1,
+      );
       ctx.strokeStyle = PIANO_ROLL_LANE_COLORS.subLine;
       ctx.lineWidth = 1;
-      for (let g = 0; g <= totalGridLines; g++) {
+      for (let g = firstLine; g <= lastLine; g++) {
         const tick = g * gridTicks;
         if (tick % TICKS_PER_BEAT === 0) continue;
         const x = tick * pixelsPerTick;
@@ -662,6 +731,15 @@ export function PianoRoll({
 
       // Skip notes outside view range
       if (ev.note < VIEW_MIN || ev.note > VIEW_MAX) continue;
+      // …and outside the painted window (with room for the outline).
+      if (
+        x > win.x + win.w + 2 ||
+        x + noteW < win.x - 2 ||
+        noteY > win.y + win.h + 2 ||
+        noteY + rowH < win.y - 2
+      ) {
+        continue;
+      }
 
       const isSelected = selectedIndices.has(i);
       const alpha = 0.7 + (ev.velocity / 127) * 0.3;
@@ -734,10 +812,9 @@ export function PianoRoll({
 
   // ── Draw Velocity Lane ──────────────────────────────────────────────────
   const drawVelLane = useCallback(() => {
-    const canvas = velCanvasRef.current;
-    if (!canvas || !velLaneOpen) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const canvas = velPaintRef.current;
+    const surface = velCanvasRef.current;
+    if (!canvas || !surface || !velLaneOpen) return;
 
     const colors = containerRef.current
       ? getThemeColors(containerRef.current)
@@ -752,13 +829,15 @@ export function PianoRoll({
     const w = velContainer ? Math.max(velContainer.clientWidth, gridW) : gridW;
     const h = VEL_LANE_H;
 
-    if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
+    sizeHitSurface(surface, w, h);
+    const win = paintRect(
+      velContainer ? visibleRect(velContainer) : { x: 0, y: 0, w, h },
+      w,
+      h,
+    );
+    const ctx = preparePaintCanvas(canvas, win, dpr);
+    if (!ctx) return;
+    paintedRef.current.vel = { rect: win, contentW: w, contentH: h };
 
     ctx.fillStyle = colors.bg;
     ctx.fillRect(0, 0, w, h);
@@ -799,6 +878,9 @@ export function PianoRoll({
         const relTick = ev.startTick - clipStartTick;
         const x =
           relTick * pixelsPerTick + (ev.durationTicks * pixelsPerTick) / 2;
+        // Only stems in the painted window (with room for the circle).
+        const reach = VEL_CIRCLE_R + 3;
+        if (x < win.x - reach || x > win.x + win.w + reach) continue;
         const stemH = (ev.velocity / 127) * maxStemH;
         const circleY = h - stemH - 2;
 
@@ -951,6 +1033,67 @@ export function PianoRoll({
     drawVelLane();
   }, [drawVelLane]);
 
+  // ── Repaint as the view moves ───────────────────────────────────────────
+  // The canvases cover only the visible window plus a margin, so a scroll
+  // repaints a lane once its view nears the edge of what it last painted,
+  // and a resize repaints every lane. The listeners stay attached for the
+  // roll's lifetime and call the latest draw functions through a ref.
+  const drawLanesRef = useRef({ drawRuler, drawGrid, drawVelLane });
+  drawLanesRef.current = { drawRuler, drawGrid, drawVelLane };
+  const scheduleLaneCheckRef = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    const grid = gridScrollRef.current;
+    if (!grid) return;
+    let frame = 0;
+    let resized = false;
+    const repaint = () => {
+      frame = 0;
+      const lanes = drawLanesRef.current;
+      const painted = paintedRef.current;
+      const ruler = rulerScrollRef.current;
+      const vel = velScrollRef.current;
+      if (resized || needsRepaint(painted.grid, visibleRect(grid))) {
+        lanes.drawGrid();
+      }
+      if (
+        ruler &&
+        (resized || needsRepaint(painted.ruler, visibleRect(ruler)))
+      ) {
+        lanes.drawRuler();
+      }
+      if (vel && (resized || needsRepaint(painted.vel, visibleRect(vel)))) {
+        lanes.drawVelLane();
+      }
+      resized = false;
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(repaint);
+    };
+    const onResize = () => {
+      resized = true;
+      schedule();
+    };
+    scheduleLaneCheckRef.current = schedule;
+    grid.addEventListener('scroll', schedule, { passive: true });
+    const observer =
+      typeof ResizeObserver === 'undefined'
+        ? null
+        : new ResizeObserver(onResize);
+    observer?.observe(grid);
+    return () => {
+      scheduleLaneCheckRef.current = null;
+      grid.removeEventListener('scroll', schedule);
+      observer?.disconnect();
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, []);
+  // A zoom moves the view a frame later: the wheel and ruler handlers set the
+  // scroll in a requestAnimationFrame. A check queued now runs in that frame,
+  // after them, so the lanes repaint before the old window can show.
+  useEffect(() => {
+    scheduleLaneCheckRef.current?.();
+  }, [zoom, vZoom]);
+
   // ── Auto-scroll to notes on mount ───────────────────────────────────────
   useEffect(() => {
     if (initialScrollDone.current) return;
@@ -1052,7 +1195,10 @@ export function PianoRoll({
           const pitch = VIEW_MAX - Math.floor(y / rowH);
 
           if (pitch >= VIEW_MIN && pitch <= VIEW_MAX) {
+            // A drawn note is a new note: it gets its id here, and the
+            // selection finds it by that id.
             const newNote: MidiNoteEvent = {
+              id: mintNoteId(),
               note: pitch,
               velocity,
               startTick: snappedTick,
@@ -1064,12 +1210,7 @@ export function PianoRoll({
             );
             onChange(newEvents);
             onAuditionNote?.(pitch, velocity);
-            const addedIdx = newEvents.findIndex(
-              (n) =>
-                n.startTick === snappedTick &&
-                n.note === pitch &&
-                n.durationTicks === gridTicks,
-            );
+            const addedIdx = newEvents.findIndex((n) => n.id === newNote.id);
             selectSingle(addedIdx >= 0 ? addedIdx : null);
           }
           break;
@@ -1789,6 +1930,11 @@ export function PianoRoll({
               }}
             >
               <canvas
+                ref={rulerPaintRef}
+                aria-hidden
+                className="pointer-events-none absolute block"
+              />
+              <canvas
                 ref={rulerCanvasRef}
                 className="block"
                 style={{ cursor: 'pointer' }}
@@ -1810,6 +1956,11 @@ export function PianoRoll({
               onScroll={handleGridScroll}
               style={{ scrollbarWidth: 'thin' }}
             >
+              <canvas
+                ref={gridPaintRef}
+                aria-hidden
+                className="pointer-events-none absolute block"
+              />
               <canvas
                 ref={gridCanvasRef}
                 className="block"
@@ -1887,11 +2038,17 @@ export function PianoRoll({
                   ref={velScrollRef}
                   className="flex-1"
                   style={{
+                    position: 'relative',
                     overflowX: 'hidden',
                     overflowY: 'hidden',
                     height: VEL_LANE_H,
                   }}
                 >
+                  <canvas
+                    ref={velPaintRef}
+                    aria-hidden
+                    className="pointer-events-none absolute block"
+                  />
                   <canvas
                     ref={velCanvasRef}
                     className="block"

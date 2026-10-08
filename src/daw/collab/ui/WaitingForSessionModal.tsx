@@ -39,7 +39,7 @@ export function WaitingForSessionModal() {
               <div
                 className="size-6 animate-spin rounded-full border-2 border-t-transparent"
                 style={{
-                  borderColor: 'var(--color-accent)',
+                  borderColor: 'var(--color-text-dim)',
                   borderTopColor: 'transparent',
                 }}
               />

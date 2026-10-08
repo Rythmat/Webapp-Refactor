@@ -37,7 +37,14 @@ import {
   type LibraryCategory,
 } from '@/daw/data/libraryItems';
 import { InsightContent } from './InsightContent';
-import { LessonPicker } from '@/daw/components/Tutorial/LessonPicker';
+import { showError } from '@/components/utils/toast';
+import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
+import { seedTemplate } from '@/daw/session/linkSeeds';
+import { inSharedSession } from '@/daw/session/sharedSession';
+import {
+  announceKeptWork,
+  replaceSession,
+} from '@/lib/studio-projects/localSession';
 
 // ── Icon lookup ─────────────────────────────────────────────────────────
 
@@ -222,9 +229,6 @@ export function LibraryPanel() {
                 className="flex-1 overflow-y-auto"
                 style={{ scrollbarWidth: 'none' }}
               >
-                {/* Step-by-step Studio tutorials, above Templates. */}
-                {!searchQuery && <LessonPicker />}
-
                 {LIBRARY_CATEGORIES.map((cat) => {
                   const items = filteredLibraryItems.filter(
                     (i) => i.category === cat,
@@ -273,19 +277,6 @@ function CategorySection({
   items: LibraryItem[];
 }) {
   const [open, setOpen] = useState(true);
-  const [confirmTemplateId, setConfirmTemplateId] = useState<string | null>(
-    null,
-  );
-  const loadProjectTemplate = useStore((s) => s.loadProjectTemplate);
-
-  const confirmLabel = confirmTemplateId
-    ? (items.find(
-        (i) =>
-          i.dragPayload.kind === 'project-template' &&
-          (i.dragPayload as { templateId: string }).templateId ===
-            confirmTemplateId,
-      )?.label ?? '')
-    : '';
 
   return (
     <div className="border-b" style={{ borderColor: 'var(--color-border)' }}>
@@ -311,24 +302,8 @@ function CategorySection({
             className="overflow-hidden"
           >
             {items.map((item) => (
-              <LibraryItemRow
-                key={item.id}
-                item={item}
-                onRequestConfirm={(templateId) =>
-                  setConfirmTemplateId(templateId)
-                }
-              />
+              <LibraryItemRow key={item.id} item={item} />
             ))}
-            {confirmTemplateId && (
-              <ConfirmReplaceDialog
-                templateLabel={confirmLabel}
-                onConfirm={() => {
-                  loadProjectTemplate(confirmTemplateId);
-                  setConfirmTemplateId(null);
-                }}
-                onCancel={() => setConfirmTemplateId(null)}
-              />
-            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -336,67 +311,50 @@ function CategorySection({
   );
 }
 
-// ── Confirmation Dialog ─────────────────────────────────────────────────
-
-function ConfirmReplaceDialog({
-  templateLabel,
-  onConfirm,
-  onCancel,
-}: {
-  templateLabel: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-}) {
-  return (
-    <div
-      className="px-3 py-2 mx-2 mb-2 rounded-lg"
-      style={{
-        backgroundColor: 'var(--color-surface-2)',
-        border: '1px solid var(--color-border)',
-      }}
-    >
-      <p className="text-[10px] mb-2" style={{ color: 'var(--color-text)' }}>
-        Replace current project with <strong>{templateLabel}</strong> template?
-      </p>
-      <div className="flex items-center gap-1.5">
-        <button
-          onClick={onConfirm}
-          className="flex-1 py-1 rounded text-[9px] font-semibold uppercase tracking-wider cursor-pointer"
-          style={{
-            backgroundColor: 'var(--color-accent)',
-            color: '#000',
-            border: 'none',
-          }}
-        >
-          Replace
-        </button>
-        <button
-          onClick={onCancel}
-          className="flex-1 py-1 rounded text-[9px] font-semibold uppercase tracking-wider cursor-pointer"
-          style={{
-            backgroundColor: 'transparent',
-            color: 'var(--color-text-dim)',
-            border: '1px solid var(--color-border)',
-          }}
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  );
-}
-
 // ── Library Item Row ────────────────────────────────────────────────────
 
-function LibraryItemRow({
-  item,
-  onRequestConfirm,
-}: {
-  item: LibraryItem;
-  onRequestConfirm?: (templateId: string) => void;
-}) {
-  const tracks = useStore((s) => s.tracks);
-  const loadProjectTemplate = useStore((s) => s.loadProjectTemplate);
+/**
+ * Open a template in place of the project, as the dashboard's template tile
+ * does (decision D10). No question first (owner decision 6): the work it
+ * replaces is kept, with a Restore, and the template is a new project, so a
+ * Save makes a new cloud project rather than writing over the one it
+ * replaced. Never in a shared session (inSharedSession), where it would
+ * replace the room's project for everyone, nor while a take is recording
+ * into a track it would remove. A room the student hosted and left is no
+ * shared session: it closed, and its project is theirs again.
+ */
+async function openTemplate(
+  templateId: string,
+  userId: string | null,
+): Promise<void> {
+  if (inSharedSession()) {
+    showError('Leave the shared session to open a template.');
+    return;
+  }
+  if (useStore.getState().isRecording) {
+    showError('Stop recording first, then open a template.');
+    return;
+  }
+  const result = await replaceSession(userId, () => seedTemplate(templateId), {
+    reopenable: true,
+  });
+  if (result.status === 'refused') {
+    showError(
+      "Your work couldn't be set aside on this device, so it's still open. Save it, then try again.",
+    );
+    return;
+  }
+  if (result.status === 'failed') {
+    console.error('Template could not be opened', result.error);
+    showError('That template could not be opened.');
+    return;
+  }
+  if (result.kept) announceKeptWork(result.kept, userId);
+  if (result.also) announceKeptWork(result.also, userId);
+}
+
+function LibraryItemRow({ item }: { item: LibraryItem }) {
+  const { userId } = useAuthContext();
 
   const isProjectTemplate = item.dragPayload.kind === 'project-template';
 
@@ -405,18 +363,8 @@ function LibraryItemRow({
     const templateId = (
       item.dragPayload as { kind: 'project-template'; templateId: string }
     ).templateId;
-    if (tracks.length > 0 && onRequestConfirm) {
-      onRequestConfirm(templateId);
-    } else {
-      loadProjectTemplate(templateId);
-    }
-  }, [
-    isProjectTemplate,
-    item.dragPayload,
-    tracks.length,
-    onRequestConfirm,
-    loadProjectTemplate,
-  ]);
+    void openTemplate(templateId, userId);
+  }, [isProjectTemplate, item.dragPayload, userId]);
 
   const handleDragStart = useCallback(
     (e: React.DragEvent) => {

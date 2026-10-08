@@ -36,10 +36,11 @@ import { GuitarLessonVisuals } from '@/curriculum/components/guitar';
 import { useGuitarTabLayers } from '@/curriculum/components/guitar/GuitarLessonVisuals';
 import { MusicMapOverlay } from '@/curriculum/components/guitar/theory';
 import {
-  GUITAR_ATLAS_BOOK_ONE,
+  centerTitle,
+  flowGuitarCenterId,
+  getGuitarCenter,
   getGuitarShape,
-  toBookKey,
-} from '@/curriculum/data/guitar/bookOne';
+} from '@/curriculum/data/guitar/centers';
 import {
   currentEventForMidi,
   nextEventForMidi,
@@ -147,8 +148,6 @@ const GuitarInputSetup = lazy(() =>
 /** The first-run guitar setup opens by itself once per page session. */
 let guitarSetupOffered = false;
 
-/** Book One's keys are all major; Studio's detector leans on the key. */
-const MAJOR_MODE_INTERVALS = [0, 2, 4, 5, 7, 9, 11];
 /** An attack this close to a metronome click may be the click, heard. */
 const CLICK_FILTER_MS = 60;
 /** A take with nothing to mark (kept stable for the TAB overlay's memo). */
@@ -406,10 +405,9 @@ function GenreLessonContainerV2Inner({
   // Guitar flows (The Guitar Atlas) run through this same container; the
   // instrument only changes the views, the sound and how input is heard.
   const isGuitar = flowInstrument(flow) === 'guitar';
-  const guitarKey = useMemo(
-    () => toBookKey(flow.params.defaultKey.split(' ')[0]) ?? 'C',
-    [flow.params.defaultKey],
-  );
+  // The key center the flow plays: 'C' (Book One) or a mode, 'D:dorian'.
+  const guitarKey = useMemo(() => flowGuitarCenterId(flow), [flow]);
+  const guitarCenter = getGuitarCenter(guitarKey);
 
   // Key from flow params — no GCM dependency
   const keyRoot = useMemo(() => {
@@ -431,16 +429,22 @@ function GenreLessonContainerV2Inner({
   const keyColor = useMemo(() => {
     const keyName = flow.params.defaultKey.split(' ')[0];
     // Guitar follows the Atlas rule — keys are colours — so a major key
-    // takes its own (ionian) colour, as on the key picker. Piano's 'major'
-    // scale id has no entry here and keeps its existing fallback.
+    // takes its own (ionian) colour, as on the key picker, and a mode its
+    // mode's. Piano's 'major' scale id has no entry here and keeps its
+    // existing fallback.
     const modeSlug = isGuitar
-      ? 'ionian'
+      ? guitarCenter.mode
       : (SCALE_TO_MODE[flow.params.defaultScaleId ?? ''] ?? 'dorian');
     return colorForKeyMode(
       keyName,
       modeSlug as Parameters<typeof colorForKeyMode>[1],
     );
-  }, [flow.params.defaultKey, flow.params.defaultScaleId, isGuitar]);
+  }, [
+    flow.params.defaultKey,
+    flow.params.defaultScaleId,
+    isGuitar,
+    guitarCenter,
+  ]);
 
   // Demo playback hook
   const { playDemo, stopDemo, demoHighlightMidis, isPlayingDemo } =
@@ -1286,8 +1290,16 @@ function GenreLessonContainerV2Inner({
   useEffect(() => {
     if (!guitar || guitarSetupOpen) return;
     guitar.setExpectedNotes(guitarLive ? expectedMidis : null);
-    guitar.setKeyContext(keyRoot % 12, MAJOR_MODE_INTERVALS);
-  }, [guitar, guitarSetupOpen, guitarLive, expectedMidis, keyRoot]);
+    // Studio's detector leans on the key: the center's own scale.
+    guitar.setKeyContext(keyRoot % 12, [...guitarCenter.steps]);
+  }, [
+    guitar,
+    guitarSetupOpen,
+    guitarLive,
+    expectedMidis,
+    keyRoot,
+    guitarCenter,
+  ]);
 
   // The demo and a tone preview are the app playing, not the student.
   useEffect(() => {
@@ -2192,7 +2204,7 @@ function GenreLessonContainerV2Inner({
   );
   const musicMapMeta = isGuitar ? resolvedStep.guitar?.musicMap : undefined;
   const musicMap = musicMapMeta
-    ? GUITAR_ATLAS_BOOK_ONE[guitarKey].musicMaps[musicMapMeta.example - 1]
+    ? guitarCenter.musicMaps[musicMapMeta.example - 1]
     : undefined;
   // Roman numerals are a teacher's setting.
   const role = useUserRole();
@@ -2371,7 +2383,6 @@ function GenreLessonContainerV2Inner({
 
   if (isGuitar) {
     const practising = isPracticing || restartingPass;
-    const [keyName, keyQuality = 'major'] = flow.params.defaultKey.split(' ');
     const guitarSteps: NavStep[] = currentSection.steps.map((step) => {
       const saved = progress.completedSteps[step.tag];
       return {
@@ -2402,7 +2413,7 @@ function GenreLessonContainerV2Inner({
                 navigate(overviewRoute ?? CurriculumRoutes.genre({ genre })),
             },
           ],
-          keyLabel: `${formatAccidentalsForDisplay(keyName)} ${keyQuality.toLowerCase()}`,
+          keyLabel: centerTitle(guitarCenter),
           keyColor,
           subsection: currentStep.subsection,
           activity: currentStep.activity,

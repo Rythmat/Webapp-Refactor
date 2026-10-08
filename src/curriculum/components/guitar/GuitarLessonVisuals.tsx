@@ -19,9 +19,9 @@ import {
   FRETBOARD_HEIGHT_UNITS,
   fretboardWidthUnits,
 } from '@/components/guitar/Fretboard';
-import { GUITAR_ATLAS_BOOK_ONE } from '@/curriculum/data/guitar/bookOne';
+import { getGuitarCenter } from '@/curriculum/data/guitar/centers';
 import { theoryString } from '@/curriculum/data/guitar/theoryNotes';
-import type { GuitarKeyName } from '@/curriculum/data/guitar/types';
+import type { GuitarCenterId } from '@/curriculum/data/guitar/types';
 import type { LessonNoteEvent } from '@/curriculum/engine/genreGeneration/resolveStepContent';
 import type { ActivityStepV2 } from '@/curriculum/types/activity.v2';
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
@@ -163,7 +163,7 @@ export function useGuitarTabLayers({
   countInOffset,
 }: {
   step: ActivityStepV2 | null | undefined;
-  keyCenter: GuitarKeyName | null | undefined;
+  keyCenter: GuitarCenterId | null | undefined;
   /** The roll events LearnTabView draws (same ids). */
   events: readonly LessonNoteEvent[];
   countInOffset: number;
@@ -182,13 +182,14 @@ export function useGuitarTabLayers({
     !!model && scaleLabels === 'keyNumbers' && model.labelKind === 'scale';
   const chordTargets = step?.chordTargets;
   const tonicPc = model?.tonicPc ?? 0;
+  const keyNumberLabels = model?.keyNumberLabels;
   return useMemo(() => {
     // A step is a chord step or a scale step, never both: one kind of text
     // sits under its notes.
     const noteAnnotations = wantTones
       ? tabChordToneAnnotations(events, chordTargets ?? [], countInOffset)
       : wantNumbers
-        ? tabKeyNumberAnnotations(events, tonicPc)
+        ? tabKeyNumberAnnotations(events, tonicPc, keyNumberLabels)
         : null;
     return {
       ...(wantChips ? { stepChips: tabStepChips(events, tonicPc) } : {}),
@@ -200,6 +201,7 @@ export function useGuitarTabLayers({
     wantNumbers,
     events,
     tonicPc,
+    keyNumberLabels,
     chordTargets,
     countInOffset,
   ]);
@@ -210,7 +212,7 @@ export interface GuitarLessonVisualsProps {
   step: ActivityStepV2;
   /** Roll events: ids, midi, startTicks (shifted in time), fretPosition. */
   events: LessonNoteEvent[];
-  keyCenter: GuitarKeyName;
+  keyCenter: GuitarCenterId;
   keyColor: string;
   activityState: 'preview' | 'practice' | 'performance' | 'complete';
   inTime: boolean;
@@ -421,9 +423,7 @@ export const GuitarLessonVisuals = memo(function GuitarLessonVisuals({
       : -1;
 
   const map = step.guitar?.musicMap
-    ? GUITAR_ATLAS_BOOK_ONE[keyCenter].musicMaps[
-        step.guitar.musicMap.example - 1
-      ]
+    ? getGuitarCenter(keyCenter).musicMaps[step.guitar.musicMap.example - 1]
     : undefined;
 
   if (lesson) {
@@ -482,6 +482,7 @@ export const GuitarLessonVisuals = memo(function GuitarLessonVisuals({
                 size={lessonSize}
                 mirrored={leftHanded}
                 labelMode={scaleMode}
+                keyNumberLabels={model.keyNumberLabels}
                 showOctave={model.showOctave}
                 ghosts={model.scale.ghosts}
                 about={model.scaleAbout}
@@ -553,6 +554,7 @@ export const GuitarLessonVisuals = memo(function GuitarLessonVisuals({
               size="sm"
               mirrored={leftHanded}
               labelMode={scaleMode}
+              keyNumberLabels={model.keyNumberLabels}
               showOctave={model.showOctave}
               ghosts={model.scale.ghosts}
               about={model.scaleAbout}

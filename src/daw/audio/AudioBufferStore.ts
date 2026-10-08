@@ -10,6 +10,11 @@
 //
 // Neither survives a page refresh; for cloud-saved clips the bytes live in GCS
 // and are re-fetched on Open via loadCloudProjectAudio.
+//
+// Clips cut from one recording (split halves, record-over remainders) play
+// windows of the same audio, so they share its entry's buffer and bytes under
+// their own ids (shareClipAudio). A cut never evicts the clip it was cut
+// from: undo can bring that clip back, and it must still play.
 
 interface ClipAudio {
   buffer?: AudioBuffer;
@@ -64,6 +69,21 @@ export function setOriginalAudio(
 ): void {
   getOrCreate(clipId).original = { bytes, contentType };
   emitChange();
+}
+
+/**
+ * Let `toClipId` play the audio stored for `fromClipId`: its entry points at
+ * the same decoded buffer and original bytes (shared, not copied), for a clip
+ * that plays a window of the same recording through its offsetSeconds. Later
+ * writes to either id stay with that id. Returns false when `fromClipId` has
+ * nothing stored yet (a cloud clip still downloading loads by its assetId).
+ */
+export function shareClipAudio(fromClipId: string, toClipId: string): boolean {
+  const source = audioStore.get(fromClipId);
+  if (!source?.buffer && !source?.original) return false;
+  audioStore.set(toClipId, { ...source });
+  emitChange();
+  return true;
 }
 
 export function removeAudioBuffer(clipId: string): void {

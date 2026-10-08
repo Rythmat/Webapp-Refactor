@@ -87,7 +87,7 @@ export const PRESENT_RATIO = 0.35;
  */
 export const MIN_CHORD_TONE_LEVEL = 0.1;
 
-/** Which missing tone to name first. ♭5 only outranks the root in min7♭5. */
+/** Which missing tone to name first. ♭5 only outranks the root in min7♭5 and dim. */
 const MISSING_RANK: Readonly<Record<ChordToneRole, number>> = {
   third: 0,
   seventh: 1,
@@ -260,7 +260,8 @@ export function diagnoseChord(input: DiagnosticInput): ChordDiagnosis {
     // D6: wrong — name the most telling missing tone.
     const rank = (pc: number) => {
       const role = formula[targetPcs.indexOf(pc)].role;
-      return role === 'fifth' && target.quality === 'min7b5'
+      return role === 'fifth' &&
+        (target.quality === 'min7b5' || target.quality === 'dim')
         ? FLAT_FIVE_RANK
         : MISSING_RANK[role];
     };

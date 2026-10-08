@@ -514,6 +514,21 @@ describe('genre pack — R&B checks', () => {
     ).toBe(false);
   });
 
+  it('asks for a click on the FX list, never a drag or a drop', () => {
+    // The FX list's rows add their effect on a click and can't be dragged
+    // (fx-mixer-19), so no step that points at one may ask for a drop.
+    const fxListSteps = TUTORIALS.flatMap((t) => t.steps).filter((st) =>
+      [st.target ?? []].flat().some((id) => id.startsWith('fx-add-')),
+    );
+    expect(fxListSteps.map((st) => st.id)).toContain('mastering-fx');
+    for (const step of fxListSteps) {
+      expect(step.instruction, step.id).not.toMatch(/\b(drag|drop)/i);
+    }
+    expect(stepOf('rnb-mix-and-polish', 'mastering-fx').instruction).toMatch(
+      /\bclick\b/i,
+    );
+  });
+
   it('master-volume requires a change', () => {
     const check = stepOf('rnb-mix-and-polish', 'master-volume').check!;
     expect(

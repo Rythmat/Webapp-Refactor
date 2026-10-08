@@ -15,7 +15,10 @@ import type { ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { buildAppliedTheoryFundamentalsFlow } from '@/curriculum/data/activityFlows/appliedTheoryFundamentals';
-import { buildGuitarAppliedTheoryFundamentalsFlow } from '@/curriculum/data/activityFlows/guitarAppliedTheoryFundamentals';
+import {
+  buildGuitarAppliedTheoryFundamentalsFlow,
+  buildGuitarModeFlow,
+} from '@/curriculum/data/activityFlows/guitarAppliedTheoryFundamentals';
 import type { ActivitySectionId } from '@/curriculum/types/activity';
 
 // ── Fakes ────────────────────────────────────────────────────────────────
@@ -209,4 +212,29 @@ describe('GenreLessonContainerV2 header and Practice Track return', () => {
     fireEvent.click(screen.getByRole('button', { name: /Practice Track/ }));
     expect(practiceReturn()).toBe('/learn/guitar/ionian/fsharp?section=B');
   });
+  it.each(['A', 'B', 'D'] as const)(
+    'a mode: D♭ Locrian, section %s, named for its key and mode',
+    (section) => {
+      const flow = buildGuitarModeFlow('Db', 'locrian');
+      render(
+        <MemoryRouter>
+          <GenreLessonContainerV2
+            flow={flow}
+            genre={flow.genre}
+            level={1}
+            initialSection={section}
+            displayName="Guitar · Locrian"
+            overviewRoute="/learn/guitar/locrian"
+            rootCrumb={{ label: 'Theory', route: '/learn?tab=Theory' }}
+          />
+        </MemoryRouter>,
+      );
+      const first = flow.sections.find((s) => s.id === section)!.steps[0];
+      const subsection = first.subsection.replace(':', '');
+      const trail = screen.getByRole('navigation', { name: 'Breadcrumb' });
+      expect(trail).toHaveTextContent(
+        `Theory›Guitar · Locrian›D♭ Locrian›${subsection}`,
+      );
+    },
+  );
 });

@@ -145,6 +145,14 @@ export function rgbString(r: number, g: number, b: number): string {
   return `rgb(${r},${g},${b})`;
 }
 
+/** A detected chord's inversion as words, by inversion number (0 = root). */
+export const INVERSION_LABELS: readonly string[] = [
+  '',
+  '1st Inversion',
+  '2nd Inversion',
+  '3rd Inversion',
+];
+
 /** MIDI → "B♭4" spelled for the session key (C's names when there is none). */
 export function midiToNoteName(
   midi: number,

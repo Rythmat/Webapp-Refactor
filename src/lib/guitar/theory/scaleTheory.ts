@@ -3,12 +3,8 @@
 // half steps, the two roots, a suggested finger per dot, and where the notes
 // the pentatonic leaves out would sit.
 
-import {
-  MAJOR_SCALE_STEPS,
-  keyPitchClass,
-} from '@/curriculum/data/guitar/bookOne';
 import type {
-  GuitarKeyCenter,
+  GuitarCenter,
   GuitarScalePosition,
 } from '@/curriculum/data/guitar/types';
 import { GUITAR_STRINGS_LOW_TO_HIGH, fretToMidi } from '@/lib/guitar/fretboard';
@@ -50,6 +46,10 @@ export function octavePairs(position: GuitarScalePosition): {
  * position uses an open string (so G pentatonic keeps fingers 2-3 on frets
  * 2-3), otherwise on the lowest fretted fret. Open strings get no finger, and
  * so does a fret the hand cannot reach from the anchor.
+ *
+ * A position five frets wide that leaves one inside fret unused (the Dorian
+ * scale: frets 9, 10, 12 and 13) is played with a stretch: one finger for
+ * each fret it uses, 1-4 from the lowest.
  */
 export function suggestedFingers(position: GuitarScalePosition): {
   anchor: number;
@@ -59,7 +59,17 @@ export function suggestedFingers(position: GuitarScalePosition): {
     .filter((p) => p.fret > 0)
     .map((p) => p.fret);
   const usesOpen = fretted.length < position.playOrder.length;
-  const anchor = usesOpen ? 1 : Math.min(...fretted);
+  const lowest = Math.min(...fretted);
+  const used = [...new Set(fretted)].sort((a, b) => a - b);
+  if (!usesOpen && Math.max(...fretted) - lowest === 4 && used.length <= 4) {
+    return {
+      anchor: lowest,
+      fingers: position.playOrder.map(
+        (p) => (used.indexOf(p.fret) + 1) as FingerNumber,
+      ),
+    };
+  }
+  const anchor = usesOpen ? 1 : lowest;
   const fingers = position.playOrder.map((p) => {
     const finger = p.fret - anchor + 1;
     return p.fret > 0 && finger >= 1 && finger <= 4
@@ -70,17 +80,20 @@ export function suggestedFingers(position: GuitarScalePosition): {
 }
 
 /**
- * Where degrees 4 and 7 sit on the position's strings inside its fret window:
- * the notes the pentatonic skips, drawn as outlines.
+ * Where the scale's other notes sit on the position's strings inside its
+ * fret window (degrees 4 and 7 of the major pentatonic): the notes the
+ * pentatonic skips, drawn as outlines.
  */
 export function pentatonicGhosts(
-  center: GuitarKeyCenter,
+  center: GuitarCenter,
   position: GuitarScalePosition,
 ): FretPosition[] {
-  const tonic = keyPitchClass(center.key);
-  const ghostPcs = [MAJOR_SCALE_STEPS[3], MAJOR_SCALE_STEPS[6]].map(
-    (s) => (tonic + s) % 12,
-  );
+  const pentatonic =
+    center.pentatonics[position.id === 'pentatonic2' ? 1 : 0] ??
+    center.pentatonics[0];
+  const ghostPcs = center.steps
+    .filter((_, i) => !pentatonic.degrees.includes((i + 1) as never))
+    .map((s) => (center.tonicPc + s) % 12);
   const ghosts: FretPosition[] = [];
   for (const string of GUITAR_STRINGS_LOW_TO_HIGH) {
     if (position.unusedStrings.includes(string)) continue;

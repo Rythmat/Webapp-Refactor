@@ -1,14 +1,17 @@
 import type { StateCreator } from 'zustand';
 import type { MidiNoteEvent, MidiCCEvent } from '@prism/engine';
 import type { AllSlices } from './index';
-import {
-  DEFAULT_EFFECTS,
-  type EffectSlotType,
-  type TrackEffectState,
-} from '@/daw/audio/EffectChain';
+import { genreSettings } from './genreSettings';
+import { isTrackLockedByRemote } from './trackLock';
+import type { EffectSlotType, TrackEffectState } from '@/daw/audio/EffectChain';
+import { getBridge } from '@/daw/collab/collabMiddleware';
 import { TRACK_PALETTES } from '@/daw/constants/trackColors';
 import { getProjectTemplate } from '@/daw/data/projectTemplates';
-import { guessTrackRole, type DawTrackRole } from '@/daw/utils/trackRole';
+import { withNoteIds } from '@/daw/model/noteIds';
+import { initialProjectState } from '@/daw/persistence/projectDocument/projectDefaults';
+import { initialTrackDefaults } from '@/daw/persistence/projectDocument/trackDefaults';
+import { bumpSessionGeneration } from '@/daw/session/sessionGeneration';
+import type { DawTrackRole } from '@/daw/utils/trackRole';
 import type { DrumKitId } from '@/daw/instruments/drumKits';
 import {
   insertPoint,
@@ -18,15 +21,13 @@ import {
 } from '@/daw/audio/automation';
 import type { SamplerSampleRef } from '@/daw/instruments/samplerChops';
 import type { OrganState } from '@/daw/instruments/TonewheelOrganEngine';
-import type { PitchSegment } from '@/daw/audio/pitch-analysis/PitchAnalyzer';
 import { toast } from '@/hooks/use-toast';
 
-/** Drum-machine tracks get a compressor enabled by default. */
-function drumMachineDefaults() {
-  const effects = structuredClone(DEFAULT_EFFECTS);
-  effects.compressor = { ...effects.compressor, enabled: true };
-  return { effects, activeEffects: ['compressor'] as EffectSlotType[] };
-}
+// The store's index creates this slice as it loads, so nothing imported
+// here may load the store: not '@/daw/store' and not initialState.ts, which
+// does. A new project's state and a new track's defaults come from
+// projectDefaults.ts and trackDefaults.ts, which never load it; see there
+// for what goes wrong otherwise.
 
 // ── Track limits ────────────────────────────────────────────────────────
 
@@ -58,22 +59,10 @@ export function getTrackLimitMessage(
 }
 
 // ── Collab track lock ───────────────────────────────────────────────────
+// The rule itself is in trackLock.ts, so prismSlice can share it without
+// loading this slice; it is still exported from here.
 
-/**
- * True when a remote collaborator currently has `trackId` selected. Such a
- * track is fully read-only for the local user — every control and every
- * midi/audio edit is blocked. Outside a collab session `remoteUsers` is empty,
- * so this never restricts anything.
- */
-export function isTrackLockedByRemote(
-  remoteUsers: AllSlices['remoteUsers'],
-  trackId: string,
-): boolean {
-  for (const u of remoteUsers.values()) {
-    if (u.selectedTrackId === trackId) return true;
-  }
-  return false;
-}
+export { isTrackLockedByRemote };
 
 /**
  * Wrap a track-scoped Zustand set-updater so it becomes a no-op when the track
@@ -216,17 +205,59 @@ export interface Track {
   trackRole: DawTrackRole;
 }
 
-// ── Pitch editing ────────────────────────────────────────────────────────
+// ── Note ids ────────────────────────────────────────────────────────────
+// Every note in the store has an id of its own (model/noteIds.ts). The
+// actions that write notes make sure of it, so a note made anywhere (drawn,
+// recorded, imported, generated, pasted) has one by the time it lands.
+//
+// An edit to a clip's notes (updateMidiClipEvents, updateMidiClip) only
+// fills in missing ids and splits a repeat within the clip, so a piano-roll
+// drag, which writes on every frame, stays cheap: it hands back the same
+// array, allocating nothing, when the notes have their ids already. It never
+// scans the other clips, so a caller that copies notes into another clip
+// gives the copies new ids itself (as the Score's paste does) or adds them
+// as a clip.
+//
+// A write that brings clips in (addMidiClip, updateTrack's midiClips) makes
+// their ids unique across the project, so a duplicated or pasted clip,
+// whose notes are copies, gets ids of its own.
 
-export interface PitchEdit {
-  segmentId: string;
-  targetMidiNote: number;
+/** Every note id held by the project's tracks, but those of `skipTrackId`. */
+function projectNoteIds(
+  tracks: readonly Track[],
+  skipTrackId?: string,
+): Set<string> {
+  const ids = new Set<string>();
+  for (const track of tracks) {
+    if (track.id === skipTrackId) continue;
+    for (const clip of track.midiClips) {
+      for (const event of clip.events) {
+        if (event.id !== undefined) ids.add(event.id);
+      }
+    }
+  }
+  return ids;
 }
 
-export interface AudioClipPitchData {
-  segments: PitchSegment[];
-  edits: PitchEdit[];
-  analyzed: boolean;
+/**
+ * `clip` with an id on every note that none of `taken` has (`taken` gains
+ * them): the same object when its notes have such ids already.
+ */
+function clipWithNoteIds(clip: MidiClip, taken?: Set<string>): MidiClip {
+  const events = withNoteIds(clip.events, taken);
+  return events === clip.events ? clip : { ...clip, events };
+}
+
+/** clipWithNoteIds over `clips`: the same array when every clip is whole. */
+function clipsWithNoteIds(clips: MidiClip[], taken: Set<string>): MidiClip[] {
+  let out: MidiClip[] | null = null;
+  clips.forEach((clip, i) => {
+    const whole = clipWithNoteIds(clip, taken);
+    if (whole === clip) return;
+    out ??= clips.slice();
+    out[i] = whole;
+  });
+  return out ?? clips;
 }
 
 // ── Slice ───────────────────────────────────────────────────────────────
@@ -234,16 +265,6 @@ export interface AudioClipPitchData {
 export interface TracksSlice {
   tracks: Track[];
   nextColorIndex: number;
-  pitchData: Record<string, AudioClipPitchData>;
-
-  setPitchSegments: (clipId: string, segments: PitchSegment[]) => void;
-  addPitchEdit: (
-    clipId: string,
-    segmentId: string,
-    targetMidiNote: number,
-  ) => void;
-  removePitchEdit: (clipId: string, segmentId: string) => void;
-  clearPitchEdits: (clipId: string) => void;
 
   /**
    * Adds a track and returns its id, or returns `''` (and shows a toast)
@@ -285,7 +306,6 @@ export interface TracksSlice {
     clipId: string,
     updates: Partial<AudioClip>,
   ) => void;
-  clearMidiClips: (trackId: string) => void;
   reorderTrack: (id: string, newIndex: number) => void;
   addActiveEffect: (trackId: string, effectType: EffectSlotType) => void;
   removeActiveEffect: (trackId: string, effectType: EffectSlotType) => void;
@@ -329,163 +349,23 @@ export interface TracksSlice {
   ) => void;
   /** Remove a whole param lane. */
   clearAutomationLane: (trackId: string, paramId: string) => void;
+  /**
+   * Open a project template in place of the project: a load, so everything
+   * the last project held starts over, the template going in as one store
+   * write. An unknown id changes nothing.
+   *
+   * The rest of a load is the caller's: open it through seedTemplate
+   * (session/linkSeeds.ts) inside replaceSession, which keeps the outgoing
+   * work first and, once the template is in, resets the undo history and
+   * marks the save-status baseline. The slice can do neither itself, since
+   * undoMiddleware and saveStatusStore load the store; without them Cmd+Z
+   * would bring the last project's tracks back into the template.
+   *
+   * Throws, changing nothing, while a collab room is connected (see the
+   * action). Refusing in a room, and while a take is recording, is the
+   * caller's first: the Library panel does both.
+   */
   loadProjectTemplate: (templateId: string) => void;
-}
-
-// ── Demo data ───────────────────────────────────────────────────────────
-// Pre-populated tracks so the UI renders with waveforms matching the reference.
-
-function seededNotes(
-  seed: number,
-  count: number,
-  startTick: number,
-  spanTicks: number,
-  noteRange: [number, number],
-): MidiNoteEvent[] {
-  let s = seed;
-  const next = () => {
-    s = (s * 1664525 + 1013904223) >>> 0;
-    return s / 0xffffffff;
-  };
-  const notes: MidiNoteEvent[] = [];
-  const [lo, hi] = noteRange;
-  for (let i = 0; i < count; i++) {
-    const t = startTick + Math.floor(next() * spanTicks);
-    const dur = Math.floor(next() * 400) + 60;
-    const note = Math.floor(next() * (hi - lo)) + lo;
-    const vel = Math.floor(next() * 60) + 60;
-    notes.push({
-      startTick: t,
-      durationTicks: dur,
-      note,
-      velocity: vel,
-      channel: 0,
-    });
-  }
-  return notes.sort((a, b) => a.startTick - b.startTick);
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function createDemoTracks(): Track[] {
-  return [
-    {
-      id: 'demo-chords',
-      name: 'Ethereal Chords',
-      type: 'midi',
-      instrument: 'oracle-synth',
-      color: '#8b5cf6',
-      mute: false,
-      solo: false,
-      volume: 0.8,
-      pan: 0,
-      recordArmed: true,
-      monitoring: true,
-      midiInputId: null,
-      audioInputId: null,
-      audioInputChannel: null,
-      effects: structuredClone(DEFAULT_EFFECTS),
-      activeEffects: [],
-      trackRole: 'chords',
-      midiClips: [
-        {
-          id: 'clip-chords-1',
-          name: 'Ethereal Pad — Chords',
-          startTick: 0,
-          events: seededNotes(42, 80, 0, 7680, [55, 80]),
-        },
-      ],
-      audioClips: [],
-    },
-    {
-      id: 'demo-melody',
-      name: 'Lead Melody',
-      type: 'midi',
-      instrument: 'oracle-synth',
-      color: '#a855f7',
-      mute: false,
-      solo: false,
-      volume: 0.75,
-      pan: 0.1,
-      recordArmed: false,
-      monitoring: false,
-      midiInputId: null,
-      audioInputId: null,
-      audioInputChannel: null,
-      effects: structuredClone(DEFAULT_EFFECTS),
-      activeEffects: [],
-      trackRole: 'melody',
-      midiClips: [
-        {
-          id: 'clip-melody-1',
-          name: 'Lead Line — Melody',
-          startTick: 0,
-          events: seededNotes(99, 60, 0, 7680, [60, 90]),
-        },
-      ],
-      audioClips: [],
-    },
-    {
-      id: 'demo-bass',
-      name: 'Deep Bass',
-      type: 'midi',
-      instrument: 'oracle-synth',
-      color: '#f59e0b',
-      mute: false,
-      solo: false,
-      volume: 0.85,
-      pan: 0,
-      recordArmed: false,
-      monitoring: false,
-      midiInputId: null,
-      audioInputId: null,
-      audioInputChannel: null,
-      effects: structuredClone(DEFAULT_EFFECTS),
-      activeEffects: [],
-      trackRole: 'bass',
-      midiClips: [
-        {
-          id: 'clip-bass-1',
-          name: 'Sub Pattern — Bass',
-          startTick: 0,
-          events: seededNotes(17, 40, 0, 3840, [30, 50]),
-        },
-        {
-          id: 'clip-bass-2',
-          name: 'Sub Pattern II — Bass',
-          startTick: 3840,
-          events: seededNotes(23, 50, 3840, 3840, [30, 55]),
-        },
-      ],
-      audioClips: [],
-    },
-    {
-      id: 'demo-drums',
-      name: 'Percussion',
-      type: 'midi',
-      instrument: 'drum-machine',
-      color: '#f97316',
-      mute: false,
-      solo: false,
-      volume: 0.7,
-      pan: 0,
-      recordArmed: false,
-      monitoring: false,
-      midiInputId: null,
-      audioInputId: null,
-      audioInputChannel: null,
-      ...drumMachineDefaults(),
-      trackRole: 'drums',
-      midiClips: [
-        {
-          id: 'clip-drums-1',
-          name: 'Beat Sequence — Drums',
-          startTick: 0,
-          events: seededNotes(55, 90, 0, 7680, [36, 52]),
-        },
-      ],
-      audioClips: [],
-    },
-  ];
 }
 
 export const createTracksSlice: StateCreator<
@@ -493,59 +373,10 @@ export const createTracksSlice: StateCreator<
   [['zustand/subscribeWithSelector', never]],
   [],
   TracksSlice
-> = (set, get) => ({
+> = (set, get, api) => ({
   // ── State ── (blank project by default)
   tracks: [],
   nextColorIndex: 0,
-  pitchData: {},
-
-  // ── Pitch editing actions ──
-  setPitchSegments: (clipId, segments) =>
-    set((state) => ({
-      pitchData: {
-        ...state.pitchData,
-        [clipId]: {
-          segments,
-          edits: state.pitchData[clipId]?.edits ?? [],
-          analyzed: true,
-        },
-      },
-    })),
-
-  addPitchEdit: (clipId, segmentId, targetMidiNote) =>
-    set((state) => {
-      const data = state.pitchData[clipId];
-      if (!data) return state;
-      const edits = data.edits.filter((e) => e.segmentId !== segmentId);
-      edits.push({ segmentId, targetMidiNote });
-      return {
-        pitchData: { ...state.pitchData, [clipId]: { ...data, edits } },
-      };
-    }),
-
-  removePitchEdit: (clipId, segmentId) =>
-    set((state) => {
-      const data = state.pitchData[clipId];
-      if (!data) return state;
-      return {
-        pitchData: {
-          ...state.pitchData,
-          [clipId]: {
-            ...data,
-            edits: data.edits.filter((e) => e.segmentId !== segmentId),
-          },
-        },
-      };
-    }),
-
-  clearPitchEdits: (clipId) =>
-    set((state) => {
-      const data = state.pitchData[clipId];
-      if (!data) return state;
-      return {
-        pitchData: { ...state.pitchData, [clipId]: { ...data, edits: [] } },
-      };
-    }),
 
   // ── Actions ──
   addTrack: (type, instrument, name) => {
@@ -572,35 +403,13 @@ export const createTracksSlice: StateCreator<
     if (rootColor) {
       assignedColor = rootColor;
     }
+    // The registry's new-track defaults; the caller's type stands, since an
+    // imported audio file makes an audio track with no instrument.
     const track: Track = {
       id,
-      name,
+      ...initialTrackDefaults(instrument, name),
       type,
-      instrument,
       color: assignedColor,
-      mute: false,
-      solo: false,
-      volume: 0.8,
-      pan: 0,
-      recordArmed: false,
-      monitoring: false,
-      midiInputId: null,
-      audioInputId: null,
-      audioInputChannel:
-        instrument === 'guitar-fx' ||
-        instrument === 'bass-fx' ||
-        instrument === 'vocal-fx'
-          ? { mode: 'mono', channel: 0 }
-          : null,
-      ...(instrument === 'drum-machine'
-        ? drumMachineDefaults()
-        : {
-            effects: structuredClone(DEFAULT_EFFECTS),
-            activeEffects: [] as EffectSlotType[],
-          }),
-      midiClips: [],
-      audioClips: [],
-      trackRole: guessTrackRole(name, instrument),
     };
     set((state) => ({
       tracks: [...state.tracks, track],
@@ -618,11 +427,24 @@ export const createTracksSlice: StateCreator<
 
   updateTrack: (id, updates) =>
     set(
-      guardTrack(id, (state) => ({
-        tracks: state.tracks.map((t) =>
-          t.id === id ? { ...t, ...updates } : t,
-        ),
-      })),
+      guardTrack(id, (state) => {
+        // New clips for the track (the scissors write both halves this way)
+        // come in like added ones: whole ids, unique across the project.
+        const next = updates.midiClips
+          ? {
+              ...updates,
+              midiClips: clipsWithNoteIds(
+                updates.midiClips,
+                projectNoteIds(state.tracks, id),
+              ),
+            }
+          : updates;
+        return {
+          tracks: state.tracks.map((t) =>
+            t.id === id ? { ...t, ...next } : t,
+          ),
+        };
+      }),
     ),
 
   // mute/solo are per-user-local (excluded from collab sync — see
@@ -663,11 +485,16 @@ export const createTracksSlice: StateCreator<
 
   addMidiClip: (trackId, clip) =>
     set(
-      guardTrack(trackId, (state) => ({
-        tracks: state.tracks.map((t) =>
-          t.id === trackId ? { ...t, midiClips: [...t.midiClips, clip] } : t,
-        ),
-      })),
+      guardTrack(trackId, (state) => {
+        // A copy of a clip in the project (duplicate, paste) brings its
+        // notes' ids along: those get new ones.
+        const added = clipWithNoteIds(clip, projectNoteIds(state.tracks));
+        return {
+          tracks: state.tracks.map((t) =>
+            t.id === trackId ? { ...t, midiClips: [...t.midiClips, added] } : t,
+          ),
+        };
+      }),
     ),
 
   removeMidiClip: (trackId, clipId) =>
@@ -683,34 +510,46 @@ export const createTracksSlice: StateCreator<
 
   updateMidiClip: (trackId, clipId, updates) =>
     set(
-      guardTrack(trackId, (state) => ({
-        tracks: state.tracks.map((t) =>
-          t.id === trackId
-            ? {
-                ...t,
-                midiClips: t.midiClips.map((c) =>
-                  c.id === clipId ? { ...c, ...updates } : c,
-                ),
-              }
-            : t,
-        ),
-      })),
+      guardTrack(trackId, (state) => {
+        // A trim rewrites the clip's notes: an edit, so ids are only made
+        // whole within the clip.
+        const next = updates.events
+          ? { ...updates, events: withNoteIds(updates.events) }
+          : updates;
+        return {
+          tracks: state.tracks.map((t) =>
+            t.id === trackId
+              ? {
+                  ...t,
+                  midiClips: t.midiClips.map((c) =>
+                    c.id === clipId ? { ...c, ...next } : c,
+                  ),
+                }
+              : t,
+          ),
+        };
+      }),
     ),
 
+  // The piano roll calls this on every drag frame: withNoteIds hands the
+  // same array back, allocating nothing, while every note has its id.
   updateMidiClipEvents: (trackId, clipId, events) =>
     set(
-      guardTrack(trackId, (state) => ({
-        tracks: state.tracks.map((t) =>
-          t.id === trackId
-            ? {
-                ...t,
-                midiClips: t.midiClips.map((c) =>
-                  c.id === clipId ? { ...c, events } : c,
-                ),
-              }
-            : t,
-        ),
-      })),
+      guardTrack(trackId, (state) => {
+        const whole = withNoteIds(events);
+        return {
+          tracks: state.tracks.map((t) =>
+            t.id === trackId
+              ? {
+                  ...t,
+                  midiClips: t.midiClips.map((c) =>
+                    c.id === clipId ? { ...c, events: whole } : c,
+                  ),
+                }
+              : t,
+          ),
+        };
+      }),
     ),
 
   updateTrackEffects: (trackId, effects) =>
@@ -756,15 +595,6 @@ export const createTracksSlice: StateCreator<
                 ),
               }
             : t,
-        ),
-      })),
-    ),
-
-  clearMidiClips: (trackId) =>
-    set(
-      guardTrack(trackId, (state) => ({
-        tracks: state.tracks.map((t) =>
-          t.id === trackId ? { ...t, midiClips: [] } : t,
         ),
       })),
     ),
@@ -933,64 +763,56 @@ export const createTracksSlice: StateCreator<
   loadProjectTemplate: (templateId) => {
     const template = getProjectTemplate(templateId);
     if (!template) return;
+    // The template's write goes past the collab middleware (below). In a
+    // connected room the store would then hold the template while the room's
+    // doc kept the project, and the next edit's diff would delete from the
+    // room every track the template lacks, for everyone in it. The Library
+    // panel refuses in a room with a message first; this is the backstop,
+    // and it throws rather than return quietly, so a caller that missed the
+    // check fails instead of carrying on as if the template were open. A
+    // room identity with no connection (the editor was left, or the room
+    // closed) is no obstacle: no write can reach the room then, and a rejoin
+    // takes the room's project.
+    //
+    // A take in progress is the callers' to refuse too (the Library panel
+    // does), but not here: a seed runs after replaceSession's reset, which
+    // has already ended any take, so a check here could never fire.
+    if (getBridge() !== null) {
+      throw new Error(
+        'A template cannot open while a collab room is connected',
+      );
+    }
 
-    // Clear existing tracks
-    set({ tracks: [], nextColorIndex: 0, pitchData: {} });
-
-    // Set BPM and genre via other slices
-    get().setBpm(template.bpm);
-    get().selectGenre(template.genre);
-
-    // Create each template track
-    for (const def of template.tracks) {
-      const id = crypto.randomUUID();
-      const track: Track = {
-        id,
-        name: def.name,
-        type: def.type,
-        instrument: def.instrument,
-        color: def.color,
-        mute: false,
-        solo: false,
-        volume: 0.8,
-        pan: 0,
-        recordArmed: false,
-        monitoring: false,
-        midiInputId: null,
-        audioInputId: null,
-        audioInputChannel:
-          def.instrument === 'guitar-fx' ||
-          def.instrument === 'bass-fx' ||
-          def.instrument === 'vocal-fx'
-            ? { mode: 'mono', channel: 0 }
-            : null,
-        ...(def.instrument === 'drum-machine'
-          ? drumMachineDefaults()
-          : {
-              effects: structuredClone(DEFAULT_EFFECTS),
-              activeEffects: [] as EffectSlotType[],
-            }),
-        midiClips: [],
-        audioClips: [],
-        trackRole: guessTrackRole(def.name, def.instrument),
+    const tracks: Track[] = template.tracks.map((def) => ({
+      id: crypto.randomUUID(),
+      ...initialTrackDefaults(def.instrument, def.name),
+      type: def.type,
+      color: def.color,
+    }));
+    // The first MIDI track is armed and monitored, ready to play into.
+    const firstMidi = tracks.findIndex((t) => t.type === 'midi');
+    if (firstMidi >= 0) {
+      tracks[firstMidi] = {
+        ...tracks[firstMidi],
+        recordArmed: true,
+        monitoring: true,
       };
-      set((state) => ({
-        tracks: [...state.tracks, track],
-        nextColorIndex: state.nextColorIndex + 1,
-      }));
     }
 
-    // Arm the first MIDI track for monitoring
-    const firstMidi = get().tracks.find((t) => t.type === 'midi');
-    if (firstMidi) {
-      set((state) => ({
-        tracks: state.tracks.map((t) =>
-          t.id === firstMidi.id
-            ? { ...t, monitoring: true, recordArmed: true }
-            : t,
-        ),
-        selectedTrackId: firstMidi.id,
-      }));
-    }
+    // A load: the caches keyed by track id let go of the last project first
+    // (session generation), then the template goes in over a new project's
+    // state as one write. Whatever the last project held (chords, key,
+    // markers, metre, mastering, marks, its cloud link) starts over, so a
+    // Save makes a new project. The write goes past the collab middleware,
+    // as a reset's does: a load is not an edit to send to a room.
+    bumpSessionGeneration('template');
+    api.setState({
+      ...initialProjectState(),
+      ...genreSettings(template.genre),
+      bpm: template.bpm,
+      tracks,
+      nextColorIndex: tracks.length,
+      selectedTrackId: firstMidi >= 0 ? tracks[firstMidi].id : null,
+    });
   },
 });

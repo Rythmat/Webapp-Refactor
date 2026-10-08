@@ -35,8 +35,9 @@ const summary: ProgressSummaryResponse = {
 vi.mock('@/hooks/data/progress/useProgressSummary', () => ({
   useProgressSummary: () => ({ data: summary }),
 }));
+const premium = vi.hoisted(() => ({ isPremium: false }));
 vi.mock('@/hooks/useIsPremium', () => ({
-  useIsPremium: () => ({ isPremium: false }),
+  useIsPremium: () => ({ isPremium: premium.isPremium }),
 }));
 vi.mock('@/curriculum/hooks/useCurriculumProgress', () => ({
   buildCurriculumLessonId: (genre: string, level: string) =>
@@ -128,6 +129,14 @@ const openTile = (title: string) =>
   fireEvent.click(tile(title).querySelector('.glass-panel')!);
 
 const KEYS = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'D♭', 'A♭', 'E♭', 'B♭', 'F'];
+const DIATONIC_TITLES = [
+  'Lydian',
+  'Mixolydian',
+  'Dorian',
+  'Aeolian (Minor)',
+  'Phrygian',
+  'Locrian',
+];
 
 /** The Keys panel (its "Keys" heading's box). */
 const keysPanel = () =>
@@ -138,9 +147,10 @@ describe('Learn → Theory on guitar', () => {
     cleanup();
     vi.mocked(guitarTheoryChapters).mockClear();
     useInstrumentStore.setState({ instrument: 'piano', leftHanded: false });
+    premium.isPremium = false;
   });
 
-  it('keeps Ionian (Major) open and marks every other tile "Coming soon for guitar"', () => {
+  it('keeps the diatonic modes open and marks every other tile "Coming soon for guitar"', () => {
     renderLearn('/learn?tab=Theory', 'guitar');
 
     const ionian = tile('Ionian (Major)');
@@ -151,8 +161,16 @@ describe('Learn → Theory on guitar', () => {
     // Still savable, and free (no premium lock).
     expect(within(ionian).getByRole('button', { name: 'Save' })).toBeVisible();
 
-    // Diatonic, Harmonic Minor and Relative families alike.
-    for (const title of ['Dorian', 'Harmonic Minor', 'Red']) {
+    // The other diatonic modes have guitar lessons too (Premium, as on piano).
+    for (const title of DIATONIC_TITLES) {
+      expect(tile(title)).not.toHaveAttribute('aria-disabled');
+      expect(
+        within(tile(title)).queryByText('Coming soon for guitar'),
+      ).not.toBeInTheDocument();
+    }
+
+    // The Harmonic Minor and Relative families are coming soon.
+    for (const title of ['Harmonic Minor', 'Red']) {
       const disabled = screen.getByRole('group', {
         name: `${title}: Coming soon for guitar`,
       });
@@ -170,15 +188,16 @@ describe('Learn → Theory on guitar', () => {
     }
     expect(ionian.innerHTML).toContain('group-hover:scale-105');
 
-    // Every Theory tile but Ionian (Major), in every family, is coming soon.
+    // Every Theory tile but the seven diatonic modes, in every family, is
+    // coming soon.
     const tiles = screen.getAllByRole('heading', { level: 3 });
     expect(tiles.length).toBeGreaterThan(40);
     expect(
       screen.getAllByRole('group', { name: /: Coming soon for guitar$/ }),
-    ).toHaveLength(tiles.length - 1);
+    ).toHaveLength(tiles.length - 7);
 
     // A disabled tile doesn't open.
-    openTile('Dorian');
+    openTile('Harmonic Minor');
     expect(
       screen.queryByRole('heading', { name: 'Keys' }),
     ).not.toBeInTheDocument();
@@ -224,9 +243,9 @@ describe('Learn → Theory on guitar', () => {
     let releaseG: () => void = () => {};
     const actual = vi.mocked(guitarTheoryChapters).getMockImplementation()!;
     vi.mocked(guitarTheoryChapters).mockImplementationOnce(
-      (keyLabel) =>
+      (mode, keyLabel) =>
         new Promise((resolve) => {
-          releaseG = () => resolve(actual(keyLabel));
+          releaseG = () => resolve(actual(mode, keyLabel));
         }),
     );
     fireEvent.click(within(keysPanel()).getByText('G Ionian (Major)'));
@@ -242,6 +261,24 @@ describe('Learn → Theory on guitar', () => {
     expect(screen.getByText('D Ionian (Major) Chapters')).toBeInTheDocument();
     fireEvent.click(screen.getByText('Melody'));
     expect(location()).toBe('/learn/guitar/ionian/d?section=A');
+  });
+
+  it("opens a mode's key centers and their chapters (Premium)", async () => {
+    premium.isPremium = true;
+    renderLearn('/learn?tab=Theory', 'guitar');
+    openTile('Dorian');
+
+    const keys = keysPanel();
+    for (const key of KEYS) {
+      expect(within(keys).getByText(`${key} Dorian`)).toBeInTheDocument();
+    }
+    expect(await screen.findByText('C Dorian Chapters')).toBeInTheDocument();
+    expect(await screen.findByText('26 steps')).toBeInTheDocument();
+    expect(screen.getByText('48 steps')).toBeInTheDocument();
+    expect(vi.mocked(guitarTheoryChapters)).toHaveBeenCalledWith('dorian', 'C');
+
+    fireEvent.click(screen.getByText('Chords'));
+    expect(location()).toBe('/learn/guitar/dorian/c?section=B');
   });
 
   it('sends ?tab=Technique to Theory on guitar', () => {
@@ -271,9 +308,9 @@ describe('Learn → Theory on guitar', () => {
     expect(
       screen.queryByText('Coming soon for guitar'),
     ).not.toBeInTheDocument();
-    expect(tile('Dorian')).not.toHaveAttribute('aria-disabled');
+    expect(tile('Harmonic Minor')).not.toHaveAttribute('aria-disabled');
     act(() => useInstrumentStore.setState({ instrument: 'guitar' }));
-    expect(tile('Dorian')).toHaveAttribute('aria-disabled', 'true');
+    expect(tile('Harmonic Minor')).toHaveAttribute('aria-disabled', 'true');
   });
 
   it("keeps the key selected when the book doesn't load, and retries", async () => {

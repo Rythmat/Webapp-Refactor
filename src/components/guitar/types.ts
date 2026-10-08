@@ -8,7 +8,7 @@
 import type { ReactNode } from 'react';
 import type {
   BookChordQuality,
-  GuitarKeyName,
+  GuitarCenterId,
   ScaleDegree,
 } from '@/curriculum/data/guitar/types';
 import type { LabelMode } from '@/lib/guitar/theory/types';
@@ -140,8 +140,11 @@ export interface ChordBoxProps {
   quality?: BookChordQuality;
   /** Degree in the key (defaults to `shape.degree`); needed for the popover notes. */
   degree?: ScaleDegree;
-  /** The book key (defaults to the key whose `degree` has `rootPc` as its root). */
-  keyName?: GuitarKeyName;
+  /**
+   * The key center the chord belongs to, 'C' or 'D:dorian' (defaults to the
+   * Book One major key whose `degree` has `rootPc` as its root).
+   */
+  centerId?: GuitarCenterId;
   /**
    * Fingers (the book) or chord tones (R 3 5 7). Defaults to the device
    * setting (useGuitarDisplaySettings.chordBoxLabels). `showFingers: false`
@@ -184,9 +187,11 @@ export interface ScaleBoxProps {
    * Omitted: the scale degree in each dot, as before, with no legend layers.
    */
   labelMode?: ScaleBoxLabelMode;
+  /** Key-number labels by semitone above the tonic, when a mode's differ. */
+  keyNumberLabels?: readonly string[];
   /** A hairline, labelled 'octave', between the low and high tonic. */
   showOctave?: boolean;
-  /** Dashed outlines where the pentatonic leaves out 4 and 7. */
+  /** Dashed outlines where the pentatonic leaves out notes (4 and 7 in major). */
   ghosts?: readonly FretPosition[];
   /** Notes for an (i) popover beside the box (e.g. 'What is Ionian?'). */
   about?: readonly DiagramInfoNote[];

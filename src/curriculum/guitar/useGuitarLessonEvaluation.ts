@@ -28,10 +28,10 @@ import {
 } from 'react';
 import type { NoteHoldMeta } from '@/curriculum/components/GenrePianoRoll';
 import {
+  centerOfShapeId,
   chordRootName,
   getGuitarShape,
-  isGuitarKeyName,
-} from '@/curriculum/data/guitar/bookOne';
+} from '@/curriculum/data/guitar/centers';
 import { theoryString } from '@/curriculum/data/guitar/theoryNotes';
 import type {
   GenreNoteEvent,
@@ -107,11 +107,11 @@ export function chordHint(
   heard: Pick<GuitarChordEvent, 'rootPc' | 'quality' | 'chroma' | 'midis'>,
 ): Pick<GuitarLessonDiagnostics, 'hint' | 'ringStrings'> | null {
   const shape = getGuitarShape(target.shapeId);
-  const key = target.shapeId.split('/')[0];
-  if (!shape || !isGuitarKeyName(key)) return null;
+  const center = centerOfShapeId(target.shapeId);
+  if (!shape || !center) return null;
   const diagnosis = diagnoseChord({
     target: {
-      rootName: chordRootName(key, shape.degree),
+      rootName: chordRootName(center, shape.degree),
       quality: shape.quality,
       frets: shape.frets,
     },

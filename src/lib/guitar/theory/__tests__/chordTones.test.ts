@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
-  GUITAR_ATLAS_BOOK_ONE,
   chordRootName,
-} from '@/curriculum/data/guitar/bookOne';
+  getGuitarCenter,
+} from '@/curriculum/data/guitar/centers';
 import { GUITAR_THEORY_STRINGS } from '@/curriculum/data/guitar/theoryNotes';
 import type {
   BookChordQuality,
@@ -26,6 +26,7 @@ const DEGREES: KeyDegree[] = [1, 2, 3, 4, 5, 6, 7];
 const QUALITIES: BookChordQuality[] = [
   'maj',
   'min',
+  'dim',
   'maj7',
   'dom7',
   'min7',
@@ -33,10 +34,11 @@ const QUALITIES: BookChordQuality[] = [
 ];
 
 describe('chord tones', () => {
-  it('has the formula table for the six qualities', () => {
+  it('has the formula table for the seven qualities', () => {
     expect(QUALITIES.map(formulaText)).toEqual([
       'R 3 5',
       'R ♭3 5',
+      'R ♭3 ♭5',
       'R 3 5 7',
       'R 3 5 ♭7',
       'R ♭3 5 ♭7',
@@ -45,6 +47,7 @@ describe('chord tones', () => {
     expect(QUALITIES.map(chordSemitones)).toEqual([
       [0, 4, 7],
       [0, 3, 7],
+      [0, 3, 6],
       [0, 4, 7, 11],
       [0, 4, 7, 10],
       [0, 3, 7, 10],
@@ -56,6 +59,7 @@ describe('chord tones', () => {
     }
     expect(CHORD_FORMULA.min7b5[6]).toEqual({ label: 'b5', role: 'fifth' });
     expect(QUALITY_TONES.maj).toEqual(['third']);
+    expect(QUALITY_TONES.dim).toEqual(['third', 'fifth']);
     expect(QUALITY_TONES.dom7).toEqual(['third', 'seventh']);
     expect(QUALITY_TONES.min7b5).toEqual(['third', 'fifth', 'seventh']);
   });
@@ -103,7 +107,7 @@ describe('chord tones', () => {
     const flatKeys: GuitarKeyName[] = ['Db', 'Ab', 'Eb', 'Bb', 'F'];
     for (const key of flatKeys) {
       for (const degree of DEGREES) {
-        const root = chordRootName(key, degree);
+        const root = chordRootName(getGuitarCenter(key), degree);
         const triad = DIATONIC_TRIADS[degree - 1];
         const names = [
           ...(triad === 'dim' ? [] : spellChordTones(root, triad)),
@@ -111,11 +115,11 @@ describe('chord tones', () => {
         ];
         expect(names.join(' '), `${key} ${degree}`).not.toContain('#');
       }
-      const center = GUITAR_ATLAS_BOOK_ONE[key];
+      const center = getGuitarCenter(key);
       for (const shape of [...center.triads, ...center.sevenths]) {
         const tones = shapeTones(
           shape.frets,
-          chordRootName(key, shape.degree),
+          chordRootName(getGuitarCenter(key), shape.degree),
           shape.quality,
         );
         expect(tones, `${key} ${shape.frets}`).not.toBeNull();

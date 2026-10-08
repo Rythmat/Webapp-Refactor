@@ -45,10 +45,22 @@ export const SCALE_DEGREE_LABELS = [
   '7',
 ] as const;
 
-/** The key number of a pitch: '1'-'7' in the major key on `tonicPc`. */
-export function keyNumberLabel(midi: number, tonicPc: number): string {
-  return SCALE_DEGREE_LABELS[(((midi - tonicPc) % 12) + 12) % 12];
+/**
+ * The key number of a pitch: '1'-'7' in the major key on `tonicPc`. A mode
+ * whose degrees read otherwise passes its own 12 labels (Locrian's 6
+ * semitones are its ♭5, not ♯4).
+ */
+export function keyNumberLabel(
+  midi: number,
+  tonicPc: number,
+  labels: readonly string[] = SCALE_DEGREE_LABELS,
+): string {
+  return labels[(((midi - tonicPc) % 12) + 12) % 12];
 }
+
+/** Mode names keep their capital in a lowercased title. */
+const MODE_NAME =
+  /^(Ionian|Dorian|Phrygian|Lydian|Mixolydian|Aeolian|Locrian)$/;
 
 /** The note name in the key, without its octave: 'B♭', 'F♯'. */
 export function keyNoteName(midi: number, tonicPc: number): string {
@@ -75,6 +87,7 @@ export const ScaleBox = memo(function ScaleBox({
   size,
   mirrored,
   labelMode,
+  keyNumberLabels,
   showOctave = false,
   ghosts,
   about,
@@ -94,7 +107,7 @@ export const ScaleBox = memo(function ScaleBox({
       const midi = fretToMidi(position);
       if (labelMode === 'fingers') return fingers[i] ? String(fingers[i]) : '';
       if (labelMode === 'notes') return keyNoteName(midi, tonicPc);
-      return keyNumberLabel(midi, tonicPc);
+      return keyNumberLabel(midi, tonicPc, keyNumberLabels);
     });
     const dots: FretDiagramDot[] = playOrder.map((position, i) => {
       if (position.fret === 0) open.push(position.string);
@@ -158,13 +171,17 @@ export const ScaleBox = memo(function ScaleBox({
     tonicPc,
     activeIndex,
     labelMode,
+    keyNumberLabels,
     showOctave,
     ghosts,
   ]);
 
   if (variant === 'lesson') {
-    // 'C Major Scale' → 'C major scale': the key keeps its capital.
-    const title = name.replace(/ \S+/g, (word) => word.toLowerCase());
+    // 'C Major Scale' → 'C major scale': the key keeps its capital, and so
+    // does a mode's name ('D Dorian scale').
+    const title = name.replace(/ \S+/g, (word) =>
+      MODE_NAME.test(word.trim()) ? word : word.toLowerCase(),
+    );
     const hasInfo = !!about?.length || model.ghostCount > 0 || model.hasOctave;
     return (
       <div

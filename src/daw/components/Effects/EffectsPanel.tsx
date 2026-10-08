@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useSyncExternalStore } from 'react';
 import { X, Maximize2, Zap } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { useShallow } from 'zustand/react/shallow';
@@ -20,7 +20,11 @@ import {
 import { PopOutOverlay } from '@/daw/components/ChannelStrip/PopOutOverlay';
 import { FxMeter } from './FxMeter';
 import { useCompressorMeters } from '@/daw/hooks/useCompressorMeters';
-import { getTrackAudioState } from '@/daw/hooks/usePlaybackEngine';
+import {
+  getEngineReadyVersion,
+  getTrackAudioState,
+  subscribeEngineReady,
+} from '@/daw/hooks/usePlaybackEngine';
 import { getReverbManifest, getReverbIrMeta } from '@/daw/audio/reverbIR';
 import {
   BAND_COLORS,
@@ -182,12 +186,18 @@ export function EffectsPanel() {
   const removeActiveEffect = useStore((s) => s.removeActiveEffect);
   const track = tracks.find((t) => t.id === selectedTrackId);
 
+  // Moves when engines are made or retired, so a load that replaces the
+  // track's engine under the same id hands the panel the new chain.
+  const engineVersion = useSyncExternalStore(
+    subscribeEngineReady,
+    getEngineReadyVersion,
+  );
   const effectChain = useMemo(() => {
     if (!selectedTrackId) return null;
     return (
       getTrackAudioState(selectedTrackId)?.trackEngine.getEffectChain() ?? null
     );
-  }, [selectedTrackId]);
+  }, [selectedTrackId, engineVersion]);
 
   const { gr, inLevel, outLevel } = useCompressorMeters(effectChain);
 
@@ -1114,6 +1124,9 @@ export function FxKnobs({
       );
 
     case 'de-esser':
+      // No FREQUENCY knob until the de-esser's band filter is wired: the
+      // engine sets deEsserFilter's frequency but never connects the filter,
+      // so the compressor hears the whole vocal and the knob changed nothing.
       return (
         <>
           <RotaryKnob
@@ -1127,21 +1140,6 @@ export function FxKnobs({
             formatValue={(v) => `${Math.round(v)}%`}
             onChange={(v) =>
               onUpdate(trackId, { 'de-esser': { ...deess, amount: v } })
-            }
-          />
-          <RotaryKnob
-            label="FREQUENCY"
-            value={deess.frequency}
-            min={2000}
-            max={16000}
-            step={100}
-            size={ks}
-            arcColor={color}
-            formatValue={(v) =>
-              v >= 1000 ? `${(v / 1000).toFixed(1)}kHz` : `${Math.round(v)}Hz`
-            }
-            onChange={(v) =>
-              onUpdate(trackId, { 'de-esser': { ...deess, frequency: v } })
             }
           />
           <RotaryKnob

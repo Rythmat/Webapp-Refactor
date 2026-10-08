@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Download, Loader2, AlertTriangle } from 'lucide-react';
 import { useStore } from '@/daw/store';
@@ -21,6 +27,23 @@ const FORMATS: { id: AudioExportFormat; label: string; hint: string }[] = [
 const BIT_DEPTHS: WavBitDepth[] = [16, 24];
 
 type RangeChoice = 'project' | 'loop' | 'custom';
+
+/**
+ * The format, bit depth and range the student picked. FileMenu holds them,
+ * since the dialog is mounted only while open, so the next export starts from
+ * the last one's choices.
+ */
+export interface ExportChoices {
+  format: AudioExportFormat;
+  bitDepth: WavBitDepth;
+  range: RangeChoice;
+}
+
+export const DEFAULT_EXPORT_CHOICES: ExportChoices = {
+  format: 'wav',
+  bitDepth: 16,
+  range: 'project',
+};
 
 /** A typed bar number, or null when it isn't a whole number ≥ 1. */
 function parseBar(text: string): number | null {
@@ -130,9 +153,13 @@ function BarInput({
 export function ExportAudioDialog({
   open,
   onOpenChange,
+  choices,
+  onChoicesChange,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  choices: ExportChoices;
+  onChoicesChange: Dispatch<SetStateAction<ExportChoices>>;
 }) {
   // Selecting the stable tracks array ref (not a mapped fresh array) avoids the
   // useShallow fresh-object infinite-loop trap; derive counts in render.
@@ -168,9 +195,13 @@ export function ExportAudioDialog({
       `${ampDryCount} guitar/bass/vocal ${ampDryCount === 1 ? 'track bounces' : 'tracks bounce'} dry (without amp/pedal FX).`,
     );
 
-  const [format, setFormat] = useState<AudioExportFormat>('wav');
-  const [bitDepth, setBitDepth] = useState<WavBitDepth>(16);
-  const [range, setRange] = useState<RangeChoice>('project');
+  const { format, bitDepth, range } = choices;
+  const setFormat = (next: AudioExportFormat) =>
+    onChoicesChange((c) => ({ ...c, format: next }));
+  const setBitDepth = (next: WavBitDepth) =>
+    onChoicesChange((c) => ({ ...c, bitDepth: next }));
+  const setRange = (next: RangeChoice) =>
+    onChoicesChange((c) => ({ ...c, range: next }));
   const [startBarText, setStartBarText] = useState('1');
   const [endBarText, setEndBarText] = useState('1');
   const [busy, setBusy] = useState(false);
@@ -216,8 +247,11 @@ export function ExportAudioDialog({
   // If the loop is off, the loop range is unavailable — fall back to the
   // whole project (a custom range is unaffected).
   useEffect(() => {
-    if (!loopEnabled) setRange((r) => (r === 'loop' ? 'project' : r));
-  }, [loopEnabled]);
+    if (!loopEnabled)
+      onChoicesChange((c) =>
+        c.range === 'loop' ? { ...c, range: 'project' } : c,
+      );
+  }, [loopEnabled, onChoicesChange]);
 
   const handleExport = useCallback(async () => {
     setBusy(true);

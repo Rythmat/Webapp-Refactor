@@ -126,6 +126,12 @@ export function obeysMajorChordRule(
  * nearest 3 is chosen, so a 4 falls a semitone and a ♭3 rises one, rather than
  * leaping an octave to make the point.
  *
+ * A note moved can unsettle the one before it: across a chord change, that
+ * note's 4 (or ♭3) may have been resolving into the moved note's old pitch.
+ * So each move looks back and repairs the note before, and so on, until one
+ * still obeys. A note on its chord's 3 never breaks the rule, so no note
+ * moves twice.
+ *
  * A last resort: a melody that never needed repairing keeps its own shape, so
  * callers should prefer drawing a phrase that already obeys the rule.
  */
@@ -135,16 +141,18 @@ export function repairMajorChordRule<T extends RuleNote>(
 ): T[] {
   const repaired = notes.map((note) => ({ ...note }));
   for (let i = 0; i < repaired.length; i += 1) {
-    if (!noteViolation(repaired[i], repaired[i + 1], chords)) continue;
-    const chord = chordUnder(repaired[i], chords);
-    if (!chord) continue;
-    repaired[i] = {
-      ...repaired[i],
-      midi: nearestWithPitchClass(
-        repaired[i].midi,
-        pc(chord.rootPc + MAJOR_THIRD),
-      ),
-    };
+    for (let j = i; j >= 0; j -= 1) {
+      if (!noteViolation(repaired[j], repaired[j + 1], chords)) break;
+      const chord = chordUnder(repaired[j], chords);
+      if (!chord) break;
+      repaired[j] = {
+        ...repaired[j],
+        midi: nearestWithPitchClass(
+          repaired[j].midi,
+          pc(chord.rootPc + MAJOR_THIRD),
+        ),
+      };
+    }
   }
   return repaired;
 }

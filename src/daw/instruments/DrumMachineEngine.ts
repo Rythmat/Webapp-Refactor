@@ -7,8 +7,9 @@ import { DRUM_KIT_CONFIGS, DRUM_PADS, type DrumKitId } from './drumKits';
 export { DRUM_KIT_CONFIGS, DRUM_KITS, DRUM_PADS } from './drumKits';
 export type { DrumKitConfig, DrumKitId, DrumPadDef } from './drumKits';
 
-// Map any MIDI note to its canonical pad note (for routing through pad chain)
-function canonicalPadNote(note: number): number {
+// Map any MIDI note to its canonical pad note (for routing through pad chain).
+// The drum grid places notes on its rows with it too, so both agree.
+export function canonicalPadNote(note: number): number {
   switch (note) {
     case 35:
     case 36:
@@ -200,7 +201,9 @@ export class DrumMachineEngine implements InstrumentAdapter {
   }
 
   noteOn(note: number, velocity: number, time?: number): void {
-    const t = time ?? Tone.now();
+    // Live playing passes no time; Tone.now() would add the ~100 ms lookAhead.
+    // The choke and velocity writes below share `t`.
+    const t = time ?? Tone.immediate();
     const canonical = canonicalPadNote(note);
     const velGain = Math.max(0, Math.min(1, velocity / 127));
 

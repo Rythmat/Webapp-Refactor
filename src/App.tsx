@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { DashboardResponsiveTest } from './__qa/DashboardResponsiveTest';
 import { HipHopGrooveAudition } from './__qa/hipHopAudition/HipHopGrooveAudition';
@@ -29,6 +30,17 @@ import { legalPages } from './features/legal';
 import { marketingPages } from './features/marketing';
 import { searchPages } from './features/search/routes';
 import { officePages, teacherPages } from './features/teacher/TeacherPages';
+
+// DEV only: every Studio UI primitive in every state (src/daw/ui). Lazy behind
+// a literal import.meta.env.DEV, so a production build folds the import away
+// and never emits the gallery's chunk (verify:prod:scan checks).
+const DawUiGallery = import.meta.env.DEV
+  ? lazy(() =>
+      import('./daw/ui/__gallery__/DawUiGallery').then(({ DawUiGallery }) => ({
+        default: DawUiGallery,
+      })),
+    )
+  : null;
 
 // musicatlas.io only serves public pages; everything else hands off to the
 // app host, where sign-in state lives (see constants/hosts.ts).
@@ -66,6 +78,18 @@ const appRoutes = () => [
         { path: '/__dashboard-qa', element: <DashboardResponsiveTest /> },
         { path: '/__hiphop-grooves', element: <HipHopGrooveAudition /> },
         { path: '/dev/msp/mock-learn', element: <MockLearn /> },
+        ...(DawUiGallery
+          ? [
+              {
+                path: '/dev/studio/ui-gallery',
+                element: (
+                  <Suspense fallback={null}>
+                    <DawUiGallery />
+                  </Suspense>
+                ),
+              },
+            ]
+          : []),
       ]
     : []),
   {

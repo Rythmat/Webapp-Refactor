@@ -1,0 +1,588 @@
+{
+  "about": "Today's round-trip results per profile and scenario (scripts/studio-perf/roundtrip.mjs; what each scenario compares comes from the project document registry since milestone 1.3). losses: field -> number of keys lost per kind (a tracks[] or clips[] field counts one key per track or clip, and a track or clip that is gone altogether counts once, as 'tracks[] (whole track)' or '... (whole clip)'); flags: the scenario's yes/no checks; pageErrors: uncaught page errors. A run fails on more keys of a kind than listed, a flag moving away from its goal, or more page errors. Rewrite with --update-known once a fix lands.",
+  "format": 2,
+  "updatedAt": "2026-10-08",
+  "commit": "6250e969",
+  "profiles": {
+    "chromebook": {
+      "R1-refresh-while-playing": {
+        "flags": {
+          "autosaveWrittenDuringPlayback": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {
+          "context.practiceSession": { "lost": 1 },
+          "context.tutorial": { "lost": 1 },
+          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
+        }
+      },
+      "R2-spa-return": {
+        "flags": { "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": { "view.channelStripTab": { "changed": 1 } }
+      },
+      "R3-cloud-save-open:legacy": {
+        "flags": {
+          "noteIdsWhole": true,
+          "savedToast": true,
+          "uploadedPendingAudio": true
+        },
+        "pageErrors": 0,
+        "losses": {
+          "harmony.chordRegions": { "lost": 1 },
+          "harmony.keyColour": { "changed": 1 },
+          "harmony.keyLock": { "lost": 1 },
+          "harmony.mode": { "lost": 1 },
+          "ids.audioClips": { "changed": 1 },
+          "ids.notes": { "changed": 1 },
+          "markers": { "lost": 1 },
+          "mixer.masterVolume": { "lost": 1 },
+          "mixer.masteringEffects": { "lost": 1 },
+          "mixer.masteringFxChain": { "lost": 1 },
+          "notation.leadSheetChordFormat": { "lost": 1 },
+          "notation.leadSheetMelodyTrack": { "lost": 1 },
+          "notation.leadSheetRepeats": { "lost": 1 },
+          "notation.leadSheetSections": { "lost": 1 },
+          "notation.leadSheetShowMelody": { "lost": 1 },
+          "notation.leadSheetShowRepeats": { "lost": 1 },
+          "notation.measureFermatas": { "lost": 1 },
+          "notation.measureRestMap": { "lost": 1 },
+          "notation.measureRowSizes": { "lost": 1 },
+          "notation.measuresPerLine": { "lost": 1 },
+          "notation.scoreArticulations": { "lost": 1 },
+          "notation.scoreChordHidden": { "lost": 1 },
+          "notation.scoreChordTracks": { "lost": 1 },
+          "notation.scorePageBreaks": { "lost": 1 },
+          "notation.scoreSlashNotes": { "lost": 1 },
+          "notation.scoreSlurs": { "lost": 1 },
+          "notation.scoreSpellings": { "lost": 1 },
+          "notation.scoreSystemBreaks": { "lost": 1 },
+          "notation.scoreSystemRuns": { "lost": 1 },
+          "notation.scoreTextMarks": { "lost": 1 },
+          "prism.chordRecordMode": { "lost": 1 },
+          "prism.filterPercent": { "lost": 1 },
+          "prism.progression": { "lost": 1 },
+          "prism.strum": { "lost": 1 },
+          "prism.tilt": { "lost": 1 },
+          "tracks[].midiClips[].ccEvents": { "lost": 1 },
+          "tracks[].midiClips[].durationTicks": { "lost": 1 },
+          "transport.loopRange": { "lost": 1 },
+          "transport.timeSignature": { "lost": 1 },
+          "view.clipColorMode": { "lost": 1 }
+        }
+      },
+      "R4-leak:demo": {
+        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:jam": {
+        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:libraryTemplate": {
+        "flags": {
+          "noteIdsWhole": true,
+          "prefsCarried": true,
+          "workKept": true,
+          "workRestored": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:new": {
+        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:practiceGenre": {
+        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:practiceMode": {
+        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:song": {
+        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:template": {
+        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:tutorial": {
+        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:demo:cold": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {
+          "context.practiceSession": { "lost": 1 },
+          "context.tutorial": { "lost": 1 },
+          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
+        }
+      },
+      "R5-bad-link:demo:spa": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": { "view.channelStripTab": { "changed": 1 } }
+      },
+      "R5-bad-link:practiceGenre:cold": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {
+          "context.practiceSession": { "lost": 1 },
+          "context.tutorial": { "lost": 1 },
+          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
+        }
+      },
+      "R5-bad-link:practiceGenre:spa": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": { "view.channelStripTab": { "changed": 1 } }
+      },
+      "R5-bad-link:practiceMode:cold": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {
+          "context.practiceSession": { "lost": 1 },
+          "context.tutorial": { "lost": 1 },
+          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
+        }
+      },
+      "R5-bad-link:practiceMode:spa": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": { "view.channelStripTab": { "changed": 1 } }
+      },
+      "R5-bad-link:project:cold": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {
+          "context.practiceSession": { "lost": 1 },
+          "context.tutorial": { "lost": 1 },
+          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
+        }
+      },
+      "R5-bad-link:project:spa": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": { "view.channelStripTab": { "changed": 1 } }
+      },
+      "R5-bad-link:song:cold": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {
+          "context.practiceSession": { "lost": 1 },
+          "context.tutorial": { "lost": 1 },
+          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
+        }
+      },
+      "R5-bad-link:song:spa": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": { "view.channelStripTab": { "changed": 1 } }
+      },
+      "R5-bad-link:template:cold": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {
+          "context.practiceSession": { "lost": 1 },
+          "context.tutorial": { "lost": 1 },
+          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
+        }
+      },
+      "R5-bad-link:template:spa": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": { "view.channelStripTab": { "changed": 1 } }
+      },
+      "R5-bad-link:tutorial:cold": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {
+          "context.practiceSession": { "lost": 1 },
+          "context.tutorial": { "lost": 1 },
+          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
+        }
+      },
+      "R5-bad-link:tutorial:spa": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": { "view.channelStripTab": { "changed": 1 } }
+      },
+      "R6-synth-edit-refresh": {
+        "flags": {
+          "autosaveWrittenAfterSynthEdit": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R7-tab-close": {
+        "flags": { "autosaveFlushedOnClose": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {
+          "context.practiceSession": { "lost": 1 },
+          "context.tutorial": { "lost": 1 },
+          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
+        }
+      }
+    },
+    "laptop": {
+      "R1-refresh-while-playing": {
+        "flags": {
+          "autosaveWrittenDuringPlayback": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {
+          "context.practiceSession": { "lost": 1 },
+          "context.tutorial": { "lost": 1 },
+          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
+        }
+      },
+      "R2-spa-return": {
+        "flags": { "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": { "view.channelStripTab": { "changed": 1 } }
+      },
+      "R3-cloud-save-open:legacy": {
+        "flags": {
+          "noteIdsWhole": true,
+          "savedToast": true,
+          "uploadedPendingAudio": true
+        },
+        "pageErrors": 0,
+        "losses": {
+          "harmony.chordRegions": { "lost": 1 },
+          "harmony.keyColour": { "changed": 1 },
+          "harmony.keyLock": { "lost": 1 },
+          "harmony.mode": { "lost": 1 },
+          "ids.audioClips": { "changed": 1 },
+          "ids.notes": { "changed": 1 },
+          "markers": { "lost": 1 },
+          "mixer.masterVolume": { "lost": 1 },
+          "mixer.masteringEffects": { "lost": 1 },
+          "mixer.masteringFxChain": { "lost": 1 },
+          "notation.leadSheetChordFormat": { "lost": 1 },
+          "notation.leadSheetMelodyTrack": { "lost": 1 },
+          "notation.leadSheetRepeats": { "lost": 1 },
+          "notation.leadSheetSections": { "lost": 1 },
+          "notation.leadSheetShowMelody": { "lost": 1 },
+          "notation.leadSheetShowRepeats": { "lost": 1 },
+          "notation.measureFermatas": { "lost": 1 },
+          "notation.measureRestMap": { "lost": 1 },
+          "notation.measureRowSizes": { "lost": 1 },
+          "notation.measuresPerLine": { "lost": 1 },
+          "notation.scoreArticulations": { "lost": 1 },
+          "notation.scoreChordHidden": { "lost": 1 },
+          "notation.scoreChordTracks": { "lost": 1 },
+          "notation.scorePageBreaks": { "lost": 1 },
+          "notation.scoreSlashNotes": { "lost": 1 },
+          "notation.scoreSlurs": { "lost": 1 },
+          "notation.scoreSpellings": { "lost": 1 },
+          "notation.scoreSystemBreaks": { "lost": 1 },
+          "notation.scoreSystemRuns": { "lost": 1 },
+          "notation.scoreTextMarks": { "lost": 1 },
+          "prism.chordRecordMode": { "lost": 1 },
+          "prism.filterPercent": { "lost": 1 },
+          "prism.progression": { "lost": 1 },
+          "prism.strum": { "lost": 1 },
+          "prism.tilt": { "lost": 1 },
+          "tracks[].midiClips[].ccEvents": { "lost": 1 },
+          "tracks[].midiClips[].durationTicks": { "lost": 1 },
+          "transport.loopRange": { "lost": 1 },
+          "transport.timeSignature": { "lost": 1 },
+          "view.clipColorMode": { "lost": 1 }
+        }
+      },
+      "R4-leak:demo": {
+        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:jam": {
+        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:libraryTemplate": {
+        "flags": {
+          "noteIdsWhole": true,
+          "prefsCarried": true,
+          "workKept": true,
+          "workRestored": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:new": {
+        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:practiceGenre": {
+        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:practiceMode": {
+        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:song": {
+        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:template": {
+        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R4-leak:tutorial": {
+        "flags": { "noteIdsWhole": true, "prefsCarried": true },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R5-bad-link:demo:cold": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {
+          "context.practiceSession": { "lost": 1 },
+          "context.tutorial": { "lost": 1 },
+          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
+        }
+      },
+      "R5-bad-link:demo:spa": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": { "view.channelStripTab": { "changed": 1 } }
+      },
+      "R5-bad-link:practiceGenre:cold": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {
+          "context.practiceSession": { "lost": 1 },
+          "context.tutorial": { "lost": 1 },
+          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
+        }
+      },
+      "R5-bad-link:practiceGenre:spa": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": { "view.channelStripTab": { "changed": 1 } }
+      },
+      "R5-bad-link:practiceMode:cold": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {
+          "context.practiceSession": { "lost": 1 },
+          "context.tutorial": { "lost": 1 },
+          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
+        }
+      },
+      "R5-bad-link:practiceMode:spa": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": { "view.channelStripTab": { "changed": 1 } }
+      },
+      "R5-bad-link:project:cold": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {
+          "context.practiceSession": { "lost": 1 },
+          "context.tutorial": { "lost": 1 },
+          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
+        }
+      },
+      "R5-bad-link:project:spa": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": { "view.channelStripTab": { "changed": 1 } }
+      },
+      "R5-bad-link:song:cold": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {
+          "context.practiceSession": { "lost": 1 },
+          "context.tutorial": { "lost": 1 },
+          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
+        }
+      },
+      "R5-bad-link:song:spa": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": { "view.channelStripTab": { "changed": 1 } }
+      },
+      "R5-bad-link:template:cold": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {
+          "context.practiceSession": { "lost": 1 },
+          "context.tutorial": { "lost": 1 },
+          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
+        }
+      },
+      "R5-bad-link:template:spa": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": { "view.channelStripTab": { "changed": 1 } }
+      },
+      "R5-bad-link:tutorial:cold": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {
+          "context.practiceSession": { "lost": 1 },
+          "context.tutorial": { "lost": 1 },
+          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
+        }
+      },
+      "R5-bad-link:tutorial:spa": {
+        "flags": {
+          "autosaveKept": true,
+          "errorToast": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": { "view.channelStripTab": { "changed": 1 } }
+      },
+      "R6-synth-edit-refresh": {
+        "flags": {
+          "autosaveWrittenAfterSynthEdit": true,
+          "noteIdsWhole": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R7-tab-close": {
+        "flags": { "autosaveFlushedOnClose": true, "noteIdsWhole": true },
+        "pageErrors": 0,
+        "losses": {
+          "context.practiceSession": { "lost": 1 },
+          "context.tutorial": { "lost": 1 },
+          "tracks[].audioClips[].bufferLoaded": { "changed": 1 }
+        }
+      }
+    }
+  }
+}

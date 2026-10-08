@@ -23,6 +23,7 @@ import {
   type SystemMarks,
 } from '@/lib/notation/systemPlan';
 import { LETTER_PORTRAIT } from '@/lib/notation/pageLayout';
+import { parseNoteId } from '@/daw/model/noteKeys';
 import { useStore } from '@/daw/store';
 import { smartRedo, smartUndo } from '@/daw/store/undoMiddleware';
 import { useUndoState } from '@/daw/store/useUndoState';
@@ -38,14 +39,12 @@ import {
   articulationSide,
   articulationsFor,
   articulationKey,
-  dropNoteIds,
   durationTicks,
   groupChordArticulations,
   planTie,
   type TieCandidate,
   type NoteLayer,
   parseSlur,
-  remapNoteIds,
   slurKey,
   toggleArticulation,
   toggleSlur,
@@ -65,7 +64,9 @@ import {
   applyNoteEdit,
   applyNoteEdits,
   applyNoteSplit,
-  parseNoteId,
+  followNoteEdit,
+  type NoteEditResult,
+  type NoteKeyedMarks,
 } from './scoreEdit';
 import {
   addToSelection,
@@ -378,67 +379,84 @@ export function useScoreEditing({
   const keyFifths = parts[0]?.score.keyFifths ?? 0;
   const GRID_TICKS = 120; // a sixteenth
 
+  /**
+   * Marks follow their notes: an edit gives a moved note a new id, and says
+   * which old id became which (followNoteEdit). Then `adjust` makes the
+   * edit's own changes to the marks, on the ids the notes have now. Each list
+   * is written only when it changed.
+   */
+  const followEdit = useCallback(
+    (
+      result: NoteEditResult,
+      adjust?: (
+        marks: NoteKeyedMarks,
+        result: NoteEditResult,
+      ) => NoteKeyedMarks,
+    ) => {
+      let next = followNoteEdit(
+        {
+          articulations,
+          slurs,
+          spellings: scoreSpellings,
+          slashNotes,
+        },
+        result,
+      );
+      if (adjust) next = adjust(next, result);
+      if (next.articulations !== articulations) {
+        setArticulations(next.articulations);
+      }
+      if (next.slurs !== slurs) setSlurs(next.slurs);
+      if (next.spellings !== scoreSpellings) setScoreSpellings(next.spellings);
+      if (next.slashNotes !== slashNotes) setSlashNotes(next.slashNotes);
+    },
+    [
+      articulations,
+      slurs,
+      scoreSpellings,
+      slashNotes,
+      setArticulations,
+      setSlurs,
+      setScoreSpellings,
+      setSlashNotes,
+    ],
+  );
+
   const writeEdit = useCallback(
-    (ids: Iterable<string>, edit: Parameters<typeof applyNoteEdit>[2]) => {
-      const before = [...ids];
-      const after = applyNoteEdit(
+    (
+      ids: Iterable<string>,
+      edit: Parameters<typeof applyNoteEdit>[2],
+      adjust?: Parameters<typeof followEdit>[1],
+    ) => {
+      const result = applyNoteEdit(
         tracks,
-        before,
+        ids,
         edit,
         keyFifths,
         updateMidiClipEvents,
       );
-      // Marks follow their notes: an edit renames a note's id.
-      if (edit.remove) {
-        const gone = new Set(before);
-        setArticulations(dropNoteIds(articulations, gone));
-        setSlurs(dropNoteIds(slurs, gone));
-      } else if (after.length === before.length) {
-        const rename = new Map(before.map((id, i) => [id, after[i]]));
-        setArticulations(remapNoteIds(articulations, rename));
-        setSlurs(remapNoteIds(slurs, rename));
-      }
-      return after;
+      followEdit(result, adjust);
+      return result.ids;
     },
-    [
-      tracks,
-      keyFifths,
-      updateMidiClipEvents,
-      articulations,
-      slurs,
-      setArticulations,
-      setSlurs,
-    ],
+    [tracks, keyFifths, updateMidiClipEvents, followEdit],
   );
 
   /** Several different edits in one pass; marks follow as with writeEdit. */
   const writeEdits = useCallback(
-    (edits: Map<string, Parameters<typeof applyNoteEdit>[2]>) => {
-      const before = [...edits.keys()];
-      const after = applyNoteEdits(
+    (
+      edits: Map<string, Parameters<typeof applyNoteEdit>[2]>,
+      adjust?: Parameters<typeof followEdit>[1],
+    ) => {
+      const result = applyNoteEdits(
         tracks,
         edits,
         keyFifths,
         updateMidiClipEvents,
       );
-      const removed = new Set(before.filter((id) => edits.get(id)?.remove));
-      const kept = before.filter((id) => !removed.has(id));
-      const rename = new Map(kept.map((id, i) => [id, after[i] ?? id]));
-      setArticulations(
-        dropNoteIds(remapNoteIds(articulations, rename), removed),
-      );
-      setSlurs(dropNoteIds(remapNoteIds(slurs, rename), removed));
-      return after;
+      followEdit(result, adjust);
+      return result.ids;
     },
-    [
-      tracks,
-      keyFifths,
-      updateMidiClipEvents,
-      articulations,
-      slurs,
-      setArticulations,
-      setSlurs,
-    ],
+    [tracks, keyFifths, updateMidiClipEvents, followEdit],
   );
 
   const handleNotePointerDown = useCallback(
@@ -850,26 +868,31 @@ export function useScoreEditing({
         return;
       }
 
-      const nextIds = writeEdit(selectedNotes, { durationTicks: ticks });
-      if (into === 'slashes') {
-        setSlashNotes([...new Set([...slashNotes, ...nextIds])]);
-      } else {
-        // Back to pitched notation.
-        const dropped = new Set(nextIds);
-        setSlashNotes(slashNotes.filter((id) => !dropped.has(id)));
-      }
+      // The slash list is rewritten only when a note joins or leaves it, so
+      // a plain length change writes no marks.
+      const nextIds = writeEdit(
+        selectedNotes,
+        { durationTicks: ticks },
+        (marks, { ids }) => {
+          if (into === 'slashes') {
+            const slashed = new Set(marks.slashNotes);
+            return ids.every((id) => slashed.has(id))
+              ? marks
+              : { ...marks, slashNotes: [...new Set([...slashed, ...ids])] };
+          }
+          // Back to pitched notation.
+          const edited = new Set(ids);
+          return marks.slashNotes.some((id) => edited.has(id))
+            ? {
+                ...marks,
+                slashNotes: marks.slashNotes.filter((id) => !edited.has(id)),
+              }
+            : marks;
+        },
+      );
       setSelectedNotes(new Set(nextIds));
     },
-    [
-      selectedNotes,
-      writeEdit,
-      ticksPerQuarter,
-      dotted,
-      layer,
-      layout,
-      slashNotes,
-      setSlashNotes,
-    ],
+    [selectedNotes, writeEdit, ticksPerQuarter, dotted, layer, layout],
   );
 
   const activeArticulations = useMemo(() => {
@@ -936,37 +959,27 @@ export function useScoreEditing({
       const signature = keySignatureAlterations(keyFifths);
       const wanted = toggledAlteration(selectedSpelled, alteration, signature);
       const edits = new Map<string, Parameters<typeof applyNoteEdit>[2]>();
-      const nextSpellings: Array<{ id: string; name: string }> = [];
+      const spelled = new Map<string, string>();
       for (const note of selectedSpelled) {
         const target = wanted.get(note.letter) ?? alteration;
         if (note.alteration === target) continue;
         const midi = accidentalPitch(note, target);
         if (midi < 0 || midi > 127) continue;
         edits.set(note.id, { midi });
-        const ref = parseNoteId(note.id);
-        if (!ref) continue;
-        nextSpellings.push({
-          id: `${ref.trackId}:${ref.clipId}:${ref.startTick}:${midi}`,
-          name: accidentalSpelling(note, target),
-        });
+        spelled.set(note.id, accidentalSpelling(note, target));
       }
       if (edits.size === 0) return;
-      const nextIds = writeEdits(edits);
-      let spellings = scoreSpellings;
-      for (const { id, name } of nextSpellings) {
-        spellings = withSpelling(spellings, id, name);
-      }
-      setScoreSpellings(spellings);
+      const nextIds = writeEdits(edits, (marks, { renamed }) => {
+        let spellings = marks.spellings;
+        for (const [id, name] of spelled) {
+          const now = renamed.get(id);
+          if (now) spellings = withSpelling(spellings, now, name);
+        }
+        return { ...marks, spellings };
+      });
       setSelectedNotes(new Set(nextIds));
     },
-    [
-      selectedSpelled,
-      keyFifths,
-      writeEdits,
-      scoreSpellings,
-      setScoreSpellings,
-      setSelectedNotes,
-    ],
+    [selectedSpelled, keyFifths, writeEdits, setSelectedNotes],
   );
 
   /**
@@ -1638,7 +1651,7 @@ export function useScoreEditing({
       };
     }
     if (!target) return;
-    const { writes, noteIds } = pasteNotes(
+    const { writes, noteIds, removedIds } = pasteNotes(
       clipboard,
       target,
       tracks,
@@ -1647,6 +1660,13 @@ export function useScoreEditing({
     for (const write of writes) {
       updateMidiClipEvents(write.trackId, write.clipId, write.events);
     }
+    // The notes a measure paste cleared take their marks with them, so none
+    // carries over to a pasted note that lands where one of them sat.
+    followEdit({
+      ids: noteIds,
+      renamed: new Map(),
+      removed: new Set(removedIds),
+    });
     setSelectedNotes(new Set(noteIds));
     setSelectedCells(new Set());
     setSelectedRests(new Set());
@@ -1673,6 +1693,7 @@ export function useScoreEditing({
     systemBreaks,
     toggleSystemBreak,
     updateMidiClipEvents,
+    followEdit,
   ]);
 
   // ⌘C / ⌘V work whatever is selected; what they act on is decided above.
@@ -2422,11 +2443,14 @@ export function useScoreEditing({
         smartRedo();
         clearSelection();
       },
-      onDuration: (choice: DurationChoice) => applyDuration(choice),
-      onToggleDot: () => {
+      // The bar names the row: its click also sets `layer`, which this
+      // render's applyDuration would still read as the previous row.
+      onDuration: (choice: DurationChoice, into: NoteLayer) =>
+        applyDuration(choice, dotted, into),
+      onToggleDot: (into: NoteLayer) => {
         const next = !dotted;
         setDotted(next);
-        if (currentDuration) applyDuration(currentDuration, next);
+        if (currentDuration) applyDuration(currentDuration, next, into);
       },
       onArticulation: applyArticulation,
       onSlur: applySlur,

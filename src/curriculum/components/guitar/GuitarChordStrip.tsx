@@ -6,15 +6,15 @@ import {
   type DiagramVariant,
 } from '@/components/guitar';
 import {
-  GUITAR_ATLAS_BOOK_ONE,
+  getGuitarCenter,
   seventhShapeId,
-} from '@/curriculum/data/guitar/bookOne';
+} from '@/curriculum/data/guitar/centers';
 import {
   GUITAR_THEORY_NOTES,
   notesFor,
 } from '@/curriculum/data/guitar/theoryNotes';
 import type {
-  GuitarKeyName,
+  GuitarCenterId,
   GuitarMusicMap,
 } from '@/curriculum/data/guitar/types';
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
@@ -61,8 +61,8 @@ interface GuitarChordStripProps {
   mirrored: boolean;
   /** Plays the exact voicing; omitted = no "Hear it" buttons. */
   onHearShape?: (frets: string) => void;
-  /** The step's key. Omitted = no theory layer (the strip as before). */
-  keyCenter?: GuitarKeyName;
+  /** The step's key center. Omitted = no theory layer (the strip as before). */
+  keyCenter?: GuitarCenterId;
   /** The step's subsection ('B2', 'B8', 'D3'): which change and B8 cues apply. */
   stepPrefix?: GuitarSubsectionPrefix | null;
   /** Music Map steps: the map, so the last bar's change back to bar 1 shows. */
@@ -99,17 +99,17 @@ interface BoxCue {
 /** The theory cues beside each box. Exported for tests. */
 export function chordStripCues(
   chords: readonly GuitarVisualChord[],
-  keyCenter: GuitarKeyName,
+  keyCenter: GuitarCenterId,
   prefix: GuitarSubsectionPrefix | null,
   map: GuitarMusicMap | undefined,
 ): BoxCue[] {
-  const center = GUITAR_ATLAS_BOOK_ONE[keyCenter];
+  const center = getGuitarCenter(keyCenter);
   const settings = { accidentals: 'unicode' as const };
   const n = chords.length;
 
   let changes: (ChangeCue | null)[] = chords.map(() => null);
   if (prefix && CHANGE_PREFIXES.has(prefix) && n > 1) {
-    const analysis = map ? analyzeMusicMap(map) : undefined;
+    const analysis = map ? analyzeMusicMap(map, center.mode) : undefined;
     const infos = analysis
       ? analysis.changes
       : chords
@@ -146,7 +146,7 @@ export function chordStripCues(
     octaveNote = info.find((note) => note.id.startsWith('b8.octave')) ?? null;
     const pageIndex = chords.map((chord) =>
       center.sevenths.findIndex(
-        (_, k) => seventhShapeId(keyCenter, k + 1) === chord.shapeId,
+        (_, k) => seventhShapeId(center, k + 1) === chord.shapeId,
       ),
     );
     const runs = topLineRuns(center);
@@ -161,11 +161,10 @@ export function chordStripCues(
   }
   const lastIsOctave =
     prefix === 'B8' &&
-    chords[n - 1]?.shapeId ===
-      seventhShapeId(keyCenter, center.sevenths.length);
+    chords[n - 1]?.shapeId === seventhShapeId(center, center.sevenths.length);
 
   return chords.map((chord, i) => ({
-    roman: romanNumeral(chord.shape.degree, chord.shape.quality),
+    roman: romanNumeral(center, chord.shape.degree, chord.shape.quality),
     change: changes[i],
     topLine: topLine[i],
     topNote,
@@ -406,6 +405,7 @@ export const GuitarChordStrip = memo(function GuitarChordStrip({
                   : chord.hybridLabel
               }
               rootPc={chord.rootPc}
+              {...(keyCenter ? { centerId: keyCenter } : {})}
               keyColor={keyColor}
               size={size}
               {...(lesson ? { variant: 'lesson' as const } : {})}

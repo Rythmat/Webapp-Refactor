@@ -49,6 +49,37 @@ export function useMidiRecording() {
     }
   }, [isRecording, tracks, addMidiClip]);
 
+  // A take still running when the editor closes is kept, as Stop would keep
+  // it. useTransport's unmount pause clears isRecording, but the effect above
+  // never sees that from an unmounting editor, so the take would be dropped.
+  // (usePlaybackEngine does the same for an audio take.) The store outlives
+  // the editor, so the clip is there when the student comes back. DawApp
+  // declares this hook before useAutosave, so the autosave's unmount flush,
+  // which runs after this cleanup, writes the take to the crash-recovery slot.
+  //
+  // Known limit in a collab room: CollabProvider, the editor's parent, has
+  // already torn the room down when this runs (React runs a closing tree's
+  // cleanups parent first). The take stays on this device and never reaches
+  // the peers, and a guest who rejoins gets the room's copy in its place.
+  // Revisit with the 1.3 persistence work.
+  useEffect(() => {
+    const recorder = recorderRef.current;
+    return () => {
+      if (!recorder.isRecording()) return;
+      const { notes, ccEvents } = recorder.stopRecording();
+      if (notes.length === 0) return;
+      const state = useStore.getState();
+      const armedTrack = state.tracks.find(
+        (t) => t.recordArmed && t.type === 'midi',
+      );
+      if (!armedTrack) return;
+      state.addMidiClip(armedTrack.id, {
+        id: crypto.randomUUID(),
+        ...buildRecordedClip(notes, ccEvents, punchInTickRef.current),
+      });
+    };
+  }, []);
+
   // Live recording display: poll recorder at ~15fps and push snapshots to store
   useEffect(() => {
     if (!isRecording) return;

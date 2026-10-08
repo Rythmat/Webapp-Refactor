@@ -42,5 +42,17 @@
   "artist_location": {
     "identity": "id",
     "pattern": null
+  },
+  "genre": {
+    "identity": "id",
+    "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+  },
+  "subgenre": {
+    "identity": "id",
+    "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+  },
+  "instrument": {
+    "identity": "id",
+    "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
   }
 }

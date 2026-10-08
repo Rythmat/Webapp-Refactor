@@ -9,7 +9,7 @@ import {
 import { StrictMode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildGuitarAppliedTheoryFundamentalsFlow } from '@/curriculum/data/activityFlows/guitarAppliedTheoryFundamentals';
-import { getGuitarShape } from '@/curriculum/data/guitar/bookOne';
+import { getGuitarShape } from '@/curriculum/data/guitar/centers';
 import { theoryStepsFor } from '@/curriculum/data/guitar/theoryConditions';
 import type { GuitarKeyName } from '@/curriculum/data/guitar/types';
 import type {

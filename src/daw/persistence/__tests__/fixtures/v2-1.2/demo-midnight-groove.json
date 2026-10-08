@@ -1,0 +1,1457 @@
+{
+  "version": 2,
+  "timestamp": 1791413516705,
+  "data": {
+    "projectId": null,
+    "projectName": "Midnight Groove",
+    "composerName": "Music Atlas",
+    "transport": {
+      "bpm": 92,
+      "position": 0,
+      "metronomeEnabled": false,
+      "loopEnabled": false,
+      "loopStart": 0,
+      "loopEnd": 7680
+    },
+    "tracks": [
+      {
+        "id": "2cd323d4-6ba1-428b-8e7b-3332793f7f18",
+        "name": "Keys",
+        "type": "midi",
+        "instrument": "electric-piano",
+        "color": "#43aa8b",
+        "mute": false,
+        "solo": false,
+        "volume": 0.8,
+        "pan": 0,
+        "recordArmed": true,
+        "monitoring": true,
+        "midiInputId": null,
+        "audioInputId": null,
+        "audioInputChannel": null,
+        "trackRole": "auto",
+        "midiClips": [
+          {
+            "id": "demo-clip-3",
+            "name": "Chords",
+            "startTick": 0,
+            "events": {
+              "notes": [
+                53, 57, 60, 64, 53, 57, 59, 64, 52, 55, 59, 62, 52, 55, 57, 60
+              ],
+              "velocities": [
+                96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96
+              ],
+              "startTickDeltas": [
+                0, 0, 0, 0, 1920, 0, 0, 0, 1920, 0, 0, 0, 1920, 0, 0, 0
+              ],
+              "durations": [
+                1920, 1920, 1920, 1920, 1920, 1920, 1920, 1920, 1920, 1920,
+                1920, 1920, 1920, 1920, 1920, 1920
+              ],
+              "channels": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            }
+          }
+        ],
+        "audioClips": [],
+        "activeEffects": [],
+        "settings": {
+          "effects": {
+            "reverb": {
+              "enabled": false,
+              "type": "hall",
+              "decay": 2,
+              "preDelay": 20,
+              "highPass": 100,
+              "lowPass": 12000,
+              "wet": 0.3
+            },
+            "eq": {
+              "enabled": false,
+              "makeup": 0,
+              "bands": [
+                {
+                  "type": "lowcut",
+                  "freq": 30,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                },
+                {
+                  "type": "lowshelf",
+                  "freq": 80,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 250,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 500,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 1000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 3000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "highshelf",
+                  "freq": 8000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "highcut",
+                  "freq": 16000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                }
+              ]
+            },
+            "gate": {
+              "enabled": false,
+              "threshold": -40,
+              "range": 40,
+              "hold": 0.01,
+              "attack": 0.001,
+              "release": 0.1
+            },
+            "compressor": {
+              "enabled": false,
+              "threshold": -24,
+              "ratio": 4,
+              "knee": 10,
+              "attack": 0.003,
+              "release": 0.25,
+              "makeup": 0,
+              "crush": 0,
+              "auto": false,
+              "mode": "studio"
+            },
+            "delay": {
+              "enabled": false,
+              "time": 0.375,
+              "feedback": 0.3,
+              "wet": 0.25
+            },
+            "presence": {
+              "enabled": false,
+              "amount": 50,
+              "frequency": 4000,
+              "bandwidth": 1
+            },
+            "de-esser": {
+              "enabled": false,
+              "amount": 0,
+              "frequency": 6000,
+              "range": 6
+            },
+            "saturator": {
+              "enabled": false,
+              "drive": 0,
+              "mix": 50,
+              "tone": 50
+            },
+            "multiband": {
+              "enabled": false,
+              "depth": 0.3,
+              "time": 0.3,
+              "crossoverLow": 120,
+              "crossoverHigh": 2500,
+              "lowGain": 0,
+              "midGain": 0,
+              "highGain": 0
+            },
+            "ducker": {
+              "enabled": false,
+              "keyTrackId": null,
+              "threshold": -30,
+              "amount": 0.3,
+              "attack": 0.01,
+              "release": 0.2
+            }
+          },
+          "sourceTrackId": "2cd323d4-6ba1-428b-8e7b-3332793f7f18"
+        }
+      },
+      {
+        "id": "f0189804-1d45-4058-ab5b-3dc8e3aa1e15",
+        "name": "Bass",
+        "type": "midi",
+        "instrument": "soundfont",
+        "color": "#3b82f6",
+        "mute": false,
+        "solo": false,
+        "volume": 0.8,
+        "pan": 0,
+        "recordArmed": false,
+        "monitoring": false,
+        "midiInputId": null,
+        "audioInputId": null,
+        "audioInputChannel": null,
+        "trackRole": "bass",
+        "midiClips": [
+          {
+            "id": "demo-clip-4",
+            "name": "Bass",
+            "startTick": 0,
+            "events": {
+              "notes": [38, 31, 36, 33],
+              "velocities": [104, 104, 104, 104],
+              "startTickDeltas": [0, 1920, 1920, 1920],
+              "durations": [1920, 1920, 1920, 1920],
+              "channels": [0, 0, 0, 0]
+            }
+          }
+        ],
+        "audioClips": [],
+        "activeEffects": [],
+        "settings": {
+          "gmProgram": 33,
+          "effects": {
+            "reverb": {
+              "enabled": false,
+              "type": "hall",
+              "decay": 2,
+              "preDelay": 20,
+              "highPass": 100,
+              "lowPass": 12000,
+              "wet": 0.3
+            },
+            "eq": {
+              "enabled": false,
+              "makeup": 0,
+              "bands": [
+                {
+                  "type": "lowcut",
+                  "freq": 30,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                },
+                {
+                  "type": "lowshelf",
+                  "freq": 80,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 250,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 500,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 1000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 3000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "highshelf",
+                  "freq": 8000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "highcut",
+                  "freq": 16000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                }
+              ]
+            },
+            "gate": {
+              "enabled": false,
+              "threshold": -40,
+              "range": 40,
+              "hold": 0.01,
+              "attack": 0.001,
+              "release": 0.1
+            },
+            "compressor": {
+              "enabled": false,
+              "threshold": -24,
+              "ratio": 4,
+              "knee": 10,
+              "attack": 0.003,
+              "release": 0.25,
+              "makeup": 0,
+              "crush": 0,
+              "auto": false,
+              "mode": "studio"
+            },
+            "delay": {
+              "enabled": false,
+              "time": 0.375,
+              "feedback": 0.3,
+              "wet": 0.25
+            },
+            "presence": {
+              "enabled": false,
+              "amount": 50,
+              "frequency": 4000,
+              "bandwidth": 1
+            },
+            "de-esser": {
+              "enabled": false,
+              "amount": 0,
+              "frequency": 6000,
+              "range": 6
+            },
+            "saturator": {
+              "enabled": false,
+              "drive": 0,
+              "mix": 50,
+              "tone": 50
+            },
+            "multiband": {
+              "enabled": false,
+              "depth": 0.3,
+              "time": 0.3,
+              "crossoverLow": 120,
+              "crossoverHigh": 2500,
+              "lowGain": 0,
+              "midGain": 0,
+              "highGain": 0
+            },
+            "ducker": {
+              "enabled": false,
+              "keyTrackId": null,
+              "threshold": -30,
+              "amount": 0.3,
+              "attack": 0.01,
+              "release": 0.2
+            }
+          },
+          "sourceTrackId": "f0189804-1d45-4058-ab5b-3dc8e3aa1e15"
+        }
+      },
+      {
+        "id": "e875dbf0-ef58-4688-8d97-bab24718aeb3",
+        "name": "Lead",
+        "type": "midi",
+        "instrument": "oracle-synth",
+        "color": "#8b5cf6",
+        "mute": false,
+        "solo": false,
+        "volume": 0.7,
+        "pan": 0,
+        "recordArmed": false,
+        "monitoring": false,
+        "midiInputId": null,
+        "audioInputId": null,
+        "audioInputChannel": null,
+        "trackRole": "melody",
+        "midiClips": [
+          {
+            "id": "demo-clip-5",
+            "name": "Hook",
+            "startTick": 0,
+            "events": {
+              "notes": [69, 72, 74, 71, 74, 76, 72, 71],
+              "velocities": [100, 100, 100, 100, 100, 100, 100, 100],
+              "startTickDeltas": [0, 240, 240, 1440, 240, 240, 1440, 1920],
+              "durations": [240, 240, 480, 240, 240, 480, 960, 960],
+              "channels": [0, 0, 0, 0, 0, 0, 0, 0]
+            }
+          }
+        ],
+        "audioClips": [],
+        "activeEffects": [],
+        "settings": {
+          "effects": {
+            "reverb": {
+              "enabled": false,
+              "type": "hall",
+              "decay": 2,
+              "preDelay": 20,
+              "highPass": 100,
+              "lowPass": 12000,
+              "wet": 0.3
+            },
+            "eq": {
+              "enabled": false,
+              "makeup": 0,
+              "bands": [
+                {
+                  "type": "lowcut",
+                  "freq": 30,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                },
+                {
+                  "type": "lowshelf",
+                  "freq": 80,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 250,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 500,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 1000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 3000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "highshelf",
+                  "freq": 8000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "highcut",
+                  "freq": 16000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                }
+              ]
+            },
+            "gate": {
+              "enabled": false,
+              "threshold": -40,
+              "range": 40,
+              "hold": 0.01,
+              "attack": 0.001,
+              "release": 0.1
+            },
+            "compressor": {
+              "enabled": false,
+              "threshold": -24,
+              "ratio": 4,
+              "knee": 10,
+              "attack": 0.003,
+              "release": 0.25,
+              "makeup": 0,
+              "crush": 0,
+              "auto": false,
+              "mode": "studio"
+            },
+            "delay": {
+              "enabled": false,
+              "time": 0.375,
+              "feedback": 0.3,
+              "wet": 0.25
+            },
+            "presence": {
+              "enabled": false,
+              "amount": 50,
+              "frequency": 4000,
+              "bandwidth": 1
+            },
+            "de-esser": {
+              "enabled": false,
+              "amount": 0,
+              "frequency": 6000,
+              "range": 6
+            },
+            "saturator": {
+              "enabled": false,
+              "drive": 0,
+              "mix": 50,
+              "tone": 50
+            },
+            "multiband": {
+              "enabled": false,
+              "depth": 0.3,
+              "time": 0.3,
+              "crossoverLow": 120,
+              "crossoverHigh": 2500,
+              "lowGain": 0,
+              "midGain": 0,
+              "highGain": 0
+            },
+            "ducker": {
+              "enabled": false,
+              "keyTrackId": null,
+              "threshold": -30,
+              "amount": 0.3,
+              "attack": 0.01,
+              "release": 0.2
+            }
+          },
+          "sourceTrackId": "e875dbf0-ef58-4688-8d97-bab24718aeb3",
+          "oracleSynth": {
+            "oscillators": [
+              {
+                "waveform": "sawtooth",
+                "wavetable": "SAWTOOTH",
+                "octave": 0,
+                "semitone": 0,
+                "fine": -5,
+                "wtPosition": 0,
+                "pan": -0.4,
+                "level": 0.4,
+                "unisonVoices": 4,
+                "unisonDetune": 0.35,
+                "unisonBlend": 0.7,
+                "warpMode": "none",
+                "warpAmount": 0,
+                "enabled": true
+              },
+              {
+                "waveform": "triangle",
+                "wavetable": "TRIANGLE",
+                "octave": 1,
+                "semitone": 0,
+                "fine": 7,
+                "wtPosition": 0,
+                "pan": 0.4,
+                "level": 0.3,
+                "unisonVoices": 3,
+                "unisonDetune": 0.2,
+                "unisonBlend": 0.5,
+                "warpMode": "none",
+                "warpAmount": 0,
+                "enabled": true
+              }
+            ],
+            "subOscillator": {
+              "waveform": "sine",
+              "octave": -1,
+              "semitone": 0,
+              "fine": 0,
+              "level": 0.25,
+              "pan": 0,
+              "enabled": true
+            },
+            "noise": {
+              "type": "pink",
+              "level": 0.08,
+              "pan": 0,
+              "enabled": true
+            },
+            "filters": [
+              {
+                "type": "lowpass",
+                "cutoff": 1675,
+                "resonance": 3,
+                "pan": 0,
+                "gain": 0,
+                "mix": 1,
+                "enabled": true
+              },
+              {
+                "type": "highpass",
+                "cutoff": 80,
+                "resonance": 1,
+                "pan": 0,
+                "gain": 0,
+                "mix": 1,
+                "enabled": true
+              }
+            ],
+            "envelopes": [
+              { "attack": 1.5, "decay": 0.8, "sustain": 0.7, "release": 3 },
+              { "attack": 2, "decay": 1, "sustain": 0.5, "release": 4 }
+            ],
+            "lfos": [
+              {
+                "rateDivs": [
+                  ["1", "1", "1", "1"],
+                  ["1", "1", "1", "1"],
+                  ["1", "1", "1", "1"],
+                  ["1", "1", "1", "1"]
+                ],
+                "rateModifiers": ["normal", "normal", "normal", "normal"],
+                "smooths": [0.8, 0.8, 0.8, 0.8],
+                "sync": false,
+                "bars": [
+                  [
+                    { "time": 0, "value": 0.15, "curve": 0.5 },
+                    { "time": 0.35, "value": 0.85, "curve": 0.3 },
+                    { "time": 0.65, "value": 0.3, "curve": -0.4 },
+                    { "time": 0.85, "value": 0.7, "curve": -0.3 },
+                    { "time": 1, "value": 0.15 }
+                  ],
+                  [
+                    { "time": 0, "value": 0.15, "curve": 0.5 },
+                    { "time": 0.35, "value": 0.85, "curve": 0.3 },
+                    { "time": 0.65, "value": 0.3, "curve": -0.4 },
+                    { "time": 0.85, "value": 0.7, "curve": -0.3 },
+                    { "time": 1, "value": 0.15 }
+                  ],
+                  [
+                    { "time": 0, "value": 0.15, "curve": 0.5 },
+                    { "time": 0.35, "value": 0.85, "curve": 0.3 },
+                    { "time": 0.65, "value": 0.3, "curve": -0.4 },
+                    { "time": 0.85, "value": 0.7, "curve": -0.3 },
+                    { "time": 1, "value": 0.15 }
+                  ],
+                  [
+                    { "time": 0, "value": 0.15, "curve": 0.5 },
+                    { "time": 0.35, "value": 0.85, "curve": 0.3 },
+                    { "time": 0.65, "value": 0.3, "curve": -0.4 },
+                    { "time": 0.85, "value": 0.7, "curve": -0.3 },
+                    { "time": 1, "value": 0.15 }
+                  ]
+                ]
+              },
+              {
+                "rateDivs": [
+                  ["1/2", "1/2", "1/2", "1/2"],
+                  ["1/2", "1/2", "1/2", "1/2"],
+                  ["1/2", "1/2", "1/2", "1/2"],
+                  ["1/2", "1/2", "1/2", "1/2"]
+                ],
+                "rateModifiers": ["normal", "normal", "normal", "normal"],
+                "smooths": [0.7, 0.7, 0.7, 0.7],
+                "sync": false,
+                "bars": [
+                  [
+                    { "time": 0, "value": 0 },
+                    { "time": 0.25, "value": 1 },
+                    { "time": 0.5, "value": 0 },
+                    { "time": 0.75, "value": 1 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0 },
+                    { "time": 0.25, "value": 1 },
+                    { "time": 0.5, "value": 0 },
+                    { "time": 0.75, "value": 1 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0 },
+                    { "time": 0.25, "value": 1 },
+                    { "time": 0.5, "value": 0 },
+                    { "time": 0.75, "value": 1 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0 },
+                    { "time": 0.25, "value": 1 },
+                    { "time": 0.5, "value": 0 },
+                    { "time": 0.75, "value": 1 },
+                    { "time": 1, "value": 0 }
+                  ]
+                ]
+              },
+              {
+                "rateDivs": [
+                  ["1", "1", "1", "1"],
+                  ["1", "1", "1", "1"],
+                  ["1", "1", "1", "1"],
+                  ["1", "1", "1", "1"]
+                ],
+                "rateModifiers": ["normal", "normal", "normal", "normal"],
+                "smooths": [0.9, 0.9, 0.9, 0.9],
+                "sync": false,
+                "bars": [
+                  [
+                    { "time": 0, "value": 0, "curve": 0.6 },
+                    { "time": 0.8, "value": 1, "curve": -0.4 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0, "curve": 0.6 },
+                    { "time": 0.8, "value": 1, "curve": -0.4 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0, "curve": 0.6 },
+                    { "time": 0.8, "value": 1, "curve": -0.4 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0, "curve": 0.6 },
+                    { "time": 0.8, "value": 1, "curve": -0.4 },
+                    { "time": 1, "value": 0 }
+                  ]
+                ]
+              },
+              {
+                "rateDivs": [
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"]
+                ],
+                "rateModifiers": ["normal", "normal", "normal", "normal"],
+                "smooths": [0, 0, 0, 0],
+                "sync": false,
+                "bars": [
+                  [
+                    { "time": 0, "value": 0 },
+                    { "time": 0.125, "value": 1 },
+                    { "time": 0.25, "value": 0 },
+                    { "time": 0.375, "value": 1 },
+                    { "time": 0.5, "value": 0 },
+                    { "time": 0.625, "value": 1 },
+                    { "time": 0.75, "value": 0 },
+                    { "time": 0.875, "value": 1 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0 },
+                    { "time": 0.125, "value": 1 },
+                    { "time": 0.25, "value": 0 },
+                    { "time": 0.375, "value": 1 },
+                    { "time": 0.5, "value": 0 },
+                    { "time": 0.625, "value": 1 },
+                    { "time": 0.75, "value": 0 },
+                    { "time": 0.875, "value": 1 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0 },
+                    { "time": 0.125, "value": 1 },
+                    { "time": 0.25, "value": 0 },
+                    { "time": 0.375, "value": 1 },
+                    { "time": 0.5, "value": 0 },
+                    { "time": 0.625, "value": 1 },
+                    { "time": 0.75, "value": 0 },
+                    { "time": 0.875, "value": 1 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0 },
+                    { "time": 0.125, "value": 1 },
+                    { "time": 0.25, "value": 0 },
+                    { "time": 0.375, "value": 1 },
+                    { "time": 0.5, "value": 0 },
+                    { "time": 0.625, "value": 1 },
+                    { "time": 0.75, "value": 0 },
+                    { "time": 0.875, "value": 1 },
+                    { "time": 1, "value": 0 }
+                  ]
+                ]
+              }
+            ],
+            "modRoutes": [
+              {
+                "id": "drift-mod-1",
+                "source": { "type": "lfo", "index": 0 },
+                "target": { "source": "flt1", "param": "cutoff" },
+                "amount": 0.5,
+                "polarity": "unipolar",
+                "curve": "linear",
+                "enabled": true
+              },
+              {
+                "id": "drift-mod-2",
+                "source": { "type": "lfo", "index": 1 },
+                "target": { "source": "osc1", "param": "pan" },
+                "amount": 0.8,
+                "polarity": "unipolar",
+                "curve": "linear",
+                "enabled": false
+              },
+              {
+                "id": "drift-mod-3",
+                "source": { "type": "lfo", "index": 2 },
+                "target": { "source": "osc2", "param": "pan" },
+                "amount": 0.2,
+                "polarity": "unipolar",
+                "curve": "linear",
+                "enabled": false
+              },
+              {
+                "id": "drift-mod-4",
+                "source": { "type": "lfo", "index": 0 },
+                "target": { "source": "flt1", "param": "resonance" },
+                "amount": 0.6,
+                "polarity": "unipolar",
+                "curve": "linear",
+                "enabled": true
+              }
+            ],
+            "voiceMode": "poly",
+            "voiceCount": 6,
+            "glide": 0,
+            "spread": 0.5,
+            "masterVolume": 0.65,
+            "fx": {
+              "chorus": {
+                "enabled": false,
+                "rate": 1.5,
+                "depth": 0.5,
+                "mix": 0.5
+              },
+              "delay": {
+                "enabled": true,
+                "time": 0.5,
+                "feedback": 0.45,
+                "mix": 0.3
+              },
+              "phaser": {
+                "enabled": true,
+                "rate": 0.3,
+                "depth": 0.4,
+                "mix": 0.25
+              },
+              "compressor": {
+                "enabled": false,
+                "threshold": -24,
+                "ratio": 4,
+                "attack": 0.003,
+                "release": 0.25
+              },
+              "drive": { "enabled": false, "amount": 0.3, "mix": 0.5 },
+              "reverb": {
+                "enabled": false,
+                "size": 0.5,
+                "decay": 0.5,
+                "damping": 0.3,
+                "mix": 0.3
+              }
+            },
+            "fxRoutes": [
+              { "id": "drift-fx-1", "type": "phaser", "target": "master" },
+              { "id": "drift-fx-2", "type": "delay", "target": "master" }
+            ],
+            "routing": {
+              "filterRouting": {
+                "filter1Sources": ["osc1", "osc2", "sub", "noise"],
+                "filter2Sources": []
+              },
+              "envelopeRouting": {
+                "env1Sources": ["osc1", "osc2", "sub", "noise"],
+                "env2Sources": []
+              }
+            },
+            "arp": {
+              "enabled": false,
+              "rate": "1/8",
+              "style": "up",
+              "distance": 12,
+              "step": 1
+            },
+            "macros": [
+              { "name": "MACRO 1", "value": 0 },
+              { "name": "MACRO 2", "value": 0 },
+              { "name": "MACRO 3", "value": 0 },
+              { "name": "MACRO 4", "value": 0 },
+              { "name": "MACRO 5", "value": 0 },
+              { "name": "MACRO 6", "value": 0 },
+              { "name": "MACRO 7", "value": 0 },
+              { "name": "MACRO 8", "value": 0 }
+            ],
+            "keyScale": {
+              "enabled": false,
+              "followProjectKey": true,
+              "rootPc": 0,
+              "mode": "ionian",
+              "snapMode": "nearest"
+            },
+            "presetName": "DRIFT",
+            "pitchBendRange": 2,
+            "bpm": 92
+          }
+        }
+      },
+      {
+        "id": "cbf8b93c-9057-4b29-a6eb-9369b919777b",
+        "name": "Drums",
+        "type": "midi",
+        "instrument": "drum-machine",
+        "color": "#f94144",
+        "mute": false,
+        "solo": false,
+        "volume": 0.8,
+        "pan": 0,
+        "recordArmed": false,
+        "monitoring": false,
+        "midiInputId": null,
+        "audioInputId": null,
+        "audioInputChannel": null,
+        "trackRole": "drums",
+        "midiClips": [
+          {
+            "id": "clip-groove-1106ace6",
+            "name": "Hip Hop 1",
+            "startTick": 0,
+            "events": {
+              "notes": [
+                36, 49, 44, 42, 42, 38, 46, 44, 42, 42, 46, 44, 42, 42, 46, 38,
+                38, 44, 42, 42, 36, 46, 42, 44, 42, 38, 46, 36, 44, 42, 42, 46,
+                44, 42, 42, 38, 46, 38, 44, 46, 42, 36, 46, 44, 42, 42, 38, 46,
+                36, 44, 42, 42, 46, 44, 42, 42, 38, 46, 38, 44, 42, 36, 46, 44,
+                42, 42, 38, 46, 36, 44, 42, 42, 46, 38, 42, 44, 42, 38, 46, 48,
+                45, 43
+              ],
+              "velocities": [
+                127, 127, 127, 89, 56, 127, 104, 127, 89, 56, 120, 127, 91, 65,
+                127, 127, 123, 127, 99, 60, 108, 104, 100, 127, 74, 127, 106,
+                109, 127, 98, 73, 101, 127, 91, 70, 127, 120, 127, 127, 107, 74,
+                105, 110, 127, 101, 70, 127, 127, 104, 127, 97, 70, 101, 127,
+                100, 72, 127, 127, 116, 127, 74, 105, 109, 127, 94, 70, 127,
+                107, 104, 127, 97, 67, 108, 127, 102, 127, 77, 127, 124, 127,
+                127, 127
+              ],
+              "startTickDeltas": [
+                10, 10, 265, 15, 110, 85, 5, 215, 15, 110, 120, 240, 5, 125,
+                115, 5, 115, 120, 5, 125, 105, 5, 235, 0, 125, 120, 0, 235, 0,
+                5, 110, 120, 245, 10, 115, 115, 5, 125, 125, 0, 125, 110, 5,
+                230, 10, 120, 120, 0, 235, 0, 5, 110, 120, 235, 10, 125, 110, 5,
+                120, 130, 120, 120, 0, 225, 5, 120, 115, 5, 225, 10, 5, 115,
+                115, 120, 125, 0, 125, 110, 5, 115, 115, 125
+              ],
+              "durations": [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+              ],
+              "channels": [
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+              ]
+            }
+          }
+        ],
+        "audioClips": [],
+        "activeEffects": ["compressor"],
+        "settings": {
+          "effects": {
+            "reverb": {
+              "enabled": false,
+              "type": "hall",
+              "decay": 2,
+              "preDelay": 20,
+              "highPass": 100,
+              "lowPass": 12000,
+              "wet": 0.3
+            },
+            "eq": {
+              "enabled": false,
+              "makeup": 0,
+              "bands": [
+                {
+                  "type": "lowcut",
+                  "freq": 30,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                },
+                {
+                  "type": "lowshelf",
+                  "freq": 80,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 250,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 500,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 1000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 3000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "highshelf",
+                  "freq": 8000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "highcut",
+                  "freq": 16000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                }
+              ]
+            },
+            "gate": {
+              "enabled": false,
+              "threshold": -40,
+              "range": 40,
+              "hold": 0.01,
+              "attack": 0.001,
+              "release": 0.1
+            },
+            "compressor": {
+              "enabled": true,
+              "threshold": -24,
+              "ratio": 4,
+              "knee": 10,
+              "attack": 0.003,
+              "release": 0.25,
+              "makeup": 0,
+              "crush": 0,
+              "auto": false,
+              "mode": "studio"
+            },
+            "delay": {
+              "enabled": false,
+              "time": 0.375,
+              "feedback": 0.3,
+              "wet": 0.25
+            },
+            "presence": {
+              "enabled": false,
+              "amount": 50,
+              "frequency": 4000,
+              "bandwidth": 1
+            },
+            "de-esser": {
+              "enabled": false,
+              "amount": 0,
+              "frequency": 6000,
+              "range": 6
+            },
+            "saturator": {
+              "enabled": false,
+              "drive": 0,
+              "mix": 50,
+              "tone": 50
+            },
+            "multiband": {
+              "enabled": false,
+              "depth": 0.3,
+              "time": 0.3,
+              "crossoverLow": 120,
+              "crossoverHigh": 2500,
+              "lowGain": 0,
+              "midGain": 0,
+              "highGain": 0
+            },
+            "ducker": {
+              "enabled": false,
+              "keyTrackId": null,
+              "threshold": -30,
+              "amount": 0.3,
+              "attack": 0.01,
+              "release": 0.2
+            }
+          },
+          "sourceTrackId": "cbf8b93c-9057-4b29-a6eb-9369b919777b"
+        }
+      }
+    ],
+    "prism": {
+      "rootNote": 0,
+      "rhythmName": "Quarters",
+      "genre": "R&B",
+      "swing": 0,
+      "mode": "ionian"
+    },
+    "chordRegions": [
+      {
+        "id": "7410febf-6537-4367-ba2f-a00d21427bda",
+        "startTick": 0,
+        "endTick": 1920,
+        "rawStartTick": 0,
+        "name": "2 min9",
+        "noteName": "D min9",
+        "color": [210, 64, 74],
+        "degreeKey": "2 minor9",
+        "midis": [53, 57, 60, 64],
+        "confidence": 1
+      },
+      {
+        "id": "2fb0fded-f203-4ebe-a6ef-dcada6fcf894",
+        "startTick": 1920,
+        "endTick": 3840,
+        "rawStartTick": 1920,
+        "name": "5 dom13",
+        "noteName": "G dom13",
+        "color": [210, 64, 74],
+        "degreeKey": "5 dominant13",
+        "midis": [53, 57, 59, 64],
+        "confidence": 1
+      },
+      {
+        "id": "eff1ce69-9da4-4098-8b46-ea90355eb1f3",
+        "startTick": 3840,
+        "endTick": 5760,
+        "rawStartTick": 3840,
+        "name": "1 maj9",
+        "noteName": "C maj9",
+        "color": [210, 64, 74],
+        "degreeKey": "1 major9",
+        "midis": [52, 55, 59, 62],
+        "confidence": 1
+      },
+      {
+        "id": "a84c0122-6747-4038-9364-581865f6f0d4",
+        "startTick": 5760,
+        "endTick": 7680,
+        "rawStartTick": 5760,
+        "name": "6 min7",
+        "noteName": "A min7",
+        "color": [210, 64, 74],
+        "degreeKey": "6 minor7",
+        "midis": [52, 55, 57, 60],
+        "confidence": 1
+      }
+    ],
+    "returns": [
+      {
+        "id": "A",
+        "label": "Reverb",
+        "volume": 0.8,
+        "fxChain": ["reverb"],
+        "effects": {
+          "reverb": {
+            "enabled": true,
+            "type": "hall",
+            "decay": 2,
+            "preDelay": 20,
+            "highPass": 100,
+            "lowPass": 12000,
+            "wet": 1
+          },
+          "eq": {
+            "enabled": false,
+            "makeup": 0,
+            "bands": [
+              {
+                "type": "lowcut",
+                "freq": 30,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              },
+              {
+                "type": "lowshelf",
+                "freq": 80,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 250,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 500,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 1000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 3000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "highshelf",
+                "freq": 8000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "highcut",
+                "freq": 16000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              }
+            ]
+          },
+          "gate": {
+            "enabled": false,
+            "threshold": -40,
+            "range": 40,
+            "hold": 0.01,
+            "attack": 0.001,
+            "release": 0.1
+          },
+          "compressor": {
+            "enabled": false,
+            "threshold": -24,
+            "ratio": 4,
+            "knee": 10,
+            "attack": 0.003,
+            "release": 0.25,
+            "makeup": 0,
+            "crush": 0,
+            "auto": false,
+            "mode": "studio"
+          },
+          "delay": {
+            "enabled": false,
+            "time": 0.375,
+            "feedback": 0.3,
+            "wet": 0.25
+          },
+          "presence": {
+            "enabled": false,
+            "amount": 50,
+            "frequency": 4000,
+            "bandwidth": 1
+          },
+          "de-esser": {
+            "enabled": false,
+            "amount": 0,
+            "frequency": 6000,
+            "range": 6
+          },
+          "saturator": { "enabled": false, "drive": 0, "mix": 50, "tone": 50 },
+          "multiband": {
+            "enabled": false,
+            "depth": 0.3,
+            "time": 0.3,
+            "crossoverLow": 120,
+            "crossoverHigh": 2500,
+            "lowGain": 0,
+            "midGain": 0,
+            "highGain": 0
+          },
+          "ducker": {
+            "enabled": false,
+            "keyTrackId": null,
+            "threshold": -30,
+            "amount": 0.3,
+            "attack": 0.01,
+            "release": 0.2
+          }
+        }
+      },
+      {
+        "id": "B",
+        "label": "Delay",
+        "volume": 0.8,
+        "fxChain": ["delay"],
+        "effects": {
+          "reverb": {
+            "enabled": false,
+            "type": "hall",
+            "decay": 2,
+            "preDelay": 20,
+            "highPass": 100,
+            "lowPass": 12000,
+            "wet": 0.3
+          },
+          "eq": {
+            "enabled": false,
+            "makeup": 0,
+            "bands": [
+              {
+                "type": "lowcut",
+                "freq": 30,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              },
+              {
+                "type": "lowshelf",
+                "freq": 80,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 250,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 500,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 1000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 3000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "highshelf",
+                "freq": 8000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "highcut",
+                "freq": 16000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              }
+            ]
+          },
+          "gate": {
+            "enabled": false,
+            "threshold": -40,
+            "range": 40,
+            "hold": 0.01,
+            "attack": 0.001,
+            "release": 0.1
+          },
+          "compressor": {
+            "enabled": false,
+            "threshold": -24,
+            "ratio": 4,
+            "knee": 10,
+            "attack": 0.003,
+            "release": 0.25,
+            "makeup": 0,
+            "crush": 0,
+            "auto": false,
+            "mode": "studio"
+          },
+          "delay": {
+            "enabled": true,
+            "time": 0.375,
+            "feedback": 0.3,
+            "wet": 1
+          },
+          "presence": {
+            "enabled": false,
+            "amount": 50,
+            "frequency": 4000,
+            "bandwidth": 1
+          },
+          "de-esser": {
+            "enabled": false,
+            "amount": 0,
+            "frequency": 6000,
+            "range": 6
+          },
+          "saturator": { "enabled": false, "drive": 0, "mix": 50, "tone": 50 },
+          "multiband": {
+            "enabled": false,
+            "depth": 0.3,
+            "time": 0.3,
+            "crossoverLow": 120,
+            "crossoverHigh": 2500,
+            "lowGain": 0,
+            "midGain": 0,
+            "highGain": 0
+          },
+          "ducker": {
+            "enabled": false,
+            "keyTrackId": null,
+            "threshold": -30,
+            "amount": 0.3,
+            "attack": 0.01,
+            "release": 0.2
+          }
+        }
+      }
+    ],
+    "masterAutomation": {}
+  }
+}

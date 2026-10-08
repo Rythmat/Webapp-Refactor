@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 /**
- * The guitar Ionian (Major) lesson page: what it hands the lesson container
+ * The guitar mode lesson page: what it hands the lesson container
  * for a key and ?section=, and what it does on arrival. The container is a
  * recorder here; it's tested on its own (GenreLessonContainerV2.instruments).
  */
@@ -126,8 +126,30 @@ describe('GuitarModeLesson', () => {
     expect(useInstrumentStore.getState().instrument).toBe('guitar');
   });
 
+  it("builds a mode's flow and names it for the mode", () => {
+    renderAt('/learn/guitar/dorian/fsharp?section=B');
+    const props = lastProps();
+    expect(props.flow.params.defaultKey).toBe('F# Dorian');
+    expect(props.flow.params.defaultScaleId).toBe('dorian');
+    expect(props.genre).toBe('guitar-mode-dorian');
+    expect(props.displayName).toBe('Guitar · Dorian');
+    expect(props.overviewRoute).toBe('/learn/guitar/dorian');
+    expect(props.initialSection).toBe('B');
+    expect(props.practiceReturnTo?.('D')).toBe(
+      '/learn/guitar/dorian/fsharp?section=D',
+    );
+    expect(useInstrumentStore.getState().instrument).toBe('guitar');
+  });
+
+  it('starts over when the URL names another mode', () => {
+    renderAt('/learn/guitar/aeolian/a');
+    act(() => navigate('/learn/guitar/phrygian/a'));
+    expect(container.mounts).toBe(2);
+    expect(lastProps().displayName).toBe('Guitar · Phrygian');
+  });
+
   it('sends a mode with no guitar content back to Theory', () => {
-    renderAt('/learn/guitar/dorian/c');
+    renderAt('/learn/guitar/harmonicMinor/c');
     expect(screen.getByTestId('location').textContent).toBe(
       '/learn?tab=Theory',
     );

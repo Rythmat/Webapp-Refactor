@@ -88,7 +88,7 @@ export const ArcadeShelf: FC<ArcadeShelfProps> = ({
             />
           );
           return locked ? (
-            <LockedFeatureOverlay key={game.title} locked>
+            <LockedFeatureOverlay key={game.title} locked label={game.title}>
               {card}
             </LockedFeatureOverlay>
           ) : (

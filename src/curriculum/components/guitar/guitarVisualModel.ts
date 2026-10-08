@@ -1,21 +1,28 @@
-import { keyNoteName, keyNumberLabel } from '@/components/guitar/ScaleBox';
-import type { DiagramInfoNote, FretBracket } from '@/components/guitar/types';
 import {
+  SCALE_DEGREE_LABELS,
+  keyNoteName,
+  keyNumberLabel,
+} from '@/components/guitar/ScaleBox';
+import type { DiagramInfoNote, FretBracket } from '@/components/guitar/types';
+import { hybridLabel } from '@/curriculum/data/guitar/bookOne';
+import {
+  centerScaleName,
+  centerScalePosition,
   chordName,
+  degreeLabelsBySemitone,
   chordRootPc,
+  getGuitarCenter,
   getGuitarShape,
-  GUITAR_ATLAS_BOOK_ONE,
-  hybridLabel,
-  keyPitchClass,
-} from '@/curriculum/data/guitar/bookOne';
+} from '@/curriculum/data/guitar/centers';
 import {
   notesFor,
   stepPrefix,
   theoryString,
 } from '@/curriculum/data/guitar/theoryNotes';
 import type {
+  GuitarCenter,
+  GuitarCenterId,
   GuitarChordShape,
-  GuitarKeyName,
   GuitarScalePosition,
 } from '@/curriculum/data/guitar/types';
 import type {
@@ -66,14 +73,14 @@ export interface GuitarVisualChord {
 }
 
 export interface GuitarVisualScale {
-  /** 'C Major Scale', 'F♯ Major Pentatonic Scale'. */
+  /** 'C Major Scale', 'F♯ Major Pentatonic Scale', 'D Dorian Scale'. */
   name: string;
   position: GuitarScalePosition;
   /** One finger per fret, per note of `position.playOrder` (null: open or out of reach). */
   fingers: (FingerNumber | null)[];
   /** Where finger 1 sits (the position label's fret). */
   anchor: number;
-  /** Where the pentatonic's missing 4 and 7 sit; empty on the major scale. */
+  /** Where the notes a pentatonic leaves out sit; empty on a 7-note scale. */
   ghosts: FretPosition[];
   /** The position's half steps on one string, bracketed with "Show steps". */
   halfSteps: FretBracket[];
@@ -84,6 +91,11 @@ export type GuitarLabelKind = 'scale' | 'chord';
 
 export interface GuitarVisualModel {
   tonicPc: number;
+  /**
+   * Key numbers by semitone above the tonic, when the mode names a degree
+   * otherwise than the chromatic default (Locrian's ♭5); absent otherwise.
+   */
+  keyNumberLabels?: readonly string[];
   /** One box per chord the step names, in order; empty on scale steps. */
   chords: GuitarVisualChord[];
   /** For each of step.chordTargets, the index of its box in `chords`. */
@@ -97,7 +109,7 @@ export interface GuitarVisualModel {
   labelKind: GuitarLabelKind | null;
   /** An arpeggio step (B1, B5, B7): chord tones can annotate its TAB. */
   isArpeggio: boolean;
-  /** A1 or A4: the scale box joins its two tonics with an 'octave' hairline. */
+  /** A1, A4 or A5: the scale box joins its two tonics with an 'octave' hairline. */
   showOctave: boolean;
   /** A1: whole and half steps can be shown (TAB chips, fretboard brackets). */
   hasSteps: boolean;
@@ -124,7 +136,7 @@ function display(text: string): string {
 }
 
 function visualChord(
-  key: GuitarKeyName,
+  center: GuitarCenter,
   shapeId: string,
 ): GuitarVisualChord | null {
   const shape = getGuitarShape(shapeId);
@@ -132,9 +144,9 @@ function visualChord(
   return {
     shapeId,
     shape,
-    name: display(chordName(key, shape.degree, shape.quality)),
+    name: display(chordName(center, shape.degree, shape.quality)),
     hybridLabel: display(hybridLabel(shape.degree, shape.quality)),
-    rootPc: chordRootPc(key, shape.degree),
+    rootPc: chordRootPc(center, shape.degree),
     positions: shapePositions(shape.frets),
   };
 }
@@ -163,6 +175,15 @@ function boxForEachTarget(
 }
 
 /** Half steps between neighbouring notes of a position that stay on one string. */
+/** The center's key-number labels, when they differ from the default. */
+export function keyNumberLabelsOf(center: GuitarCenter): string[] | undefined {
+  const own = degreeLabelsBySemitone(center);
+  const labels = SCALE_DEGREE_LABELS.map((label, s) => own.get(s) ?? label);
+  return labels.some((label, s) => label !== SCALE_DEGREE_LABELS[s])
+    ? labels
+    : undefined;
+}
+
 function halfStepBrackets(position: GuitarScalePosition): FretBracket[] {
   return stepSizes(position.playOrder).flatMap(({ from, to, size }) =>
     size === 'H' && from.string === to.string
@@ -181,28 +202,25 @@ function halfStepBrackets(position: GuitarScalePosition): FretBracket[] {
 
 export function guitarVisualModel(
   step: ActivityStepV2,
-  keyCenter: GuitarKeyName,
+  keyCenter: GuitarCenterId,
 ): GuitarVisualModel {
-  const center = GUITAR_ATLAS_BOOK_ONE[keyCenter];
+  const center = getGuitarCenter(keyCenter);
   const prefix = guitarStepPrefix(step);
   const chords = (step.guitar?.shapeIds ?? []).flatMap(
-    (id) => visualChord(keyCenter, id) ?? [],
+    (id) => visualChord(center, id) ?? [],
   );
   const scalePosition = step.guitar?.scalePosition;
   let scale: GuitarVisualScale | null = null;
   if (scalePosition) {
-    const position =
-      scalePosition === 'major' ? center.majorScale : center.pentatonic;
+    const position = centerScalePosition(center, scalePosition);
     const { anchor, fingers } = suggestedFingers(position);
     scale = {
-      name: `${center.displayName} Major ${scalePosition === 'major' ? 'Scale' : 'Pentatonic Scale'}`,
+      name: centerScaleName(center, scalePosition),
       position,
       fingers,
       anchor,
       ghosts:
-        scalePosition === 'pentatonic'
-          ? pentatonicGhosts(center, position)
-          : [],
+        scalePosition === 'major' ? [] : pentatonicGhosts(center, position),
       halfSteps: halfStepBrackets(position),
     };
   }
@@ -215,8 +233,10 @@ export function guitarVisualModel(
     ...chords.flatMap((chord) => chord.positions),
   ];
 
+  const keyNumberLabels = keyNumberLabelsOf(center);
   return {
-    tonicPc: keyPitchClass(keyCenter),
+    tonicPc: center.tonicPc,
+    ...(keyNumberLabels ? { keyNumberLabels } : {}),
     chords,
     chordIndexOfTarget: boxForEachTarget(chords, step.chordTargets ?? []),
     scale,
@@ -224,7 +244,8 @@ export function guitarVisualModel(
     prefix,
     labelKind: scale ? 'scale' : chords.length > 0 ? 'chord' : null,
     isArpeggio: !!prefix && ARPEGGIO_PREFIXES.has(prefix) && chords.length > 0,
-    showOctave: !!scale && (prefix === 'A1' || prefix === 'A4'),
+    showOctave:
+      !!scale && (prefix === 'A1' || prefix === 'A4' || prefix === 'A5'),
     hasSteps: !!scale && prefix === 'A1',
     scaleAbout:
       scale && prefix
@@ -272,7 +293,7 @@ export function markerLabeler(
   if (mode === 'notes') return undefined;
   if (mode === 'keyNumbers') {
     return (_position, midi) => {
-      const text = keyNumberLabel(midi, model.tonicPc);
+      const text = keyNumberLabel(midi, model.tonicPc, model.keyNumberLabels);
       return { text, spoken: `key number ${text.replace('♭', 'flat ')}` };
     };
   }
@@ -365,11 +386,14 @@ export function tabStepChips(
 export function tabKeyNumberAnnotations(
   events: readonly TabEvent[],
   tonicPc: number,
+  labels?: readonly string[],
 ): Map<string, string> {
   const annotations = new Map<string, string>();
   for (const e of events) {
     const midi = eventMidi(e);
-    if (midi != null) annotations.set(e.id, keyNumberLabel(midi, tonicPc));
+    if (midi != null) {
+      annotations.set(e.id, keyNumberLabel(midi, tonicPc, labels));
+    }
   }
   return annotations;
 }

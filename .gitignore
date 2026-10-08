@@ -50,7 +50,15 @@ src/curriculum/data/songs/_generated_index.ts
 # The suggestion importer's per-URL response cache (importSuggestions.ts);
 # `**/_*.json` does not reach files inside the folder
 src/scripts/enrichment/_cache/
+# The content API's cutover seed (src/scripts/apiContract/exportSeed.ts)
+/seed-export/
 
 # Claude Code local state
 .claude/settings.local.json
 .claude/genre-planning/
+
+# Studio perf check runs (baselines and goldens under docs/studio-perf are committed)
+docs/studio-perf/runs/
+# Per-run evidence a baseline does not need: lesson screenshots, raw golden dumps
+docs/studio-perf/baselines/**/shots/
+docs/studio-perf/baselines/**/actual/

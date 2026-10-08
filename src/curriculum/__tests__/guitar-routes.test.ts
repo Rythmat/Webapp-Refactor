@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 /**
- * Guitar's routes: Learn → Theory → Ionian (Major) on guitar, its premium
- * gate (C free, as on piano), and the old Technique-tab paths redirecting
- * there; piano's Theory paths and gate stay as they were. The pages and the
+ * Guitar's routes: Learn → Theory → the diatonic modes on guitar, their
+ * premium gate (the Ionian overview and C Ionian free, as on piano), and the
+ * old Technique-tab paths redirecting there; piano's Theory paths and gate
+ * stay as they were. The pages and the
  * gate are markers here; what they render is tested beside them.
  */
 
@@ -212,12 +213,31 @@ describe('learn routes: guitar', () => {
     expect(within(gate).getByText('guitar lesson')).toBeInTheDocument();
   });
 
-  it('sends a mode with no guitar content back to Theory, ungated', async () => {
-    renderRoute(learnPages(), '/learn/guitar/dorian/d');
-    expect(await location()).toBe('/learn?tab=Theory');
-    expect(navigationType()).toBe('REPLACE');
-    expect(screen.queryByTestId('premium-gate')).toBeNull();
+  it.each([
+    '/learn/guitar/dorian',
+    '/learn/guitar/locrian',
+    '/learn/guitar/dorian/c',
+    '/learn/guitar/aeolian/a',
+    '/learn/guitar/lydian/fsharp',
+  ])('gates %s behind Premium, as on piano', async (url) => {
+    renderRoute(learnPages(), url);
+    const gate = await screen.findByTestId('premium-gate');
+    expect(
+      within(gate).getByText(
+        url.split('/').length > 4 ? 'guitar lesson' : 'guitar overview',
+      ),
+    ).toBeInTheDocument();
   });
+
+  it.each(['/learn/guitar/harmonicMinor', '/learn/guitar/dorian♭2/d'])(
+    'sends %s, a mode with no guitar content, back to Theory, ungated',
+    async (url) => {
+      renderRoute(learnPages(), url);
+      expect(await location()).toBe('/learn?tab=Theory');
+      expect(navigationType()).toBe('REPLACE');
+      expect(screen.queryByTestId('premium-gate')).toBeNull();
+    },
+  );
 });
 
 describe('learn routes: piano (unchanged)', () => {

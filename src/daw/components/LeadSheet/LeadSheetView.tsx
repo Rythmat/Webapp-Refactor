@@ -4,7 +4,6 @@ import { regionToMeasures } from '@/daw/midi/leadSheetUtils';
 import { ticksPerBar, ticksPerBeatUnit } from '@/daw/utils/timelineScale';
 import { NOTES } from '@prism/engine';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
-import { useMe } from '@/hooks/data/auth/useMe';
 import { ScorePalettes, type PaletteAction } from '../Score/ScorePalettes';
 import {
   breaksFromRowSizes,
@@ -14,6 +13,7 @@ import {
   withRepeatStart,
   withoutRepeatAt,
 } from '../Score/roadmap';
+import { ComposerLine } from './ComposerLine';
 import { LeadSheetScoreView } from './LeadSheetScoreView';
 import { LeadSheetStaff } from './LeadSheetStaff';
 import { LeadSheetToolbar } from './LeadSheetToolbar';
@@ -37,6 +37,7 @@ import {
   type RangeContext,
 } from './leadSheetSelection';
 import './leadsheet-print.css';
+import { useLeadSheetPrint } from './useLeadSheetPrint';
 
 /** Default number of measures per system (row) */
 const DEFAULT_MEASURES_PER_LINE = 4;
@@ -62,6 +63,7 @@ export function LeadSheetView() {
 }
 
 function LeadSheetChartView() {
+  useLeadSheetPrint();
   const chordRegions = useStore((s) => s.chordRegions);
   const MEASURES_PER_LINE =
     useStore((s) => s.measuresPerLine) || DEFAULT_MEASURES_PER_LINE;
@@ -88,8 +90,6 @@ function LeadSheetChartView() {
   const renameChordRegion = useStore((s) => s.renameChordRegion);
   const insertChordRegion = useStore((s) => s.insertChordRegion);
   const projectName = useStore((s) => s.projectName);
-  const composerName = useStore((s) => s.composerName);
-  const setComposerName = useStore((s) => s.setComposerName);
   const position = useStore((s) => s.position);
   const isPlaying = useStore((s) => s.isPlaying);
   const moveChordRegion = useStore((s) => s.moveChordRegion);
@@ -102,42 +102,6 @@ function LeadSheetChartView() {
   const addSection = useStore((s) => s.addLeadSheetSection);
   const removeSection = useStore((s) => s.removeLeadSheetSection);
   const updateMidiClipEvents = useStore((s) => s.updateMidiClipEvents);
-
-  // Auto-populate composer from logged-in user
-  const { data: meData } = useMe();
-  useEffect(() => {
-    if (!composerName && meData) {
-      const name = meData.nickname || meData.username || meData.fullName || '';
-      if (name) setComposerName(name);
-    }
-  }, [meData, composerName, setComposerName]);
-
-  // Inline editing for composer
-  const [isEditingComposer, setIsEditingComposer] = useState(false);
-  const [composerInput, setComposerInput] = useState('');
-  const composerInputRef = useRef<HTMLInputElement>(null);
-
-  const handleComposerDoubleClick = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
-      setComposerInput(composerName);
-      setIsEditingComposer(true);
-    },
-    [composerName],
-  );
-
-  const commitComposer = useCallback(() => {
-    const trimmed = composerInput.trim();
-    if (trimmed) setComposerName(trimmed);
-    setIsEditingComposer(false);
-  }, [composerInput, setComposerName]);
-
-  useEffect(() => {
-    if (isEditingComposer && composerInputRef.current) {
-      composerInputRef.current.focus();
-      composerInputRef.current.select();
-    }
-  }, [isEditingComposer]);
 
   // Track which measure is "selected" for insert/delete operations
   const [selectedMeasureIdx, setSelectedMeasureIdx] = useState<number | null>(
@@ -901,39 +865,7 @@ function LeadSheetChartView() {
           </h1>
 
           {/* Composer */}
-          {isEditingComposer ? (
-            <div className="mb-1 flex justify-center">
-              <input
-                ref={composerInputRef}
-                value={composerInput}
-                onChange={(e) => setComposerInput(e.target.value)}
-                onBlur={commitComposer}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') commitComposer();
-                  if (e.key === 'Escape') setIsEditingComposer(false);
-                }}
-                className="rounded border px-2 py-0.5 text-center text-sm"
-                style={{
-                  background: 'var(--color-surface-2)',
-                  color: 'var(--color-text)',
-                  borderColor: 'var(--color-accent, #7ecfcf)',
-                  outline: 'none',
-                  width: 200,
-                }}
-              />
-            </div>
-          ) : (
-            <div
-              className="leadsheet-composer mb-1 cursor-pointer text-center text-sm"
-              style={{ color: 'var(--color-text-dim)' }}
-              onDoubleClick={handleComposerDoubleClick}
-              title="Double-click to edit composer"
-            >
-              {composerName
-                ? `by ${composerName}`
-                : 'Double-click to add composer'}
-            </div>
-          )}
+          <ComposerLine />
 
           {/* Subtitle: key, tempo */}
           <div

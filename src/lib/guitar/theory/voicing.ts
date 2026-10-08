@@ -70,7 +70,7 @@ export function dropFamily(
   return DROP_SIGNATURES[sig] ?? null;
 }
 
-const TRIAD_QUALITIES: readonly BookChordQuality[] = ['maj', 'min'];
+const TRIAD_QUALITIES: readonly BookChordQuality[] = ['maj', 'min', 'dim'];
 
 const TRIAD_FAMILY_BY_LOWEST_STRING: Partial<
   Record<GuitarStringNumber, VoicingFamily>

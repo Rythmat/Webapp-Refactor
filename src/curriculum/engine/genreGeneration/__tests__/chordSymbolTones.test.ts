@@ -84,3 +84,20 @@ describe('chordSymbolTones — minor dash', () => {
     expect(chordSymbolTones('C–△7')?.intervals).toEqual([0, 3, 7, 11]);
   });
 });
+
+describe('chordSymbolTones — double accidentals', () => {
+  // Modes in flat keys spell chords like E𝄫m (D♭ Locrian's chord 2 is E𝄫).
+  it.each([
+    ['Ebbm', 2, [0, 3, 7]],
+    ['Bbbdim', 9, [0, 3, 6]],
+    ['Abbmaj7', 7, [0, 4, 7, 11]],
+    ['F##m7', 7, [0, 3, 7, 10]],
+    ['E♭♭', 2, [0, 4, 7]],
+  ] as const)('%s', (symbol, rootPc, intervals) => {
+    expect(chordSymbolTones(symbol)).toMatchObject({
+      rootPc,
+      bassPc: rootPc,
+      intervals,
+    });
+  });
+});

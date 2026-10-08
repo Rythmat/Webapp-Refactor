@@ -389,47 +389,6 @@ export function toggleSlur(
     : [...current, key];
 }
 
-/**
- * Follow marks onto the notes' new ids after an edit moved them. Without
- * this a staccato would fall off the moment its note was dragged.
- */
-export function remapNoteIds(
-  entries: readonly string[],
-  rename: ReadonlyMap<string, string>,
-): string[] {
-  if (rename.size === 0) return [...entries];
-  const moved = new Set<string>();
-  const out: string[] = [];
-  for (const entry of entries) {
-    const index = entry.lastIndexOf('|');
-    if (index < 0) continue;
-    const head = entry.slice(0, index);
-    const tail = entry.slice(index + 1);
-    const nextHead = rename.get(head) ?? head;
-    const nextTail = rename.get(tail) ?? tail;
-    const next = `${nextHead}|${nextTail}`;
-    if (moved.has(next)) continue;
-    moved.add(next);
-    out.push(next);
-  }
-  return out;
-}
-
-/** Drop every mark belonging to notes that are gone. */
-export function dropNoteIds(
-  entries: readonly string[],
-  removed: ReadonlySet<string>,
-): string[] {
-  return entries.filter((entry) => {
-    const index = entry.lastIndexOf('|');
-    if (index < 0) return false;
-    return (
-      !removed.has(entry.slice(0, index)) &&
-      !removed.has(entry.slice(index + 1))
-    );
-  });
-}
-
 // ── Accidentals ────────────────────────────────────────────────────────────
 // An accidental is not decoration: writing a sharp on a C means the note now
 // sounds a semitone higher. So applying one moves the pitch and pins the

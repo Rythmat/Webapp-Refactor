@@ -1,0 +1,1363 @@
+{
+  "version": 2,
+  "timestamp": 1791332240328,
+  "data": {
+    "projectId": null,
+    "projectName": "A Thousand Years",
+    "composerName": "Christina Perri",
+    "transport": {
+      "bpm": 142,
+      "position": 0,
+      "metronomeEnabled": false,
+      "loopEnabled": false,
+      "loopStart": 0,
+      "loopEnd": 221760
+    },
+    "tracks": [
+      {
+        "id": "c7bae621-6339-4a47-b9d3-92bd40c8b379",
+        "name": "A Thousand Years — Chords",
+        "type": "midi",
+        "instrument": "piano-sampler",
+        "color": "#c785d3",
+        "mute": false,
+        "solo": false,
+        "volume": 0.8,
+        "pan": 0,
+        "recordArmed": false,
+        "monitoring": false,
+        "midiInputId": null,
+        "audioInputId": null,
+        "midiClips": [
+          {
+            "id": "aa12cfc9-5544-4784-8c9d-91ab68bf6240",
+            "name": "Chords",
+            "startTick": 0,
+            "events": {
+              "notes": [
+                70, 74, 77, 65, 69, 72, 67, 70, 74, 77, 65, 69, 72, 63, 67, 70,
+                65, 69, 72, 63, 67, 70, 63, 67, 70, 70, 74, 77, 70, 74, 77, 67,
+                70, 74, 77, 65, 69, 72, 70, 74, 77, 63, 67, 70, 63, 67, 70, 70,
+                74, 77, 70, 74, 77, 67, 70, 74, 77, 65, 69, 72, 70, 74, 77, 60,
+                63, 67, 70, 60, 63, 67, 70, 67, 70, 74, 77, 65, 69, 72, 70, 74,
+                77, 70, 74, 77, 65, 69, 72, 67, 70, 74, 77, 67, 70, 74, 77, 65,
+                69, 72, 63, 67, 70, 65, 69, 72, 65, 69, 72, 63, 67, 70, 63, 67,
+                70, 63, 67, 70, 63, 67, 70, 70, 74, 77, 70, 74, 77, 67, 70, 74,
+                77, 65, 69, 72, 70, 74, 77, 63, 67, 70, 63, 67, 70, 70, 74, 77,
+                70, 74, 77, 67, 70, 74, 77, 65, 69, 72, 70, 74, 77, 60, 63, 67,
+                70, 65, 69, 72, 67, 70, 74, 77, 65, 69, 72, 70, 74, 77, 70, 74,
+                77, 65, 69, 72, 67, 70, 74, 77, 67, 70, 74, 77, 65, 69, 72, 63,
+                67, 70, 65, 69, 72, 60, 63, 67, 70, 60, 63, 67, 70, 67, 70, 74,
+                77, 65, 69, 72, 60, 63, 67, 70, 60, 63, 67, 70, 65, 69, 72, 67,
+                70, 74, 77, 65, 69, 72, 70, 74, 77, 70, 74, 77, 65, 69, 72, 67,
+                70, 74, 77, 67, 70, 74, 77, 65, 69, 72, 63, 67, 70, 65, 69, 72,
+                63, 67, 70, 63, 67, 70, 70, 74, 77, 70, 74, 77, 63, 67, 70, 63,
+                67, 70, 67, 70, 74, 77, 65, 69, 72, 63, 67, 70
+              ],
+              "velocities": [
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+                80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80
+              ],
+              "startTickDeltas": [
+                0, 0, 0, 2880, 0, 0, 1440, 0, 0, 0, 1440, 0, 0, 1440, 0, 0,
+                1440, 0, 0, 2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 2880, 0, 0,
+                2880, 0, 0, 0, 2880, 0, 0, 1440, 0, 0, 1440, 0, 0, 2880, 0, 0,
+                2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 0, 2880, 0, 0, 1440, 0, 0,
+                1440, 0, 0, 0, 2880, 0, 0, 0, 2880, 0, 0, 0, 2880, 0, 0, 2880,
+                0, 0, 2880, 0, 0, 2880, 0, 0, 1440, 0, 0, 0, 1440, 0, 0, 0,
+                2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 2880, 0, 0,
+                2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 2880, 0, 0,
+                2880, 0, 0, 0, 2880, 0, 0, 1440, 0, 0, 1440, 0, 0, 2880, 0, 0,
+                2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 0, 2880, 0, 0, 1440, 0, 0,
+                1440, 0, 0, 0, 2880, 0, 0, 2880, 0, 0, 0, 2880, 0, 0, 2880, 0,
+                0, 2880, 0, 0, 2880, 0, 0, 1440, 0, 0, 0, 1440, 0, 0, 0, 2880,
+                0, 0, 2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 0, 2880, 0, 0, 0,
+                2880, 0, 0, 0, 2880, 0, 0, 2880, 0, 0, 0, 2880, 0, 0, 0, 2880,
+                0, 0, 2880, 0, 0, 0, 1440, 0, 0, 1440, 0, 0, 2880, 0, 0, 2880,
+                0, 0, 1440, 0, 0, 0, 1440, 0, 0, 0, 2880, 0, 0, 2880, 0, 0,
+                2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 2880, 0, 0,
+                2880, 0, 0, 2880, 0, 0, 2880, 0, 0, 0, 2880, 0, 0, 2880, 0, 0
+              ],
+              "durations": [
+                2880, 2880, 2880, 1440, 1440, 1440, 1440, 1440, 1440, 1440,
+                1440, 1440, 1440, 1440, 1440, 1440, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 1440, 1440, 1440, 1440, 1440,
+                1440, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 1440, 1440, 1440,
+                1440, 1440, 1440, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 1440, 1440, 1440, 1440, 1440, 1440,
+                1440, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 1440,
+                1440, 1440, 1440, 1440, 1440, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 1440, 1440, 1440, 1440, 1440, 1440, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 1440, 1440, 1440,
+                1440, 1440, 1440, 1440, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 1440, 1440, 1440, 1440, 1440, 1440, 1440,
+                2880, 2880, 2880, 2880, 2880, 2880, 1440, 1440, 1440, 1440,
+                1440, 1440, 1440, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880,
+                2880, 2880, 2880, 2880
+              ],
+              "channels": [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+              ]
+            }
+          }
+        ],
+        "audioClips": [],
+        "activeEffects": [],
+        "settings": {
+          "effects": {
+            "reverb": {
+              "enabled": false,
+              "type": "hall",
+              "decay": 2,
+              "preDelay": 20,
+              "highPass": 100,
+              "lowPass": 12000,
+              "wet": 0.3
+            },
+            "eq": {
+              "enabled": false,
+              "makeup": 0,
+              "bands": [
+                {
+                  "type": "lowcut",
+                  "freq": 30,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                },
+                {
+                  "type": "lowshelf",
+                  "freq": 80,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 250,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 500,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 1000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 3000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "highshelf",
+                  "freq": 8000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "highcut",
+                  "freq": 16000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                }
+              ]
+            },
+            "gate": {
+              "enabled": false,
+              "threshold": -40,
+              "range": 40,
+              "hold": 0.01,
+              "attack": 0.001,
+              "release": 0.1
+            },
+            "compressor": {
+              "enabled": false,
+              "threshold": -24,
+              "ratio": 4,
+              "knee": 10,
+              "attack": 0.003,
+              "release": 0.25,
+              "makeup": 0,
+              "crush": 0,
+              "auto": false,
+              "mode": "studio"
+            },
+            "delay": {
+              "enabled": false,
+              "time": 0.375,
+              "feedback": 0.3,
+              "wet": 0.25
+            },
+            "presence": {
+              "enabled": false,
+              "amount": 50,
+              "frequency": 4000,
+              "bandwidth": 1
+            },
+            "de-esser": {
+              "enabled": false,
+              "amount": 0,
+              "frequency": 6000,
+              "range": 6
+            },
+            "saturator": {
+              "enabled": false,
+              "drive": 0,
+              "mix": 50,
+              "tone": 50
+            },
+            "multiband": {
+              "enabled": false,
+              "depth": 0.3,
+              "time": 0.3,
+              "crossoverLow": 120,
+              "crossoverHigh": 2500,
+              "lowGain": 0,
+              "midGain": 0,
+              "highGain": 0
+            },
+            "ducker": {
+              "enabled": false,
+              "keyTrackId": null,
+              "threshold": -30,
+              "amount": 0.3,
+              "attack": 0.01,
+              "release": 0.2
+            }
+          },
+          "sourceTrackId": "c7bae621-6339-4a47-b9d3-92bd40c8b379"
+        }
+      }
+    ],
+    "prism": {
+      "rootNote": 10,
+      "rhythmName": "Quarters",
+      "genre": "Pop",
+      "swing": 0,
+      "mode": "ionian"
+    },
+    "chordRegions": [
+      {
+        "id": "cr-1",
+        "startTick": 0,
+        "endTick": 2880,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-2",
+        "startTick": 2880,
+        "endTick": 4320,
+        "name": "5 maj/7",
+        "noteName": "F/A",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-3",
+        "startTick": 4320,
+        "endTick": 5760,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "cr-4",
+        "startTick": 5760,
+        "endTick": 7200,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-5",
+        "startTick": 7200,
+        "endTick": 8640,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "cr-6",
+        "startTick": 8640,
+        "endTick": 11520,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-7",
+        "startTick": 11520,
+        "endTick": 14400,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "cr-8",
+        "startTick": 14400,
+        "endTick": 17280,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "cr-9",
+        "startTick": 17280,
+        "endTick": 20160,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-10",
+        "startTick": 20160,
+        "endTick": 23040,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-11",
+        "startTick": 23040,
+        "endTick": 25920,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "cr-12",
+        "startTick": 25920,
+        "endTick": 27360,
+        "name": "5 maj/7",
+        "noteName": "F/A",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-13",
+        "startTick": 27360,
+        "endTick": 28800,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-14",
+        "startTick": 28800,
+        "endTick": 31680,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "cr-15",
+        "startTick": 31680,
+        "endTick": 34560,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "cr-16",
+        "startTick": 34560,
+        "endTick": 37440,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-17",
+        "startTick": 37440,
+        "endTick": 40320,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-18",
+        "startTick": 40320,
+        "endTick": 43200,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "cr-19",
+        "startTick": 43200,
+        "endTick": 44640,
+        "name": "5 maj/7",
+        "noteName": "F/A",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-20",
+        "startTick": 44640,
+        "endTick": 46080,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-21",
+        "startTick": 46080,
+        "endTick": 48960,
+        "name": "2 min7",
+        "noteName": "Cmin7",
+        "color": [199, 133, 211],
+        "midis": [60, 63, 67, 70]
+      },
+      {
+        "id": "cr-22",
+        "startTick": 48960,
+        "endTick": 51840,
+        "name": "2 min7",
+        "noteName": "Cmin7",
+        "color": [199, 133, 211],
+        "midis": [60, 63, 67, 70]
+      },
+      {
+        "id": "cr-23",
+        "startTick": 51840,
+        "endTick": 54720,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "cr-24",
+        "startTick": 54720,
+        "endTick": 57600,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-25",
+        "startTick": 57600,
+        "endTick": 60480,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-26",
+        "startTick": 60480,
+        "endTick": 63360,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-27",
+        "startTick": 63360,
+        "endTick": 64800,
+        "name": "5 maj/7",
+        "noteName": "F/A",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-28",
+        "startTick": 64800,
+        "endTick": 66240,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "cr-29",
+        "startTick": 66240,
+        "endTick": 69120,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "cr-30",
+        "startTick": 69120,
+        "endTick": 72000,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-31",
+        "startTick": 72000,
+        "endTick": 74880,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "cr-32",
+        "startTick": 74880,
+        "endTick": 77760,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-33",
+        "startTick": 77760,
+        "endTick": 80640,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-34",
+        "startTick": 80640,
+        "endTick": 83520,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "cr-35",
+        "startTick": 83520,
+        "endTick": 86400,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "cr-36",
+        "startTick": 86400,
+        "endTick": 89280,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "cr-37",
+        "startTick": 89280,
+        "endTick": 92160,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "cr-38",
+        "startTick": 92160,
+        "endTick": 95040,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-39",
+        "startTick": 95040,
+        "endTick": 97920,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-40",
+        "startTick": 97920,
+        "endTick": 100800,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "cr-41",
+        "startTick": 100800,
+        "endTick": 102240,
+        "name": "5 maj/7",
+        "noteName": "F/A",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-42",
+        "startTick": 102240,
+        "endTick": 103680,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-43",
+        "startTick": 103680,
+        "endTick": 106560,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "cr-44",
+        "startTick": 106560,
+        "endTick": 109440,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "cr-45",
+        "startTick": 109440,
+        "endTick": 112320,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-46",
+        "startTick": 112320,
+        "endTick": 115200,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-47",
+        "startTick": 115200,
+        "endTick": 118080,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "cr-48",
+        "startTick": 118080,
+        "endTick": 119520,
+        "name": "5 maj/7",
+        "noteName": "F/A",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-49",
+        "startTick": 119520,
+        "endTick": 120960,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-50",
+        "startTick": 120960,
+        "endTick": 123840,
+        "name": "2 min7",
+        "noteName": "Cmin7",
+        "color": [199, 133, 211],
+        "midis": [60, 63, 67, 70]
+      },
+      {
+        "id": "cr-51",
+        "startTick": 123840,
+        "endTick": 126720,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-52",
+        "startTick": 126720,
+        "endTick": 129600,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "cr-53",
+        "startTick": 129600,
+        "endTick": 132480,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-54",
+        "startTick": 132480,
+        "endTick": 135360,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-55",
+        "startTick": 135360,
+        "endTick": 138240,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-56",
+        "startTick": 138240,
+        "endTick": 139680,
+        "name": "5 maj/7",
+        "noteName": "F/A",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-57",
+        "startTick": 139680,
+        "endTick": 141120,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "cr-58",
+        "startTick": 141120,
+        "endTick": 144000,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "cr-59",
+        "startTick": 144000,
+        "endTick": 146880,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-60",
+        "startTick": 146880,
+        "endTick": 149760,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "cr-61",
+        "startTick": 149760,
+        "endTick": 152640,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-62",
+        "startTick": 152640,
+        "endTick": 155520,
+        "name": "2 min7",
+        "noteName": "Cmin7",
+        "color": [199, 133, 211],
+        "midis": [60, 63, 67, 70]
+      },
+      {
+        "id": "cr-63",
+        "startTick": 155520,
+        "endTick": 158400,
+        "name": "2 min7",
+        "noteName": "Cmin7",
+        "color": [199, 133, 211],
+        "midis": [60, 63, 67, 70]
+      },
+      {
+        "id": "cr-64",
+        "startTick": 158400,
+        "endTick": 161280,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "cr-65",
+        "startTick": 161280,
+        "endTick": 164160,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-66",
+        "startTick": 164160,
+        "endTick": 167040,
+        "name": "2 min7",
+        "noteName": "Cmin7",
+        "color": [199, 133, 211],
+        "midis": [60, 63, 67, 70]
+      },
+      {
+        "id": "cr-67",
+        "startTick": 167040,
+        "endTick": 169920,
+        "name": "2 min7",
+        "noteName": "Cmin7",
+        "color": [199, 133, 211],
+        "midis": [60, 63, 67, 70]
+      },
+      {
+        "id": "cr-68",
+        "startTick": 169920,
+        "endTick": 172800,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-69",
+        "startTick": 172800,
+        "endTick": 174240,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "cr-70",
+        "startTick": 174240,
+        "endTick": 175680,
+        "name": "5 maj/7",
+        "noteName": "F/A",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-71",
+        "startTick": 175680,
+        "endTick": 178560,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-72",
+        "startTick": 178560,
+        "endTick": 181440,
+        "name": "1 maj",
+        "noteName": "B♭",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-73",
+        "startTick": 181440,
+        "endTick": 182880,
+        "name": "5 maj/7",
+        "noteName": "F/A",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-74",
+        "startTick": 182880,
+        "endTick": 184320,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "cr-75",
+        "startTick": 184320,
+        "endTick": 187200,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "cr-76",
+        "startTick": 187200,
+        "endTick": 190080,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-77",
+        "startTick": 190080,
+        "endTick": 192960,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "cr-78",
+        "startTick": 192960,
+        "endTick": 195840,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-79",
+        "startTick": 195840,
+        "endTick": 198720,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "cr-80",
+        "startTick": 198720,
+        "endTick": 201600,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "cr-81",
+        "startTick": 201600,
+        "endTick": 204480,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-82",
+        "startTick": 204480,
+        "endTick": 207360,
+        "name": "1 maj/3",
+        "noteName": "B♭/D",
+        "color": [199, 133, 211],
+        "midis": [70, 74, 77]
+      },
+      {
+        "id": "cr-83",
+        "startTick": 207360,
+        "endTick": 210240,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "cr-84",
+        "startTick": 210240,
+        "endTick": 213120,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      },
+      {
+        "id": "cr-85",
+        "startTick": 213120,
+        "endTick": 216000,
+        "name": "6 min7",
+        "noteName": "Gmin7",
+        "color": [199, 133, 211],
+        "midis": [67, 70, 74, 77]
+      },
+      {
+        "id": "cr-86",
+        "startTick": 216000,
+        "endTick": 218880,
+        "name": "5 maj",
+        "noteName": "F",
+        "color": [199, 133, 211],
+        "midis": [65, 69, 72]
+      },
+      {
+        "id": "cr-87",
+        "startTick": 218880,
+        "endTick": 221760,
+        "name": "4 maj",
+        "noteName": "E♭",
+        "color": [199, 133, 211],
+        "midis": [63, 67, 70]
+      }
+    ],
+    "returns": [
+      {
+        "id": "A",
+        "label": "Reverb",
+        "volume": 0.8,
+        "fxChain": ["reverb"],
+        "effects": {
+          "reverb": {
+            "enabled": true,
+            "type": "hall",
+            "decay": 2,
+            "preDelay": 20,
+            "highPass": 100,
+            "lowPass": 12000,
+            "wet": 1
+          },
+          "eq": {
+            "enabled": false,
+            "makeup": 0,
+            "bands": [
+              {
+                "type": "lowcut",
+                "freq": 30,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              },
+              {
+                "type": "lowshelf",
+                "freq": 80,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 250,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 500,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 1000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 3000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "highshelf",
+                "freq": 8000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "highcut",
+                "freq": 16000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              }
+            ]
+          },
+          "gate": {
+            "enabled": false,
+            "threshold": -40,
+            "range": 40,
+            "hold": 0.01,
+            "attack": 0.001,
+            "release": 0.1
+          },
+          "compressor": {
+            "enabled": false,
+            "threshold": -24,
+            "ratio": 4,
+            "knee": 10,
+            "attack": 0.003,
+            "release": 0.25,
+            "makeup": 0,
+            "crush": 0,
+            "auto": false,
+            "mode": "studio"
+          },
+          "delay": {
+            "enabled": false,
+            "time": 0.375,
+            "feedback": 0.3,
+            "wet": 0.25
+          },
+          "presence": {
+            "enabled": false,
+            "amount": 50,
+            "frequency": 4000,
+            "bandwidth": 1
+          },
+          "de-esser": {
+            "enabled": false,
+            "amount": 0,
+            "frequency": 6000,
+            "range": 6
+          },
+          "saturator": { "enabled": false, "drive": 0, "mix": 50, "tone": 50 },
+          "multiband": {
+            "enabled": false,
+            "depth": 0.3,
+            "time": 0.3,
+            "crossoverLow": 120,
+            "crossoverHigh": 2500,
+            "lowGain": 0,
+            "midGain": 0,
+            "highGain": 0
+          },
+          "ducker": {
+            "enabled": false,
+            "keyTrackId": null,
+            "threshold": -30,
+            "amount": 0.3,
+            "attack": 0.01,
+            "release": 0.2
+          }
+        }
+      },
+      {
+        "id": "B",
+        "label": "Delay",
+        "volume": 0.8,
+        "fxChain": ["delay"],
+        "effects": {
+          "reverb": {
+            "enabled": false,
+            "type": "hall",
+            "decay": 2,
+            "preDelay": 20,
+            "highPass": 100,
+            "lowPass": 12000,
+            "wet": 0.3
+          },
+          "eq": {
+            "enabled": false,
+            "makeup": 0,
+            "bands": [
+              {
+                "type": "lowcut",
+                "freq": 30,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              },
+              {
+                "type": "lowshelf",
+                "freq": 80,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 250,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 500,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 1000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 3000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "highshelf",
+                "freq": 8000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "highcut",
+                "freq": 16000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              }
+            ]
+          },
+          "gate": {
+            "enabled": false,
+            "threshold": -40,
+            "range": 40,
+            "hold": 0.01,
+            "attack": 0.001,
+            "release": 0.1
+          },
+          "compressor": {
+            "enabled": false,
+            "threshold": -24,
+            "ratio": 4,
+            "knee": 10,
+            "attack": 0.003,
+            "release": 0.25,
+            "makeup": 0,
+            "crush": 0,
+            "auto": false,
+            "mode": "studio"
+          },
+          "delay": {
+            "enabled": true,
+            "time": 0.375,
+            "feedback": 0.3,
+            "wet": 1
+          },
+          "presence": {
+            "enabled": false,
+            "amount": 50,
+            "frequency": 4000,
+            "bandwidth": 1
+          },
+          "de-esser": {
+            "enabled": false,
+            "amount": 0,
+            "frequency": 6000,
+            "range": 6
+          },
+          "saturator": { "enabled": false, "drive": 0, "mix": 50, "tone": 50 },
+          "multiband": {
+            "enabled": false,
+            "depth": 0.3,
+            "time": 0.3,
+            "crossoverLow": 120,
+            "crossoverHigh": 2500,
+            "lowGain": 0,
+            "midGain": 0,
+            "highGain": 0
+          },
+          "ducker": {
+            "enabled": false,
+            "keyTrackId": null,
+            "threshold": -30,
+            "amount": 0.3,
+            "attack": 0.01,
+            "release": 0.2
+          }
+        }
+      }
+    ],
+    "masterAutomation": {}
+  }
+}

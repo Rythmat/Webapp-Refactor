@@ -1,0 +1,973 @@
+{
+  "version": 2,
+  "timestamp": 1791413625994,
+  "data": {
+    "projectId": null,
+    "projectName": "Untitled Project",
+    "composerName": "",
+    "transport": {
+      "bpm": 120,
+      "position": 0,
+      "metronomeEnabled": false,
+      "loopEnabled": false,
+      "loopStart": 0,
+      "loopEnd": 7680
+    },
+    "tracks": [
+      {
+        "id": "d95e8f96-e454-486c-bfb9-3f89a6d0af06",
+        "name": "Synth",
+        "type": "midi",
+        "instrument": "oracle-synth",
+        "color": "#f94144",
+        "mute": false,
+        "solo": false,
+        "volume": 0.8,
+        "pan": 0,
+        "recordArmed": false,
+        "monitoring": false,
+        "midiInputId": null,
+        "audioInputId": null,
+        "audioInputChannel": null,
+        "trackRole": "auto",
+        "midiClips": [
+          {
+            "id": "39471fa6-ff62-4aba-8928-558cb6f4cde0",
+            "startTick": 0,
+            "events": {
+              "notes": [
+                43, 47, 50, 53, 43, 47, 50, 53, 43, 47, 50, 53, 43, 47, 50, 53,
+                43, 47, 50, 53, 43, 47, 50, 53, 43, 47, 50, 53, 43, 47, 50, 53,
+                43, 47, 50, 53, 43, 47, 50, 53, 43, 47, 50, 53, 43, 47, 50, 53,
+                43, 47, 50, 53, 43, 47, 50, 53, 43, 47, 50, 53, 43, 47, 50, 53,
+                48, 51, 55, 48, 51, 55, 48, 51, 55, 48, 51, 55, 48, 51, 55, 48,
+                51, 55, 48, 51, 55, 48, 51, 55, 48, 51, 55, 48, 51, 55, 48, 51,
+                55, 48, 51, 55, 48, 51, 55, 48, 51, 55, 48, 51, 55, 48, 51, 55,
+                43, 47, 50, 53, 43, 47, 50, 53, 43, 47, 50, 53, 43, 47, 50, 53,
+                43, 47, 50, 53, 43, 47, 50, 53, 43, 47, 50, 53, 43, 47, 50, 53,
+                43, 47, 50, 53, 43, 47, 50, 53, 43, 47, 50, 53, 43, 47, 50, 53,
+                43, 47, 50, 53, 43, 47, 50, 53, 43, 47, 50, 53, 43, 47, 50, 53,
+                48, 51, 55, 48, 51, 55, 48, 51, 55, 48, 51, 55, 48, 51, 55, 48,
+                51, 55, 48, 51, 55, 48, 51, 55, 48, 51, 55, 48, 51, 55, 48, 51,
+                55, 48, 51, 55, 48, 51, 55, 48, 51, 55, 48, 51, 55, 48, 51, 55
+              ],
+              "velocities": [
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100
+              ],
+              "startTickDeltas": [
+                1, 0, 0, 0, 120, 0, 0, 0, 120, 0, 0, 0, 120, 0, 0, 0, 120, 0, 0,
+                0, 120, 0, 0, 0, 120, 0, 0, 0, 120, 0, 0, 0, 120, 0, 0, 0, 120,
+                0, 0, 0, 120, 0, 0, 0, 120, 0, 0, 0, 120, 0, 0, 0, 120, 0, 0, 0,
+                120, 0, 0, 0, 120, 0, 0, 0, 120, 0, 0, 120, 0, 0, 120, 0, 0,
+                120, 0, 0, 120, 0, 0, 120, 0, 0, 120, 0, 0, 120, 0, 0, 120, 0,
+                0, 120, 0, 0, 120, 0, 0, 120, 0, 0, 120, 0, 0, 120, 0, 0, 120,
+                0, 0, 120, 0, 0, 120, 0, 0, 0, 120, 0, 0, 0, 120, 0, 0, 0, 120,
+                0, 0, 0, 120, 0, 0, 0, 120, 0, 0, 0, 120, 0, 0, 0, 120, 0, 0, 0,
+                120, 0, 0, 0, 120, 0, 0, 0, 120, 0, 0, 0, 120, 0, 0, 0, 120, 0,
+                0, 0, 120, 0, 0, 0, 120, 0, 0, 0, 120, 0, 0, 0, 120, 0, 0, 120,
+                0, 0, 120, 0, 0, 120, 0, 0, 120, 0, 0, 120, 0, 0, 120, 0, 0,
+                120, 0, 0, 120, 0, 0, 120, 0, 0, 120, 0, 0, 120, 0, 0, 120, 0,
+                0, 120, 0, 0, 120, 0, 0, 120, 0, 0
+              ],
+              "durations": [
+                120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+                120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+                120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+                120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+                120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+                120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+                120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+                120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+                120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+                120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+                120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+                120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+                120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+                120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+                120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+                120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+                120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,
+                120, 120, 120
+              ],
+              "channels": [
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+              ]
+            }
+          }
+        ],
+        "audioClips": [],
+        "activeEffects": ["saturator", "multiband"],
+        "settings": {
+          "effects": {
+            "reverb": {
+              "enabled": false,
+              "type": "hall",
+              "decay": 2,
+              "preDelay": 20,
+              "highPass": 100,
+              "lowPass": 12000,
+              "wet": 0.3
+            },
+            "eq": {
+              "enabled": false,
+              "makeup": 0,
+              "bands": [
+                {
+                  "type": "lowcut",
+                  "freq": 30,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                },
+                {
+                  "type": "lowshelf",
+                  "freq": 80,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 250,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 500,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 1000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 3000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "highshelf",
+                  "freq": 8000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "highcut",
+                  "freq": 16000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                }
+              ]
+            },
+            "gate": {
+              "enabled": false,
+              "threshold": -40,
+              "range": 40,
+              "hold": 0.01,
+              "attack": 0.001,
+              "release": 0.1
+            },
+            "compressor": {
+              "enabled": false,
+              "threshold": -24,
+              "ratio": 4,
+              "knee": 10,
+              "attack": 0.003,
+              "release": 0.25,
+              "makeup": 0,
+              "crush": 0,
+              "auto": false,
+              "mode": "studio"
+            },
+            "delay": {
+              "enabled": false,
+              "time": 0.375,
+              "feedback": 0.3,
+              "wet": 0.25
+            },
+            "presence": {
+              "enabled": false,
+              "amount": 50,
+              "frequency": 4000,
+              "bandwidth": 1
+            },
+            "de-esser": {
+              "enabled": false,
+              "amount": 0,
+              "frequency": 6000,
+              "range": 6
+            },
+            "saturator": { "enabled": true, "drive": 0, "mix": 50, "tone": 50 },
+            "multiband": {
+              "enabled": true,
+              "depth": 0.6,
+              "time": 0.3,
+              "crossoverLow": 120,
+              "crossoverHigh": 2500,
+              "lowGain": 0,
+              "midGain": 0,
+              "highGain": 0
+            },
+            "ducker": {
+              "enabled": false,
+              "keyTrackId": null,
+              "threshold": -30,
+              "amount": 0.3,
+              "attack": 0.01,
+              "release": 0.2
+            }
+          },
+          "sourceTrackId": "d95e8f96-e454-486c-bfb9-3f89a6d0af06",
+          "oracleSynth": {
+            "oscillators": [
+              {
+                "waveform": "sawtooth",
+                "wavetable": "SAWTOOTH",
+                "octave": -1,
+                "semitone": 0,
+                "fine": 0,
+                "wtPosition": 0,
+                "pan": 0,
+                "level": 0.7,
+                "unisonVoices": 2,
+                "unisonDetune": 0.12,
+                "unisonBlend": 0.3,
+                "warpMode": "none",
+                "warpAmount": 0,
+                "enabled": true
+              },
+              {
+                "waveform": "square",
+                "wavetable": "SQUARE",
+                "octave": -1,
+                "semitone": 0,
+                "fine": 0,
+                "wtPosition": 0,
+                "pan": 0,
+                "level": 0.5,
+                "unisonVoices": 1,
+                "unisonDetune": 0,
+                "unisonBlend": 0.1,
+                "warpMode": "none",
+                "warpAmount": 0,
+                "enabled": true
+              }
+            ],
+            "subOscillator": {
+              "waveform": "sine",
+              "octave": -1,
+              "semitone": 0,
+              "fine": 0,
+              "level": 0.6,
+              "pan": 0,
+              "enabled": true
+            },
+            "noise": {
+              "type": "pink",
+              "level": 0.3,
+              "pan": 0,
+              "enabled": false
+            },
+            "filters": [
+              {
+                "type": "lowpass",
+                "cutoff": 402,
+                "resonance": 6,
+                "pan": 0,
+                "gain": 0,
+                "mix": 1,
+                "enabled": true
+              },
+              {
+                "type": "highpass",
+                "cutoff": 30,
+                "resonance": 0,
+                "pan": 0,
+                "gain": 0,
+                "mix": 1,
+                "enabled": true
+              }
+            ],
+            "envelopes": [
+              { "attack": 0.005, "decay": 0.2, "sustain": 0.8, "release": 0.1 },
+              { "attack": 0.005, "decay": 0.3, "sustain": 0.5, "release": 0.1 }
+            ],
+            "lfos": [
+              {
+                "rateDivs": [
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"]
+                ],
+                "rateModifiers": ["normal", "normal", "normal", "normal"],
+                "smooths": [0.1, 0.1, 0.1, 0.1],
+                "sync": false,
+                "bars": [
+                  [
+                    { "time": 0, "value": 0, "curve": 0.8 },
+                    { "time": 0.08, "value": 1, "curve": -0.6 },
+                    { "time": 0.25, "value": 0, "curve": 0.8 },
+                    { "time": 0.33, "value": 1, "curve": -0.6 },
+                    { "time": 0.5, "value": 0, "curve": 0.8 },
+                    { "time": 0.58, "value": 1, "curve": -0.6 },
+                    { "time": 0.75, "value": 0, "curve": 0.8 },
+                    { "time": 0.83, "value": 1, "curve": -0.6 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0, "curve": 0.8 },
+                    { "time": 0.08, "value": 1, "curve": -0.6 },
+                    { "time": 0.25, "value": 0, "curve": 0.8 },
+                    { "time": 0.33, "value": 1, "curve": -0.6 },
+                    { "time": 0.5, "value": 0, "curve": 0.8 },
+                    { "time": 0.58, "value": 1, "curve": -0.6 },
+                    { "time": 0.75, "value": 0, "curve": 0.8 },
+                    { "time": 0.83, "value": 1, "curve": -0.6 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0, "curve": 0.8 },
+                    { "time": 0.08, "value": 1, "curve": -0.6 },
+                    { "time": 0.25, "value": 0, "curve": 0.8 },
+                    { "time": 0.33, "value": 1, "curve": -0.6 },
+                    { "time": 0.5, "value": 0, "curve": 0.8 },
+                    { "time": 0.58, "value": 1, "curve": -0.6 },
+                    { "time": 0.75, "value": 0, "curve": 0.8 },
+                    { "time": 0.83, "value": 1, "curve": -0.6 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0, "curve": 0.8 },
+                    { "time": 0.08, "value": 1, "curve": -0.6 },
+                    { "time": 0.25, "value": 0, "curve": 0.8 },
+                    { "time": 0.33, "value": 1, "curve": -0.6 },
+                    { "time": 0.5, "value": 0, "curve": 0.8 },
+                    { "time": 0.58, "value": 1, "curve": -0.6 },
+                    { "time": 0.75, "value": 0, "curve": 0.8 },
+                    { "time": 0.83, "value": 1, "curve": -0.6 },
+                    { "time": 1, "value": 0 }
+                  ]
+                ]
+              },
+              {
+                "rateDivs": [
+                  ["1", "1", "1", "1"],
+                  ["1", "1", "1", "1"],
+                  ["1", "1", "1", "1"],
+                  ["1", "1", "1", "1"]
+                ],
+                "rateModifiers": ["normal", "normal", "normal", "normal"],
+                "smooths": [0.5, 0.5, 0.5, 0.5],
+                "sync": false,
+                "bars": [
+                  [
+                    { "time": 0, "value": 0, "curve": 0.6 },
+                    { "time": 0.8, "value": 1, "curve": -0.4 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0, "curve": 0.6 },
+                    { "time": 0.8, "value": 1, "curve": -0.4 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0, "curve": 0.6 },
+                    { "time": 0.8, "value": 1, "curve": -0.4 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0, "curve": 0.6 },
+                    { "time": 0.8, "value": 1, "curve": -0.4 },
+                    { "time": 1, "value": 0 }
+                  ]
+                ]
+              },
+              {
+                "rateDivs": [
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"]
+                ],
+                "rateModifiers": ["normal", "normal", "normal", "normal"],
+                "smooths": [0, 0, 0, 0],
+                "sync": false,
+                "bars": [
+                  [
+                    { "time": 0, "value": 0 },
+                    { "time": 0.125, "value": 1 },
+                    { "time": 0.25, "value": 0 },
+                    { "time": 0.375, "value": 1 },
+                    { "time": 0.5, "value": 0 },
+                    { "time": 0.625, "value": 1 },
+                    { "time": 0.75, "value": 0 },
+                    { "time": 0.875, "value": 1 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0 },
+                    { "time": 0.125, "value": 1 },
+                    { "time": 0.25, "value": 0 },
+                    { "time": 0.375, "value": 1 },
+                    { "time": 0.5, "value": 0 },
+                    { "time": 0.625, "value": 1 },
+                    { "time": 0.75, "value": 0 },
+                    { "time": 0.875, "value": 1 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0 },
+                    { "time": 0.125, "value": 1 },
+                    { "time": 0.25, "value": 0 },
+                    { "time": 0.375, "value": 1 },
+                    { "time": 0.5, "value": 0 },
+                    { "time": 0.625, "value": 1 },
+                    { "time": 0.75, "value": 0 },
+                    { "time": 0.875, "value": 1 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0 },
+                    { "time": 0.125, "value": 1 },
+                    { "time": 0.25, "value": 0 },
+                    { "time": 0.375, "value": 1 },
+                    { "time": 0.5, "value": 0 },
+                    { "time": 0.625, "value": 1 },
+                    { "time": 0.75, "value": 0 },
+                    { "time": 0.875, "value": 1 },
+                    { "time": 1, "value": 0 }
+                  ]
+                ]
+              },
+              {
+                "rateDivs": [
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"],
+                  ["1/4", "1/4", "1/4", "1/4"]
+                ],
+                "rateModifiers": ["normal", "normal", "normal", "normal"],
+                "smooths": [0, 0, 0, 0],
+                "sync": false,
+                "bars": [
+                  [
+                    { "time": 0, "value": 0 },
+                    { "time": 0.125, "value": 1 },
+                    { "time": 0.25, "value": 0 },
+                    { "time": 0.375, "value": 1 },
+                    { "time": 0.5, "value": 0 },
+                    { "time": 0.625, "value": 1 },
+                    { "time": 0.75, "value": 0 },
+                    { "time": 0.875, "value": 1 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0 },
+                    { "time": 0.125, "value": 1 },
+                    { "time": 0.25, "value": 0 },
+                    { "time": 0.375, "value": 1 },
+                    { "time": 0.5, "value": 0 },
+                    { "time": 0.625, "value": 1 },
+                    { "time": 0.75, "value": 0 },
+                    { "time": 0.875, "value": 1 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0 },
+                    { "time": 0.125, "value": 1 },
+                    { "time": 0.25, "value": 0 },
+                    { "time": 0.375, "value": 1 },
+                    { "time": 0.5, "value": 0 },
+                    { "time": 0.625, "value": 1 },
+                    { "time": 0.75, "value": 0 },
+                    { "time": 0.875, "value": 1 },
+                    { "time": 1, "value": 0 }
+                  ],
+                  [
+                    { "time": 0, "value": 0 },
+                    { "time": 0.125, "value": 1 },
+                    { "time": 0.25, "value": 0 },
+                    { "time": 0.375, "value": 1 },
+                    { "time": 0.5, "value": 0 },
+                    { "time": 0.625, "value": 1 },
+                    { "time": 0.75, "value": 0 },
+                    { "time": 0.875, "value": 1 },
+                    { "time": 1, "value": 0 }
+                  ]
+                ]
+              }
+            ],
+            "modRoutes": [
+              {
+                "id": "wobble-mod-1",
+                "source": { "type": "lfo", "index": 0 },
+                "target": { "source": "flt1", "param": "cutoff" },
+                "amount": 0.8,
+                "polarity": "unipolar",
+                "curve": "linear",
+                "enabled": true
+              },
+              {
+                "id": "wobble-mod-2",
+                "source": { "type": "lfo", "index": 1 },
+                "target": { "source": "flt1", "param": "resonance" },
+                "amount": 0.5,
+                "polarity": "unipolar",
+                "curve": "linear",
+                "enabled": true
+              }
+            ],
+            "voiceMode": "mono",
+            "voiceCount": 1,
+            "glide": 0.03,
+            "spread": 0,
+            "masterVolume": 0.75,
+            "fx": {
+              "chorus": {
+                "enabled": false,
+                "rate": 1.5,
+                "depth": 0.5,
+                "mix": 0.5
+              },
+              "delay": {
+                "enabled": false,
+                "time": 0.3,
+                "feedback": 0.3,
+                "mix": 0.3
+              },
+              "phaser": {
+                "enabled": false,
+                "rate": 0.5,
+                "depth": 0.5,
+                "mix": 0.5
+              },
+              "compressor": {
+                "enabled": true,
+                "threshold": -16,
+                "ratio": 8,
+                "attack": 0.003,
+                "release": 0.1
+              },
+              "drive": { "enabled": true, "amount": 0.35, "mix": 0.5 },
+              "reverb": {
+                "enabled": false,
+                "size": 0.5,
+                "decay": 0.5,
+                "damping": 0.3,
+                "mix": 0.3
+              }
+            },
+            "fxRoutes": [
+              { "id": "wobble-fx-1", "type": "drive", "target": "master" },
+              { "id": "wobble-fx-2", "type": "compressor", "target": "master" }
+            ],
+            "routing": {
+              "filterRouting": {
+                "filter1Sources": ["osc1", "osc2", "sub", "noise"],
+                "filter2Sources": []
+              },
+              "envelopeRouting": {
+                "env1Sources": ["osc1", "osc2", "sub", "noise"],
+                "env2Sources": []
+              }
+            },
+            "arp": {
+              "enabled": false,
+              "rate": "1/8",
+              "style": "up",
+              "distance": 12,
+              "step": 1
+            },
+            "macros": [
+              { "name": "MACRO 1", "value": 0 },
+              { "name": "MACRO 2", "value": 0 },
+              { "name": "MACRO 3", "value": 0 },
+              { "name": "MACRO 4", "value": 0 },
+              { "name": "MACRO 5", "value": 0 },
+              { "name": "MACRO 6", "value": 0 },
+              { "name": "MACRO 7", "value": 0 },
+              { "name": "MACRO 8", "value": 0 }
+            ],
+            "keyScale": {
+              "enabled": false,
+              "followProjectKey": true,
+              "rootPc": 0,
+              "mode": "ionian",
+              "snapMode": "nearest"
+            },
+            "presetName": "WOBBLE",
+            "pitchBendRange": 2,
+            "bpm": 120
+          }
+        }
+      }
+    ],
+    "prism": {
+      "rootNote": null,
+      "rhythmName": "Sixteenths",
+      "genre": "EDM",
+      "swing": 0,
+      "mode": "aeolian"
+    },
+    "chordRegions": [
+      {
+        "id": "9a18f5d6-04ae-4f4d-afa2-8ddeb8735e77",
+        "startTick": 0,
+        "endTick": 1920,
+        "name": "5 dom7",
+        "noteName": "G dom7",
+        "color": [255, 115, 72],
+        "degreeKey": "5 dominant7",
+        "midis": [43, 47, 50, 53]
+      },
+      {
+        "id": "c24aacb4-ee00-485a-a41a-842c5e6196af",
+        "startTick": 1920,
+        "endTick": 3840,
+        "name": "1 min",
+        "noteName": "C min",
+        "color": [157, 127, 206],
+        "degreeKey": "1 minor",
+        "midis": [48, 51, 55]
+      },
+      {
+        "id": "92136507-a49f-4090-bce2-382fe2a77ed9",
+        "startTick": 3840,
+        "endTick": 5760,
+        "name": "G dom7",
+        "noteName": "G dom7",
+        "color": [255, 115, 72],
+        "midis": [43, 47, 50, 53]
+      },
+      {
+        "id": "b45d7ac4-9a14-478a-ad87-34733d9a6b69",
+        "startTick": 5760,
+        "endTick": 7680,
+        "name": "C min",
+        "noteName": "C min",
+        "color": [157, 127, 206],
+        "midis": [48, 51, 55]
+      }
+    ],
+    "returns": [
+      {
+        "id": "A",
+        "label": "Reverb",
+        "volume": 0.8,
+        "fxChain": ["reverb"],
+        "effects": {
+          "reverb": {
+            "enabled": true,
+            "type": "hall",
+            "decay": 2,
+            "preDelay": 20,
+            "highPass": 100,
+            "lowPass": 12000,
+            "wet": 1
+          },
+          "eq": {
+            "enabled": false,
+            "makeup": 0,
+            "bands": [
+              {
+                "type": "lowcut",
+                "freq": 30,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              },
+              {
+                "type": "lowshelf",
+                "freq": 80,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 250,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 500,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 1000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 3000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "highshelf",
+                "freq": 8000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "highcut",
+                "freq": 16000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              }
+            ]
+          },
+          "gate": {
+            "enabled": false,
+            "threshold": -40,
+            "range": 40,
+            "hold": 0.01,
+            "attack": 0.001,
+            "release": 0.1
+          },
+          "compressor": {
+            "enabled": false,
+            "threshold": -24,
+            "ratio": 4,
+            "knee": 10,
+            "attack": 0.003,
+            "release": 0.25,
+            "makeup": 0,
+            "crush": 0,
+            "auto": false,
+            "mode": "studio"
+          },
+          "delay": {
+            "enabled": false,
+            "time": 0.375,
+            "feedback": 0.3,
+            "wet": 0.25
+          },
+          "presence": {
+            "enabled": false,
+            "amount": 50,
+            "frequency": 4000,
+            "bandwidth": 1
+          },
+          "de-esser": {
+            "enabled": false,
+            "amount": 0,
+            "frequency": 6000,
+            "range": 6
+          },
+          "saturator": { "enabled": false, "drive": 0, "mix": 50, "tone": 50 },
+          "multiband": {
+            "enabled": false,
+            "depth": 0.3,
+            "time": 0.3,
+            "crossoverLow": 120,
+            "crossoverHigh": 2500,
+            "lowGain": 0,
+            "midGain": 0,
+            "highGain": 0
+          },
+          "ducker": {
+            "enabled": false,
+            "keyTrackId": null,
+            "threshold": -30,
+            "amount": 0.3,
+            "attack": 0.01,
+            "release": 0.2
+          }
+        }
+      },
+      {
+        "id": "B",
+        "label": "Delay",
+        "volume": 0.8,
+        "fxChain": ["delay"],
+        "effects": {
+          "reverb": {
+            "enabled": false,
+            "type": "hall",
+            "decay": 2,
+            "preDelay": 20,
+            "highPass": 100,
+            "lowPass": 12000,
+            "wet": 0.3
+          },
+          "eq": {
+            "enabled": false,
+            "makeup": 0,
+            "bands": [
+              {
+                "type": "lowcut",
+                "freq": 30,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              },
+              {
+                "type": "lowshelf",
+                "freq": 80,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 250,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 500,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 1000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 3000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "highshelf",
+                "freq": 8000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "highcut",
+                "freq": 16000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              }
+            ]
+          },
+          "gate": {
+            "enabled": false,
+            "threshold": -40,
+            "range": 40,
+            "hold": 0.01,
+            "attack": 0.001,
+            "release": 0.1
+          },
+          "compressor": {
+            "enabled": false,
+            "threshold": -24,
+            "ratio": 4,
+            "knee": 10,
+            "attack": 0.003,
+            "release": 0.25,
+            "makeup": 0,
+            "crush": 0,
+            "auto": false,
+            "mode": "studio"
+          },
+          "delay": {
+            "enabled": true,
+            "time": 0.375,
+            "feedback": 0.3,
+            "wet": 1
+          },
+          "presence": {
+            "enabled": false,
+            "amount": 50,
+            "frequency": 4000,
+            "bandwidth": 1
+          },
+          "de-esser": {
+            "enabled": false,
+            "amount": 0,
+            "frequency": 6000,
+            "range": 6
+          },
+          "saturator": { "enabled": false, "drive": 0, "mix": 50, "tone": 50 },
+          "multiband": {
+            "enabled": false,
+            "depth": 0.3,
+            "time": 0.3,
+            "crossoverLow": 120,
+            "crossoverHigh": 2500,
+            "lowGain": 0,
+            "midGain": 0,
+            "highGain": 0
+          },
+          "ducker": {
+            "enabled": false,
+            "keyTrackId": null,
+            "threshold": -30,
+            "amount": 0.3,
+            "attack": 0.01,
+            "release": 0.2
+          }
+        }
+      }
+    ],
+    "masterAutomation": {}
+  }
+}

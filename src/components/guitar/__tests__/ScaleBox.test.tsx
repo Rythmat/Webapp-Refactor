@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { GUITAR_ATLAS_BOOK_ONE } from '@/curriculum/data/guitar/bookOne';
+import { getGuitarCenter } from '@/curriculum/data/guitar/centers';
 import { pentatonicGhosts } from '@/lib/guitar/theory/scaleTheory';
 import { ScaleBox } from '../ScaleBox';
 
 const RED = '#D2404A';
-const C_MAJOR = GUITAR_ATLAS_BOOK_ONE.C.majorScale;
-const G_PENTATONIC = GUITAR_ATLAS_BOOK_ONE.G.pentatonic;
-const C_PENTATONIC = GUITAR_ATLAS_BOOK_ONE.C.pentatonic;
-const F_MAJOR = GUITAR_ATLAS_BOOK_ONE.F.majorScale;
+const C_MAJOR = getGuitarCenter('C').majorScale;
+const G_PENTATONIC = getGuitarCenter('G').pentatonic;
+const C_PENTATONIC = getGuitarCenter('C').pentatonic;
+const F_MAJOR = getGuitarCenter('F').majorScale;
 
 const dotTexts = (host: Element) =>
   [...host.querySelectorAll('[data-dot]')].map((d) => d.textContent);
@@ -229,7 +229,7 @@ describe('ScaleBox label modes and layers', () => {
   });
 
   it('outlines the notes the pentatonic leaves out, with a legend', () => {
-    const ghosts = pentatonicGhosts(GUITAR_ATLAS_BOOK_ONE.C, C_PENTATONIC);
+    const ghosts = pentatonicGhosts(getGuitarCenter('C'), C_PENTATONIC);
     const { container } = render(
       <ScaleBox
         {...C_PENTATONIC}

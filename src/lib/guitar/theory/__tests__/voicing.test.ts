@@ -1,18 +1,18 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import {
-  GUITAR_ATLAS_BOOK_ONE,
-  GUITAR_KEY_ORDER,
-  chordRootPc,
-  mapBarShapeId,
-  seventhShapeId,
-  triadShapeId,
-} from '@/curriculum/data/guitar/bookOne';
+import { GUITAR_KEY_ORDER } from '@/curriculum/data/guitar/bookOne';
 import {
   GUITAR_ATLAS_BOOK_ONE_ERRATA,
   type ErratumKind,
 } from '@/curriculum/data/guitar/bookOneErrata';
+import {
+  chordRootPc,
+  getGuitarCenter,
+  mapBarShapeId,
+  seventhShapeId,
+  triadShapeId,
+} from '@/curriculum/data/guitar/centers';
 import type {
   BookChordQuality,
   GuitarKeyName,
@@ -38,25 +38,27 @@ function classifyAll() {
   const pages: Classified[] = [];
   const bars: Classified[] = [];
   for (const key of GUITAR_KEY_ORDER) {
-    const center = GUITAR_ATLAS_BOOK_ONE[key];
+    const center = getGuitarCenter(key);
     const classify = (id: string, shape: BookShape) => ({
       id,
       shape,
       voicing: classifyVoicing(
         shape,
-        chordRootPc(key, shape.degree),
+        chordRootPc(getGuitarCenter(key), shape.degree),
         shape.quality,
       ),
     });
     center.triads.forEach((s, i) =>
-      pages.push(classify(triadShapeId(key, i + 1), s)),
+      pages.push(classify(triadShapeId(getGuitarCenter(key), i + 1), s)),
     );
     center.sevenths.forEach((s, i) =>
-      pages.push(classify(seventhShapeId(key, i + 1), s)),
+      pages.push(classify(seventhShapeId(getGuitarCenter(key), i + 1), s)),
     );
     for (const map of center.musicMaps) {
       map.bars.forEach((b, i) =>
-        bars.push(classify(mapBarShapeId(key, map.example, i + 1), b)),
+        bars.push(
+          classify(mapBarShapeId(getGuitarCenter(key), map.example, i + 1), b),
+        ),
       );
     }
   }
@@ -201,13 +203,13 @@ describe('classifyVoicing on Book One', () => {
       movable: true,
       barre: 'none',
     });
-    const f = GUITAR_ATLAS_BOOK_ONE.F.triads[0];
+    const f = getGuitarCenter('F').triads[0];
     expect(classifyVoicing(f, 5, 'maj')).toMatchObject({
       family: 'root6-full-barre',
       doubledTones: ['R', '5'],
       barre: 'full',
     });
-    const dm7 = GUITAR_ATLAS_BOOK_ONE.C.sevenths[1];
+    const dm7 = getGuitarCenter('C').sevenths[1];
     expect(classifyVoicing(dm7, 2, 'min7').barre).toBe('partial');
     expect(classifyVoicing({ frets: 'X-3-5-3-4-X' }, 0, 'min').family).toBe(
       'unclassified',
@@ -218,7 +220,7 @@ describe('classifyVoicing on Book One', () => {
 describe('compareShapes', () => {
   it('builds the four kinds from the book grips at the same root', () => {
     const book = (key: GuitarKeyName, box: number) =>
-      GUITAR_ATLAS_BOOK_ONE[key].sevenths[box - 1].frets;
+      getGuitarCenter(key).sevenths[box - 1].frets;
     const shapes = compareShapes(5, 3);
     expect(shapes.map((s) => s.frets)).toEqual([
       book('C', 1),
@@ -315,16 +317,16 @@ describe('classifier as an errata guard', () => {
         f.map((x) => (x === 'X' ? 'X' : String(Number(x)))).join('-');
       for (const s of k.triads) {
         if (flagged(frets(s.frets), s.name))
-          hits.push(triadShapeId(key, s.index));
+          hits.push(triadShapeId(getGuitarCenter(key), s.index));
       }
       for (const s of k.sevenths) {
         if (flagged(frets(s.frets), s.name))
-          hits.push(seventhShapeId(key, s.index));
+          hits.push(seventhShapeId(getGuitarCenter(key), s.index));
       }
       k.musicMaps.forEach((m, mi) =>
         m.chords.forEach((name, bi) => {
           if (flagged(m.chordShapesShown[bi], name)) {
-            hits.push(mapBarShapeId(key, mi + 1, bi + 1));
+            hits.push(mapBarShapeId(getGuitarCenter(key), mi + 1, bi + 1));
           }
         }),
       );
@@ -340,17 +342,21 @@ describe('classifier as an errata guard', () => {
       !!ids?.some((id) => shapeErrata.has(id));
     const corrected: string[] = [];
     for (const key of GUITAR_KEY_ORDER) {
-      const center = GUITAR_ATLAS_BOOK_ONE[key];
+      const center = getGuitarCenter(key);
       center.triads.forEach((s, i) => {
-        if (cites(s.erratumIds)) corrected.push(triadShapeId(key, i + 1));
+        if (cites(s.erratumIds))
+          corrected.push(triadShapeId(getGuitarCenter(key), i + 1));
       });
       center.sevenths.forEach((s, i) => {
-        if (cites(s.erratumIds)) corrected.push(seventhShapeId(key, i + 1));
+        if (cites(s.erratumIds))
+          corrected.push(seventhShapeId(getGuitarCenter(key), i + 1));
       });
       for (const map of center.musicMaps) {
         map.bars.forEach((b, i) => {
           if (cites(map.erratumIds) || cites(b.erratumIds)) {
-            corrected.push(mapBarShapeId(key, map.example, i + 1));
+            corrected.push(
+              mapBarShapeId(getGuitarCenter(key), map.example, i + 1),
+            );
           }
         });
       }

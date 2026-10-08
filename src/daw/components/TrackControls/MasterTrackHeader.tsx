@@ -4,7 +4,7 @@ import * as Slider from '@radix-ui/react-slider';
 import { Sparkles, Ear, Headphones, Activity } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { audioEngine } from '@/daw/audio/AudioEngine';
-import { useMeterLevel } from '@/daw/hooks/useMeterLevel';
+import { LiveLevelFill } from './LiveLevelFill';
 import { PopOutOverlay } from '@/daw/components/ChannelStrip/PopOutOverlay';
 import { MasterFxPanel } from '@/daw/components/Effects/MasterFxPanel';
 import { MASTER_AUTOMATION_ID } from '@/daw/audio/automationParams';
@@ -47,9 +47,6 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
   const [analyserL, analyserR] = isReady
     ? audioEngine.getMasterAnalysers()
     : [null, null];
-  const levelL = useMeterLevel(analyserL);
-  const levelR = useMeterLevel(analyserR);
-  const liveLevel = (levelL + levelR) / 2;
 
   return (
     <div
@@ -176,19 +173,7 @@ export function MasterTrackHeader({ isReady }: { isReady: boolean }) {
             className="relative h-1.5 w-full overflow-hidden rounded-full"
             style={{ backgroundColor: 'var(--color-border)' }}
           >
-            {/* Live level fill (visual only, ignores slider value) */}
-            <div
-              className="absolute inset-y-0 left-0 rounded-full transition-none"
-              style={{
-                width: `${liveLevel}%`,
-                backgroundColor:
-                  liveLevel > 90
-                    ? 'var(--color-meter-red)'
-                    : liveLevel > 75
-                      ? 'var(--color-meter-yellow)'
-                      : 'var(--color-meter-green)',
-              }}
-            />
+            <LiveLevelFill analyser={analyserL} analyserR={analyserR} />
             <Slider.Range
               className="absolute h-full rounded-full"
               style={{ backgroundColor: 'transparent' }}

@@ -31,6 +31,7 @@ export const CHORD_FORMULA: Readonly<
 > = {
   maj: { 0: R, 4: MAJ3, 7: P5 },
   min: { 0: R, 3: MIN3, 7: P5 },
+  dim: { 0: R, 3: MIN3, 6: DIM5 },
   maj7: { 0: R, 4: MAJ3, 7: P5, 11: MAJ7 },
   dom7: { 0: R, 4: MAJ3, 7: P5, 10: MIN7 },
   min7: { 0: R, 3: MIN3, 7: P5, 10: MIN7 },
@@ -43,6 +44,7 @@ export const QUALITY_TONES: Readonly<
 > = {
   maj: ['third'],
   min: ['third'],
+  dim: ['third', 'fifth'],
   maj7: ['third', 'seventh'],
   dom7: ['third', 'seventh'],
   min7: ['third', 'seventh'],

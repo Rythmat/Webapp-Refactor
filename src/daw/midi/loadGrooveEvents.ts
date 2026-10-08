@@ -7,8 +7,8 @@ const PPQ = 480;
 
 /**
  * Fetch a Grooves-library drum groove and return its notes rescaled from the
- * file's own PPQ to Studio's 480 — the pipeline the Grooves browser runs when a
- * groove is dropped onto a Drums track (`doLoadGroove` in GroovesBrowser.tsx).
+ * file's own PPQ to Studio's 480. The one loader for grooves: the Grooves
+ * browser's preview and Add, practice tracks and demo drums all use it.
  * Resolves to null when the groove is unknown or can't be fetched or parsed.
  */
 export async function loadGrooveEvents(

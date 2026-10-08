@@ -3,15 +3,25 @@
   fill: color-mix(in srgb, var(--color-accent, #8b5cf6) 25%, transparent);
 }
 
+/* ── Printing ───────────────────────────────────────────────────────────────
+   Once loaded, this sheet stays for the rest of the session, so none of it may
+   reach a print of any other page (a set list opened after the Studio printed
+   blank). Every print rule waits for body.ma-print-leadsheet, which the lead
+   sheet and score views hold only while they print (useLeadSheetPrint.ts).
+   Paper size and margins can't be scoped by a selector, so they are named
+   pages that the views ask for, never the page every print gets. */
+@page leadsheet {
+  margin: 0.75in;
+  size: letter;
+}
+
 @media print {
-  /* Page setup */
-  @page {
-    margin: 0.75in;
-    size: letter;
+  body.ma-print-leadsheet .leadsheet-container:not(.score-print-root) {
+    page: leadsheet;
   }
 
   /* Allow content to flow naturally for print */
-  .daw-root {
+  body.ma-print-leadsheet .daw-root {
     position: static !important;
     overflow: visible !important;
     height: auto !important;
@@ -19,23 +29,23 @@
   }
 
   /* Hide all DAW chrome */
-  .daw-root > *:not(.leadsheet-container) {
+  body.ma-print-leadsheet .daw-root > *:not(.leadsheet-container) {
     display: none !important;
   }
 
   /* Hide toolbar in print */
-  .leadsheet-toolbar {
+  body.ma-print-leadsheet .leadsheet-toolbar {
     display: none !important;
   }
 
   /* The palette lives inside .leadsheet-container, so the rule above that
      hides the DAW's chrome does not reach it. */
-  .leadsheet-palette {
+  body.ma-print-leadsheet .leadsheet-palette {
     display: none !important;
   }
 
   /* Show only the lead sheet content */
-  .leadsheet-container {
+  body.ma-print-leadsheet .leadsheet-container {
     position: static !important;
     overflow: visible !important;
     height: auto !important;
@@ -43,7 +53,7 @@
     color: black !important;
   }
 
-  .leadsheet-scroll {
+  body.ma-print-leadsheet .leadsheet-scroll {
     overflow: visible !important;
     height: auto !important;
     padding: 0 !important;
@@ -51,66 +61,61 @@
 
   /* A chart row is drawn at the screen's width; its viewBox lets it scale
      down to the page instead of running off the right edge. */
-  .leadsheet-system {
+  body.ma-print-leadsheet .leadsheet-system {
     width: 100% !important;
   }
 
-  svg.leadsheet-staff {
+  body.ma-print-leadsheet svg.leadsheet-staff {
     width: 100% !important;
     height: auto !important;
   }
 
   /* The playhead is where playback stopped, not part of the chart. It is a
      staff line too, so the black-stroke rule below would print it heavily. */
-  .leadsheet-playhead {
+  body.ma-print-leadsheet .leadsheet-playhead {
     display: none !important;
   }
 
   /* Ensure staff SVGs render with black strokes */
-  .leadsheet-staff {
+  body.ma-print-leadsheet .leadsheet-staff {
     color: black !important;
   }
 
-  .leadsheet-staff text {
+  body.ma-print-leadsheet .leadsheet-staff text {
     fill: black !important;
   }
 
-  .leadsheet-staff line {
+  body.ma-print-leadsheet .leadsheet-staff line {
     stroke: black !important;
   }
 
-  .leadsheet-staff circle {
+  body.ma-print-leadsheet .leadsheet-staff circle {
     fill: black !important;
   }
 
   /* Page breaks between staff systems */
-  .leadsheet-system {
+  body.ma-print-leadsheet .leadsheet-system {
     break-inside: avoid;
     page-break-inside: avoid;
   }
 
   /* Title */
-  .leadsheet-title {
+  body.ma-print-leadsheet .leadsheet-title {
     color: black !important;
     font-size: 24px !important;
     margin-bottom: 16px !important;
   }
 
-  .leadsheet-composer {
+  body.ma-print-leadsheet .leadsheet-composer {
     color: black !important;
   }
 
-  .leadsheet-subtitle {
+  body.ma-print-leadsheet .leadsheet-subtitle {
     color: black !important;
-  }
-
-  /* Hide mesh gradient background */
-  .mesh-gradient-bg {
-    display: none !important;
   }
 
   /* Hide transport bar */
-  .transport-bar {
+  body.ma-print-leadsheet .transport-bar {
     display: none !important;
   }
 }
@@ -122,19 +127,19 @@
    The page itself goes white too, or the app's dark background shows below a
    short sheet whenever background graphics are printed. */
 @media print {
-  html,
-  body {
+  html:has(> body.ma-print-leadsheet),
+  body.ma-print-leadsheet {
     background: white !important;
   }
 
-  body
+  body.ma-print-leadsheet
     *:not(:has(.leadsheet-container)):not(.leadsheet-container):not(
       .leadsheet-container *
     ) {
     display: none !important;
   }
 
-  body *:has(.leadsheet-container) {
+  body.ma-print-leadsheet *:has(.leadsheet-container) {
     display: block !important;
     position: static !important;
     overflow: visible !important;
@@ -158,17 +163,17 @@
 }
 
 @media print {
-  .score-print-root {
+  body.ma-print-leadsheet .score-print-root {
     page: score;
     display: block !important;
   }
 
-  .score-print-root .leadsheet-scroll {
+  body.ma-print-leadsheet .score-print-root .leadsheet-scroll {
     position: relative !important;
     padding: 0 !important;
   }
 
-  .score-print-root .score-print-title {
+  body.ma-print-leadsheet .score-print-root .score-print-title {
     position: absolute;
     top: 0.55in;
     left: 0;
@@ -176,11 +181,17 @@
     z-index: 1;
   }
 
-  .score-print-root .score-print-title .leadsheet-title {
+  body.ma-print-leadsheet
+    .score-print-root
+    .score-print-title
+    .leadsheet-title {
     margin-bottom: 2px !important;
   }
 
-  .score-print-root .score-print-title .leadsheet-subtitle {
+  body.ma-print-leadsheet
+    .score-print-root
+    .score-print-title
+    .leadsheet-subtitle {
     margin-bottom: 0 !important;
   }
 }

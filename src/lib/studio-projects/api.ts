@@ -1,215 +1,28 @@
-import SuperJSON from 'superjson';
-import { authFetch } from '@/auth/authFetch';
 import { showError, showWarning } from '@/components/utils/toast';
-import { Env } from '@/constants/env';
+import { serializeSessionForCloud } from '@/daw/persistence/SessionSerializer';
 import {
-  serializeSessionForCloud,
-  type MidiClipColumnar,
-} from '@/daw/persistence/SessionSerializer';
+  cloudSaveGaps,
+  documentSnapshot,
+  markDocumentBaseline,
+  type DocumentSnapshot,
+} from '@/daw/persistence/saveStatusStore';
+import { getSessionGeneration } from '@/daw/session/sessionGeneration';
 import { useStore } from '@/daw/store';
+import { studioProjectsApi, type StudioProjectDetail } from './projectsClient';
 
-// ── Shapes mirrored from music-atlas-api/src/services/studio-projects ────
-
-export interface StudioProjectAudioClipInput {
-  assetId: string;
-  startTick: number;
-  duration: number;
-  offsetSeconds?: number;
-  gain?: number;
-  fadeInTicks?: number;
-  fadeOutTicks?: number;
-}
-
-export interface StudioProjectAudioClip extends StudioProjectAudioClipInput {
-  id: string;
-  offsetSeconds: number;
-  gain: number;
-  fadeInTicks: number;
-  fadeOutTicks: number;
-}
-
-export interface StudioProjectTrackInput {
-  name: string;
-  type: 'midi' | 'audio';
-  instrument: string;
-  color: string;
-  mute: boolean;
-  solo: boolean;
-  volume: number;
-  pan: number;
-  activeEffects: string[];
-  midiClips: MidiClipColumnar[];
-  audioClips: StudioProjectAudioClipInput[];
-}
-
-export interface StudioProjectInput {
-  name: string;
-  composerName?: string | null;
-  bpm: number;
-  prism: {
-    rootNote: number | null;
-    rhythmName: string;
-    genre: string;
-    swing: number;
-  };
-  tracks: StudioProjectTrackInput[];
-}
-
-/**
- * How the user files a project in the Studio Library. Stored as columns on
- * `studio_project` and returned with every summary, so the Library needs no
- * second request. Written only via `patchMeta` — never by `update`, which is a
- * full replace of the project's track tree.
- */
-export interface StudioProjectLibraryMeta {
-  libraryGenre: string | null;
-  libraryStatus: string | null;
-  libraryInstruments: string[];
-  collaborators: string[];
-}
-
-export interface StudioProjectSummary extends StudioProjectLibraryMeta {
-  id: string;
-  name: string;
-  composerName: string | null;
-  bpm: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface StudioProjectTrack extends StudioProjectTrackInput {
-  id: string;
-  ordinal: number;
-  audioClips: StudioProjectAudioClip[];
-}
-
-export interface StudioProjectDetail extends StudioProjectSummary {
-  prism: StudioProjectInput['prism'];
-  tracks: StudioProjectTrack[];
-}
-
-// ── Path / fetch helpers ─────────────────────────────────────────────────
-
-function apiBase() {
-  return Env.get('VITE_MUSIC_ATLAS_API_URL').replace(/\/+$/, '');
-}
-
-function projectsPath(suffix = '') {
-  const base = apiBase();
-  // Studio controller mounts at /api/studio; tolerate a base that already ends in /api.
-  const prefix = base.endsWith('/api')
-    ? '/studio/projects'
-    : '/api/studio/projects';
-  return `${prefix}${suffix}`;
-}
-
-async function request<T>(
-  path: string,
-  params: {
-    method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-    token: string;
-    body?: unknown;
-  },
-): Promise<T> {
-  const response = await authFetch(`${apiBase()}${path}`, params.token, {
-    method: params.method ?? 'GET',
-    headers: { 'Content-Type': 'application/json' },
-    body: params.body != null ? JSON.stringify(params.body) : undefined,
-  });
-
-  const text = await response.text();
-
-  if (!response.ok) {
-    let message: string;
-    try {
-      const parsed = JSON.parse(text) as { error?: string; message?: string };
-      message = parsed.error ?? parsed.message ?? text.slice(0, 200);
-    } catch {
-      message = text.slice(0, 200) || `HTTP ${response.status}`;
-    }
-    throw new Error(
-      `${params.method ?? 'GET'} ${path} failed (${response.status}): ${message}`,
-    );
-  }
-
-  if (!text) return undefined as T;
-  try {
-    return SuperJSON.parse(text) as T;
-  } catch {
-    return JSON.parse(text) as T;
-  }
-}
-
-// ── Public API ───────────────────────────────────────────────────────────
-
-export const studioProjectsApi = {
-  list: (token: string) =>
-    request<StudioProjectSummary[]>(projectsPath(), { token }),
-
-  get: (token: string, id: string) =>
-    request<StudioProjectDetail>(projectsPath(`/${id}`), { token }),
-
-  create: (token: string, body: StudioProjectInput) =>
-    request<StudioProjectDetail>(projectsPath(), {
-      token,
-      method: 'POST',
-      body,
-    }),
-
-  update: (token: string, id: string, body: StudioProjectInput) =>
-    request<StudioProjectDetail>(projectsPath(`/${id}`), {
-      token,
-      method: 'PUT',
-      body,
-    }),
-
-  /**
-   * Update only the Library filing tags. Touches four scalar columns and no
-   * track rows, so it is safe to call from the Library — which holds a project
-   * summary with no track data and could not safely use `update`.
-   */
-  patchMeta: (
-    token: string,
-    id: string,
-    meta: Partial<StudioProjectLibraryMeta>,
-  ) =>
-    request<StudioProjectLibraryMeta>(projectsPath(`/${id}/meta`), {
-      token,
-      method: 'PATCH',
-      body: meta,
-    }),
-
-  remove: async (token: string, id: string) => {
-    const result = await request<{ id: string; deletedAt: Date }>(
-      projectsPath(`/${id}`),
-      { token, method: 'DELETE' },
-    );
-    // Any set list carrying a page printed from this project keeps the page —
-    // that is the promise — but the link to a project that no longer exists
-    // is cut, so the Studio stops offering to update it.
-    window.dispatchEvent(
-      new CustomEvent('ma-studio-project-deleted', { detail: { id } }),
-    );
-    return result;
-  },
-
-  /**
-   * Eagerly delete any `pending` AudioAsset rows + their bucket objects for
-   * a single project. Used when the user explicitly abandons the project (e.g.
-   * File → New Project) so failed-upload orphans don't wait for the global
-   * hourly cron.
-   */
-  cleanupPendingAssets: (token: string, id: string) =>
-    request<{ deletedRows: number; bucketDeleteFailures: number }>(
-      projectsPath(`/${id}/cleanup-pending-assets`),
-      { token, method: 'POST' },
-    ),
-};
+// The REST client and its shapes live in ./projectsClient, which has no DAW
+// imports, so pages that only list projects don't load the save path.
+export * from './projectsClient';
 
 // Guards against two concurrent first-saves (e.g. an upload-on-record firing at
 // the same moment the user hits Save) each POSTing a fresh project. Whoever
-// wins the race mints the id; everyone else awaits the same promise.
-let projectCreateInFlight: Promise<string> | null = null;
+// wins the race mints the id; everyone else in the same session generation
+// awaits the same promise. A caller in a later generation (another project
+// opened while the create was out) mints its own.
+let projectCreateInFlight: {
+  generation: number;
+  promise: Promise<string>;
+} | null = null;
 
 /**
  * Return the current cloud project id, minting the project (audio-less) if it
@@ -218,6 +31,15 @@ let projectCreateInFlight: Promise<string> | null = null;
  * recording finishes — before any audio has an assetId.
  *
  * Concurrency-safe: simultaneous callers share a single create request.
+ *
+ * The new id is stamped on the session only while it is the one the create
+ * was made for: once another project has opened (a new session generation),
+ * the row holds the project that was open, and the id is only returned.
+ *
+ * A project minted during a collab session is recorded as the session's draft:
+ * the only project the leave prompt's "Discard this session's changes" may
+ * delete, and only if the session started from an empty project (see
+ * LeaveSavePrompt).
  */
 export async function ensureProjectId(
   token: string,
@@ -225,23 +47,85 @@ export async function ensureProjectId(
 ): Promise<string> {
   const existing = useStore.getState().projectId;
   if (existing) return existing;
-  if (projectCreateInFlight) return projectCreateInFlight;
+  const generation = getSessionGeneration();
+  if (projectCreateInFlight?.generation === generation) {
+    return projectCreateInFlight.promise;
+  }
 
-  projectCreateInFlight = (async () => {
+  // Room membership, not socket state: a draft minted while reconnecting still
+  // belongs to the session. Read before the create, so a draft started for
+  // solo work just before a join is never mistaken for a session draft.
+  const roomAtMint = useStore.getState().roomId;
+
+  const promise = (async () => {
     const created = await studioProjectsApi.create(
       token,
       serializeSessionForCloud(nameOverride),
     );
-    useStore.getState().setProjectId(created.id);
+    if (getSessionGeneration() === generation) {
+      const state = useStore.getState();
+      state.setProjectId(created.id);
+      if (roomAtMint && state.roomId === roomAtMint) {
+        state._setSessionDraftProjectId(created.id);
+      }
+    }
     return created.id;
   })();
+  const inFlight = { generation, promise };
+  projectCreateInFlight = inFlight;
 
   try {
-    return await projectCreateInFlight;
+    return await promise;
   } finally {
-    projectCreateInFlight = null;
+    if (projectCreateInFlight === inFlight) projectCreateInFlight = null;
   }
 }
+
+/**
+ * A save that stopped before its PUT, because the session it was for had
+ * gone: another project opened, or this one was deleted or saved as a new
+ * copy, while the save waited for the one before it, for its project to be
+ * minted or for its uploads. Nothing of what is open now was sent (a first
+ * save's new project holds the session as it was when it was minted).
+ * Callers may let it pass quietly: what is open now was never asked to be
+ * saved, and when another project opened, the save has told the student
+ * itself (supersededSave).
+ */
+export class SaveSupersededError extends Error {
+  constructor() {
+    super(
+      'the project was closed, deleted or saved as a copy before it could be sent',
+    );
+    this.name = 'SaveSupersededError';
+  }
+}
+
+/** What a save was asked to save, as it stood when it was asked. */
+interface SaveRequest {
+  /** The newest token any request it stands for brought. */
+  token: string;
+  nameOverride?: string;
+  /** The session it was asked in (getSessionGeneration). */
+  generation: number;
+  /** The cloud project it was asked for; null for a first save. */
+  projectId: string | null;
+}
+
+// The save running now, or the last one to finish. Cmd-S, File ▸ Save, Save
+// As and the leave prompt can each start a save while another is still
+// uploading; run side by side, an older PUT that finished last would put the
+// older project in the cloud and mark it saved over the newer one. So each
+// save waits for the one before it, whether that succeeded or failed.
+let saveQueue: Promise<unknown> = Promise.resolve();
+
+// The save waiting its turn, if any. It reads the project only when it
+// starts, so a request for the same project that arrives meanwhile (Cmd-S
+// pressed again during a long upload) joins it rather than queueing a save
+// of its own.
+let waitingSave: {
+  request: SaveRequest;
+  promise: Promise<StudioProjectDetail>;
+} | null = null;
 
 /**
  * Save the current store state to the cloud, including uploading any in-memory
@@ -256,20 +140,90 @@ export async function ensureProjectId(
  *   1. Ensure the project exists (mint the id if this is the first save).
  *   2. Upload any pending audio clips, stamping their assetId onto the store.
  *   3. PUT the now-complete state.
+ *   4. Mark it as the project's saved state (markDocumentBaseline).
  *
+ * Saves run one at a time, in the order they were asked for (see saveQueue),
+ * and a request for the same project as the save still waiting joins it. A
+ * save is for the session open when it was asked: if that session has gone
+ * by the time the save would send it, nothing is sent and the save rejects
+ * with SaveSupersededError.
  * Shared by the File menu Save button and the Cmd-S keyboard shortcut.
  */
-export async function saveCurrentProjectToCloud(
+export function saveCurrentProjectToCloud(
   token: string,
   nameOverride?: string,
 ): Promise<StudioProjectDetail> {
+  const request: SaveRequest = {
+    token,
+    nameOverride,
+    generation: getSessionGeneration(),
+    projectId: useStore.getState().projectId,
+  };
+  const waiting = waitingSave;
+  if (
+    waiting !== null &&
+    waiting.request.generation === request.generation &&
+    waiting.request.projectId === request.projectId &&
+    waiting.request.nameOverride === request.nameOverride
+  ) {
+    waiting.request.token = token;
+    return waiting.promise;
+  }
+  const entry: NonNullable<typeof waitingSave> = {
+    request,
+    promise: saveQueue.then(() => {
+      if (waitingSave === entry) waitingSave = null;
+      return saveNow(entry.request);
+    }),
+  };
+  waitingSave = entry;
+  saveQueue = entry.promise.catch(() => undefined);
+  return entry.promise;
+}
+
+/** A save stopped once the session it was for had gone. */
+const SUPERSEDED_NOTICE =
+  "Your save didn't finish: another project was opened first. Your unsaved work was kept on this device.";
+
+/**
+ * The error a save stops with when its session has gone (SaveSupersededError).
+ * When another project opened in its place, the student is told: they asked
+ * for the save and believe it happened, while the cloud copy is as it was, and
+ * their work is in a kept slot (replaceSession) that later work can push out.
+ * A cloud link the session let go of (File ▸ Delete, Save As) was the
+ * student's own doing, and goes unsaid.
+ */
+function supersededSave(generation: number): SaveSupersededError {
+  if (getSessionGeneration() !== generation) showWarning(SUPERSEDED_NOTICE);
+  return new SaveSupersededError();
+}
+
+async function saveNow(request: SaveRequest): Promise<StudioProjectDetail> {
+  const { token, nameOverride, generation } = request;
   // Lazy import to avoid pulling the AudioBufferStore + WAV encoder into the
   // module graph for callers that don't need them (e.g. cmd-S handler binding).
   const { uploadPendingAudioClips, reconcileMissingAssets } = await import(
     '@/lib/studio-assets/upload-pending'
   );
 
+  // The session it was asked for has gone while it waited its turn: another
+  // project opened, or this one's cloud link changed (File ▸ Delete, Save
+  // As). A first save (no link yet) takes the link a save before it minted.
+  if (
+    getSessionGeneration() !== generation ||
+    (request.projectId !== null &&
+      useStore.getState().projectId !== request.projectId)
+  ) {
+    throw supersededSave(generation);
+  }
+
   const projectId = await ensureProjectId(token, nameOverride);
+  // Whether the session this save is for is still open, linked to the row it
+  // writes. Checked again after every await that can let the student act.
+  const stillOpen = () =>
+    getSessionGeneration() === generation &&
+    useStore.getState().projectId === projectId;
+  if (!stillOpen()) throw supersededSave(generation);
 
   // Pending = never-uploaded bytes: audio clips without an assetId, and
   // sampler one-shots that are neither uploaded nor bundled (sourceUrl).
@@ -297,12 +251,36 @@ export async function saveCurrentProjectToCloud(
     );
   }
 
+  // The uploads gave the student time to open another project, delete this
+  // one or save it as a copy. The PUT would then write whatever is open now
+  // into this row, and mark it saved: send nothing.
+  if (!stillOpen()) throw supersededSave(generation);
+
   // Final write with the up-to-date payload (post-upload assetIds included).
+  // The document is captured with it, against the row it is written to: an
+  // edit made while the request is in flight isn't in the cloud, so it must
+  // still count as unsaved work, and a session that lets go of this row
+  // meanwhile is not marked saved by it.
+  const sent: DocumentSnapshot = { ...documentSnapshot(), projectId };
+  // Today's payload has no place for the chord lane, the mode, the metre,
+  // markers, mastering, the Score and Lead Sheet, the Prism progression and
+  // the rest of what only milestone 1.5's document field carries. A project
+  // that holds any of it is saved only in part, so it stays work to keep: a
+  // link that replaced it as saved would lose what the cloud copy lacks (D7).
+  const complete = cloudSaveGaps(useStore.getState(), 'legacy').length === 0;
   const result = await studioProjectsApi.update(
     token,
     projectId,
     serializeSessionForCloud(nameOverride),
   );
+  // The cloud holds the project as it was sent: that is its saved state now,
+  // whole or in part. (A newer load or save since then outranks it.)
+  markDocumentBaseline({ snapshot: sent, savedComplete: complete });
+
+  // What follows is about the session that was saved. When it went while
+  // the request was out, the row is saved all the same, and nothing here
+  // concerns what is open now.
+  if (!stillOpen()) return result;
 
   // In a collab session, record that a save happened so the leave flow won't
   // reclaim this project as an "unsaved draft" (see LeaveSavePrompt).

@@ -1,14 +1,15 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { NOTES } from '@prism/engine';
 import { StaffView, type ScorePart } from '@/components/notation/StaffView';
 import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
-import { useMe } from '@/hooks/data/auth/useMe';
+import { ComposerLine } from '../LeadSheet/ComposerLine';
 import '../LeadSheet/leadsheet-print.css';
+import { useLeadSheetPrint } from '../LeadSheet/useLeadSheetPrint';
 import { NoteEditorBar } from './NoteEditorBar';
 import { ScorePalettes } from './ScorePalettes';
 import { ScorePartsPanel } from './ScorePartsPanel';
-import { buildScoreParts, isNotatable } from './scoreParts';
+import { buildScoreParts, isNotatable, ScorePartsCache } from './scoreParts';
 import { spellingMap } from './noteEditor';
 import { useScoreEditing } from './useScoreEditing';
 import { breaksFromRowSizes } from './roadmap';
@@ -25,6 +26,8 @@ import { inches } from '@/lib/notation/pageLayout';
 const PRINT_TITLE_INSET = inches(0.85);
 
 export function ScoreView() {
+  // The score prints through the lead sheet's print rules (its named page).
+  useLeadSheetPrint();
   const tracks = useStore((s) => s.tracks);
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
@@ -32,35 +35,9 @@ export function ScoreView() {
   const numerator = useStore((s) => s.timeSignatureNumerator);
   const denominator = useStore((s) => s.timeSignatureDenominator);
   const projectName = useStore((s) => s.projectName);
-  const composerName = useStore((s) => s.composerName);
-  const setComposerName = useStore((s) => s.setComposerName);
   // The roadmap lives with the lead sheet's, so edits show up in both views.
   const slashNotes = useStore((s) => s.scoreSlashNotes);
   const scoreSpellings = useStore((s) => s.scoreSpellings);
-
-  // Composer defaults to whoever is signed in, as on the lead sheet.
-  const { data: meData } = useMe();
-  useEffect(() => {
-    if (!composerName && meData) {
-      const name = meData.nickname || meData.username || meData.fullName || '';
-      if (name) setComposerName(name);
-    }
-  }, [meData, composerName, setComposerName]);
-
-  const [isEditingComposer, setIsEditingComposer] = useState(false);
-  const [composerInput, setComposerInput] = useState('');
-  const composerInputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    if (isEditingComposer && composerInputRef.current) {
-      composerInputRef.current.focus();
-      composerInputRef.current.select();
-    }
-  }, [isEditingComposer]);
-  const commitComposer = useCallback(() => {
-    const trimmed = composerInput.trim();
-    if (trimmed) setComposerName(trimmed);
-    setIsEditingComposer(false);
-  }, [composerInput, setComposerName]);
 
   const timeSignature: [number, number] = useMemo(
     () => [numerator, denominator],
@@ -72,6 +49,10 @@ export function ScoreView() {
     () => spellingMap(scoreSpellings),
     [scoreSpellings],
   );
+  // Parts are rebuilt only for the tracks an edit touched, and a change that
+  // leaves the music alone (a fader, a mute) hands back the same parts, so
+  // the staff has nothing to engrave.
+  const [partsCache] = useState(() => new ScorePartsCache());
   const scoreParts = useMemo(
     () =>
       buildScoreParts({
@@ -81,8 +62,9 @@ export function ScoreView() {
         timeSignature,
         slashNotes: slashSet,
         spellings,
+        cache: partsCache,
       }),
-    [tracks, rootNote, mode, timeSignature, slashSet, spellings],
+    [tracks, rootNote, mode, timeSignature, slashSet, spellings, partsCache],
   );
   const parts: ScorePart[] = useMemo(
     () => scoreParts.map(({ id, name, score }) => ({ id, name, score })),
@@ -127,7 +109,9 @@ export function ScoreView() {
       })),
       {
         title: projectName,
-        composer: composerName || undefined,
+        // Read here rather than subscribed to: the composer line under the
+        // title redraws itself, so an edit to it doesn't redraw the Score.
+        composer: s.composerName || undefined,
         bpm,
         chordRegions: s.chordRegions,
         chordPartIds: new Set(s.scoreChordTracks),
@@ -145,7 +129,7 @@ export function ScoreView() {
         ),
       },
     );
-  }, [bpm, composerName, projectName, scoreParts]);
+  }, [bpm, projectName, scoreParts]);
 
   const skipped = tracks.filter(
     (t) =>
@@ -229,42 +213,7 @@ export function ScoreView() {
               {projectName}
             </h1>
 
-            {isEditingComposer ? (
-              <div className="mb-1 flex justify-center">
-                <input
-                  ref={composerInputRef}
-                  value={composerInput}
-                  onChange={(e) => setComposerInput(e.target.value)}
-                  onBlur={commitComposer}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') commitComposer();
-                    if (e.key === 'Escape') setIsEditingComposer(false);
-                  }}
-                  className="rounded border px-2 py-0.5 text-center text-sm"
-                  style={{
-                    background: 'var(--color-surface-2)',
-                    color: 'var(--color-text)',
-                    borderColor: 'var(--color-accent, #7ecfcf)',
-                    outline: 'none',
-                    width: 200,
-                  }}
-                />
-              </div>
-            ) : (
-              <div
-                className="leadsheet-composer mb-1 cursor-pointer text-center text-sm"
-                style={{ color: 'var(--color-text-dim)' }}
-                onDoubleClick={() => {
-                  setComposerInput(composerName);
-                  setIsEditingComposer(true);
-                }}
-                title="Double-click to edit composer"
-              >
-                {composerName
-                  ? `by ${composerName}`
-                  : 'Double-click to add composer'}
-              </div>
-            )}
+            <ComposerLine />
 
             <div
               className="leadsheet-subtitle mb-6 flex justify-center gap-4 text-xs"
@@ -290,6 +239,9 @@ export function ScoreView() {
             <StaffView
               parts={parts}
               printTitleInset={PRINT_TITLE_INSET}
+              // An edit redraws only the systems it changed; Learn's staves
+              // leave this off.
+              incremental
               {...editing.staff}
             />
           )}

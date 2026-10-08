@@ -169,7 +169,11 @@ export class VocalFxAdapter implements InstrumentAdapter {
           console.warn(
             '[VocalFxAdapter] Audio input track ended (device disconnected?)',
           );
+          // A newer open may already have replaced this stream.
+          if (this.stream !== stream) return;
           this.stopStream();
+          // Forget the device, so picking it again reopens it.
+          this.deviceId = null;
         });
       }
 
@@ -192,6 +196,9 @@ export class VocalFxAdapter implements InstrumentAdapter {
     } catch (err) {
       console.warn('[VocalFxAdapter] Failed to open audio input:', err);
       this.stopStream();
+      // Forget the device, so asking for it again (a re-pick from the menu)
+      // retries the open, unless a newer pick has already replaced it.
+      if (this.deviceId === deviceId) this.deviceId = null;
     }
   }
 

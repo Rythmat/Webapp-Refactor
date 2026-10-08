@@ -200,7 +200,11 @@ export class GuitarFxAdapter implements InstrumentAdapter {
           console.warn(
             '[GuitarFxAdapter] Audio input track ended (device disconnected?)',
           );
+          // A newer open may already have replaced this stream.
+          if (this.stream !== stream) return;
           this.stopStream();
+          // Forget the device, so picking it again reopens it.
+          this.deviceId = null;
         });
       }
 
@@ -226,6 +230,9 @@ export class GuitarFxAdapter implements InstrumentAdapter {
     } catch (err) {
       console.warn('[GuitarFxAdapter] Failed to open audio input:', err);
       this.stopStream();
+      // Forget the device, so asking for it again (a re-pick from the menu)
+      // retries the open, unless a newer pick has already replaced it.
+      if (this.deviceId === deviceId) this.deviceId = null;
     }
   }
 

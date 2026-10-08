@@ -29,9 +29,8 @@ export const SuggestionChordPill = memo(function SuggestionChordPill({
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
 
-  // Name the chord from its spelled root (what's shown and played), not
-  // chord.degree: in non-Ionian modes the suggestion engine voices degrees
-  // from the mode tonic, so the degree alone would misname it.
+  // Name the chord from its spelled root (what's shown and played), as the
+  // chord lane does, rather than from chord.degree.
   const root = parseChord(chord.noteName)?.root;
   const label =
     notation === 'hybrid' || root === undefined

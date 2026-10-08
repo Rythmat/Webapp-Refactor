@@ -1,11 +1,20 @@
-import React, { useEffect, useRef, useCallback, useState } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useCallback,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import * as Slider from '@radix-ui/react-slider';
 import { Sliders } from 'lucide-react';
 import { useStore, useTrackIds, useTrack, useTrackCount } from '@/daw/store';
 import { useShallow } from 'zustand/react/shallow';
 import type { EffectSlotType, TrackEffectState } from '@/daw/audio/EffectChain';
 import { audioEngine } from '@/daw/audio/AudioEngine';
-import { getTrackAudioState } from '@/daw/hooks/usePlaybackEngine';
+import {
+  getTrackAudioState,
+  subscribeEngineReady,
+} from '@/daw/hooks/usePlaybackEngine';
 import { useMeterLevel } from '@/daw/hooks/useMeterLevel';
 import { FixedDigits } from '@/components/common/FixedDigits';
 import { useCompressorMeters } from '@/daw/hooks/useCompressorMeters';
@@ -183,21 +192,28 @@ function SpectrumAnalyzer({ isReady }: { isReady: boolean }) {
   );
 }
 
-// ── LUFS Meter ──────────────────────────────────────────────────────────
+// ── Peak Meter ──────────────────────────────────────────────────────────
+// The master's sample peak in dBFS. It used to read "LUFS", but that number
+// was this same peak rescaled: real loudness needs K-weighting and gating.
+// useMeterLevel is an 8-bit peak in whole percent, so the readout is whole
+// dB: 1 dB steps near the top, coarser below -20 dBFS, nothing above 0 dBFS,
+// and -40 dBFS at the bottom (where a stopped bus's float residue reads
+// too). Float peaks come with 1.7's meter bus.
 
-const LUFS_SEGMENTS = 20;
+const PEAK_SEGMENTS = 20;
 
-function LufsMeter({ isReady }: { isReady: boolean }) {
+function PeakMeter({ isReady }: { isReady: boolean }) {
   const [analyserL, analyserR] = isReady
     ? audioEngine.getMasterAnalysers()
     : [null, null];
   const levelL = useMeterLevel(analyserL);
   const levelR = useMeterLevel(analyserR);
-  const avg = (levelL + levelR) / 2;
-
-  const lufs = avg > 0 ? -14 + (avg / 100) * 14 : -Infinity;
-  const lufsText = lufs === -Infinity ? '-inf' : lufs.toFixed(2);
-  const litCount = Math.round((avg / 100) * LUFS_SEGMENTS);
+  // A peak meter reads the louder channel.
+  const peak = Math.max(levelL, levelR);
+  const db = levelToDb(peak);
+  // `|| 0`: a whisker under full scale rounds to -0, shown as "0".
+  const peakText = db === -Infinity ? '-inf' : `${Math.round(db) || 0} dBFS`;
+  const litCount = Math.round((peak / 100) * PEAK_SEGMENTS);
 
   return (
     <div className="flex flex-col items-center gap-1">
@@ -206,9 +222,9 @@ function LufsMeter({ isReady }: { isReady: boolean }) {
         className="flex flex-col-reverse gap-px"
         style={{ width: 12, height: 80 }}
       >
-        {Array.from({ length: LUFS_SEGMENTS }, (_, i) => {
+        {Array.from({ length: PEAK_SEGMENTS }, (_, i) => {
           const lit = i < litCount;
-          const ratio = i / LUFS_SEGMENTS;
+          const ratio = i / PEAK_SEGMENTS;
           const color =
             ratio > 0.85
               ? 'var(--color-meter-red)'
@@ -229,15 +245,15 @@ function LufsMeter({ isReady }: { isReady: boolean }) {
         })}
       </div>
       <FixedDigits
-        text={lufsText}
-        className="whitespace-nowrap text-[9px] font-bold"
+        text={peakText}
+        className="whitespace-nowrap text-[12px] font-bold"
         style={{ color: 'var(--color-text)' }}
       />
       <span
-        className="text-[7px] font-semibold uppercase"
+        className="text-[11px] font-semibold uppercase"
         style={{ color: 'var(--color-text-dim)' }}
       >
-        LUFS
+        Peak
       </span>
     </div>
   );
@@ -300,24 +316,23 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
         >
           Mastering
         </span>
+        {/* Gain Match is hidden until it does something (it had no handler). */}
         <div className="ml-auto flex items-center gap-2">
+          {/* A real toggle: playback runs every mastering slot off while it
+              is pressed, so students hear the mix without the chain. A
+              listening A/B only: exports keep the mastering. */}
           <button
-            className="cursor-pointer text-[10px] font-medium transition-colors"
-            style={{
-              color: 'var(--color-text-dim)',
-              background: 'none',
-              border: 'none',
-            }}
-          >
-            Gain Match
-          </button>
-          <button
+            type="button"
             onClick={toggleBypass}
-            className="cursor-pointer text-[10px] font-medium transition-colors"
+            aria-pressed={bypass}
+            title="Hear the mix without mastering (exports keep it)"
+            className="flex h-6 cursor-pointer items-center rounded-full px-3 text-[12px] font-medium transition-colors"
             style={{
-              color: bypass ? '#ef4444' : 'var(--color-text-dim)',
-              background: 'none',
-              border: 'none',
+              color: bypass ? 'var(--color-text)' : 'var(--color-text-dim)',
+              backgroundColor: bypass
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'transparent',
+              border: '1px solid var(--color-border)',
             }}
           >
             Bypass
@@ -347,7 +362,7 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
 
         {/* Right: chain + controls */}
         <div className="flex flex-1 flex-col overflow-hidden">
-          {/* Signal chain row with LUFS meter pinned right */}
+          {/* Signal chain row with the peak meter pinned right */}
           <div className="flex items-start">
             <div className="flex-1">
               <FxChainRow
@@ -369,7 +384,7 @@ function MasteringSection({ isReady }: { isReady: boolean }) {
               />
             </div>
             <div className="flex shrink-0 items-center p-3">
-              <LufsMeter isReady={isReady} />
+              <PeakMeter isReady={isReady} />
             </div>
           </div>
 
@@ -611,8 +626,12 @@ const MixingStrip = React.memo(function MixingStrip({
     returns.push({ id: returnMeta[i], label: returnMeta[i + 1] });
   }
 
-  const analyser =
-    getTrackAudioState(trackId)?.trackEngine.getAnalyserNode() ?? null;
+  // Read again whenever engines are made or retired: a load can replace
+  // this track's engine under the same id.
+  const analyser = useSyncExternalStore(
+    subscribeEngineReady,
+    () => getTrackAudioState(trackId)?.trackEngine.getAnalyserNode() ?? null,
+  );
   const liveLevel = useMeterLevel(analyser);
 
   if (!track) return null;

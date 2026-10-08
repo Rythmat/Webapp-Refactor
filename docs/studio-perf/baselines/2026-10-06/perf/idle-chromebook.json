@@ -1,0 +1,116 @@
+{
+ "scenario": "idle",
+ "profile": "chromebook",
+ "meta": {
+  "date": "2026-10-07T01:08:08.330Z",
+  "base": "http://localhost:5263",
+  "commit": "f96b3ecc",
+  "dirty": true,
+  "chrome": "153.0.8010.12",
+  "gpu": "metal",
+  "windows": {
+   "quick": false,
+   "repeat": 3,
+   "idleMs": 10000,
+   "playbackLeadMs": 1000,
+   "playbackMs": 20000,
+   "dragMs": 4000,
+   "gestureGapMs": 1000,
+   "viewGapMs": 1500,
+   "audioTimeoutMs": 60000,
+   "silenceMs": 10000
+  },
+  "loop": true,
+  "loadLimits": {
+   "cores": 14,
+   "busyAbove": 4.7,
+   "baseline": true,
+   "maxLoad": 4.7
+  },
+  "profileSettings": {
+   "viewport": {
+    "width": 1366,
+    "height": 655
+   },
+   "deviceScaleFactor": 1,
+   "cpuThrottle": 4,
+   "network": {
+    "downloadKbps": 10000,
+    "uploadKbps": 5000,
+    "latencyMs": 40
+   }
+  }
+ },
+ "runSeconds": 17.6,
+ "machine": {
+  "cores": 14,
+  "load1mStart": 3.13,
+  "load1mEnd": 5.66,
+  "cpuBusy": 0.17
+ },
+ "setup": {
+  "query": "?demo=demo-midnight-groove",
+  "openMs": 2807,
+  "audioMs": 1537,
+  "settle": {
+   "quiet": true,
+   "ms": 1815
+  },
+  "pageCheckMs": 99.4,
+  "calm": {
+   "calm": true,
+   "ms": 1003
+  }
+ },
+ "probes": {
+  "seconds": 10,
+  "frames": 600,
+  "frameMs": {
+   "p50": 16.7,
+   "p95": 16.7,
+   "max": 16.80000000000109
+  },
+  "longTasks": {
+   "count": 0,
+   "totalMs": 0
+  },
+  "longAnimationFrames": {
+   "count": 0,
+   "blockingMs": 0
+  },
+  "appRafCallsPerSecond": 599.92,
+  "reactCommitsPerSecond": 0,
+  "storeWritesPerSecond": 0,
+  "storeKeys": [],
+  "regions": {
+   "TransportBar": {
+    "commitsPerSecond": 0,
+    "msPerSecond": 0
+   },
+   "TimelineWithHeaders": {
+    "commitsPerSecond": 0,
+    "msPerSecond": 0
+   },
+   "LibraryPanel": {
+    "commitsPerSecond": 0,
+    "msPerSecond": 0
+   },
+   "ChannelStrip": {
+    "commitsPerSecond": 0,
+    "msPerSecond": 0
+   },
+   "Timeline": {
+    "commitsPerSecond": 0,
+    "msPerSecond": 0
+   },
+   "DawAppInner": {
+    "commitsPerSecond": 0,
+    "msPerSecond": 0
+   }
+  }
+ },
+ "problems": [
+  "the machine was busy (1-minute load average 5.66, limit 4.7), so these timings are not a baseline"
+ ],
+ "pageErrors": []
+}

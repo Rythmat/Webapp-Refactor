@@ -18,11 +18,15 @@ import type { AudioInputChannel } from '@/daw/store/tracksSlice';
 import { TunerDisplay } from './TunerDisplay';
 import { RotaryKnob } from './RotaryKnob';
 import { PitchMeter } from './PitchMeter';
+import {
+  retuneMs,
+  smoothFromSpeed,
+  speedFromSmooth,
+} from './pitchCorrectionSmooth';
 import { usePitchInfo } from '@/daw/hooks/usePitchInfo';
 import {
   getTrackAudioState,
   subscribeEngineReady,
-  getEngineReadyVersion,
 } from '@/daw/hooks/usePlaybackEngine';
 import { VocalFxAdapter } from '@/daw/instruments/VocalFxAdapter';
 import { SCALE_TYPES } from '@/daw/audio/pitch-correction/PitchCorrectionNode';
@@ -449,10 +453,17 @@ function createBlock(type: PedalBlockType): PedalBlock {
 
 const DEFAULT_VOCAL_CHAIN: PedalBlock[] = [];
 
+// Input 1, for a track with no saved channel (an older save, a cloud open, a
+// track that came from a collaborator): the channel label already shows it,
+// and the input stays connected instead of being dropped.
+const DEFAULT_INPUT_CHANNEL: AudioInputChannel = { mode: 'mono', channel: 0 };
+
+// The engine registers a track's adapter before its init resolves and hands
+// it to the track engine after, right before it notifies engine-ready, so
+// reading it from the track engine means built and ready.
 function getAdapter(trackId: string): VocalFxAdapter | null {
-  const state = getTrackAudioState(trackId);
-  if (state?.instrument instanceof VocalFxAdapter) return state.instrument;
-  return null;
+  const instrument = getTrackAudioState(trackId)?.trackEngine.getInstrument();
+  return instrument instanceof VocalFxAdapter ? instrument : null;
 }
 
 // ── VocalView ────────────────────────────────────────────────────────────
@@ -461,6 +472,8 @@ export function VocalView({ trackId }: { trackId: string }) {
   const audioInputChannel = useStore(
     (s) => s.tracks.find((t) => t.id === trackId)?.audioInputChannel ?? null,
   );
+  // The channel the input uses and the menu marks.
+  const inputChannel = audioInputChannel ?? DEFAULT_INPUT_CHANNEL;
   const globalInputDeviceId = useStore((s) => s.inputDeviceId);
   const bpm = useStore((s) => s.bpm);
   const prismRootNote = useStore((s) => s.rootNote);
@@ -478,6 +491,10 @@ export function VocalView({ trackId }: { trackId: string }) {
   const [devices, setDevices] = useState<AudioInputDevice[]>([]);
   const [showDeviceMenu, setShowDeviceMenu] = useState(false);
   const [showChannelMenu, setShowChannelMenu] = useState(false);
+  // Counts picks from the device menu. Picking the device already in use is
+  // how a student retries an input that failed to open or went away, and it
+  // can leave the store unchanged, so the input effect also runs on a pick.
+  const [devicePicks, setDevicePicks] = useState(0);
   const meterRafRef = useRef(0);
   const meterBarRef = useRef<HTMLDivElement>(null);
 
@@ -510,8 +527,14 @@ export function VocalView({ trackId }: { trackId: string }) {
   // Pitch info for PitchMeter
   const pitchInfo = usePitchInfo(trackId);
 
-  // Re-render when instrument finishes async init
-  useSyncExternalStore(subscribeEngineReady, getEngineReadyVersion);
+  // This track's adapter, once the engine has built it. The engine starts on
+  // the first click or key press, usually after this view mounted (always
+  // after a reload), so the engine-facing effects below depend on it and
+  // apply the device and chain when it arrives. Another track's instrument
+  // finishing its init leaves it unchanged, so nothing re-applies then.
+  const adapter = useSyncExternalStore(subscribeEngineReady, () =>
+    getAdapter(trackId),
+  );
 
   // Enumerate audio input devices — auto-select first device globally if none configured
   useEffect(() => {
@@ -530,23 +553,24 @@ export function VocalView({ trackId }: { trackId: string }) {
   }, []);
 
   // Connect adapter to per-track input device + channel (falls back to system default)
+  // The channel goes first: the adapter keeps it for a stream still opening,
+  // so a slow open can't land an older channel over a newer pick.
   useEffect(() => {
-    const adapter = getAdapter(trackId);
     if (!adapter) return;
-    if (!globalInputDeviceId || !audioInputChannel) {
+    if (!globalInputDeviceId) {
       adapter.setDevice(null);
       return;
     }
-    adapter.setDevice(globalInputDeviceId).then(() => {
-      adapter.setChannelConfig(audioInputChannel);
-    });
-  }, [trackId, globalInputDeviceId, audioInputChannel]);
+    adapter.setChannelConfig(inputChannel);
+    adapter
+      .setDevice(globalInputDeviceId)
+      .catch((err) => console.warn('[LiveInput] Could not open input:', err));
+  }, [adapter, globalInputDeviceId, inputChannel, devicePicks]);
 
   // Monitoring sync is handled centrally in usePlaybackEngine
 
   // Sync pedal chain to audio engine (fast path avoids rewiring on param-only changes)
   useEffect(() => {
-    const adapter = getAdapter(trackId);
     if (!adapter) return;
 
     const blocks = chain.map((b) => ({
@@ -560,7 +584,7 @@ export function VocalView({ trackId }: { trackId: string }) {
       // Structure changed — full sync with rewire
       adapter.syncChain(blocks);
     }
-  }, [chain, trackId, bpm]);
+  }, [adapter, chain, bpm]);
 
   // Persist chain to store so it survives VocalView unmount/remount
   useEffect(() => {
@@ -713,13 +737,12 @@ export function VocalView({ trackId }: { trackId: string }) {
     { label: '1-2', config: { mode: 'stereo', left: 0, right: 1 } },
   ];
 
-  const channelLabel = audioInputChannel
-    ? audioInputChannel.mode === 'stereo'
+  const channelLabel =
+    inputChannel.mode === 'stereo'
       ? '1-2'
-      : audioInputChannel.channel === 0
+      : inputChannel.channel === 0
         ? '1'
-        : '2'
-    : '1';
+        : '2';
 
   const selectedDeviceLabel =
     devices.find((d) => d.id === globalInputDeviceId)?.label ??
@@ -739,6 +762,7 @@ export function VocalView({ trackId }: { trackId: string }) {
         recordArmed: true,
         monitoring: true,
       });
+      setDevicePicks((n) => n + 1);
     },
     [trackId, updateTrack, audioInputChannel],
   );
@@ -797,6 +821,8 @@ export function VocalView({ trackId }: { trackId: string }) {
           ? rootNoteColor(pitchRootNote)
           : modeColor(pitchRootNote, pitchModeKey)
       : selectedColor;
+  // Pitch correction's Smooth (0–100): its saved retune speed, reversed.
+  const pitchSmooth = smoothFromSpeed(selectedBlock?.params.speed ?? 50);
   const pitchWhiteGrad =
     pitchRootNote === -1
       ? 'linear-gradient(to bottom, #e8e8e8, #fff)'
@@ -912,7 +938,7 @@ export function VocalView({ trackId }: { trackId: string }) {
                     onClick={() => handleSelectChannel(opt.config)}
                     className="px-3 py-1.5 text-xs cursor-pointer hover:bg-white/10"
                     style={{
-                      color: configsMatch(opt.config, audioInputChannel)
+                      color: configsMatch(opt.config, inputChannel)
                         ? 'var(--color-accent)'
                         : 'var(--color-text)',
                     }}
@@ -1485,20 +1511,20 @@ export function VocalView({ trackId }: { trackId: string }) {
                       )
                     }
                   />
-                  {/* Smooth knob */}
+                  {/* Smooth knob: up = a slower, more natural retune */}
                   <RotaryKnob
                     label="SMOOTH"
-                    value={(selectedBlock.params.speed ?? 50) / 100}
+                    value={pitchSmooth / 100}
                     min={0}
                     max={1}
                     size={52}
                     arcColor={pitchAccentColor}
-                    formatValue={(v) => `${((1 - v) * 400).toFixed(0)} ms`}
+                    formatValue={(v) => `${retuneMs(v * 100).toFixed(0)} ms`}
                     onChange={(v) =>
                       updateBlockParam(
                         selectedBlock.id,
                         'speed',
-                        Math.round(v * 100),
+                        speedFromSmooth(Math.round(v * 100)),
                       )
                     }
                   />
@@ -1649,30 +1675,25 @@ export function VocalView({ trackId }: { trackId: string }) {
                                     fontVariantNumeric: 'tabular-nums',
                                   }}
                                 >
-                                  {(
-                                    (1 -
-                                      (selectedBlock.params.speed ?? 50) /
-                                        100) *
-                                    400
-                                  ).toFixed(1)}{' '}
-                                  ms
+                                  {retuneMs(pitchSmooth).toFixed(1)} ms
                                 </span>
                               </div>
                               <input
                                 type="range"
+                                aria-label="Smooth"
                                 min={0}
                                 max={100}
-                                value={selectedBlock.params.speed ?? 50}
+                                value={pitchSmooth}
                                 onChange={(e) =>
                                   updateBlockParam(
                                     selectedBlock.id,
                                     'speed',
-                                    Number(e.target.value),
+                                    speedFromSmooth(Number(e.target.value)),
                                   )
                                 }
                                 className="w-full h-1 rounded-full appearance-none cursor-pointer"
                                 style={{
-                                  background: `linear-gradient(to right, ${pitchAccentColor} ${selectedBlock.params.speed ?? 50}%, rgba(255,255,255,0.08) ${selectedBlock.params.speed ?? 50}%)`,
+                                  background: `linear-gradient(to right, ${pitchAccentColor} ${pitchSmooth}%, rgba(255,255,255,0.08) ${pitchSmooth}%)`,
                                   accentColor: pitchAccentColor,
                                 }}
                               />

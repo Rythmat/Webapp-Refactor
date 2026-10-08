@@ -37,7 +37,12 @@ const rigs = vi.hoisted(() => {
     getFloatFrequencyData: () => {},
   });
   const makeRig = () => {
-    const context = { sampleRate: 48000, createAnalyser: () => node(context) };
+    const context = {
+      sampleRate: 48000,
+      createAnalyser: () => node(context),
+      // NodeTapCapture's own tap off the clean pre-amp node.
+      createGain: () => node(context),
+    };
     let source: object | null = null;
     return {
       context,

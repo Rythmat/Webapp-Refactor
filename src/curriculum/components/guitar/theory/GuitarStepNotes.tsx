@@ -1,11 +1,12 @@
 import { memo, useId, useMemo, useState } from 'react';
 import { cn } from '@/components/utilities';
 import {
-  GUITAR_ATLAS_BOOK_ONE,
+  centerTitle,
+  getGuitarCenter,
   getGuitarShape,
-} from '@/curriculum/data/guitar/bookOne';
+} from '@/curriculum/data/guitar/centers';
 import { notesFor } from '@/curriculum/data/guitar/theoryNotes';
-import type { GuitarKeyName } from '@/curriculum/data/guitar/types';
+import type { GuitarCenterId } from '@/curriculum/data/guitar/types';
 import type {
   ActivityFlowV2,
   ActivityStepV2,
@@ -41,7 +42,7 @@ export interface GuitarStepNotesProps {
   flow: ActivityFlowV2;
   /** The step as the flow has it. */
   step: ActivityStepV2;
-  keyCenter: GuitarKeyName;
+  keyCenter: GuitarCenterId;
   /** Add the practice tips (pt.*). */
   practising?: boolean;
   /** B7 steps: "Same root, four kinds" with Hear it. Omitted = no panel. */
@@ -139,12 +140,13 @@ export const GuitarStepNotes = memo(function GuitarStepNotes({
 });
 
 // ── GuitarKeyNotes ─────────────────────────────────────────────────────────
-// "About {key} major": what GuitarKeyIntro says about the key (the note it
-// changes, why the keys come in this order, its minor partner) and its chord
+// "About {key} major" ("About D Dorian"): what GuitarKeyIntro says about the
+// key (in Book One the note it changes, why the keys come in this order, its
+// minor partner; in a mode its parent key and colour note) and its chord
 // family, as a block of the sheet that opens on request.
 
 export interface GuitarKeyNotesProps {
-  keyCenter: GuitarKeyName;
+  keyCenter: GuitarCenterId;
   /** The chord family's ink. */
   keyColor?: string;
   defaultOpen?: boolean;
@@ -163,7 +165,7 @@ export const GuitarKeyNotes = memo(function GuitarKeyNotes({
   const showRomanNumerals = useGuitarDisplaySettings(
     (s) => s.showRomanNumerals,
   );
-  const center = GUITAR_ATLAS_BOOK_ONE[keyCenter];
+  const center = getGuitarCenter(keyCenter);
   const notes = useMemo(() => {
     const all = notesFor('KEY', {
       center,
@@ -184,7 +186,7 @@ export const GuitarKeyNotes = memo(function GuitarKeyNotes({
         onToggle={() => setOpen(!open)}
         controls={bodyId}
       >
-        About {center.displayName} major
+        About {centerTitle(center)}
       </DisclosureHeading>
       {open && (
         <div id={bodyId} className="flex flex-col gap-5 pt-2">

@@ -15,7 +15,7 @@ export type ChordToneRole = 'root' | 'third' | 'fifth' | 'seventh';
 /** Scale degree in a major key. */
 export type KeyDegree = 7 | 6 | 5 | 4 | 3 | 2 | 1;
 export type LabelMode = 'fingers' | 'notes' | 'keyNumbers' | 'chordTones';
-/** Book qualities plus the diminished triad on 7, which the book never prints. */
+/** Book qualities, the diminished triad included. */
 export type DiatonicQuality = BookChordQuality | 'dim';
 export type SeventhQuality = Extract<
   BookChordQuality,
@@ -111,6 +111,7 @@ export interface ChangeInfo {
 
 export interface MusicMapAnalysis {
   degrees: KeyDegree[];
+  /** Each bar's job (home, away, tension); empty in a mode's maps. */
   functions: FunctionGroup[];
   patterns: MapPattern[];
   changes: ChangeInfo[];
@@ -127,6 +128,8 @@ export type GuitarSubsectionPrefix =
   | 'A2'
   | 'A3'
   | 'A4'
+  /** A mode's second pentatonic; its notes are A4's. */
+  | 'A5'
   | 'B'
   | 'B1'
   | 'B2'
@@ -148,6 +151,8 @@ export type TheoryNoteCondition =
   | 'isFirstKey'
   | 'notFirstKeyNoRespell'
   | 'isFlatSwitch'
+  | 'modeSpelledLikeParent'
+  | 'modeRespelled'
   | 'scaleHasOpenStrings'
   | 'inTimeStep'
   | 'staccatoStep'
@@ -162,7 +167,7 @@ export type TheoryNoteCondition =
   | 'familyDrop3'
   | 'familyOpenSeventh'
   | 'firstDrop3StepInKey'
-  | 'degreeIsNot5'
+  | 'hasHiddenTriad'
   | 'degreeIs7'
   // change
   | 'changeHasAnchor'
@@ -191,6 +196,11 @@ export interface GuitarTheoryNote {
   placement: 'intro' | 'info' | 'popover';
   kind: 'theory' | 'technique' | 'listening' | 'practice';
   when: TheoryNoteCondition;
+  /**
+   * Which lessons the note belongs to: 'ionian' (Book One's major keys) or
+   * 'modal' (the other modes). Absent: every lesson.
+   */
+  modes?: 'ionian' | 'modal';
   /** ≤ 5 words. */
   title: string;
   /** 1–4 sentences, ≤ 20 words each; {tokens} are resolved per key and step. */

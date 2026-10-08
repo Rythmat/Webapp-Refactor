@@ -23,16 +23,29 @@ import {
 } from '@/daw/midi/MidiFileIO';
 import { downloadLeadSheet } from '@/daw/midi/MusicXmlExport';
 import { deserializeCloudProject } from '@/daw/persistence/SessionSerializer';
+import { inSharedSession } from '@/daw/session/sharedSession';
 import {
+  SaveSupersededError,
   saveCurrentProjectToCloud,
   studioProjectsApi,
   type StudioProjectSummary,
 } from '@/lib/studio-projects/api';
 import { resetToNewProject } from '@/lib/studio-projects/newProject';
+import {
+  announceKeptWork,
+  announceKeptWorkAfterReload,
+  keepOutgoingSession,
+  replaceSession,
+} from '@/lib/studio-projects/localSession';
+import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { loadCloudProjectAudio } from '@/lib/studio-assets/load-audio';
 import { PartialUploadError } from '@/lib/studio-assets/upload-pending';
 import { showError, showSuccess } from '@/components/utils/toast';
-import { ExportAudioDialog } from './ExportAudioDialog';
+import {
+  DEFAULT_EXPORT_CHOICES,
+  ExportAudioDialog,
+  type ExportChoices,
+} from './ExportAudioDialog';
 import type { MidiNoteEvent } from '@prism/engine';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -61,6 +74,7 @@ const separatorStyle = {
 export function FileMenu() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const token = useAuthToken();
+  const { userId } = useAuthContext();
   // During a collab session, New Project and Open are unavailable: New Project
   // would reload and silently drop the user, and Open isn't supported in a
   // shared session (each user saves to their own account instead).
@@ -105,6 +119,9 @@ export function FileMenu() {
   const [cloudListError, setCloudListError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [exportAudioOpen, setExportAudioOpen] = useState(false);
+  const [exportChoices, setExportChoices] = useState<ExportChoices>(
+    DEFAULT_EXPORT_CHOICES,
+  );
 
   const refreshCloudProjects = useCallback(async () => {
     if (!token) return;
@@ -126,9 +143,17 @@ export function FileMenu() {
 
   // ── Project management ──
 
+  // No question (owner decision 6): unsaved work is kept first, and the
+  // toast with its Restore waits for the editor's boot after the reload.
   const handleNewProject = useCallback(async () => {
-    if (!window.confirm('Create a new project? Unsaved changes will be lost.'))
+    const kept = keepOutgoingSession(userId);
+    if (kept.status === 'failed') {
+      showError(
+        "Your work couldn't be set aside on this device, so it's still open. Save it, then try again.",
+      );
       return;
+    }
+    if (kept.status === 'kept') announceKeptWorkAfterReload(kept.slot);
 
     // If the user was working on a cloud project, eagerly clean up any failed-
     // upload orphans for it before reloading. Best-effort — if the cleanup
@@ -148,7 +173,7 @@ export function FileMenu() {
     // Drop the local autosave (so the reload doesn't restore the session we're
     // leaving) and reload into a blank project.
     resetToNewProject();
-  }, [token]);
+  }, [token, userId]);
 
   const handleSave = useCallback(async () => {
     if (!token) {
@@ -161,6 +186,9 @@ export function FileMenu() {
       await refreshCloudProjects();
       showSuccess('Project saved');
     } catch (err) {
+      // Another project opened, or this one was deleted or saved as a copy,
+      // while the save waited: nothing was sent, and nothing went wrong.
+      if (err instanceof SaveSupersededError) return;
       console.error('Cloud save failed', err);
       if (err instanceof PartialUploadError) {
         // Partial success — succeeded clips kept their assetIds, retry will
@@ -198,6 +226,7 @@ export function FileMenu() {
       await refreshCloudProjects();
       showSuccess(`Saved as "${trimmed}"`);
     } catch (err) {
+      if (err instanceof SaveSupersededError) return;
       console.error('Cloud save-as failed', err);
       if (err instanceof PartialUploadError) {
         showError(err.message);
@@ -219,7 +248,26 @@ export function FileMenu() {
       }
       try {
         const project = await studioProjectsApi.get(token, id);
-        deserializeCloudProject(project);
+        // The project replaces the session the way an editor link does: the
+        // work it held is kept first, and an unchanged copy of this project
+        // has no work for the next link to keep.
+        const result = await replaceSession(
+          userId,
+          () => deserializeCloudProject(project),
+          { reopenable: true },
+        );
+        if (result.status === 'refused') {
+          showError(
+            "Your work couldn't be set aside on this device, so it's still open. Save it, then try again.",
+          );
+          return;
+        }
+        if (result.status === 'failed') throw result.error;
+        // Restore offered where restoreKeptWork allows it: not in a shared
+        // session, though a host whose room has closed may.
+        const restorable = !inSharedSession();
+        if (result.kept) announceKeptWork(result.kept, userId, { restorable });
+        if (result.also) announceKeptWork(result.also, userId, { restorable });
         useStore.getState().offerChordAnalysis();
         // Audio buffers download + decode in the background; clips appear in
         // the timeline immediately and become playable as their bytes arrive.
@@ -233,7 +281,7 @@ export function FileMenu() {
         );
       }
     },
-    [token],
+    [token, userId],
   );
 
   const handleDeleteProject = useCallback(async () => {
@@ -275,28 +323,13 @@ export function FileMenu() {
       const sequences = importMidiFile(arrayBuffer);
 
       const state = useStore.getState();
-      const COLORS = [
-        '#8b5cf6',
-        '#a855f7',
-        '#f59e0b',
-        '#f97316',
-        '#22c55e',
-        '#3b82f6',
-        '#ef4444',
-        '#06b6d4',
-      ];
 
       for (let i = 0; i < sequences.length; i++) {
         const seq = sequences[i];
         const ppq = seq.ticksPerQuarterNote;
-        const color = COLORS[i % COLORS.length];
 
-        const trackId = state.addTrack(
-          'midi',
-          'oracle-synth',
-          seq.trackName,
-          color,
-        );
+        // addTrack picks the colour from the track palette.
+        const trackId = state.addTrack('midi', 'oracle-synth', seq.trackName);
 
         const events: MidiNoteEvent[] = seq.events.map((ev: MidiNoteEvent) => ({
           ...ev,
@@ -605,10 +638,18 @@ export function FileMenu() {
         </DropdownMenu.Portal>
       </DropdownMenu.Root>
 
-      <ExportAudioDialog
-        open={exportAudioOpen}
-        onOpenChange={setExportAudioOpen}
-      />
+      {/* Mounted only while open: it subscribes to the whole track list, so
+          an always-mounted dialog re-rendered the transport bar's region on
+          every track edit (shell-17). The student's format, bit depth and
+          range live here instead, so they carry over to the next export. */}
+      {exportAudioOpen && (
+        <ExportAudioDialog
+          open
+          onOpenChange={setExportAudioOpen}
+          choices={exportChoices}
+          onChoicesChange={setExportChoices}
+        />
+      )}
     </>
   );
 }

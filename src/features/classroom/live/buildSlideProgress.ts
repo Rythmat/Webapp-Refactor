@@ -43,6 +43,7 @@ export const isAtlasResultComplete = (result: unknown): boolean => {
     r.completion === true ||
     r.completed === true ||
     r.kind === 'completion' ||
+    r.kind === 'mindMap' ||
     typeof r.score === 'number' ||
     'artifactRef' in r
   );
@@ -59,7 +60,8 @@ const hasInboxCompletion = (
       e.participant.enrollmentId === enrollmentId &&
       (e.payload.kind === 'completion' ||
         e.payload.kind === 'score' ||
-        e.payload.kind === 'artifact'),
+        e.payload.kind === 'artifact' ||
+        e.payload.kind === 'mindMap'),
   );
 
 export const buildSlideProgress = (

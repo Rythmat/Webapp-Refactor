@@ -20,7 +20,10 @@ import {
   stashMspLaunchParams,
   type MspLaunchParams,
 } from './mspLaunchParams';
-import { recordMspResponseForUser } from './mspResponseInbox';
+import {
+  recordMspResponseForUser,
+  type MspResultPayload,
+} from './mspResponseInbox';
 
 const isBrowser = typeof window !== 'undefined';
 
@@ -29,6 +32,13 @@ export interface UseMspModuleCompletion {
   armed: boolean;
   /** Report completion back to the classroom (idempotent per launch). */
   reportCompletion: (result?: { score?: number; max?: number }) => void;
+  /**
+   * Report any result — the Globe's mind map hands in the map itself.
+   * Idempotent per launch, like `reportCompletion`.
+   */
+  reportResult: (payload: MspResultPayload) => void;
+  /** The launch this module view was opened for, once read. */
+  launch: () => MspLaunchParams | null;
 }
 
 export const useMspModuleCompletion = (): UseMspModuleCompletion => {
@@ -51,8 +61,8 @@ export const useMspModuleCompletion = (): UseMspModuleCompletion => {
     }
   }, []);
 
-  const reportCompletion = useCallback(
-    (result?: { score?: number; max?: number }) => {
+  const reportResult = useCallback(
+    (payload: MspResultPayload) => {
       const p = paramsRef.current;
       if (!p || firedRef.current) return;
       firedRef.current = true;
@@ -64,14 +74,36 @@ export const useMspModuleCompletion = (): UseMspModuleCompletion => {
         participant: { enrollmentId: p.enrollmentId },
         module: p.module,
         activityRef: p.activityRef,
-        payload:
-          typeof result?.score === 'number' && typeof result?.max === 'number'
-            ? { kind: 'score', score: result.score, max: result.max }
-            : { kind: 'completion', completed: true },
+        payload,
       });
     },
     [userId],
   );
 
-  return { armed: paramsRef.current !== null, reportCompletion };
+  const reportCompletion = useCallback(
+    (result?: { score?: number; max?: number }) =>
+      reportResult(
+        typeof result?.score === 'number' && typeof result?.max === 'number'
+          ? { kind: 'score', score: result.score, max: result.max }
+          : { kind: 'completion', completed: true },
+      ),
+    [reportResult],
+  );
+
+  const launch = useCallback(
+    () =>
+      paramsRef.current ??
+      (isBrowser
+        ? (readMspLaunchParams(window.location.search) ??
+          readStashedMspLaunchParams())
+        : null),
+    [],
+  );
+
+  return {
+    armed: paramsRef.current !== null,
+    reportCompletion,
+    reportResult,
+    launch,
+  };
 };

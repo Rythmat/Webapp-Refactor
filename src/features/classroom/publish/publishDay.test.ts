@@ -458,6 +458,100 @@ describe('publishDay deck projection', () => {
   });
 });
 
+describe('publishDay — a Cortex lesson', () => {
+  const board = {
+    focus: 'artist:ana-lux' as const,
+    goal: 2,
+    nodes: [
+      {
+        id: 'artist:ana-lux' as const,
+        kind: 'artist' as const,
+        label: 'Ana Lux',
+        stop: { artist: 'Ana Lux' },
+      },
+      {
+        id: 'place:motor-city' as const,
+        kind: 'place' as const,
+        label: 'Motor City',
+        stop: { place: 'city:motor-city' },
+      },
+    ],
+    edges: [
+      {
+        from: 'artist:ana-lux' as const,
+        to: 'place:motor-city' as const,
+        kind: 'born_in' as const,
+      },
+    ],
+  };
+  const promoter: Interaction = {
+    id: 'ix-promoter',
+    type: 'atlas',
+    question: { en: 'Find 2 connections to Ana Lux on the Globe.' },
+    shareable: false,
+    atlas: {
+      module: 'globe',
+      activityRef: 'globe:mindmap',
+      expects: 'artifact',
+      board,
+    },
+  };
+  const cortexDay = (): Day => {
+    const day = makeDay();
+    day.cells.groupPractice.presentation.interactions = [
+      structuredClone(promoter),
+    ];
+    day.deck = {
+      id: 'deck-cx',
+      title: { en: 'Ana Lux · Promoter' },
+      slides: [
+        {
+          id: 'slide-group',
+          kind: 'app-route',
+          phase: 'groupPractice',
+          title: { en: 'Group Project: Promoter' },
+          interactionId: 'ix-promoter',
+        },
+      ],
+      templateRef: {
+        templateId: 'cortex-lesson-v1',
+        focusId: 'artist:ana-lux',
+        role: 'promoter',
+        seed: 3,
+      },
+    };
+    return day;
+  };
+
+  it("carries the Promoter's board to students, field by field", () => {
+    const snapshot = publishDay(cortexDay());
+    const [ix] = snapshot.cells.groupPractice.presentation.interactions ?? [];
+    expect(ix.atlas).toEqual(promoter.atlas);
+    expect(findForbiddenKey(snapshot)).toBeNull();
+  });
+
+  it('drops anything else riding on the atlas object or the board', () => {
+    const day = cortexDay();
+    const [ix] = day.cells.groupPractice.presentation.interactions!;
+    (ix.atlas as unknown as Record<string, unknown>).teacherGuide = 'SECRET-1';
+    (ix.atlas!.board!.nodes[0] as unknown as Record<string, unknown>).aside =
+      'SECRET-2';
+    (ix.atlas!.board!.nodes[1].stop as unknown as Record<string, unknown>).x =
+      'SECRET-3';
+    const serialized = JSON.stringify(publishDay(day));
+    expect(serialized).not.toMatch(/SECRET|teacherGuide|aside/);
+  });
+
+  it("keeps the lesson's focus, role and seed in its provenance", () => {
+    expect(publishDay(cortexDay()).deck?.templateRef).toEqual({
+      templateId: 'cortex-lesson-v1',
+      focusId: 'artist:ana-lux',
+      role: 'promoter',
+      seed: 3,
+    });
+  });
+});
+
 describe('Rule 1 matcher is EXACT-key, not substring (P0)', () => {
   const wrap = (slideExtras: Record<string, unknown>) =>
     ({

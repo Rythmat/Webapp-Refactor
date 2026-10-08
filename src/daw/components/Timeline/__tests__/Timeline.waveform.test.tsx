@@ -17,7 +17,7 @@ import { buildPeakLevels } from '@/daw/audio/peakLevels';
 // A redraw used to scan every sample of each visible audio clip and draw a
 // curve through every point of the whole clip, most of them off screen. It
 // now reads the clip's peak pyramid for the points on the canvas only, and a
-// long take shows "Loading…" until the peaks worker has summarised it.
+// long take draws a flat line until the peaks worker has summarised it.
 
 vi.mock('@/daw/dev/DevProfiler', () => ({ useDevCommitCount: () => {} }));
 vi.mock('@/hooks/useIsPremium', () => ({
@@ -88,8 +88,8 @@ function noise(length: number): Float32Array {
   return data;
 }
 
-/** A take on an audio track at bar 1, `seconds` long, with its buffer loaded. */
-function addTake(id: string, seconds: number) {
+/** A clip on an audio track at bar 1, `seconds` long, with no audio yet. */
+function addClip(id: string, seconds: number, assetId: string | null = null) {
   const trackId = s().addTrack('audio', 'vocal-fx', 'Vocals');
   const ticksPerSecond = (s().bpm * 480) / 60;
   s().addAudioClip(trackId, {
@@ -98,9 +98,14 @@ function addTake(id: string, seconds: number) {
     duration: Math.round(seconds * ticksPerSecond),
     fadeInTicks: 0,
     fadeOutTicks: 0,
-    assetId: null,
+    assetId,
     offsetSeconds: 0,
   });
+}
+
+/** A take on an audio track at bar 1, `seconds` long, with its buffer loaded. */
+function addTake(id: string, seconds: number) {
+  addClip(id, seconds);
   const left = noise(seconds * RATE);
   const buffer = {
     length: left.length,
@@ -116,6 +121,24 @@ function addTake(id: string, seconds: number) {
 const loadingLabels = () =>
   lastDraw().filter((c) => c.name === 'fillText' && c.args[0] === 'Loading…')
     .length;
+
+/**
+ * Flat lines across a clip: a level stroke longer than the view. Grid lines
+ * and separators span the view at most; a clip at the closest zoom runs far
+ * past it.
+ */
+const flatLines = () => {
+  const draw = lastDraw();
+  return draw.filter((c, i) => {
+    const prev = draw[i - 1];
+    return (
+      c.name === 'lineTo' &&
+      prev?.name === 'moveTo' &&
+      prev.args[1] === c.args[1] &&
+      (c.args[0] as number) - (prev.args[0] as number) > VIEWPORT
+    );
+  }).length;
+};
 
 /** Stands in for the peaks worker, answering when a test says so. */
 class StandInWorker {
@@ -167,22 +190,36 @@ describe('audio clip waveforms', () => {
     expect(curves).toBeGreaterThan(2 * 500);
     expect(curves).toBeLessThan(2 * (VIEWPORT / 2 + 8));
     expect(loadingLabels()).toBe(0);
+    expect(flatLines()).toBe(0);
   });
 
-  it('shows Loading… until the worker delivers a long take’s peaks', () => {
+  it('draws a flat line, not Loading…, until the worker delivers a long take’s peaks', () => {
     StandInWorker.made = [];
     vi.stubGlobal('Worker', StandInWorker);
     addTake('long-take', 40);
     render(<Timeline />);
 
-    expect(loadingLabels()).toBeGreaterThan(0);
+    // The take is decoded and plays: it is not loading, only not drawn yet.
+    expect(loadingLabels()).toBe(0);
+    expect(flatLines()).toBe(1);
     expect(count('quadraticCurveTo')).toBe(0);
+
     const [worker] = StandInWorker.made;
     expect(worker.requests).toHaveLength(1);
-
     act(() => worker.reply());
     // The arrival redraws the timeline, now with the waveform.
     expect(count('quadraticCurveTo')).toBeGreaterThan(2 * 500);
+    expect(flatLines()).toBe(0);
     expect(loadingLabels()).toBe(0);
+  });
+
+  it('shows Loading… for a cloud clip whose audio has not arrived', () => {
+    vi.stubGlobal('Worker', undefined);
+    addClip('cloud-take', 40, 'asset-1');
+    render(<Timeline />);
+
+    expect(loadingLabels()).toBeGreaterThan(0);
+    expect(flatLines()).toBe(0);
+    expect(count('quadraticCurveTo')).toBe(0);
   });
 });

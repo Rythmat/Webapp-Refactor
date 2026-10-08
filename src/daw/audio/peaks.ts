@@ -14,7 +14,7 @@ import { buildPeakLevels, type PeakLevel } from './peakLevels';
 //
 // A buffer longer than WORKER_MIN_SECONDS is summarised in a worker from a
 // copy of its channels, so a long take never blocks a frame. Until the worker
-// answers, its pyramid reads as null and the timeline shows "Loading…".
+// answers, its pyramid reads as null and the timeline draws a flat line.
 // Without workers (tests, or a browser that refuses one) every buffer is
 // summarised on the page.
 
@@ -60,7 +60,7 @@ function notify(): void {
 
 /**
  * Calls `cb` whenever a pyramid built off the page arrives (or its build
- * falls back to the page), so a canvas showing "Loading…" can redraw.
+ * falls back to the page), so a canvas waiting for one can redraw.
  */
 export function subscribePeakPyramids(cb: () => void): () => void {
   subscribers.add(cb);

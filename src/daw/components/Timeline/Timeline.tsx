@@ -1056,13 +1056,21 @@ export function Timeline() {
           // A clip with an assetId but no buffer yet is mid-download from GCS
           // (loadCloudProjectAudio in progress). Skip the placeholder waveform
           // — which would mislead the user into thinking the audio is loaded
-          // — and overlay a "Loading…" label instead. So does a long take
-          // while the peaks worker is still summarising it.
+          // — and overlay a "Loading…" label instead.
+          const isLoadingCloudAudio = !audioBuffer && Boolean(clip.assetId);
+          // A long take that is decoded and playable, while the peaks worker
+          // is still summarising it, is not loading: it draws a flat line
+          // until its waveform arrives.
           const pyramid = audioBuffer ? getPeakPyramid(audioBuffer) : undefined;
-          const isLoadingCloudAudio =
-            (!audioBuffer && Boolean(clip.assetId)) || pyramid === null;
 
-          if (isLoadingCloudAudio) {
+          if (pyramid === null) {
+            ctx.strokeStyle = track.color + '66';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(clipX + 4, centerY);
+            ctx.lineTo(clipX + clipWidth - 4, centerY);
+            ctx.stroke();
+          } else if (isLoadingCloudAudio) {
             if (clipWidth > 60) {
               ctx.fillStyle = 'rgba(255,255,255,0.55)';
               ctx.font = "11px 'Glacial Indifference', system-ui, sans-serif";

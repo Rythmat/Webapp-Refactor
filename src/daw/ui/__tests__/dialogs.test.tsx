@@ -13,7 +13,9 @@ import { Button } from '../Button';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { DawDialog, Sheet, type DawDialogProps } from '../DawDialog';
 import { confirmDialog, DialogHost, promptDialog } from '../DialogHost';
+import { Menu, MenuContent, MenuItem, MenuTrigger } from '../Menu';
 import { PromptDialog } from '../PromptDialog';
+import { Select } from '../Select';
 import { installDomShims } from './dom';
 
 // ── Overlays: opaque, portaled, keyboard and focus correct ──────────────────
@@ -182,6 +184,91 @@ describe('Sheet', () => {
     expect(screen.getByRole('button', { name: 'Drums' })).toHaveFocus();
     fireEvent.keyDown(sheet, { key: 'Escape' });
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+});
+
+describe('a Select or a Menu inside a dialog', () => {
+  // Radix keeps its open layers, focus traps and scroll locks in stacks that
+  // live in their modules. With two copies of those modules (the pinned
+  // Radix packages nest their own), the dialog's focus trap pulled focus
+  // back out of a Select's list and one Escape closed both; vite.config.ts
+  // gives every package the one copy.
+
+  /**
+   * Fails at once if two focus traps bounce focus between them, which would
+   * otherwise recurse until the stack overflows and then hang the run.
+   */
+  function failOnBouncingFocus() {
+    const focus = HTMLElement.prototype.focus;
+    let calls = 0;
+    vi.spyOn(HTMLElement.prototype, 'focus').mockImplementation(function (
+      this: HTMLElement,
+      options?: FocusOptions,
+    ) {
+      calls += 1;
+      if (calls > 200) throw new Error('two focus traps are fighting');
+      focus.call(this, options);
+    });
+  }
+
+  it('lets a Select take focus into its list, and Escape closes only the list', async () => {
+    failOnBouncingFocus();
+    const onOpenChange = vi.fn();
+    render(
+      <DawDialog open onOpenChange={onOpenChange} title="Export audio">
+        <Select
+          label="Format"
+          defaultValue="wav"
+          options={[
+            { value: 'wav', label: 'WAV' },
+            { value: 'mp3', label: 'MP3' },
+          ]}
+        />
+      </DawDialog>,
+    );
+    const field = screen.getByRole('combobox', { name: 'Format' });
+    act(() => field.focus());
+    fireEvent.keyDown(field, { key: 'ArrowDown' });
+    const list = await screen.findByRole('listbox');
+    await waitFor(() =>
+      expect(list).toContainElement(document.activeElement as HTMLElement),
+    );
+
+    fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
+    await waitFor(() => expect(screen.queryByRole('listbox')).toBeNull());
+    expect(onOpenChange).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    await waitFor(() => expect(field).toHaveFocus());
+  });
+
+  it('lets a Menu take focus, and Escape closes only the menu', async () => {
+    failOnBouncingFocus();
+    const onOpenChange = vi.fn();
+    render(
+      <DawDialog open onOpenChange={onOpenChange} title="Track">
+        <Menu>
+          <MenuTrigger asChild>
+            <Button>More</Button>
+          </MenuTrigger>
+          <MenuContent>
+            <MenuItem>Rename</MenuItem>
+            <MenuItem>Duplicate</MenuItem>
+          </MenuContent>
+        </Menu>
+      </DawDialog>,
+    );
+    const trigger = screen.getByRole('button', { name: 'More' });
+    act(() => trigger.focus());
+    fireEvent.keyDown(trigger, { key: 'Enter' });
+    const menu = await screen.findByRole('menu');
+    await waitFor(() =>
+      expect(menu).toContainElement(document.activeElement as HTMLElement),
+    );
+
+    fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
+    await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
+    expect(onOpenChange).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 });
 

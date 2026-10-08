@@ -21,7 +21,7 @@ What is left is the API, described in **What the API needs** below.
 - The bodies, slug patterns and bundle names below are the contract. The
   machine-readable copies are `src/content/instrument/schemas.ts` (zod) and
   `src/scripts/apiContract/slugPatterns.generated.json` (in contract draft
-  4).
+  5: version 4 was handed off without them).
 
 ## The kinds
 
@@ -139,7 +139,7 @@ no entries for them yet. They join it when the references become checked.
 2. **Validate bodies** with the schemas in
    `src/content/instrument/schemas.ts` (copy them as you copy
    `recordBodySchemas.ts`), and slugs with
-   `slugPatterns.generated.json` (contract draft 4).
+   `slugPatterns.generated.json` (contract draft 5).
 3. **Store and serve them like any record kind:** `GET /items?kind=`,
    `GET /items/:id`, `PUT /items` (an editor's save is a proposal),
    `DELETE /items/:id`, `GET /template/:kind`, `GET /validate/:kind`,

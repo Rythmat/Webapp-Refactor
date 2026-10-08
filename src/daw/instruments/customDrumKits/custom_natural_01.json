@@ -1,0 +1,14 @@
+{
+  "id": "custom_natural_01",
+  "label": "Brushes natural kit",
+  "base": "natural",
+  "samples": {
+    "36": "/daw-assets/samples/drums/uploads/muzq8tvi-bop-kick---snares-on---2.mp3",
+    "38": "/daw-assets/samples/drums/uploads/muzq9cx7-brush-snare-hit.mp3",
+    "40": "/daw-assets/samples/drums/uploads/muzq9pyb-brush-snare-hit-loud.mp3",
+    "42": "/daw-assets/samples/drums/uploads/muzqcdvr-hihat---foot-close---3.mp3",
+    "44": "/daw-assets/samples/drums/uploads/muzqag8m-hihat---foot-close---3.mp3",
+    "46": "/daw-assets/samples/drums/uploads/muzqc4c2-hihat---foot-open---2.mp3",
+    "49": "/daw-assets/samples/drums/uploads/muzqde4o-ride---crash---4.mp3"
+  }
+}

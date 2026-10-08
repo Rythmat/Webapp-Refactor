@@ -378,6 +378,39 @@ export const AdminRoutes = {
     '/table/:table/:row',
     { prefix: adminPrefix },
   ),
+
+  /**
+   * Drum Grooves designer — the step-sequenced grooves activity backing tracks,
+   * Practice Tracks and the Studio's Grooves tab play. Saving writes repo
+   * files (dev server only).
+   */
+  drumGrooves: createRouteDefinition('/grooves', { prefix: adminPrefix }),
+
+  /** Drum Grooves designer — one groove. */
+  drumGroove: createRouteDefinition<{ id: string }>('/grooves/:id', {
+    prefix: adminPrefix,
+  }),
+
+  /**
+   * Parts Library — instrumental parts (piano, bass, guitar…) lessons and the
+   * Studio draw on, drum grooves listed alongside. Saving writes repo files
+   * (dev server only).
+   */
+  parts: createRouteDefinition('/parts', { prefix: adminPrefix }),
+
+  /** Parts Library — one part's editor. */
+  part: createRouteDefinition<{ id: string }>('/parts/:id', {
+    prefix: adminPrefix,
+  }),
+
+  /**
+   * Parts editor on a lesson step's notes: piano roll / staff, then commit
+   * back to the lesson. `index` is the step's position in its section.
+   */
+  lessonPart: createRouteDefinition<
+    { genre: string; level: string },
+    { section?: string; index?: string; hands?: string; variant?: string }
+  >('/parts/lesson/:genre/:level', { prefix: adminPrefix }),
 };
 
 /**

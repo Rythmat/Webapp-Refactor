@@ -8,6 +8,7 @@ import {
   ChevronUp,
   Piano,
   Disc3,
+  Library,
 } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import type { ChannelStripTabId } from '@/daw/store/uiSlice';
@@ -22,6 +23,7 @@ import { noteEditorOriginTick } from '@/daw/audio/noteEditorOrigin';
 import { TICKS_PER_BEAT } from '@/daw/utils/timelineScale';
 import { PianoRoll } from '@/daw/components/PianoRoll/PianoRoll';
 import { GroovesBrowser } from '@/daw/components/Controls/GroovesBrowser';
+import { PartsBrowser } from '@/daw/components/Controls/PartsBrowser';
 import type { MidiNoteEvent } from '@prism/engine';
 import { isChannelStripTabId } from './channelStripTabs';
 
@@ -64,6 +66,11 @@ const TABS: TabDef[] = [
     id: 'grooves',
     label: 'Grooves',
     icon: <Disc3 size={14} strokeWidth={1.5} />,
+  },
+  {
+    id: 'parts',
+    label: 'Parts',
+    icon: <Library size={14} strokeWidth={1.5} />,
   },
   { id: 'prism', label: 'Prism', icon: <PrismLogo size={14} /> },
   {
@@ -214,11 +221,12 @@ export function ChannelStrip() {
     [activeTab, setActiveTab],
   );
 
-  // Grooves is a drum machine's tab, the piano roll a melodic instrument's,
-  // and Prism neither a drum machine's nor a live input's.
+  // Grooves is a drum machine's tab, Parts and the piano roll a melodic
+  // instrument's, and Prism neither a drum machine's nor a live input's.
   const tabApplies = (id: TabId) =>
     !(
       (id === 'grooves' && !isDrumMachine) ||
+      (id === 'parts' && (!isMidiInstrument || isDrumMachine)) ||
       (id === 'prism' && (isAudioInput || isDrumMachine)) ||
       (id === 'piano-roll' && (!isMidiInstrument || isDrumMachine))
     );
@@ -344,6 +352,9 @@ export function ChannelStrip() {
               {activeTab === 'fx' && <EffectsPanel />}
               {activeTab === 'grooves' && track && (
                 <GroovesBrowser trackId={track.id} />
+              )}
+              {activeTab === 'parts' && track && (
+                <PartsBrowser trackId={track.id} />
               )}
               {activeTab === 'prism' && (
                 <LockedFeatureOverlay locked={!isPremium}>

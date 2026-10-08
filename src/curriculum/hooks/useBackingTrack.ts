@@ -22,7 +22,10 @@ import { startTone } from '@/audio/core/toneBridge';
 import { DrumMachineEngine } from '../../daw/instruments/DrumMachineEngine';
 // Bass uses direct Tone.Sampler for triggerAttackRelease (self-contained per note)
 import { SoundFontAdapter } from '../../daw/instruments/SoundFontAdapter';
-import { buildBackingNotes } from '../engine/genreGeneration/backingPatterns';
+import {
+  buildBackingNotes,
+  stepDrumKit,
+} from '../engine/genreGeneration/backingPatterns';
 import {
   createEightOhEight,
   play808,
@@ -377,10 +380,13 @@ export function useBackingTrack(tempo: number) {
 
       const useReal = enginesReady.current;
       const useSF2 = sf2Ready.current;
-      // The step's own kit and bass sound (backing_style), else the genre's.
+      // The step's own kit and bass sound (backing_style), else its designed
+      // groove's kit, else the genre's.
       const style = step.backing_style;
       if (useReal && drumEngineRef.current) {
-        await drumEngineRef.current.setKit(style?.kit ?? 'natural');
+        await drumEngineRef.current.setKit(
+          stepDrumKit(step, styleRef, genre, level),
+        );
       }
       const voiceId = style?.bassVoice;
       const use808 = useReal && voiceId === '808' && bassBridgeRef.current;

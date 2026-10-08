@@ -92,6 +92,36 @@ const AdminContentEditPage = lazy(() =>
   })),
 );
 
+const AdminDrumGroovesPage = lazy(() =>
+  import('./drumGrooves/AdminDrumGroovesPage').then(
+    ({ AdminDrumGroovesPage }) => ({ default: AdminDrumGroovesPage }),
+  ),
+);
+
+const AdminDrumGrooveEditPage = lazy(() =>
+  import('./drumGrooves/AdminDrumGrooveEditPage').then(
+    ({ AdminDrumGrooveEditPage }) => ({ default: AdminDrumGrooveEditPage }),
+  ),
+);
+
+const AdminPartsLibraryPage = lazy(() =>
+  import('./parts/AdminPartsLibraryPage').then(({ AdminPartsLibraryPage }) => ({
+    default: AdminPartsLibraryPage,
+  })),
+);
+
+const AdminPartEditPage = lazy(() =>
+  import('./parts/AdminPartEditPage').then(({ AdminPartEditPage }) => ({
+    default: AdminPartEditPage,
+  })),
+);
+
+const AdminLessonPartPage = lazy(() =>
+  import('./parts/AdminLessonPartPage').then(({ AdminLessonPartPage }) => ({
+    default: AdminLessonPartPage,
+  })),
+);
+
 const AdminLessonCoursePage = lazy(() =>
   import('./content/lessons/AdminLessonCoursePage').then(
     ({ AdminLessonCoursePage }) => ({
@@ -439,6 +469,29 @@ export const adminPages = () => {
                   {
                     path: AdminRoutes.lessonCourse.definition,
                     element: <AdminLessonCoursePage />,
+                  },
+                  // Instrument content: drum grooves and the Parts Library,
+                  // reached from the MirrorBar's Records menu. Console pages
+                  // like the lesson course — outside the mirrored app paths.
+                  {
+                    path: AdminRoutes.drumGrooves.definition,
+                    element: <AdminDrumGroovesPage />,
+                  },
+                  {
+                    path: AdminRoutes.drumGroove.definition,
+                    element: <AdminDrumGrooveEditPage />,
+                  },
+                  {
+                    path: AdminRoutes.parts.definition,
+                    element: <AdminPartsLibraryPage />,
+                  },
+                  {
+                    path: AdminRoutes.lessonPart.definition,
+                    element: <AdminLessonPartPage />,
+                  },
+                  {
+                    path: AdminRoutes.part.definition,
+                    element: <AdminPartEditPage />,
                   },
                 ],
               },

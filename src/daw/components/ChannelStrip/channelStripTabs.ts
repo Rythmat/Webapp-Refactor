@@ -13,6 +13,7 @@ const TABS: Record<ChannelStripTabId, true> = {
   controls: true,
   fx: true,
   grooves: true,
+  parts: true,
   prism: true,
   'piano-roll': true,
 };

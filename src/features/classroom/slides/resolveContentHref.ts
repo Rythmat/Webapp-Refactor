@@ -12,8 +12,9 @@
  *   song:<id>:lesson | song:<id>:chart
  *   learn:<mode>:<key>[:activity]
  *   curriculum:<GENRE>:<L#>[:A|B|C|D]
- *   globe:event:<id> | globe:pathway:<id>
- *   studio:song:<id> | studio:template:<id>
+ *   globe:event:<id> | globe:pathway:<id> | globe:mindmap
+ *   studio:song:<id> | studio:template:<id> | studio:tutorial:<id>
+ *   studio:library
  * Legacy bare refs (no recognized `<ns>:` prefix) are interpreted via `module`
  * (e.g. an annual-plan globe LaunchTile whose activityRef is a bare event id).
  */
@@ -145,6 +146,9 @@ export const resolveActivityRefHref = (
         return `${AtlasRoutes.globe()}?tour=${encodeURIComponent(`city-${id}`)}`;
       if (sub === 'era' && id)
         return `${AtlasRoutes.globe()}?era=${encodeURIComponent(id)}`;
+      // A Cortex lesson's Promoter: the Globe with the mind-map panel open.
+      // The board itself is handed over separately (msp/mindMapHandoff).
+      if (sub === 'mindmap') return `${AtlasRoutes.globe()}?mindmap=1`;
       return AtlasRoutes.globe();
     }
     case 'studio': {
@@ -154,6 +158,11 @@ export const resolveActivityRefHref = (
         return `${StudioRoutes.editor()}?song=${encodeURIComponent(id)}`;
       if (sub === 'template' && id)
         return `${StudioRoutes.editor()}?template=${encodeURIComponent(id)}`;
+      // A Cortex lesson's Producer: the editor with the tutorial running.
+      if (sub === 'tutorial' && id)
+        return `${StudioRoutes.editor()}?tutorial=${encodeURIComponent(id)}`;
+      // "Continue your project": the Studio Dashboard's project library.
+      if (sub === 'library') return `${StudioRoutes.root()}?tab=Library`;
       return StudioRoutes.editor();
     }
     default:

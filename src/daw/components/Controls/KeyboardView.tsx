@@ -14,15 +14,13 @@ import { PRESETS } from '@/daw/data/instrumentPresets';
 import type { Track } from '@/daw/store/tracksSlice';
 
 /** The preset name to show: the saved one while it still matches the track's
- *  instrument, else the first preset for that instrument. */
+ *  instrument, else the first preset for that instrument. A name the catalog
+ *  no longer lists (a preset that only relabelled the track) falls back too,
+ *  so the label always names what the track plays. */
 function displayPresetName(track: Track | undefined): string {
   if (!track) return 'Studio Grand';
   const saved = PRESETS.find((p) => p.name === track.presetName);
-  if (
-    saved &&
-    (!saved.instrumentType || saved.instrumentType === track.instrument)
-  )
-    return saved.name;
+  if (saved && saved.instrumentType === track.instrument) return saved.name;
   if (track.instrument === 'piano-sampler') return 'Studio Grand';
   return (
     PRESETS.find((p) => p.instrumentType === track.instrument)?.name ??
@@ -286,9 +284,7 @@ export function KeyboardView({ trackId }: { trackId: string }) {
                   // Saved on the track so the name (and sound) reload.
                   updateTrack(trackId, {
                     presetName: preset.name,
-                    ...(preset.instrumentType && {
-                      instrument: preset.instrumentType,
-                    }),
+                    instrument: preset.instrumentType,
                     ...(preset.gmProgram !== undefined && {
                       gmProgram: preset.gmProgram,
                     }),

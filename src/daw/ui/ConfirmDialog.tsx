@@ -63,7 +63,8 @@ export function ConfirmDialog({
       }}
     >
       <AlertDialogPrimitive.Portal>
-        <AlertDialogPrimitive.Overlay className="fixed inset-0 z-[var(--daw-z-modal)] bg-daw-scrim backdrop-blur-sm" />
+        {/* A plain scrim, as DawDialog's: no backdrop blur. */}
+        <AlertDialogPrimitive.Overlay className="fixed inset-0 z-[var(--daw-z-modal)] bg-daw-scrim" />
         <AlertDialogPrimitive.Content
           onOpenAutoFocus={(event) => {
             focus.capture();

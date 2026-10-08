@@ -76,6 +76,9 @@ describe('DawDialog', () => {
     expect(dialog).toHaveClass('bg-daw-popover', 'z-[var(--daw-z-modal)]');
     const scrim = dialog.previousElementSibling;
     expect(scrim).toHaveClass('bg-daw-scrim', 'z-[var(--daw-z-modal)]');
+    // Plain black/60: the kit's backdrop blur is switched off.
+    expect(scrim).toHaveClass('backdrop-blur-none');
+    expect(scrim).not.toHaveClass('backdrop-blur-sm');
   });
 
   it('hides the editor behind it from assistive technology while open', () => {
@@ -304,6 +307,10 @@ describe('ConfirmDialog', () => {
     });
     expect(dialog).toHaveAccessibleDescription('Its clips go too.');
     expect(dialog).toHaveClass('bg-daw-popover');
+    // Over a plain scrim, with no backdrop blur.
+    const scrim = dialog.previousElementSibling!;
+    expect(scrim).toHaveClass('bg-daw-scrim');
+    expect(scrim.className).not.toMatch(/backdrop-blur/);
   });
 
   it('starts on Cancel when the action destroys work, with a red button', () => {

@@ -102,9 +102,11 @@ function OverlayFrame({
         <DialogPrimitive.Trigger asChild>{trigger}</DialogPrimitive.Trigger>
       )}
       <DialogPortal>
+        {/* A plain black/60 scrim: no backdrop blur, which re-blurs the whole
+            window on every frame the meters or the playhead move under it. */}
         <DialogOverlay
           className={cn(
-            'z-[var(--daw-z-modal)] bg-daw-scrim',
+            'z-[var(--daw-z-modal)] bg-daw-scrim backdrop-blur-none',
             OVERLAY_MOTION.base,
           )}
         />

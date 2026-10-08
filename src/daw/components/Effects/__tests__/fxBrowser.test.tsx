@@ -45,7 +45,24 @@ describe('FxBrowser', () => {
   it('shows how many of the five slots are used', () => {
     renderBrowser(['eq', 'compressor']);
     expect(screen.getByTitle('2 of 5 effects')).toHaveTextContent('2/5');
-    expect(screen.queryByRole('status')).toBeNull();
+    // The status is there, empty, until the rack is full.
+    expect(screen.getByRole('status')).toBeEmptyDOMElement();
+  });
+
+  it('says the rack is full in a status that was already on the page', () => {
+    // A status that arrives holding its text is often not announced; this
+    // one is there from the start and its text changes.
+    const four: EffectSlotType[] = ['eq', 'compressor', 'reverb', 'delay'];
+    const props = { trackId: 'keys', onAddEffect: vi.fn(), hideMidi: true };
+    const { rerender } = render(<FxBrowser {...props} activeEffects={four} />);
+    const status = screen.getByRole('status');
+    expect(status).toBeEmptyDOMElement();
+
+    rerender(<FxBrowser {...props} activeEffects={[...four, 'saturator']} />);
+    expect(screen.getByRole('status')).toBe(status);
+    expect(status).toHaveTextContent(
+      'Max 5 effects. Remove one to add another.',
+    );
   });
 
   it('says the rack is full at five effects, and adds nothing more', () => {

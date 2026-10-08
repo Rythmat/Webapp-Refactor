@@ -73,18 +73,22 @@ export function FxBrowser({
           {activeEffects.length}/{MAX_EFFECTS}
         </span>
       </div>
-      {atMax && (
-        <p
-          role="status"
-          className="m-0 px-3 py-2 shrink-0 border-b text-[12px] leading-snug"
-          style={{
-            borderColor: 'var(--color-border)',
-            color: 'var(--color-text-dim)',
-          }}
-        >
-          Max {MAX_EFFECTS} effects. Remove one to add another.
-        </p>
-      )}
+      {/* Always on the page, empty below the cap: a screen reader announces
+          a status as its text changes, and often misses one that arrives
+          already holding its text. */}
+      <div role="status" className="shrink-0">
+        {atMax && (
+          <p
+            className="m-0 px-3 py-2 border-b text-[12px] leading-snug"
+            style={{
+              borderColor: 'var(--color-border)',
+              color: 'var(--color-text-dim)',
+            }}
+          >
+            Max {MAX_EFFECTS} effects. Remove one to add another.
+          </p>
+        )}
+      </div>
       <div className="flex-1 overflow-y-auto">
         {categories.map(([category, items], ci) => (
           <div key={category}>

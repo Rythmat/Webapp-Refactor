@@ -3,8 +3,14 @@
 // Each synced slice maps to a top-level Y.Map or Y.Array on the document.
 
 import * as Y from 'yjs';
-import { DEFAULT_EFFECTS } from '@/daw/audio/EffectChain';
 import { ensureSamplerSampleId } from '@/daw/instruments/samplerChops';
+import {
+  isNoteId,
+  mintNoteId,
+  noteIdFromCid,
+  type NoteId,
+} from '@/daw/model/noteIds';
+import { trackFieldDefault } from '@/daw/persistence/projectDocument/fields';
 import type { AllSlices } from '@/daw/store/index';
 import type { Track, MidiClip, AudioClip } from '@/daw/store/tracksSlice';
 import type { ChordRegion } from '@/daw/store/prismSlice';
@@ -77,13 +83,16 @@ export function getYAssets(doc: Y.Doc): Y.Map<Y.Map<unknown>> {
 
 /**
  * Convert a plain MidiNoteEvent to a Y.Map.
- * Assigns a `_cid` (CRDT-stable identity) if the event doesn't already have one.
+ *
+ * The note's id rides in `_cid`, the key every version of the doc has given
+ * a note's identity, so the doc keeps its shape and older peers keep working:
+ * they read `_cid` onto their notes and write it back unchanged. A note that
+ * reaches here without an id (a store path that hasn't given it one yet) gets
+ * a fresh one in the doc only, as every note did before ids were stored.
  */
-export function midiEventToYMap(
-  ev: MidiNoteEvent & { _cid?: string },
-): Y.Map<unknown> {
+export function midiEventToYMap(ev: MidiNoteEvent): Y.Map<unknown> {
   const m = new Y.Map<unknown>();
-  m.set('_cid', ev._cid ?? crypto.randomUUID());
+  m.set('_cid', isNoteId(ev.id) ? ev.id : mintNoteId());
   m.set('note', ev.note);
   m.set('velocity', ev.velocity);
   m.set('startTick', ev.startTick);
@@ -211,17 +220,28 @@ export function markerToYMap(marker: Marker): Y.Map<unknown> {
 
 // ── Conversion helpers: Yjs → Zustand ───────────────────────────────────
 
-export function yMapToMidiEvent(
-  m: Y.Map<unknown>,
-): MidiNoteEvent & { _cid: string } {
-  return {
-    _cid: m.get('_cid') as string,
+/**
+ * The note's id from its `_cid`. An older peer wrote a UUID there, which
+ * reads as the id derived from it, so it holds still for as long as that
+ * `_cid` does. A note with none comes back without an id: the reader settles
+ * those, and repeats, project-wide (ensureProjectNoteIds).
+ */
+function noteIdFromDoc(cid: unknown): NoteId | undefined {
+  if (isNoteId(cid)) return cid;
+  return typeof cid === 'string' && cid !== '' ? noteIdFromCid(cid) : undefined;
+}
+
+export function yMapToMidiEvent(m: Y.Map<unknown>): MidiNoteEvent {
+  const event: MidiNoteEvent = {
     note: m.get('note') as number,
     velocity: m.get('velocity') as number,
     startTick: m.get('startTick') as number,
     durationTicks: m.get('durationTicks') as number,
     channel: m.get('channel') as number,
   };
+  const id = noteIdFromDoc(m.get('_cid'));
+  if (id !== undefined) event.id = id;
+  return event;
 }
 
 export function yMapToCCEvent(m: Y.Map<unknown>): MidiCCEvent {
@@ -260,6 +280,12 @@ export function yMapToAudioClip(m: Y.Map<unknown>): AudioClip {
   };
 }
 
+/**
+ * A track as the doc holds it. What the doc doesn't carry (this person's own
+ * state, below, and anything an older peer didn't write) takes the
+ * registry's plain track defaults: trackFieldDefault without a new-track
+ * context, as for any decoder (see TrackFieldSpec in fields.ts).
+ */
 export function yMapToTrack(m: Y.Map<unknown>): Track {
   const midiClipsArr = m.get('midiClips') as
     | Y.Array<Y.Map<unknown>>
@@ -281,26 +307,32 @@ export function yMapToTrack(m: Y.Map<unknown>): Track {
     // mute/solo/recordArmed/monitoring are per-user-local; never read from the
     // shared doc. The Yjs→Zustand observer preserves the local user's values on
     // remote updates.
-    mute: false,
-    solo: false,
-    recordArmed: false,
-    monitoring: false,
+    mute: trackFieldDefault('mute'),
+    solo: trackFieldDefault('solo'),
+    recordArmed: trackFieldDefault('recordArmed'),
+    monitoring: trackFieldDefault('monitoring'),
     volume: m.get('volume') as number,
     pan: m.get('pan') as number,
-    trackRole: m.get('trackRole') as Track['trackRole'],
+    // A peer from before roles were shared writes none: 'auto' follows the
+    // track's name.
+    trackRole:
+      (m.get('trackRole') as Track['trackRole'] | null | undefined) ||
+      trackFieldDefault('trackRole'),
     drumKit: (m.get('drumKit') as string | null) ?? undefined,
     bassVoice: (m.get('bassVoice') as Track['bassVoice'] | null) ?? undefined,
     presetName: (m.get('presetName') as string | null) ?? undefined,
-    midiInputId: null,
-    audioInputId: null,
-    audioInputChannel: null,
+    midiInputId: trackFieldDefault('midiInputId'),
+    audioInputId: trackFieldDefault('audioInputId'),
+    audioInputChannel: trackFieldDefault('audioInputChannel'),
     // Merge over defaults so an older peer's doc (missing newer effect slots
     // like multiband) still yields a complete TrackEffectState.
     effects: {
-      ...structuredClone(DEFAULT_EFFECTS),
+      ...trackFieldDefault('effects'),
       ...(effectsStr ? JSON.parse(effectsStr) : {}),
     },
-    activeEffects: activeEffectsStr ? JSON.parse(activeEffectsStr) : [],
+    activeEffects: activeEffectsStr
+      ? JSON.parse(activeEffectsStr)
+      : trackFieldDefault('activeEffects'),
     midiClips: midiClipsArr ? midiClipsArr.toArray().map(yMapToMidiClip) : [],
     audioClips: audioClipsArr
       ? audioClipsArr.toArray().map(yMapToAudioClip)
@@ -363,6 +395,26 @@ export function yMapToMarker(m: Y.Map<unknown>): Marker {
 // ── Hydrate: populate Y.Doc from Zustand state ─────────────────────────
 
 /**
+ * The eight mastering macros (style, EQ, presence, de-esser, loudness,
+ * stereo field, dynamics, amount) as every build that had them wrote them.
+ * No control ever changed them, and milestone 1.3 removed them from the
+ * store, but older peers still read these keys when they join a room, so a
+ * doc made here keeps them, at the values those peers would have shared. No
+ * diff writes them and no observer reads them back (decision D5); they can
+ * go when the collab doc schema next moves on (milestone 1.14).
+ */
+const LEGACY_MASTERING_MACROS: Readonly<Record<string, string | number>> = {
+  style: 'balanced',
+  eq: JSON.stringify({ low: 0, mid: 0, high: 0 }),
+  dynamics: JSON.stringify({ compression: 50, character: 50, saturation: 0 }),
+  loudness: -2,
+  stereoField: '100%',
+  amount: 100,
+  presence: 50,
+  deEsser: JSON.stringify({ amount: 0, frequency: 6000 }),
+};
+
+/**
  * Write the current Zustand state into the Yjs doc.
  * Called once when a collaborative session is first created from a local project.
  */
@@ -406,15 +458,10 @@ export function hydrateDocFromStore(doc: Y.Doc, state: AllSlices): void {
 
     // Mastering
     const mastering = getYMastering(doc);
-    mastering.set('style', state.masteringStyle);
-    mastering.set('eq', JSON.stringify(state.masteringEq));
-    mastering.set('dynamics', JSON.stringify(state.masteringDynamics));
-    mastering.set('loudness', state.masteringLoudness);
-    mastering.set('stereoField', state.masteringStereoField);
+    for (const [key, value] of Object.entries(LEGACY_MASTERING_MACROS)) {
+      mastering.set(key, value);
+    }
     mastering.set('bypass', state.masteringBypass);
-    mastering.set('amount', state.masteringAmount);
-    mastering.set('presence', state.masteringPresence);
-    mastering.set('deEsser', JSON.stringify(state.masteringDeEsser));
     mastering.set('fxChain', JSON.stringify(state.masteringFxChain));
     mastering.set('effects', JSON.stringify(state.masteringEffects));
     mastering.set('masterVolume', state.masterVolume);

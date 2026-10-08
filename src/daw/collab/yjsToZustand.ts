@@ -4,8 +4,9 @@
 // the entire store on every remote change.
 
 import * as Y from 'yjs';
+import type { MidiNoteEvent } from '@prism/engine';
 import type { AllSlices } from '@/daw/store/index';
-import type { Track } from '@/daw/store/tracksSlice';
+import type { MidiClip, Track } from '@/daw/store/tracksSlice';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { Marker } from '@/daw/store/markersSlice';
 import {
@@ -23,6 +24,7 @@ import {
 } from './YjsDocManager';
 import { ORIGIN_LOCAL } from './types';
 import { DEFAULT_EFFECTS } from '@/daw/audio/EffectChain';
+import { ensureProjectNoteIds, isNoteId } from '@/daw/model/noteIds';
 import { restoreReturns } from '@/daw/persistence/SessionSerializer';
 
 /** Callback type for pushing state into the Zustand store. */
@@ -36,14 +38,12 @@ export type YjsObserverDisposer = () => void;
  * from the store by track id. The doc never holds that state (yMapToTrack
  * fills in defaults): mute/solo/arm/monitoring, and the input routing that
  * belongs to one person's devices. Without this, any collaborator's edit to
- * any track disconnected everyone's live input. A role missing from an older
- * peer's doc reads as 'auto', which analysis resolves from the name.
+ * any track disconnected everyone's live input.
  */
 function withLocalTrackState(t: Track, prev: Track | undefined): Track {
-  const shared = t.trackRole ? t : { ...t, trackRole: 'auto' as const };
-  if (!prev) return shared;
+  if (!prev) return t;
   return {
-    ...shared,
+    ...t,
     mute: prev.mute,
     solo: prev.solo,
     recordArmed: prev.recordArmed,
@@ -53,6 +53,142 @@ function withLocalTrackState(t: Track, prev: Track | undefined): Track {
     audioInputChannel: prev.audioInputChannel,
     audioMidiSource: prev.audioMidiSource,
   };
+}
+
+// ── Note ids from the doc ───────────────────────────────────────────────
+
+/** Where a note sits: what decides which of a repeated id's notes keeps it. */
+interface NotePlace {
+  trackId: string;
+  clipId: string;
+  event: MidiNoteEvent;
+}
+
+/** Calls `visit` with every note of `tracks`, in track → clip → note order. */
+function forEachNote(
+  tracks: readonly Track[],
+  visit: (event: MidiNoteEvent, clip: MidiClip, track: Track) => void,
+): void {
+  for (const track of tracks) {
+    for (const clip of track.midiClips) {
+      for (const event of clip.events) visit(event, clip, track);
+    }
+  }
+}
+
+/**
+ * Which of a repeated id's places keeps it: the note that holds it at the
+ * same track, clip, tick and pitch as before, else one in the same clip, else
+ * the first.
+ */
+function keeperOf(
+  places: readonly NotePlace[],
+  held: NotePlace | undefined,
+): number {
+  let keeper = 0;
+  let best = 0;
+  places.forEach((at, i) => {
+    if (!held || at.trackId !== held.trackId || at.clipId !== held.clipId) {
+      return;
+    }
+    const same =
+      at.event.startTick === held.event.startTick &&
+      at.event.note === held.event.note;
+    const score = same ? 2 : 1;
+    if (score > best) {
+      best = score;
+      keeper = i;
+    }
+  });
+  return keeper;
+}
+
+/**
+ * `tracks`, read from the doc, with every note id whole and unique. Nothing
+ * is minted: the result follows from the doc and from the tracks the store
+ * held before (`prev`), so every peer that has seen the same edits settles on
+ * the same ids, and nothing is written back to the doc. The usual case, a doc
+ * whose ids are whole already, is one scan that allocates nothing.
+ *
+ * A note can come with no id, or with one another note has too: an older
+ * peer copies a clip, or pastes notes, along with their `_cid`s. A repeated
+ * id stays with the note that held it here (keeperOf), so the copy gets new
+ * ids and the original keeps its own, as with a copy made here (addMidiClip
+ * in tracksSlice), wherever the copy lands. A repeat this store never held
+ * (a joiner's first read) stays with the first note in track → clip → note
+ * order. ensureProjectNoteIds then gives each note left without an id one
+ * derived from where it sits.
+ */
+function settleNoteIds(tracks: Track[], prev: readonly Track[]): Track[] {
+  const settled = ensureProjectNoteIds(tracks);
+  if (settled === tracks) return tracks;
+
+  const seen = new Set<string>();
+  const repeated = new Set<string>();
+  forEachNote(tracks, ({ id }) => {
+    if (!isNoteId(id)) return;
+    if (seen.has(id)) repeated.add(id);
+    else seen.add(id);
+  });
+  // Only notes without an id: ensureProjectNoteIds has settled those.
+  if (repeated.size === 0) return settled;
+
+  const held = new Map<string, NotePlace>();
+  forEachNote(prev, (event, clip, track) => {
+    const { id } = event;
+    if (id === undefined || !repeated.has(id) || held.has(id)) return;
+    held.set(id, { trackId: track.id, clipId: clip.id, event });
+  });
+  const places = new Map<string, NotePlace[]>();
+  forEachNote(tracks, (event, clip, track) => {
+    const { id } = event;
+    if (id === undefined || !repeated.has(id)) return;
+    const at = { trackId: track.id, clipId: clip.id, event };
+    const list = places.get(id);
+    if (list) list.push(at);
+    else places.set(id, [at]);
+  });
+
+  // Every note but the keeper gives the id up.
+  const givesUp = new Set<MidiNoteEvent>();
+  for (const [id, list] of places) {
+    const keeper = keeperOf(list, held.get(id));
+    list.forEach((at, i) => {
+      if (i !== keeper) givesUp.add(at.event);
+    });
+  }
+  const withoutId = (event: MidiNoteEvent): MidiNoteEvent => {
+    const copy = { ...event };
+    delete copy.id;
+    return copy;
+  };
+  return ensureProjectNoteIds(
+    tracks.map((track) => ({
+      ...track,
+      midiClips: track.midiClips.map((clip) => ({
+        ...clip,
+        events: clip.events.map((event) =>
+          givesUp.has(event) ? withoutId(event) : event,
+        ),
+      })),
+    })),
+  );
+}
+
+/**
+ * The doc's tracks as the store should hold them: this user's own state
+ * carried over by track id (withLocalTrackState) and the note ids settled
+ * (settleNoteIds), both against `prev`, the tracks the store holds now.
+ */
+function tracksFromDoc(doc: Y.Doc, prev: readonly Track[]): Track[] {
+  const prevById = new Map(prev.map((t) => [t.id, t]));
+  const tracks = getYTracks(doc)
+    .toArray()
+    .map((ym) => {
+      const t = yMapToTrack(ym as Y.Map<unknown>);
+      return withLocalTrackState(t, prevById.get(t.id));
+    });
+  return settleNoteIds(tracks, prev);
 }
 
 /** The origin of chord-id repairs: not ORIGIN_LOCAL, so undo skips them. */
@@ -172,14 +308,11 @@ export function observeYjsAndPushToStore(
   const yTracks = getYTracks(doc);
   let tracksApplyPending = false;
   const applyTracksFromDoc = () => {
-    // Per-user-local fields: yMapToTrack returns defaults, so we carry the
-    // local user's current values forward by track id rather than letting a
-    // remote track update clobber them.
-    const prevById = new Map(getState().tracks.map((t) => [t.id, t]));
-    const tracks: Track[] = yTracks.toArray().map((ym) => {
-      const t = yMapToTrack(ym as Y.Map<unknown>);
-      return withLocalTrackState(t, prevById.get(t.id));
-    });
+    // Per-user-local fields: yMapToTrack returns defaults, so the local
+    // user's current values carry forward by track id rather than a remote
+    // track update clobbering them. Notes come back with their ids (`_cid`),
+    // settled against the store's notes (tracksFromDoc).
+    const tracks = tracksFromDoc(doc, getState().tracks);
     setState({ tracks } as Partial<AllSlices>);
   };
   const onTracks = (_events: Y.YEvent<any>[], tx: Y.Transaction) => {
@@ -248,6 +381,9 @@ export function observeYjsAndPushToStore(
   disposers.push(() => yMarkers.unobserveDeep(onMarkers));
 
   // ── Mastering ──
+  // The doc also holds the eight retired mastering macros (style, eq,
+  // dynamics, loudness, stereoField, amount, presence, deEsser) for older
+  // peers. The store has no place for them: they fall through the switch.
   const yMastering = getYMastering(doc);
   const onMastering = (events: Y.YEvent<any>[], tx: Y.Transaction) => {
     if (tx.origin === ORIGIN_LOCAL || isSuppressed()) return;
@@ -257,38 +393,8 @@ export function observeYjsAndPushToStore(
         for (const key of event.keysChanged) {
           const value = yMastering.get(key);
           switch (key) {
-            case 'style':
-              (patch as Record<string, unknown>).masteringStyle = value;
-              break;
-            case 'eq':
-              (patch as Record<string, unknown>).masteringEq = JSON.parse(
-                value as string,
-              );
-              break;
-            case 'dynamics':
-              (patch as Record<string, unknown>).masteringDynamics = JSON.parse(
-                value as string,
-              );
-              break;
-            case 'loudness':
-              (patch as Record<string, unknown>).masteringLoudness = value;
-              break;
-            case 'stereoField':
-              (patch as Record<string, unknown>).masteringStereoField = value;
-              break;
             case 'bypass':
               (patch as Record<string, unknown>).masteringBypass = value;
-              break;
-            case 'amount':
-              (patch as Record<string, unknown>).masteringAmount = value;
-              break;
-            case 'presence':
-              (patch as Record<string, unknown>).masteringPresence = value;
-              break;
-            case 'deEsser':
-              (patch as Record<string, unknown>).masteringDeEsser = JSON.parse(
-                value as string,
-              );
               break;
             case 'fxChain':
               (patch as Record<string, unknown>).masteringFxChain = JSON.parse(
@@ -376,7 +482,8 @@ export function observeYjsAndPushToStore(
  *
  * Per-user-local track fields (mute/solo/recordArmed/monitoring and the input
  * routing) are preserved from the current store rather than reset to the doc's
- * defaults, and chord regions sharing an id are given ids of their own.
+ * defaults, notes sharing an id are settled as the observer settles them
+ * (tracksFromDoc), and chord regions sharing an id are given ids of their own.
  */
 export function pullDocIntoStore(
   doc: Y.Doc,
@@ -397,14 +504,8 @@ export function pullDocIntoStore(
     if (yTransport.has(key)) patch[key] = yTransport.get(key);
   }
 
-  // ── Tracks (preserve local per-user fields by id) ──
-  const prevById = new Map(getState().tracks.map((t) => [t.id, t]));
-  patch.tracks = getYTracks(doc)
-    .toArray()
-    .map((ym) => {
-      const t = yMapToTrack(ym as Y.Map<unknown>);
-      return withLocalTrackState(t, prevById.get(t.id));
-    });
+  // ── Tracks (preserve local per-user fields by id; settle note ids) ──
+  patch.tracks = tracksFromDoc(doc, getState().tracks);
 
   // ── Chord regions ──
   repairChordRegionIds(doc);
@@ -424,17 +525,11 @@ export function pullDocIntoStore(
     .map((ym) => yMapToMarker(ym as Y.Map<unknown>));
 
   // ── Mastering ── (docKey → [storeKey, isJsonEncoded])
+  // Only these keys reach the store: the retired macros the doc keeps for
+  // older peers are left where they are (see the observer above).
   const yMastering = getYMastering(doc);
   const masteringMap: Record<string, [string, boolean]> = {
-    style: ['masteringStyle', false],
-    eq: ['masteringEq', true],
-    dynamics: ['masteringDynamics', true],
-    loudness: ['masteringLoudness', false],
-    stereoField: ['masteringStereoField', false],
     bypass: ['masteringBypass', false],
-    amount: ['masteringAmount', false],
-    presence: ['masteringPresence', false],
-    deEsser: ['masteringDeEsser', true],
     fxChain: ['masteringFxChain', true],
     effects: ['masteringEffects', true],
     masterVolume: ['masterVolume', false],

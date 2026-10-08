@@ -2,7 +2,6 @@ import type { StateCreator } from 'zustand';
 import type { AllSlices } from './index';
 import type { MidiClip, AudioClip } from './tracksSlice';
 import type { AllGridSize } from '@/daw/utils/quantize';
-import type { ThemeId } from '@/daw/constants/themes';
 import type { ClipNoteSelection } from '@/daw/utils/insightSelection';
 import type { ScoreTextMark } from '@/daw/components/Score/scoreText';
 
@@ -128,8 +127,6 @@ export interface UiSlice {
   selectedClipTrackId: string | null;
   editingClipId: string | null;
   editingClipTrackId: string | null;
-  editingAudioClipId: string | null;
-  editingAudioClipTrackId: string | null;
   clipboardClips: MidiClip[];
   clipboardAudioClip: { clip: AudioClip; bufferId: string } | null;
 
@@ -143,7 +140,6 @@ export interface UiSlice {
   setActiveTool: (tool: ToolType) => void;
   setSelectedClip: (clipId: string | null, trackId: string | null) => void;
   setEditingClip: (clipId: string | null, trackId: string | null) => void;
-  setEditingAudioClip: (clipId: string | null, trackId: string | null) => void;
   setClipboard: (clips: MidiClip[]) => void;
   setAudioClipboard: (clip: AudioClip, bufferId: string) => void;
 
@@ -204,10 +200,6 @@ export interface UiSlice {
   recordingLimitModalOpen: boolean;
   setRecordingLimitModalOpen: (open: boolean) => void;
 
-  // ── Theme ──
-  theme: ThemeId;
-  setTheme: (theme: ThemeId) => void;
-
   // ── Project ──
   // Set when the project has been saved to the cloud; null for unsaved or
   // local-only projects. First save calls POST; subsequent saves call PUT.
@@ -223,9 +215,10 @@ export interface UiSlice {
   lastAudioExportAt: number | null;
   markAudioExported: () => void;
   // Which track's automation lane is disclosed in the arrange timeline (null =
-  // none), and which paramId that lane is editing. Session-only view state, like
-  // channelStripTab — NOT persisted or collab-synced. MASTER_AUTOMATION_ID
-  // (automationParams.ts) opens the Master bus lane.
+  // none), and which paramId that lane is editing. Per-project view state,
+  // like channelStripTab: the draft keeps it (decision D5), never the cloud
+  // copy or collab. MASTER_AUTOMATION_ID (automationParams.ts) opens the
+  // Master bus lane.
   automationOpenTrackId: string | null;
   automationParamId: string;
   setAutomationOpenTrackId: (trackId: string | null) => void;
@@ -316,8 +309,6 @@ export const createUiSlice: StateCreator<
   selectedClipTrackId: null,
   editingClipId: null,
   editingClipTrackId: null,
-  editingAudioClipId: null,
-  editingAudioClipTrackId: null,
   clipboardClips: [],
   clipboardAudioClip: null,
 
@@ -341,9 +332,6 @@ export const createUiSlice: StateCreator<
 
   setEditingClip: (clipId, trackId) =>
     set({ editingClipId: clipId, editingClipTrackId: trackId }),
-
-  setEditingAudioClip: (clipId, trackId) =>
-    set({ editingAudioClipId: clipId, editingAudioClipTrackId: trackId }),
 
   setClipboard: (clips) => set({ clipboardClips: clips }),
 
@@ -458,10 +446,6 @@ export const createUiSlice: StateCreator<
 
   recordingLimitModalOpen: false,
   setRecordingLimitModalOpen: (open) => set({ recordingLimitModalOpen: open }),
-
-  // ── Theme ──
-  theme: 'dark' as ThemeId,
-  setTheme: (theme) => set({ theme }),
 
   // ── Project ──
   projectId: null,

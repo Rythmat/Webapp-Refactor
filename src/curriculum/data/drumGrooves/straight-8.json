@@ -1,0 +1,89 @@
+{
+  "id": "straight-8",
+  "name": "Straight 8",
+  "description": "Rock/pop backbeat with kick push on & of 4. From ICP Studio.",
+  "genre": "rock",
+  "style": "Straight 8",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "timeSignature": [4, 4],
+  "feltBeats": 4,
+  "bars": 1,
+  "tempo": 108,
+  "tempoUnit": "quarter",
+  "swing": 50,
+  "grid": "8n",
+  "kit": "natural",
+  "padGains": {},
+  "humanize": {
+    "timing": 0,
+    "velocity": 0
+  },
+  "hits": [
+    {
+      "tick": 0,
+      "note": 36,
+      "velocity": 89
+    },
+    {
+      "tick": 0,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 240,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 480,
+      "note": 38,
+      "velocity": 95
+    },
+    {
+      "tick": 480,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 720,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 960,
+      "note": 36,
+      "velocity": 89
+    },
+    {
+      "tick": 960,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 1200,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 1440,
+      "note": 38,
+      "velocity": 95
+    },
+    {
+      "tick": 1440,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 1680,
+      "note": 36,
+      "velocity": 76
+    },
+    {
+      "tick": 1680,
+      "note": 42,
+      "velocity": 10
+    }
+  ]
+}

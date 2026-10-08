@@ -1,0 +1,195 @@
+{
+  "id": "samba",
+  "name": "Samba",
+  "description": "Brazilian 2/4 with laid-back 16ths. From ICP Studio.",
+  "genre": "latin",
+  "style": "Samba",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "timeSignature": [2, 4],
+  "feltBeats": 2,
+  "bars": 2,
+  "tempo": 100,
+  "tempoUnit": "quarter",
+  "swing": 50,
+  "grid": "16n",
+  "kit": "natural",
+  "padGains": {},
+  "humanize": {
+    "timing": 0,
+    "velocity": 0
+  },
+  "hits": [
+    {
+      "tick": 0,
+      "note": 36,
+      "velocity": 64
+    },
+    {
+      "tick": 0,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 120,
+      "note": 40,
+      "velocity": 76,
+      "offset": 2
+    },
+    {
+      "tick": 120,
+      "note": 42,
+      "velocity": 10,
+      "offset": 2
+    },
+    {
+      "tick": 240,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 360,
+      "note": 36,
+      "velocity": 10,
+      "offset": 2
+    },
+    {
+      "tick": 360,
+      "note": 40,
+      "velocity": 76,
+      "offset": 2
+    },
+    {
+      "tick": 360,
+      "note": 42,
+      "velocity": 10,
+      "offset": 2
+    },
+    {
+      "tick": 480,
+      "note": 36,
+      "velocity": 89
+    },
+    {
+      "tick": 480,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 600,
+      "note": 42,
+      "velocity": 10,
+      "offset": 2
+    },
+    {
+      "tick": 720,
+      "note": 40,
+      "velocity": 76
+    },
+    {
+      "tick": 720,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 840,
+      "note": 36,
+      "velocity": 10,
+      "offset": 2
+    },
+    {
+      "tick": 840,
+      "note": 42,
+      "velocity": 10,
+      "offset": 2
+    },
+    {
+      "tick": 960,
+      "note": 36,
+      "velocity": 64
+    },
+    {
+      "tick": 960,
+      "note": 40,
+      "velocity": 51
+    },
+    {
+      "tick": 960,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 1080,
+      "note": 42,
+      "velocity": 10,
+      "offset": 2
+    },
+    {
+      "tick": 1200,
+      "note": 40,
+      "velocity": 76
+    },
+    {
+      "tick": 1200,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 1320,
+      "note": 36,
+      "velocity": 10,
+      "offset": 2
+    },
+    {
+      "tick": 1320,
+      "note": 42,
+      "velocity": 10,
+      "offset": 2
+    },
+    {
+      "tick": 1440,
+      "note": 36,
+      "velocity": 89
+    },
+    {
+      "tick": 1440,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 1560,
+      "note": 40,
+      "velocity": 51,
+      "offset": 2
+    },
+    {
+      "tick": 1560,
+      "note": 42,
+      "velocity": 10,
+      "offset": 2
+    },
+    {
+      "tick": 1680,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 1800,
+      "note": 36,
+      "velocity": 10,
+      "offset": 2
+    },
+    {
+      "tick": 1800,
+      "note": 40,
+      "velocity": 76,
+      "offset": 2
+    },
+    {
+      "tick": 1800,
+      "note": 42,
+      "velocity": 10,
+      "offset": 2
+    }
+  ]
+}

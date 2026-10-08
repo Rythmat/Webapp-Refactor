@@ -1,0 +1,200 @@
+{
+  "id": "jazz-swing-kick-on-1",
+  "name": "Jazz Swing — Kick on 1",
+  "description": "Classic ride cymbal, kick on beat 1 only. From ICP Studio.",
+  "genre": "jazz",
+  "style": "Swing",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "timeSignature": [4, 4],
+  "feltBeats": 4,
+  "bars": 4,
+  "tempo": 120,
+  "tempoUnit": "quarter",
+  "swing": 50,
+  "grid": "8n",
+  "kit": "natural",
+  "padGains": {},
+  "humanize": {
+    "timing": 0,
+    "velocity": 0
+  },
+  "hits": [
+    {
+      "tick": 0,
+      "note": 36,
+      "velocity": 44
+    },
+    {
+      "tick": 0,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 480,
+      "note": 44,
+      "velocity": 64
+    },
+    {
+      "tick": 480,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 960,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 1440,
+      "note": 44,
+      "velocity": 64
+    },
+    {
+      "tick": 1440,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 1680,
+      "note": 51,
+      "velocity": 51,
+      "offset": 80
+    },
+    {
+      "tick": 1920,
+      "note": 36,
+      "velocity": 44
+    },
+    {
+      "tick": 1920,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 2400,
+      "note": 44,
+      "velocity": 64
+    },
+    {
+      "tick": 2400,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 2640,
+      "note": 51,
+      "velocity": 51,
+      "offset": 80
+    },
+    {
+      "tick": 2880,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 3360,
+      "note": 44,
+      "velocity": 64
+    },
+    {
+      "tick": 3360,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 3600,
+      "note": 51,
+      "velocity": 51,
+      "offset": 80
+    },
+    {
+      "tick": 3840,
+      "note": 36,
+      "velocity": 44
+    },
+    {
+      "tick": 3840,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 4320,
+      "note": 44,
+      "velocity": 64
+    },
+    {
+      "tick": 4320,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 4560,
+      "note": 51,
+      "velocity": 51,
+      "offset": 80
+    },
+    {
+      "tick": 4800,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 5280,
+      "note": 44,
+      "velocity": 64
+    },
+    {
+      "tick": 5280,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 5760,
+      "note": 36,
+      "velocity": 44
+    },
+    {
+      "tick": 5760,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 6240,
+      "note": 44,
+      "velocity": 64
+    },
+    {
+      "tick": 6240,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 6480,
+      "note": 51,
+      "velocity": 51,
+      "offset": 80
+    },
+    {
+      "tick": 6720,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 7200,
+      "note": 44,
+      "velocity": 64
+    },
+    {
+      "tick": 7200,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 7440,
+      "note": 51,
+      "velocity": 51,
+      "offset": 80
+    }
+  ]
+}

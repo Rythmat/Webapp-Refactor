@@ -16,7 +16,14 @@
  * --profile also takes a comma list (check.mjs passes chromebook,laptop).
  * The harness flags (--port, --gpu, --headed) work too. `--quick` shortens
  * every window and measures each repeated thing once, for a smoke run, so
- * its numbers are not baseline numbers.
+ * its numbers are not baseline numbers. Before any scenario the run checks
+ * that an AudioContext's clock advances on a blank page: on some machines
+ * headless Chrome's real output never renders, so nothing plays and every
+ * timing that waits on audio is skewed, and the run fails at once, naming
+ * --fake-audio (Chrome's fake output). Each run's meta and the summary
+ * header say which output it used (audio: device or fake); a fake-audio run
+ * is not a baseline, and a baseline run refuses the flag. Each scenario
+ * also checks the editor's own clock after the engine starts.
  *
  * Every scenario except load opens ?demo=demo-midnight-groove in a fresh
  * browser context, starts the audio engine with a key press (as a person's
@@ -106,11 +113,15 @@ import { isAbsolute, join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { format, resolveConfig } from 'prettier';
 import {
+  AUDIO_CLOCK_STOPPED,
   PROFILES,
   ROOT,
+  audioClock,
+  audioMode,
   newPage,
   openEditor,
   profilesFrom,
+  requireAudioClock,
   startAudio,
   withStudio,
   writeJson,
@@ -422,6 +433,9 @@ async function openDemo(browser, base, profile) {
   const openMs = Date.now() - started;
   await startAudio(opened.page);
   const audioMs = Date.now() - started - openMs;
+  // A stopped clock silences playback and slows every scheduled update, so
+  // a scenario on one measures something else (runProblems fails it).
+  const audioClockNow = await audioClock(opened.page);
   const settle = await waitForQuiet(requests);
   await installPeakReader(opened.page);
   const bench = await opened.page.evaluate(benchPage);
@@ -435,6 +449,7 @@ async function openDemo(browser, base, profile) {
       query: DEMO,
       openMs,
       audioMs,
+      audioClock: audioClockNow,
       settle,
       pageCheckMs: bench.ms,
       calm,
@@ -1358,13 +1373,15 @@ async function playback({ browser, base, profile, windows, args }) {
     const moved =
       audio.distinctPositions > 1 || pausedAt !== audio.startPosition;
     const problems = probeProblems(probes);
+    // With the clock stopped (runProblems says so) silence is no finding.
+    const clockRuns = session.setup.audioClock.runs;
     if (!audio.isPlaying) problems.push('the transport stopped early');
     if (!audio.readings) {
       problems.push('the master analysers could not be read');
-    } else if (!(audio.maxPeak > 0)) {
+    } else if (!(audio.maxPeak > 0) && clockRuns) {
       problems.push('the master output was silent');
     }
-    if (!moved) problems.push('the playhead never moved');
+    if (!moved && clockRuns) problems.push('the playhead never moved');
     return {
       setup: session.setup,
       loop,
@@ -1824,6 +1841,8 @@ async function coldLoad(browser, base, profile, load, windows) {
     const fromClick = (at) =>
       at === null || audio.clickAt === null ? null : round(at - audio.clickAt);
     const silentForMs = heard ? null : fromClick(audio.now);
+    // Silence on a stopped clock is the machine, not the load.
+    const clock = heard ? null : await audioClock(page);
     const problems = [];
     if (!timeline.dawApp) {
       problems.push('no request for the DawApp module was recorded');
@@ -1832,7 +1851,11 @@ async function coldLoad(browser, base, profile, load, windows) {
       if (!timeline.marks[mark]) problems.push(`no ma:daw:${mark} mark`);
     }
     if (expectSound && !heard) {
-      problems.push(`Play stayed silent for ${round(silentForMs / 1000)} s`);
+      problems.push(
+        clock?.runs === false
+          ? `Play stayed silent for ${round(silentForMs / 1000)} s: ${AUDIO_CLOCK_STOPPED} (the page's AudioContext advanced ${clock.advancedSec ?? '?'} s in ${clock.wallSec ?? '?'} s)`
+          : `Play stayed silent for ${round(silentForMs / 1000)} s`,
+      );
     }
     return {
       target,
@@ -1854,6 +1877,7 @@ async function coldLoad(browser, base, profile, load, windows) {
         firstAudibleMs: round(audio.audibleAt),
         playToFirstAudibleMs: fromClick(audio.audibleAt),
         silentForMs,
+        audioClock: clock,
       },
       bytes: {
         beforePlay: network.bytesUntil(wall(audio.clickAt ?? firstAudioAt)),
@@ -2314,7 +2338,7 @@ function summarize(results, meta, limits) {
   const sections = [
     '# Studio editor perf baseline',
     '',
-    `${meta.date} · commit ${meta.commit}${meta.dirty ? ' (dirty)' : ''} · ${meta.base} · Chrome ${meta.chrome} · GPU ${meta.gpu}${windows.quick ? ' · **--quick (not a baseline)**' : ''}`,
+    `${meta.date} · commit ${meta.commit}${meta.dirty ? ' (dirty)' : ''} · ${meta.base} · Chrome ${meta.chrome} · GPU ${meta.gpu} · audio ${meta.audio}${meta.audio === 'fake' ? ' · **--fake-audio (not a baseline)**' : ''}${windows.quick ? ' · **--quick (not a baseline)**' : ''}`,
     '',
     ...(wasBusy(results, limits)
       ? [
@@ -2450,6 +2474,12 @@ async function writeMarkdown(file, markdown) {
 /** Problems every scenario shares: loading in the window, a busy machine. */
 function runProblems(run, limits) {
   const problems = [];
+  const clock = run.setup?.audioClock;
+  if (clock && !clock.runs) {
+    problems.push(
+      `the editor's audio clock did not advance after the engine started (${clock.advancedSec ?? '?'} s in ${clock.wallSec ?? '?'} s): ${AUDIO_CLOCK_STOPPED}`,
+    );
+  }
   if (run.setup?.settle && !run.setup.settle.quiet) {
     problems.push(
       'requests were still in flight 30 s after the engine started, so ' +
@@ -2507,6 +2537,15 @@ export async function runPerf(argv = process.argv.slice(2)) {
       const profiles = profilesFrom(args);
       const windows = windowsFrom(args);
       const limits = loadLimits(args, outDir);
+      const audio = audioMode(args);
+      if (limits.baseline && audio === 'fake') {
+        throw new Error(
+          'a baseline times the real audio device: --fake-audio is refused for an --out under docs/studio-perf/baselines/',
+        );
+      }
+      // Every scenario plays, so a machine whose clock is stopped fails here
+      // rather than as a silent editor (and skewed timings) per scenario.
+      const audioClockCheck = await requireAudioClock(browser);
       const meta = {
         date: new Date().toISOString(),
         base,
@@ -2514,6 +2553,9 @@ export async function runPerf(argv = process.argv.slice(2)) {
         chrome: browser.version(),
         gpu:
           args.gpu ?? (process.platform === 'darwin' ? 'metal' : 'swiftshader'),
+        // 'fake' (--fake-audio) output timings are not a device's.
+        audio,
+        audioClock: audioClockCheck,
         windows,
         loop: args.loop !== 'false',
         loadLimits: limits,

@@ -37,17 +37,27 @@
  *          --make-fixtures) --block=host,… (render: fail every request to
  *          these hosts, e.g. gleitz.github.io, to see how a case reports a
  *          CDN that is down), plus the harness flags (--reuse, --port, --out,
- *          --gpu, --headed). Run reports go to docs/studio-perf/runs/golden/
- *          (each case's result in the golden's shape under actual/, to diff
- *          by hand).
+ *          --gpu, --headed, --fake-audio: a render checks that Play still
+ *          moves the playhead after an export, which needs a running audio
+ *          clock; it reads the live clock first, before the fixture loads,
+ *          and on a machine where it does not run (headless Chrome's real
+ *          output never renders on some) that check is NOT MEASURED, not
+ *          compared, and --update writes no golden; trace mode needs the
+ *          clock throughout and fails at once without it). Run reports go to docs/studio-perf/runs/golden/ (each
+ *          case's result in the golden's shape under actual/, to diff by
+ *          hand).
  *
  * Fixtures: scripts/studio-perf/fixtures/sessions/*.json, each a SessionData
- * v2 object as serializeSession wrote it, plus a `golden` key with what a
- * session cannot carry: the audio of its audio clips (a generated sine beep
- * train, beep k at k × 0.5 s and 400 + 100k Hz; audio bytes never live in
- * a session), the render range, the facts to measure (`probes`) and, for
- * the trace fixture, the play plan. deserializeSession reads only `version`
- * and `data`, so the extra key is ignored there. The five: demo-sunset-keys
+ * object as serializeSession wrote it (v2 for the committed five;
+ * --make-fixtures writes v3 since milestone 1.3), plus a `golden` key with
+ * what a session cannot carry: the audio of its audio clips (a generated
+ * sine beep train, beep k at k × 0.5 s and 400 + 100k Hz; audio bytes never
+ * live in a session), the render range, the facts to measure (`probes`)
+ * and, for the trace fixture, the play plan. deserializeSession reads only
+ * the envelope (`version`, `schema`, `compat`) and `data`, so the extra key
+ * is ignored there. The metronome is the student's pref since 1.3, which a
+ * v3 draft doesn't hold: a fixture keeps it at transport.metronomeEnabled,
+ * where v2 did, and loadFixture sets it. The five: demo-sunset-keys
  * (the first demo as it opens: CDN Rhodes samples, GM bass, drums),
  * loop-range (a loop-region export), trimmed-audio (clip offsetSeconds,
  * gain and fades), oracle-two-notes and metronome-countin (the trace
@@ -147,11 +157,15 @@ import {
 } from 'node:fs';
 import { cpus, loadavg } from 'node:os';
 import { basename, join, resolve } from 'node:path';
+import { installDevModules } from './fixtures/fingerprint.mjs';
 import {
+  AUDIO_CLOCK_STOPPED,
   ROOT,
+  audioClock,
   newPage,
   openEditor,
   profilesFrom,
+  requireAudioClock,
   startAudio,
   withStudio,
   writeJson,
@@ -656,9 +670,9 @@ function installPageHelpers() {
   };
   const store = () => window.__MA_STORE__;
   const engine = () => window.__MA_AUDIO_ENGINE__;
-  // An app module by its dev-server URL. Vite serves each module at one
-  // URL, so this is the instance the editor itself runs, not a copy.
-  const app = (path) => import(path);
+  // An app module as the editor loaded it (installDevModules): after a hot
+  // update the editor imports path?t=…, and a bare import loads a copy.
+  const app = (path) => window.__RT_DEV_MODULE__(path);
   const errorInfo = (err) => ({
     name: err?.name ?? 'Error',
     message: String(err?.message ?? err)
@@ -780,7 +794,12 @@ function installPageHelpers() {
         }
       }
     }
-    return serializeSession();
+    // Since codec v3 the metronome is the student's pref, not the project's,
+    // so a draft no longer holds it. The fixture keeps it where a v2 draft
+    // did, and loadFixture applies it.
+    const session = serializeSession();
+    session.data.transport.metronomeEnabled = s().metronomeEnabled;
+    return session;
   }
 
   /** Registers the clip audio, then deserializes the session. */
@@ -798,6 +817,17 @@ function installPageHelpers() {
       window.__goldenTrace?.clipBuffers.set(buffer, clipId);
     }
     deserializeSession(session);
+    // The fixture's metronome (transport.metronomeEnabled, where a v2 draft
+    // keeps it): a load hands a v2 draft's to the student's prefs only on a
+    // first visit, and a v3 draft has none, so it is set here either way.
+    const metronome = session.data?.transport?.metronomeEnabled;
+    const state = store().getState();
+    if (
+      typeof metronome === 'boolean' &&
+      state.metronomeEnabled !== metronome
+    ) {
+      state.toggleMetronome();
+    }
     return { liveRate: sampleRate };
   }
 
@@ -1745,6 +1775,10 @@ function describeFacts(result) {
     facts.push(
       'after the export, Play no longer moves the playhead (2 s from bar 1): live playback is broken until a reload',
     );
+  } else if (exported.playheadMovesAfter === null) {
+    facts.push(
+      `Play after the export was not measured: ${AUDIO_CLOCK_STOPPED}`,
+    );
   }
   for (const [name, stem] of Object.entries(stems ?? {})) {
     if (stem.status === 'ok' && stem.features.silent) {
@@ -2026,6 +2060,8 @@ function compareCase(golden, actual) {
     'playheadMovesAfter',
   ]) {
     if (key === 'matchesRender' && mixLevel !== 'strict') continue;
+    // Not measured: the live clock did not run (renderCase's control).
+    if (key === 'playheadMovesAfter' && a[key] === null) continue;
     if (g[key] !== a[key])
       diffs.push({ at: `export.${key}`, golden: g[key], actual: a[key] });
   }
@@ -2236,6 +2272,7 @@ async function editorPage(
   });
   if (rate) await page.addInitScript(forceSampleRate, rate);
   if (trace) await page.addInitScript(installTraceProbes);
+  await page.addInitScript(installDevModules);
   await openEditor(page, base, '?new=1');
   await startAudio(page);
   await page.evaluate(installPageHelpers);
@@ -2253,6 +2290,9 @@ async function renderCase(browser, base, fixture, rate, options) {
     { rate, block },
   );
   try {
+    // The control for the Play check after the export: whether the live
+    // clock runs at all here, before any fixture, render or export.
+    const liveClock = await audioClock(page);
     const loaded = await page.evaluate(
       ([session, audio]) => window.__golden.loadFixture(session, audio),
       [fixture.session, golden.audio ?? {}],
@@ -2352,9 +2392,11 @@ async function renderCase(browser, base, fixture, rate, options) {
       render,
       wavDir ? join(wavDir, `${fixture.name}@${rate}-export.wav`) : null,
     );
-    exported.playheadMovesAfter = await page.evaluate(() =>
-      window.__golden.playheadMoves(),
-    );
+    // Null (not measured) when the control failed: a stopped clock never
+    // moves the playhead, export or not.
+    exported.playheadMovesAfter = liveClock.runs
+      ? await page.evaluate(() => window.__golden.playheadMoves())
+      : null;
     const probes = measureProbes(golden.probes, render, stems);
     const result = {
       fixture: fixture.name,
@@ -2376,6 +2418,7 @@ async function renderCase(browser, base, fixture, rate, options) {
       ],
       env: {
         ready,
+        liveClock,
         consoleErrors: errorLines(consoleErrors),
         pageErrors: errorLines(errors),
         warnings: await page.evaluate(() => window.__golden.takeWarnings()),
@@ -2501,6 +2544,7 @@ async function runRender({ base, browser, args, outDir }) {
   mkdirSync(actualDir, { recursive: true });
   let failed = 0;
   let unready = 0;
+  let unmeasured = 0;
   for (const fixture of fixtures) {
     for (const rate of rates) {
       const label = `${fixture.name}@${rate}`;
@@ -2529,10 +2573,15 @@ async function runRender({ base, browser, args, outDir }) {
             .map((t) => `${t.name} (${t.instrument})`)
             .join(', ')}`;
       if (notReady) unready++;
+      const { liveClock } = result.env;
+      const notMeasured = liveClock.runs
+        ? null
+        : `export.playheadMovesAfter: ${AUDIO_CLOCK_STOPPED} (the live AudioContext advanced ${liveClock.advancedSec ?? '?'} s in ${liveClock.wallSec ?? '?'} s before the fixture loaded)`;
+      if (notMeasured) unmeasured++;
       if (update) {
-        if (notReady) {
+        if (notReady || notMeasured) {
           failed++;
-          console.log(`NOT WRITTEN: ${notReady}`);
+          console.log(`NOT WRITTEN: ${notReady ?? notMeasured}`);
         } else {
           writeFileSync(file, `${formatJson(golden)}\n`);
           console.log(`written (${summary})`);
@@ -2540,9 +2589,10 @@ async function runRender({ base, browser, args, outDir }) {
         for (const warning of warnings) console.log(`    warning: ${warning}`);
         report.cases.push({
           case: label,
-          written: !notReady,
+          written: !notReady && !notMeasured,
           summary,
           notReady,
+          notMeasured,
           warnings,
           facts: result.facts,
           pageErrors,
@@ -2557,6 +2607,7 @@ async function runRender({ base, browser, args, outDir }) {
           pass: false,
           note: 'no golden',
           notReady,
+          notMeasured,
           warnings,
           facts: result.facts,
           pageErrors,
@@ -2569,6 +2620,7 @@ async function runRender({ base, browser, args, outDir }) {
         diffs.length ? `DIFFERS (${diffs.length})` : `same (${summary})`,
       );
       if (notReady) console.log(`    NOT READY: ${notReady}`);
+      if (notMeasured) console.log(`    NOT MEASURED: ${notMeasured}`);
       for (const warning of warnings) console.log(`    warning: ${warning}`);
       for (const diff of diffs) {
         console.log(
@@ -2583,6 +2635,7 @@ async function runRender({ base, browser, args, outDir }) {
         pass: !diffs.length,
         diffs,
         notReady,
+        notMeasured,
         warnings,
         facts: result.facts,
         pageErrors,
@@ -2598,6 +2651,11 @@ async function runRender({ base, browser, args, outDir }) {
   if (unready) {
     console.log(
       `${unready} case(s) ran before their live instruments were in (see NOT READY / NOT WRITTEN above); check the network and run again.`,
+    );
+  }
+  if (unmeasured) {
+    console.log(
+      `${unmeasured} case(s) could not check Play after the export (${update ? 'NOT WRITTEN' : 'NOT MEASURED'} above): ${AUDIO_CLOCK_STOPPED}.`,
     );
   }
   if (failed) {
@@ -3373,6 +3431,8 @@ async function runTrace({ base, browser, args, outDir }) {
   const profiles = profilesFrom(args, 'chromebook');
   const goldenDir = resolve(args.goldens ?? DEFAULT_GOLDEN_DIR);
   const update = args.update === 'true';
+  // A trace is live playback: on a stopped clock nothing is scheduled.
+  await requireAudioClock(browser);
   const summary = [];
   const broken = [];
   for (const fixture of fixtures) {
@@ -3506,6 +3566,7 @@ async function runMakeFixtures({ base, browser, args }) {
       probes: false,
     });
     try {
+      await page.addInitScript(installDevModules);
       await openEditor(page, base, spec.boot ?? '?new=1');
       await page.evaluate(installPageHelpers);
       const { golden, ...build } = spec;

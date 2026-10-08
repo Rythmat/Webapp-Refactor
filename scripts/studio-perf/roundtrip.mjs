@@ -1,9 +1,10 @@
 /* eslint-env node */
 /**
- * Reload round-trips for the Studio editor (milestone 1.0 baseline): what
- * survives a refresh, an in-app return, a tab close, a cloud save and
- * reopen, a boot of every kind, and a bad link, measured on today's code
- * against a mock Studio API. Losses are recorded here, not fixed.
+ * Reload round-trips for the Studio editor: what survives a refresh, an
+ * in-app return, a tab close, a cloud save and reopen, a boot of every kind,
+ * and a bad link, measured against a mock Studio API. Losses are recorded
+ * here, and a ratchet holds each scenario to them (milestone 1.0 built it,
+ * milestone 1.3 made it read the project document registry).
  *
  *   node scripts/studio-perf/roundtrip.mjs --reuse=http://localhost:5263
  *        [--profile=laptop|chromebook|small|all]   (default: laptop)
@@ -12,7 +13,13 @@
  *        [--calibrate=2]   cold boots per R4 link, to find volatile fields
  *        [--update-known]  record this run's results in knownLosses.json
  *        [--known=file]    another known-losses file (default: the one here)
- *        [--capture-fixtures [--fixtures-dir=dir]]  capture v2 autosaves
+ *        [--strict-api]    R3's mock keeps only what api.ts declares, no
+ *                          settings or returns (mockStudioApi.mjs): what a
+ *                          cloud open loses if the real API keeps no more;
+ *                          a diagnostic, never recorded
+ *        [--capture-fixtures [--fixtures-dir=dir]]  capture real autosaves
+ *        [--fake-audio]    Chrome's fake audio output, for a machine whose
+ *                          audio output never renders (R1 can't play there)
  *        [--out=dir] [--headed] [--gpu=metal|swiftshader] [--port=5263]
  *
  * (`npm run studio:roundtrip -- --reuse=…` runs the same.) Without --reuse
@@ -21,9 +28,9 @@
  * R5:demo:cold).
  *
  * Every scenario applies the kitchen sink (fixtures/kitchenSink.mjs: a
- * non-default value for every field of the audit's persistence matrix),
- * takes a fingerprint (fixtures/fingerprint.mjs), crosses a boundary, takes
- * another and lists the fields that were lost or came back wrong:
+ * non-default value for every field the draft or the prefs keep), takes a
+ * fingerprint (fixtures/fingerprint.mjs), crosses a boundary, takes another
+ * and lists the fields that were lost or came back wrong:
  *
  * - R1 refresh while playing: play (past the sink's count-in), change a
  *   track's volume, wait out the 1.5 s autosave debounce, reload without
@@ -37,9 +44,15 @@
  *   reported as skipped until it exists (mockStudioApi.mjs).
  * - R4 leak check: after the sink, in-app to each boot link (LEAK_INTENTS:
  *   new, template, demo, lesson, song, Theory practice, genre practice, jam
- *   import); each must match a cold boot of the same link. Fields that
- *   differ between cold boots, and the ones a link seeds at random, are left
- *   out and listed. The collab boot needs a PartyKit server: not covered.
+ *   import), plus a template opened from the Library panel; each must match
+ *   a cold boot of the same link. The sink is linked to a cloud project
+ *   first (one the mock holds), so a link that keeps that link, and whose
+ *   next Save would write over the project, shows. Fields that differ
+ *   between cold boots, and the ones a link seeds at random, are left out
+ *   and listed. The Library's click must also keep the work it replaces
+ *   (flag workKept: the newest kept slot holds it) and give it back as it
+ *   was through the toast's Restore (workRestored). The collab boot needs a
+ *   PartyKit server: not covered.
  * - R5 bad links: every boot link with an id that does not exist
  *   (BAD_LINKS), in-app and as a full page load. plan.md's exit criterion
  *   is "an invalid link changes nothing".
@@ -49,6 +62,18 @@
  * - R7 tab close: one edit and, inside the debounce, the tab closes (unload
  *   handlers run); a new tab of the same browser opens /studio/editor, which
  *   restores the autosave.
+ *
+ * What each scenario compares comes from the project document registry
+ * (src/daw/persistence/projectDocument/fields.ts), through each fingerprint
+ * field's class (COMPARE): a reload must keep the project, its view on this
+ * device, the student's prefs and this person's track inputs; the cloud copy
+ * only the project; a link opened in-app must start every project field
+ * over and carry the prefs (flag prefsCarried). Session state is never
+ * compared after a reload. R1 also leaves out the view fields that move
+ * while the transport plays (HOT_VIEW_FIELDS), which R5 and R7, with the
+ * transport stopped, still compare; selfCheck holds that before any page
+ * opens. Losses a later milestone owns are labelled with it (LOSS_OWNERS),
+ * so what is left for the milestone at hand reads as unowned.
  *
  * "Settled" means the store has been still for 1.5 s, the page has no
  * editor request in flight and every asset-backed clip has decoded audio.
@@ -60,8 +85,9 @@
  *
  * Scenarios also report flags, yes/no facts with a goal (FLAGS): was the
  * autosave written during playback, did the bad link show an error, did the
- * crash copy survive. After R1, R2 and R5 a chord is written past the lane,
- * and a new chord id equal to an existing one is a loss
+ * crash copy survive, does every note have an id of its own afterwards
+ * (decision D2, every scenario). After R1, R2 and R5 a chord is written
+ * past the lane, and a new chord id equal to an existing one is a loss
  * (`ids.newChordIdUnique`, state-reload-05). An editor that does not come
  * back (an error boundary) is the loss `editor.crashed`. Uncaught page
  * errors are counted.
@@ -76,8 +102,8 @@
  * --update-known, which rewrites only the profiles and scenarios that ran.
  * A skipped scenario (document mode) passes.
  *
- * --capture-fixtures records the real v2 autosaves the codec v3 migration
- * tests start from: the empty project, every demo
+ * --capture-fixtures records the real autosaves the codec's migration tests
+ * start from: the empty project, every demo
  * (src/daw/data/demoProjects.ts), every template
  * (src/daw/data/projectTemplates.ts), a song, a Theory and a genre practice
  * track, a jam import, the end state of every lesson
@@ -90,8 +116,12 @@
  * 1.2 write), formatted by Prettier (so the repo's lint passes) and checked
  * lossless: JSON.stringify(JSON.parse(file)) is the stored string byte for
  * byte, whose SHA-256 manifest.json records (fixtures/manifest.test.ts
- * re-checks every folder). Once codec v3 (milestone 1.3) makes the editor
- * write another version, capture refuses rather than overwrite a v2 set.
+ * re-checks every folder). A folder holds one schema: a draft's is its
+ * "schema" (codec v3 keeps "version": 2, decision D1) or else its version,
+ * and the folder's is its manifest's sessionSchemaVersion or the v<N> of
+ * its name. Since milestone 1.3 the editor writes schema 3, so a capture
+ * into a v2 folder (the default) refuses before it writes anything; capture
+ * v3 drafts with --fixtures-dir=src/daw/persistence/__tests__/fixtures/v3.
  *
  * Reports go to docs/studio-perf/runs/roundtrip/ (or --out): every difference
  * with its values in roundtrip-<profile>.json, and summary.md, which
@@ -107,16 +137,23 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { basename, join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as prettier from 'prettier';
 import {
   compareFingerprints,
+  FIELD_CLASSES,
   fingerprintPage,
+  ID_FLAGS,
+  ID_KINDS,
+  installDevModules,
   probeChordIdCollision,
   sameValue,
 } from './fixtures/fingerprint.mjs';
-import { applyKitchenSink } from './fixtures/kitchenSink.mjs';
+import {
+  applyKitchenSink,
+  sinkFieldsAtDefault,
+} from './fixtures/kitchenSink.mjs';
 import {
   newPage,
   PROFILES,
@@ -146,6 +183,9 @@ const SAMPLE_WAV = join(
   'public/daw-assets/samples/chops/demo-vox-c4.wav',
 );
 const TUTORIALS_MODULE = '/src/daw/components/Tutorial/tutorials.ts';
+const LOCAL_SESSION_MODULE = '/src/lib/studio-projects/localSession.ts';
+/** The dev auth bypass's user (src/auth/devBypass.ts): kept work is per user. */
+const DEV_USER = 'dev-bypass-user';
 
 /** The autosave debounce is 1.5 s (useAutosave.ts); wait past it. */
 const PAST_DEBOUNCE_MS = 4000;
@@ -208,6 +248,9 @@ const handoff = (kind) =>
  * The R4 boot links (DawApp.tsx's boot intents), each compared with a cold
  * boot of the same link. `volatile` lists fields the link seeds at random;
  * `expectTracks` makes the check refuse a link that no longer loads.
+ * `library` opens the template from the Library panel instead, by its label:
+ * a click that replaces the project in place (decision D10), compared with a
+ * cold boot of the template's link.
  */
 const LEAK_INTENTS = [
   { kind: 'new', query: '?new=1' },
@@ -235,6 +278,13 @@ const LEAK_INTENTS = [
     expectTracks: true,
   },
   { kind: 'jam', query: '?jam=1', expectTracks: true },
+  {
+    kind: 'libraryTemplate',
+    query: '?template=project-pop',
+    library: 'Pop',
+    volatile: ['harmony.rhythmName'],
+    expectTracks: true,
+  },
 ];
 
 /** No project has this id (the mock answers 404, as the API would). */
@@ -279,7 +329,184 @@ const FLAGS = {
     goal: true,
     text: 'the save uploaded the in-memory clip (POST /assets, signed PUT, finalize)',
   },
+  prefsCarried: {
+    goal: true,
+    text: 'the student’s prefs carried into the new project',
+  },
+  workKept: {
+    goal: true,
+    text: 'the replaced work was kept (the newest kept slot holds it) and announced with a Restore',
+  },
+  workRestored: {
+    goal: true,
+    text: 'the Restore brought the replaced work back as it was',
+  },
+  noteIdsWhole: {
+    goal: true,
+    text: 'every note has an id of its own afterwards',
+  },
 };
+
+/**
+ * The fingerprint classes (fingerprint.mjs FIELD_CLASSES) a reload of the
+ * same project must keep: everything the draft and the prefs hold, and what
+ * a load works out from them. Session state never survives a reload.
+ */
+const RELOAD_CLASSES = [
+  'doc',
+  'view',
+  'pref',
+  'track-local',
+  'derived',
+  'context',
+  'runtime',
+];
+
+/**
+ * View fields that move by themselves while the transport plays. R1 reloads
+ * mid-playback, so where the playhead happened to be is no loss; R5 and R7
+ * reload with the transport stopped and still compare them.
+ */
+const HOT_VIEW_FIELDS = ['transport.position'];
+
+/** What each kind of scenario compares (compareFingerprints options). */
+const COMPARE = {
+  // R2, R5, R7: the same project, reloaded or returned to.
+  reload: { classes: RELOAD_CLASSES },
+  // R1: the same, refreshed while playing.
+  reloadWhilePlaying: { classes: RELOAD_CLASSES, ignore: HOT_VIEW_FIELDS },
+  // R3: another device opens the cloud copy, which holds the project alone:
+  // the view, the prefs and the inputs belong to the device that saved it.
+  cloud: { classes: ['doc', 'derived', 'runtime'] },
+  // R4: a link opened in-app must start every project field over, session
+  // state included, as a cold boot of it does. The prefs follow the student
+  // (flag prefsCarried).
+  leak: {
+    classes: [
+      'doc',
+      'view',
+      'track-local',
+      'derived',
+      'context',
+      'runtime',
+      'session',
+    ],
+    resetOnNewOnly: true,
+  },
+};
+
+/**
+ * What a Restore of kept work must give back (R4's Library click), ids
+ * included: what a reload keeps, but the lesson and practice context, which
+ * a kept slot, being a draft, holds no more than a draft does until
+ * milestone 1.15.
+ */
+const RESTORE_CLASSES = RELOAD_CLASSES.filter((cls) => cls !== 'context');
+
+/**
+ * Losses a later milestone owns: field (or `group:field`, for one scenario
+ * group) → milestone. In R3 every field only the milestone 1.5 document
+ * carries (registry cloud 'document') is 1.5's as well, and so are the R3
+ * losses that follow from one (CLOUD_DOCUMENT_FOLLOWERS). A leak (R4) is
+ * never a later milestone's (ownerOf). Whatever is left unowned is the open
+ * milestone's to fix.
+ */
+const LOSS_OWNERS = {
+  'context.tutorial': '1.15',
+  'context.practiceSession': '1.15',
+  // The bytes of a clip never uploaded live only in memory until drafts
+  // hold media.
+  'tracks[].audioClips[].bufferLoaded': '1.4',
+  // A cloud open mints audio-clip ids until audio is keyed by asset.
+  'ids.audioClips': '1.10',
+  // An in-app return, and an in-app bad link that changes nothing, resume
+  // the kitchen sink's lesson, whose overlay applies its step's
+  // preconditions again as it mounts (TutorialLayer), here the Prism tab
+  // over the restored one: how a resumed lesson and the restored view meet
+  // is lesson persistence's.
+  'R2:view.channelStripTab': '1.15',
+  'R5:view.channelStripTab': '1.15',
+};
+
+/**
+ * R3 losses that follow from a field only the 1.5 document carries. (An
+ * Oracle patch that follows the project's key takes the default mode along
+ * too, but the fingerprint leaves that copy of the key out of the patch, so
+ * any change to a patch is unowned.)
+ */
+const CLOUD_DOCUMENT_FOLLOWERS = {
+  // The legacy payload carries no note ids, so a cloud open derives them.
+  'ids.notes': '1.5',
+  // Worked out from the mode, which only the document carries.
+  'harmony.keyColour': '1.5',
+};
+
+/** Who owns a loss of scenario group `group`, or null. */
+function ownerOf(group, unit) {
+  // A new project starts every field it compares over, so whatever a link
+  // carries over is a reset the open milestone owes, even in a field a later
+  // milestone persists (the lesson context, decoded audio).
+  if (group === 'R4') return null;
+  const owner =
+    LOSS_OWNERS[`${group}:${unit.field}`] ?? LOSS_OWNERS[unit.field];
+  if (owner) return owner;
+  if (group === 'R3') {
+    if (unit.cloud === 'document') return '1.5';
+    if (CLOUD_DOCUMENT_FOLLOWERS[unit.field]) {
+      return CLOUD_DOCUMENT_FOLLOWERS[unit.field];
+    }
+  }
+  return null;
+}
+
+/**
+ * Checks the comparison rules themselves before any page opens: R1 must
+ * never list a hot view field, and the reloads with the transport stopped
+ * must. (R1 also checks its own result, refreshWhilePlaying.)
+ */
+function selfCheck() {
+  const snapshot = (position) => ({
+    fields: Object.fromEntries(
+      HOT_VIEW_FIELDS.map((field) => [
+        field,
+        { class: 'view', cloud: false, resetOnNew: true, value: position },
+      ]),
+    ),
+    ids: {},
+  });
+  const lists = (options) =>
+    compareFingerprints(snapshot(0), snapshot(960), options).some((d) =>
+      HOT_VIEW_FIELDS.includes(d.field),
+    );
+  if (lists(COMPARE.reloadWhilePlaying)) {
+    throw new Error('harness self-check: R1 compares the playhead');
+  }
+  if (!lists(COMPARE.reload)) {
+    throw new Error(
+      'harness self-check: the reloads with the transport stopped (R2, R5, R7) no longer compare the playhead',
+    );
+  }
+  // A class misspelt here would quietly compare nothing.
+  for (const [kind, { classes }] of Object.entries(COMPARE)) {
+    const unknown = classes.filter((cls) => !(cls in FIELD_CLASSES));
+    if (unknown.length > 0) {
+      throw new Error(
+        `harness self-check: COMPARE.${kind} names no class ${unknown.join(', ')}`,
+      );
+    }
+  }
+  // A leak labelled as a later milestone's would drop out of the Unowned
+  // column, and so out of sight before --update-known records it.
+  const leaked = [
+    ...Object.keys(LOSS_OWNERS).map((key) => key.replace(/^R\d+:/, '')),
+    ...Object.keys(CLOUD_DOCUMENT_FOLLOWERS),
+  ].filter((field) => ownerOf('R4', { field, cloud: 'document' }) !== null);
+  if (leaked.length > 0) {
+    throw new Error(
+      `harness self-check: an R4 leak of ${leaked.join(', ')} is labelled as a later milestone's`,
+    );
+  }
+}
 
 // ── In-page helpers ─────────────────────────────────────────────────────────
 
@@ -313,8 +540,12 @@ function installWatch({ autosaveKey }) {
   };
   attach();
   // Sonner toasts: <li data-sonner-toast data-type="error"> with the title in
-  // [data-title].
+  // [data-title], and an action (Restore) as a button beside the close one.
   const seen = new WeakMap();
+  const actionsOf = (el) =>
+    [...el.querySelectorAll('button:not([data-close-button])')]
+      .map((button) => (button.textContent ?? '').trim())
+      .filter(Boolean);
   setInterval(() => {
     for (const el of document.querySelectorAll('[data-sonner-toast]')) {
       const text = (
@@ -327,12 +558,14 @@ function installWatch({ autosaveKey }) {
         const added = {
           type: el.getAttribute('data-type') || 'default',
           text,
+          actions: actionsOf(el),
           at: Date.now(),
         };
         seen.set(el, added);
         watch.toasts.push(added);
-      } else if (!entry.text && text) {
-        entry.text = text;
+      } else {
+        if (!entry.text && text) entry.text = text;
+        if (entry.actions.length === 0) entry.actions = actionsOf(el);
       }
     }
   }, 100);
@@ -351,11 +584,11 @@ function seedHandoffOnce({ key, value }) {
 
 /**
  * In-page: how many asset-backed audio clips and samples still wait for
- * their bytes. It imports the editor's own modules by their dev-server URL
- * (the browser resolves it, not node, so the linter is handed a variable).
+ * their bytes. It imports the editor's own modules through
+ * installDevModules (fixtures/fingerprint.mjs), which every page here runs.
  */
 async function pendingAudio() {
-  const devModule = (url) => import(url);
+  const devModule = window.__RT_DEV_MODULE__;
   const [buffers, chops] = await Promise.all([
     devModule('/src/daw/audio/AudioBufferStore.ts'),
     devModule('/src/daw/instruments/samplerChops.ts'),
@@ -375,6 +608,28 @@ async function pendingAudio() {
     }
   }
   return pending;
+}
+
+/**
+ * In-page: the user's newest kept slot (localSession.ts) with its session as
+ * stored, or null when they have none.
+ */
+async function newestKeptSlot({ path, userId }) {
+  const { listKeptSessions, readKeptSession } =
+    await window.__RT_DEV_MODULE__(path);
+  const [newest] = listKeptSessions(userId);
+  const kept = newest ? readKeptSession(newest.key) : null;
+  return kept ? { slot: newest, session: JSON.stringify(kept.session) } : null;
+}
+
+/**
+ * In-page: what the kept-work toast's Restore button does
+ * (restoreKeptWork), called directly, since the toast may have gone by the
+ * time a scenario has compared what the link opened.
+ */
+async function restoreKept({ path, slot, userId }) {
+  const { restoreKeptWork } = await window.__RT_DEV_MODULE__(path);
+  restoreKeptWork(slot, userId);
 }
 
 // ── Node-side page helpers ──────────────────────────────────────────────────
@@ -522,16 +777,21 @@ async function autosaveTimestamp(page) {
 }
 
 /**
- * Whether the stored autosave already holds what the editor would write now,
- * its playhead aside. The autosave is written only when a field it saves
- * changes, so after a trailing write to a field it doesn't save (a lesson's
- * step status, a selection) its timestamp stays older than the last store
- * write although nothing is left to flush.
+ * Whether the stored autosave already holds the project the editor holds
+ * now. sessionFingerprint compares the project's content and its cloud link
+ * (since milestone 1.3 the registry's doc fields and the Oracle patches),
+ * not the view, the inputs or the prefs. A change to those starts no write
+ * (decision D8): it goes with the next write, or with the flush when the
+ * page is hidden or closed. So after a trailing write that the autosave
+ * doesn't wait on (a view change, a lesson's step status, a selection) its
+ * timestamp stays older than the last store write although nothing is
+ * waiting to be written; whether the view reached the draft is for the
+ * reload after it to show.
  */
 async function autosaveIsCurrent(page, raw) {
   return page.evaluate(async (stored) => {
     try {
-      const devModule = (url) => import(url);
+      const devModule = window.__RT_DEV_MODULE__;
       const { serializeSession, sessionFingerprint } = await devModule(
         '/src/daw/persistence/SessionSerializer.ts',
       );
@@ -712,6 +972,14 @@ async function fingerprint(page) {
       `fingerprint could not reach the editor's modules (${snapshot.meta.moduleAccess})`,
     );
   }
+  // A key the draft or the prefs keep that no field shows could be lost
+  // without any scenario noticing.
+  const { missing } = snapshot.meta.coverage;
+  if (missing.length > 0) {
+    throw new Error(
+      `fingerprint.mjs shows no field for the registry's ${missing.join(', ')}: add one`,
+    );
+  }
   return snapshot;
 }
 
@@ -730,6 +998,8 @@ async function openSession(
 ) {
   const session = await newPage(run.browser, run.profile, { probes: false });
   await api.install(session.context);
+  // Every page of the context, a second tab included.
+  await session.context.addInitScript(installDevModules);
   await session.context.addInitScript(installWatch, {
     autosaveKey: AUTOSAVE_KEY,
   });
@@ -775,9 +1045,11 @@ async function openTab(run, session) {
 }
 
 // ── Scenarios ───────────────────────────────────────────────────────────────
-// Each resolves to { diffs, extraLosses, flags, checks }: the fingerprint
-// differences, losses found another way, the FLAGS it measured, and facts
-// for the report (checks.settle lists every settle after a boundary).
+// Each resolves to { diffs, extraLosses, flags, checks, after }: the
+// fingerprint differences, losses found another way, the FLAGS it measured,
+// facts for the report (checks.settle lists every settle after a boundary)
+// and the fingerprint taken after the boundary (runProfile reads its note
+// ids for every scenario).
 
 /**
  * What a scenario hands back when the editor did not come back, with the
@@ -792,32 +1064,88 @@ function crashed(state, checks = {}, flags = {}) {
   };
 }
 
-/** The kitchen sink, settled and with its autosave flushed. */
-async function applySink(page, assetId) {
+/**
+ * Project-level fields the kitchen sink leaves at their default unless
+ * asked: the cloud link, which a save sets (applySink's `cloudLink`).
+ */
+const SINK_LEAVES_DEFAULT = ['project.id'];
+
+/**
+ * The kitchen sink, settled and with its autosave flushed, and its
+ * fingerprint. With `cloudLink` the project is also linked to a cloud
+ * project the mock holds, as a saved one is (R4; R3 saves to a project of
+ * its own). A field still at its default afterwards could be lost without
+ * any scenario seeing it, so that is a harness error: a project-level one,
+ * judged against a fresh project's fingerprint, or a field of a track, a
+ * clip, a note, a chord region or a marker that no entity sets
+ * (sinkFieldsAtDefault, against the registry's defaults).
+ */
+async function applySink(
+  page,
+  run,
+  { assetId = run.assetId, cloudLink = false } = {},
+) {
   const sink = await page.evaluate(applyKitchenSink, { assetId });
+  if (cloudLink) {
+    const projectId = run.api.seedProject({ name: 'Kitchen Sink' });
+    await page.evaluate(
+      (id) => window.__MA_STORE__.getState().setProjectId(id),
+      projectId,
+    );
+  }
   const s = await settleOrThrow(page, 'after the kitchen sink');
   const raw = await waitForAutosave(page);
-  return { sink, settle: s, raw };
+  const snapshot = await fingerprint(page);
+  const leftAlone = cloudLink ? [] : SINK_LEAVES_DEFAULT;
+  const unset = [
+    ...Object.keys(snapshot.fields).filter(
+      (key) =>
+        !key.startsWith('tracks[') &&
+        !leftAlone.includes(key) &&
+        run.defaults?.fields[key] &&
+        sameValue(snapshot.fields[key].value, run.defaults.fields[key].value),
+    ),
+    ...(await page.evaluate(sinkFieldsAtDefault)),
+  ];
+  if (unset.length > 0) {
+    throw new Error(
+      `the kitchen sink leaves ${unset.join(', ')} at the default, so no scenario could see it lost: give it a value in kitchenSink.mjs`,
+    );
+  }
+  return { sink, settle: s, raw, snapshot };
 }
 
 /** R1: refresh during playback, right after an edit made while playing. */
 async function refreshWhilePlaying(run) {
   return withSession(run, '?new=1', async ({ page }) => {
-    const { sink } = await applySink(page, run.assetId);
+    const { sink } = await applySink(page, run);
     await startAudio(page);
     const from = await page.evaluate(
       () => window.__MA_STORE__.getState().position,
     );
     await page.evaluate(() => window.__MA_STORE__.getState().play());
     // The sink arms a two-bar count-in, so the playhead moves only after it.
-    await page.waitForFunction(
-      (start) => {
-        const s = window.__MA_STORE__.getState();
-        return s.isPlaying && s.position > start + 240;
-      },
-      from,
-      { timeout: 30_000, polling: 100 },
-    );
+    await page
+      .waitForFunction(
+        (start) => {
+          const s = window.__MA_STORE__.getState();
+          return s.isPlaying && s.position > start + 240;
+        },
+        from,
+        { timeout: 30_000, polling: 100 },
+      )
+      .catch(async () => {
+        // A browser whose audio output never renders (headless Chrome on a
+        // machine whose output device is stuck) keeps the audio clock, and
+        // so the transport, at its start: say so rather than time out.
+        const at = await page.evaluate(() => {
+          const s = window.__MA_STORE__.getState();
+          return { isPlaying: s.isPlaying, position: s.position };
+        });
+        throw new Error(
+          `playback never moved the playhead (isPlaying ${at.isPlaying}, position ${at.position}, from ${from}): if the browser's audio clock does not run on this machine, run with --fake-audio (Chrome's fake audio output)`,
+        );
+      });
     const savedBeforeEdit = await autosaveTimestamp(page);
     await page.evaluate(
       (id) => window.__MA_STORE__.getState().updateTrack(id, { volume: 0.33 }),
@@ -840,16 +1168,24 @@ async function refreshWhilePlaying(run) {
     const after = await settle(page, 'after the reload');
     const snapshot = await fingerprint(page);
     const probe = await page.evaluate(probeChordIdCollision);
+    // The playhead moves while playing, so where it lands after a refresh
+    // is not a loss (HOT_VIEW_FIELDS).
+    const diffs = compareFingerprints(before, snapshot, {
+      ...COMPARE.reloadWhilePlaying,
+      defaults: run.defaults,
+    });
+    const hot = diffs.filter((d) => HOT_VIEW_FIELDS.includes(d.field));
+    if (hot.length > 0) {
+      throw new Error(
+        `harness self-check: R1 listed ${hot.map((d) => d.key).join(', ')}`,
+      );
+    }
     return {
-      // The playhead moves while playing and is session state in the audit's
-      // proposal; where it lands after a refresh is not a loss.
-      diffs: compareFingerprints(before, snapshot, {
-        defaults: run.defaults,
-        ignore: ['transport.position'],
-      }),
+      diffs,
       extraLosses: probe.collides ? ['ids.newChordIdUnique'] : [],
       flags,
       checks: { chordIdProbe: probe, settle: [after] },
+      after: snapshot,
     };
   });
 }
@@ -857,8 +1193,7 @@ async function refreshWhilePlaying(run) {
 /** R2: editor → /studio → history.back(), one edit just before leaving. */
 async function spaReturn(run) {
   return withSession(run, '?new=1', async ({ page }) => {
-    const { sink } = await applySink(page, run.assetId);
-    const before = await fingerprint(page);
+    const { sink, snapshot: before } = await applySink(page, run);
     // The last edit before leaving, in the same task as the navigation, so
     // it always falls inside the 1.5 s autosave debounce however loaded the
     // machine is (a person changes a fader and clicks away). The snapshot
@@ -888,10 +1223,14 @@ async function spaReturn(run) {
     const snapshot = await fingerprint(page);
     const probe = await page.evaluate(probeChordIdCollision);
     return {
-      diffs: compareFingerprints(before, snapshot, { defaults: run.defaults }),
+      diffs: compareFingerprints(before, snapshot, {
+        ...COMPARE.reload,
+        defaults: run.defaults,
+      }),
       extraLosses: probe.collides ? ['ids.newChordIdUnique'] : [],
       flags: {},
       checks: { chordIdProbe: probe, settle: [after] },
+      after: snapshot,
     };
   });
 }
@@ -931,15 +1270,20 @@ const UPLOAD_STEPS = [
   /^POST \/api\/studio\/assets\/[^/\s]+\/finalize 200$/,
 ];
 
-/** R3: File ▸ Save, then ?project=<id> in a fresh context. */
+/**
+ * R3: File ▸ Save, then ?project=<id> in a fresh context. The mock keeps
+ * what the client sends, settings and returns included, unless the run asks
+ * for only what api.ts declares (--strict-api).
+ */
 async function cloudSaveOpen(run, mode) {
-  const api = createMockStudioApi({ mode });
+  const strictShape = run.args['strict-api'] === 'true';
+  const api = createMockStudioApi({ mode, strictShape });
   const assetId = seedSample(api);
   const saved = await withSession(
     run,
     '?new=1',
     async ({ page }) => {
-      await applySink(page, assetId);
+      await applySink(page, run, { assetId });
       const since = await pageNow(page);
       await saveFromFileMenu(page, api);
       const toast = await waitForToast(page, {
@@ -960,6 +1304,7 @@ async function cloudSaveOpen(run, mode) {
     (w) => w.method === 'PUT' && /\/projects\/[^/]+$/.test(w.path),
   );
   const sent = put?.body ?? {};
+  const sentClips = (sent.tracks ?? []).flatMap((t) => t.midiClips ?? []);
   const requests = api.log.map((l) => `${l.method} ${l.path} ${l.status}`);
   const flags = {
     savedToast: saved.savedToast,
@@ -969,6 +1314,7 @@ async function cloudSaveOpen(run, mode) {
   };
   const checks = {
     savePath: 'File ▸ Save',
+    apiShape: strictShape ? 'strict' : 'client',
     toasts: saved.toasts,
     requests,
     sentFields: {
@@ -979,6 +1325,12 @@ async function cloudSaveOpen(run, mode) {
         ...new Set(
           (sent.tracks ?? []).flatMap((t) => Object.keys(t.settings ?? {})),
         ),
+      ].sort(),
+      // The local draft's clips carry more (note ids, length, CC); the cloud
+      // payload must not, until 1.5 (mockStudioApi.mjs keeps only these).
+      midiClip: [...new Set(sentClips.flatMap((c) => Object.keys(c)))].sort(),
+      midiClipEvents: [
+        ...new Set(sentClips.flatMap((c) => Object.keys(c.events ?? {}))),
       ].sort(),
     },
   };
@@ -994,23 +1346,29 @@ async function cloudSaveOpen(run, mode) {
       );
       const after = await settle(page, 'after the open');
       const snapshot = await fingerprint(page);
-      // Whose ids the reopened tracks carry: the mock's row ids, or ids the
-      // client minted (deserializeCloudProject does, for every track and
-      // audio clip), so the id losses are not an artefact of the mock.
+      // Whose ids the reopened tracks carry: the mock's row ids, or the
+      // client's (deserializeCloudProject loads each track under its saved
+      // settings.sourceTrackId and mints audio-clip ids until 1.10), so the
+      // id results are not an artefact of the mock.
       const rows = api.projects.get(projectId)?.tracks ?? [];
       checks.trackIdsFromServer = {
         rows: rows.length,
         used: snapshot.ids.tracks.filter((id) =>
           rows.some((row) => row.id === id),
         ).length,
+        kept: snapshot.ids.tracks.filter((id) =>
+          saved.before.ids.tracks.includes(id),
+        ).length,
       };
       return {
         diffs: compareFingerprints(saved.before, snapshot, {
+          ...COMPARE.cloud,
           defaults: run.defaults,
         }),
         extraLosses: [],
         flags,
         checks: { ...checks, settle: [after] },
+        after: snapshot,
       };
     },
     api,
@@ -1020,50 +1378,74 @@ async function cloudSaveOpen(run, mode) {
 
 /**
  * Raw ids: a new project mints its own, and an in-app boot keeps counting
- * chord ids where the last project stopped, so they are no leak.
+ * chord ids where the last project stopped, so they are no leak. The id
+ * facts (ID_FLAGS) are compared: a link opened in-app must give every note
+ * and every chord region an id of its own, as its cold boot does.
  */
-const ID_FIELDS = [
-  'ids.tracks',
-  'ids.midiClips',
-  'ids.audioClips',
-  'ids.chordRegions',
-  'ids.chordRegionIdsUnique',
-];
+const ID_FIELDS = ID_KINDS.map((kind) => `ids.${kind}`);
+
+/**
+ * Cold boots of a link, each in a fresh context, fingerprinted. A link's
+ * boots are the same whichever way R4 then opens it (in-app, or a template
+ * from the Library), so they are taken once per run.
+ */
+async function coldBoots(run, intent) {
+  run.coldBoots ??= new Map();
+  const key = `${intent.query} ${handoff(intent.kind)?.key ?? ''}`;
+  if (!run.coldBoots.has(key)) {
+    const boots = [];
+    const count = Math.max(1, Number(run.args.calibrate ?? 2));
+    for (let i = 0; i < count; i++) {
+      if (intent.query === '?new=1' && i === 0 && run.defaults) {
+        boots.push(run.defaults);
+        continue;
+      }
+      boots.push(
+        await withSession(
+          run,
+          intent.query,
+          (session) => {
+            if (!settled(session.settled)) {
+              throw new Error(
+                `the cold boot never settled ${describeSettle(session.settled)}`,
+              );
+            }
+            return fingerprint(session.page);
+          },
+          run.api,
+          { handoff: handoff(intent.kind) },
+        ),
+      );
+    }
+    run.coldBoots.set(key, boots);
+  }
+  return run.coldBoots.get(key);
+}
 
 /** Cold boots of the link; fields that differ between them are volatile. */
 async function coldBaseline(run, intent) {
-  const boots = [];
-  const count = Math.max(1, Number(run.args.calibrate ?? 2));
-  for (let i = 0; i < count; i++) {
-    if (intent.kind === 'new' && i === 0 && run.defaults) {
-      boots.push(run.defaults);
-      continue;
-    }
-    boots.push(
-      await withSession(
-        run,
-        intent.query,
-        (session) => {
-          if (!settled(session.settled)) {
-            throw new Error(
-              `the cold boot never settled ${describeSettle(session.settled)}`,
-            );
-          }
-          return fingerprint(session.page);
-        },
-        run.api,
-        { handoff: handoff(intent.kind) },
-      ),
-    );
-  }
+  const boots = await coldBoots(run, intent);
   if (intent.expectTracks && boots[0].fields['tracks.count'].value === 0) {
     throw new Error(
       `${intent.query} opened an empty project, so the link no longer loads (LEAK_INTENTS needs another id)`,
     );
   }
+  // The cold boots are what the in-app one is held to, so their ids must be
+  // whole: a note without an id of its own (decision D2), or two chord
+  // regions sharing one (state-reload-05), would pass on both sides, and
+  // the Score marks on such a note are lost at the next save.
+  for (const boot of boots) {
+    const broken = ID_FLAGS.filter((flag) => boot.ids[flag] !== true);
+    if (broken.length > 0) {
+      throw new Error(
+        `a cold boot of ${intent.query} fails ${broken.map((flag) => `ids.${flag}`).join(', ')}: the link's load must give every note and every chord region an id of its own`,
+      );
+    }
+  }
   const volatile = new Set(intent.volatile ?? []);
   for (const other of boots.slice(1)) {
     for (const d of compareFingerprints(boots[0], other, {
+      ...COMPARE.leak,
       ignore: ID_FIELDS,
     })) {
       volatile.add(d.field);
@@ -1072,48 +1454,175 @@ async function coldBaseline(run, intent) {
   return { expected: boots[0], volatile: [...volatile].sort() };
 }
 
+/**
+ * Opens a template from the Library panel, as a student does: the panel is
+ * in the arrange view, on its Library tab (the top bar's Library button
+ * opens a shut panel), and a template is a row there, by its label. Returns
+ * the fingerprint of the session the click replaces, taken once the store
+ * is still: the work as it is kept, with the view the panel needed.
+ */
+async function openFromLibrary(page, label) {
+  // The arrange view opens the panel by itself (setCurrentView); the store
+  // says so before React has drawn it.
+  const open = await page.evaluate(() => {
+    const store = window.__MA_STORE__;
+    store.getState().setCurrentView('arrange');
+    return store.getState().libraryOpen;
+  });
+  if (!open) await page.click('button[title="Library"]');
+  // The panel's tab is the one Library button with a label; the top bar's
+  // is an icon.
+  await page.locator('button:has-text("Library")').first().click();
+  await waitForQuiet(page);
+  const replaced = await fingerprint(page);
+  // A template row is never dragged.
+  await page
+    .locator('div[draggable="false"]', {
+      hasText: new RegExp(`^\\s*${label}\\s*$`),
+    })
+    .first()
+    .click();
+  return replaced;
+}
+
+/**
+ * The Library click's kept work (R4): the toast announced it with a Restore,
+ * the newest kept slot holds the work the click replaced (its name, and the
+ * same tracks, clips and notes as the sink's autosave), and the Restore
+ * gives that work back as the click found it, ids and all (RESTORE_CLASSES).
+ * Returns the flags workKept and workRestored and adds what it saw to
+ * `checks`.
+ */
+async function checkKeptWork(page, run, { since, raw, replaced, checks }) {
+  const toast = await waitForToast(page, {
+    since,
+    match: /previous work was kept/i,
+  });
+  checks.toasts = await readToasts(page, since);
+  const name = replaced.fields['project.name'].value;
+  const kept = await page.evaluate(newestKeptSlot, {
+    path: LOCAL_SESSION_MODULE,
+    userId: DEV_USER,
+  });
+  checks.keptSlot = kept && {
+    projectName: kept.slot.projectName,
+    sameWork: sameValue(autosaveDigest(kept.session), autosaveDigest(raw)),
+  };
+  const workKept =
+    Boolean(toast?.actions?.includes('Restore')) &&
+    kept?.slot.projectName === name &&
+    checks.keptSlot.sameWork;
+  if (!kept) return { workKept, workRestored: false };
+  await page.evaluate(restoreKept, {
+    path: LOCAL_SESSION_MODULE,
+    slot: kept.slot,
+    userId: DEV_USER,
+  });
+  const back = await page
+    .waitForFunction(
+      (project) => window.__MA_STORE__.getState().projectName === project,
+      name,
+      { timeout: 30_000, polling: 100 },
+    )
+    .then(
+      () => true,
+      () => false,
+    );
+  if (!back) {
+    checks.restore = 'the Restore never brought the kept work back';
+    return { workKept, workRestored: false };
+  }
+  checks.settle.push(await settle(page, 'after the Restore'));
+  const restored = await fingerprint(page);
+  const diffs = compareFingerprints(replaced, restored, {
+    classes: RESTORE_CLASSES,
+    defaults: run.defaults,
+  });
+  checks.restoreDiffs = diffs.map((d) => `${d.key} (${d.kind})`);
+  return { workKept, workRestored: diffs.length === 0 };
+}
+
 /** R4: after the kitchen sink, an in-app boot must look like a cold one. */
 async function leakCheck(run, intent) {
   const { expected, volatile } = await coldBaseline(run, intent);
   return withSession(run, '?new=1', async ({ page }) => {
-    await applySink(page, run.assetId);
-    const sink = await fingerprint(page);
-    await leaveEditor(page);
-    const seed = handoff(intent.kind);
-    if (seed) {
-      await page.evaluate(
-        ({ key, value }) => localStorage.setItem(key, value),
-        seed,
+    // Linked to a cloud project, so a link that keeps the link shows.
+    const { snapshot: sink, raw } = await applySink(page, run, {
+      cloudLink: true,
+    });
+    const since = await pageNow(page);
+    let label = `the in-app ${intent.query}`;
+    // What the link replaces: the sink, or the sink as the Library click
+    // found it (the view the panel needed).
+    let replaced = sink;
+    if (intent.library) {
+      label = `the Library's ${intent.library} template`;
+      replaced = await openFromLibrary(page, intent.library);
+      // The template is open once its tracks are in (replaceSession keeps
+      // the work first, then seeds).
+      await page.waitForFunction(
+        ({ name, tracks }) => {
+          const s = window.__MA_STORE__.getState();
+          return s.projectName !== name && s.tracks.length === tracks;
+        },
+        {
+          name: sink.fields['project.name'].value,
+          tracks: expected.fields['tracks.count'].value,
+        },
+        { timeout: 30_000, polling: 100 },
       );
+    } else {
+      await leaveEditor(page);
+      const seed = handoff(intent.kind);
+      if (seed) {
+        await page.evaluate(
+          ({ key, value }) => localStorage.setItem(key, value),
+          seed,
+        );
+      }
+      await spaNavigate(page, `/studio/editor${intent.query}`);
+      const state = await waitForEditor(page);
+      if (state !== 'ready') return crashed(state);
     }
-    await spaNavigate(page, `/studio/editor${intent.query}`);
-    const state = await waitForEditor(page);
-    if (state !== 'ready') return crashed(state);
-    const after = await settle(page, `after the in-app ${intent.query}`);
+    const after = await settle(page, `after ${label}`);
     const got = await fingerprint(page);
     const diffs = compareFingerprints(expected, got, {
+      ...COMPARE.leak,
       ignore: [...volatile, ...ID_FIELDS],
     });
     for (const d of diffs) {
       // Carried over: the value is the previous project's.
       d.carriedOver = Boolean(
-        sink.fields[d.key] && sameValue(sink.fields[d.key].value, d.after),
+        replaced.fields[d.key] &&
+          sameValue(replaced.fields[d.key].value, d.after),
       );
     }
-    return {
-      diffs,
-      extraLosses: [],
-      flags: {},
-      checks: { volatile, settle: [after] },
-    };
+    // The prefs are the student's, not the project's: the new project has
+    // the sink's.
+    const prefs = Object.keys(sink.fields).filter(
+      (key) => sink.fields[key].class === 'pref',
+    );
+    const prefsLeft = prefs.filter(
+      (key) =>
+        !got.fields[key] ||
+        !sameValue(got.fields[key].value, sink.fields[key].value),
+    );
+    const flags = { prefsCarried: prefsLeft.length === 0 };
+    const checks = { volatile, prefsNotCarried: prefsLeft, settle: [after] };
+    if (intent.library) {
+      Object.assign(
+        flags,
+        await checkKeptWork(page, run, { since, raw, replaced, checks }),
+      );
+    }
+    return { diffs, extraLosses: [], flags, checks, after: got };
   });
 }
 
 /** R5: a link to something that does not exist, in-app or a full load. */
 async function badLink(run, link, how) {
   return withSession(run, '?new=1', async ({ page }) => {
-    const { raw } = await applySink(page, run.assetId);
-    const before = await fingerprint(page);
+    const { raw, snapshot: before } = await applySink(page, run);
     const since = how === 'spa' ? await pageNow(page) : 0;
     if (how === 'spa') {
       await leaveEditor(page);
@@ -1139,7 +1648,10 @@ async function badLink(run, link, how) {
     });
     const probe = await page.evaluate(probeChordIdCollision);
     return {
-      diffs: compareFingerprints(before, snapshot, { defaults: run.defaults }),
+      diffs: compareFingerprints(before, snapshot, {
+        ...COMPARE.reload,
+        defaults: run.defaults,
+      }),
       extraLosses: probe.collides ? ['ids.newChordIdUnique'] : [],
       flags: {
         errorToast: Boolean(error),
@@ -1151,6 +1663,7 @@ async function badLink(run, link, how) {
         chordIdProbe: probe,
         settle: [after],
       },
+      after: snapshot,
     };
   });
 }
@@ -1162,7 +1675,7 @@ async function badLink(run, link, how) {
  */
 async function synthEditRefresh(run) {
   return withSession(run, '?new=1', async ({ page }) => {
-    const { sink } = await applySink(page, run.assetId);
+    const { sink } = await applySink(page, run);
     const lead = sink.trackIds.lead;
     // Open the Lead's synth panel, as a student about to shape the sound.
     await page.evaluate((id) => {
@@ -1174,8 +1687,9 @@ async function synthEditRefresh(run) {
     await pollPage(
       page,
       async (id) => {
-        const devModule = (url) => import(url);
-        const sts = await devModule('/src/daw/oracle-synth/synthTrackState.ts');
+        const sts = await window.__RT_DEV_MODULE__(
+          '/src/daw/oracle-synth/synthTrackState.ts',
+        );
         return sts.getActiveSynthTrack() === id;
       },
       lead,
@@ -1206,6 +1720,7 @@ async function synthEditRefresh(run) {
       extraLosses: [],
       flags,
       checks: { settle: [after] },
+      after: snapshot,
     };
   });
 }
@@ -1218,8 +1733,7 @@ async function synthEditRefresh(run) {
 async function tabClose(run) {
   return withSession(run, '?new=1', async (session) => {
     const { page } = session;
-    const { sink } = await applySink(page, run.assetId);
-    const before = await fingerprint(page);
+    const { sink, snapshot: before } = await applySink(page, run);
     const lead = before.ids.tracks.indexOf(sink.trackIds.lead);
     before.fields[`tracks[${lead}].volume`].value = 0.44;
     // Leave the page if it asks (a beforeunload prompt), as a person would.
@@ -1256,13 +1770,17 @@ async function tabClose(run) {
       foundTimestamp = null;
     }
     return {
-      diffs: compareFingerprints(before, snapshot, { defaults: run.defaults }),
+      diffs: compareFingerprints(before, snapshot, {
+        ...COMPARE.reload,
+        defaults: run.defaults,
+      }),
       extraLosses: [],
       flags: {
         autosaveFlushedOnClose:
           foundTimestamp !== null && foundTimestamp >= editedAt,
       },
       checks: { closeMs, settle: [after] },
+      after: snapshot,
     };
   });
 }
@@ -1295,7 +1813,9 @@ function allScenarios() {
       group: 'R4',
       key: intent.kind,
       id: `R4-leak:${intent.kind}`,
-      title: `In-app ${intent.query} after the kitchen sink vs a cold boot`,
+      title: intent.library
+        ? `The Library panel's ${intent.library} template after the kitchen sink vs a cold boot of ${intent.query}`
+        : `In-app ${intent.query} after the kitchen sink vs a cold boot`,
       run: (r) => leakCheck(r, intent),
     })),
     ...BAD_LINKS.flatMap((link) =>
@@ -1364,16 +1884,18 @@ const kindOf = (d) => (d.carriedOver ? 'carried-over' : d.kind);
  * The countable losses of a scenario: one per differing key, except that a
  * track or clip missing on one side counts once, as a whole (listing each
  * of its fields would only repeat that), and is carried over only if all of
- * it was. Losses found another way (`extraLosses`) count once each.
+ * it was. Losses found another way (`extraLosses`) count once each. Each
+ * unit names the milestone that owns it, if a later one does (ownerOf).
  */
-function lossUnits(diffs, extraLosses) {
+function lossUnits(diffs, extraLosses, group) {
   const units = [];
   const entities = new Map();
   for (const d of diffs) {
     if (!d.entity) {
       units.push({
         field: d.field,
-        group: d.group,
+        class: d.class,
+        cloud: d.cloud,
         kind: kindOf(d),
         key: d.key,
         before: d.before,
@@ -1385,7 +1907,8 @@ function lossUnits(diffs, extraLosses) {
     if (!unit) {
       unit = {
         field: d.entity.field,
-        group: 'doc',
+        class: 'doc',
+        cloud: false,
         kind: d.kind,
         key: d.entity.key,
       };
@@ -1407,11 +1930,13 @@ function lossUnits(diffs, extraLosses) {
   for (const field of extraLosses) {
     units.push({
       field,
-      group: field.startsWith('ids.') ? 'ids' : 'editor',
+      class: field.startsWith('ids.') ? 'ids' : 'editor',
+      cloud: false,
       kind: 'changed',
       key: field,
     });
   }
+  for (const unit of units) unit.owner = ownerOf(group, unit);
   return units;
 }
 
@@ -1445,7 +1970,8 @@ function summarizeLosses(units) {
   for (const unit of units) {
     const entry = byField.get(unit.field) ?? {
       field: unit.field,
-      group: unit.group,
+      class: unit.class,
+      owner: unit.owner,
       kinds: {},
       keys: [],
       examples: [],
@@ -1562,7 +2088,7 @@ async function updateKnown(file, reports, known) {
     file,
     JSON.stringify({
       about:
-        "Today's round-trip results per profile and scenario (scripts/studio-perf/roundtrip.mjs, milestone 1.0 baseline). losses: field -> number of keys lost per kind (a tracks[] or clips[] field counts one key per track or clip, and a track or clip that is gone altogether counts once, as 'tracks[] (whole track)' or '... (whole clip)'); flags: the scenario's yes/no checks; pageErrors: uncaught page errors. A run fails on more keys of a kind than listed, a flag moving away from its goal, or more page errors. Rewrite with --update-known once a fix lands.",
+        "Today's round-trip results per profile and scenario (scripts/studio-perf/roundtrip.mjs; what each scenario compares comes from the project document registry since milestone 1.3). losses: field -> number of keys lost per kind (a tracks[] or clips[] field counts one key per track or clip, and a track or clip that is gone altogether counts once, as 'tracks[] (whole track)' or '... (whole clip)'); flags: the scenario's yes/no checks; pageErrors: uncaught page errors. A run fails on more keys of a kind than listed, a flag moving away from its goal, or more page errors. Rewrite with --update-known once a fix lands.",
       format: KNOWN_FORMAT,
       updatedAt: new Date().toISOString().slice(0, 10),
       commit,
@@ -1681,7 +2207,7 @@ async function finishLesson(page, id) {
   const { driverFor } = await import('./lessonDrivers.mjs');
   const steps = await page.evaluate(
     async ({ path, lesson }) => {
-      const { getTutorial } = await import(path);
+      const { getTutorial } = await window.__RT_DEV_MODULE__(path);
       return (getTutorial(lesson)?.steps ?? []).map((step) => step.id);
     },
     { path: TUTORIALS_MODULE, lesson: id },
@@ -1732,14 +2258,37 @@ async function finishLesson(page, id) {
   return passed;
 }
 
+/**
+ * The schema a fixture folder holds: its manifest's sessionSchemaVersion,
+ * else the N of a folder named vN (v2, v2-1.2), else null (a new folder of
+ * any other name takes the first draft's).
+ */
+function folderSchema(dir) {
+  const manifest = join(dir, 'manifest.json');
+  if (existsSync(manifest)) {
+    const { sessionSchemaVersion } = JSON.parse(readFileSync(manifest, 'utf8'));
+    if (Number.isInteger(sessionSchemaVersion)) return sessionSchemaVersion;
+  }
+  const named = /^v(\d+)(?:\D|$)/.exec(basename(dir));
+  return named ? Number(named[1]) : null;
+}
+
+/** `dir` from the repo root when it is in the repo, else as it is. */
+const shortPath = (dir) =>
+  dir.startsWith(`${ROOT}/`) ? relative(ROOT, dir) : dir;
+
+/** A draft's schema: its "schema" since codec v3, else its version. */
+const draftSchema = (parsed) => parsed.schema ?? parsed.version;
+
 async function captureFixtures(run) {
   const dir = resolve(run.args['fixtures-dir'] ?? FIXTURE_DIR);
   mkdirSync(dir, { recursive: true });
+  let schema = folderSchema(dir);
   // The boots come from the app's own catalogues, so a new demo, template
   // or lesson is captured without editing this script.
   const catalogue = await withSession(run, '?new=1', ({ page }) =>
     page.evaluate(async (tutorials) => {
-      const devModule = (url) => import(url);
+      const devModule = window.__RT_DEV_MODULE__;
       const [demos, templates, lessons] = await Promise.all([
         devModule('/src/daw/data/demoProjects.ts'),
         devModule('/src/daw/data/projectTemplates.ts'),
@@ -1783,14 +2332,26 @@ async function captureFixtures(run) {
         }
         if (target.lesson) passed = await finishLesson(page, target.lesson);
         await settleOrThrow(page, `capturing ${target.name}`);
+        // A change to the view alone starts no write (decision D8): it waits
+        // for the next one, or for the flush a page runs as it is hidden or
+        // closed. Run that flush, so the draft holds the view on screen even
+        // when a lesson's last step only moved it (the editor's only other
+        // pagehide listener is the prefs', which writes the prefs).
+        await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
         return { raw: await waitForAutosave(page), steps: passed };
       },
       run.api,
       { handoff: target.handoff ?? null },
     );
     const parsed = JSON.parse(raw);
-    if (parsed.version !== 2) {
-      throw new Error(`${target.name}: autosave version ${parsed.version}`);
+    // Checked before anything is written, so a folder of older drafts is
+    // never overwritten with newer ones.
+    const found = draftSchema(parsed);
+    schema ??= found;
+    if (found !== schema) {
+      throw new Error(
+        `${target.name}: the editor writes schema ${found} drafts and ${shortPath(dir)} holds schema ${schema}: capture into fixtures/v${found} (--fixtures-dir) instead`,
+      );
     }
     const file = join(dir, `${target.name}.json`);
     const written = await writeFormatted(file, raw);
@@ -1819,31 +2380,33 @@ async function captureFixtures(run) {
   await writeFormatted(
     join(dir, 'manifest.json'),
     JSON.stringify({
-      about:
-        "Real v2 Studio autosaves (localStorage 'musicAtlas:daw:autosave') captured by scripts/studio-perf/roundtrip.mjs --capture-fixtures, for the codec v3 migration tests. Each file is the stored string pretty-printed; JSON.stringify(JSON.parse(file)) reproduces it byte for byte, and sha256 is the hash of that string (manifest.test.ts checks both). A lesson's steps say how each step was passed: by its walkthrough driver, its fallback, by itself, or forced on as Next would.",
+      about: `Real schema ${schema} Studio autosaves (localStorage '${AUTOSAVE_KEY}') captured by scripts/studio-perf/roundtrip.mjs --capture-fixtures, for the codec's migration tests. Each file is the stored string pretty-printed; JSON.stringify(JSON.parse(file)) reproduces it byte for byte, and sha256 is the hash of that string (manifest.test.ts checks both). sessionSchemaVersion is each draft's "schema", or its "version" when it has none (codec v3 keeps "version": 2, decision D1). A lesson's steps say how each step was passed: by its walkthrough driver, its fallback, by itself, or forced on as Next would.`,
       storageKey: AUTOSAVE_KEY,
-      sessionSchemaVersion: 2,
+      sessionSchemaVersion: schema,
       capturedAt: new Date().toISOString(),
       commit: gitInfo().commit,
       fixtures,
     }),
   );
   console.log(
-    `${fixtures.length} fixtures in ${relative(ROOT, dir) || dir} (+ manifest.json)`,
+    `${fixtures.length} fixtures in ${shortPath(dir)} (+ manifest.json)`,
   );
   return 0;
 }
 
 // ── Summary ─────────────────────────────────────────────────────────────────
 
-/** Report groups, in the order the summary lists them. */
-const GROUP_NAMES = {
+/** Report groups (fingerprint classes), in the order the summary lists them. */
+const CLASS_NAMES = {
   editor: 'editor',
   doc: 'project',
-  prefs: 'per-user prefs',
-  session: 'session',
-  view: 'view',
+  view: 'view of the project',
+  pref: 'per-user prefs',
+  'track-local': 'this person’s track inputs',
+  derived: 'worked out on load',
   context: 'lesson/practice context',
+  runtime: 'decoded audio',
+  session: 'session',
   ids: 'ids',
 };
 
@@ -1874,7 +2437,12 @@ function flagsText(flags = {}) {
 
 const toastText = (toasts) =>
   toasts.length
-    ? toasts.map((t) => `${t.type} "${t.text}"`).join(', ')
+    ? toasts
+        .map(
+          (t) =>
+            `${t.type} "${t.text}"${t.actions?.length ? ` [${t.actions.join(', ')}]` : ''}`,
+        )
+        .join(', ')
     : 'none';
 
 /** A scenario's other facts, in words. */
@@ -1885,13 +2453,49 @@ function checksText(checks = {}) {
       `saved through ${checks.savePath}; prism sent as {${checks.sentFields.prism.join(', ')}}; requests: ${checks.requests.join(', ')}`,
     );
   }
-  if (checks.trackIdsFromServer) {
-    const { rows, used } = checks.trackIdsFromServer;
+  if (checks.sentFields?.midiClip) {
+    const { midiClip, midiClipEvents } = checks.sentFields;
     parts.push(
-      `${used} of ${rows} track ids after the open are the server's row ids: the client mints its own on open (deserializeCloudProject), and the save sends no track or audio-clip id, so the id losses do not depend on how the mock keys rows`,
+      `MIDI clips sent as {${midiClip.join(', ')}} with columns {${midiClipEvents.join(', ')}}`,
+    );
+  }
+  if (checks.trackIdsFromServer) {
+    const { rows, used, kept } = checks.trackIdsFromServer;
+    parts.push(
+      `${used} of ${rows} track ids after the open are the server's row ids and ${kept ?? '?'} are the ones saved: the client loads each track under its saved id (settings.sourceTrackId) and still mints audio-clip ids (until 1.10); the save sends no row ids, so the id results do not depend on how the mock keys rows`,
+    );
+  }
+  if (checks.apiShape === 'strict') {
+    parts.push(
+      'the mock kept only what api.ts declares (--strict-api): no track settings and no returns, so this is what a cloud open loses if music-atlas-api keeps no more; a diagnostic, not a baseline',
+    );
+  } else if (checks.apiShape) {
+    parts.push(
+      "the mock stored each track's settings and the returns as sent; the saved track ids, effects, instrument state and Oracle patches ride in settings, so what this shows as kept holds only if music-atlas-api stores settings as sent, which no one has checked (--strict-api shows the open without them)",
+    );
+  }
+  if (checks.prefsNotCarried?.length) {
+    parts.push(
+      `prefs the new project did not keep: ${checks.prefsNotCarried.join(', ')}`,
     );
   }
   if (checks.toasts) parts.push(`toasts: ${toastText(checks.toasts)}`);
+  if ('keptSlot' in checks) {
+    const slot = checks.keptSlot;
+    parts.push(
+      slot
+        ? `the newest kept slot is "${slot.projectName}", ${slot.sameWork ? 'with the tracks, clips and notes the sink saved' : 'NOT holding the tracks, clips and notes the sink saved'}`
+        : 'no kept slot',
+    );
+  }
+  if (checks.restore) parts.push(checks.restore);
+  if (checks.restoreDiffs) {
+    parts.push(
+      checks.restoreDiffs.length
+        ? `the Restore gave back all but ${checks.restoreDiffs.join(', ')}`
+        : 'the Restore gave back everything compared, ids included',
+    );
+  }
   if (checks.chordIdProbe?.regions) {
     const { newId, collides } = checks.chordIdProbe;
     parts.push(
@@ -1908,14 +2512,21 @@ function checksText(checks = {}) {
   return parts.join('; ');
 }
 
-/** `field` with its kinds and key counts, e.g. `tracks[].trackRole` (lost ×9). */
+/**
+ * `field` with its kinds and key counts and its owner, e.g.
+ * `tracks[].trackRole` (lost ×9) or `markers` [1.5].
+ */
 function lossLabel(loss) {
   const kinds = Object.entries(loss.kinds);
+  const owner = loss.owner ? ` [${loss.owner}]` : '';
   const plain = kinds.length === 1 && kinds[0][0] === 'lost' && kinds[0][1] < 2;
-  if (plain) return `\`${loss.field}\``;
+  if (plain) return `\`${loss.field}\`${owner}`;
   const parts = kinds.map(([kind, n]) => (n > 1 ? `${kind} ×${n}` : kind));
-  return `\`${loss.field}\` (${parts.join(', ')})`;
+  return `\`${loss.field}\` (${parts.join(', ')})${owner}`;
 }
+
+/** How many of a scenario's lost fields no later milestone owns. */
+const unownedCount = (losses) => losses.filter((l) => !l.owner).length;
 
 async function writeSummary(outDir, reports, knownFile) {
   const { commit, branch, dirty } = gitInfo();
@@ -1925,22 +2536,22 @@ async function writeSummary(outDir, reports, knownFile) {
   const lines = [
     '# Studio reload round-trips',
     '',
-    `What survives a refresh, an in-app return, a tab close, a cloud save and reopen, a boot of every kind and a bad link in today's editor (milestone 1.0 baseline: losses are recorded, not fixed). Written by \`scripts/studio-perf/roundtrip.mjs\` on ${new Date().toISOString().slice(0, 10)} at commit \`${commit}\` (${branch}${dirty ? ', with uncommitted changes under src' : ''}) against ${reports[0]?.base}. Every scenario starts from the kitchen sink (\`scripts/studio-perf/fixtures/kitchenSink.mjs\`), a value that is not the default for every field of the audit's persistence matrix, and the Studio API is the in-memory mock (\`mockStudioApi.mjs\`). The JSON report beside this file has every difference with its values before and after.`,
+    `What survives a refresh, an in-app return, a tab close, a cloud save and reopen, a boot of every kind and a bad link in the editor. Written by \`scripts/studio-perf/roundtrip.mjs\` on ${new Date().toISOString().slice(0, 10)} at commit \`${commit}\` (${branch}${dirty ? ', with uncommitted changes under src' : ''}) against ${reports[0]?.base}. Every scenario starts from the kitchen sink (\`scripts/studio-perf/fixtures/kitchenSink.mjs\`), a value that is not the default for every field the draft or the prefs keep, and the Studio API is the in-memory mock (\`mockStudioApi.mjs\`). What a scenario compares comes from the project document registry: a reload keeps the project, its view, the prefs and this person's inputs; the cloud copy the project alone; a link opened in-app starts every project field over and keeps the prefs. The JSON report beside this file has every difference with its values before and after.`,
     '',
-    `Against \`${relative(ROOT, knownFile)}\`: ${regressions} regression(s), ${fixes} improvement(s). Keys count one per track or clip, so \`tracks[].trackRole\` (lost ×9) is nine tracks' roles, and a track or clip that is gone altogether counts once, as \`tracks[] (whole track)\` or \`tracks[].midiClips[] (whole clip)\`.`,
+    `Against \`${relative(ROOT, knownFile)}\`: ${regressions} regression(s), ${fixes} improvement(s). Keys count one per track or clip, so \`tracks[].trackRole\` (lost ×9) is nine tracks' roles, and a track or clip that is gone altogether counts once, as \`tracks[] (whole track)\` or \`tracks[].midiClips[] (whole clip)\`. A loss a later milestone owns is marked with it, e.g. [1.5]; the Unowned column counts the rest.`,
     '',
   ];
   for (const report of reports) {
     lines.push(
       `## ${report.profile}`,
       '',
-      '| Scenario | Result | Fields lost | Keys lost | Page errors | New | Fixed | Time |',
-      '| --- | --- | --- | --- | --- | --- | --- | --- |',
+      '| Scenario | Result | Fields lost | Unowned | Keys lost | Page errors | New | Fixed | Time |',
+      '| --- | --- | --- | --- | --- | --- | --- | --- | --- |',
     );
     for (const r of report.scenarios) {
       const ok = r.status === 'ok';
       lines.push(
-        `| ${r.id} | ${r.status} | ${ok ? r.losses.length : '–'} | ${ok ? keyTotal(r.lossCounts) : '–'} | ${r.pageErrors.length} | ${r.regressions?.length ?? '–'} | ${r.fixes?.length ?? '–'} | ${r.seconds} s |`,
+        `| ${r.id} | ${r.status} | ${ok ? r.losses.length : '–'} | ${ok ? unownedCount(r.losses) : '–'} | ${ok ? keyTotal(r.lossCounts) : '–'} | ${r.pageErrors.length} | ${r.regressions?.length ?? '–'} | ${r.fixes?.length ?? '–'} | ${r.seconds} s |`,
       );
     }
     lines.push('');
@@ -1969,15 +2580,15 @@ async function writeSummary(outDir, reports, knownFile) {
           '',
         );
       }
-      const byGroup = new Map();
+      const byClass = new Map();
       for (const loss of r.losses) {
-        const list = byGroup.get(loss.group) ?? [];
+        const list = byClass.get(loss.class) ?? [];
         list.push(lossLabel(loss));
-        byGroup.set(loss.group, list);
+        byClass.set(loss.class, list);
       }
-      for (const group of Object.keys(GROUP_NAMES)) {
-        const list = byGroup.get(group);
-        if (list) lines.push(`- ${GROUP_NAMES[group]}: ${list.join(', ')}`);
+      for (const cls of Object.keys(CLASS_NAMES)) {
+        const list = byClass.get(cls);
+        if (list) lines.push(`- ${CLASS_NAMES[cls]}: ${list.join(', ')}`);
       }
       if (!r.baselined) {
         // Everything above is new; listing it twice says nothing more.
@@ -2011,7 +2622,7 @@ function printScenario(r) {
     ? `${r.regressions.length} new, ${r.fixes.length} fixed`
     : `no baseline, ${r.regressions.length} new`;
   console.log(
-    `${head} ${String(r.losses.length).padStart(3)} fields / ${String(keyTotal(r.lossCounts)).padStart(3)} keys lost, ${r.pageErrors.length} page errors (${delta})`,
+    `${head} ${String(r.losses.length).padStart(3)} fields (${unownedCount(r.losses)} unowned) / ${String(keyTotal(r.lossCounts)).padStart(3)} keys lost, ${r.pageErrors.length} page errors (${delta})`,
   );
   for (const s of (r.checks?.settle ?? []).filter((x) => !settled(x))) {
     console.log(`    UNSETTLED ${describeSettle(s)}`);
@@ -2032,6 +2643,15 @@ async function runProfile(run, entries) {
   run.defaults = await withSession(run, '?new=1', ({ page }) =>
     fingerprint(page),
   );
+  // HOT_VIEW_FIELDS must name view fields the fingerprint has, or R1 would
+  // leave out something else (or nothing).
+  for (const field of HOT_VIEW_FIELDS) {
+    if (run.defaults.fields[field]?.class !== 'view') {
+      throw new Error(
+        `harness self-check: HOT_VIEW_FIELDS names ${field}, which is no view field`,
+      );
+    }
+  }
   const results = [];
   for (const scenario of plannedScenarios(run.args)) {
     const startedAt = Date.now();
@@ -2039,12 +2659,23 @@ async function runProfile(run, entries) {
     run.pageErrors = [];
     try {
       const outcome = await scenario.run(run);
-      const units = lossUnits(outcome.diffs, outcome.extraLosses);
+      const units = lossUnits(
+        outcome.diffs,
+        outcome.extraLosses,
+        scenario.group,
+      );
+      const flags = { ...outcome.flags };
+      // Whatever the boundary, every note leaves it with an id of its own
+      // (decision D2); a note without one loses its Score marks at the next
+      // save. An editor that never came back has no snapshot to read.
+      if (outcome.after) {
+        flags.noteIdsWhole = outcome.after.ids.noteIdsUnique === true;
+      }
       Object.assign(result, {
         status: 'ok',
         lossCounts: lossCounts(units),
         losses: summarizeLosses(units),
-        flags: outcome.flags,
+        flags,
         checks: outcome.checks,
       });
     } catch (error) {
@@ -2071,6 +2702,7 @@ async function runProfile(run, entries) {
 
 /** Runs the suite (or the capture) and resolves to the exit code. */
 export async function runRoundtrip(argv = process.argv.slice(2)) {
+  selfCheck();
   return withStudio(
     CHECK,
     async ({ base, browser, args, outDir }) => {
@@ -2082,6 +2714,11 @@ export async function runRoundtrip(argv = process.argv.slice(2)) {
       }
       const knownFile = resolve(args.known ?? KNOWN_LOSSES);
       const updating = args['update-known'] === 'true';
+      if (updating && args['strict-api'] === 'true') {
+        throw new Error(
+          '--strict-api models an API no one has confirmed: its results are never recorded (drop --update-known)',
+        );
+      }
       const known = readKnown(knownFile, updating);
       const all = [];
       const reports = [];

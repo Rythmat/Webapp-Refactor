@@ -23,8 +23,9 @@
  *
  * Exit status 1 when a lesson stops with an error (each step it did not get
  * to counts as failed), when a step or a gate check fails that
- * KNOWN_FAILURES in lessonDrivers.mjs does not list, and, with --baseline,
- * on any regression.
+ * KNOWN_FAILURES in lessonDrivers.mjs does not list, when the editor's DEV
+ * note-id check warns ('[noteIds] …', kept with the console errors), and,
+ * with --baseline, on any regression.
  * A listed step that passes now is reported as fixed, so the list shrinks as
  * fixes land.
  *
@@ -538,6 +539,28 @@ const seconds = (ms) => (ms == null ? '' : `${(ms / 1000).toFixed(1)} s`);
 
 /** A boolean flag: `--strict` or `--strict=true` (not `--strict=false`). */
 const flag = (value) => value !== undefined && !/^(false|0|no)$/i.test(value);
+
+/**
+ * The DEV note-id check's prefix (watchNoteIds in src/daw/model/noteIds.ts,
+ * mounted in DawApp, decision D2). It warns rather than errs, so the console
+ * handlers keep its lines with the errors (keptConsoleLine): a note-id
+ * regression in a lesson's flows then reaches errorSignatures and the
+ * --baseline comparison, and fails the run (verdictOf).
+ */
+const NOTE_ID_WARNING = '[noteIds]';
+
+/** A console message the run records (cut to 400 characters), or null. */
+function keptConsoleLine(msg) {
+  const text = msg.text();
+  const kept =
+    msg.type() === 'error' ||
+    (msg.type() === 'warning' && text.startsWith(NOTE_ID_WARNING));
+  return kept ? text.slice(0, 400) : null;
+}
+
+/** How many of a run's console lines are note-id warnings. */
+const noteIdWarningsIn = (lines) =>
+  lines.filter((line) => line.startsWith(NOTE_ID_WARNING)).length;
 
 /**
  * A console or page error as a stable signature, so runs can be compared:
@@ -1322,6 +1345,7 @@ async function runLesson(env) {
     error: null,
     pageErrors: [],
     consoleErrors: [],
+    noteIdWarnings: 0,
     errorSignatures: [],
     ms: {},
   };
@@ -1332,7 +1356,8 @@ async function runLesson(env) {
     session = await newPage(browser, profile);
     const { page } = session;
     page.on('console', (msg) => {
-      if (msg.type() === 'error') consoleErrors.push(msg.text().slice(0, 400));
+      const line = keptConsoleLine(msg);
+      if (line !== null) consoleErrors.push(line);
     });
     await applyPersona(page, persona);
     // Both before the editor loads, so the trace sees its first step.
@@ -1406,6 +1431,7 @@ async function runLesson(env) {
     }
     run.pageErrors = [...(session?.errors ?? [])];
     run.consoleErrors = [...new Set(consoleErrors)].slice(0, 20);
+    run.noteIdWarnings = noteIdWarningsIn(consoleErrors);
     run.errorSignatures = [
       ...new Set([
         ...consoleErrors.map(errorSignature),
@@ -1687,6 +1713,7 @@ async function runGatedLesson(env) {
     error: null,
     pageErrors: [],
     consoleErrors: [],
+    noteIdWarnings: 0,
     errorSignatures: [],
     ms: {},
   };
@@ -1699,8 +1726,8 @@ async function runGatedLesson(env) {
     try {
       session = await newPage(browser, profile, { probes: false });
       session.page.on('console', (msg) => {
-        if (msg.type() === 'error')
-          consoleErrors.push(msg.text().slice(0, 400));
+        const line = keptConsoleLine(msg);
+        if (line !== null) consoleErrors.push(line);
       });
       await applyPersona(session.page, persona);
       await runCheck({ ...env, run, page: session.page }, check);
@@ -1719,6 +1746,7 @@ async function runGatedLesson(env) {
   }
   run.gate.pass = run.gate.checks.every((c) => c.pass);
   run.consoleErrors = [...new Set(consoleErrors)].slice(0, 20);
+  run.noteIdWarnings = noteIdWarningsIn(consoleErrors);
   run.errorSignatures = [
     ...new Set([
       ...consoleErrors.map(errorSignature),
@@ -1751,6 +1779,7 @@ function totalsOf(runs) {
     failed: steps.filter((s) => !s.pass).length,
     unreached: steps.filter((s) => !s.reached).length,
     warned: steps.filter((s) => s.pass && s.warnings.length).length,
+    noteIdWarnings: runs.reduce((n, r) => n + (r.noteIdWarnings ?? 0), 0),
   };
 }
 
@@ -1902,6 +1931,11 @@ function verdictOf(report, strict) {
   if (totals.errors) {
     why.push(
       `${totals.errors} lesson(s) stopped with an error: ${list(report.runs.filter((r) => r.error).map(runKey))}`,
+    );
+  }
+  if (totals.noteIdWarnings) {
+    why.push(
+      `${totals.noteIdWarnings} ${NOTE_ID_WARNING} warning(s), notes without a whole id: ${list(report.runs.filter((r) => r.noteIdWarnings).map(runKey))}`,
     );
   }
   if (known.unexpected.length) {
@@ -2189,6 +2223,12 @@ export async function runLessons(argv) {
     async ({ base, browser, args, outDir }) => {
       const profiles = profilesFrom(args);
       const personas = personasFrom(args);
+      // check.mjs's --baseline is a switch, so parseArgs lets a bare one by.
+      if (args.baseline === 'true' || args.baseline === '') {
+        throw new Error(
+          '--baseline takes an earlier report.json (write --baseline=path)',
+        );
+      }
       const all = await readLessons(browser, base);
       const wanted = args.lesson ? args.lesson.split(',') : null;
       const unknown = (wanted ?? []).filter(

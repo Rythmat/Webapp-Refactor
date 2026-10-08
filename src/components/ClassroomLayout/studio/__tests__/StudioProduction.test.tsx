@@ -88,9 +88,13 @@ describe('the Production tab', () => {
       const chip = within(tile(lesson.id)).queryByText('Premium');
       if (PREMIUM_LESSONS.includes(lesson.id)) {
         expect(chip, lesson.id).not.toBeNull();
-        // Neutral (white/10), at the 12 px label floor (text-xs).
-        expect(chip).toHaveClass('bg-white/10');
-        expect(chip?.closest('.text-xs')).not.toBeNull();
+        // A neutral Chip (white/8, no meaning colour) at the 12 px label
+        // floor, from the editor's tokens (src/daw/ui, milestone 2.2).
+        expect(chip).toHaveAttribute('data-tone', 'neutral');
+        expect(chip).toHaveClass(
+          'bg-daw-chip',
+          'text-[length:var(--daw-font-label)]',
+        );
       } else {
         expect(chip, lesson.id).toBeNull();
       }

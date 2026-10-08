@@ -7,6 +7,12 @@ const Dialog = (props: DialogPrimitive.DialogProps) => {
   React.useEffect(() => {
     const handleClick = () => {
       const interval = setInterval(() => {
+        // Its page can be gone before the second is up (a test's jsdom is
+        // torn down): then there is nothing left to clear.
+        if (typeof document === 'undefined') {
+          clearInterval(interval);
+          return;
+        }
         document.body.style.pointerEvents = '';
       }, 100);
 

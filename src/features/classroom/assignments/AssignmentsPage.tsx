@@ -8,8 +8,8 @@ import { AssignmentComposer } from './AssignmentComposer';
 import type { Assignment } from './assignmentsStore';
 import {
   useAssignmentProgress,
-  useLocalEnrollmentId,
   useMyAssignmentProgress,
+  useStudentEnrollmentId,
 } from './useAssignmentProgress';
 import { useAssignments } from './useAssignments';
 
@@ -199,7 +199,9 @@ const StudentSplitList = ({
   classroomId: string;
   assignments: Assignment[];
 }) => {
-  const enrollmentId = useLocalEnrollmentId();
+  // Each row's status is the student's own progress row, found by their
+  // enrollment; undefined (no status yet) while it resolves.
+  const enrollmentId = useStudentEnrollmentId(classroomId);
   return (
     <ul className="flex flex-col gap-3">
       {assignments.map((a) => (
@@ -221,7 +223,7 @@ const StudentRow = ({
 }: {
   classroomId: string;
   assignment: Assignment;
-  enrollmentId: string;
+  enrollmentId: string | undefined;
 }) => {
   const { myProgress } = useMyAssignmentProgress(
     assignment.id,

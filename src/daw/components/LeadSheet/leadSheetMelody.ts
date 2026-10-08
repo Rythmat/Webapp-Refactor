@@ -1,3 +1,4 @@
+import { noteKey } from '@/daw/model/noteKeys';
 import type { Track } from '@/daw/store/tracksSlice';
 import { guessTrackRole } from '@/daw/utils/trackRole';
 import {
@@ -104,7 +105,7 @@ export function layOutMelody(
   for (const clip of track.midiClips) {
     for (const event of clip.events) {
       inputs.push({
-        id: `${track.id}:${clip.id}:${event.startTick}:${event.note}`,
+        id: noteKey(track.id, clip.id, event.startTick, event.note),
         midi: event.note,
         startTick: clip.startTick + event.startTick,
         durationTicks: event.durationTicks,

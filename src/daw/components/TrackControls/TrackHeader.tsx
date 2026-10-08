@@ -5,6 +5,7 @@ import {
   useCallback,
   useRef,
   useState,
+  useSyncExternalStore,
 } from 'react';
 import { motion } from 'framer-motion';
 import * as Popover from '@radix-ui/react-popover';
@@ -28,13 +29,14 @@ import {
 import {
   trackEngineRegistry,
   getTrackAudioState,
+  subscribeEngineReady,
 } from '@/daw/hooks/usePlaybackEngine';
-import { useMeterLevel } from '@/daw/hooks/useMeterLevel';
 import { FixedDigits } from '@/components/common/FixedDigits';
 import { TRACK_PALETTES } from '@/daw/constants/trackColors';
 import type { DawTrackRole } from '@/daw/utils/trackRole';
 import { PresenceTrackDots } from '@/daw/collab/ui/PresenceTrackDots';
 import { useTrackPresence } from '@/daw/collab/presence';
+import { LiveLevelFill } from './LiveLevelFill';
 
 // ── Props ────────────────────────────────────────────────────────────────
 interface TrackHeaderProps {
@@ -87,10 +89,13 @@ export const TrackHeader = memo(function TrackHeader({
   // Pulse the remote owner's border while their live signal is audibly flowing.
   const pulsing = lockedByRemote && remoteAudible && remoteActivity > 0.08;
 
-  // Live audio metering (same pattern as mixer ChannelStrip)
-  const analyser =
-    getTrackAudioState(track.id)?.trackEngine.getAnalyserNode() ?? null;
-  const liveLevel = useMeterLevel(analyser);
+  // Live audio metering. Read again whenever engines are made or retired: a
+  // load can replace this track's engine under the same id. The level itself
+  // is painted by LiveLevelFill, so this header never re-renders for it.
+  const analyser = useSyncExternalStore(
+    subscribeEngineReady,
+    () => getTrackAudioState(track.id)?.trackEngine.getAnalyserNode() ?? null,
+  );
 
   const handleRoleChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -501,19 +506,7 @@ export const TrackHeader = memo(function TrackHeader({
             className="relative h-1.5 w-full overflow-hidden rounded-full"
             style={{ backgroundColor: 'var(--color-border)' }}
           >
-            {/* Live level fill (visual only, ignores slider value) */}
-            <div
-              className="absolute inset-y-0 left-0 rounded-full transition-none"
-              style={{
-                width: `${liveLevel}%`,
-                backgroundColor:
-                  liveLevel > 90
-                    ? 'var(--color-meter-red)'
-                    : liveLevel > 75
-                      ? 'var(--color-meter-yellow)'
-                      : 'var(--color-meter-green)',
-              }}
-            />
+            <LiveLevelFill analyser={analyser} />
             <Slider.Range
               className="absolute h-full rounded-full"
               style={{ backgroundColor: 'transparent' }}

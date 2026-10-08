@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useSyncExternalStore } from 'react';
 import { X, Maximize2, Zap } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { useShallow } from 'zustand/react/shallow';
@@ -20,7 +20,11 @@ import {
 import { PopOutOverlay } from '@/daw/components/ChannelStrip/PopOutOverlay';
 import { FxMeter } from './FxMeter';
 import { useCompressorMeters } from '@/daw/hooks/useCompressorMeters';
-import { getTrackAudioState } from '@/daw/hooks/usePlaybackEngine';
+import {
+  getEngineReadyVersion,
+  getTrackAudioState,
+  subscribeEngineReady,
+} from '@/daw/hooks/usePlaybackEngine';
 import { getReverbManifest, getReverbIrMeta } from '@/daw/audio/reverbIR';
 import {
   BAND_COLORS,
@@ -182,12 +186,18 @@ export function EffectsPanel() {
   const removeActiveEffect = useStore((s) => s.removeActiveEffect);
   const track = tracks.find((t) => t.id === selectedTrackId);
 
+  // Moves when engines are made or retired, so a load that replaces the
+  // track's engine under the same id hands the panel the new chain.
+  const engineVersion = useSyncExternalStore(
+    subscribeEngineReady,
+    getEngineReadyVersion,
+  );
   const effectChain = useMemo(() => {
     if (!selectedTrackId) return null;
     return (
       getTrackAudioState(selectedTrackId)?.trackEngine.getEffectChain() ?? null
     );
-  }, [selectedTrackId]);
+  }, [selectedTrackId, engineVersion]);
 
   const { gr, inLevel, outLevel } = useCompressorMeters(effectChain);
 

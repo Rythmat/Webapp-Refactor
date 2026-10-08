@@ -25,6 +25,7 @@ import {
   useStartAudioOnGesture,
 } from '@/daw/hooks/useAudioEngine';
 import { useAutosave } from '@/daw/hooks/useAutosave';
+import { usePrefsSync } from '@/daw/hooks/usePrefsSync';
 import { useDawBodyTokens } from '@/daw/hooks/useDawBodyTokens';
 import { useKeyboardShortcuts } from '@/daw/hooks/useKeyboardShortcuts';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
@@ -55,25 +56,34 @@ import { useTransport } from '@/daw/hooks/useTransport';
 import { useStore } from '@/daw/store';
 import { useSynthStore } from '@/daw/oracle-synth/store';
 import { initUndoTracking } from '@/daw/store/undoMiddleware';
+import { watchNoteIds } from '@/daw/model/noteIds';
 import { CollabProvider, useCollab } from '@/daw/collab/CollabProvider';
+import { getBridge } from '@/daw/collab/collabMiddleware';
 import { UserList } from '@/daw/collab/ui/UserList';
 import { ChatPanel } from '@/daw/collab/ui/ChatPanel';
 import { getDemoProject } from '@/daw/data/demoProjects';
 import { applyDemoDrums } from '@/daw/data/applyDemoDrums';
-import { withDemoSynthPresets } from '@/daw/data/demoSynthPresets';
 import { getProjectTemplate } from '@/daw/data/projectTemplates';
-import { deriveChordRegionsFromSession } from '@/daw/store/prismSlice';
+import { getSessionGeneration } from '@/daw/session/sessionGeneration';
+import { isSessionCurrent, stampSession } from '@/daw/session/sessionStamp';
+import {
+  seedDemo,
+  seedGenrePractice,
+  seedJam,
+  seedTemplate,
+  seedTheoryPractice,
+  seedTutorial,
+} from '@/daw/session/linkSeeds';
 import { ensureSongContent } from '@/content/songStore';
 import { getSong } from '@/curriculum/data/songs';
 import { seedStudioFromSong } from '@/features/songs/seedStudioFromSong';
-import { seedStudioFromPracticeTrack } from '@/features/practiceTracks/seedStudioFromPracticeTrack';
-import {
-  practiceSessionFor,
-  resolvePracticeTrack,
-} from '@/features/practiceTracks/genre/openGenrePracticeTrack';
-import { seedStudioFromGenrePracticeTrack } from '@/features/practiceTracks/genre/seedStudioFromGenrePracticeTrack';
+import { resolvePracticeTrack } from '@/features/practiceTracks/genre/openGenrePracticeTrack';
 import { urlParamToSemitone } from '@/lib/musicKeyUrl';
-import type { PracticeMode } from '@/features/practiceTracks/generatePracticeTrack';
+import {
+  generatePracticeTrack,
+  type PracticeMode,
+  type PracticeTrackResult,
+} from '@/features/practiceTracks/generatePracticeTrack';
 import { isScaleLesson } from '@/lib/learn/scaleLessons';
 import { isDiatonicMode } from '@prism/engine';
 import { showError } from '@/util/toast';
@@ -95,6 +105,20 @@ const BOOT_CATALOG: BootCatalog = {
 /** Why a link was refused when the work it would replace can't be kept. */
 const KEEP_REFUSED =
   "Your current work couldn't be set aside on this device, so it's still open. Save it, then try again.";
+
+/**
+ * Opening something else in the editor is leaving the room the student was
+ * in. A guest who left the editor without pressing Leave keeps the room's
+ * identity (CollabProvider's teardown), so that a plain return rejoins it,
+ * and that rejoin pulls the room's project over whatever is open then,
+ * keeping nothing. Once a link has replaced the project, the identity goes,
+ * as Leave clears it. Only an identity with no room connected: a link that
+ * finds a room joined since it started is dropped before it opens.
+ */
+function forgetRoomLeftBehind(): void {
+  const { roomId, _clearCollab } = useStore.getState();
+  if (roomId !== null && getBridge() === null) _clearCollab();
+}
 
 function DawAppInner() {
   const { isReady, initEngine } = useAudioEngine();
@@ -125,6 +149,11 @@ function DawAppInner() {
   // while the autosave still listens, and its unmount flush writes it.
   useMidiInputRouting();
   useAutosave(userId);
+  // The student's own editor settings (metronome, count-in, snap, grid,
+  // triplets, chord-ruler note names), kept per user apart from any project.
+  // Declared before the boot below, so they are in place before any restore;
+  // held off until auth knows who the student is.
+  usePrefsSync(userId, ownerKnown);
   useStudioMonitor(isReady, authToken);
   useCollabAudioLoader(authToken);
   useDevCommitCount('DawAppInner');
@@ -153,6 +182,16 @@ function DawAppInner() {
   // the cleanup releases this mount's claim on them (shell-06).
   useEffect(() => initUndoTracking(), []);
 
+  // Whether this editor is still on screen: a link that loads something first
+  // finishes after an await, by which time the student may have left.
+  const mountedRef = useRef(false);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   // Decide what to load when the studio boots. The home page routes here with
   // `?project=<id>` to open a saved project, `?new=1` to start fresh, or one
   // of the links below; absent any, the editor carries on with the session
@@ -163,24 +202,52 @@ function DawAppInner() {
   // Every link is checked before anything is cleared, and one that names
   // nothing real changes nothing. A valid one opens through replaceSession:
   // the work it replaces is kept first (owner decision 6: keep it, never
-  // ask), with a toast to bring it back.
+  // ask), with a toast to bring it back. Each seed starts from a new project
+  // and ends as the project's baseline (linkSeeds.ts).
   const bootedRef = useRef(false);
   useEffect(() => {
     if (bootedRef.current || !ownerKnown) return;
 
     const intent = readBootIntent(window.location.search);
+    // The address this boot read, and the session open when it started
+    // (sessionStamp.ts: every load and reset moves it on, and so does a room
+    // joined or left).
+    const bootUrl = window.location.pathname + window.location.search;
+    const bootSession = stampSession();
 
     // Strip the boot intent from the URL so a later refresh just restores the
     // (now-current) local session instead of re-running this. Stays on the
     // editor route (`/studio/editor`) — `/studio` is now the Studio Dashboard.
-    const clearQuery = () =>
+    // Only while the address is still the one this boot read: a link that
+    // finishes after the student moved on must not rewrite another page's.
+    const clearQuery = () => {
+      if (window.location.pathname + window.location.search !== bootUrl) {
+        return;
+      }
       window.history.replaceState({}, '', StudioRoutes.editor.definition);
+    };
+
+    // A link that loads something first (a cloud project, the song library, a
+    // practice track's groove) opens once that arrives, and by then it may be
+    // out of date: the student left the editor, opened another project here
+    // meanwhile (a Library template, File ▸ Open, a kept-work Restore), or
+    // joined a room (whose project the Join pulls in without a load).
+    // Opening it then would replace what they moved on to, in a room for
+    // everyone in it, so it is dropped, and the address no longer offers it.
+    // True when it was.
+    const dropIfOutdated = (): boolean => {
+      if (mountedRef.current && isSessionCurrent(bootSession)) return false;
+      // Once the student has left, the address is another page's (or another
+      // boot's of the editor), so it is left alone.
+      if (mountedRef.current) clearQuery();
+      return true;
+    };
 
     // A link that can't be opened says why, and the editor carries on as a
     // plain boot would.
     const refuse = (message: string) => {
       showError(message);
-      resumeLocalSession();
+      resumeLocalSession(userId);
       clearQuery();
     };
 
@@ -188,7 +255,7 @@ function DawAppInner() {
      * Open what the link names in place of the session (replaceSession). A
      * collab session passes `restorable` false: kept work offers no Restore
      * there, since loading it would overwrite the shared room. True once the
-     * new session is open.
+     * new session is open; false when it wasn't, or the link was out of date.
      */
     const open = async (
       seed: () => void | Promise<void>,
@@ -198,7 +265,17 @@ function DawAppInner() {
         failure = 'That link could not be opened.',
       } = {},
     ): Promise<boolean> => {
-      const result = await replaceSession(userId, seed, { reopenable });
+      if (dropIfOutdated()) return false;
+      // The room is left once the outgoing work is kept, as the link's seed
+      // starts: a link refused for want of room to keep it changes nothing.
+      const result = await replaceSession(
+        userId,
+        () => {
+          forgetRoomLeftBehind();
+          return seed();
+        },
+        { reopenable },
+      );
       if (result.status === 'refused') {
         refuse(KEEP_REFUSED);
         return false;
@@ -210,6 +287,7 @@ function DawAppInner() {
         return false;
       }
       if (result.kept) announceKeptWork(result.kept, userId, { restorable });
+      if (result.also) announceKeptWork(result.also, userId, { restorable });
       return true;
     };
 
@@ -220,7 +298,10 @@ function DawAppInner() {
     // a fresh page, a stale link, nothing was seeded, and this restores.)
     if (intent.kind === 'seeded') {
       bootedRef.current = true;
-      resumeLocalSession();
+      // The song replaced the project before the editor opened, so a room
+      // left behind is left (forgetRoomLeftBehind).
+      forgetRoomLeftBehind();
+      resumeLocalSession(userId);
       clearQuery();
       return;
     }
@@ -243,6 +324,7 @@ function DawAppInner() {
           project = await studioProjectsApi.get(authToken, intent.projectId);
         } catch (err) {
           console.error('Failed to open project from home', err);
+          if (dropIfOutdated()) return;
           refuse('That project could not be opened.');
           return;
         }
@@ -265,10 +347,7 @@ function DawAppInner() {
     // mints a brand-new cloud project.
     if (intent.kind === 'template') {
       bootedRef.current = true;
-      void open(
-        () => useStore.getState().loadProjectTemplate(intent.templateId),
-        { reopenable: true },
-      );
+      void open(() => seedTemplate(intent.templateId), { reopenable: true });
       return;
     }
 
@@ -284,31 +363,18 @@ function DawAppInner() {
         return;
       }
       void (async () => {
+        // The demo's session generation: its drums belong to it alone.
+        let demoGeneration = 0;
         const opened = await open(
           () => {
-            deserializeCloudProject(
-              withDemoSynthPresets(demo.bundle, demo.synthPresets),
-            );
-            const store = useStore.getState();
-            store.setProjectId(null);
-            store.setProjectName(demo.label);
-            // Chord regions aren't part of a project bundle, so derive them
-            // from the demo's MIDI (as a clip paste does) to give Insight its
-            // analysis.
-            const { tracks, rootNote, mode, setChordRegions } =
-              useStore.getState();
-            if (rootNote !== null) {
-              setChordRegions(
-                deriveChordRegionsFromSession(tracks, rootNote + 48, mode),
-                true,
-              );
-            }
+            seedDemo(demo);
+            demoGeneration = getSessionGeneration();
           },
           { reopenable: true },
         );
         // The drums arrive after a fetch and finish the seed themselves.
         if (opened && demo.drumGrooveId) {
-          void applyDemoDrums(demo.drumGrooveId, demo.label);
+          void applyDemoDrums(demo.drumGrooveId, demoGeneration);
         }
       })();
       return;
@@ -329,13 +395,11 @@ function DawAppInner() {
       bootedRef.current = true;
       if (access === 'upgrade') {
         setUpgradeLessonId(intent.tutorialId);
-        resumeLocalSession();
+        resumeLocalSession(userId);
         clearQuery();
         return;
       }
-      void open(() => useStore.getState().startTutorial(intent.tutorialId), {
-        reopenable: true,
-      });
+      void open(() => seedTutorial(intent.tutorialId), { reopenable: true });
       return;
     }
 
@@ -351,6 +415,7 @@ function DawAppInner() {
         } catch (err) {
           console.error('Song library failed to load', err);
         }
+        if (dropIfOutdated()) return;
         const song = getSong(intent.songId);
         if (!song) {
           refuse('That song could not be found.');
@@ -383,22 +448,13 @@ function DawAppInner() {
         } catch (err) {
           console.error('Practice track failed to build', err);
         }
+        if (dropIfOutdated()) return;
         if (!resolved) {
           refuse('That practice track could not be found.');
           return;
         }
-        const { track, genreLabel, returnTo } = resolved;
-        await open(
-          () => {
-            seedStudioFromGenrePracticeTrack(track, genreLabel);
-            const store = useStore.getState();
-            store.setPracticeSession(
-              practiceSessionFor(track, genreLabel, returnTo),
-            );
-            store.setCurrentView('practice');
-          },
-          { reopenable: true },
-        );
+        const practice = resolved;
+        await open(() => seedGenrePractice(practice), { reopenable: true });
       })();
       return;
     }
@@ -413,36 +469,30 @@ function DawAppInner() {
       // written by `keyLabelToUrlParam` — decode it back to a 0-11
       // semitone-from-C the same way `LessonContainer` resolves `key`.
       const root = urlParamToSemitone(intent.rootParam ?? undefined);
-      // seedStudioFromPracticeTrack fetches + parses the fixed Drums groove's
-      // .mid file, so the seed is async. If it fails, the work it replaced
-      // comes back.
-      void open(
-        async () => {
-          await seedStudioFromPracticeTrack(
+      const failure = 'That practice track could not be opened.';
+      void (async () => {
+        // The track's Drums groove is a fetched .mid, so it is built before
+        // anything is replaced: the work on screen stays until the practice
+        // track is ready, and one that can't be built changes nothing.
+        let practice: PracticeTrackResult;
+        try {
+          practice = await generatePracticeTrack(
             intent.mode as PracticeMode,
             root,
             intent.openTrack,
             intent.level,
           );
-          // Land on the one-purpose practice screen; the full Studio is
-          // one click away and shares the same project.
-          const store = useStore.getState();
-          store.setPracticeSession({
-            kind: 'theory',
-            mode: intent.mode,
-            rootParam: intent.rootParam ?? 'c',
-            level: intent.level,
-            openTrack: intent.openTrack,
-          });
-          // A backing track to play over: loop it from the start.
-          store.setLoopEnabled(true);
-          store.setCurrentView('practice');
-        },
-        {
+        } catch (err) {
+          console.error('Practice track failed to build', err);
+          if (dropIfOutdated()) return;
+          refuse(failure);
+          return;
+        }
+        await open(() => seedTheoryPractice(practice, intent), {
           reopenable: true,
-          failure: 'That practice track could not be opened.',
-        },
-      );
+          failure,
+        });
+      })();
       return;
     }
 
@@ -510,10 +560,7 @@ function DawAppInner() {
       // Arrived from a jam room: start a fresh project, then add the recorded
       // jam as one MIDI track per participant. The import consumes the
       // recording, so this session is its only copy: not reopenable.
-      void open(() => {
-        importPendingJamSession();
-        useStore.getState().offerChordAnalysis();
-      });
+      void open(seedJam);
       return;
     }
     if (intent.kind === 'new') {
@@ -527,7 +574,7 @@ function DawAppInner() {
     // truth for explicit saves; this is crash recovery. A reload into a blank
     // project (File ▸ New, leaving a shared session) may have kept the work it
     // left: say so now.
-    resumeLocalSession();
+    resumeLocalSession(userId);
     announceKeptWorkFromReload(userId);
   }, [
     authToken,
@@ -575,6 +622,16 @@ function DawAppInner() {
     w.__MA_STORE__ = useStore;
     w.__MA_SYNTH_STORE__ = useSynthStore;
     w.__MA_AUDIO_ENGINE__ = audioEngine;
+  }, []);
+
+  // DEV-only: decision D2's check that every note keeps an id of its own.
+  // It warns in the console when a load or a write leaves one without.
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    return watchNoteIds(
+      (listener) => useStore.subscribe(listener),
+      () => useStore.getState().tracks,
+    );
   }, []);
 
   return (

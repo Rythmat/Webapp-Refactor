@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 import { NOTES } from '@prism/engine';
 import { StaffView, type ScorePart } from '@/components/notation/StaffView';
 import { useStore } from '@/daw/store';
@@ -10,6 +10,7 @@ import { NoteEditorBar } from '../Score/NoteEditorBar';
 import { ScorePalettes } from '../Score/ScorePalettes';
 import { buildScoreParts } from '../Score/scoreParts';
 import { useScoreEditing } from '../Score/useScoreEditing';
+import { ComposerLine } from './ComposerLine';
 import { LeadSheetToolbar } from './LeadSheetToolbar';
 import './leadsheet-print.css';
 import { useLeadSheetPrint } from './useLeadSheetPrint';
@@ -33,25 +34,8 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
   const numerator = useStore((s) => s.timeSignatureNumerator);
   const denominator = useStore((s) => s.timeSignatureDenominator);
   const projectName = useStore((s) => s.projectName);
-  const composerName = useStore((s) => s.composerName);
-  const setComposerName = useStore((s) => s.setComposerName);
   const chordRegions = useStore((s) => s.chordRegions);
   const slashNotes = useStore((s) => s.scoreSlashNotes);
-
-  const [isEditingComposer, setIsEditingComposer] = useState(false);
-  const [composerInput, setComposerInput] = useState('');
-  const composerInputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    if (isEditingComposer && composerInputRef.current) {
-      composerInputRef.current.focus();
-      composerInputRef.current.select();
-    }
-  }, [isEditingComposer]);
-  const commitComposer = useCallback(() => {
-    const trimmed = composerInput.trim();
-    if (trimmed) setComposerName(trimmed);
-    setIsEditingComposer(false);
-  }, [composerInput, setComposerName]);
 
   const timeSignature: [number, number] = useMemo(
     () => [numerator, denominator],
@@ -154,42 +138,7 @@ export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
             {projectName}
           </h1>
 
-          {isEditingComposer ? (
-            <div className="mb-1 flex justify-center">
-              <input
-                ref={composerInputRef}
-                value={composerInput}
-                onChange={(e) => setComposerInput(e.target.value)}
-                onBlur={commitComposer}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') commitComposer();
-                  if (e.key === 'Escape') setIsEditingComposer(false);
-                }}
-                className="rounded border px-2 py-0.5 text-center text-sm"
-                style={{
-                  background: 'var(--color-surface-2)',
-                  color: 'var(--color-text)',
-                  borderColor: 'var(--color-accent, #7ecfcf)',
-                  outline: 'none',
-                  width: 200,
-                }}
-              />
-            </div>
-          ) : (
-            <div
-              className="leadsheet-composer mb-1 cursor-pointer text-center text-sm"
-              style={{ color: 'var(--color-text-dim)' }}
-              onDoubleClick={() => {
-                setComposerInput(composerName);
-                setIsEditingComposer(true);
-              }}
-              title="Double-click to edit composer"
-            >
-              {composerName
-                ? `by ${composerName}`
-                : 'Double-click to add composer'}
-            </div>
-          )}
+          <ComposerLine />
 
           <div
             className="leadsheet-subtitle mb-6 flex justify-center gap-4 text-xs"

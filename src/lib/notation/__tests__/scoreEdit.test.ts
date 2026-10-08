@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-  applyNoteSplit,
-  parseNoteId,
-  stepPitch,
-} from '@/daw/components/Score/scoreEdit';
+import { applyNoteSplit, stepPitch } from '@/daw/components/Score/scoreEdit';
+import { noteKey, parseNoteId } from '@/daw/model/noteKeys';
 
 describe('parseNoteId', () => {
   it('reads a drawn note back to its event', () => {
@@ -14,6 +11,16 @@ describe('parseNoteId', () => {
       midi: 64,
     });
     expect(parseNoteId('nonsense')).toBeNull();
+  });
+
+  it('reads back the key noteKey composes', () => {
+    expect(noteKey('t1', 'c2', 960, 64)).toBe('t1:c2:960:64');
+    expect(parseNoteId(noteKey('t1', 'c2', 960, 64))).toEqual({
+      trackId: 't1',
+      clipId: 'c2',
+      startTick: 960,
+      midi: 64,
+    });
   });
 });
 

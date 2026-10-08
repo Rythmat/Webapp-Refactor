@@ -61,6 +61,15 @@ export function TutorialLayer() {
   useEffect(() => {
     const r = step?.requires;
     if (!r) return;
+    // Only the step that is running: StrictMode runs this effect again after
+    // a boot has reset the project (resetProjectState), and the old step
+    // would put its preconditions on the new project.
+    const live = useStore.getState();
+    if (
+      live.activeTutorialId !== activeId ||
+      live.tutorialStepIndex !== stepIndex
+    )
+      return;
     if (r.view !== undefined) setCurrentView(r.view);
     if (r.libraryOpen !== undefined) setLibraryOpen(r.libraryOpen);
     if (r.channelStripTab !== undefined) setChannelStripTab(r.channelStripTab);
@@ -70,6 +79,8 @@ export function TutorialLayer() {
       useStore.getState().setSelectedClip(null, null);
     }
   }, [
+    activeId,
+    stepIndex,
     step,
     setCurrentView,
     setLibraryOpen,

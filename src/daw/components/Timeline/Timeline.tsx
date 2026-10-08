@@ -1466,10 +1466,19 @@ export function Timeline() {
   ]);
 
   // ── Redraw on vertical scroll (sticky rulers) ────────────────────
+  // `draw` changes on every tracks write, so the listeners below read it
+  // through a ref and are attached once: re-keying them on `draw` rebuilt the
+  // ResizeObserver on every edit frame, and each new observer's first
+  // callback queued an extra full canvas draw.
+  const drawRef = useRef(draw);
+  useEffect(() => {
+    drawRef.current = draw;
+  }, [draw]);
   useEffect(() => {
     const el = canvasRef.current?.parentElement?.parentElement?.parentElement;
     if (!el) return;
     let rafId = 0;
+    const redraw = () => drawRef.current();
     const onScroll = () => {
       // Keep the playhead's grab handle on the sticky bar ruler.
       if (playheadHandleRef.current) {
@@ -1478,14 +1487,29 @@ export function Timeline() {
         }px`;
       }
       cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(draw);
+      rafId = requestAnimationFrame(redraw);
     };
     el.addEventListener('scroll', onScroll, { passive: true });
+    // The seconds ruler is placed from the scroll area's height: redraw when
+    // that changes too (a New project closing the dock), not only on scroll.
+    // Only a real size change redraws: the observer's first callback
+    // reports the size the mount draw already used.
+    let observedW = el.clientWidth;
+    let observedH = el.clientHeight;
+    const ro = new ResizeObserver(() => {
+      if (el.clientWidth === observedW && el.clientHeight === observedH) return;
+      observedW = el.clientWidth;
+      observedH = el.clientHeight;
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(redraw);
+    });
+    ro.observe(el);
     return () => {
       el.removeEventListener('scroll', onScroll);
+      ro.disconnect();
       cancelAnimationFrame(rafId);
     };
-  }, [draw]);
+  }, []);
 
   // ── Mouse coord helper ─────────────────────────────────────────────
 

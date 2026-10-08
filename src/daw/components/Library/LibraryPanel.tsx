@@ -39,9 +39,11 @@ import {
 import { InsightContent } from './InsightContent';
 import { showError } from '@/components/utils/toast';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
+import { seedTemplate } from '@/daw/session/linkSeeds';
+import { inSharedSession } from '@/daw/session/sharedSession';
 import {
   announceKeptWork,
-  keepOutgoingSession,
+  replaceSession,
 } from '@/lib/studio-projects/localSession';
 
 // ── Icon lookup ─────────────────────────────────────────────────────────
@@ -311,35 +313,58 @@ function CategorySection({
 
 // ── Library Item Row ────────────────────────────────────────────────────
 
+/**
+ * Open a template in place of the project, as the dashboard's template tile
+ * does (decision D10). No question first (owner decision 6): the work it
+ * replaces is kept, with a Restore, and the template is a new project, so a
+ * Save makes a new cloud project rather than writing over the one it
+ * replaced. Never in a shared session (inSharedSession), where it would
+ * replace the room's project for everyone, nor while a take is recording
+ * into a track it would remove. A room the student hosted and left is no
+ * shared session: it closed, and its project is theirs again.
+ */
+async function openTemplate(
+  templateId: string,
+  userId: string | null,
+): Promise<void> {
+  if (inSharedSession()) {
+    showError('Leave the shared session to open a template.');
+    return;
+  }
+  if (useStore.getState().isRecording) {
+    showError('Stop recording first, then open a template.');
+    return;
+  }
+  const result = await replaceSession(userId, () => seedTemplate(templateId), {
+    reopenable: true,
+  });
+  if (result.status === 'refused') {
+    showError(
+      "Your work couldn't be set aside on this device, so it's still open. Save it, then try again.",
+    );
+    return;
+  }
+  if (result.status === 'failed') {
+    console.error('Template could not be opened', result.error);
+    showError('That template could not be opened.');
+    return;
+  }
+  if (result.kept) announceKeptWork(result.kept, userId);
+  if (result.also) announceKeptWork(result.also, userId);
+}
+
 function LibraryItemRow({ item }: { item: LibraryItem }) {
   const { userId } = useAuthContext();
-  const loadProjectTemplate = useStore((s) => s.loadProjectTemplate);
 
   const isProjectTemplate = item.dragPayload.kind === 'project-template';
 
-  // No question before a template replaces the project (owner decision 6):
-  // work it holds is kept first, with a Restore, and the load itself stays
-  // one undo step.
   const handleClick = useCallback(() => {
     if (!isProjectTemplate) return;
     const templateId = (
       item.dragPayload as { kind: 'project-template'; templateId: string }
     ).templateId;
-    const kept = keepOutgoingSession(userId);
-    if (kept.status === 'failed') {
-      showError(
-        "Your work couldn't be set aside on this device, so it's still open. Save it, then try again.",
-      );
-      return;
-    }
-    loadProjectTemplate(templateId);
-    if (kept.status === 'kept') {
-      // In a shared session a private project can't come back over it.
-      announceKeptWork(kept.slot, userId, {
-        restorable: !useStore.getState().roomId,
-      });
-    }
-  }, [isProjectTemplate, item.dragPayload, userId, loadProjectTemplate]);
+    void openTemplate(templateId, userId);
+  }, [isProjectTemplate, item.dragPayload, userId]);
 
   const handleDragStart = useCallback(
     (e: React.DragEvent) => {

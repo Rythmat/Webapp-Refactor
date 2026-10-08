@@ -1,7 +1,8 @@
 import type { MidiNoteEvent } from '@prism/engine';
+import { mintNoteId } from '@/daw/model/noteIds';
+import { noteKey, parseNoteId } from '@/daw/model/noteKeys';
 import type { Track } from '@/daw/store/tracksSlice';
 import type { ArticulationKind } from './noteEditor';
-import { parseNoteId } from './scoreEdit';
 
 // ── Copy and paste ─────────────────────────────────────────────────────────
 // What is copied depends on what is selected: notes, the contents of whole
@@ -146,19 +147,23 @@ export interface ClipWrite {
 
 /**
  * Paste `clipboard` so its top-left lands on `target`. Returns one write per
- * touched clip, and the ids the pasted notes will have.
+ * touched clip, the ids the pasted notes will have, and the ids of the notes
+ * a measure paste cleared out of the way (their marks go with them). Pasted
+ * notes are new notes, each with a fresh stored id: a pasted copy is never
+ * the note it was copied from.
  */
 export function pasteNotes(
   clipboard: NoteClipboard,
   target: { partIndex: number; tick: number },
   tracks: Track[],
   trackIdByPart: Map<number, string>,
-): { writes: ClipWrite[]; noteIds: string[] } {
+): { writes: ClipWrite[]; noteIds: string[]; removedIds: string[] } {
   const byClip = new Map<
     string,
     { trackId: string; clipId: string; events: MidiNoteEvent[] }
   >();
   const noteIds: string[] = [];
+  const removedIds: string[] = [];
 
   const clipFor = (trackId: string, tick: number) => {
     const track = tracks.find((t) => t.id === trackId);
@@ -207,9 +212,12 @@ export function pasteNotes(
       const entry = touch(trackId, clip.id);
       const from = target.tick - clip.startTick;
       const to = from + clipboard.span;
-      entry.events = entry.events.filter(
-        (e) => e.startTick < from || e.startTick >= to,
-      );
+      entry.events = entry.events.filter((e) => {
+        const kept = e.startTick < from || e.startTick >= to;
+        if (!kept)
+          removedIds.push(noteKey(trackId, clip.id, e.startTick, e.note));
+        return kept;
+      });
     }
   }
 
@@ -222,13 +230,14 @@ export function pasteNotes(
     const entry = touch(trackId, clip.id);
     const startTick = Math.max(0, tick - clip.startTick);
     entry.events.push({
+      id: mintNoteId(),
       note: note.midi,
       velocity: note.velocity,
       startTick,
       durationTicks: note.durationTicks,
       channel: entry.events[0]?.channel ?? 0,
     });
-    noteIds.push(`${trackId}:${clip.id}:${startTick}:${note.midi}`);
+    noteIds.push(noteKey(trackId, clip.id, startTick, note.midi));
   }
 
   return {
@@ -237,5 +246,6 @@ export function pasteNotes(
       events: [...entry.events].sort((a, b) => a.startTick - b.startTick),
     })),
     noteIds,
+    removedIds,
   };
 }

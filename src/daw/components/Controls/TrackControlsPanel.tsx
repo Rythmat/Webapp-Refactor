@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Maximize2 } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { PopOutOverlay } from '@/daw/components/ChannelStrip/PopOutOverlay';
+import { useSessionGeneration } from '@/daw/session/useSessionGeneration';
 import { KeyboardView } from './KeyboardView';
 import { GuitarBassView } from './GuitarBassView';
 import { AudioMidiSourcePanel } from './AudioMidiSourcePanel';
@@ -66,6 +67,7 @@ export function TrackControlsPanel() {
   const selectedTrackId = useStore((s) => s.selectedTrackId);
   const tracks = useStore((s) => s.tracks);
   const track = tracks.find((t) => t.id === selectedTrackId);
+  const generation = useSessionGeneration();
   const [popOut, setPopOut] = useState(false);
   const openPopOut = useCallback(() => setPopOut(true), []);
   const closePopOut = useCallback(() => setPopOut(false), []);
@@ -76,7 +78,14 @@ export function TrackControlsPanel() {
   return (
     <div className="relative flex h-full flex-col overflow-hidden">
       {track ? (
-        <React.Fragment key={track.id}>
+        // The views below, the pop-out's included, copy some of the track
+        // into their own state as they mount: the guitar and vocal pedal
+        // chains, the drum grid's note selection, the organ's preset. So
+        // they mount again for every track, and for every project loaded
+        // over this one (useSessionGeneration): a project that reuses the
+        // track's id must not get the last one's chain played and saved
+        // into it.
+        <React.Fragment key={`${track.id}:${generation}`}>
           {/* Guitar/Bass-to-MIDI binding — MIDI/synth tracks only */}
           {track.type === 'midi' && <AudioMidiSourcePanel trackId={track.id} />}
 

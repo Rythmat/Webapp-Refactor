@@ -23,7 +23,9 @@ import {
 } from '@/daw/midi/MidiFileIO';
 import { downloadLeadSheet } from '@/daw/midi/MusicXmlExport';
 import { deserializeCloudProject } from '@/daw/persistence/SessionSerializer';
+import { inSharedSession } from '@/daw/session/sharedSession';
 import {
+  SaveSupersededError,
   saveCurrentProjectToCloud,
   studioProjectsApi,
   type StudioProjectSummary,
@@ -184,6 +186,9 @@ export function FileMenu() {
       await refreshCloudProjects();
       showSuccess('Project saved');
     } catch (err) {
+      // Another project opened, or this one was deleted or saved as a copy,
+      // while the save waited: nothing was sent, and nothing went wrong.
+      if (err instanceof SaveSupersededError) return;
       console.error('Cloud save failed', err);
       if (err instanceof PartialUploadError) {
         // Partial success — succeeded clips kept their assetIds, retry will
@@ -221,6 +226,7 @@ export function FileMenu() {
       await refreshCloudProjects();
       showSuccess(`Saved as "${trimmed}"`);
     } catch (err) {
+      if (err instanceof SaveSupersededError) return;
       console.error('Cloud save-as failed', err);
       if (err instanceof PartialUploadError) {
         showError(err.message);
@@ -257,11 +263,11 @@ export function FileMenu() {
           return;
         }
         if (result.status === 'failed') throw result.error;
-        if (result.kept) {
-          announceKeptWork(result.kept, userId, {
-            restorable: !useStore.getState().roomId,
-          });
-        }
+        // Restore offered where restoreKeptWork allows it: not in a shared
+        // session, though a host whose room has closed may.
+        const restorable = !inSharedSession();
+        if (result.kept) announceKeptWork(result.kept, userId, { restorable });
+        if (result.also) announceKeptWork(result.also, userId, { restorable });
         useStore.getState().offerChordAnalysis();
         // Audio buffers download + decode in the background; clips appear in
         // the timeline immediately and become playable as their bytes arrive.

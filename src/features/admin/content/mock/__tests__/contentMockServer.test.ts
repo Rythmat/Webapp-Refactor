@@ -152,7 +152,7 @@ describe('the seed', () => {
     // 1,022 artists and 411 releases (none before), in src/content/data.
     expect(totals).toEqual({
       globe_city: 648,
-      label: 137,
+      label: 138,
       studio: 109,
       // 907 artists and 362 song pins before 30 Sep 2026. The owner's 23
       // duplicate merges and the album title "Remind In Light" left 883
@@ -164,22 +164,29 @@ describe('the seed', () => {
       // review took out two film producers credited on "Dock of the Bay",
       // and its 411 releases 407, less four albums that came out years after
       // the recording (a compilation, a soundtrack).
-      artist: 1903,
-      release: 407,
+      artist: 1907,
+      release: 408,
       // bundled.ts's 638, plus the two charts it leaves out that the store has.
-      song: 640,
-      globe_event: 1723,
+      song: 641,
+      globe_event: 1724,
       activity_flow: expect.any(Number),
       fundamentals_flow: 1,
       artist_location: 349,
       chord_progression: 695,
+      // Instrument content grows with the console's authoring, like the
+      // lessons: the grooves, parts and feels in src/curriculum/data.
+      drum_groove: expect.any(Number),
+      instrument_part: expect.any(Number),
+      feel_profile: expect.any(Number),
     });
     // Every kind is live at v1, releases too now the seed holds some (with
     // none until the import, they had no live version).
     for (const row of rows) {
       expect(row.published, row.kind).toBe(row.total);
       expect(row.changedSincePublish, row.kind).toBe(0);
-      expect(row.liveVersion, row.kind).toBe(1);
+      // A kind with nothing in it yet (no feel has been measured) has no
+      // release to be live.
+      if (row.total > 0) expect(row.liveVersion, row.kind).toBe(1);
     }
   });
 
@@ -292,9 +299,9 @@ describe('GET /capabilities', () => {
       teachUsage: false,
       suggestions: true,
     });
-    // The repo's files are version 4 (manifest.json), and the mock runs
-    // them.
-    expect(caps.artifactsVersion).toBe(4);
+    // The repo's files are the open draft, version 5 (manifest.json), and
+    // the mock runs them.
+    expect(caps.artifactsVersion).toBe(5);
   });
 });
 
@@ -315,7 +322,7 @@ describe('GET /items', () => {
       pages += 1;
     } while (cursor);
     expect(pages).toBe(4);
-    expect(seen.size).toBe(640);
+    expect(seen.size).toBe(641);
   });
 
   it('returns every match with no limit, and filters by search and status', () => {
@@ -324,7 +331,7 @@ describe('GET /items', () => {
     const all = ok<{ items: ContentListItem[]; nextCursor: string | null }>(
       call(server, 'GET', '/items', { query: { kind: 'globe_event' } }),
     );
-    expect(all.items).toHaveLength(1723);
+    expect(all.items).toHaveLength(1724);
     expect(all.nextCursor).toBeNull();
 
     const found = ok<{ items: ContentListItem[] }>(
@@ -953,13 +960,13 @@ describe('releases and the mock CDN', () => {
       kind: 'song',
       version: 2,
       status: 'live',
-      itemCount: 640,
+      itemCount: 641,
     });
     expect(live.objectKeys).toHaveLength(4);
     expect(live.totalBytes).toBeGreaterThan(1_000_000);
 
     const manifest = server.cdnManifest();
-    expect(manifest.kinds.songs).toMatchObject({ version: 2, itemCount: 640 });
+    expect(manifest.kinds.songs).toMatchObject({ version: 2, itemCount: 641 });
     expect(fromCdn(server, 'songs', (b) => b.id === 'africa')?.title).toBe(
       'Africa (v2)',
     );
@@ -1400,8 +1407,8 @@ describe('GET /derivation-health', () => {
       unmatchedArtists: { slug: string; songCount: number }[];
     };
     const before = ok<Health>(call(server, 'GET', '/derivation-health'));
-    expect(before.totalSongs).toBe(640);
-    expect(before.matched + before.defaultedToNewYork).toBe(640);
+    expect(before.totalSongs).toBe(641);
+    expect(before.matched + before.defaultedToNewYork).toBe(641);
     // None until the bulk import of 30 September 2026 gave 332 acts a City:
     // 457 songs were placed by their lead act's then, and 467 since its
     // review billed each song's own act before its guests (Crazy in Love:
@@ -1549,6 +1556,7 @@ describe('legacy mode (today’s API)', () => {
     // Every repo chart through today's check: production's import run was
     // refused on 341 (docs/song-body-schema-gap.md), and so was the mock.
     // 602 since the bulk import of 30 September 2026 gave 261 more charts
+    // (603 with the first Music Maps chart, We Shall Overcome)
     // credits, a session or a record, keys today's schema refuses: the
     // repo's charts need song v2 on the server before they import whole.
     const refused = seeds.all.items
@@ -1558,7 +1566,7 @@ describe('legacy mode (today’s API)', () => {
           put(server, { kind: 'song', slug: item.slug, body: item.body })
             .status === 422,
       );
-    expect(refused).toHaveLength(602);
+    expect(refused).toHaveLength(603);
 
     // What the seed holds is what production holds: level-0 copies, all valid.
     const validated = ok<{ ok: boolean; problems: ValidationProblem[] }>(

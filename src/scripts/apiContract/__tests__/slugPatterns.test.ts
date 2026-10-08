@@ -37,13 +37,13 @@ describe('every seed id passes its pattern', () => {
 
   it('songs', () => {
     const ids = Object.keys(BUNDLED_SONGS);
-    expect(ids.length).toBe(638);
+    expect(ids.length).toBe(639);
     expect(failing('song', ids)).toEqual([]);
   });
 
   it('globe events', () => {
     const ids = BUNDLED_MUSIC_HISTORY.map((e) => e.id);
-    expect(ids.length).toBe(1723);
+    expect(ids.length).toBe(1724);
     expect(failing('globe_event', ids)).toEqual([]);
   });
 

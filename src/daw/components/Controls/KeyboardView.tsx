@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useStore } from '@/daw/store';
 import { trackEngineRegistry } from '@/daw/hooks/usePlaybackEngine';
 import { studioRealtime } from '@/daw/collab/studioRealtime';
@@ -187,7 +187,8 @@ export function KeyboardView({ trackId }: { trackId: string }) {
           Instrument
         </span>
 
-        {/* Preset selector */}
+        {/* Current preset. Browse is the way to change it: the arrows that
+            sat either side of the name had no handler. */}
         <div
           className="flex items-center gap-1 rounded-lg px-3 py-1"
           style={{
@@ -195,32 +196,12 @@ export function KeyboardView({ trackId }: { trackId: string }) {
             border: '1px solid var(--color-border)',
           }}
         >
-          <button
-            className="cursor-pointer p-0.5"
-            style={{
-              color: 'var(--color-text-dim)',
-              background: 'none',
-              border: 'none',
-            }}
-          >
-            <ChevronLeft size={14} />
-          </button>
           <span
             className="min-w-[100px] text-center text-xs font-medium"
             style={{ color: 'var(--color-text)' }}
           >
             {presetName}
           </span>
-          <button
-            className="cursor-pointer p-0.5"
-            style={{
-              color: 'var(--color-text-dim)',
-              background: 'none',
-              border: 'none',
-            }}
-          >
-            <ChevronRight size={14} />
-          </button>
         </div>
 
         {/* Browse button */}

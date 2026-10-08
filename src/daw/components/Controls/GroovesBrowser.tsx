@@ -260,6 +260,7 @@ export function GroovesBrowser({ trackId }: GroovesBrowserProps) {
       >
         {/* BPM dropdown */}
         <select
+          aria-label="BPM"
           value={bpmFilter}
           onChange={(e) => setBpmFilter(e.target.value)}
           className="text-[10px] rounded-full px-3 py-1 cursor-pointer"

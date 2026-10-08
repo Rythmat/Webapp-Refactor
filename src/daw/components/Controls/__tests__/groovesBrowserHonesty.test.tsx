@@ -73,6 +73,16 @@ describe('GroovesBrowser', () => {
     }
   });
 
+  it('names the BPM filter, so it keeps a name once a tempo is chosen', () => {
+    render(<GroovesBrowser trackId="drums" />);
+    const bpm = screen.getByRole('combobox', { name: 'BPM' });
+    const tempo = within(bpm).getAllByRole('option')[1] as HTMLOptionElement;
+    fireEvent.change(bpm, { target: { value: tempo.value } });
+    expect(screen.getByRole('combobox', { name: 'BPM' })).toHaveValue(
+      tempo.value,
+    );
+  });
+
   it('has one Sort option per order, and shows the one chosen', () => {
     render(<GroovesBrowser trackId="drums" />);
     const sort = screen.getByRole('combobox', {

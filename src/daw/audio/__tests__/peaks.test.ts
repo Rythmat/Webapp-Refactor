@@ -160,35 +160,51 @@ describe('readPeaks', () => {
     });
   });
 
-  it('reads coarse zooms from the coarse buckets that touch each point', async () => {
+  it('reads every point exactly over its own samples, at any zoom', async () => {
     const { readPeaks } = await freshPeaks();
-    // ~20k samples a point uses the 16k level; a point covers the buckets it
-    // touches, never fewer samples than its own.
-    const start = 5000;
-    const end = length - 3000;
-    const points = Math.floor((end - start) / 20_000);
-    const perPoint = (end - start) / points;
-    const peaks = readPeaks(pyramid, source, points, start, end);
-    const bucket = 16384;
-    const scale = bruteMaxAbs(
-      channels,
-      Math.floor(start / bucket) * bucket,
-      Math.ceil(end / bucket) * bucket,
-    );
-    peaks.forEach((v, i) => {
-      const from = start + Math.floor(i * perPoint);
-      const to =
-        i === points - 1 ? end : start + Math.floor((i + 1) * perPoint);
-      const expected = bruteMaxAbs(
-        channels,
-        Math.floor(from / bucket) * bucket,
-        Math.ceil(to / bucket) * bucket,
-      );
-      expect(v).toBeCloseTo(expected / scale, 6);
-      expect(v).toBeGreaterThanOrEqual(
-        bruteMaxAbs(channels, from, to) / scale - 1e-6,
-      );
-    });
+    // Samples a point that no level divides, as the timeline asks for them:
+    // 1102.5 is zoom 1 on a 44.1 kHz take. Points used to read every bucket
+    // that touched them, about three points' worth at 1102.5, so hits spilled
+    // into their neighbours.
+    for (const zoom of [37.3, 300.7, 1102.5, 5000.25, 20_480.5, 70_001]) {
+      const start = 1234;
+      const points = Math.floor((length - 4321 - start) / zoom);
+      const end = start + Math.floor(points * zoom);
+      const perPoint = (end - start) / points;
+      const peaks = readPeaks(pyramid, source, points, start, end);
+      const scale = bruteMaxAbs(channels, start, end);
+      expect(peaks).toHaveLength(points);
+      peaks.forEach((v, i) => {
+        const from = start + Math.floor(i * perPoint);
+        const to =
+          i === points - 1 ? end : start + Math.floor((i + 1) * perPoint);
+        expect(v, `${zoom} samples a point, point ${i}`).toBeCloseTo(
+          bruteMaxAbs(channels, from, to) / scale,
+          6,
+        );
+      });
+    }
+  });
+
+  it('lights only the point a hit falls in, and scales by the window alone', async () => {
+    const { readPeaks } = await freshPeaks();
+    // Silence with three clicks: one inside the window, and two loud ones
+    // just outside it that must neither draw nor shrink the waveform.
+    const quiet = new Float32Array(200_000);
+    quiet[50_000] = 0.5;
+    const start = 20_000;
+    const points = 120;
+    const end = start + Math.floor(points * 1102.5);
+    quiet[start - 1] = 1;
+    quiet[end] = 1;
+    const clicks: PeakPyramid = {
+      length: quiet.length,
+      levels: buildPeakLevels([quiet], quiet.length),
+    };
+    const peaks = readPeaks(clicks, fakeBuffer([quiet]), points, start, end);
+    const lit = peaks.flatMap((v, i) => (v > 0 ? [i] : []));
+    expect(lit).toEqual([Math.floor((50_000 - start) / 1102.5)]);
+    expect(peaks[lit[0]]).toBe(1);
   });
 
   it('reads a visible window as exactly those points of the whole clip', async () => {
@@ -210,6 +226,33 @@ describe('readPeaks', () => {
       );
       expect(visible).toEqual(whole.slice(first, last + 1));
     }
+  });
+
+  it('reads each point once per waveform, however often it is redrawn', async () => {
+    const { readPeaks } = await freshPeaks();
+    const take = fakeBuffer(channels);
+    const points = Math.floor((length - 999) / 1102.5);
+    const read = (first: number, last: number) =>
+      readPeaks(pyramid, take, points, 999, length, first, last);
+    // The first draw reads the ragged ends of its points from the samples.
+    const shown = read(0, 299);
+    expect(take.getChannelData).toHaveBeenCalled();
+    // The same points again (a playhead frame, a fader move): nothing is read.
+    take.getChannelData.mockClear();
+    expect(read(0, 299)).toEqual(shown);
+    expect(take.getChannelData).not.toHaveBeenCalled();
+    // A scroll reads only the points it reveals.
+    expect(read(100, 400).slice(0, 200)).toEqual(shown.slice(100));
+    expect(take.getChannelData).toHaveBeenCalled();
+    // Another zoom is another waveform, read afresh and exactly.
+    const zoomed = readPeaks(pyramid, take, points * 2, 999, length, 0, 9);
+    const perPoint = (length - 999) / (points * 2);
+    const scale = bruteMaxAbs(channels, 999, length);
+    zoomed.forEach((v, i) => {
+      const from = 999 + Math.floor(i * perPoint);
+      const to = 999 + Math.floor((i + 1) * perPoint);
+      expect(v).toBeCloseTo(bruteMaxAbs(channels, from, to) / scale, 6);
+    });
   });
 
   it('scales the visible points by the loudest point of the whole window', async () => {

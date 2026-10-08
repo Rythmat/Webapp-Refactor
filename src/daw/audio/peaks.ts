@@ -4,8 +4,8 @@ import { buildPeakLevels, type PeakLevel } from './peakLevels';
 // Waveforms used to rescan every sample of every visible audio clip on each
 // timeline redraw (findings timeline-07, audio-core-09). Now each decoded
 // AudioBuffer gets a min/max pyramid (peakLevels.ts), built the first time the
-// buffer is drawn, and a redraw reads the level nearest the zoom for the
-// points on screen only.
+// buffer is drawn, and a redraw reads only the points on screen, each exactly
+// over its own samples, and each once per zoom (readPeaks).
 //
 // Pyramids live in a WeakMap keyed by the buffer itself. A replaced,
 // re-recorded or pitch-shifted buffer is a different object, so it gets its
@@ -201,31 +201,6 @@ function bucketsMaxAbs(level: PeakLevel, from: number, to: number): number {
   return peak;
 }
 
-/**
- * Largest |sample| in buckets [from, to) of level `l`, reading the coarser
- * levels for the stretch they cover whole, so a long window costs a handful
- * of reads rather than one per fine bucket.
- */
-function levelMaxAbs(
-  levels: readonly PeakLevel[],
-  l: number,
-  from: number,
-  to: number,
-): number {
-  if (from >= to) return 0;
-  const coarser = levels[l + 1];
-  if (!coarser) return bucketsMaxAbs(levels[l], from, to);
-  const ratio = coarser.bucketSize / levels[l].bucketSize;
-  const inner = Math.ceil(from / ratio);
-  const outer = Math.floor(to / ratio);
-  if (inner >= outer) return bucketsMaxAbs(levels[l], from, to);
-  return Math.max(
-    bucketsMaxAbs(levels[l], from, inner * ratio),
-    levelMaxAbs(levels, l + 1, inner, outer),
-    bucketsMaxAbs(levels[l], outer * ratio, to),
-  );
-}
-
 /** Largest |sample| across channels in samples [from, to). */
 function samplesMaxAbs(
   channels: readonly Float32Array[],
@@ -246,13 +221,101 @@ function samplesMaxAbs(
 }
 
 /**
+ * Largest |sample| across channels in samples [from, to), exactly: never a
+ * sample outside the range. The middle comes from the coarsest level (at or
+ * below `top`) with whole buckets inside the range, each ragged end from the
+ * finer levels, and the last few samples at each end (under one fine bucket)
+ * from the samples themselves. However wide the range, that is a handful of
+ * buckets a level plus at most 255 samples at each end.
+ */
+function rangeMaxAbs(
+  levels: readonly PeakLevel[],
+  samples: () => readonly Float32Array[],
+  from: number,
+  to: number,
+  top = levels.length - 1,
+): number {
+  if (from >= to) return 0;
+  for (let l = top; l >= 0; l--) {
+    const size = levels[l].bucketSize;
+    const inner = Math.ceil(from / size);
+    const outer = Math.floor(to / size);
+    if (inner < outer) {
+      return Math.max(
+        rangeMaxAbs(levels, samples, from, inner * size, l - 1),
+        bucketsMaxAbs(levels[l], inner, outer),
+        rangeMaxAbs(levels, samples, outer * size, to, l - 1),
+      );
+    }
+  }
+  return samplesMaxAbs(samples(), from, to);
+}
+
+// ── Points already read ─────────────────────────────────────────────────────
+// Reading a point exactly costs up to a few hundred samples at its ends, and
+// the timeline asks for the same points over and over: as it scrolls, while
+// it plays or records, on any edit. So each pyramid keeps the points it has
+// read for its last few waveforms (a waveform is a window split into a number
+// of points); a redraw at the same zoom reads only the points it has not
+// shown before, and a zoom step reads its points once.
+
+/** One waveform's points read so far, and its scale. */
+interface PointsRead {
+  numPoints: number;
+  start: number;
+  end: number;
+  /** Each point's peak, or -1 for one not read yet. */
+  peaks: Float32Array;
+  scale: number;
+}
+
+/** Waveforms remembered per pyramid: a few zoom steps, or a few trims. */
+const WAVEFORMS_KEPT = 4;
+/** A waveform with more points than this is read afresh each time. */
+const MAX_POINTS_KEPT = 1 << 16;
+
+const pointsRead = new WeakMap<PeakPyramid, PointsRead[]>();
+
+function pointsFor(
+  pyramid: PeakPyramid,
+  numPoints: number,
+  start: number,
+  end: number,
+  samples: () => readonly Float32Array[],
+): PointsRead {
+  const kept = pointsRead.get(pyramid) ?? [];
+  const at = kept.findIndex(
+    (w) => w.numPoints === numPoints && w.start === start && w.end === end,
+  );
+  if (at >= 0) {
+    const [hit] = kept.splice(at, 1);
+    kept.unshift(hit);
+    return hit;
+  }
+  const fresh: PointsRead = {
+    numPoints,
+    start,
+    end,
+    peaks: new Float32Array(numPoints).fill(-1),
+    scale: rangeMaxAbs(pyramid.levels, samples, start, end),
+  };
+  if (numPoints <= MAX_POINTS_KEPT) {
+    kept.unshift(fresh);
+    kept.length = Math.min(kept.length, WAVEFORMS_KEPT);
+    pointsRead.set(pyramid, kept);
+  }
+  return fresh;
+}
+
+/**
  * Normalised 0–1 peaks for points `firstPoint`…`lastPoint` of a waveform that
  * splits samples [windowStart, windowEnd) into `numPoints` equal parts, across
- * both channels. Only the asked-for points are read, from the coarsest level
- * whose buckets still fit inside one point (the samples themselves when even
- * the finest is too coarse), each point reading the buckets that touch it.
- * The scale is the loudest point of the whole window, so the waveform keeps
- * its height as it scrolls. An empty window reads as silence.
+ * both channels. Only the asked-for points are read, each exactly over its
+ * own samples (rangeMaxAbs), so a hit lights the point it falls in and no
+ * neighbour, at any zoom; a point read before for the same waveform is not
+ * read again. The scale is the loudest sample of the whole window, which is
+ * the loudest point, so the waveform keeps its height as it scrolls. An
+ * empty window reads as silence.
  */
 export function readPeaks(
   pyramid: PeakPyramid,
@@ -273,59 +336,27 @@ export function readPeaks(
   const end = Math.min(Math.max(start, Math.floor(windowEnd)), length);
   if (end <= start || levels.length === 0) return out;
 
-  const perPoint = (end - start) / numPoints;
-  let l = levels.length - 1;
-  while (l >= 0 && levels[l].bucketSize > perPoint) l--;
-
+  // The samples are fetched once, and only if some range has ragged ends.
   const channelCount = levels[0].min.length;
-  const channels =
-    l < 0
-      ? Array.from({ length: channelCount }, (_, c) => source.getChannelData(c))
-      : [];
-  const bucket = l < 0 ? 0 : levels[l].bucketSize;
-  const pointMax = (from: number, to: number) =>
-    l < 0
-      ? samplesMaxAbs(channels, from, to)
-      : bucketsMaxAbs(
-          levels[l],
-          Math.floor(from / bucket),
-          Math.ceil(to / bucket),
-        );
+  let channels: Float32Array[] | null = null;
+  const samples = () =>
+    (channels ??= Array.from({ length: channelCount }, (_, c) =>
+      source.getChannelData(c),
+    ));
 
+  const waveform = pointsFor(pyramid, numPoints, start, end, samples);
+  const { peaks, scale } = waveform;
+  const perPoint = (end - start) / numPoints;
   for (let i = first; i <= last; i++) {
-    const from = Math.min(start + Math.floor(i * perPoint), end - 1);
-    const to =
-      i === numPoints - 1
-        ? end
-        : Math.max(from + 1, start + Math.floor((i + 1) * perPoint));
-    out[i - first] = pointMax(from, Math.min(to, end));
-  }
-
-  // The loudest of every point in the window, without reading them all: the
-  // points' buckets tile the window, so it is the loudest bucket touching it.
-  let scale: number;
-  if (l >= 0) {
-    scale = levelMaxAbs(
-      levels,
-      l,
-      Math.floor(start / bucket),
-      Math.ceil(end / bucket),
-    );
-  } else {
-    const fine = levels[0].bucketSize;
-    const inner = Math.ceil(start / fine);
-    const outer = Math.floor(end / fine);
-    scale =
-      inner >= outer
-        ? samplesMaxAbs(channels, start, end)
-        : Math.max(
-            samplesMaxAbs(channels, start, inner * fine),
-            levelMaxAbs(levels, 0, inner, outer),
-            samplesMaxAbs(channels, outer * fine, end),
-          );
-  }
-  if (scale > 0) {
-    for (let i = 0; i < out.length; i++) out[i] /= scale;
+    if (peaks[i] < 0) {
+      const from = Math.min(start + Math.floor(i * perPoint), end - 1);
+      const to =
+        i === numPoints - 1
+          ? end
+          : Math.max(from + 1, start + Math.floor((i + 1) * perPoint));
+      peaks[i] = rangeMaxAbs(levels, samples, from, Math.min(to, end));
+    }
+    out[i - first] = scale > 0 ? peaks[i] / scale : 0;
   }
   return out;
 }

@@ -48,7 +48,9 @@ export function Segmented<T extends string>({
       disabled={disabled}
       orientation="horizontal"
       className={cn(
-        'inline-flex items-center gap-0.5 rounded-full border border-daw-hairline p-0.5',
+        // 1 px border and 1 px padding round 24 px segments: 28 px, the
+        // height of the Buttons, Selects and Toggles beside it.
+        'inline-flex items-center gap-0.5 rounded-full border border-daw-hairline p-px',
         disabled && 'opacity-40',
         className,
       )}

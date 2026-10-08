@@ -160,6 +160,17 @@ describe('Segmented', () => {
     expect(screen.getAllByRole('radio')).toHaveLength(3);
   });
 
+  it('is 28 px tall, like the controls beside it', () => {
+    render(<Snap />);
+    // A 1 px border and 1 px padding round 24 px segments: 1+1+24+1+1.
+    const group = screen.getByRole('radiogroup', { name: 'Snap' });
+    expect(group).toHaveClass('border', 'p-px');
+    expect(group).not.toHaveClass('p-0.5');
+    for (const segment of screen.getAllByRole('radio')) {
+      expect(segment).toHaveClass('h-6');
+    }
+  });
+
   it('chooses on click, and arrow keys move the choice', async () => {
     render(<Snap />);
     fireEvent.click(screen.getByRole('radio', { name: 'Bar' }));

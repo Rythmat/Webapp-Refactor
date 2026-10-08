@@ -1,5 +1,6 @@
 import './index.css';
-import { Component, type ReactNode } from 'react';
+import { Component, Suspense, lazy, type ReactNode } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { BaseGlobe } from '@/components/atlas/components/Globe';
 import { ArtistPanel } from '@/components/atlas/components/UI/ArtistPanel';
 import { AtlasToolbar } from '@/components/atlas/components/UI/AtlasToolbar';
@@ -15,6 +16,11 @@ import {
 } from '@/components/atlas/context/AppContext';
 import { useAtlasStop } from '@/components/atlas/navigation/useAtlasNavigate';
 import { useAtlasUrlSync } from '@/components/atlas/navigation/useAtlasUrlSync';
+
+// A Cortex lesson's Promoter mind map (`?mindmap=1`), loaded only when asked.
+const MindMapPanel = lazy(
+  () => import('@/components/atlas/components/MindMap/MindMapPanel'),
+);
 
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -50,6 +56,9 @@ function AppLayout() {
   const { selectedLocation, activeModule, activeTour, pinnedEvent } =
     useAppState();
   const stop = useAtlasStop();
+  const [params] = useSearchParams();
+  // Not a stop param, so it stays on the URL however the student explores.
+  const mindMapOpen = params.get('mindmap') === '1';
   // The URL is the source of truth for what the globe shows — every param a
   // deep-link, bookmark, lesson link, or Back press can carry is applied here.
   useAtlasUrlSync();
@@ -78,6 +87,11 @@ function AppLayout() {
         {!activeModule && !activeTour && <RegionTimeline />}
         {activeModule && <ModuleProgressBar />}
         {activeTour && <GuidedTourBar />}
+        {mindMapOpen && (
+          <Suspense fallback={null}>
+            <MindMapPanel />
+          </Suspense>
+        )}
       </div>
     </div>
   );

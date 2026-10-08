@@ -54,6 +54,7 @@ export const BOOT_KEYS: readonly string[] = Object.freeze([
   'practiceOpen',
   'collab',
   'host',
+  'pair',
   'invite',
   'jam',
   'new',
@@ -164,6 +165,9 @@ export function parseBootIntent(params: URLSearchParams): ParsedBoot {
       jamImport: isJamImport,
       // A link joiner may beat the host to the room: it waits for it.
       awaitHost: !isNew && !host,
+      // A classroom partner (StudioCollabAction) may click long before the
+      // pair's host does: it waits much longer.
+      ...(!isNew && !host && get('pair') === '1' ? { classPair: true } : {}),
     });
   }
   if (isJamImport) return parsed({ kind: 'jam' });

@@ -117,7 +117,12 @@ export interface PreparedOpen {
   /** The save chip's record of the cloud copy, after the baseline. */
   lastSaved(): LastSaved | null;
   /** A joiner waits for the room's first sync after the apply. */
-  collabWait: { roomId: string; awaitHost: boolean } | null;
+  collabWait: {
+    roomId: string;
+    awaitHost: boolean;
+    /** How long the provider waits for the host, when not its default. */
+    hostWaitMs?: number;
+  } | null;
   /** A '~device' draft moves to this user as it opens. */
   claimDevice: boolean;
   /** Generation-guarded steps and toasts once ready (editor still mounted). */
@@ -797,6 +802,13 @@ async function preparePracticeGenre(
   });
 }
 
+/**
+ * How long a classroom partner waits for the pair's host. A teacher-made pair
+ * opens the Studio from a slide (StudioCollabAction), and the partner may well
+ * click before the host does, so the jam hand-off's 20 s is far too short.
+ */
+export const CLASS_PAIR_AWAIT_HOST_MS = 5 * 60_000;
+
 async function prepareCollab(
   intent: Extract<OpenIntent, { kind: 'collab' }>,
   ctx: PrepareContext,
@@ -809,6 +821,7 @@ async function prepareCollab(
   const code = intent.code;
   const joinerId = code.trim().toLowerCase();
   const joiner = code !== 'new' && !intent.host;
+  const hostWaitMs = intent.classPair ? CLASS_PAIR_AWAIT_HOST_MS : undefined;
   return seeded(claim, {
     apply: ({ collab }) => {
       if (code === 'new') {
@@ -821,8 +834,10 @@ async function prepareCollab(
         collab.joinRoom(code, 'owner', undefined, `studio-${code}`, code);
         return;
       }
-      if (intent.awaitHost) collab.joinRoomAwaitingHost(code);
-      else collab.joinRoomById(code);
+      if (intent.awaitHost) {
+        if (hostWaitMs) collab.joinRoomAwaitingHost(code, hostWaitMs);
+        else collab.joinRoomAwaitingHost(code);
+      } else collab.joinRoomById(code);
     },
     // A room is its own only copy: work to keep.
     savedComplete: false,
@@ -832,7 +847,11 @@ async function prepareCollab(
       reopenable: false,
     },
     collabWait: joiner
-      ? { roomId: joinerId, awaitHost: intent.awaitHost }
+      ? {
+          roomId: joinerId,
+          awaitHost: intent.awaitHost,
+          ...(hostWaitMs ? { hostWaitMs } : {}),
+        }
       : null,
     afterReady: ({ stillCurrent, draftWritten }) => {
       if (!stillCurrent()) return;

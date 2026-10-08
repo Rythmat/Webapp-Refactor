@@ -128,6 +128,8 @@ import type {
 const WAIT_TIMEOUT_MS = 15_000;
 const WAIT_POLL_MS = 250;
 const COLLAB_LOAD_TIMEOUT_MS = 25_000;
+// The load's margin over the provider's host wait (20 s by default).
+const COLLAB_LOAD_MARGIN_MS = 5_000;
 const OVERLAY_DELAY_MS = 250;
 const CANCEL_AFTER_MS = 3_000;
 const TAKE_WAIT_MS = 10_000;
@@ -422,9 +424,14 @@ type RoomWait =
 /**
  * A joiner's load: connected to `roomId`, plus one macrotask (the pull from
  * the room runs right after the status write). Fails when the provider
- * clears the room (its roomError says why), or after 25 s.
+ * clears the room (its roomError says why), or after 25 s (a classroom
+ * pair's longer host wait, `hostWaitMs`, plus 5 s).
  */
-function waitForRoom(run: Run, roomId: string): Promise<RoomWait> {
+function waitForRoom(
+  run: Run,
+  roomId: string,
+  hostWaitMs?: number,
+): Promise<RoomWait> {
   const controller = new AbortController();
   run.collabWait = controller;
   return new Promise<RoomWait>((resolve) => {
@@ -465,7 +472,9 @@ function waitForRoom(run: Run, roomId: string): Promise<RoomWait> {
     };
     const timer = setTimeout(
       () => finish(() => ({ status: 'failed', error: JOIN_TIMEOUT }), false),
-      COLLAB_LOAD_TIMEOUT_MS,
+      hostWaitMs === undefined
+        ? COLLAB_LOAD_TIMEOUT_MS
+        : hostWaitMs + COLLAB_LOAD_MARGIN_MS,
     );
     const unsubscribe = useStore.subscribe(check);
     controller.signal.addEventListener('abort', onAbort, { once: true });
@@ -937,7 +946,11 @@ async function executeLate(
   }
   if (prepared.collabWait) {
     if (prepared.collabWait.awaitHost) setWaiting(run, 'host');
-    const result = await waitForRoom(run, prepared.collabWait.roomId);
+    const result = await waitForRoom(
+      run,
+      prepared.collabWait.roomId,
+      prepared.collabWait.hostWaitMs,
+    );
     setWaiting(run, null);
     if (result.status === 'aborted') {
       if (result.reason === 'back') {

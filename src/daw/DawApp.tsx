@@ -33,6 +33,7 @@ import { StudioRoutes } from '@/constants/routes';
 import { useAudioChordDetection } from '@/daw/hooks/useAudioChordDetection';
 import { useGuitarMidiDetection } from '@/daw/hooks/useGuitarMidiDetection';
 import { useMidiInputRouting } from '@/daw/hooks/useMidiInputRouting';
+import { useStudioCurrentProjectNote } from '@/daw/hooks/useStudioCurrentProjectNote';
 import { useStudioMonitor } from '@/daw/hooks/useStudioMonitor';
 import { useCollabAudioLoader } from '@/daw/hooks/useCollabAudioLoader';
 import { usePlaybackEngine } from '@/daw/hooks/usePlaybackEngine';
@@ -170,6 +171,7 @@ function DawAppInner() {
   // Held off until auth knows who the student is.
   usePrefsSync(userId, ownerKnown);
   useStudioMonitor(isReady, authToken);
+  useStudioCurrentProjectNote(userId);
   useCollabAudioLoader(authToken);
   useDevCommitCount('DawAppInner');
 
@@ -229,8 +231,8 @@ function DawAppInner() {
         joinRoom: (...args) => collabRef.current.joinRoom(...args),
         joinRoomById: (roomId, role) =>
           collabRef.current.joinRoomById(roomId, role),
-        joinRoomAwaitingHost: (roomId) =>
-          collabRef.current.joinRoomAwaitingHost(roomId),
+        joinRoomAwaitingHost: (roomId, timeoutMs) =>
+          collabRef.current.joinRoomAwaitingHost(roomId, timeoutMs),
       },
       drafts: getDraftSessionPort(),
       // Only while the student is still in the editor: an open that ends

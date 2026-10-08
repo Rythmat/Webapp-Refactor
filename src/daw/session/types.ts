@@ -77,6 +77,8 @@ export type OpenIntent =
       host: boolean;
       jamImport: boolean;
       awaitHost: boolean;
+      /** A teacher-made classroom pair's partner: waits for its host longer. */
+      classPair?: true;
     }
   | { kind: 'rejoin'; roomId: string; role: CollabRole };
 
@@ -272,5 +274,5 @@ export interface CollabPort {
     roomCode?: string,
   ): void;
   joinRoomById(roomId: string, role?: CollabRole): void;
-  joinRoomAwaitingHost(roomId: string): void;
+  joinRoomAwaitingHost(roomId: string, timeoutMs?: number): void;
 }

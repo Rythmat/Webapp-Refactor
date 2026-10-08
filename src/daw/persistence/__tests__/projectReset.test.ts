@@ -31,6 +31,7 @@ import {
   type CloudProjectDetail,
   type CloudProjectInput,
 } from '../SessionSerializer';
+import { hasWorkToKeep } from '../saveStatusStore';
 
 const s = () => useStore.getState();
 
@@ -54,7 +55,6 @@ function leaveAProjectBehind(): void {
   s().addMasteringFx('compressor');
   s().toggleMasteringBypass();
   s().setMasterVolume(0.3);
-  s().setMasteringAmount(40);
   const reverb = s().returns.find((r) => r.id === 'A')?.effects.reverb;
   if (!reverb) throw new Error('No return A');
   s().updateReturnEffects('A', { reverb: { ...reverb, decay: 9 } });
@@ -73,7 +73,6 @@ function leaveAProjectBehind(): void {
     prismSuggestTrackId: 'keys',
     prismSuggestActiveIdx: 2,
   });
-  s().setPitchSegments('take-1', []);
 }
 
 /** The fields above, as a fresh page has them. */
@@ -87,12 +86,7 @@ function leftovers() {
     autoTuneMask: x.activeNotesBitmask,
     markers: x.markers,
     metre: [x.timeSignatureNumerator, x.timeSignatureDenominator],
-    mastering: [
-      x.masteringFxChain,
-      x.masteringBypass,
-      x.masterVolume,
-      x.masteringAmount,
-    ],
+    mastering: [x.masteringFxChain, x.masteringBypass, x.masterVolume],
     returnA: x.returns.find((r) => r.id === 'A')?.effects.reverb.decay,
     score: [
       x.scoreSpellings,
@@ -113,7 +107,6 @@ function leftovers() {
       x.prismSuggestTrackId,
       x.prismSuggestActiveIdx,
     ],
-    pitchData: x.pitchData,
   };
 }
 
@@ -125,12 +118,11 @@ const freshPage = {
   autoTuneMask: 0xfff,
   markers: [],
   metre: [4, 4],
-  mastering: [[], false, 0.8, 100],
+  mastering: [[], false, 0.8],
   returnA: defaultReturns().find((r) => r.id === 'A')?.effects.reverb.decay,
   score: [[], [], [], [], []],
   leadSheet: ['hybrid', false, false, null],
   suggestion: [false, 0, null, 0],
-  pitchData: {},
 };
 
 const cloudProject = (body: CloudProjectInput): CloudProjectDetail => ({
@@ -225,11 +217,11 @@ describe('the live-session marker', () => {
   it('a cloud project counts as untouched until it changes', () => {
     s().addTrack('midi', 'piano-sampler', 'Keys');
     deserializeCloudProject(cloudProject(serializeSessionForCloud()));
-    expect(isPristineSession()).toBe(true);
+    expect(hasWorkToKeep()).toBe(false);
     s().setPosition(1920); // the playhead is not work
-    expect(isPristineSession()).toBe(true);
+    expect(hasWorkToKeep()).toBe(false);
     s().updateTrack(s().tracks[0].id, { volume: 0.3 });
-    expect(isPristineSession()).toBe(false);
+    expect(hasWorkToKeep()).toBe(true);
   });
 
   it('a restored session never counts as untouched', () => {

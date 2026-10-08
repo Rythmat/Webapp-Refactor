@@ -5,11 +5,6 @@ import { AtlasRoutes, LearnRoutes, StudioRoutes } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import type { Song, SongMode } from '@/curriculum/types/songLibrary';
 import { useUISound } from '@/hooks/useUISound';
-import {
-  announceKeptWork,
-  replaceSession,
-} from '@/lib/studio-projects/localSession';
-import { seedStudioFromSong } from './seedStudioFromSong';
 import { useSavedSongsStore } from './useSavedSongsStore';
 
 type IconClickEvent = MouseEvent<HTMLElement> | undefined;
@@ -65,7 +60,25 @@ export function useSongActions(song: Song): SongActions {
   // track on the previous one and left its rests and row breaks over this chart.
   // The session it replaces is kept first, with a Restore, instead of asking
   // (owner decision 6).
+  //
+  // The Studio's session and persistence code loads on this click, not with
+  // the Song pages: a static import put it on every route's start-up graph.
   const goToStudio = useCallback(async () => {
+    let studio: [
+      typeof import('@/lib/studio-projects/localSession'),
+      typeof import('./seedStudioFromSong'),
+    ];
+    try {
+      studio = await Promise.all([
+        import('@/lib/studio-projects/localSession'),
+        import('./seedStudioFromSong'),
+      ]);
+    } catch {
+      showError('That song could not be opened in the Studio.');
+      return;
+    }
+    const [{ announceKeptWork, replaceSession }, { seedStudioFromSong }] =
+      studio;
     const result = await replaceSession(
       userId,
       () => seedStudioFromSong(song),
@@ -93,6 +106,7 @@ export function useSongActions(song: Song): SongActions {
     // original key instead of the one on the screen.
     navigate(`${StudioRoutes.editor.definition}?seeded=1`);
     if (result.kept) announceKeptWork(result.kept, userId);
+    if (result.also) announceKeptWork(result.also, userId);
   }, [navigate, song, userId]);
 
   const openInStudio = useCallback<SongActions['openInStudio']>(

@@ -6,7 +6,10 @@
  * checks that the value is back. Two reloads are measured:
  *
  * - Browser refresh (the local autosave): `serializeSession` → JSON, as
- *   localStorage holds it → `deserializeSession` in a new page.
+ *   localStorage holds it → `deserializeSession` in a new page. The
+ *   student's prefs (metronome, count-in, grid, chord-ruler labels) are no
+ *   part of the draft since milestone 1.3: each page keeps them per user, as
+ *   the editor does (prefsStore's sync), so a refresh carries them too.
  * - Cloud reopen (File ▸ Save, then open from the dashboard):
  *   `serializeSessionForCloud` → JSON, as the request body →
  *   `deserializeCloudProject` in a new page. The stand-in server echoes the
@@ -17,7 +20,9 @@
  * A new page re-evaluates every module (vi.resetModules), so the store, the
  * per-track synth patch cache and the chord-id counter all start from scratch,
  * as they do after a real reload. Restoring into the same store instead would
- * make any field the codec never touches look as if it had survived.
+ * make any field the codec never touches look as if it had survived. A
+ * separate block opens a project again on the page that last held it, where
+ * the patch cache has not started over by itself.
  *
  * This file is a ratchet. A case that the audit (branch studio/audit-archive,
  * docs/studio-audit-2026-10) found lost today is `it.fails`, and the comment
@@ -28,23 +33,27 @@
  * block checks that each probe reads back its own write without a reload, so
  * an `it.fails` case can only fail because of the reload.
  *
- * Not probed: view and lesson context (current view, practice session,
- * tutorial step), which milestone 1.15 moves into the draft rather than this
- * codec; melodyOverrides (nothing reads it); leadSheetMelodyTrackId (nothing
- * writes it); the mastering macros such as masteringStyle and masteringEq
- * (nothing outside their slice sets them); audioMidiSource (session-only by
- * design); and UI state such as the selected track.
+ * Not probed: the lesson and practice context (tutorial step, practice
+ * session), which milestone 1.15 moves into the draft;
+ * leadSheetMelodyTrackId (nothing writes it); audioMidiSource, the
+ * Guitar/Bass-to-MIDI binding, which the registry keeps session-only as the
+ * feature was built (fields.ts), where decision D5 listed it as per-user
+ * view state: the owner has yet to rule, and a draft row belongs here if D5
+ * stands; and session state such as the tool and the clip selection, which
+ * no reload keeps. The view of the project (current view, zoom, scroll,
+ * selected track, automation lane, dock tab) is in the draft since milestone
+ * 1.3, and probed.
  *
  * Run: npx vitest run src/daw/persistence/__tests__/persistenceMatrix.test.ts
  */
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   StrumMode,
   VelocityTilt,
   type MidiCCEvent,
   type MidiNoteEvent,
 } from '@prism/engine';
-import type { PitchSegment } from '@/daw/audio/pitch-analysis/PitchAnalyzer';
+import type { ChordRegionIdentity } from '@/daw/harmony/chordIdentity';
 import type { OrganState } from '@/daw/instruments/TonewheelOrganEngine';
 import type { SamplerSampleRef } from '@/daw/instruments/samplerChops';
 import type * as SynthStoreModule from '@/daw/oracle-synth/store';
@@ -56,13 +65,24 @@ import type * as Codec from '../SessionSerializer';
 
 // ── Pages ────────────────────────────────────────────────────────────────
 
-/** One browser page: its own store, codec, synth patch cache and synth store. */
+/**
+ * One browser page: its own store, codec, synth patch cache and synth store,
+ * and the prefs sync the editor runs for the student.
+ */
 interface Page {
   store: typeof StoreModule.useStore;
   codec: typeof Codec;
   patches: typeof SynthPatchModule;
   synth: typeof SynthStoreModule.useSynthStore;
+  /** Stops the page's prefs sync, writing a change still waiting. */
+  closePrefs: () => void;
 }
+
+/** The student every page belongs to. */
+const STUDENT = 'matrix-student';
+
+/** Every prefs sync a page started, stopped after each test. */
+const prefsSyncs: (() => void)[] = [];
 
 /** Load the editor's modules afresh, as a page load does. */
 async function loadPage(): Promise<Page> {
@@ -71,18 +91,40 @@ async function loadPage(): Promise<Page> {
   const codec = await import('../SessionSerializer');
   const patches = await import('@/daw/oracle-synth/synthTrackState');
   const { useSynthStore } = await import('@/daw/oracle-synth/store');
-  return { store: useStore, codec, patches, synth: useSynthStore };
+  const { startPrefsSync } = await import('../prefsStore');
+  // The editor keeps the student's prefs from the moment it opens.
+  const closePrefs = startPrefsSync(STUDENT);
+  prefsSyncs.push(closePrefs);
+  return { store: useStore, codec, patches, synth: useSynthStore, closePrefs };
 }
 
 const st = (p: Page) => p.store.getState();
 
+// Prefs and values remembered by a probe's write live in localStorage and
+// here; each test starts without either.
+const remembered = new Map<string, unknown>();
+
+beforeEach(() => {
+  localStorage.clear();
+  remembered.clear();
+});
+
+afterEach(() => {
+  for (const close of prefsSyncs.splice(0)) close();
+  localStorage.clear();
+});
+
 type Reload = (page: Page) => Promise<Page>;
 
-/** Browser refresh: the autosave goes through localStorage as JSON. */
+/**
+ * Browser refresh: the autosave goes through localStorage as JSON. The page
+ * going away writes the prefs it holds, as its pagehide does.
+ */
 const refresh: Reload = async (page) => {
   const saved = JSON.parse(
     JSON.stringify(page.codec.serializeSession()),
   ) as Codec.SessionData;
+  page.closePrefs();
   const next = await loadPage();
   next.codec.deserializeSession(saved);
   return next;
@@ -93,6 +135,7 @@ const reopenFromCloud: Reload = async (page) => {
   const body = JSON.parse(
     JSON.stringify(page.codec.serializeSessionForCloud()),
   ) as Codec.CloudProjectInput;
+  page.closePrefs();
   const next = await loadPage();
   next.codec.deserializeCloudProject({
     ...body,
@@ -141,8 +184,9 @@ function buildProject(p: Page): void {
   st(p).addTrack('audio', 'guitar-fx', 'Guitar');
 }
 
-// Look tracks up by name: a cloud load mints new track ids, so anything keyed
-// by a track id is checked against the id the track has on that page.
+// Look tracks up by name, so the probes hold whether or not a load keeps
+// track ids: anything keyed by a track id is checked against the id the
+// track has on that page.
 function track(p: Page, name: TrackName): Track {
   const found = st(p).tracks.find((t) => t.name === name);
   if (!found) throw new Error(`No ${name} track`);
@@ -155,7 +199,10 @@ function keysClip(p: Page): MidiClip {
   return found;
 }
 
-/** Score note ids are `trackId:clipId:startTick:pitch` (scoreParts.ts). */
+/**
+ * Score marks name a note by `trackId:clipId:startTick:pitch` in memory
+ * (scoreParts.ts; the draft stores them by note id, notationCodec).
+ */
 function noteId(p: Page, index: number): string {
   const n = KEYS_NOTES[index];
   return `${track(p, 'Keys').id}:${KEYS_CLIP}:${n.startTick}:${n.note}`;
@@ -188,6 +235,15 @@ function chordAt(p: Page, tick: number): ChordRegion {
   return found;
 }
 
+/** The first chord's identity, labelled with its name (decision D3). */
+const IDENTITY: ChordRegionIdentity = {
+  rootPc: 2,
+  quality: 'min7',
+  bassPc: 2,
+  source: 'given',
+  label: CHORDS[0].name,
+};
+
 /** Drop the id, for records a fixed codec could legitimately re-mint. */
 function withoutId<T extends { id: string }>(record: T): Omit<T, 'id'> {
   const copy: Partial<T> = { ...record };
@@ -204,16 +260,6 @@ const TAKE: AudioClip = {
   assetId: 'asset-take-1',
   offsetSeconds: 0.5,
   gain: 0.7,
-};
-
-const SEGMENT: PitchSegment = {
-  id: 'segment-1',
-  startTimeMs: 0,
-  endTimeMs: 400,
-  medianFreqHz: 311.1,
-  midiNote: 63,
-  centsOffset: -12,
-  pitchContour: [310, 311, 312],
 };
 
 const SUSTAIN_PEDAL: MidiCCEvent[] = [
@@ -326,6 +372,63 @@ const probes = {
     write: (p) => st(p).toggleMetronome(),
     check: (p) => expect(st(p).metronomeEnabled).toBe(true),
   },
+  // The student's other settings (decision D5), kept per user like the
+  // metronome.
+  userPrefs: {
+    write: (p) => {
+      st(p).setCountInBars(2);
+      st(p).setTimelineGridSize('1/8');
+      st(p).toggleTimelineSnap();
+      st(p).toggleTripletMode();
+      st(p).toggleChordRulerLabels();
+    },
+    check: (p) =>
+      expect({
+        countInBars: st(p).countInBars,
+        grid: st(p).timelineGridSize,
+        snap: st(p).timelineSnapEnabled,
+        triplet: st(p).timelineTripletMode,
+        chordRulerShowNotes: st(p).chordRulerShowNotes,
+      }).toEqual({
+        countInBars: 2,
+        grid: '1/8',
+        snap: false,
+        triplet: true,
+        chordRulerShowNotes: true,
+      }),
+  },
+  // How this project was last seen on this device (decision D5): the draft
+  // keeps it, the cloud copy never does. The lead sheet view shuts the
+  // Library panel.
+  projectView: {
+    write: (p) => {
+      st(p).setCurrentView('leadsheet');
+      st(p).setTimelineZoom(2.5);
+      st(p).setTimelineScrollLeft(120);
+      st(p).setSelectedTrackId(track(p, 'Drums').id);
+      st(p).setAutomationOpenTrackId(track(p, 'Keys').id);
+      st(p).setAutomationParamId('pan');
+      st(p).setChannelStripTab('fx');
+    },
+    check: (p) =>
+      expect({
+        view: st(p).currentView,
+        libraryOpen: st(p).libraryOpen,
+        zoom: st(p).timelineZoom,
+        scroll: st(p).timelineScrollLeft,
+        selectedTrack: st(p).selectedTrackId,
+        automation: [st(p).automationOpenTrackId, st(p).automationParamId],
+        dockTab: st(p).channelStripTab,
+      }).toEqual({
+        view: 'leadsheet',
+        libraryOpen: false,
+        zoom: 2.5,
+        scroll: 120,
+        selectedTrack: track(p, 'Drums').id,
+        automation: [track(p, 'Keys').id, 'pan'],
+        dockTab: 'fx',
+      }),
+  },
   playhead: {
     write: (p) => st(p).setPosition(2880),
     check: (p) => expect(st(p).position).toBe(2880),
@@ -399,6 +502,18 @@ const probes = {
     write: (p) => p.store.setState({ chordRegions: CHORDS }),
     check: (p) =>
       expect(st(p).chordRegions.map(withoutId)).toEqual(CHORDS.map(withoutId)),
+  },
+  // A chord's identity (decision D3), kept as it was saved: nothing fills
+  // one before milestone 1.16a.
+  chordIdentity: {
+    write: (p) =>
+      p.store.setState({
+        chordRegions: [{ ...CHORDS[0], identity: IDENTITY }, CHORDS[1]],
+      }),
+    check: (p) => {
+      expect(chordAt(p, 0).identity).toEqual(IDENTITY);
+      expect(chordAt(p, 1920).identity).toBeUndefined();
+    },
   },
   clipColorMode: {
     write: (p) => st(p).setClipColorMode('prism'),
@@ -526,6 +641,19 @@ const probes = {
         { tick: 5760, name: 'Chorus', color: '#ff8a3d' },
       ]),
   },
+  markerIds: {
+    write: (p) => {
+      st(p).addMarker(1920, 'Verse');
+      remembered.set(
+        'markerIds',
+        st(p).markers.map((m) => m.id),
+      );
+    },
+    check: (p) =>
+      expect(st(p).markers.map((m) => m.id)).toEqual(
+        remembered.get('markerIds'),
+      ),
+  },
   masteringChain: {
     write: (p) => {
       st(p).addMasteringFx('compressor');
@@ -567,6 +695,17 @@ const probes = {
       expect(
         st(p).returns.find((r) => r.id === 'A')?.effects.reverb.decay,
       ).toBe(4.2),
+  },
+  // Every track keeps its id: the draft holds it, and the cloud payload
+  // carries it as settings.sourceTrackId (decision D4).
+  trackIds: {
+    write: (p) =>
+      remembered.set(
+        'trackIds',
+        st(p).tracks.map((t) => t.id),
+      ),
+    check: (p) =>
+      expect(st(p).tracks.map((t) => t.id)).toEqual(remembered.get('trackIds')),
   },
   // The track list itself: order, type and instrument.
   trackList: {
@@ -612,9 +751,9 @@ const probes = {
       });
     },
   },
-  // The ducker keys from another track by id. A cloud load mints new track
-  // ids and remaps the key through settings.sourceTrackId, so the check
-  // compares it with the Drums id on the new page.
+  // The ducker keys from another track by id. A cloud load reuses each
+  // track's saved id (settings.sourceTrackId) and remaps the key through it,
+  // so the check compares it with the Drums id on the new page.
   duckerKey: {
     write: (p) => {
       const keys = track(p, 'Keys').id;
@@ -821,6 +960,22 @@ const probes = {
         events: EDITED_NOTES,
       }),
   },
+  // Every note keeps the id it was given when it was made (decision D2):
+  // the draft stores Score marks by it.
+  noteIds: {
+    write: (p) =>
+      remembered.set(
+        'noteIds',
+        keysClip(p).events.map((e) => e.id),
+      ),
+    check: (p) => {
+      const ids = keysClip(p).events.map((e) => e.id);
+      expect(ids.every((id) => typeof id === 'string' && id.length > 0)).toBe(
+        true,
+      );
+      expect(ids).toEqual(remembered.get('noteIds'));
+    },
+  },
   midiClipLength: {
     write: (p) =>
       st(p).updateMidiClip(track(p, 'Keys').id, KEYS_CLIP, {
@@ -842,23 +997,6 @@ const probes = {
       expect(track(p, 'Guitar').audioClips.map(withoutId)).toEqual([
         withoutId(TAKE),
       ]),
-  },
-  // Decision 10 deletes the vocal pitch editor; drop this row with it rather
-  // than flipping it.
-  pitchEdits: {
-    write: (p) => {
-      st(p).addAudioClip(track(p, 'Guitar').id, { ...TAKE });
-      st(p).setPitchSegments(TAKE.id, [SEGMENT]);
-      st(p).addPitchEdit(TAKE.id, SEGMENT.id, 64);
-    },
-    check: (p) => {
-      const take = track(p, 'Guitar').audioClips.find(
-        (c) => c.startTick === TAKE.startTick,
-      );
-      expect(st(p).pitchData[take?.id ?? '']?.edits).toEqual([
-        { segmentId: SEGMENT.id, targetMidiNote: 64 },
-      ]);
-    },
   },
 } satisfies Record<string, Probe>;
 
@@ -887,62 +1025,62 @@ describe('a browser refresh (local autosave) keeps', () => {
   it('the project name and composer', kept(probes.identity));
   it('the cloud project id', kept(probes.projectId));
   it('the tempo', kept(probes.tempo));
+  // The loop range is the project's, loop on/off this project's view on
+  // this device (decision D5): the draft keeps both.
   it('the loop', kept(probes.loop));
+  // The metronome and the other settings below are the student's (decision
+  // D5), kept per user apart from any draft (prefsStore).
   it('the metronome', kept(probes.metronome));
-  // The 1.3 field registry makes the playhead session state: if codec v3
-  // stops saving it, delete this row.
+  it('the count-in, grid and chord-ruler labels', kept(probes.userPrefs));
+  // The playhead and the rest of this project's view on this device: in the
+  // draft since 1.3 (decision D5).
   it('the playhead', kept(probes.playhead));
-  // state-reload-09: SessionData.transport has no time signature.
-  it.fails('the time signature', kept(probes.timeSignature));
+  it(
+    'the view, zoom, scroll, selected track and dock tab',
+    kept(probes.projectView),
+  );
+  // state-reload-09: fixed in 1.3 (codec v3 keeps the metre).
+  it('the time signature', kept(probes.timeSignature));
   it('the key, rhythm, genre and swing', kept(probes.keyAndFeel));
   it('the mode', kept(probes.mode));
-  // prism-engine-03: strum and tilt are in no save path.
-  it.fails('Prism strum and tilt', kept(probes.strumAndTilt));
-  // prism-engine-03: freshProjectHarmony() empties the progression on load.
-  it.fails('the Prism progression being built', kept(probes.prismProgression));
+  // prism-engine-03: fixed in 1.3 (the draft keeps the Prism builder).
+  it('Prism strum and tilt', kept(probes.strumAndTilt));
+  // prism-engine-03: fixed in 1.3.
+  it('the Prism progression being built', kept(probes.prismProgression));
   it('the chord lane', kept(probes.chordLane));
-  // design-system-11: clipColorMode is never saved.
-  it.fails('clip colouring by harmony', kept(probes.clipColorMode));
-  // state-reload-01: no lead-sheet layout field is in SessionData.
-  it.fails('lead-sheet sections', kept(probes.leadSheetSections));
-  // state-reload-01
-  it.fails('lead-sheet repeats', kept(probes.leadSheetRepeats));
-  // state-reload-01
-  it.fails('lead-sheet row sizes', kept(probes.measureRowSizes));
-  // state-reload-01
-  it.fails('multi-bar rests', kept(probes.multiBarRests));
-  // state-reload-01
-  it.fails('fermatas', kept(probes.fermatas));
-  // leadsheet-03: the chord format is not saved.
-  it.fails('the lead-sheet chord format', kept(probes.chordFormat));
-  // state-reload-01
-  it.fails('the lead-sheet melody toggle', kept(probes.leadSheetMelody));
-  // state-reload-01: no Score mark is in SessionData.
-  it.fails('Score articulations', kept(probes.articulations));
-  // state-reload-01
-  it.fails('Score slurs', kept(probes.slurs));
-  // state-reload-01
-  it.fails('pinned Score spellings', kept(probes.pinnedSpellings));
-  // state-reload-01
-  it.fails('Score slash notes', kept(probes.slashNotes));
-  // state-reload-01
-  it.fails('Score system and page breaks', kept(probes.scoreLayout));
-  // state-reload-01
-  it.fails('Score text, segno and coda marks', kept(probes.textMarks));
-  // state-reload-01
-  it.fails('chord symbols shown on a part', kept(probes.chordSymbolsOnPart));
-  // state-reload-01
-  it.fails('chords hidden on a part', kept(probes.chordHiddenOnPart));
-  // timeline-02: markers are in neither serializer.
-  it.fails('timeline markers', kept(probes.markers));
-  // fx-mixer-01: no mastering field is in SessionData.
-  it.fails('the mastering FX chain', kept(probes.masteringChain));
-  // fx-mixer-01
-  it.fails('the mastering bypass', kept(probes.masteringBypass));
-  // fx-mixer-01
-  it.fails('the master volume', kept(probes.masterVolume));
+  it('a chord identity', kept(probes.chordIdentity));
+  // design-system-11: fixed in 1.3 (clipColorMode is a project field).
+  it('clip colouring by harmony', kept(probes.clipColorMode));
+  // state-reload-01 and leadsheet-03: fixed in 1.3 (the draft keeps the lead
+  // sheet).
+  it('lead-sheet sections', kept(probes.leadSheetSections));
+  it('lead-sheet repeats', kept(probes.leadSheetRepeats));
+  it('lead-sheet row sizes', kept(probes.measureRowSizes));
+  it('multi-bar rests', kept(probes.multiBarRests));
+  it('fermatas', kept(probes.fermatas));
+  it('the lead-sheet chord format', kept(probes.chordFormat));
+  it('the lead-sheet melody toggle', kept(probes.leadSheetMelody));
+  // state-reload-01: fixed in 1.3 (the draft keeps the Score's marks, by
+  // note id, and its layout).
+  it('Score articulations', kept(probes.articulations));
+  it('Score slurs', kept(probes.slurs));
+  it('pinned Score spellings', kept(probes.pinnedSpellings));
+  it('Score slash notes', kept(probes.slashNotes));
+  it('Score system and page breaks', kept(probes.scoreLayout));
+  it('Score text, segno and coda marks', kept(probes.textMarks));
+  it('chord symbols shown on a part', kept(probes.chordSymbolsOnPart));
+  it('chords hidden on a part', kept(probes.chordHiddenOnPart));
+  // timeline-02: fixed in 1.3.
+  it('timeline markers', kept(probes.markers));
+  it('marker ids', kept(probes.markerIds));
+  // fx-mixer-01: fixed in 1.3. The chain and the volume are the project's;
+  // the bypass is A/B listening on this device, in the draft's view.
+  it('the mastering FX chain', kept(probes.masteringChain));
+  it('the mastering bypass', kept(probes.masteringBypass));
+  it('the master volume', kept(probes.masterVolume));
   it('master automation', kept(probes.masterAutomation));
   it('the return buses', kept(probes.returnBuses));
+  it('the track ids', kept(probes.trackIds));
   it('the track order, types and instruments', kept(probes.trackList));
   it('track volume, pan, colour, mute and solo', kept(probes.trackMix));
   it('track effects', kept(probes.trackEffects));
@@ -963,13 +1101,12 @@ describe('a browser refresh (local autosave) keeps', () => {
   it('the live input channel', kept(probes.inputChannel));
   it('record arm, monitoring and input devices', kept(probes.inputRouting));
   it('MIDI clip notes, name and position', kept(probes.midiNotes));
-  // state-reload-13: clips are written as {id, name, startTick, events} only.
-  it.fails('MIDI clip length', kept(probes.midiClipLength));
-  // state-reload-13
-  it.fails('MIDI controller data (sustain pedal)', kept(probes.sustainPedal));
+  it('note ids', kept(probes.noteIds));
+  // state-reload-13: fixed in 1.3 (the draft keeps a clip's length and its
+  // controller data).
+  it('MIDI clip length', kept(probes.midiClipLength));
+  it('MIDI controller data (sustain pedal)', kept(probes.sustainPedal));
   it('an uploaded audio take', kept(probes.audioTake));
-  // state-reload-14: pitchData is never saved.
-  it.fails('vocal pitch edits', kept(probes.pitchEdits));
 });
 
 describe('a cloud save and reopen (client codec, echo server) keeps', () => {
@@ -982,16 +1119,19 @@ describe('a cloud save and reopen (client codec, echo server) keeps', () => {
   // Oracle patch and the Master automation. So a passing row here means the
   // client sends and reads the field, not that music-atlas-api stores it.
   //
-  // Left out by design: the project id (the server owns it, and a reopened
-  // project takes its row's id), the playhead (session state), and the fields
-  // the 1.3 field registry makes per-user and draft-only: the metronome, loop
-  // on/off, record arm, monitoring, input devices and the exact input channel.
-  // (That classification is milestone 1.3's "Field registry" step in
-  // docs/studio-audit-2026-10/design.json on branch studio/audit-archive.)
+  // Left out by design (decision D5, the project document registry):
+  // the project id (the server owns it, and a reopened project takes its
+  // row's id); this project's view on this device, which only the draft
+  // keeps (the playhead, loop on/off, the view, zoom, scroll, selected
+  // track, dock tab and the mastering bypass); and what belongs to the
+  // student rather than the project: the prefs (metronome, count-in, grid,
+  // chord-ruler labels), record arm, monitoring, input devices and the exact
+  // input channel. The rows still failing below wait for milestone 1.5's
+  // document field.
 
   it('the project name and composer', kept(probes.identity));
   it('the tempo', kept(probes.tempo));
-  // state-reload-04: the cloud payload carries no loop.
+  // state-reload-04: the cloud payload carries no loop range.
   it.fails('the loop range', kept(probes.loopRange));
   // shell-03: the cloud payload carries no time signature.
   it.fails('the time signature', kept(probes.timeSignature));
@@ -1004,6 +1144,8 @@ describe('a cloud save and reopen (client codec, echo server) keeps', () => {
   it.fails('the Prism progression being built', kept(probes.prismProgression));
   // insight-01: deserializeCloudProject opens with no chord symbols.
   it.fails('the chord lane', kept(probes.chordLane));
+  // insight-01: no chord lane, so no identity either.
+  it.fails('a chord identity', kept(probes.chordIdentity));
   // design-system-11
   it.fails('clip colouring by harmony', kept(probes.clipColorMode));
   // leadsheet-01: the cloud payload carries no lead sheet.
@@ -1042,11 +1184,12 @@ describe('a cloud save and reopen (client codec, echo server) keeps', () => {
   // fx-mixer-01: the cloud payload carries no mastering.
   it.fails('the mastering FX chain', kept(probes.masteringChain));
   // fx-mixer-01
-  it.fails('the mastering bypass', kept(probes.masteringBypass));
-  // fx-mixer-01
   it.fails('the master volume', kept(probes.masterVolume));
   it('master automation', kept(probes.masterAutomation));
   it('the return buses', kept(probes.returnBuses));
+  // Fixed in 1.3: each track loads under the id it was saved with
+  // (settings.sourceTrackId, decision D4).
+  it('the track ids', kept(probes.trackIds));
   it('the track order, types and instruments', kept(probes.trackList));
   it('track volume, pan, colour, mute and solo', kept(probes.trackMix));
   it('track effects', kept(probes.trackEffects));
@@ -1069,13 +1212,14 @@ describe('a cloud save and reopen (client codec, echo server) keeps', () => {
   // the input views read null as mono input 1 instead (see the probe).
   it.fails('a live input channel', kept(probes.inputChannelPresent));
   it('MIDI clip notes, name and position', kept(probes.midiNotes));
+  // Milestone 1.5: the legacy payload carries no note ids, so a cloud open
+  // gives each note a derived one (the same on every open).
+  it.fails('note ids', kept(probes.noteIds));
   // state-reload-13
   it.fails('MIDI clip length', kept(probes.midiClipLength));
   // state-reload-13
   it.fails('MIDI controller data (sustain pedal)', kept(probes.sustainPedal));
   it('an uploaded audio take', kept(probes.audioTake));
-  // state-reload-14
-  it.fails('vocal pitch edits', kept(probes.pitchEdits));
 });
 
 describe('a Chops sample saved before samples had ids', () => {
@@ -1139,4 +1283,91 @@ describe('chord ids after a refresh', () => {
     st(after).deleteChordRegion(chordAt(after, 1920).id);
     expect(st(after).chordRegions.map((r) => r.noteName)).toEqual(['Dm7']);
   });
+});
+
+/** How a project is saved and opened again on the page that holds it. */
+interface SaveAndOpen {
+  save: (p: Page) => unknown;
+  open: (p: Page, saved: unknown) => void;
+}
+
+const SAME_PAGE: [string, SaveAndOpen][] = [
+  [
+    'its draft',
+    {
+      save: (p) => JSON.parse(JSON.stringify(p.codec.serializeSession())),
+      open: (p, saved) => {
+        p.codec.deserializeSession(saved as Codec.SessionData);
+      },
+    },
+  ],
+  [
+    'its cloud copy',
+    {
+      save: (p) =>
+        JSON.parse(JSON.stringify(p.codec.serializeSessionForCloud())),
+      open: (p, saved) => {
+        const body = saved as Codec.CloudProjectInput;
+        p.codec.deserializeCloudProject({
+          ...body,
+          id: 'saved-project',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          tracks: body.tracks.map((t, i) => ({
+            ...t,
+            id: `row-${i}`,
+            ordinal: i,
+          })),
+        });
+      },
+    },
+  ],
+];
+
+describe('a project opened again on the same page', () => {
+  // A track keeps its id through a restore and a cloud open, so a project
+  // opened again on the page that last held it (or its Save As copy) names
+  // its tracks with ids the page's synth patch cache already holds. Every
+  // load starts that cache over (bumpSessionGeneration), so a track plays
+  // the patch it was saved with, or its default when it had none: never the
+  // sound the page gave it since.
+  it.each(SAME_PAGE)(
+    'from %s, the Lead plays the patch it was saved with',
+    async (_from, { save, open }) => {
+      const page = await loadPage();
+      buildProject(page);
+      const lead = track(page, 'Lead').id;
+      page.synth.getState().loadPreset('BASS');
+      page.patches.setTrackSynthState(lead, page.patches.captureSynthState());
+      const bass: unknown = JSON.parse(
+        JSON.stringify(page.patches.getTrackSynthState(lead)),
+      );
+      const saved = save(page);
+      // The student goes on: the Lead takes another sound on this page.
+      page.synth.getState().loadPreset('INITIALIZE');
+      page.patches.setTrackSynthState(lead, page.patches.captureSynthState());
+
+      open(page, saved);
+
+      expect(track(page, 'Lead').id).toBe(lead);
+      expect(page.patches.getTrackSynthState(lead)).toEqual(bass);
+    },
+  );
+
+  it.each(SAME_PAGE)(
+    'from %s, a Lead saved without a patch opens on its default',
+    async (_from, { save, open }) => {
+      const page = await loadPage();
+      buildProject(page);
+      const lead = track(page, 'Lead').id;
+      const saved = save(page);
+      page.synth.getState().loadPreset('BASS');
+      page.patches.setTrackSynthState(lead, page.patches.captureSynthState());
+
+      open(page, saved);
+
+      expect(track(page, 'Lead').id).toBe(lead);
+      expect(page.patches.getTrackSynthState(lead)).toBeUndefined();
+    },
+  );
 });

@@ -2,7 +2,10 @@ import { useEffect, useRef } from 'react';
 import { useStore } from '@/daw/store';
 import { midiClipLength } from '@/daw/components/Timeline/midiClipCuts';
 import type { ToolType } from '@/daw/store/uiSlice';
-import { saveCurrentProjectToCloud } from '@/lib/studio-projects/api';
+import {
+  SaveSupersededError,
+  saveCurrentProjectToCloud,
+} from '@/lib/studio-projects/api';
 import { smartUndo, smartRedo } from '@/daw/store/undoMiddleware';
 import { exportMidiFile, downloadMidiBlob } from '@/daw/midi/MidiFileIO';
 import { getAudioBuffer, setAudioBuffer } from '@/daw/audio/AudioBufferStore';
@@ -130,6 +133,8 @@ export function useKeyboardShortcuts(token: string | null) {
           return;
         }
         void saveCurrentProjectToCloud(currentToken).catch((err) => {
+          // Another project opened (or this one went) while it waited.
+          if (err instanceof SaveSupersededError) return;
           console.error('Cmd-S cloud save failed', err);
         });
         return;

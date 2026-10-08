@@ -3,6 +3,10 @@ import { describe, expect, it } from 'vitest';
 import type { ChordBar, Song, SongMode } from '@/curriculum/types/songLibrary';
 import { regionToMeasures } from '@/daw/midi/leadSheetUtils';
 import { resetSessionToEmpty } from '@/daw/persistence/SessionSerializer';
+import {
+  hasWorkToKeep,
+  isDocumentDirty,
+} from '@/daw/persistence/saveStatusStore';
 import { useStore } from '@/daw/store';
 import { canUndo } from '@/daw/store/undoMiddleware';
 import { ticksPerBar } from '@/daw/utils/timelineScale';
@@ -156,25 +160,36 @@ describe('seedStudioFromSong', () => {
     ]);
   });
 
-  it('leaves nothing on the undo stack, so an untouched song reads as untouched', () => {
-    // Opening a song is not an edit the player made. It is also what tells the
-    // "you have unsaved work" prompt that this session is worth nothing to
-    // them — see unsavedStudioSession.
+  it('leaves nothing on the undo stack and nothing unsaved, so an untouched song reads as untouched', () => {
+    // Opening a song is not an edit the player made. The song as it opened is
+    // also the save status's baseline, so the next link has no work in it to
+    // keep.
     seed(song());
     expect(canUndo()).toBe(false);
+    expect(isDocumentDirty()).toBe(false);
+    expect(hasWorkToKeep()).toBe(false);
   });
 
-  it('starts from an empty session, so a second song is not stacked on the first', () => {
+  it('opens each song as a new project, never stacked on the one before', () => {
     resetSessionToEmpty();
     seedStudioFromSong(song());
     seedStudioFromSong(
       song({ id: 'u', title: 'Other Song', tempo: 90, keyRoot: 67 }),
     );
     const state = useStore.getState();
-    // Seeding does not itself reset — the callers do (DawApp's `?song=` boot
-    // and useSongActions.openInStudio) — so this documents that a caller which
-    // skips the reset gets both songs' tracks.
+    // The seed starts a new project itself, so even a caller that skips the
+    // reset gets only the second song.
     expect(state.projectName).toBe('Other Song');
-    expect(state.tracks.length).toBeGreaterThan(1);
+    expect(state.tracks.map((t) => t.name)).toEqual(['Other Song — Chords']);
+    expect([state.bpm, state.rootNote]).toEqual([90, 7]);
+  });
+
+  it('opens in its own key after the last project locked one (state-reload-15)', () => {
+    resetSessionToEmpty();
+    useStore.getState().setRootNote(2);
+    // The transport's key popover locks the key as it closes.
+    useStore.getState().toggleRootLock();
+    seedStudioFromSong(song({ keyRoot: 67 }));
+    expect(useStore.getState().rootNote).toBe(7);
   });
 });

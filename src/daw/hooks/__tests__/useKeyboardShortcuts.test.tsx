@@ -120,8 +120,6 @@ function reset(view: ViewType = 'arrange') {
     parkedClipSelection: null,
     editingClipId: null,
     editingClipTrackId: null,
-    editingAudioClipId: null,
-    editingAudioClipTrackId: null,
     clipboardClips: [],
     clipboardAudioClip: null,
     isPlaying: false,
@@ -373,26 +371,6 @@ describe('useKeyboardShortcuts: keys stay where the student is working', () => {
     expect(smartUndo).toHaveBeenCalledTimes(1);
     press('Space', {}, roll);
     expect(useStore.getState().isPlaying).toBe(true);
-  });
-
-  it('treats a dialog as a dialog with an audio clip marked for editing', () => {
-    // The vocal pitch editor that used this mark is gone (decision 10), so
-    // the mark no longer turns a dialog into a note editor.
-    useStore.setState({
-      editingAudioClipId: 'take-1',
-      editingAudioClipTrackId: 'vox',
-    });
-    renderHook(() => useKeyboardShortcuts('token'));
-    const button = focusOn(
-      '<div role="dialog"><button>Cancel</button></div>',
-      'button',
-    );
-
-    expectNoStoreChange(() => {
-      press('Space', {}, button);
-      press('KeyZ', { metaKey: true }, button);
-    });
-    expect(smartUndo).not.toHaveBeenCalled();
   });
 
   it('never lets Cmd+D open the bookmark dialog over the editor', () => {

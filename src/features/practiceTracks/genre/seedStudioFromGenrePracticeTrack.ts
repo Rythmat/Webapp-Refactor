@@ -1,16 +1,19 @@
 /**
  * seedStudioFromGenrePracticeTrack.ts — Load a genre Practice Track into the
- * Studio: key, tempo, chord lane, the backing tracks, and one empty track for
- * the student, armed and monitored so a MIDI keyboard plays into it and Record
- * captures the take.
+ * Studio as a new project: key, tempo, chord lane, the backing tracks, and one
+ * empty track for the student, armed and monitored so a MIDI keyboard plays
+ * into it and Record captures the take.
  *
  * Mirrors `seedStudioFromPracticeTrack` (its Theory counterpart) and
- * `seedStudioFromSong`. Synchronous, unlike the Theory one: the genre backing
- * arrives already generated in ticks, with no `.mid` file to fetch.
+ * `seedStudioFromSong`. The genre backing arrives already generated in ticks,
+ * with no `.mid` file to fetch.
  */
 
+import { resetProjectState } from '@/daw/persistence/projectDocument/initialState';
+import { markDocumentBaseline } from '@/daw/persistence/saveStatusStore';
 import { useStore } from '@/daw/store';
 import type { InstrumentType } from '@/daw/store/tracksSlice';
+import { resetUndoHistory } from '@/daw/store/undoMiddleware';
 import type {
   GenrePracticeTrackResult,
   StudentPart,
@@ -68,13 +71,15 @@ function studentTrackName(parts: StudentPart[], sectionName: string): string {
 }
 
 /**
- * Seed the Studio from a built genre Practice Track. Resolves to the id of the
- * student's track — the one selected, armed and monitored.
+ * Seed the Studio from a built genre Practice Track, in a new project
+ * (resetProjectState), never on top of the one before. Resolves to the id of
+ * the student's track — the one selected, armed and monitored.
  */
 export function seedStudioFromGenrePracticeTrack(
   track: GenrePracticeTrackResult,
   genreLabel: string,
 ): string {
+  resetProjectState('practice');
   const store = useStore.getState();
 
   store.setProjectName(
@@ -114,5 +119,9 @@ export function seedStudioFromGenrePracticeTrack(
     });
   }
   store.setSelectedTrackId(studentTrackId);
+  // The practice track as it opened: nothing to undo, and no work to keep
+  // until the student plays into it.
+  resetUndoHistory();
+  markDocumentBaseline();
   return studentTrackId;
 }

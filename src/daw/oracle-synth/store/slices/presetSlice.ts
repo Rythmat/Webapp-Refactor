@@ -10,6 +10,7 @@ import { DEFAULT_ROUTING } from './routingSlice';
 import { DEFAULT_ARP } from './arpSlice';
 import { defaultMacros } from './macroSlice';
 import { DEFAULT_KEYSCALE } from './keyScaleSlice';
+import { withUniqueModRouteIds } from './modulationSlice';
 import { migrateModRoute } from '../../audio/modMath';
 import type { SynthStore } from '../storeTypes';
 
@@ -106,8 +107,11 @@ export function applyPresetData(data: PresetData): Partial<SynthStore> {
     ? structuredClone(data.arp)
     : structuredClone(DEFAULT_ARP);
 
-  // Migrate mod routes: v1 routes carry {lfoIndex, depthMin, depthMax}
-  const modRoutes = structuredClone(data.modRoutes).map(migrateModRoute);
+  // Migrate mod routes: v1 routes carry {lfoIndex, depthMin, depthMax}. A
+  // user preset saved while route ids could repeat gets unique ones.
+  const modRoutes = withUniqueModRouteIds(
+    structuredClone(data.modRoutes).map(migrateModRoute),
+  );
 
   // v2 fields: default when loading v1 presets
   const macros = data.macros ? structuredClone(data.macros) : defaultMacros();

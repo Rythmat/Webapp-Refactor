@@ -1,6 +1,16 @@
 import { LFONode } from './types';
 import { LFOWaveformBuilder } from './LFOWaveformBuilder';
 
+function sameNodes(a: LFONode[] | undefined, b: LFONode[]): boolean {
+  if (a === undefined || a.length !== b.length) return false;
+  return a.every(
+    (n, i) =>
+      n.time === b[i].time &&
+      n.value === b[i].value &&
+      (n.curve ?? 0) === (b[i].curve ?? 0),
+  );
+}
+
 /**
  * LFO with 4-bar waveform built from node breakpoints.
  * Each bar represents one musical bar. The waveform tiles within each bar
@@ -48,8 +58,14 @@ export class LFO {
     this.destroySource();
   }
 
+  // The setters below rebuild the whole 4-bar buffer, and a patch push calls
+  // them 9 times per LFO; the editor's panel then pushes the same patch again
+  // on mount. A value that hasn't changed builds nothing.
+
   setBPM(bpm: number): void {
-    this.bpm = Math.max(1, bpm);
+    const next = Math.max(1, bpm);
+    if (next === this.bpm) return;
+    this.bpm = next;
     if (this.isRunning) {
       this.destroySource();
       this.createSource();
@@ -65,7 +81,9 @@ export class LFO {
   }
 
   setBarNodes(barIndex: number, nodes: LFONode[]): void {
-    this.bars[barIndex] = nodes;
+    if (sameNodes(this.bars[barIndex], nodes)) return;
+    // A copy, so a caller that edits its array in place still rebuilds.
+    this.bars[barIndex] = nodes.map((n) => ({ ...n }));
     if (this.isRunning) {
       this.destroySource();
       this.createSource();
@@ -73,6 +91,7 @@ export class LFO {
   }
 
   setBarSmooth(barIndex: number, smooth: number): void {
+    if (this.smooths[barIndex] === smooth) return;
     this.smooths[barIndex] = smooth;
     if (this.isRunning) {
       this.destroySource();

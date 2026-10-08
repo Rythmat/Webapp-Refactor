@@ -1,36 +1,37 @@
 import { noteNameLetter, MODE_DISPLAY } from '@prism/engine';
+import { resetProjectState } from '@/daw/persistence/projectDocument/initialState';
+import { markDocumentBaseline } from '@/daw/persistence/saveStatusStore';
 import { useStore } from '@/daw/store';
-import {
-  generatePracticeTrack,
-  type PracticeMode,
-  type PracticeLevel,
-  type PracticeOpenTrack,
+import { resetUndoHistory } from '@/daw/store/undoMiddleware';
+import type {
+  PracticeLevel,
+  PracticeTrackResult,
 } from './generatePracticeTrack';
 
 /**
- * Seed the DAW store from a diatonic Theory mode + root: project metadata,
- * key/mode/tempo, chord regions, and Bass/Drums/Chords/Melody tracks — one
- * of Chords/Melody (whichever matches `openTrack`) is added empty for the
- * student to fill in themselves. `useStore.getState()` is a module
- * singleton, so this runs outside React — mirrors `seedStudioFromSong`,
- * shared by the Theory "Practice Track" entry points and the
+ * Open a Theory Practice Track (generatePracticeTrack: a diatonic mode or
+ * scale on a root) as a new Studio project: project metadata, key/mode/tempo,
+ * chord regions, and Bass/Drums/Chords/Melody tracks — one of Chords/Melody
+ * (whichever matches the track's `openTrack`) is added empty for the student
+ * to fill in themselves. `useStore.getState()` is a module singleton, so this
+ * runs outside React — mirrors `seedStudioFromSong`, for the
  * `/studio/editor?practiceMode=<mode>&practiceRoot=<root>&practiceOpen=<...>`
  * boot param (`DawApp`).
  *
- * Async because `generatePracticeTrack` fetches + parses the fixed Drums
- * groove's `.mid` file (Studio's own Grooves-browser import pipeline) —
- * callers must `await` this before relying on the seeded tracks.
+ * Synchronous: the caller generates the track first, since its Drums groove
+ * is a fetched `.mid` (Studio's own Grooves-browser import pipeline). The
+ * project on screen stays until the practice track is ready, and a groove
+ * that fails to arrive replaces nothing. The track starts from a new project
+ * (resetProjectState), never on top of the one before.
  *
- * Resolves to the open track's id. That track is selected, record-armed and
+ * Returns the open track's id. That track is selected, record-armed and
  * monitored, so a MIDI keyboard plays into it and Record captures the take.
  */
-export const seedStudioFromPracticeTrack = async (
-  mode: PracticeMode,
-  root: number,
-  openTrack: PracticeOpenTrack,
+export const seedStudioFromPracticeTrack = (
+  result: PracticeTrackResult,
   level: PracticeLevel = 1,
-): Promise<string> => {
-  const result = await generatePracticeTrack(mode, root, openTrack, level);
+): string => {
+  resetProjectState('practice');
   const store = useStore.getState();
 
   const rootLabel = noteNameLetter(60 + result.rootNote);
@@ -82,11 +83,16 @@ export const seedStudioFromPracticeTrack = async (
   store.setLoopRange(0, result.bassClip.durationTicks ?? 7680);
   store.setCurrentView('arrange');
 
-  const openTrackId = openTrack === 'melody' ? melodyTrackId : chordsTrackId;
+  const openTrackId =
+    result.openTrack === 'melody' ? melodyTrackId : chordsTrackId;
   for (const track of useStore.getState().tracks) {
     const isOpen = track.id === openTrackId;
     store.updateTrack(track.id, { recordArmed: isOpen, monitoring: isOpen });
   }
   store.setSelectedTrackId(openTrackId);
+  // The practice track as it opened: nothing to undo, and no work to keep
+  // until the student plays into it.
+  resetUndoHistory();
+  markDocumentBaseline();
   return openTrackId;
 };

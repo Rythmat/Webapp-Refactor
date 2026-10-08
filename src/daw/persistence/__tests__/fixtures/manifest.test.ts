@@ -9,6 +9,8 @@
  * - v2-1.2/: written by milestones 1.1 and 1.2, which added each track's
  *   trackRole and audioInputChannel and random chord ids without a version
  *   bump (captured with --fixtures-dir).
+ * - v3/: written by milestone 1.3's codec, "schema": 3 inside the v2
+ *   envelope ("version": 2, decision D1).
  * This checks that every file still turns back into that exact string, and
  * that each manifest and its folder list the same files. A fixture edited by
  * hand, or reformatted in a way that changes a value, fails here.
@@ -35,6 +37,7 @@ interface Manifest {
 
 interface StoredSession {
   version: number;
+  schema?: number;
   timestamp: number;
   data: { tracks: unknown[] };
 }
@@ -81,7 +84,12 @@ describe('autosave fixtures', () => {
             entry.sha256,
           );
           const session = JSON.parse(stored) as StoredSession;
-          expect(session.version).toBe(manifest.sessionSchemaVersion);
+          expect(session.schema ?? session.version).toBe(
+            manifest.sessionSchemaVersion,
+          );
+          if (manifest.sessionSchemaVersion < 3) {
+            expect(session.schema).toBeUndefined();
+          }
           expect(session.data.tracks).toHaveLength(entry.tracks);
         });
       }

@@ -1,13 +1,16 @@
 // ── Import Jam Session ───────────────────────────────────────────────────
-// Converts a finalized jam recording (from localStorage) into studio tracks:
-// one MIDI (SoundFont) track per participant who played piano, plus a single
-// drum-machine track from the importing user's own drum hits. Note timing is
-// mapped ms → ticks at the jam's drum-machine BPM, with note starts quantized
-// to a 1/16 grid.
+// Converts a finalized jam recording (from localStorage) into a new studio
+// project: one MIDI (SoundFont) track per participant who played piano, plus a
+// single drum-machine track from the importing user's own drum hits. Note
+// timing is mapped ms → ticks at the jam's drum-machine BPM, with note starts
+// quantized to a 1/16 grid, and the project takes that tempo.
 
 import type { MidiNoteEvent } from '@prism/engine';
+import { resetProjectState } from '@/daw/persistence/projectDocument/initialState';
+import { markDocumentBaseline } from '@/daw/persistence/saveStatusStore';
 import { useStore } from '@/daw/store';
 import type { MidiClip } from '@/daw/store/tracksSlice';
+import { resetUndoHistory } from '@/daw/store/undoMiddleware';
 import { GM_PROGRAMS } from '@/daw/instruments/gmPrograms';
 import {
   loadJamSession,
@@ -20,14 +23,18 @@ const GRID_TICKS = PPQ / 4; // 1/16 note
 const MIN_DURATION_TICKS = PPQ / 8; // 1/32 note floor
 
 /**
- * Import the pending jam session (if any) into the current studio project as
- * per-participant MIDI tracks. Consumes the saved session. Returns the number
- * of tracks created.
+ * Open the pending jam session (if any) as a new studio project, at the jam's
+ * tempo, with per-participant MIDI tracks. Consumes the saved session once it
+ * is in the project. Returns the number of tracks created; with no jam
+ * waiting, the project is left as it is and this returns 0.
  */
 export function importPendingJamSession(): number {
   const session = loadJamSession();
-  clearJamSession();
-  if (!session || session.notes.length === 0) return 0;
+  if (!session || session.notes.length === 0) {
+    // Nothing to open: an empty or unreadable hand-off is dropped.
+    clearJamSession();
+    return 0;
+  }
 
   const bpm = session.bpm > 0 ? session.bpm : 120;
   const ticksPerMs = (PPQ * bpm) / 60000;
@@ -64,7 +71,12 @@ export function importPendingJamSession(): number {
     return { events, lengthTicks };
   };
 
+  // A new project at the jam's tempo, never the one before with the jam
+  // added. The ticks above count that tempo, so the notes play back as they
+  // were played and sit on the project's grid.
+  resetProjectState('jam');
   const store = useStore.getState();
+  store.setBpm(bpm);
   let created = 0;
 
   // ── Melodic: one SoundFont track per (participant × GM instrument) ──
@@ -138,5 +150,13 @@ export function importPendingJamSession(): number {
     }
   }
 
+  // The recording is in the project now. Consumed only here, so an import
+  // that fails leaves the jam to open again.
+  clearJamSession();
+  // The import is no edit to undo. The jam room is gone, so the project is
+  // the only copy of the jam: it stays work to keep, even untouched, until
+  // it is saved (savedComplete false).
+  resetUndoHistory();
+  markDocumentBaseline({ savedComplete: false });
   return created;
 }

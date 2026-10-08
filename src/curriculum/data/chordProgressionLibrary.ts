@@ -9398,6 +9398,7 @@ const CHORD_PROGRESSION_LIBRARY: ChordProgressionEntry[] = [
     styles: [],
     artist: '',
     song: 'Stay- Rihanna',
+    songIds: ['stay'],
   },
 
   {

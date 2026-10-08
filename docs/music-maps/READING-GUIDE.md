@@ -46,6 +46,26 @@ More maps exist under `~/Desktop/Music Bridge Master Folder/CMB/Music Atlas/The 
 10. **Melody-led maps (Halloween)** wait for parts-in-charts, which belongs to
     the Song chart editor renovation after the maps are done.
 
+## Rules added on Stay (product owner, 2026-10-08)
+
+11. **Slash chords may be numbered by their bass.** `chordName` keeps the
+    hand shape (`C/A`); `degree` may read the chord built on the bass note
+    (`6 min7`). `songDegrees.test.ts` accepts that reading (degree number =
+    the bass note's degree, no slash) as well as the literal one (`1 maj/6`).
+12. **A map's "Post-Chorus" is a `Tag`** (no Post-Chorus in SECTION_NAMES).
+13. **When the summary and the keyboards disagree on which chord**, check
+    outside sources and the song's own parallel phrases; a keyboard row that
+    repeats another section's row exactly is likely a copy-paste slip
+    (Stay, Bridge row 2). Flag it either way. (When they differ only in
+    detail, e.g. `5 maj` vs a drawn G7, the keyboard wins.)
+14. **voicingHint records the right-hand shape** over a left-hand root
+    (G–C–E over C → `5-1-3`); root position and slash chords get none.
+15. **A lost page** is rebuilt from the map's own repeated material, the
+    progression library, and published charts; say what was reconstructed.
+16. **Link the progression library.** If
+    `src/curriculum/data/chordProgressionLibrary.ts` has a sheet naming the
+    song (`song: 'Stay- Rihanna'`), add `songIds: ['<id>']` to it.
+
 ## Implementation notes (learned on We Shall Overcome)
 
 - **Voicings.** Each keyboard snippet starts on the chord's lowest note.
@@ -76,6 +96,9 @@ verse'` on the last bar.
 - **Registration order.** `bundled.ts` imports follow eslint-plugin-import's
   alphabetize (`compareSpecifiers` in `src/scripts/repoContent/sources/songs.ts`);
   `repoSources.test.ts` checks it.
+- **Records the 30 Sep import made** (Kuk Harrell, NightBird) are fine to
+  credit: `seedBeforeImport.ts` keeps any import-made record a later chart
+  names.
 - **Hard-coded corpus totals** move with every new chart, artist, label,
   release or event: `deriveGraph.test.ts` (`from_year`), `integrity.test.ts`
   (credit coverage), `slugPatterns.test.ts` (songs, globe events),

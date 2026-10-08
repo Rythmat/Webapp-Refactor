@@ -85,7 +85,7 @@ describe('the tables on the repo data', () => {
     // of the Bay" (Jerry Bruckheimer, Don Simpson).
     const roster = new Set(ARTIST_REGISTRY.map((a) => a.slug));
     const offRoster = ARTIST_ROWS.filter((row) => !roster.has(row.slug));
-    expect(offRoster).toHaveLength(1024);
+    expect(offRoster).toHaveLength(1027);
     expect(withRecord('artists')).toHaveLength(
       ARTIST_REGISTRY.length + offRoster.length,
     );

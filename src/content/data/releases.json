@@ -265,6 +265,7 @@
   {"slug":"rihanna-anti","title":"ANTI","artistIds":["rihanna"],"format":"album","year":2016,"labelId":"roc-nation","catalogNumber":"851365006714"},
   {"slug":"rihanna-good-girl-gone-bad","title":"Good Girl Gone Bad","artistIds":["rihanna"],"format":"album","year":2007,"labelId":"def-jam-recordings"},
   {"slug":"rihanna-talk-that-talk","title":"Talk That Talk","artistIds":["rihanna"],"format":"album","year":2011,"labelId":"def-jam-recordings","catalogNumber":"B0016314-02"},
+  {"slug":"rihanna-unapologetic","title":"Unapologetic","artistIds":["rihanna"],"format":"album","year":2012,"labelId":"def-jam-recordings"},
   {"slug":"robert-palmer-sneakin-sally-through-the-alley","title":"Sneakin’ Sally Through the Alley","artistIds":["robert-palmer"],"format":"album","year":1974,"labelId":"island","catalogNumber":"ILPS 9294"},
   {"slug":"robin-thicke-blurred-lines","title":"Blurred Lines","artistIds":["robin-thicke"],"format":"album","year":2013,"labelId":"interscope-records","catalogNumber":"B0018681-02"},
   {"slug":"rod-stewart-out-of-order","title":"Out of Order","artistIds":["rod-stewart"],"format":"album","year":1988,"labelId":"warner-bros-records","catalogNumber":"7599-25684-4"},

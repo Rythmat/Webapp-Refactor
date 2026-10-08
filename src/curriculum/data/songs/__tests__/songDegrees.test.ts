@@ -91,11 +91,16 @@ describe('song library degree labels', () => {
           if (ALLOWED_GARBLED.has(`${song.id}|${hit.chordName}`)) continue;
           const expected = expectedDegreeNumbers(hit.chordName, tonic);
           const stored = splitDegreeLabel(hit.degree);
+          // A slash chord may also be numbered by what it does over its bass:
+          // the hand shape stays in the name (C/A) and the degree reads the
+          // chord on the bass note (6 min7), as the Music Maps write it.
+          const namedForBass =
+            !!expected?.bass && stored?.root === expected.bass && !stored.bass;
           if (
             !expected ||
             !stored ||
-            expected.root !== stored.root ||
-            expected.bass !== stored.bass
+            (!namedForBass &&
+              (expected.root !== stored.root || expected.bass !== stored.bass))
           ) {
             const want = expected
               ? `${expected.root}${expected.bass ? `/${expected.bass}` : ''}`

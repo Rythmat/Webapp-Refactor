@@ -1,5 +1,5 @@
 /**
- * The bundled song library — 642 hand-authored chord charts.
+ * The bundled song library — 643 hand-authored chord charts.
  *
  * No longer the runtime source of truth: published songs are fetched from the
  * CDN by src/content/songStore.ts, which imports this module DYNAMICALLY as its
@@ -509,6 +509,7 @@ import { soul_man } from './soul_man';
 import { space_oddity } from './space_oddity';
 import { stand_by_me } from './stand_by_me';
 import { starman } from './starman';
+import { stay } from './stay';
 import { stay_with_me } from './stay_with_me';
 import { stay_with_you } from './stay_with_you';
 import { steal_my_kisses } from './steal_my_kisses';
@@ -1158,6 +1159,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   space_oddity: space_oddity,
   stand_by_me: stand_by_me,
   starman: starman,
+  stay: stay,
   stay_with_me: stay_with_me,
   stay_with_you: stay_with_you,
   steal_my_kisses: steal_my_kisses,

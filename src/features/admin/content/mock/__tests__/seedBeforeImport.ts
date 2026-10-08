@@ -27,6 +27,10 @@ import type { Body } from '../mockKinds';
  *    import made (with the values above taken off), which a record that was
  *    there before never is: a roster artist, a globe city or a pilot studio
  *    has fields the import's bare record lacks.
+ *  - unless an item left in the seed still names it: a chart added after
+ *    the import (We Shall Overcome, the Music Maps charts) may credit a
+ *    record the import made (Kuk Harrell, NightBird Recording Studios), and
+ *    the seed keeps what it points at.
  *
  * The result was checked against a copy of every data file taken before the
  * real run: every song, event, artist, place, studio, label and progression
@@ -123,11 +127,25 @@ export function seedBeforeImport(
   for (const decision of decisions)
     for (const record of decision.requires ?? [])
       made.set(keyOf(record.kind, record.slug), record.body as Body);
+  const bare = (item: MockSeedItem) => {
+    const body = made.get(keyOf(item.kind, item.slug));
+    return !!body && isDeepStrictEqual(item.body, body);
+  };
+  const named = new Set<string>();
+  for (const item of items) if (!bare(item)) collectNamedIds(item.body, named);
   return {
     ...seed,
-    items: items.filter((item) => {
-      const body = made.get(keyOf(item.kind, item.slug));
-      return !body || !isDeepStrictEqual(item.body, body);
-    }),
+    items: items.filter((item) => !bare(item) || named.has(item.slug)),
   };
+}
+
+/** Every string under a key ending in `Id` or `Ids`: the slugs a body names. */
+function collectNamedIds(value: unknown, into: Set<string>, key = ''): void {
+  if (typeof value === 'string') {
+    if (/Ids?$/.test(key)) into.add(value);
+  } else if (Array.isArray(value)) {
+    for (const element of value) collectNamedIds(element, into, key);
+  } else if (value && typeof value === 'object') {
+    for (const [k, v] of Object.entries(value)) collectNamedIds(v, into, k);
+  }
 }

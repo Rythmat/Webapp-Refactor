@@ -318,16 +318,15 @@ describe('regenerating a Day', () => {
 });
 
 describe('the default deck of a new Day', () => {
-  const { deck, interactionsByPhase } = buildCortexLessonSkeleton('day-1');
+  const deck = buildCortexLessonSkeleton('day-1');
 
   it('has the five parts, waiting for a focus', () => {
-    expect(deck.slides.map((s) => [s.phase, s.kind])).toEqual([
-      ['connectRegulate', 'interaction'],
-      ['connectRegulate', 'content'],
-      ['groupPractice', 'content'],
-      ['creativeProjects', 'app-route'],
-      ['presentPerform', 'interaction'],
-      ['presentPerform', 'showcase'],
+    expect(deck.slides.map((s) => [s.phase, s.title.en])).toEqual([
+      ['connectRegulate', 'Check in'],
+      ['connectRegulate', 'Showcase'],
+      ['groupPractice', 'Group Project'],
+      ['creativeProjects', 'Individual Project'],
+      ['presentPerform', 'Present your progress'],
     ]);
     expect(isUngeneratedCortexDeck(deck)).toBe(true);
     const generated = applyCortexLessonToDay(
@@ -338,13 +337,21 @@ describe('the default deck of a new Day', () => {
     expect(isUngeneratedCortexDeck(generated.deck)).toBe(false);
   });
 
-  it('references only interactions it brings for its cells', () => {
-    const ids = new Set(
-      Object.values(interactionsByPhase)
-        .flat()
-        .map((i) => i!.id),
-    );
-    for (const slide of deck.slides)
-      for (const id of interactionIdsOf(slide)) expect(ids.has(id)).toBe(true);
+  it('asks nothing of the cells: content slides only, so a new Day stays empty', () => {
+    expect(deck.slides.every((s) => s.kind === 'content')).toBe(true);
+    const day = newBlankDay('Blank');
+    for (const phase of PHASES)
+      expect(day.cells[phase].presentation.interactions).toBeUndefined();
+    expect(day.deck).toEqual({
+      ...buildCortexLessonSkeleton(day.id),
+    });
+  });
+
+  it("opens the Studio library from the Individual Project's tile", () => {
+    const project = deck.slides[3];
+    expect(project).toMatchObject({
+      presetId: 'project-menu',
+      launchTiles: [{ module: 'studio', activityRef: 'studio:library' }],
+    });
   });
 });

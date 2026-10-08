@@ -129,11 +129,11 @@ export const SLIDE_GRID = {
   /**
    * The interaction band. Interaction elements are valid ONLY here.
    *
-   * `row`, max 2 — NOT `single`. The exit-poll slide stacks two interactions
-   * (a text response and a check-in), which both shipping templates emit
-   * (`songSession.ts` and `genreLesson.ts`). A `single` footer would reject
-   * every exit poll the product ships. The strip is only 68px tall, so two
-   * must sit side by side rather than stacked.
+   * `row`, max 2 — NOT `single`. A slide can stack two interactions: the
+   * Cortex lesson's check-in with its mood poll (`cortex/buildDeck.ts`), and
+   * the exit polls of decks saved before it (a text response and a check-in).
+   * A `single` footer would reject every one of them. The strip is only 68px
+   * tall, so two must sit side by side rather than stacked.
    */
   footer: {
     rect: { x: 0, y: 620, w: 1280, h: 100 },

@@ -1,8 +1,8 @@
 import { PHASES } from '../phases';
 import {
-  buildGeneralLessonDeck,
-  generalLessonTeacherNotes,
-} from '../slides/templates/generalLesson';
+  buildCortexLessonSkeleton,
+  cortexLessonTeacherNotes,
+} from '../slides/cortex/buildDeck';
 import type { Cell, Day, DayCells } from '../types';
 
 /** A blank cell — presentation is empty LocalizedText; rationale is empty defaults. */
@@ -45,24 +45,26 @@ const generateDayId = (): string => {
 /**
  * Factory for a fresh Day.
  *
- * It now carries the default deck. Before, a Day had no deck until the teacher
- * opened the slide editor — and `publishDay` attaches a deck only when one is
- * already stored, so a Day taken straight from the plan list to "Go Live" went
- * out DECKLESS and the class fell back to the legacy phase board while the
- * teacher's own Present view showed slides. Whether a room saw slides depended
- * on invisible state.
+ * It carries the default deck: the Cortex lesson's five parts (Connection,
+ * Showcase, Group Project, Individual Project, Present) before a focus is
+ * chosen. Before Days had a default deck, `publishDay` attached one only when
+ * already stored, so a Day taken straight from the plan list to "Go Live"
+ * went out DECKLESS and the class fell back to the legacy phase board while
+ * the teacher's own Present view showed slides. The default deck is content
+ * slides only, so the cells stay empty; "Generate from Cortex" fills in the
+ * Showcase, the Group Project and the interactive parts.
  *
- * The prep checklist from the source deck's first slide goes to the Connect
- * cell's rationale notes — teacher-only text, never a slide.
+ * The teacher's prep checklist goes to the Connect cell's rationale notes —
+ * teacher-only text, never a slide.
  */
 export const newBlankDay = (label?: string): Day => {
   const id = generateDayId();
   const cells = blankCells();
-  cells.connectRegulate.rationale.notes = generalLessonTeacherNotes();
+  cells.connectRegulate.rationale.notes = cortexLessonTeacherNotes();
   return {
     id,
     label: label?.trim() || 'Untitled Day',
     cells,
-    deck: buildGeneralLessonDeck(id),
+    deck: buildCortexLessonSkeleton(id),
   };
 };

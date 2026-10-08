@@ -462,59 +462,72 @@ export const applyCortexLessonToDay = (
 
 /**
  * The deck every new Day starts with, before a focus is chosen: the same five
- * parts with general copy. Connection, Individual Project and Present work as
- * they are; Showcase and Group Project wait for "Generate from Cortex".
+ * parts, as content slides with general copy. No interactions, on purpose: a
+ * cell with an interaction counts as filled in (`isCellPopulated`), so a
+ * blank Day must not carry any, or seeding it would skip those cells. The
+ * Individual Project's Studio library opens from a launch tile instead;
+ * "Generate from Cortex" adds the check-in, the Group Project and the
+ * Present slides' responses.
  */
-export const buildCortexLessonSkeleton = (
-  dayId: string,
-): { deck: SlideDeck; interactionsByPhase: InteractionsByPhase } => {
+export const buildCortexLessonSkeleton = (dayId: string): SlideDeck => {
   const prefix = `${dayId}-cx`;
-  const ids = ixIds(prefix);
-  const checkIn: Interaction = {
-    id: ids.checkIn,
-    type: 'check-in',
-    question: CHECK_IN_QUESTION.emoji,
-    shareable: false,
-    checkIn: { style: 'emoji' },
-  };
-  const shared = projectAndPresent(prefix, 20);
+  const section = (
+    key: string,
+    phase: Slide['phase'],
+    title: LocalizedText,
+    prompt: LocalizedText,
+    presetId = 'section',
+  ): Slide => ({
+    id: `${prefix}-slide-${key}`,
+    kind: 'content',
+    phase,
+    presetId,
+    title,
+    prompt,
+  });
   return {
-    interactionsByPhase: {
-      connectRegulate: [checkIn],
-      ...shared.interactionsByPhase,
-    },
-    deck: {
-      id: `${dayId}-deck`,
-      title: { en: 'Lesson', es: 'Lección' },
-      slides: [
-        {
-          id: `${prefix}-slide-connection`,
-          kind: 'interaction',
-          phase: 'connectRegulate',
-          presetId: 'greeting-check-in',
-          title: COPY.connectionTitle,
-          interactionIds: [checkIn.id],
-        },
-        {
-          id: `${prefix}-slide-showcase`,
-          kind: 'content',
-          phase: 'connectRegulate',
-          presetId: 'section',
-          title: COPY.showcaseTitle,
-          prompt: COPY.showcaseOpen,
-        },
-        {
-          id: `${prefix}-slide-group`,
-          kind: 'content',
-          phase: 'groupPractice',
-          presetId: 'section',
-          title: COPY.groupTitle,
-          prompt: COPY.groupOpen,
-        },
-        ...shared.slides,
-      ],
-      templateRef: { templateId: CORTEX_LESSON_TEMPLATE_ID },
-    },
+    id: `${dayId}-deck`,
+    title: { en: 'Lesson', es: 'Lección' },
+    slides: [
+      section(
+        'connection',
+        'connectRegulate',
+        COPY.connectionTitle,
+        CHECK_IN_QUESTION.emoji,
+      ),
+      section(
+        'showcase',
+        'connectRegulate',
+        COPY.showcaseTitle,
+        COPY.showcaseOpen,
+      ),
+      section('group', 'groupPractice', COPY.groupTitle, COPY.groupOpen),
+      {
+        ...section(
+          'project',
+          'creativeProjects',
+          COPY.projectTitle,
+          COPY.projectPrompt,
+          'project-menu',
+        ),
+        launchTiles: [
+          {
+            id: `${prefix}-tile-library`,
+            module: 'studio',
+            activityRef: STUDIO_LIBRARY_REF,
+            label: COPY.libraryTile,
+          },
+        ],
+      } as Slide,
+      section(
+        'present',
+        'presentPerform',
+        COPY.presentTitle,
+        COPY.presentPrompt,
+        'share-day',
+      ),
+    ],
+    templateRef: { templateId: CORTEX_LESSON_TEMPLATE_ID },
   };
 };
 

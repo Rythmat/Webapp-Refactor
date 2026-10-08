@@ -50,6 +50,7 @@ export const COPY = {
     en: 'Open your project in the Studio and keep building.',
     es: 'Abre tu proyecto en el Studio y sigue creando.',
   },
+  libraryTile: { en: 'Open my projects', es: 'Abrir mis proyectos' },
   projectTask: {
     en: 'Work on your own project in the Studio.',
     es: 'Trabaja en tu propio proyecto en el Studio.',

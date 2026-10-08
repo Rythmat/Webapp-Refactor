@@ -33,6 +33,15 @@ function fakeBuffer(channels: Float32Array<ArrayBuffer>[], sampleRate = RATE) {
   };
 }
 
+/**
+ * Sample-for-sample equality. A take long enough for the worker has 1.5M
+ * samples a channel, and toEqual walks each one through the matcher's generic
+ * equality: seconds a call, past the test timeout under a full parallel run.
+ */
+function sameSamples(a: Float32Array, b: Float32Array): boolean {
+  return a.length === b.length && a.every((v, i) => Object.is(v, b[i]));
+}
+
 /** Largest |sample| over [from, to) of every channel, by brute force. */
 function bruteMaxAbs(channels: Float32Array[], from: number, to: number) {
   let peak = 0;
@@ -341,8 +350,13 @@ describe('getPeakPyramid with the worker', () => {
     expect(request.length).toBe(take.length);
     expect(request.channels).toHaveLength(2);
     // Copies, never the buffer's own channel data, and each one transferred.
-    expect(request.channels[0]).not.toBe(left);
-    expect(request.channels[0]).toEqual(left);
+    // Identity is checked as a boolean: given two different arrays, not.toBe
+    // deep-compares them for its message, which takes seconds at this length.
+    expect(request.channels[0] === left || request.channels[1] === right).toBe(
+      false,
+    );
+    expect(sameSamples(request.channels[0], left)).toBe(true);
+    expect(sameSamples(request.channels[1], right)).toBe(true);
     expect(transfer).toEqual(request.channels.map((c) => c.buffer));
 
     worker.reply();

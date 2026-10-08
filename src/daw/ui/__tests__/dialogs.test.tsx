@@ -244,6 +244,43 @@ describe('a Select or a Menu inside a dialog', () => {
     await waitFor(() => expect(field).toHaveFocus());
   });
 
+  it('gives the page its pointer back when a dialog opened from a menu closes', async () => {
+    // A modal menu and a modal dialog each turn off pointer events outside
+    // them; on one stack, the page gets them back when the last one goes.
+    function ProjectMenu() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <Menu>
+            <MenuTrigger asChild>
+              <Button>Project</Button>
+            </MenuTrigger>
+            <MenuContent>
+              <MenuItem onSelect={() => setOpen(true)}>Export audio…</MenuItem>
+            </MenuContent>
+          </Menu>
+          <DawDialog open={open} onOpenChange={setOpen} title="Export audio" />
+        </>
+      );
+    }
+    failOnBouncingFocus();
+    render(<ProjectMenu />);
+    const trigger = screen.getByRole('button', { name: 'Project' });
+    act(() => trigger.focus());
+    fireEvent.keyDown(trigger, { key: 'Enter' });
+    fireEvent.keyDown(
+      await screen.findByRole('menuitem', { name: 'Export audio…' }),
+      { key: 'Enter' },
+    );
+    const dialog = await screen.findByRole('dialog', { name: 'Export audio' });
+    await waitFor(() => expect(screen.queryByRole('menu')).toBeNull());
+    expect(document.body.style.pointerEvents).toBe('none');
+
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(document.body.style.pointerEvents).toBe('');
+  });
+
   it('lets a Menu take focus, and Escape closes only the menu', async () => {
     failOnBouncingFocus();
     const onOpenChange = vi.fn();

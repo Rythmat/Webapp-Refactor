@@ -1,6 +1,5 @@
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
 import { useRef, type ReactNode } from 'react';
-import { AlertDialog as KitAlertDialog } from '@/components/ui/alert-dialog';
 import { cn } from '@/components/utilities';
 import { Button } from './Button';
 import { TYPE_CLASS } from './styles';
@@ -28,11 +27,12 @@ export interface ConfirmDialogProps {
 }
 
 /**
- * Asks before acting, on the kit's Radix alert dialog (role="alertdialog"):
- * focus is trapped, Escape cancels, and a click outside does nothing, so the
- * choice is always deliberate. Focus starts on Cancel when the action is
+ * Asks before acting, on Radix's alert dialog (role="alertdialog"): focus is
+ * trapped, Escape cancels, and a click outside does nothing, so the choice
+ * is always deliberate. Focus starts on Cancel when the action is
  * destructive and on the action otherwise. It replaces window.confirm in
- * the editor (milestone 2.3 moves the callers over).
+ * the editor (milestone 2.3 moves the callers over). Its root is Radix's own,
+ * not the kit's AlertDialog, for the reason DawDialog gives.
  */
 export function ConfirmDialog({
   open,
@@ -52,7 +52,7 @@ export function ConfirmDialog({
   const focus = useReturnFocus();
 
   return (
-    <KitAlertDialog
+    <AlertDialogPrimitive.Root
       open={open}
       onOpenChange={(next) => {
         if (!next) {
@@ -108,6 +108,6 @@ export function ConfirmDialog({
           </div>
         </AlertDialogPrimitive.Content>
       </AlertDialogPrimitive.Portal>
-    </KitAlertDialog>
+    </AlertDialogPrimitive.Root>
   );
 }

@@ -2,7 +2,6 @@ import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
 import { type ReactElement, type ReactNode, type RefObject } from 'react';
 import {
-  Dialog as KitDialog,
   DialogClose,
   DialogDescription,
   DialogOverlay,
@@ -69,11 +68,16 @@ const SHEET_SIDE: Record<SheetSide, string> = {
 };
 
 /**
- * The modal frame DawDialog and Sheet share, on the shared Radix kit: it
- * portals to <body>, darkens the editor behind a black/60 scrim, traps
- * focus, closes on Escape and gives focus back to whatever opened it. The
- * panel is opaque (an overlay never shows the editor through it) and is
- * mounted only while open.
+ * The modal frame DawDialog and Sheet share, on Radix's dialog with the
+ * shared kit's parts: it portals to <body>, darkens the editor behind a
+ * black/60 scrim, traps focus, closes on Escape and gives focus back to
+ * whatever opened it. The panel is opaque (an overlay never shows the editor
+ * through it) and is mounted only while open.
+ *
+ * The root is Radix's own, not the kit's Dialog: that one listens for every
+ * click on <body> while it is mounted, open or not, and then clears the
+ * body's pointer-events every 100 ms for a second, which also lifts the
+ * block a modal puts on the page behind it.
  */
 function OverlayFrame({
   open,
@@ -93,7 +97,7 @@ function OverlayFrame({
 }: OverlayProps & { panelClassName: string }) {
   const focus = useReturnFocus();
   return (
-    <KitDialog
+    <DialogPrimitive.Root
       open={open}
       defaultOpen={defaultOpen}
       onOpenChange={onOpenChange}
@@ -172,7 +176,7 @@ function OverlayFrame({
           </DialogClose>
         </DialogPrimitive.Content>
       </DialogPortal>
-    </KitDialog>
+    </DialogPrimitive.Root>
   );
 }
 

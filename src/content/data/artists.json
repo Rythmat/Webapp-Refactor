@@ -257,6 +257,7 @@
   {"slug":"chan-kinchla","name":"Chan Kinchla"},
   {"slug":"chance-the-rapper","born":{"date":"1993-04-16","placeId":"chicago"},"activeFrom":2011,"genreIds":["rnb","alternative-hip-hop","hip-hop"],"instrumentIds":["lead-vocals","piano"]},
   {"slug":"chano-pozo","born":{"date":"1915-01-17"},"genreIds":["latin-jazz"],"instrumentIds":["percussion"]},
+  {"slug":"charles-albert-tindley","name":"Charles Albert Tindley"},
   {"slug":"charles-fox","name":"Charles Fox"},
   {"slug":"charles-joseph-ii","name":"Charles Joseph II"},
   {"slug":"charles-miller","name":"Charles Miller"},
@@ -503,6 +504,7 @@
   {"slug":"four-tops","group":true,"basedInPlaceId":"detroit","genreIds":["soul","rnb","pop"]},
   {"slug":"francis-wolff","name":"Francis Wolff"},
   {"slug":"frank-dukes","name":"Frank Dukes"},
+  {"slug":"frank-hamilton","name":"Frank Hamilton"},
   {"slug":"frank-jones","name":"Frank Jones"},
   {"slug":"frank-ocean","born":{"date":"1987-10-28","placeId":"long-beach"},"basedInPlaceId":"long-beach","activeFrom":2005,"genreIds":["alternative-r-b","rnb","psychedelic-soul"],"instrumentIds":["lead-vocals"]},
   {"slug":"frank-sinatra","born":{"date":"1915-12-12","placeId":"hoboken"},"basedInPlaceId":"hoboken","activeFrom":1935,"activeTo":1995,"genreIds":["blues","vocal-jazz","big-band"],"instrumentIds":["ukulele"]},
@@ -589,6 +591,7 @@
   {"slug":"guns-n-roses","group":true,"born":{"date":"1985"},"basedInPlaceId":"los-angeles","activeFrom":1985,"genreIds":["hard-rock"]},
   {"slug":"gus-dudgeon","name":"Gus Dudgeon"},
   {"slug":"gustavo-santaolalla","born":{"date":"1951-08-19","placeId":"el-palomar"},"activeFrom":1967,"genreIds":["rock-en-espanol"],"instrumentIds":["lead-vocals","electric-bass","banjo"]},
+  {"slug":"guy-carawan","name":"Guy Carawan"},
   {"slug":"guy-manuel-de-homem-christo","name":"Guy‐Manuel de Homem‐Christo"},
   {"slug":"guy-stevens","name":"Guy Stevens"},
   {"slug":"gwen-stefani","name":"Gwen Stefani"},
@@ -730,6 +733,7 @@
   {"slug":"jimmy-robbins","name":"Jimmy Robbins"},
   {"slug":"jimmy-webb","name":"Jimmy Webb"},
   {"slug":"jj-cale","born":{"date":"1938-12-05","placeId":"oklahoma-city"},"activeFrom":1958,"activeTo":2013,"genreIds":["blues"],"instrumentIds":["lead-vocals"]},
+  {"slug":"joan-baez","born":{"date":"1941-01-09"},"activeFrom":1959,"genreIds":["folk","folk-rock"],"instrumentIds":["lead-vocals","acoustic-guitar"]},
   {"slug":"joan-jett","name":"Joan Jett"},
   {"slug":"joan-jett-and-the-blackhearts","group":true,"born":{"date":"1980"},"basedInPlaceId":"los-angeles","activeFrom":1980,"genreIds":["rock"]},
   {"slug":"joao-gilberto","born":{"date":"1931-06-10","placeId":"juazeiro"},"activeFrom":1950,"activeTo":2019,"genreIds":["samba","indie-pop","bossa-nova"],"instrumentIds":["lead-vocals"]},
@@ -1675,5 +1679,6 @@
   {"slug":"zapp","group":true,"born":{"date":"1978"},"activeTo":1999,"genreIds":["funk"]},
   {"slug":"ziggy-marley","born":{"date":"1968-10-17","placeId":"kingston"},"activeFrom":1979,"genreIds":["reggae"],"instrumentIds":["piano","lead-vocals"]},
   {"slug":"ziggy-modeliste","name":"Ziggy Modeliste"},
+  {"slug":"zilphia-horton","name":"Zilphia Horton"},
   {"slug":"zoe-manville","name":"Zoe Manville"}
 ]

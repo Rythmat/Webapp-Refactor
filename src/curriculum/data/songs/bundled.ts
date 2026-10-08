@@ -1,5 +1,5 @@
 /**
- * The bundled song library — 641 hand-authored chord charts.
+ * The bundled song library — 642 hand-authored chord charts.
  *
  * No longer the runtime source of truth: published songs are fetched from the
  * CDN by src/content/songStore.ts, which imports this module DYNAMICALLY as its
@@ -607,6 +607,7 @@ import { way_over_yonder } from './way_over_yonder';
 import { we_are_family } from './we_are_family';
 import { we_didnt_start_the_fire } from './we_didnt_start_the_fire';
 import { we_found_love } from './we_found_love';
+import { we_shall_overcome } from './we_shall_overcome';
 import { what_a_wonderful_world } from './what_a_wonderful_world';
 import { what_i_got } from './what_i_got';
 import { what_i_like_about_you } from './what_i_like_about_you';
@@ -1257,6 +1258,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   we_are_family: we_are_family,
   we_didnt_start_the_fire: we_didnt_start_the_fire,
   we_found_love: we_found_love,
+  we_shall_overcome: we_shall_overcome,
   what_a_wonderful_world: what_a_wonderful_world,
   what_i_got: what_i_got,
   what_i_like_about_you: what_i_like_about_you,

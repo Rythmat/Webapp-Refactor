@@ -121,6 +121,8 @@ export const TOTAL_HEIGHT = CHORD_AREA_HEIGHT + STAFF_HEIGHT + 16;
 export const MEASURES_PER_ROW = 4;
 /** Room a time signature takes at the head of the bar it opens. */
 const METER_WIDTH = 22;
+/** Room a start-repeat sign takes when it follows a time signature. */
+const REPEAT_SIGN_WIDTH = 14;
 
 /* ── Helpers ─────────────────────────────────────────────────────────── */
 
@@ -188,7 +190,9 @@ export const StaffMeasure: FC<{
   // A metre is engraved on the staff, stacked like a fraction, and the bars
   // it opens start after it — the same room a printed chart gives it.
   const meter = bar.timeSignature ?? openingMeter;
-  const inset = meter ? METER_WIDTH : 0;
+  // A start repeat comes after the metre, as in print: |  4/4  ‖:  ♪
+  const repeatX = meter ? METER_WIDTH : 0;
+  const inset = repeatX + (meter && hasRepeatStart ? REPEAT_SIGN_WIDTH : 0);
   const cellW = (width - inset) / beatsPerBar;
 
   const isMultiBarRest = bar.restBars != null && bar.restBars > 0;
@@ -363,10 +367,18 @@ export const StaffMeasure: FC<{
           style={{ fontFamily: 'serif', fontWeight: 700 }}
           textAnchor="middle"
         >
-          <text x={inset / 2} y={staffTop + LINE_SPACING * 1.72} fontSize={26}>
+          <text
+            x={METER_WIDTH / 2}
+            y={staffTop + LINE_SPACING * 1.72}
+            fontSize={26}
+          >
             {meter[0]}
           </text>
-          <text x={inset / 2} y={staffTop + LINE_SPACING * 3.72} fontSize={26}>
+          <text
+            x={METER_WIDTH / 2}
+            y={staffTop + LINE_SPACING * 3.72}
+            fontSize={26}
+          >
             {meter[1]}
           </text>
         </g>
@@ -490,7 +502,9 @@ export const StaffMeasure: FC<{
         </>
       )}
 
-      {/* Left bar line (first measure gets thicker) */}
+      {/* Left bar line (first measure gets thicker). With a metre in front
+          of the repeat it stays a plain opening line; the repeat's own thick
+          line moves to after the metre. */}
       {(isFirst || hasRepeatStart) && (
         <line
           x1={0}
@@ -498,14 +512,25 @@ export const StaffMeasure: FC<{
           x2={0}
           y2={staffTop + STAFF_HEIGHT}
           stroke="currentColor"
-          strokeWidth={hasRepeatStart ? 2.5 : 2}
-          opacity={hasRepeatStart ? 0.8 : 0.5}
+          strokeWidth={hasRepeatStart && !meter ? 2.5 : 2}
+          opacity={hasRepeatStart && !meter ? 0.8 : 0.5}
         />
       )}
 
       {/* Repeat start sign |: */}
       {hasRepeatStart && (
-        <>
+        <g transform={`translate(${repeatX}, 0)`}>
+          {meter != null && (
+            <line
+              x1={0}
+              y1={staffTop}
+              x2={0}
+              y2={staffTop + STAFF_HEIGHT}
+              stroke="currentColor"
+              strokeWidth={2.5}
+              opacity={0.8}
+            />
+          )}
           <line
             x1={3}
             y1={staffTop}
@@ -526,7 +551,7 @@ export const StaffMeasure: FC<{
             r={2.5}
             fill="currentColor"
           />
-        </>
+        </g>
       )}
 
       {/* Right bar line */}

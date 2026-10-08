@@ -237,6 +237,14 @@ export interface StaffViewProps {
   onRestPointerDown?: (restKey: string, event: ReactPointerEvent) => void;
   /** The page was pressed away from any measure. */
   onBackgroundPointerDown?: (event: ReactPointerEvent) => void;
+  /**
+   * Engrave incrementally, for a score that is edited in place (the Studio
+   * Score): bar widths are cached by part and content, only the systems an
+   * edit changed are redrawn, and on a page a width-only resize rescales
+   * without engraving again. Off by default, so a lesson's staff draws
+   * exactly as it always has.
+   */
+  incremental?: boolean;
   className?: string;
   style?: CSSProperties;
 }
@@ -554,6 +562,20 @@ function measureOf(score: NotationScore, index: number): NotationMeasure {
   };
 }
 
+/** Minimum width one part's bar needs, padding included. */
+function partMinWidth(
+  vf: VexFlowModule,
+  measure: NotationMeasure,
+  score: NotationScore,
+): number {
+  const built = buildMeasure(vf, measure, score);
+  const formatter = new vf.Formatter();
+  for (const voices of built.voices.values()) {
+    if (voices.length > 0) formatter.joinVoices(voices);
+  }
+  return formatter.preCalculateMinTotalWidth(allVoices(built)) + NOTE_PADDING;
+}
+
 /** Widest minimum width this measure needs across every part. */
 function measureMinWidth(
   vf: VexFlowModule,
@@ -562,15 +584,9 @@ function measureMinWidth(
 ): number {
   let widest = MIN_MEASURE_WIDTH;
   for (const part of parts) {
-    const measure = measureOf(part.score, measureIndex);
-    const built = buildMeasure(vf, measure, part.score);
-    const formatter = new vf.Formatter();
-    for (const voices of built.voices.values()) {
-      if (voices.length > 0) formatter.joinVoices(voices);
-    }
     widest = Math.max(
       widest,
-      formatter.preCalculateMinTotalWidth(allVoices(built)) + NOTE_PADDING,
+      partMinWidth(vf, measureOf(part.score, measureIndex), part.score),
     );
   }
   return widest;
@@ -775,6 +791,239 @@ function stackParts(parts: ScorePart[]) {
   return { offsets, contentHeight: y };
 }
 
+// ── Incremental engraving (opt-in) ─────────────────────────────────────────
+// One Score edit used to re-engrave the whole score twice over: every bar of
+// every part was built and formatted once to measure it and again to draw
+// it, and a width-only resize did all of it again (findings score-06,
+// score-19). A StaffView with `incremental` keeps an EngraveCache between
+// passes instead:
+//
+//   - each part's bar gets an id for its content, and its minimum width is
+//     kept by (part, content), so only a bar that changed is measured again;
+//   - every system is drawn into its own group, under a signature of what its
+//     drawing reads. A pass redraws only the systems whose signature changed,
+//     with any system a tie joins to one of them, and keeps the rest;
+//   - on a page the music is drawn in page units, so a width-only resize just
+//     rescales the SVG and the layout it reports;
+//   - rest glyphs are measured once per glyph, after the drawing, instead of
+//     forcing a layout for every rest in the middle of it.
+//
+// Lessons don't pass the prop, and draw through the original path untouched.
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+type RenderContext = ReturnType<
+  InstanceType<VexFlowModule['Renderer']>['getContext']
+>;
+type SvgContext = InstanceType<VexFlowModule['SVGContext']>;
+
+/** What one system drew, in unscaled units, so a later pass can keep it. */
+interface DrawnSystem {
+  barlines: BarlinePosition[];
+  measures: MeasureBox[];
+  notes: NoteInfo[];
+  rests: RestInfo[];
+  noteheads: Array<[string, SVGElement]>;
+  restElements: Array<[SVGElement, string]>;
+  /** Each note id and a chord drawn for it, in drawing order. */
+  groups: Array<[string, SVGElement]>;
+  system: Rendered['systems'][number];
+}
+
+/** A system on the page an incremental pass left. */
+interface KeptSystem {
+  /** Everything its drawing read; equal means it would draw the same. */
+  signature: string;
+  /** A tie runs into it from the system before. */
+  tiedIn: boolean;
+  element: SVGGElement;
+  drawn: DrawnSystem;
+}
+
+/** The page an incremental pass left, for the next pass to draw into. */
+interface EngravedPage {
+  vf: VexFlowModule;
+  host: HTMLDivElement;
+  ctx: SvgContext;
+  /** What every system's drawing reads; a change starts a fresh page. */
+  global: string;
+  systems: KeptSystem[];
+  rendered: Rendered;
+  /** The scale and page size `rendered` was reported at. */
+  frame: string;
+}
+
+class EngraveCache {
+  /**
+   * Each bar's content as a string, by bar object: an unchanged score keeps
+   * its bars, and the same string object keeps its hash for the map lookups.
+   */
+  private contents = new WeakMap<NotationMeasure, string>();
+  /** A small id per distinct bar content. Ids are never reused. */
+  private ids = new Map<string, number>();
+  private nextIds = new Map<string, number>();
+  private nextId = 1;
+  /** Minimum width by part id and bar content id. */
+  private widths = new Map<string, number>();
+  private nextWidths = new Map<string, number>();
+  /** Half the drawn width of each rest glyph, by glyph and font. */
+  private restHalves = new Map<string, number>();
+
+  page: EngravedPage | null = null;
+
+  /** An id for what a part's bar holds: equal ids engrave the same. */
+  contentId(score: NotationScore, measure: NotationMeasure): number {
+    let content = this.contents.get(measure);
+    if (content === undefined) {
+      // What buildMeasure reads: the bar, and the score's staves and metre.
+      content = `${score.staves.join()}|${score.timeSignature.join('/')}|${score.beatTicks}|${score.ticksPerQuarter}|${JSON.stringify(measure)}`;
+      // A bar measureOf made up for a part that has stopped is new each pass.
+      if (score.measures[measure.index] === measure) {
+        this.contents.set(measure, content);
+      }
+    }
+    const id =
+      this.nextIds.get(content) ?? this.ids.get(content) ?? this.nextId++;
+    this.nextIds.set(content, id);
+    return id;
+  }
+
+  /** measureMinWidth, measuring only the bars this cache has not seen. */
+  minWidth(vf: VexFlowModule, parts: ScorePart[], measureIndex: number) {
+    let widest = MIN_MEASURE_WIDTH;
+    for (const part of parts) {
+      const measure = measureOf(part.score, measureIndex);
+      const key = `${part.id}#${this.contentId(part.score, measure)}`;
+      const width =
+        this.nextWidths.get(key) ??
+        this.widths.get(key) ??
+        partMinWidth(vf, measure, part.score);
+      this.nextWidths.set(key, width);
+      widest = Math.max(widest, width);
+    }
+    return widest;
+  }
+
+  /**
+   * Half a rest glyph's drawn width. Measuring forces a layout, so each
+   * glyph is measured the first time it is seen and remembered after that.
+   */
+  restHalf(glyph: SVGTextElement): number {
+    const family = glyph.closest('[font-family]')?.getAttribute('font-family');
+    const size = glyph.closest('[font-size]')?.getAttribute('font-size');
+    const key = `${glyph.textContent}|${family}|${size}`;
+    let half = this.restHalves.get(key);
+    if (half === undefined) {
+      half = glyph.getComputedTextLength
+        ? glyph.getComputedTextLength() / 2
+        : 0;
+      this.restHalves.set(key, half);
+    }
+    return half;
+  }
+
+  /** Keeps only the content ids and widths the pass just finished used. */
+  commit(page: EngravedPage): void {
+    this.ids = this.nextIds;
+    this.nextIds = new Map();
+    this.widths = this.nextWidths;
+    this.nextWidths = new Map();
+    this.page = page;
+  }
+
+  /** The last pass's page, when the next one can draw into it again. */
+  reusablePage(vf: VexFlowModule, host: HTMLDivElement): EngravedPage | null {
+    const page = this.page;
+    return page &&
+      page.vf === vf &&
+      page.host === host &&
+      page.ctx.svg.parentNode === host
+      ? page
+      : null;
+  }
+}
+
+/** A fresh SVG renderer in the host, at the view's width. */
+function openSvg(vf: VexFlowModule, host: HTMLDivElement, width: number) {
+  const renderer = new vf.Renderer(host, vf.Renderer.Backends.SVG);
+  renderer.resize(width, 10);
+  return { renderer, ctx: renderer.getContext() };
+}
+
+/**
+ * Sizes a page that is drawn into again, writing what SVGContext.resize and
+ * scale would: on a context that already holds a scale, resize multiplies the
+ * scale by itself.
+ */
+function sizeSvg(
+  ctx: SvgContext,
+  host: HTMLDivElement,
+  width: number,
+  height: number,
+  scale: number,
+): void {
+  ctx.width = width;
+  ctx.height = height;
+  host.style.width = width.toString();
+  ctx.svg.style.width = width.toString();
+  ctx.svg.style.height = height.toString();
+  ctx.svg.setAttribute('width', String(width));
+  ctx.svg.setAttribute('height', String(height));
+  ctx.setViewBox(0, 0, width / scale, height / scale);
+}
+
+/** Moves everything drawn into `svg` after `mark` into one new group. */
+function groupSince(svg: SVGSVGElement, mark: ChildNode | null): SVGGElement {
+  const group = document.createElementNS(SVG_NS, 'g');
+  group.setAttribute('class', 'ma-staff-system');
+  let node = mark ? mark.nextSibling : svg.firstChild;
+  while (node) {
+    const next = node.nextSibling;
+    group.appendChild(node);
+    node = next;
+  }
+  return group;
+}
+
+/**
+ * For each system, whether a tie runs into it from an earlier one. Ties are
+ * matched by pitch while drawing (see render), so this replays that matching
+ * on the bars alone: two systems a tie joins have to be drawn together.
+ */
+function tiesInto(
+  parts: ScorePart[],
+  systems: SystemLayout[],
+  restBarsAt: (index: number) => number,
+): boolean[] {
+  const open = new Set<string>();
+  return systems.map((system) => {
+    const tiedIn = open.size > 0;
+    for (const measureIndex of system.measures) {
+      // The bars a multi-bar rest covers are not written out.
+      if (restBarsAt(measureIndex) > 0) continue;
+      for (const part of parts) {
+        const measure = measureOf(part.score, measureIndex);
+        const items: Array<{ item: NotationItem; staff: StaffId }> = [];
+        for (const staff of part.score.staves) {
+          for (const voice of measure.staves[staff] ?? []) {
+            for (const item of voice.items) items.push({ item, staff });
+          }
+        }
+        items.sort((a, b) => a.item.startTick - b.item.startTick);
+        for (const { item, staff } of items) {
+          if (item.kind !== 'note') continue;
+          for (const key of item.keys) {
+            const slot = `${part.id}:${staff}:${key.midi}`;
+            if (item.tieFromPrev) open.delete(slot);
+            if (item.tieToNext) open.add(slot);
+          }
+        }
+      }
+    }
+    return tiedIn;
+  });
+}
+
 interface RenderOptions {
   fitHeight: boolean;
   /** Extra room above every system, for an overlay's own marks. */
@@ -795,6 +1044,8 @@ interface RenderOptions {
    */
   printing?: boolean;
   titleInset?: number;
+  /** Engrave incrementally into what the last pass with this cache drew. */
+  engrave?: EngraveCache;
 }
 
 function render(
@@ -805,12 +1056,12 @@ function render(
   height: number,
   options: RenderOptions,
 ): Rendered {
-  const { fitHeight } = options;
-  host.innerHTML = '';
+  const { fitHeight, engrave } = options;
+  if (!engrave) host.innerHTML = '';
   const lead = parts[0].score;
   const measureCount = Math.max(...parts.map((p) => p.score.measures.length));
   const minWidths = Array.from({ length: measureCount }, (_, i) =>
-    measureMinWidth(vf, parts, i),
+    engrave ? engrave.minWidth(vf, parts, i) : measureMinWidth(vf, parts, i),
   );
   // A multi-bar rest is written as one bar and eats the ones it covers, so
   // the page is laid out over these slots rather than over every bar.
@@ -839,9 +1090,12 @@ function render(
     (options.headroom ?? 0);
   const systemHeight = contentHeight + SYSTEM_GAP + (systemTop - SYSTEM_TOP);
 
-  const renderer = new vf.Renderer(host, vf.Renderer.Backends.SVG);
-  renderer.resize(width, 10);
-  const ctx = renderer.getContext();
+  // An incremental pass draws into the page the last one left when it can;
+  // otherwise the page starts empty.
+  const kept = engrave?.reusablePage(vf, host) ?? null;
+  if (engrave && !kept) host.innerHTML = '';
+  let fresh = kept ? null : openSvg(vf, host, width);
+  let ctx: RenderContext = kept ? kept.ctx : fresh!.ctx;
 
   // Part names sit left of the first measure of every system.
   const showNames = parts.length > 1;
@@ -969,56 +1223,107 @@ function render(
       : pageScale(width, page)
     : scale;
   const totalHeight = paged ? paged.totalHeight : systems.length * systemHeight;
-  renderer.resize(
-    (page ? page.width : width) * viewScale,
-    totalHeight * (page ? viewScale : scale),
-  );
-  ctx.scale(scale, scale);
+  const svgWidth = (page ? page.width : width) * viewScale;
+  const svgHeight = totalHeight * (page ? viewScale : scale);
   // Drawing happens in music units, so a position on the page divides by the
   // shrink to land where it belongs once `scale` has been applied.
   const toMusic = (pagePx: number) => pagePx / contentScale;
+  const lastMeasure = measureCount - 1;
 
-  const groups = new Map<string, SVGElement[]>();
+  // Incremental: everything a system's drawing reads, as signatures. A system
+  // whose signature matches the kept page's is not drawn again.
+  let global = '';
+  let signatures: string[] = [];
+  let tiedIn: boolean[] = [];
+  if (engrave) {
+    global = JSON.stringify([
+      parts.map((part) => [
+        part.id,
+        part.name ?? null,
+        part.clefAnnotation ?? null,
+        part.score.staves,
+        part.score.keyFifths,
+        part.score.timeSignature,
+        part.score.beatTicks,
+      ]),
+      showNames,
+      nameWidth,
+      left,
+      headerFirst,
+      headerRest,
+      systemTop,
+      systemHeight,
+      contentHeight,
+      page ?? null,
+      contentScale,
+    ]);
+    signatures = systems.map((system, systemIndex) =>
+      JSON.stringify([
+        systemIndex === 0,
+        paged ? paged.systems[systemIndex].y : systemIndex * systemHeight,
+        system.measures.map((measureIndex, j) => {
+          const restBars = restBarsAt(measureIndex);
+          const slotEnd = measureIndex + Math.max(0, restBars - 1);
+          return [
+            measureIndex,
+            system.widths[j],
+            restBars,
+            options.repeatStarts?.has(measureIndex) ?? false,
+            options.repeatEnds?.has(slotEnd) ?? false,
+            slotEnd === lastMeasure,
+            measureOf(lead, slotEnd).endTick,
+            parts.map((part) =>
+              engrave.contentId(
+                part.score,
+                measureOf(part.score, measureIndex),
+              ),
+            ),
+          ];
+        }),
+      ]),
+    );
+    tiedIn = tiesInto(parts, systems, restBarsAt);
+  }
+  const reuse = kept && kept.global === global ? kept : null;
+  if (kept && !reuse) {
+    // Something every system reads changed: start a fresh page.
+    host.innerHTML = '';
+    fresh = openSvg(vf, host, width);
+    ctx = fresh.ctx;
+    if (showNames) ctx.setFont('Arial', 11);
+  }
+  if (fresh) {
+    fresh.renderer.resize(svgWidth, svgHeight);
+    ctx.scale(scale, scale);
+  } else {
+    sizeSvg(reuse!.ctx, host, svgWidth, svgHeight, scale);
+  }
+
   const pendingTies = new Map<
     string,
     { note: Note; index: number; system: number }
   >();
   const ties: Array<InstanceType<VexFlowModule['StaveTie']>> = [];
-  const rendered: Rendered = {
-    scale,
-    // On paper the sheet scales with the view alone, and only the music
-    // inside it carries the extra shrink that makes a crowded system fit.
-    //
-    // Off paper there is no sheet: the music is laid out into `width / scale`
-    // and drawn at `scale`, so it comes out `width` px wide however far it has
-    // shrunk. Scaling again here made the box narrower than the music inside
-    // it — the staff ran off its right edge and was clipped, and `margin: 0
-    // auto` centred the short box, opening a gap down the left. Height never
-    // had the bug; it uses the drawn extent, as this now does.
-    width: page ? page.width * viewScale : width,
-    pages:
-      page && paged
-        ? pageTops(paged.pageCount, page, pageGap).map((top) => ({
-            top: top * viewScale,
-            height: page.height * viewScale,
-          }))
-        : [],
-    height: totalHeight * (page ? viewScale : scale),
-    systemHeight,
-    barlines: [],
-    measures: [],
-    notes: [],
-    rests: [],
-    noteheads: new Map(),
-    restElements: new Map(),
-    playheadTop: systemTop + 28,
-    playheadHeight: contentHeight - 28 + 10,
-    systems: [],
-    groups,
-  };
-  const lastMeasure = measureCount - 1;
 
-  systems.forEach((system, systemIndex) => {
+  /**
+   * Draws one system and returns what it drew, unscaled. An incremental pass
+   * passes `restGlyphs` to collect the rests it measures afterwards.
+   */
+  const drawSystem = (
+    system: SystemLayout,
+    systemIndex: number,
+    restGlyphs: Array<{ rest: RestInfo; glyph: SVGTextElement }> | null,
+  ): DrawnSystem => {
+    const out: DrawnSystem = {
+      barlines: [],
+      measures: [],
+      notes: [],
+      rests: [],
+      noteheads: [],
+      restElements: [],
+      groups: [],
+      system: { y: 0, startTick: 0, endTick: 0, anchors: [] },
+    };
     // On a page a system sits inside the margins of whichever page it fell on.
     const systemY = paged
       ? toMusic(paged.systems[systemIndex].y)
@@ -1200,29 +1505,31 @@ function render(
             ) as SVGTextElement | null;
             const glyph = glyphText?.getAttribute('y');
             // Centre of the rest glyph, so a chord symbol sits over the beat.
-            const half = glyphText?.getComputedTextLength
-              ? glyphText.getComputedTextLength() / 2
-              : 0;
-            if (element) rendered.restElements.set(element, key);
-            rendered.rests.push({
+            // An incremental pass adds it once the drawing is done.
+            const half =
+              !restGlyphs && glyphText?.getComputedTextLength
+                ? glyphText.getComputedTextLength() / 2
+                : 0;
+            if (element) out.restElements.push([element, key]);
+            const rest: RestInfo = {
               key,
               partIndex,
               measureIndex,
               tick: item.startTick,
               durationTicks: item.durationTicks,
-              x: (note.getAbsoluteX() + half) * scale,
-              y: (glyph ? Number(glyph) : 0) * scale,
-            });
-            if (element) rendered.noteheads.set(key, element);
+              x: note.getAbsoluteX() + half,
+              y: glyph ? Number(glyph) : 0,
+            };
+            out.rests.push(rest);
+            if (restGlyphs && glyphText) {
+              restGlyphs.push({ rest, glyph: glyphText });
+            }
+            if (element) out.noteheads.push([key, element]);
           }
           if (item.kind !== 'note') continue;
           const element = note.getSVGElement();
           if (element) {
-            for (const key of item.keys) {
-              const list = groups.get(key.noteId) ?? [];
-              list.push(element);
-              groups.set(key.noteId, list);
-            }
+            for (const key of item.keys) out.groups.push([key.noteId, element]);
           }
           // Each key's own notehead, so a single note of a chord is pickable.
           const staveNote = note instanceof vf.StaveNote ? note : undefined;
@@ -1235,7 +1542,7 @@ function render(
               : 'up';
           item.keys.forEach((key, keyIndex) => {
             const head = heads?.[keyIndex]?.getSVGElement();
-            if (head) rendered.noteheads.set(key.noteId, head);
+            if (head) out.noteheads.push([key.noteId, head]);
             // The notehead glyph's own baseline is its vertical position; it
             // is drawn in unscaled units, like every other box recorded here.
             const glyphY = head?.querySelector('text')?.getAttribute('y');
@@ -1243,19 +1550,19 @@ function render(
             const glyphX = head?.querySelector('text')?.getAttribute('x');
             const centreX =
               (glyphX ? Number(glyphX) : note.getAbsoluteX()) + NOTEHEAD_HALF;
-            rendered.notes.push({
+            out.notes.push({
               id: key.noteId,
               partIndex,
               measureIndex,
               tick: item.startTick,
-              x: centreX * scale,
-              space: STAFF_STEP * scale,
+              x: centreX,
+              space: STAFF_STEP,
               stem,
               letter: key.letter,
               octave: key.octave,
               alteration: key.alteration,
               line: keyProps?.[keyIndex]?.line ?? 2,
-              y: (glyphY ? Number(glyphY) : 0) * scale,
+              y: glyphY ? Number(glyphY) : 0,
             });
           });
           // Ties are matched by pitch, so they cross voices, bars and systems.
@@ -1317,13 +1624,13 @@ function render(
         }
         anchors.push({ tick: slotEndTick!, x: x + staveWidth - 4 });
       }
-      rendered.barlines.push({
+      out.barlines.push({
         measureIndex,
         atSystemEnd: false,
         system: systemIndex,
-        x: x * scale,
-        y: (systemY + systemTop) * scale,
-        height: contentHeight * scale,
+        x,
+        y: systemY + systemTop,
+        height: contentHeight,
       });
       if (measure) {
         // One box per part: a measure is selected per instrument.
@@ -1333,14 +1640,14 @@ function render(
           );
           const top = Math.min(...staffOffsets);
           const bottom = Math.max(...staffOffsets) + STAFF_BODY;
-          rendered.measures.push({
+          out.measures.push({
             measureIndex,
             partIndex,
             system: systemIndex,
-            x: x * scale,
-            y: (y + top) * scale,
-            width: staveWidth * scale,
-            height: (bottom - top) * scale,
+            x,
+            y: y + top,
+            width: staveWidth,
+            height: bottom - top,
             startTick: measure.startTick,
             endTick: slotEndTick!,
           });
@@ -1350,13 +1657,13 @@ function render(
       if (j === system.measures.length - 1) {
         // A line's closing barline is the same roadmap point as the next
         // measure's opening one, and is clickable in both places.
-        rendered.barlines.push({
+        out.barlines.push({
           measureIndex: measureIndex + 1,
           atSystemEnd: true,
           system: systemIndex,
-          x: x * scale,
-          y: (systemY + systemTop) * scale,
-          height: contentHeight * scale,
+          x,
+          y: systemY + systemTop,
+          height: contentHeight,
         });
       }
     });
@@ -1364,15 +1671,162 @@ function render(
     const unique = systemAnchors(anchors);
     const firstMeasure = measureOf(lead, system.measures[0]);
     const lastOfSystem = measureOf(lead, system.measures.at(-1)!);
-    rendered.systems.push({
+    out.system = {
       y: systemY,
       startTick: firstMeasure?.startTick ?? 0,
       endTick: lastOfSystem?.endTick ?? 0,
       anchors: unique,
-    });
+    };
+    return out;
+  };
+
+  /** What the view reports: the drawn systems, scaled to the screen. */
+  const report = (drawnSystems: readonly DrawnSystem[]): Rendered => {
+    const groups = new Map<string, SVGElement[]>();
+    const rendered: Rendered = {
+      scale,
+      // On paper the sheet scales with the view alone, and only the music
+      // inside it carries the extra shrink that makes a crowded system fit.
+      //
+      // Off paper there is no sheet: the music is laid out into `width / scale`
+      // and drawn at `scale`, so it comes out `width` px wide however far it has
+      // shrunk. Scaling again here made the box narrower than the music inside
+      // it — the staff ran off its right edge and was clipped, and `margin: 0
+      // auto` centred the short box, opening a gap down the left. Height never
+      // had the bug; it uses the drawn extent, as this now does.
+      width: page ? page.width * viewScale : width,
+      pages:
+        page && paged
+          ? pageTops(paged.pageCount, page, pageGap).map((top) => ({
+              top: top * viewScale,
+              height: page.height * viewScale,
+            }))
+          : [],
+      height: totalHeight * (page ? viewScale : scale),
+      systemHeight,
+      barlines: [],
+      measures: [],
+      notes: [],
+      rests: [],
+      noteheads: new Map(),
+      restElements: new Map(),
+      playheadTop: systemTop + 28,
+      playheadHeight: contentHeight - 28 + 10,
+      systems: [],
+      groups,
+    };
+    for (const drawn of drawnSystems) {
+      for (const barline of drawn.barlines) {
+        rendered.barlines.push({
+          ...barline,
+          x: barline.x * scale,
+          y: barline.y * scale,
+          height: barline.height * scale,
+        });
+      }
+      for (const box of drawn.measures) {
+        rendered.measures.push({
+          ...box,
+          x: box.x * scale,
+          y: box.y * scale,
+          width: box.width * scale,
+          height: box.height * scale,
+        });
+      }
+      for (const note of drawn.notes) {
+        rendered.notes.push({
+          ...note,
+          x: note.x * scale,
+          space: note.space * scale,
+          y: note.y * scale,
+        });
+      }
+      for (const rest of drawn.rests) {
+        rendered.rests.push({ ...rest, x: rest.x * scale, y: rest.y * scale });
+      }
+      for (const [key, element] of drawn.noteheads) {
+        rendered.noteheads.set(key, element);
+      }
+      for (const [element, key] of drawn.restElements) {
+        rendered.restElements.set(element, key);
+      }
+      for (const [id, element] of drawn.groups) {
+        const list = groups.get(id) ?? [];
+        list.push(element);
+        groups.set(id, list);
+      }
+      rendered.systems.push(drawn.system);
+    }
+    return rendered;
+  };
+
+  if (!engrave) {
+    const drawnSystems = systems.map((system, systemIndex) =>
+      drawSystem(system, systemIndex, null),
+    );
+    for (const tie of ties) tie.setContext(ctx).draw();
+    return report(drawnSystems);
+  }
+
+  // Incremental: redraw the systems whose signature changed, and any system
+  // a tie joins to one of them, now or on the kept page; keep the rest.
+  const previous = reuse?.systems ?? [];
+  const dirty = systems.map((_, k) => previous[k]?.signature !== signatures[k]);
+  const joined = (k: number) =>
+    k > 0 && (tiedIn[k] || (previous[k]?.tiedIn ?? false));
+  for (let k = 1; k < systems.length; k++) {
+    if (joined(k) && dirty[k - 1]) dirty[k] = true;
+  }
+  for (let k = systems.length - 1; k > 0; k--) {
+    if (joined(k) && dirty[k]) dirty[k - 1] = true;
+  }
+  const svg = (ctx as SvgContext).svg;
+  for (const gone of previous.slice(systems.length)) gone.element.remove();
+  const restGlyphs: Array<{ rest: RestInfo; glyph: SVGTextElement }> = [];
+  const nextPage: KeptSystem[] = systems.map((system, k) => {
+    if (!dirty[k]) return previous[k];
+    previous[k]?.element.remove();
+    // Every system starts from the same context state, so a system drawn on
+    // its own comes out exactly as it does in a full pass.
+    ctx.save();
+    const mark = svg.lastChild;
+    const drawn = drawSystem(system, k, restGlyphs);
+    for (const tie of ties.splice(0)) tie.setContext(ctx).draw();
+    ctx.restore();
+    const element = groupSince(svg, mark);
+    const following = previous[k + 1]?.element;
+    svg.insertBefore(element, following?.parentNode === svg ? following : null);
+    return { signature: signatures[k], tiedIn: tiedIn[k], element, drawn };
   });
-  for (const tie of ties) tie.setContext(ctx).draw();
-  return rendered;
+  // Measured once the drawing is done, so at most one layout is forced.
+  for (const { rest, glyph } of restGlyphs) rest.x += engrave.restHalf(glyph);
+
+  const rendered = report(nextPage.map((system) => system.drawn));
+  // Nothing redrawn and nothing rescaled: hand back the same object, so the
+  // view and its overlay have nothing to update.
+  const frame = JSON.stringify([
+    rendered.scale,
+    rendered.width,
+    rendered.height,
+    rendered.pages,
+  ]);
+  const result =
+    reuse &&
+    reuse.frame === frame &&
+    !dirty.includes(true) &&
+    reuse.systems.length === nextPage.length
+      ? reuse.rendered
+      : rendered;
+  engrave.commit({
+    vf,
+    host,
+    ctx: ctx as SvgContext,
+    global,
+    systems: nextPage,
+    rendered: result,
+    frame,
+  });
+  return result;
 }
 
 /**
@@ -1490,11 +1944,14 @@ export function StaffView({
   onMeasurePointerDown,
   onRestPointerDown,
   onBackgroundPointerDown,
+  incremental = false,
   className,
   style,
 }: StaffViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
+  /** What incremental engraving keeps between passes; null when it is off. */
+  const engraveRef = useRef<EngraveCache | null>(null);
   /** Which page the view is looking at, for the navigation at the bottom. */
   const [visiblePage, setVisiblePage] = useState(0);
   const [vf, setVf] = useState<VexFlowModule | null>(null);
@@ -1533,6 +1990,8 @@ export function StaffView({
   useLayoutEffect(() => {
     const host = hostRef.current;
     if (!vf || !host || size.width < 50 || parts.length === 0) return;
+    if (!incremental) engraveRef.current = null;
+    else engraveRef.current ??= new EngraveCache();
     try {
       setRendered(
         render(vf, host, parts, size.width, layoutHeight, {
@@ -1547,10 +2006,13 @@ export function StaffView({
           multiRests,
           printing,
           titleInset: printTitleInset,
+          ...(engraveRef.current ? { engrave: engraveRef.current } : {}),
         }),
       );
     } catch (err) {
       if (import.meta.env.DEV) console.error('[StaffView] render failed', err);
+      // A pass that failed part-way leaves no page worth drawing into.
+      engraveRef.current = null;
       setError(true);
     }
   }, [
@@ -1569,6 +2031,7 @@ export function StaffView({
     multiRests,
     printing,
     printTitleInset,
+    incremental,
   ]);
 
   useEffect(() => {

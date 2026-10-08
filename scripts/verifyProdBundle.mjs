@@ -96,6 +96,17 @@ const FORBIDDEN = [
     marker: '__atlasGraphDebug',
     why: "Cortex's dev-only graph hook (map/GraphCanvas.tsx installDebugHook)",
   },
+  // The Studio UI gallery (src/daw/ui/__gallery__): its route and its lazy
+  // import sit behind a literal DEV guard in App.tsx, so neither the route
+  // nor the page's chunk may ship.
+  {
+    marker: 'daw-ui-gallery',
+    why: 'Studio UI gallery page (src/daw/ui/__gallery__/DawUiGallery.tsx)',
+  },
+  {
+    marker: '/dev/studio/ui-gallery',
+    why: 'Studio UI gallery route (App.tsx)',
+  },
 ];
 
 /**

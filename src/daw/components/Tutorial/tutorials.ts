@@ -668,7 +668,7 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       id: 'mastering-fx',
       stage: 'STAGE 5 — MASTER',
       instruction:
-        'Add polish to the whole mix — drop a **mastering effect** (try the Compressor) onto the master chain.',
+        'Add polish to the whole mix — in **Mastering**, click an effect in the **FX** list (try the Compressor) to add it to the master chain.',
       target: ['fx-add-compressor', 'mastering-section'],
       requires: { view: 'studio' },
       check: (s, armed) =>

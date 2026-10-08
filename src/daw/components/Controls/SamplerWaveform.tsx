@@ -8,6 +8,7 @@ import { computePeaks } from '@/daw/audio/AudioBufferStore';
 
 const PEAK_COUNT = 600;
 const HANDLE_HIT_PX = 10;
+const FALLBACK_ACCENT = '#7ecfcf';
 
 interface SamplerWaveformProps {
   buffer: AudioBuffer;
@@ -24,12 +25,19 @@ export function SamplerWaveform({
 }: SamplerWaveformProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
+  // The backing-store scale and the accent colour, set when the canvas is
+  // sized: a trim drag redraws on every pointer move and must not reallocate
+  // the canvas or recompute styles each time (live-input-22).
+  const dprRef = useRef(1);
+  const accentRef = useRef(FALLBACK_ACCENT);
   // Uncommitted marker positions while a drag is live.
   const [drag, setDrag] = useState<{
     marker: 'start' | 'end';
     startPct: number;
     endPct: number;
   } | null>(null);
+  // Whether the pointer is over a marker, the only place a drag can start.
+  const [overMarker, setOverMarker] = useState(false);
 
   const peaks = useMemo(() => computePeaks(buffer, PEAK_COUNT), [buffer]);
 
@@ -48,19 +56,29 @@ export function SamplerWaveform({
     return () => ro.disconnect();
   }, []);
 
-  // Redraw on any change.
+  // Size the backing store and read the accent only when the size changes.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || size.w === 0 || size.h === 0) return;
     const dpr = window.devicePixelRatio || 1;
+    dprRef.current = dpr;
     canvas.width = size.w * dpr;
     canvas.height = size.h * dpr;
+    accentRef.current =
+      getComputedStyle(canvas).getPropertyValue('--color-accent').trim() ||
+      FALLBACK_ACCENT;
+  }, [size]);
+
+  // Redraw on any change, onto the canvas as sized above.
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || size.w === 0 || size.h === 0) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    ctx.scale(dpr, dpr);
+    const dpr = dprRef.current;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const cs = getComputedStyle(canvas);
-    const accent = cs.getPropertyValue('--color-accent').trim() || '#7ecfcf';
+    const accent = accentRef.current;
     const dim = 'rgba(255,255,255,0.22)';
 
     const { w, h } = size;
@@ -106,29 +124,42 @@ export function SamplerWaveform({
     );
   }, []);
 
-  const onPointerDown = useCallback(
-    (e: React.PointerEvent<HTMLCanvasElement>) => {
+  /** The marker within reach of the pointer, the closer one on a tie. */
+  const markerAt = useCallback(
+    (e: React.PointerEvent<HTMLCanvasElement>): 'start' | 'end' | null => {
       const rect = e.currentTarget.getBoundingClientRect();
       const pct = pctAtEvent(e);
       const hitPct = (HANDLE_HIT_PX / rect.width) * 100;
       const endPct = Math.min(100, startPct + lengthPct);
-      // Nearest marker within the hit zone wins; ties go to the closer one.
       const dStart = Math.abs(pct - startPct);
       const dEnd = Math.abs(pct - endPct);
-      let marker: 'start' | 'end' | null = null;
-      if (dStart <= hitPct || dEnd <= hitPct) {
-        marker = dStart <= dEnd ? 'start' : 'end';
-      }
-      if (!marker) return;
-      e.currentTarget.setPointerCapture(e.pointerId);
-      setDrag({ marker, startPct, endPct });
+      if (dStart > hitPct && dEnd > hitPct) return null;
+      return dStart <= dEnd ? 'start' : 'end';
     },
     [pctAtEvent, startPct, lengthPct],
   );
 
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent<HTMLCanvasElement>) => {
+      const marker = markerAt(e);
+      if (!marker) return;
+      e.currentTarget.setPointerCapture(e.pointerId);
+      setDrag({
+        marker,
+        startPct,
+        endPct: Math.min(100, startPct + lengthPct),
+      });
+    },
+    [markerAt, startPct, lengthPct],
+  );
+
   const onPointerMove = useCallback(
     (e: React.PointerEvent<HTMLCanvasElement>) => {
-      if (!drag) return;
+      if (!drag) {
+        // The resize cursor shows only where a drag would take a marker.
+        setOverMarker(markerAt(e) !== null);
+        return;
+      }
       const pct = pctAtEvent(e);
       setDrag((d) => {
         if (!d) return d;
@@ -139,7 +170,7 @@ export function SamplerWaveform({
         return { ...d, endPct: Math.max(pct, d.startPct + 1) };
       });
     },
-    [drag, pctAtEvent],
+    [drag, markerAt, pctAtEvent],
   );
 
   const onPointerUp = useCallback(() => {
@@ -156,10 +187,14 @@ export function SamplerWaveform({
       ref={canvasRef}
       data-tutorial-id="sampler-waveform"
       className="absolute inset-0 h-full w-full"
-      style={{ cursor: drag ? 'ew-resize' : 'col-resize', touchAction: 'none' }}
+      style={{
+        cursor: drag || overMarker ? 'ew-resize' : 'default',
+        touchAction: 'none',
+      }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
+      onPointerLeave={() => setOverMarker(false)}
       onPointerCancel={() => setDrag(null)}
     />
   );

@@ -1124,6 +1124,9 @@ export function FxKnobs({
       );
 
     case 'de-esser':
+      // No FREQUENCY knob until the de-esser's band filter is wired: the
+      // engine sets deEsserFilter's frequency but never connects the filter,
+      // so the compressor hears the whole vocal and the knob changed nothing.
       return (
         <>
           <RotaryKnob
@@ -1137,21 +1140,6 @@ export function FxKnobs({
             formatValue={(v) => `${Math.round(v)}%`}
             onChange={(v) =>
               onUpdate(trackId, { 'de-esser': { ...deess, amount: v } })
-            }
-          />
-          <RotaryKnob
-            label="FREQUENCY"
-            value={deess.frequency}
-            min={2000}
-            max={16000}
-            step={100}
-            size={ks}
-            arcColor={color}
-            formatValue={(v) =>
-              v >= 1000 ? `${(v / 1000).toFixed(1)}kHz` : `${Math.round(v)}Hz`
-            }
-            onChange={(v) =>
-              onUpdate(trackId, { 'de-esser': { ...deess, frequency: v } })
             }
           />
           <RotaryKnob

@@ -395,6 +395,9 @@ export function OrganView({ trackId }: OrganViewProps) {
   const vibratoMode = organ.vibratoMode;
   const leslieSpeed = organ.leslieSpeed;
   const leslieEnabled = organ.leslieEnabled;
+  // The rotor dots mirror what's heard: still when the Leslie is switched off
+  // (the engine then mutes its rotating path), not only at speed "stop".
+  const rotorsStill = !leslieEnabled || leslieSpeed === 'stop';
   const clickLevel = organ.clickLevel;
   const overdrive = organ.overdrive;
   const swellLevel = organ.swellLevel;
@@ -477,7 +480,7 @@ export function OrganView({ trackId }: OrganViewProps) {
               <div className={styles.leslieRotor}>
                 <div
                   className={styles.leslieRotorDot}
-                  data-stopped={leslieSpeed === 'stop'}
+                  data-stopped={rotorsStill}
                 >
                   <div
                     className={styles.leslieRotorInner}
@@ -487,8 +490,7 @@ export function OrganView({ trackId }: OrganViewProps) {
                           leslieSpeed,
                           'horn',
                         ),
-                        animationPlayState:
-                          leslieSpeed === 'stop' ? 'paused' : 'running',
+                        animationPlayState: rotorsStill ? 'paused' : 'running',
                       } as CSSProperties
                     }
                   />
@@ -498,7 +500,7 @@ export function OrganView({ trackId }: OrganViewProps) {
               <div className={styles.leslieRotor}>
                 <div
                   className={styles.leslieRotorDot}
-                  data-stopped={leslieSpeed === 'stop'}
+                  data-stopped={rotorsStill}
                 >
                   <div
                     className={styles.leslieRotorInner}
@@ -508,8 +510,7 @@ export function OrganView({ trackId }: OrganViewProps) {
                           leslieSpeed,
                           'drum',
                         ),
-                        animationPlayState:
-                          leslieSpeed === 'stop' ? 'paused' : 'running',
+                        animationPlayState: rotorsStill ? 'paused' : 'running',
                       } as CSSProperties
                     }
                   />

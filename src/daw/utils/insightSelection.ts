@@ -100,22 +100,28 @@ export function notesInMarquee(
   const right = Math.max(marquee.x0, marquee.x1);
   const top = Math.min(marquee.y0, marquee.y1);
   const bottom = Math.max(marquee.y0, marquee.y1);
-  const byClip = new Map<string, ClipNoteSelection>();
+  // This runs on every pointer move of the drag, so each clip collects its
+  // note indices in a Set (a note drawn twice still counts once) instead of
+  // searching an array before every push, which grew as O(n²) on dense clips.
+  const byClip = new Map<
+    string,
+    { trackId: string; clipId: string; indices: Set<number> }
+  >();
   for (const n of notes) {
     if (n.x > right || n.x + n.w < left || n.y > bottom || n.y + n.h < top) {
       continue;
     }
-    const entry = byClip.get(n.clipId) ?? {
-      trackId: n.trackId,
-      clipId: n.clipId,
-      noteIndices: [],
-    };
-    if (!entry.noteIndices.includes(n.index)) entry.noteIndices.push(n.index);
-    byClip.set(n.clipId, entry);
+    let entry = byClip.get(n.clipId);
+    if (!entry) {
+      entry = { trackId: n.trackId, clipId: n.clipId, indices: new Set() };
+      byClip.set(n.clipId, entry);
+    }
+    entry.indices.add(n.index);
   }
-  return [...byClip.values()].map((s) => ({
-    ...s,
-    noteIndices: s.noteIndices.sort((a, b) => a - b),
+  return [...byClip.values()].map(({ trackId, clipId, indices }) => ({
+    trackId,
+    clipId,
+    noteIndices: [...indices].sort((a, b) => a - b),
   }));
 }
 

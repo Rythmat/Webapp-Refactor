@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { NOTES } from '@prism/engine';
 import { StaffView, type ScorePart } from '@/components/notation/StaffView';
 import { useStore } from '@/daw/store';
@@ -9,7 +9,7 @@ import { useLeadSheetPrint } from '../LeadSheet/useLeadSheetPrint';
 import { NoteEditorBar } from './NoteEditorBar';
 import { ScorePalettes } from './ScorePalettes';
 import { ScorePartsPanel } from './ScorePartsPanel';
-import { buildScoreParts, isNotatable } from './scoreParts';
+import { buildScoreParts, isNotatable, ScorePartsCache } from './scoreParts';
 import { spellingMap } from './noteEditor';
 import { useScoreEditing } from './useScoreEditing';
 import { breaksFromRowSizes } from './roadmap';
@@ -49,6 +49,10 @@ export function ScoreView() {
     () => spellingMap(scoreSpellings),
     [scoreSpellings],
   );
+  // Parts are rebuilt only for the tracks an edit touched, and a change that
+  // leaves the music alone (a fader, a mute) hands back the same parts, so
+  // the staff has nothing to engrave.
+  const [partsCache] = useState(() => new ScorePartsCache());
   const scoreParts = useMemo(
     () =>
       buildScoreParts({
@@ -58,8 +62,9 @@ export function ScoreView() {
         timeSignature,
         slashNotes: slashSet,
         spellings,
+        cache: partsCache,
       }),
-    [tracks, rootNote, mode, timeSignature, slashSet, spellings],
+    [tracks, rootNote, mode, timeSignature, slashSet, spellings, partsCache],
   );
   const parts: ScorePart[] = useMemo(
     () => scoreParts.map(({ id, name, score }) => ({ id, name, score })),
@@ -234,6 +239,9 @@ export function ScoreView() {
             <StaffView
               parts={parts}
               printTitleInset={PRINT_TITLE_INSET}
+              // An edit redraws only the systems it changed; Learn's staves
+              // leave this off.
+              incremental
               {...editing.staff}
             />
           )}

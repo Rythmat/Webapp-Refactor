@@ -15,9 +15,13 @@ import {
   getAudioBuffer,
   setAudioBuffer,
   setOriginalAudio,
-  computePeaks,
   subscribeAudioBufferChanges,
 } from '@/daw/audio/AudioBufferStore';
+import {
+  getPeakPyramid,
+  readPeaks,
+  subscribePeakPyramids,
+} from '@/daw/audio/peaks';
 import { splitAudioClipAt } from './splitAudioClipAt';
 import { splitMidiClipAt } from './splitMidiClipAt';
 import {
@@ -539,15 +543,18 @@ export function Timeline() {
 
   // Bumped whenever the AudioBufferStore mutates so the canvas redraws when a
   // cloud-loaded audio buffer arrives (without it, "Loading…" overlays would
-  // sit forever even after the bytes decoded).
+  // sit forever even after the bytes decoded), and when the peaks worker
+  // delivers a long take's waveform.
   const [audioBufferVersion, setAudioBufferVersion] = useState(0);
-  useEffect(
-    () =>
-      subscribeAudioBufferChanges(() => {
-        setAudioBufferVersion((v) => v + 1);
-      }),
-    [],
-  );
+  useEffect(() => {
+    const bump = () => setAudioBufferVersion((v) => v + 1);
+    const stopBuffers = subscribeAudioBufferChanges(bump);
+    const stopPeaks = subscribePeakPyramids(bump);
+    return () => {
+      stopBuffers();
+      stopPeaks();
+    };
+  }, []);
 
   const [editingChord, setEditingChord] = useState<{
     id: string;
@@ -1051,8 +1058,19 @@ export function Timeline() {
           // — which would mislead the user into thinking the audio is loaded
           // — and overlay a "Loading…" label instead.
           const isLoadingCloudAudio = !audioBuffer && Boolean(clip.assetId);
+          // A long take that is decoded and playable, while the peaks worker
+          // is still summarising it, is not loading: it draws a flat line
+          // until its waveform arrives.
+          const pyramid = audioBuffer ? getPeakPyramid(audioBuffer) : undefined;
 
-          if (isLoadingCloudAudio) {
+          if (pyramid === null) {
+            ctx.strokeStyle = track.color + '66';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(clipX + 4, centerY);
+            ctx.lineTo(clipX + clipWidth - 4, centerY);
+            ctx.stroke();
+          } else if (isLoadingCloudAudio) {
             if (clipWidth > 60) {
               ctx.fillStyle = 'rgba(255,255,255,0.55)';
               ctx.font = "11px 'Glacial Indifference', system-ui, sans-serif";
@@ -1072,29 +1090,44 @@ export function Timeline() {
               ctx.setLineDash([]);
             }
           } else {
+            // Only the points on the canvas (and one past each edge) are read
+            // and drawn. They sit on a grid fixed to the clip, so a scroll
+            // reveals more of the same points instead of resampling them.
+            const dx = clipWidth / (sampleCount - 1);
+            const firstPoint = Math.min(
+              sampleCount - 1,
+              Math.max(0, Math.floor(-clipX / dx) - 1),
+            );
+            const lastPoint = Math.max(
+              firstPoint,
+              Math.min(sampleCount - 1, Math.ceil((cw - clipX) / dx) + 1),
+            );
             let amps: number[];
-            if (audioBuffer) {
+            if (audioBuffer && pyramid) {
               const sr = audioBuffer.sampleRate;
-              amps = computePeaks(
+              amps = readPeaks(
+                pyramid,
                 audioBuffer,
                 sampleCount,
                 Math.floor(previewOffsetSec * sr),
                 Math.floor((previewOffsetSec + previewDurationSec) * sr),
+                firstPoint,
+                lastPoint,
               );
             } else {
               const rand = seededRandom(hashStr(clip.id));
               amps = Array.from(
                 { length: sampleCount },
                 () => rand() * 0.6 + 0.2,
-              );
+              ).slice(firstPoint, lastPoint + 1);
             }
 
             drawSmoothWaveform(
               ctx,
               amps,
-              clipX,
+              clipX + firstPoint * dx,
               centerY,
-              clipWidth,
+              (lastPoint - firstPoint) * dx,
               maxH,
               track.color + 'AA',
             );

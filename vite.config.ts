@@ -50,6 +50,22 @@ export default defineConfig({
     alias: {
       '@prism/engine': path.resolve(__dirname, 'src/daw/prism-engine/index.ts'),
     },
+    // One copy each of the modules Radix overlays keep their shared stacks
+    // in (open layers, focus traps, scroll locks). The pinned Radix packages
+    // nest their own copies (react-select, react-menu, react-tooltip and
+    // react-alert-dialog carry dismissable-layer 1.1.1, focus-scope 1.1.0 and
+    // react-remove-scroll 2.6.0 beside the top-level 1.1.5, 1.1.2 and
+    // 2.7.1), and two copies keep two stacks: a Select or a menu inside a
+    // dialog fought the dialog's focus trap for focus, and one Escape closed
+    // both. The 1.1.x copies differ only in a source-path comment, and the
+    // scroll locks only in fixes and an optional prop, so every package
+    // (cmdk's older nested copies too, which have the same exports) shares
+    // the top-level one.
+    dedupe: [
+      '@radix-ui/react-dismissable-layer',
+      '@radix-ui/react-focus-scope',
+      'react-remove-scroll',
+    ],
   },
   optimizeDeps: {
     exclude: ['@ffmpeg/ffmpeg', 'ffmpeg', 'date-fns'],
@@ -74,5 +90,9 @@ export default defineConfig({
     // Opt-in per file via `// @vitest-environment jsdom`; this only registers
     // the matchers and the msw lifecycle for the files that ask for them.
     setupFiles: ['./src/test/setup.ts'],
+    // Tests load Radix through Vite, as the app does, so resolve.dedupe
+    // above applies to them too; Node's own resolver would load the nested
+    // copies.
+    server: { deps: { inline: [/@radix-ui\//] } },
   },
 });

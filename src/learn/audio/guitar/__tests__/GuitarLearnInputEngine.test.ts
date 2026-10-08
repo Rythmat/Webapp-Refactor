@@ -103,6 +103,8 @@ function fakeRig() {
     sampleRate: 48000,
     close: vi.fn(),
     createAnalyser: vi.fn(() => fakeNode(context)),
+    // NodeTapCapture's own tap off the clean pre-amp node.
+    createGain: vi.fn(() => fakeNode(context)),
   };
   let source: ReturnType<typeof fakeNode> | null = fakeNode(context);
   const chordAnalyser = { ...fakeNode(context), fftSize: 16384 };
@@ -282,10 +284,12 @@ describe("Studio's mono note settings", () => {
     expect(options).toEqual(
       orchestratorOptionsFor(GUITAR_PITCH_PROFILE, 'monophonic'),
     );
+    // The orchestrator listens to NodeTapCapture's own tap of the clean
+    // pre-amp node, so stopping the capture detaches its ML peer too.
+    const tap = (capture as { getSourceNode(): unknown }).getSourceNode();
+    expect(tap).toBe(input.context.createGain.mock.results[0].value);
+    expect(input.source.connect).toHaveBeenCalledWith(tap);
     // NodeTapCapture's onset/fast/hi-res analysers, plus the 4096 tuner.
-    expect((capture as { getSourceNode(): unknown }).getSourceNode()).toBe(
-      input.source,
-    );
     const sizes = input.context.createAnalyser.mock.results.map(
       (r) => r.value.fftSize,
     );

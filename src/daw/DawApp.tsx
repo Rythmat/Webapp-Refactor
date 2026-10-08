@@ -59,6 +59,7 @@ import { initUndoTracking } from '@/daw/store/undoMiddleware';
 import { watchNoteIds } from '@/daw/model/noteIds';
 import { CollabProvider, useCollab } from '@/daw/collab/CollabProvider';
 import { getBridge } from '@/daw/collab/collabMiddleware';
+import { TooltipGroup } from '@/daw/ui/Tooltip';
 import { UserList } from '@/daw/collab/ui/UserList';
 import { ChatPanel } from '@/daw/collab/ui/ChatPanel';
 import { getDemoProject } from '@/daw/data/demoProjects';
@@ -717,8 +718,11 @@ function DawAppInner() {
 
 export function DawApp() {
   return (
-    <CollabProvider>
-      <DawAppInner />
-    </CollabProvider>
+    // One tooltip timing for the whole editor (src/daw/ui's Tooltip).
+    <TooltipGroup>
+      <CollabProvider>
+        <DawAppInner />
+      </CollabProvider>
+    </TooltipGroup>
   );
 }

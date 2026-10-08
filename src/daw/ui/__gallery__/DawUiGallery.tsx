@@ -74,7 +74,7 @@ import { TYPE_CLASS } from '../styles';
 import { Tab, TabList, TabPanel, Tabs } from '../Tabs';
 import { Toggle } from '../Toggle';
 import { COLOR, dawVar, TYPE, Z, type DawColorName } from '../tokens';
-import { Tooltip } from '../Tooltip';
+import { Tooltip, TooltipGroup } from '../Tooltip';
 
 /**
  * DEV only (/dev/studio/ui-gallery): every primitive in src/daw/ui in every
@@ -185,7 +185,16 @@ const DIALOG_SIZES: DawDialogSize[] = ['sm', 'md', 'lg', 'full'];
 const SHEET_SIDES: SheetSide[] = ['right', 'left', 'bottom'];
 const DB_EXAMPLES = [-Infinity, -72, -24.4, -12, -9.96, -6, -0.04, 0, 3.5, 12];
 
+/** The gallery, with one tooltip timing for the whole page, as the editor. */
 export function DawUiGallery() {
+  return (
+    <TooltipGroup>
+      <Gallery />
+    </TooltipGroup>
+  );
+}
+
+function Gallery() {
   const [overlay, setOverlay] = useState<Overlay>(initialOverlay);
   const [pressed, setPressed] = useState({
     loop: true,

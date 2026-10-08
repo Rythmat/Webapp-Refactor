@@ -6,7 +6,7 @@ import {
   render,
   screen,
 } from '@testing-library/react';
-import { Undo2 } from 'lucide-react';
+import { Redo2, Undo2 } from 'lucide-react';
 import { useState } from 'react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { Button } from '../Button';
@@ -17,13 +17,23 @@ import { Kbd } from '../Kbd';
 import { PremiumBadge } from '../PremiumBadge';
 import { Readout } from '../Readout';
 import { Toggle } from '../Toggle';
-import { Tooltip } from '../Tooltip';
+import { Tooltip, TooltipGroup } from '../Tooltip';
 import { installDomShims } from './dom';
 
 // ── Actions, chrome and helpers: names, roles, keyboard ─────────────────────
 
 beforeAll(installDomShims);
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
+
+/**
+ * The tip on screen. Radix also keeps a hidden copy (role="tooltip"), which
+ * is what a screen reader reads as the control's description; it sits
+ * inside the tip.
+ */
+const shownTip = () => screen.getByRole('tooltip').parentElement!;
 
 describe('Button', () => {
   it('is a button that never submits a form by accident', () => {
@@ -126,10 +136,21 @@ describe('IconButton', () => {
 
   it('shows the label and shortcut as a tooltip on keyboard focus', () => {
     render(<IconButton label="Undo" shortcut="⌘Z" icon={<Undo2 />} />);
-    act(() => screen.getByRole('button', { name: 'Undo' }).focus());
-    const tip = screen.getByRole('tooltip');
-    expect(tip).toHaveTextContent('Undo');
-    expect(tip).toHaveTextContent('⌘Z');
+    const button = screen.getByRole('button', { name: 'Undo' });
+    act(() => button.focus());
+    expect(shownTip()).toHaveTextContent('Undo');
+    expect(shownTip()).toHaveTextContent('⌘Z');
+    // Read once: the name, and only the shortcut as its description, not
+    // 'Undo, button, Undo ⌘Z'.
+    expect(button).toHaveAccessibleDescription('Shortcut ⌘Z');
+  });
+
+  it('is not described by its own name when the tip only repeats it', () => {
+    render(<IconButton label="Undo" icon={<Undo2 />} />);
+    const button = screen.getByRole('button', { name: 'Undo' });
+    act(() => button.focus());
+    expect(shownTip()).toHaveTextContent('Undo');
+    expect(button).not.toHaveAttribute('aria-describedby');
   });
 
   it('is 28 px square by default and 24 px when small', () => {
@@ -200,8 +221,10 @@ describe('Toggle', () => {
 
   it('gives an icon-only toggle its label as a tooltip', () => {
     render(<Toggle label="Metronome" icon={<Undo2 />} shortcut="K" />);
-    act(() => screen.getByRole('button', { name: 'Metronome' }).focus());
-    expect(screen.getByRole('tooltip')).toHaveTextContent('Metronome');
+    const toggle = screen.getByRole('button', { name: 'Metronome' });
+    act(() => toggle.focus());
+    expect(shownTip()).toHaveTextContent('Metronome');
+    expect(toggle).toHaveAccessibleDescription('Shortcut K');
   });
 });
 
@@ -215,8 +238,49 @@ describe('Tooltip', () => {
     const trigger = screen.getByRole('button', { name: 'Click' });
     act(() => trigger.focus());
     expect(screen.getByRole('tooltip')).toHaveTextContent('MetronomeK');
+    // A tip that says more than the name describes the control.
+    expect(trigger).toHaveAttribute(
+      'aria-describedby',
+      screen.getByRole('tooltip').id,
+    );
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(screen.queryByRole('tooltip')).toBeNull();
+  });
+
+  /** Shows Undo's tip from the keyboard, closes it, and points at Redo. */
+  function moveAlong() {
+    const undo = screen.getByRole('button', { name: 'Undo' });
+    const redo = screen.getByRole('button', { name: 'Redo' });
+    act(() => undo.focus());
+    expect(shownTip()).toHaveTextContent('Undo');
+    act(() => undo.blur());
+    fireEvent.pointerMove(redo);
+  }
+
+  it('opens the next tip at once inside a TooltipGroup', () => {
+    vi.useFakeTimers();
+    render(
+      <TooltipGroup>
+        <IconButton label="Undo" icon={<Undo2 />} />
+        <IconButton label="Redo" icon={<Redo2 />} />
+      </TooltipGroup>,
+    );
+    moveAlong();
+    expect(shownTip()).toHaveTextContent('Redo');
+  });
+
+  it('waits 400 ms at each tip outside a group', () => {
+    vi.useFakeTimers();
+    render(
+      <>
+        <IconButton label="Undo" icon={<Undo2 />} />
+        <IconButton label="Redo" icon={<Redo2 />} />
+      </>,
+    );
+    moveAlong();
+    expect(screen.queryByRole('tooltip')).toBeNull();
+    act(() => vi.advanceTimersByTime(400));
+    expect(shownTip()).toHaveTextContent('Redo');
   });
 });
 

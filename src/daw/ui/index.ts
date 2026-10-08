@@ -110,5 +110,5 @@ export {
   Z,
 } from './tokens';
 export type { DawColorName, DawLayer, DawPalette } from './tokens';
-export { Tooltip } from './Tooltip';
+export { Tooltip, TooltipGroup } from './Tooltip';
 export type { TooltipProps } from './Tooltip';

@@ -1,0 +1,58 @@
+{
+  "id": "hip-hop-l1-c23-c1-the-trap-bass-pattern",
+  "name": "Hip Hop L1 · C23 C1: The Trap Bass Pattern",
+  "instrument": "bass",
+  "role": "bassline",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 76,
+  "swing": 50,
+  "sound": "bass-electric:finger",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1150,
+      "midi": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 1200,
+      "duration": 700,
+      "midi": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 1150,
+      "midi": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 3120,
+      "duration": 700,
+      "midi": 36,
+      "velocity": 96
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "hip-hop",
+    "level": 1,
+    "section": "C",
+    "stepNumber": 23,
+    "title": "C1: The Trap Bass Pattern",
+    "tag": "hiphop:l1_bass_rhythm_one_note | hiphop",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Play C on beat 1 and again on the \"and\" of 3. Just the rhythm first.",
+  "genre": "hip-hop",
+  "chordSymbols": ["Cm"]
+}

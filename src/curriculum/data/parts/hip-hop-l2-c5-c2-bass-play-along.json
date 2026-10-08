@@ -1,0 +1,178 @@
+{
+  "id": "hip-hop-l2-c5-c2-bass-play-along",
+  "name": "Hip Hop L2 · C5 C2: Bass Play-Along",
+  "instrument": "bass",
+  "role": "bassline",
+  "level": 2,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 9,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 90,
+  "swing": 50,
+  "sound": "bass-electric:finger",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 460,
+      "midi": 33,
+      "velocity": 96
+    },
+    {
+      "tick": 480,
+      "duration": 340,
+      "midi": 40,
+      "velocity": 96
+    },
+    {
+      "tick": 840,
+      "duration": 240,
+      "midi": 43,
+      "velocity": 96
+    },
+    {
+      "tick": 1200,
+      "duration": 120,
+      "midi": 45,
+      "velocity": 100
+    },
+    {
+      "tick": 1440,
+      "duration": 120,
+      "midi": 43,
+      "velocity": 100
+    },
+    {
+      "tick": 1560,
+      "duration": 120,
+      "midi": 45,
+      "velocity": 100
+    },
+    {
+      "tick": 1920,
+      "duration": 460,
+      "midi": 33,
+      "velocity": 96
+    },
+    {
+      "tick": 2400,
+      "duration": 340,
+      "midi": 40,
+      "velocity": 96
+    },
+    {
+      "tick": 2760,
+      "duration": 240,
+      "midi": 43,
+      "velocity": 96
+    },
+    {
+      "tick": 3120,
+      "duration": 120,
+      "midi": 45,
+      "velocity": 100
+    },
+    {
+      "tick": 3360,
+      "duration": 120,
+      "midi": 43,
+      "velocity": 100
+    },
+    {
+      "tick": 3480,
+      "duration": 120,
+      "midi": 45,
+      "velocity": 100
+    },
+    {
+      "tick": 3840,
+      "duration": 460,
+      "midi": 38,
+      "velocity": 96
+    },
+    {
+      "tick": 4320,
+      "duration": 340,
+      "midi": 45,
+      "velocity": 96
+    },
+    {
+      "tick": 4680,
+      "duration": 240,
+      "midi": 48,
+      "velocity": 96
+    },
+    {
+      "tick": 5040,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 100
+    },
+    {
+      "tick": 5280,
+      "duration": 120,
+      "midi": 48,
+      "velocity": 100
+    },
+    {
+      "tick": 5400,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 100
+    },
+    {
+      "tick": 5760,
+      "duration": 460,
+      "midi": 38,
+      "velocity": 96
+    },
+    {
+      "tick": 6240,
+      "duration": 340,
+      "midi": 45,
+      "velocity": 96
+    },
+    {
+      "tick": 6600,
+      "duration": 240,
+      "midi": 48,
+      "velocity": 96
+    },
+    {
+      "tick": 6960,
+      "duration": 120,
+      "midi": 50,
+      "velocity": 100
+    },
+    {
+      "tick": 7200,
+      "duration": 120,
+      "midi": 48,
+      "velocity": 100
+    },
+    {
+      "tick": 7320,
+      "duration": 120,
+      "midi": 45,
+      "velocity": 100
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "hip-hop",
+    "level": 2,
+    "section": "C",
+    "stepNumber": 5,
+    "title": "C2: Bass Play-Along",
+    "tag": "hiphop:l2_bass_playalong_sus2 | hiphop",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Root–5–♭7 under the sus2 progression: two bars on A, two on D.",
+  "genre": "hip-hop",
+  "chordSymbols": ["Asus2", "Am", "Dsus2", "Dm"]
+}

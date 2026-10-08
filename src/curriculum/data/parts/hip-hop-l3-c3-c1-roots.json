@@ -1,0 +1,76 @@
+{
+  "id": "hip-hop-l3-c3-c1-roots",
+  "name": "Hip Hop L3 · C3 C1: Roots",
+  "instrument": "bass",
+  "role": "bassline",
+  "level": 3,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 4,
+    "mode": "phrygian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 77,
+  "swing": 50,
+  "sound": "bass-electric:finger",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 960,
+      "midi": 39,
+      "velocity": 96
+    },
+    {
+      "tick": 1200,
+      "duration": 240,
+      "midi": 42,
+      "velocity": 96
+    },
+    {
+      "tick": 1560,
+      "duration": 340,
+      "midi": 39,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 220,
+      "midi": 40,
+      "velocity": 96
+    },
+    {
+      "tick": 2160,
+      "duration": 720,
+      "midi": 40,
+      "velocity": 96
+    },
+    {
+      "tick": 3120,
+      "duration": 240,
+      "midi": 43,
+      "velocity": 96
+    },
+    {
+      "tick": 3480,
+      "duration": 340,
+      "midi": 40,
+      "velocity": 96
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "hip-hop",
+    "level": 3,
+    "section": "C",
+    "stepNumber": 3,
+    "title": "C1: Roots",
+    "tag": "hiphop:l3_bass_ds_e | hiphop",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "D♯ with the kick, then E — up a half step, never down the 7th.",
+  "genre": "hip-hop",
+  "chordSymbols": ["D#dim7", "Emadd2"]
+}

@@ -1,6 +1,11 @@
 import { GROOVES } from '@/daw/data/groovesLibrary';
 import { loadGrooveEvents } from '@/daw/midi/loadGrooveEvents';
+import {
+  isPristineSession,
+  markSessionPristine,
+} from '@/daw/persistence/SessionSerializer';
 import { useStore } from '@/daw/store';
+import { resetUndoHistory } from '@/daw/store/undoMiddleware';
 
 /**
  * Add a demo project's drum groove as a Drums track, once the demo bundle has
@@ -29,6 +34,12 @@ export async function applyDemoDrums(
   );
   if (loopTicks <= 0) return;
 
+  // Untouched since it opened: the drums finish opening the demo, so they
+  // belong to its undo baseline (the first Cmd+Z must not remove them) and
+  // the demo still counts as unchanged. After an edit they are an ordinary
+  // step, and the student's own history stays.
+  const untouched = isPristineSession();
+
   const trackId = store.addTrack('midi', 'drum-machine', 'Drums');
   store.addMidiClip(trackId, {
     id: `clip-groove-${crypto.randomUUID().slice(0, 8)}`,
@@ -42,4 +53,9 @@ export async function applyDemoDrums(
         durationTicks: Math.min(e.durationTicks, loopTicks - e.startTick),
       })),
   });
+
+  if (untouched) {
+    resetUndoHistory();
+    markSessionPristine();
+  }
 }

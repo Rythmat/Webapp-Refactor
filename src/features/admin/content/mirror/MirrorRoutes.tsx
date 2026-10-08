@@ -74,8 +74,11 @@ const buildRoutes = (): RouteObject[] => [
   ),
   segment(curriculumPages),
   segment(atlasPages),
-  // Studio: the dashboard; the editor opens a student's own project.
-  segment(studioPages, (child) => (child.index ? child : notMirrored(child))),
+  // Studio: the dashboard and its Production lessons; the editor opens a
+  // student's own project.
+  segment(studioPages, (child) =>
+    child.path === 'editor' ? notMirrored(child) : child,
+  ),
   // Arcade: the dashboard; the games are code, and some open live rooms.
   segment(gamesPages, (child) => (child.index ? child : notMirrored(child))),
   segment(searchPages),

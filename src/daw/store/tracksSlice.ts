@@ -285,7 +285,6 @@ export interface TracksSlice {
     clipId: string,
     updates: Partial<AudioClip>,
   ) => void;
-  clearMidiClips: (trackId: string) => void;
   reorderTrack: (id: string, newIndex: number) => void;
   addActiveEffect: (trackId: string, effectType: EffectSlotType) => void;
   removeActiveEffect: (trackId: string, effectType: EffectSlotType) => void;
@@ -330,162 +329,6 @@ export interface TracksSlice {
   /** Remove a whole param lane. */
   clearAutomationLane: (trackId: string, paramId: string) => void;
   loadProjectTemplate: (templateId: string) => void;
-}
-
-// ── Demo data ───────────────────────────────────────────────────────────
-// Pre-populated tracks so the UI renders with waveforms matching the reference.
-
-function seededNotes(
-  seed: number,
-  count: number,
-  startTick: number,
-  spanTicks: number,
-  noteRange: [number, number],
-): MidiNoteEvent[] {
-  let s = seed;
-  const next = () => {
-    s = (s * 1664525 + 1013904223) >>> 0;
-    return s / 0xffffffff;
-  };
-  const notes: MidiNoteEvent[] = [];
-  const [lo, hi] = noteRange;
-  for (let i = 0; i < count; i++) {
-    const t = startTick + Math.floor(next() * spanTicks);
-    const dur = Math.floor(next() * 400) + 60;
-    const note = Math.floor(next() * (hi - lo)) + lo;
-    const vel = Math.floor(next() * 60) + 60;
-    notes.push({
-      startTick: t,
-      durationTicks: dur,
-      note,
-      velocity: vel,
-      channel: 0,
-    });
-  }
-  return notes.sort((a, b) => a.startTick - b.startTick);
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function createDemoTracks(): Track[] {
-  return [
-    {
-      id: 'demo-chords',
-      name: 'Ethereal Chords',
-      type: 'midi',
-      instrument: 'oracle-synth',
-      color: '#8b5cf6',
-      mute: false,
-      solo: false,
-      volume: 0.8,
-      pan: 0,
-      recordArmed: true,
-      monitoring: true,
-      midiInputId: null,
-      audioInputId: null,
-      audioInputChannel: null,
-      effects: structuredClone(DEFAULT_EFFECTS),
-      activeEffects: [],
-      trackRole: 'chords',
-      midiClips: [
-        {
-          id: 'clip-chords-1',
-          name: 'Ethereal Pad — Chords',
-          startTick: 0,
-          events: seededNotes(42, 80, 0, 7680, [55, 80]),
-        },
-      ],
-      audioClips: [],
-    },
-    {
-      id: 'demo-melody',
-      name: 'Lead Melody',
-      type: 'midi',
-      instrument: 'oracle-synth',
-      color: '#a855f7',
-      mute: false,
-      solo: false,
-      volume: 0.75,
-      pan: 0.1,
-      recordArmed: false,
-      monitoring: false,
-      midiInputId: null,
-      audioInputId: null,
-      audioInputChannel: null,
-      effects: structuredClone(DEFAULT_EFFECTS),
-      activeEffects: [],
-      trackRole: 'melody',
-      midiClips: [
-        {
-          id: 'clip-melody-1',
-          name: 'Lead Line — Melody',
-          startTick: 0,
-          events: seededNotes(99, 60, 0, 7680, [60, 90]),
-        },
-      ],
-      audioClips: [],
-    },
-    {
-      id: 'demo-bass',
-      name: 'Deep Bass',
-      type: 'midi',
-      instrument: 'oracle-synth',
-      color: '#f59e0b',
-      mute: false,
-      solo: false,
-      volume: 0.85,
-      pan: 0,
-      recordArmed: false,
-      monitoring: false,
-      midiInputId: null,
-      audioInputId: null,
-      audioInputChannel: null,
-      effects: structuredClone(DEFAULT_EFFECTS),
-      activeEffects: [],
-      trackRole: 'bass',
-      midiClips: [
-        {
-          id: 'clip-bass-1',
-          name: 'Sub Pattern — Bass',
-          startTick: 0,
-          events: seededNotes(17, 40, 0, 3840, [30, 50]),
-        },
-        {
-          id: 'clip-bass-2',
-          name: 'Sub Pattern II — Bass',
-          startTick: 3840,
-          events: seededNotes(23, 50, 3840, 3840, [30, 55]),
-        },
-      ],
-      audioClips: [],
-    },
-    {
-      id: 'demo-drums',
-      name: 'Percussion',
-      type: 'midi',
-      instrument: 'drum-machine',
-      color: '#f97316',
-      mute: false,
-      solo: false,
-      volume: 0.7,
-      pan: 0,
-      recordArmed: false,
-      monitoring: false,
-      midiInputId: null,
-      audioInputId: null,
-      audioInputChannel: null,
-      ...drumMachineDefaults(),
-      trackRole: 'drums',
-      midiClips: [
-        {
-          id: 'clip-drums-1',
-          name: 'Beat Sequence — Drums',
-          startTick: 0,
-          events: seededNotes(55, 90, 0, 7680, [36, 52]),
-        },
-      ],
-      audioClips: [],
-    },
-  ];
 }
 
 export const createTracksSlice: StateCreator<
@@ -756,15 +599,6 @@ export const createTracksSlice: StateCreator<
                 ),
               }
             : t,
-        ),
-      })),
-    ),
-
-  clearMidiClips: (trackId) =>
-    set(
-      guardTrack(trackId, (state) => ({
-        tracks: state.tracks.map((t) =>
-          t.id === trackId ? { ...t, midiClips: [] } : t,
         ),
       })),
     ),

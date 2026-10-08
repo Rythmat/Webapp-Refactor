@@ -53,16 +53,16 @@
  * only. `--headed` opens a visible window instead, for the headed run on
  * the owner's Mac that the plan's real targets are measured with.
  */
-import { spawn, execFileSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
 import sharp from 'sharp';
+import { OWNER_PORT, startServer, waitClosed } from './lib/devServer.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const OWNER_PORT = 5179;
 
 const args = Object.fromEntries(
   process.argv.slice(2).map((arg) => {
@@ -120,72 +120,6 @@ const BACKGROUND = [16, 16, 18];
 /** One mouse-wheel click, in pixels, as the graph reads it. */
 const NOTCH_PX = 120;
 const EXPECTED_ZOOM = 1.5 ** 3;
-
-/* ── The dev servers ─────────────────────────────────────────────────── */
-
-const isListening = async (port) => {
-  try {
-    await fetch(`http://localhost:${port}/`, {
-      signal: AbortSignal.timeout(1500),
-    });
-    return true;
-  } catch {
-    return false;
-  }
-};
-
-/** Start a dev server on `port` with `env`, and wait until it answers. */
-async function startServer(port, env, logFile) {
-  if (await isListening(port)) {
-    throw new Error(
-      `port ${port} is already in use; stop that server or pick another port`,
-    );
-  }
-  const log = [];
-  const child = spawn(
-    join(ROOT, 'node_modules/.bin/vite'),
-    ['--port', String(port), '--strictPort'],
-    {
-      cwd: ROOT,
-      env: { ...process.env, ...env },
-      detached: true,
-      stdio: ['ignore', 'pipe', 'pipe'],
-    },
-  );
-  child.stdout.on('data', (d) => log.push(String(d)));
-  child.stderr.on('data', (d) => log.push(String(d)));
-  const stop = () => {
-    try {
-      process.kill(-child.pid, 'SIGTERM');
-    } catch {
-      // Already gone.
-    }
-    if (logFile) writeFileSync(logFile, log.join(''));
-  };
-  const deadline = Date.now() + 60_000;
-  while (Date.now() < deadline) {
-    if (child.exitCode !== null) {
-      stop();
-      throw new Error(
-        `the dev server on ${port} exited:\n${log.join('').slice(-2000)}`,
-      );
-    }
-    if (await isListening(port)) return { stop };
-    await new Promise((r) => setTimeout(r, 300));
-  }
-  stop();
-  throw new Error(`the dev server on ${port} did not answer within 60 s`);
-}
-
-/** Wait until nothing listens on `port` any more. */
-async function waitClosed(port) {
-  const deadline = Date.now() + 15_000;
-  while (Date.now() < deadline) {
-    if (!(await isListening(port))) return true;
-    await new Promise((r) => setTimeout(r, 300));
-  }
-  return false;
-}
 
 /** `git status` for the content data, to show a repo-mode run wrote nothing. */
 const contentStatus = () => {
@@ -768,11 +702,12 @@ let failed = false;
 try {
   for (const run of RUNS) {
     const before = run.name === 'repo' ? contentStatus() : null;
-    const server = await startServer(
-      run.port,
-      run.env,
-      SHOTS ? join(SHOTS, `vite-${run.port}.log`) : null,
-    );
+    const server = await startServer({
+      root: ROOT,
+      port: run.port,
+      env: run.env,
+      logFile: SHOTS ? join(SHOTS, `vite-${run.port}.log`) : null,
+    });
     let result;
     try {
       result = await runOne(run.name, `http://localhost:${run.port}`, browser);

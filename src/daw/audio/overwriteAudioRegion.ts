@@ -1,43 +1,31 @@
 // ── overwriteAudioRegion.ts ─────────────────────────────────────────────────
-// Replace the audio on a track within a time range [fromTick, toTick) with
-// silence-by-removal, so a freshly-recorded take "overwrites" whatever it rolls
-// over in time. Clips fully inside the range are deleted; clips that straddle a
-// boundary are sliced down to the non-overlapping remainder(s); clips that fully
-// contain the range are split into a left and a right remainder.
+// Clear the audio on a track within a time range [fromTick, toTick), so a
+// freshly-recorded take "overwrites" whatever it rolls over in time. Clips
+// fully inside the range are removed; clips that straddle a boundary keep the
+// part outside it; clips that fully contain the range keep a left and a right
+// remainder.
 //
-// Mirrors the timeline scissors-split approach (Timeline.tsx): the underlying
-// AudioBuffer is physically sliced via sliceBuffer and re-stored under fresh
-// clip ids, because playback plays a clip's whole buffer (offsetSeconds is not
-// honored by the scheduler).
+// Non-destructive, like the timeline's split (see audioClipCuts.ts): a
+// remainder is the old clip with a narrower window into the same recording,
+// so it keeps the clip's assetId, gain, outer fades and decoded audio. Nothing
+// is evicted, so undoing the take brings the old clip back still playing, and
+// a remainder of an uploaded take survives a reload (its assetId is kept).
 
 import { useStore } from '@/daw/store';
-import {
-  getAudioBuffer,
-  setAudioBuffer,
-  removeAudioBuffer,
-  sliceBuffer,
-} from '@/daw/audio/AudioBufferStore';
-import { ticksToSeconds } from '@/daw/audio/recordingLimit';
-
-function tickToSample(
-  tickOffset: number,
-  bpm: number,
-  sampleRate: number,
-  maxSample: number,
-): number {
-  const seconds = ticksToSeconds(tickOffset, bpm);
-  return Math.max(0, Math.min(maxSample, Math.round(seconds * sampleRate)));
-}
+import { shareClipAudio } from '@/daw/audio/AudioBufferStore';
+import { clearAudioRange } from '@/daw/audio/audioClipCuts';
 
 /**
  * Trim/remove existing audio clips on `trackId` that overlap [fromTick, toTick).
  * `excludeClipId` is the newly-recorded clip itself, which must be left intact.
+ * The audio context is no longer needed (nothing is sliced); the parameter
+ * stays so the recording path's call keeps compiling.
  */
 export function overwriteAudioRegion(
   trackId: string,
   fromTick: number,
   toTick: number,
-  ctx: AudioContext,
+  _ctx: AudioContext,
   bpm: number,
   excludeClipId?: string,
 ): void {
@@ -47,77 +35,31 @@ export function overwriteAudioRegion(
   const track = state.tracks.find((t) => t.id === trackId);
   if (!track) return;
 
-  // Snapshot the clips up front; we mutate the store as we go.
-  const overlapping = track.audioClips.filter((c) => {
-    if (c.id === excludeClipId) return false;
-    const clipEnd = c.startTick + c.duration;
-    return c.startTick < toTick && clipEnd > fromTick;
-  });
+  const cleared = clearAudioRange(
+    track.audioClips,
+    fromTick,
+    toTick,
+    bpm,
+    () => `clip-trim-${crypto.randomUUID().slice(0, 8)}`,
+    excludeClipId,
+  );
+  if (!cleared.changed) return;
 
-  for (const clip of overlapping) {
-    const clipEnd = clip.startTick + clip.duration;
-    const buffer = getAudioBuffer(clip.id);
+  // One write for the whole overwrite, so it lands as a single undo step with
+  // the take instead of a remove and an add per clip.
+  state.updateTrack(trackId, { audioClips: cleared.clips });
 
-    const hasLeft = clip.startTick < fromTick;
-    const hasRight = clipEnd > toTick;
-
-    // Fully covered → just remove it.
-    if (!hasLeft && !hasRight) {
-      state.removeAudioClip(trackId, clip.id);
-      removeAudioBuffer(clip.id);
-      continue;
-    }
-
-    // Without a decoded buffer we can't slice; remove rather than leave audio
-    // that bleeds into the overwritten region.
-    if (!buffer) {
-      state.removeAudioClip(trackId, clip.id);
-      removeAudioBuffer(clip.id);
-      continue;
-    }
-
-    state.removeAudioClip(trackId, clip.id);
-
-    if (hasLeft) {
-      const leftTicks = fromTick - clip.startTick;
-      const endSample = tickToSample(
-        leftTicks,
-        bpm,
-        buffer.sampleRate,
-        buffer.length,
-      );
-      const leftBuffer = sliceBuffer(ctx, buffer, 0, endSample);
-      const leftId = `clip-trim-${crypto.randomUUID().slice(0, 8)}`;
-      setAudioBuffer(leftId, leftBuffer);
-      state.addAudioClip(trackId, {
-        id: leftId,
-        startTick: clip.startTick,
-        duration: leftTicks,
-        fadeInTicks: clip.fadeInTicks,
-        fadeOutTicks: 0,
-      });
-    }
-
-    if (hasRight) {
-      const rightStartTicks = toTick - clip.startTick;
-      const startSample = tickToSample(
-        rightStartTicks,
-        bpm,
-        buffer.sampleRate,
-        buffer.length,
-      );
-      const rightBuffer = sliceBuffer(ctx, buffer, startSample, buffer.length);
-      const rightId = `clip-trim-${crypto.randomUUID().slice(0, 8)}`;
-      setAudioBuffer(rightId, rightBuffer);
-      state.addAudioClip(trackId, {
-        id: rightId,
-        startTick: toTick,
-        duration: clipEnd - toTick,
-        fadeInTicks: 0,
-        fadeOutTicks: clip.fadeOutTicks,
-      });
-    }
-
-    removeAudioBuffer(clip.id);
+  // A take inside a clip leaves a right remainder under a new id; it plays
+  // (and, if never uploaded, uploads) the same recording as the clip. Shared
+  // only once it landed: a collaborator's track lock turns the write into a
+  // no-op, and nothing should be left behind for a clip that isn't there.
+  const landed = new Set(
+    useStore
+      .getState()
+      .tracks.find((t) => t.id === trackId)
+      ?.audioClips.map((c) => c.id),
+  );
+  for (const { from, to } of cleared.shared) {
+    if (landed.has(to)) shareClipAudio(from, to);
   }
 }

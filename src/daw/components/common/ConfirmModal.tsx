@@ -1,8 +1,15 @@
 import * as Dialog from '@radix-ui/react-dialog';
+import { useDawBodyTokens } from '@/daw/hooks/useDawBodyTokens';
 
 // ── ConfirmModal ────────────────────────────────────────────────────────────
-// Small glass-panel confirmation dialog. Renders a Cancel + Confirm pair, or a
-// single dismiss button when `cancelLabel` is omitted (informational use).
+// Small confirmation dialog. Renders a Cancel + Confirm pair, or a single
+// dismiss button when `cancelLabel` is omitted (informational use). The
+// confirm is the app's white pill, or red when it destroys something.
+//
+// Radix portals it to <body>, outside .daw-root, so it holds the DAW tokens
+// there itself (useDawBodyTokens). The card is an opaque surface rather than
+// see-through glass, so its text never sits on whatever the editor shows
+// behind it.
 
 interface ConfirmModalProps {
   open: boolean;
@@ -28,17 +35,16 @@ export function ConfirmModal({
   onConfirm,
   destructive,
 }: ConfirmModalProps) {
+  useDawBodyTokens();
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" />
         <Dialog.Content
-          className="glass-panel fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl p-6 outline-none"
+          className="fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl p-6 outline-none"
           style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.04)',
+            backgroundColor: 'var(--color-surface)',
             border: '1px solid rgba(255, 255, 255, 0.12)',
-            backdropFilter: 'blur(32px)',
-            WebkitBackdropFilter: 'blur(32px)',
             boxShadow:
               '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
           }}
@@ -60,12 +66,8 @@ export function ConfirmModal({
             {cancelLabel && (
               <button
                 onClick={() => onOpenChange(false)}
-                className="h-8 cursor-pointer rounded-lg px-3 text-xs font-semibold transition-colors hover:bg-white/10"
-                style={{
-                  backgroundColor: 'var(--color-surface-2)',
-                  color: 'var(--color-text)',
-                  border: 'none',
-                }}
+                className="h-8 cursor-pointer rounded-full bg-white/10 px-4 text-xs font-semibold transition-colors hover:bg-white/15"
+                style={{ color: 'var(--color-text)', border: 'none' }}
               >
                 {cancelLabel}
               </button>
@@ -75,14 +77,20 @@ export function ConfirmModal({
                 onOpenChange(false);
                 onConfirm?.();
               }}
-              className="h-8 cursor-pointer rounded-lg px-3 text-xs font-semibold transition-transform hover:scale-[1.03] active:scale-[0.97]"
-              style={{
-                backgroundColor: destructive
-                  ? 'var(--color-record, #ef4444)'
-                  : 'var(--color-accent)',
-                color: destructive ? '#fff' : '#000',
-                border: 'none',
-              }}
+              className="h-8 cursor-pointer rounded-full px-4 text-xs font-semibold transition-transform hover:scale-[1.03] active:scale-[0.97]"
+              style={
+                destructive
+                  ? {
+                      backgroundColor: 'var(--color-record, #ef4444)',
+                      color: '#fff',
+                      border: 'none',
+                    }
+                  : {
+                      backgroundColor: '#fff',
+                      color: '#101012',
+                      border: 'none',
+                    }
+              }
             >
               {confirmLabel}
             </button>

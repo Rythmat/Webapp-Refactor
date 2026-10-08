@@ -8,10 +8,25 @@
 
 import type { RGB } from '../types';
 import { getOptions, getFirstChords, graphToken } from './progression';
-import { degreeMidi, unstepChord } from './naming';
+import {
+  degreeMidi,
+  getModeOffset,
+  ionianToModeLabel,
+  modeToIonianLabel,
+  unstepChord,
+} from './naming';
 import { generateChord, normalizeSequence } from './chordUtils';
 import { getChordColor } from './colorSystem';
 import { noteNameInKey, respellLeadingChords } from '../data/notes';
+
+// ── Key and mode ───────────────────────────────────────────────────────────
+// The progression graph is written in the parent major key: "6 minor" is the
+// tonic chord of A aeolian (C major's vi). Chord regions count their degrees
+// from the key's own tonic instead ("1 minor" there). As in prismSlice, the
+// walk stays in graph space and labels cross over only at its edges: seeds
+// go in through modeToIonianLabel, suggestions come out through
+// ionianToModeLabel and are voiced from the parent root. Ionian and the
+// non-diatonic modes have no offset, so both directions leave them alone.
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -24,6 +39,7 @@ export interface ChordStyle {
 }
 
 export interface SuggestionChord {
+  /** Counted from the key's tonic, as regions store it: "1 minor" in A aeolian. */
   degree: string; // e.g. "1 major", "5 dominant7"
   quality: string; // e.g. "major", "dominant7"
   noteName: string; // e.g. "C maj", "G dom7"
@@ -110,6 +126,7 @@ interface ChordRegionLike {
   endTick: number;
   name: string;
   noteName: string;
+  degreeKey?: string;
 }
 
 function classifyQuality(quality: string): 'triad' | 'seventh' | 'extended' {
@@ -161,11 +178,25 @@ export function analyzeChordStyle(regions: ChordRegionLike[]): ChordStyle {
 
 // ── Phase 2: Chord Context Extractor ───────────────────────────────────────
 
+/**
+ * A region label in the graph's terms. Only degree labels move: a letter name
+ * ("G dom7") is no graph key in any mode, and is left for the lookup to drop.
+ */
+function toGraphLabel(label: string, mode: string): string {
+  return /^[b#]?[1-7] /.test(label) ? modeToIonianLabel(label, mode) : label;
+}
+
+/**
+ * The chords before `beforeTick`, as a key into the progression graph. Region
+ * labels count from the key's tonic and the graph from the parent major key,
+ * so each one is converted on the way in: in A aeolian an Am region
+ * ("1 minor") seeds the walk as "6 minor".
+ */
 export function extractGraphSeed(
   regions: ChordRegionLike[],
   beforeTick: number,
   _rootNote: number,
-  _mode: string,
+  mode: string,
 ): string[] {
   // Filter regions that end before the insertion point
   const prior = regions.filter((r) => r.endTick <= beforeTick);
@@ -182,9 +213,9 @@ export function extractGraphSeed(
 
   const seed: string[] = [];
   for (const r of recent) {
-    // If degreeKey is available, use it directly (it's in graph format)
-    if ('degreeKey' in r && (r as { degreeKey?: string }).degreeKey) {
-      seed.push((r as { degreeKey?: string }).degreeKey!);
+    // A degreeKey already uses full names, as the graph does
+    if (r.degreeKey) {
+      seed.push(toGraphLabel(r.degreeKey, mode));
       continue;
     }
 
@@ -196,7 +227,7 @@ export function extractGraphSeed(
       .replace(/\bdom\b/, 'dominant')
       .replace(/\bdim\b/, 'diminished')
       .replace(/\baug\b/, 'augmented');
-    seed.push(expanded);
+    seed.push(toGraphLabel(expanded, mode));
   }
 
   // Try the full sequence as a graph key; if not found, shorten
@@ -241,27 +272,44 @@ function abbreviateQuality(quality: string): string {
   return QUALITY_ABBREVIATION[quality] ?? quality;
 }
 
+/** A graph chord's name in the key: "6 minor" in A aeolian is "A min". */
 function degreeToNoteName(
   degreeName: string,
   rootMidi: number,
   mode: string,
 ): string {
   const quality = unstepChord(degreeName);
-  const midi = degreeMidi(rootMidi, degreeName);
+  const midi = degreeMidi(rootMidi - getModeOffset(mode), degreeName);
   const pc = ((midi % 12) + 12) % 12;
   const noteLetter = noteNameInKey(pc, rootMidi % 12, mode);
   return `${noteLetter} ${abbreviateQuality(quality)}`;
 }
 
+/** A graph chord's notes, its degree counted from the parent major root. */
 function degreeNameToChord(
   degreeName: string,
   rootMidi: number,
-  _mode: string,
+  mode: string,
 ): number[] {
   const quality = unstepChord(degreeName);
-  const midi = degreeMidi(rootMidi, degreeName);
-  // For non-ionian diatonic modes, the degreeMidi is relative to the mode root
+  const midi = degreeMidi(rootMidi - getModeOffset(mode), degreeName);
   return generateChord(midi, quality);
+}
+
+/**
+ * Where a walk goes when nothing before it leads anywhere: its first chord on
+ * an empty lane, and its restart after a dead end. The graph lists its
+ * openings as a major key sees them, I first; in another mode the chords on
+ * its own tonic go first, so A aeolian opens on Am, not C, and restarts there
+ * as a major-key walk restarts on I. Locrian's tonic opens nothing in the
+ * graph, so it keeps the graph's order.
+ */
+function firstChordsFor(mode: string): string[] {
+  const first = getFirstChords();
+  if (getModeOffset(mode) === 0) return first;
+  const onTonic = (name: string) =>
+    ionianToModeLabel(name, mode).startsWith('1 ');
+  return [...first.filter(onTonic), ...first.filter((name) => !onTonic(name))];
 }
 
 function walkGraph(
@@ -269,6 +317,7 @@ function walkGraph(
   numChords: number,
   style: ChordStyle,
   pickStrategy: (options: string[], step: number) => string | null,
+  firstChords: string[],
 ): string[] {
   const result: string[] = [];
   let history = [...seed];
@@ -288,7 +337,7 @@ function walkGraph(
 
     // Still no options — try first chords
     if (options.length === 0) {
-      options = getFirstChords();
+      options = firstChords;
     }
 
     // Apply style filtering
@@ -316,6 +365,7 @@ export function generateSuggestions(
   const chordsPerMeasure = Math.max(1, Math.round(style.avgChordsPerMeasure));
   const numChords = measuresToFill * chordsPerMeasure;
   const rootMidi = (rootNote ?? 0) + 48; // Middle octave
+  const firstChords = firstChordsFor(mode);
 
   const results: SuggestionSet[] = [];
   const labels = [
@@ -345,7 +395,8 @@ export function generateSuggestions(
 
   for (let i = 0; i < count; i++) {
     const strategy = strategies[Math.min(i, strategies.length - 1)];
-    const degrees = walkGraph(seed, numChords, style, strategy);
+    // Graph names, in the parent major key like the seed.
+    const degrees = walkGraph(seed, numChords, style, strategy, firstChords);
 
     // Convert degrees to full chord data
     const midiArrays = degrees.map((d) => degreeNameToChord(d, rootMidi, mode));
@@ -356,11 +407,14 @@ export function generateSuggestions(
       degrees.map((d) => degreeToNoteName(d, rootMidi, mode)),
     );
     const chords: SuggestionChord[] = degrees.map((degree, j) => ({
-      degree,
+      degree: ionianToModeLabel(degree, mode),
+      // From the graph name: converting a slash chord moves its bass number
+      // too, and "major/5" would no longer be the inversion it voiced.
       quality: unstepChord(degree),
       noteName: noteNames[j],
       midi: normalized[j],
-      color: getChordColor(degree, rootMidi, mode) as RGB,
+      // Coloured from the parent root, as Prism colours its own chords.
+      color: getChordColor(degree, rootMidi - getModeOffset(mode)) as RGB,
     }));
 
     results.push({

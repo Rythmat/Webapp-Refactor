@@ -3,13 +3,13 @@ import {
   type TrackEffectState,
 } from '@/daw/audio/EffectChain';
 import { ensureSamplerSampleId } from '@/daw/instruments/samplerChops';
-import { useStore } from '@/daw/store';
-import type { Track } from '@/daw/store/tracksSlice';
+import { useStore, type AllSlices } from '@/daw/store';
+import type { AudioInputChannel, Track } from '@/daw/store/tracksSlice';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import { resetUndoHistory } from '@/daw/store/undoMiddleware';
 import { defaultReturns, type ReturnBus } from '@/daw/store/returnsSlice';
 import type { MidiNoteEvent } from '@/daw/prism-engine/types';
-import { guessTrackRole } from '@/daw/utils/trackRole';
+import { guessTrackRole, type DawTrackRole } from '@/daw/utils/trackRole';
 import type { AutomationLanes } from '@/daw/audio/automation';
 import {
   getTrackSynthState,
@@ -46,6 +46,9 @@ export interface SerializedTrackSettings {
   // settings blob opaquely but has no project-level field for them, so they
   // ride on the first track's settings (see masterAutomationFromCloud).
   masterAutomation?: AutomationLanes;
+  // Cloud saves only: the role the student picked for chord analysis. The API
+  // has no column for it either; a save without it re-guesses from the name.
+  trackRole?: DawTrackRole;
 }
 
 /** Build the persisted settings blob from a track (undefined fields are dropped on JSON encode). */
@@ -212,6 +215,13 @@ export interface SessionData {
       monitoring: boolean;
       midiInputId: string | null;
       audioInputId: string | null;
+      // This device's input channel for a live guitar, bass or vocal track.
+      // Local only: channel numbers belong to one person's audio interface, so
+      // the cloud never carries them. Optional — older saves load with none.
+      audioInputChannel?: AudioInputChannel | null;
+      // The role the student picked for chord analysis. Optional — older saves
+      // load as 'auto' (resolved from the name and instrument).
+      trackRole?: DawTrackRole;
       midiClips: MidiClipColumnar[];
       audioClips: Array<{
         id: string;
@@ -303,6 +313,8 @@ export function serializeSession(): SessionData {
         monitoring: t.monitoring,
         midiInputId: t.midiInputId,
         audioInputId: t.audioInputId,
+        audioInputChannel: t.audioInputChannel,
+        trackRole: t.trackRole,
         midiClips: t.midiClips.map((c) => ({
           id: c.id,
           name: c.name,
@@ -460,7 +472,7 @@ export function serializeSessionForCloud(
       volume: t.volume,
       pan: t.pan,
       activeEffects: t.activeEffects ?? [],
-      settings: trackSettings(t),
+      settings: { ...trackSettings(t), trackRole: t.trackRole },
       midiClips: t.midiClips.map((c) => ({
         id: c.id,
         name: c.name,
@@ -530,6 +542,7 @@ function freshProjectHarmony() {
     selectedNotes: [],
     selectedClipId: null,
     selectedClipTrackId: null,
+    parkedClipSelection: null,
     editingClipId: null,
     editingClipTrackId: null,
     leadSheetSelectedChordIdx: null,
@@ -541,6 +554,181 @@ function freshProjectHarmony() {
     scoreSlashNotes: [],
     leadSheetRepeats: [],
   } satisfies Partial<ReturnType<typeof useStore.getState>>;
+}
+
+/**
+ * The rest of what belongs to one project that no load restores: the lesson
+ * or practice screen it was opened for, the key lock and its colour, the
+ * detected key (what clearDetectedKey resets), markers, the metre, mastering,
+ * the Score and lead-sheet marks freshProjectHarmony leaves out, the Prism
+ * suggestion dialog and the pitch analysis of its takes.
+ */
+const PROJECT_CONTEXT_KEYS = [
+  'practiceSession',
+  'activeTutorialId',
+  'tutorialStepIndex',
+  'tutorialStepStatus',
+  'tutorialStepCelebrate',
+  'rootLocked',
+  'rootTrackColor',
+  'detectedKeyRootPc',
+  'detectedMode',
+  'keyConfidence',
+  'keySource',
+  'activeNotesBitmask',
+  'markers',
+  'timeSignatureNumerator',
+  'timeSignatureDenominator',
+  'masteringStyle',
+  'masteringEq',
+  'masteringPresence',
+  'masteringDeEsser',
+  'masteringLoudness',
+  'masteringStereoField',
+  'masteringDynamics',
+  'masteringAmount',
+  'masteringBypass',
+  'masteringFxChain',
+  'masteringEffects',
+  'masterVolume',
+  'scoreSpellings',
+  'scoreSystemBreaks',
+  'scorePageBreaks',
+  'scoreSystemRuns',
+  'scoreTextMarks',
+  'leadSheetChordFormat',
+  'leadSheetShowRepeats',
+  'leadSheetShowMelody',
+  'leadSheetMelodyTrackId',
+  'prismSuggestOpen',
+  'prismSuggestInsertTick',
+  'prismSuggestTrackId',
+  'prismSuggestMeasures',
+  'prismSuggestSets',
+  'prismSuggestActiveIdx',
+  'prismSuggestPreviewPlaying',
+  'prismSuggestStyle',
+  'pitchData',
+] as const satisfies readonly (keyof AllSlices)[];
+
+type ProjectContext = Pick<
+  AllSlices,
+  | (typeof PROJECT_CONTEXT_KEYS)[number]
+  | 'returns'
+  | 'currentView'
+  | 'libraryOpen'
+>;
+
+/**
+ * PROJECT_CONTEXT_KEYS as a fresh page has them, read from the slices' own
+ * initial state so the defaults live in one place, plus the default return
+ * buses and the arrange view. Every load and reset starts from this, so none
+ * of it carries over into the next project: a lesson running on in an
+ * unrelated project, a practice screen over it, a key lock that blocks the
+ * next song's key. A lesson or practice boot starts its own after the load.
+ */
+function freshProjectContext(): Partial<ProjectContext> {
+  const initial = useStore.getInitialState();
+  const fresh: Partial<ProjectContext> = { returns: defaultReturns() };
+  for (const key of PROJECT_CONTEXT_KEYS) {
+    (fresh as Record<string, unknown>)[key] = structuredClone(initial[key]);
+  }
+  // As setCurrentView('arrange') does: leaving another view opens the library.
+  if (useStore.getState().currentView !== 'arrange') {
+    fresh.currentView = 'arrange';
+    fresh.libraryOpen = true;
+  }
+  return fresh;
+}
+
+/**
+ * The chord lane with an id of its own on every region. Chord ids used to
+ * come from a counter that restarted on each page load, so a save can hold
+ * two regions with one id, and an edit by id then lands on the wrong chord.
+ * The first region keeps the id and later ones get a fresh one. Returns the
+ * same array when nothing repeats.
+ */
+export function dedupeChordRegionIds(regions: ChordRegion[]): ChordRegion[] {
+  const seen = new Set<string>();
+  let repaired: ChordRegion[] | null = null;
+  for (let i = 0; i < regions.length; i++) {
+    const region = regions[i];
+    if (region.id && !seen.has(region.id)) {
+      seen.add(region.id);
+      continue;
+    }
+    repaired ??= [...regions];
+    const id = crypto.randomUUID();
+    seen.add(id);
+    repaired[i] = { ...region, id };
+  }
+  return repaired ?? regions;
+}
+
+// ── The live session ─────────────────────────────────────────────────────
+//
+// The store is a module singleton that outlives the editor route: leaving for
+// the dashboard and coming back finds the session still in memory. This marks
+// when the page last loaded, reset or seeded it, so the editor's boot knows
+// the store holds the live session (restoring the autosave over it would put
+// an older copy over newer work) and the autosave knows there is a session
+// worth writing. It lives here, not in localSession.ts, because every load
+// below sets it and localSession.ts already imports this module.
+
+let loadedAt: number | null = null;
+// The session as it stood once a template, demo, song, practice track or
+// cloud project finished opening (see markSessionPristine).
+let pristine: string | null = null;
+
+/** When this page last loaded, reset or seeded the session; null until then. */
+export function sessionLoadedAt(): number | null {
+  return loadedAt;
+}
+
+/** Mark the store as holding the live session (every load and reset does). */
+export function markSessionLoaded(): void {
+  loadedAt = Date.now();
+  pristine = null;
+}
+
+/**
+ * The store no longer holds a session worth writing: File ▸ New Project
+ * drops the autosave and reloads, and nothing may write the old project
+ * back in between. The next load or reset marks it again.
+ */
+export function forgetLiveSession(): void {
+  loadedAt = null;
+  pristine = null;
+}
+
+/** A session's content, without the playhead, for comparing two of them. */
+export function sessionFingerprint(session: SessionData): string {
+  return JSON.stringify({
+    ...session.data,
+    transport: { ...session.data.transport, position: 0 },
+  });
+}
+
+/**
+ * Note the session as just opened: a template, demo, song, practice track or
+ * cloud project nobody has changed yet. Such a session can be opened again
+ * from where it came, so a link that replaces it has no work to keep.
+ *
+ * A cloud save passes the session it serialized, taken before the request:
+ * an edit made while the save was in flight is not in the cloud, so it must
+ * still count as work.
+ */
+export function markSessionPristine(
+  session: SessionData = serializeSession(),
+): void {
+  pristine = sessionFingerprint(session);
+}
+
+/** Whether `session` is the live one as it was opened (markSessionPristine). */
+export function isPristineSession(
+  session: SessionData = serializeSession(),
+): boolean {
+  return pristine !== null && sessionFingerprint(session) === pristine;
 }
 
 export function deserializeCloudProject(project: CloudProjectDetail): void {
@@ -594,7 +782,8 @@ export function deserializeCloudProject(project: CloudProjectDetail): void {
         fadeInTicks: c.fadeInTicks,
         fadeOutTicks: c.fadeOutTicks,
       })),
-      trackRole: guessTrackRole(t.name, t.instrument),
+      // Saves from before the role was carried guess it from the name.
+      trackRole: t.settings?.trackRole ?? guessTrackRole(t.name, t.instrument),
     };
   }) as unknown as ReturnType<typeof useStore.getState>['tracks'];
 
@@ -609,8 +798,10 @@ export function deserializeCloudProject(project: CloudProjectDetail): void {
   remapDuckerKeys(tracks, cloudMap);
 
   useStore.setState({
-    // Chord symbols aren't part of a cloud project yet, so it opens with none.
+    // Chord symbols aren't part of a cloud project yet, so it opens with none
+    // (and has no chord ids to repair).
     ...freshProjectHarmony(),
+    ...freshProjectContext(),
     projectId: project.id,
     projectName: project.name,
     composerName: project.composerName ?? '',
@@ -626,6 +817,10 @@ export function deserializeCloudProject(project: CloudProjectDetail): void {
     masterAutomation: masterAutomationFromCloud(project),
   });
   resetUndoHistory();
+  markSessionLoaded();
+  // The cloud holds this project as it opened, so until it changes there is
+  // no work in it for a link to keep.
+  markSessionPristine();
 }
 
 /** The Master automation a cloud save carried on a track's settings (the
@@ -648,12 +843,15 @@ function masterAutomationFromCloud(
  */
 export function resetSessionToEmpty(): void {
   useStore.setState({
+    // Lesson and practice context, key lock, markers, metre, mastering,
+    // returns and marks. A lesson or Practice Track boot starts its own
+    // after this reset.
+    ...freshProjectContext(),
+
     // Project identity
     projectId: null,
     projectName: 'Untitled Project',
     composerName: '',
-    // A Practice Track landing sets its own session after this reset.
-    practiceSession: null,
 
     // Transport
     bpm: 120,
@@ -664,7 +862,6 @@ export function resetSessionToEmpty(): void {
     // Tracks
     tracks: [],
     nextColorIndex: 0,
-    pitchData: {},
     masterAutomation: {},
 
     // Prism
@@ -675,14 +872,21 @@ export function resetSessionToEmpty(): void {
     swing: 0,
   });
   resetUndoHistory();
+  markSessionLoaded();
 }
 
 // ── Deserialize ──────────────────────────────────────────────────────────
 
-export function deserializeSession(session: SessionData): void {
-  if (session.version !== 1 && session.version !== SESSION_SCHEMA_VERSION) {
+/** Whether this build can load `session` (a newer format can't be read). */
+export function isLoadableSession(session: SessionData): boolean {
+  return session.version === 1 || session.version === SESSION_SCHEMA_VERSION;
+}
+
+/** Load a local session (the autosave, or kept work); false if unreadable. */
+export function deserializeSession(session: SessionData): boolean {
+  if (!isLoadableSession(session)) {
     console.warn('Unknown session version:', session.version);
-    return;
+    return false;
   }
 
   const d = session.data;
@@ -728,6 +932,9 @@ export function deserializeSession(session: SessionData): void {
     delete (trackFields as { settings?: unknown }).settings;
     return {
       ...trackFields,
+      // Saves from before these were carried.
+      audioInputChannel: t.audioInputChannel ?? null,
+      trackRole: t.trackRole ?? 'auto',
       // Restore the instrument voice + effect config (effects re-default when a
       // save predates this field).
       ...applyTrackSettings(t.settings),
@@ -760,6 +967,11 @@ export function deserializeSession(session: SessionData): void {
   remapDuckerKeys(tracks, localMap);
 
   useStore.setState({
+    // What the save doesn't carry starts fresh rather than carrying over
+    // from the session this one replaces.
+    ...freshProjectHarmony(),
+    ...freshProjectContext(),
+
     // Project
     projectId: d.projectId ?? null,
     projectName: d.projectName ?? 'Untitled Project',
@@ -779,17 +991,18 @@ export function deserializeSession(session: SessionData): void {
     tracks,
 
     // Prism (partial — only restore serialized fields) and chord symbols
-    ...freshProjectHarmony(),
     rootNote: d.prism.rootNote,
     mode: d.prism.mode ?? 'ionian',
     rhythmName: d.prism.rhythmName,
     genre: d.prism.genre,
     swing: d.prism.swing,
-    chordRegions: d.chordRegions ?? [],
+    chordRegions: dedupeChordRegionIds(d.chordRegions ?? []),
 
     // Aux return buses
     returns: restoreReturns(d.returns),
     masterAutomation: d.masterAutomation ?? {},
   });
   resetUndoHistory();
+  markSessionLoaded();
+  return true;
 }

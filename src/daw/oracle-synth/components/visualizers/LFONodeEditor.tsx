@@ -72,14 +72,32 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
     const toSvgX = useCallback((t: number) => PAD + t * drawW, [drawW]);
     const toSvgY = useCallback((v: number) => PAD + (1 - v) * drawH, [drawH]);
 
+    /**
+     * A pointer position in the drawing's own units. The full-screen synth
+     * lays its panels out at one size and scales them to the window with a
+     * CSS transform: `width` and `height` (from the ResizeObserver) are the
+     * size before that, while the pointer moves over the box on screen.
+     * Dividing by that box keeps a node under the pointer at any scale.
+     */
+    const toLocal = useCallback(
+      (clientX: number, clientY: number): { x: number; y: number } | null => {
+        const svg = svgRef.current;
+        if (!svg) return null;
+        const rect = svg.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) return null;
+        return {
+          x: ((clientX - rect.left) * width) / rect.width,
+          y: ((clientY - rect.top) * height) / rect.height,
+        };
+      },
+      [width, height],
+    );
+
     const fromSvg = useCallback(
       (clientX: number, clientY: number): { time: number; value: number } => {
-        const svg = svgRef.current;
-        if (!svg) return { time: 0, value: 0 };
-
-        const rect = svg.getBoundingClientRect();
-        const x = clientX - rect.left;
-        const y = clientY - rect.top;
+        const local = toLocal(clientX, clientY);
+        if (!local) return { time: 0, value: 0 };
+        const { x, y } = local;
 
         let time = (x - PAD) / drawW;
         let value = 1 - (y - PAD) / drawH;
@@ -94,7 +112,7 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
 
         return { time, value };
       },
-      [drawW, drawH, gridSnap],
+      [toLocal, drawW, drawH, gridSnap],
     );
 
     // Build the waveform path from sorted nodes (with curves)
@@ -137,9 +155,12 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
 
     const handlePointerMove = useCallback(
       (e: React.PointerEvent) => {
-        // Curve handle dragging
+        // Curve handle dragging, measured in the drawing's units so a bend
+        // takes the same travel at any scale
         if (curveDragIdx !== null && localNodes) {
-          const deltaY = e.clientY - curveDragStartY.current;
+          const pointerY =
+            toLocal(e.clientX, e.clientY)?.y ?? curveDragStartY.current;
+          const deltaY = pointerY - curveDragStartY.current;
           const sensitivity = 3 / drawH;
           const newCurve = Math.max(
             -1,
@@ -199,7 +220,7 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
 
         setLocalNodes(updated);
       },
-      [dragIndex, curveDragIdx, localNodes, fromSvg, drawH],
+      [dragIndex, curveDragIdx, localNodes, fromSvg, toLocal, drawH],
     );
 
     const handlePointerUp = useCallback(() => {
@@ -272,11 +293,11 @@ export const LFONodeEditor: React.FC<LFONodeEditorProps> = React.memo(
         const currentNodes = [...displayNodes];
         setLocalNodes(currentNodes);
         setCurveDragIdx(sortedIndex);
-        curveDragStartY.current = e.clientY;
+        curveDragStartY.current = toLocal(e.clientX, e.clientY)?.y ?? 0;
         const sortedCopy = [...currentNodes].sort((a, b) => a.time - b.time);
         curveDragStartValue.current = sortedCopy[sortedIndex].curve ?? 0;
       },
-      [displayNodes],
+      [displayNodes, toLocal],
     );
 
     const handleCurveClick = useCallback((e: React.MouseEvent) => {

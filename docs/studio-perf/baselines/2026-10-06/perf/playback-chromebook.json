@@ -1,0 +1,138 @@
+{
+ "scenario": "playback",
+ "profile": "chromebook",
+ "meta": {
+  "date": "2026-10-07T01:08:08.330Z",
+  "base": "http://localhost:5263",
+  "commit": "f96b3ecc",
+  "dirty": true,
+  "chrome": "153.0.8010.12",
+  "gpu": "metal",
+  "windows": {
+   "quick": false,
+   "repeat": 3,
+   "idleMs": 10000,
+   "playbackLeadMs": 1000,
+   "playbackMs": 20000,
+   "dragMs": 4000,
+   "gestureGapMs": 1000,
+   "viewGapMs": 1500,
+   "audioTimeoutMs": 60000,
+   "silenceMs": 10000
+  },
+  "loop": true,
+  "loadLimits": {
+   "cores": 14,
+   "busyAbove": 4.7,
+   "baseline": true,
+   "maxLoad": 4.7
+  },
+  "profileSettings": {
+   "viewport": {
+    "width": 1366,
+    "height": 655
+   },
+   "deviceScaleFactor": 1,
+   "cpuThrottle": 4,
+   "network": {
+    "downloadKbps": 10000,
+    "uploadKbps": 5000,
+    "latencyMs": 40
+   }
+  }
+ },
+ "runSeconds": 28.7,
+ "machine": {
+  "cores": 14,
+  "load1mStart": 5.66,
+  "load1mEnd": 4.61,
+  "cpuBusy": 0.18
+ },
+ "setup": {
+  "query": "?demo=demo-midnight-groove",
+  "openMs": 2756,
+  "audioMs": 1490,
+  "settle": {
+   "quiet": true,
+   "ms": 1812
+  },
+  "pageCheckMs": 99.9,
+  "calm": {
+   "calm": true,
+   "ms": 1003
+  }
+ },
+ "loop": true,
+ "probes": {
+  "seconds": 20.01,
+  "frames": 1126,
+  "frameMs": {
+   "p50": 16.7,
+   "p95": 16.8,
+   "max": 116.70000000000073
+  },
+  "longTasks": {
+   "count": 14,
+   "totalMs": 1553
+  },
+  "longAnimationFrames": {
+   "count": 13,
+   "blockingMs": 844
+  },
+  "appRafCallsPerSecond": 619.04,
+  "reactCommitsPerSecond": 140.64,
+  "storeWritesPerSecond": 28.29,
+  "storeKeys": [
+   {
+    "key": "position",
+    "perSecond": 28.29
+   }
+  ],
+  "regions": {
+   "TransportBar": {
+    "commitsPerSecond": 28.29,
+    "msPerSecond": 5.17
+   },
+   "TimelineWithHeaders": {
+    "commitsPerSecond": 140.64,
+    "msPerSecond": 78.49
+   },
+   "LibraryPanel": {
+    "commitsPerSecond": 0,
+    "msPerSecond": 0
+   },
+   "ChannelStrip": {
+    "commitsPerSecond": 28.29,
+    "msPerSecond": 94.59
+   },
+   "Timeline": {
+    "commitsPerSecond": 28.29,
+    "msPerSecond": 0
+   },
+   "DawAppInner": {
+    "commitsPerSecond": 0,
+    "msPerSecond": 0
+   }
+  }
+ },
+ "audio": {
+  "maxPeak": 0.5295,
+  "audibleShare": 1,
+  "readings": 79,
+  "samples": 79
+ },
+ "playhead": {
+  "atStart": 752,
+  "atEnd": 124,
+  "pausedAt": 137,
+  "samples": 79,
+  "distinct": 80,
+  "forwardSteps": 78,
+  "wraps": 1,
+  "moved": true
+ },
+ "problems": [
+  "the machine was busy (1-minute load average 5.66, limit 4.7), so these timings are not a baseline"
+ ],
+ "pageErrors": []
+}

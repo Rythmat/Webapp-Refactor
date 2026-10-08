@@ -2422,11 +2422,14 @@ export function useScoreEditing({
         smartRedo();
         clearSelection();
       },
-      onDuration: (choice: DurationChoice) => applyDuration(choice),
-      onToggleDot: () => {
+      // The bar names the row: its click also sets `layer`, which this
+      // render's applyDuration would still read as the previous row.
+      onDuration: (choice: DurationChoice, into: NoteLayer) =>
+        applyDuration(choice, dotted, into),
+      onToggleDot: (into: NoteLayer) => {
         const next = !dotted;
         setDotted(next);
-        if (currentDuration) applyDuration(currentDuration, next);
+        if (currentDuration) applyDuration(currentDuration, next, into);
       },
       onArticulation: applyArticulation,
       onSlur: applySlur,

@@ -3,6 +3,8 @@ import { authFetch } from '@/auth/authFetch';
 import { showError, showWarning } from '@/components/utils/toast';
 import { Env } from '@/constants/env';
 import {
+  markSessionPristine,
+  serializeSession,
   serializeSessionForCloud,
   type MidiClipColumnar,
 } from '@/daw/persistence/SessionSerializer';
@@ -218,6 +220,11 @@ let projectCreateInFlight: Promise<string> | null = null;
  * recording finishes — before any audio has an assetId.
  *
  * Concurrency-safe: simultaneous callers share a single create request.
+ *
+ * A project minted during a collab session is recorded as the session's draft:
+ * the only project the leave prompt's "Discard this session's changes" may
+ * delete, and only if the session started from an empty project (see
+ * LeaveSavePrompt).
  */
 export async function ensureProjectId(
   token: string,
@@ -227,12 +234,21 @@ export async function ensureProjectId(
   if (existing) return existing;
   if (projectCreateInFlight) return projectCreateInFlight;
 
+  // Room membership, not socket state: a draft minted while reconnecting still
+  // belongs to the session. Read before the create, so a draft started for
+  // solo work just before a join is never mistaken for a session draft.
+  const roomAtMint = useStore.getState().roomId;
+
   projectCreateInFlight = (async () => {
     const created = await studioProjectsApi.create(
       token,
       serializeSessionForCloud(nameOverride),
     );
-    useStore.getState().setProjectId(created.id);
+    const state = useStore.getState();
+    state.setProjectId(created.id);
+    if (roomAtMint && state.roomId === roomAtMint) {
+      state._setSessionDraftProjectId(created.id);
+    }
     return created.id;
   })();
 
@@ -298,11 +314,16 @@ export async function saveCurrentProjectToCloud(
   }
 
   // Final write with the up-to-date payload (post-upload assetIds included).
+  // The session is captured with it: an edit made while the request is in
+  // flight isn't in the cloud, so it must still count as unsaved work.
+  const saved = serializeSession();
   const result = await studioProjectsApi.update(
     token,
     projectId,
     serializeSessionForCloud(nameOverride),
   );
+  // In the cloud now, so a link that replaces it has no work to keep.
+  markSessionPristine(saved);
 
   // In a collab session, record that a save happened so the leave flow won't
   // reclaim this project as an "unsaved draft" (see LeaveSavePrompt).

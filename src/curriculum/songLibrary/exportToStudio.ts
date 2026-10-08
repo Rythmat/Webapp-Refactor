@@ -1,4 +1,4 @@
-import { getChordColor, type SuggestionChord, type RGB } from '@prism/engine';
+import { getChordColor, type RGB } from '@prism/engine';
 import { CHORD_QUALITY_LIBRARY } from '@/curriculum/data/chordQualityLibrary';
 import type { Song } from '@/curriculum/types/songLibrary';
 import { type ChordRegion, nextChordId } from '@/daw/store/prismSlice';
@@ -341,43 +341,4 @@ export function chordRegionsToMidiClip(
     durationTicks: maxEndTick,
     events,
   };
-}
-
-/* ── Legacy: flat SuggestionChord[] export (for loadProgression) ─────── */
-
-export function exportSongToStudio(
-  song: Song,
-  opts: StudioExportOptions,
-): SuggestionChord[] {
-  const sections = opts.loopSection
-    ? song.sections.filter((s) => s.id === opts.loopSection)
-    : song.sections;
-
-  const chords: SuggestionChord[] = [];
-  const played: Song = { ...song, sections };
-  const keys = writtenBarKeys(played);
-
-  for (const { bar, writtenIdx } of performedBars(played)) {
-    if (bar.restBars != null) continue;
-    const key = keys[writtenIdx];
-    for (const hit of bar.chords) {
-      if (!hit.chordName) continue;
-      const midi = chordNameToMidi(hit.chordName);
-      let color: RGB;
-      try {
-        color = getChordColor(hit.degree, 60 + key.tonicPc, key.mode) as RGB;
-      } catch {
-        color = [200, 200, 200] as unknown as RGB;
-      }
-      chords.push({
-        degree: hit.degree || '1 maj',
-        quality: hit.chordName,
-        noteName: hit.chordName,
-        midi,
-        color,
-      });
-    }
-  }
-
-  return chords;
 }

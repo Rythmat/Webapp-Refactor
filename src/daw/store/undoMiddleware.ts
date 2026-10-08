@@ -12,7 +12,9 @@ import { ORIGIN_LOCAL } from '@/daw/collab/types';
 // Dual-mode undo system:
 // - Solo mode: Snapshot-based (captures full tracks + chord regions)
 // - Collab mode: Yjs UndoManager (per-user, conflict-free)
-// High-frequency updates (position, volume drags) are excluded.
+// The transport position never reaches it. A fader or clip drag writes tracks
+// on every move, so each move costs only a reference check; the project is
+// serialised once the drag has been still for 300 ms.
 
 /**
  * Score markings and layout. Writing a slur, a repeat or a system break is an
@@ -59,9 +61,10 @@ const MARK_KEYS = [
   'masterAutomation',
 ] as const;
 
-function readMarks(): ScoreMarkSnapshot {
+/** The live mark arrays, shared with the store: to serialise, not to keep. */
+function liveMarks(): ScoreMarkSnapshot {
   const state = useStore.getState();
-  return structuredClone({
+  return {
     scoreArticulations: state.scoreArticulations,
     scoreSlurs: state.scoreSlurs,
     scoreSpellings: state.scoreSpellings,
@@ -75,7 +78,12 @@ function readMarks(): ScoreMarkSnapshot {
     measureRowSizes: state.measureRowSizes,
     measureFermatas: state.measureFermatas,
     masterAutomation: state.masterAutomation,
-  });
+  };
+}
+
+/** The marks as a snapshot of their own, safe from later in-place edits. */
+function readMarks(): ScoreMarkSnapshot {
+  return structuredClone(liveMarks());
 }
 
 // ── Letting the buttons know ────────────────────────────────────────────
@@ -190,19 +198,23 @@ let lastJson = '';
 let lastRefs: unknown[] = [];
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-/** What the watched state looks like right now, for change detection. */
-function watched(): { refs: unknown[]; json: string } {
+/** The watched state's references: what a change replaces. */
+function watchedRefs(): unknown[] {
   const state = useStore.getState() as unknown as Record<string, unknown>;
   const refs: unknown[] = [state.tracks, state.chordRegions];
   for (const key of MARK_KEYS) refs.push(state[key]);
-  return {
-    refs,
-    json: JSON.stringify({
-      tracks: state.tracks,
-      chordRegions: state.chordRegions,
-      marks: readMarks(),
-    }),
-  };
+  return refs;
+}
+
+/** The watched state as JSON: an undo step's contents, and the test of
+ *  whether an edit changed anything at all. */
+function watchedJson(): string {
+  const state = useStore.getState();
+  return JSON.stringify({
+    tracks: state.tracks,
+    chordRegions: state.chordRegions,
+    marks: liveMarks(),
+  });
 }
 
 /** Treat the store as it stands as the baseline, capturing nothing. */
@@ -211,57 +223,92 @@ function rebaseline(): void {
     clearTimeout(debounceTimer);
     debounceTimer = null;
   }
-  const now = watched();
-  lastJson = now.json;
-  lastRefs = now.refs;
+  lastJson = watchedJson();
+  lastRefs = watchedRefs();
 }
 
-export function initUndoTracking(): void {
-  rebaseline();
-
-  const handleChange = () => {
-    const now = watched();
-    // Cheap identity check: skip if nothing was replaced.
-    if (
-      now.refs.length === lastRefs.length &&
-      now.refs.every((ref, i) => ref === lastRefs[i])
-    ) {
-      return;
-    }
-    lastRefs = now.refs;
-
-    // Debounce: only capture after 300ms of no changes.
-    if (debounceTimer) clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-      const settled = watched();
-      if (settled.json === lastJson) return;
-      const previous = lastJson;
-      lastJson = settled.json;
-      lastRefs = settled.refs;
-      try {
-        const before = JSON.parse(previous) as {
-          tracks: Track[];
-          chordRegions: ChordRegion[];
-          marks: ScoreMarkSnapshot;
-        };
-        undoStack.push({ ...before, timestamp: Date.now() });
-        if (undoStack.length > MAX_UNDO_STACK) undoStack.shift();
-        redoStack.length = 0;
-        changed();
-      } catch {
-        // Ignore parse errors
-      }
-    }, 300);
-  };
-
-  useStore.subscribe((state) => state.tracks, handleChange);
-  useStore.subscribe((state) => state.chordRegions, handleChange);
-  for (const key of MARK_KEYS) {
-    useStore.subscribe(
-      (state) => (state as unknown as Record<string, unknown>)[key],
-      handleChange,
-    );
+/** Once edits have been still for the debounce: record what they replaced. */
+function captureSettled(): void {
+  debounceTimer = null;
+  const json = watchedJson();
+  // Replaced but equal, such as a drag that ended where it began.
+  if (json === lastJson) return;
+  const previous = lastJson;
+  lastJson = json;
+  lastRefs = watchedRefs();
+  try {
+    const before = JSON.parse(previous) as {
+      tracks: Track[];
+      chordRegions: ChordRegion[];
+      marks: ScoreMarkSnapshot;
+    };
+    undoStack.push({ ...before, timestamp: Date.now() });
+    if (undoStack.length > MAX_UNDO_STACK) undoStack.shift();
+    redoStack.length = 0;
+    changed();
+  } catch {
+    // Ignore parse errors
   }
+}
+
+function handleChange(): void {
+  // The identity check comes first and is all a drag's moves pay for: the
+  // project is serialised only once the edits settle (captureSettled).
+  const refs = watchedRefs();
+  if (
+    refs.length === lastRefs.length &&
+    refs.every((ref, i) => ref === lastRefs[i])
+  ) {
+    return;
+  }
+  lastRefs = refs;
+
+  // Debounce: only capture after 300ms of no changes.
+  if (debounceTimer) clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(captureSettled, 300);
+}
+
+// One set of store listeners however many editors mount (StrictMode mounts
+// twice, and every return to the editor mounts again): each caller holds a
+// claim, and the listeners go when the last claim is released.
+let trackingClaims = 0;
+let stopTracking: (() => void) | null = null;
+
+/**
+ * Start auto-capturing undo steps; returns the release for an effect cleanup.
+ * The first claim baselines on the store as it is, so what changed while
+ * nothing was tracking (a project opened elsewhere) is never an undo step.
+ */
+export function initUndoTracking(): () => void {
+  trackingClaims += 1;
+  if (!stopTracking) {
+    rebaseline();
+    const unsubscribes = [
+      useStore.subscribe((state) => state.tracks, handleChange),
+      useStore.subscribe((state) => state.chordRegions, handleChange),
+      ...MARK_KEYS.map((key) =>
+        useStore.subscribe(
+          (state) => (state as unknown as Record<string, unknown>)[key],
+          handleChange,
+        ),
+      ),
+    ];
+    stopTracking = () => {
+      for (const unsubscribe of unsubscribes) unsubscribe();
+    };
+  }
+
+  // An edit still settling when the last claim goes is not dropped: its
+  // debounce runs on its own and records it.
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    trackingClaims -= 1;
+    if (trackingClaims > 0 || !stopTracking) return;
+    stopTracking();
+    stopTracking = null;
+  };
 }
 
 // ── Collab-mode Undo (Yjs UndoManager) ──────────────────────────────────

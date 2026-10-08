@@ -20,7 +20,11 @@ export interface PageSpec {
   margin: number;
 }
 
-/** Matches `@page { size: letter; margin: 0.75in }` in the print stylesheet. */
+/**
+ * Matches `@page leadsheet { size: letter; margin: 0.75in }` in
+ * leadsheet-print.css. The Score draws these margins into its pages and
+ * prints them on the borderless `@page score`.
+ */
 export const LETTER_PORTRAIT: PageSpec = {
   width: inches(8.5),
   height: inches(11),

@@ -6,6 +6,8 @@ import { studioRealtime } from '@/daw/collab/studioRealtime';
 import { SoundFontAdapter } from '@/daw/instruments/SoundFontAdapter';
 import { PianoKeyboard } from '@/daw/oracle-synth/components/keyboard/PianoKeyboard';
 import { auditionNote } from '@/daw/audio/auditionNote';
+import { noteEditorOriginTick } from '@/daw/audio/noteEditorOrigin';
+import { TICKS_PER_BEAT } from '@/daw/utils/timelineScale';
 import { PianoRoll } from '../PianoRoll/PianoRoll';
 import { PresetBrowser } from './PresetBrowser';
 import { PRESETS } from '@/daw/data/instrumentPresets';
@@ -74,6 +76,7 @@ export function KeyboardView({ trackId }: { trackId: string }) {
   // Piano roll data
   const track = useStore((s) => s.tracks.find((t) => t.id === trackId));
   const clip = track?.midiClips[0] ?? null;
+  const tsNum = useStore((s) => s.timeSignatureNumerator);
   const updateMidiClipEvents = useStore((s) => s.updateMidiClipEvents);
   const updateTrack = useStore((s) => s.updateTrack);
   const presetName = displayPresetName(track);
@@ -328,7 +331,13 @@ export function KeyboardView({ trackId }: { trackId: string }) {
           {clip && track ? (
             <PianoRoll
               events={clip.events}
-              clipStartTick={clip.startTick}
+              // Events are clip-relative: the roll starts at the clip's own
+              // tick 0; the clip's song position only places the playhead
+              // and loop.
+              clipStartTick={noteEditorOriginTick(
+                clip.events,
+                TICKS_PER_BEAT * tsNum,
+              )}
               timelineStartTick={clip.startTick}
               clipColor={track.color}
               onChange={handlePianoRollChange}

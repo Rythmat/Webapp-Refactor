@@ -101,7 +101,7 @@ const ctrlBtn = (disabled: boolean): React.CSSProperties => ({
   padding: '6px 12px',
   fontSize: 13,
   fontWeight: 600,
-  borderRadius: 7,
+  borderRadius: 9999,
   border: '1px solid var(--color-border)',
   background: 'transparent',
   color: disabled ? 'var(--color-text-dim)' : 'var(--color-text)',
@@ -109,17 +109,21 @@ const ctrlBtn = (disabled: boolean): React.CSSProperties => ({
   cursor: disabled ? 'not-allowed' : 'pointer',
 });
 
+// The app's primary action is the landing's white pill. White text on the
+// old teal fill was about 1.8:1; #101012 on white passes at any size. A
+// validated step's Next stays a quiet pill until the move is made, so it
+// doesn't read as clickable while it isn't.
 const primaryBtn = (disabled: boolean): React.CSSProperties => ({
   display: 'flex',
   alignItems: 'center',
   gap: 4,
-  padding: '6px 14px',
+  padding: '6px 16px',
   fontSize: 13,
   fontWeight: 700,
-  borderRadius: 7,
+  borderRadius: 9999,
   border: 'none',
-  background: disabled ? 'var(--color-surface-2)' : 'var(--color-accent)',
-  color: disabled ? 'var(--color-text-dim)' : '#fff',
+  background: disabled ? 'var(--color-surface-2)' : '#fff',
+  color: disabled ? 'var(--color-text-dim)' : '#101012',
   opacity: disabled ? 0.6 : 1,
   cursor: disabled ? 'not-allowed' : 'pointer',
 });

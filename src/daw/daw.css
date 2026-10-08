@@ -1,6 +1,15 @@
 /* ── DAW Design Tokens (scoped to .daw-root) ──────────────────────────── */
 
-.daw-root {
+/* The colour tokens are also declared on body.daw-active, which
+   useDawBodyTokens (src/daw/hooks) sets while the editor or one of its
+   portaled overlays is mounted. Dialogs, popovers and the lesson overlay
+   portal to <body>, outside .daw-root, where every var(--color-*) would
+   otherwise resolve to nothing: transparent cards, invisible primary buttons.
+   Only the --color-* palette is aliased, the part those overlays read, so the
+   rest of the app is restyled as little as possible while the editor is open.
+   Interim: milestone 2.1 moves the tokens to :root and drops the class. */
+.daw-root,
+body.daw-active {
   /* Base matches the app chrome (TopRail / dashboard wrapper) so Studio reads as
      continuous with the rest of the app — see plan Step 1. */
   --color-bg: #101012;
@@ -23,16 +32,17 @@
   --color-record: #ef4444;
   --color-play: #22c55e;
 
-  --color-brand-pink: #ec4899;
-  --color-brand-purple: #8b5cf6;
-  --color-brand-blue: #3b82f6;
-  --color-brand-teal: #06b6d4;
-  --gradient-brand: linear-gradient(90deg, #ec4899, #8b5cf6, #3b82f6, #06b6d4);
-
   --color-meter-green: #22c55e;
   --color-meter-yellow: #eab308;
   --color-meter-red: #ef4444;
 
+  --color-grid-line: rgba(255, 255, 255, 0.04);
+  --color-grid-rgb: 255, 255, 255;
+  --color-ruler-text: rgba(255, 255, 255, 0.25);
+  --color-scrollbar-thumb: rgba(255, 255, 255, 0.08);
+}
+
+.daw-root {
   --glass-blur: blur(20px);
   --glass-blur-sm: blur(10px);
   --glass-border: 1px solid rgba(255, 255, 255, 0.08);
@@ -41,11 +51,6 @@
   --glass-shadow-deep: 0 8px 32px rgba(0, 0, 0, 0.4);
   --glass-glow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.1);
-
-  --color-grid-line: rgba(255, 255, 255, 0.04);
-  --color-grid-rgb: 255, 255, 255;
-  --color-ruler-text: rgba(255, 255, 255, 0.25);
-  --color-scrollbar-thumb: rgba(255, 255, 255, 0.08);
 
   --grain-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
 
@@ -64,14 +69,6 @@
 .daw-root *::before,
 .daw-root *::after {
   border-color: var(--color-border);
-}
-
-/* ── Brand gradient text ─────────────────────────────────────────────── */
-.daw-root .brand-gradient-text {
-  background: var(--gradient-brand);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 /* ── Glass panels ────────────────────────────────────────────────────── */

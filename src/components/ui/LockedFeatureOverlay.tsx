@@ -8,7 +8,24 @@ interface LockedFeatureOverlayProps {
   locked: boolean;
   children: ReactNode;
   className?: string;
+  /**
+   * What is locked, such as a tile's title, for the lock's accessible name
+   * ("<label>: subscribe to unlock"). The content is inert, so a screen
+   * reader can't read it to tell one lock in a grid from the next.
+   */
+  label?: string;
 }
+
+/**
+ * Makes the locked content inert: out of the tab order and the accessibility
+ * tree, and deaf to clicks, so a free user can't reach a locked control by
+ * keyboard either (audit prism-ui-23). Set on the element, not as a JSX
+ * prop: React 18 doesn't know `inert`, and React 19 reads `inert=""` as
+ * false.
+ */
+const makeInert = (el: HTMLDivElement | null) => {
+  el?.setAttribute('inert', '');
+};
 
 /**
  * Wraps any feature tile/card to apply a premium-lock treatment for free users.
@@ -16,8 +33,11 @@ interface LockedFeatureOverlayProps {
  * Visual spec:
  * - Content is desaturated to a muted light grey (still visible).
  * - A semi-transparent dark-grey circle with a lock icon is centered over it.
- * - On hover the lock opens and "Subscribe to unlock content" tooltip appears.
+ * - On hover (or keyboard focus) the lock opens and "Subscribe to unlock
+ *   content" tooltip appears.
  * - Clicking the lock navigates to `/home/user/plan`.
+ *
+ * The content is inert, so the lock itself is the one stop in the tab order.
  *
  * When `locked` is false, renders children with zero overhead.
  */
@@ -25,6 +45,7 @@ export const LockedFeatureOverlay: FC<LockedFeatureOverlayProps> = ({
   locked,
   children,
   className = '',
+  label,
 }) => {
   const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
@@ -39,8 +60,10 @@ export const LockedFeatureOverlay: FC<LockedFeatureOverlayProps> = ({
 
   return (
     <div className={`relative ${className}`}>
-      {/* Greyed-out content — pointer-events disabled so clicks fall through to overlay */}
+      {/* Greyed-out content — inert, and pointer-events disabled so clicks
+          fall through to the overlay */}
       <div
+        ref={makeInert}
         style={{
           filter: 'grayscale(100%) brightness(0.55)',
           pointerEvents: 'none',
@@ -51,18 +74,27 @@ export const LockedFeatureOverlay: FC<LockedFeatureOverlayProps> = ({
       </div>
 
       {/* Lock overlay */}
-      <div
-        className="absolute inset-0 z-20 flex items-center justify-center cursor-pointer"
+      <button
+        type="button"
+        aria-label={
+          label
+            ? `${label}: subscribe to unlock`
+            : 'Subscribe to unlock content'
+        }
+        className="group absolute inset-0 z-20 flex items-center justify-center cursor-pointer focus-visible:outline-none"
         onClick={(e) => {
           e.stopPropagation();
           navigate(ProfileRoutes.plan.definition);
         }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
+        onFocus={() => setHovered(true)}
+        onBlur={() => setHovered(false)}
       >
-        {/* Dark circle backdrop */}
-        <div
-          className="flex flex-col items-center justify-center gap-2 rounded-full transition-all duration-200"
+        {/* Dark circle backdrop (an outline marks keyboard focus: the inline
+            shadow would hide a ring) */}
+        <span
+          className="flex flex-col items-center justify-center gap-2 rounded-full transition-all duration-200 group-focus-visible:outline group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-white/60"
           style={{
             width: 72,
             height: 72,
@@ -77,11 +109,12 @@ export const LockedFeatureOverlay: FC<LockedFeatureOverlayProps> = ({
           ) : (
             <Lock size={24} color="#999" />
           )}
-        </div>
+        </span>
 
         {/* Tooltip on hover */}
         {hovered && (
-          <div
+          <span
+            aria-hidden
             className="absolute px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap pointer-events-none"
             style={{
               bottom: 'calc(50% - 56px)',
@@ -92,9 +125,9 @@ export const LockedFeatureOverlay: FC<LockedFeatureOverlayProps> = ({
             }}
           >
             Subscribe to unlock content
-          </div>
+          </span>
         )}
-      </div>
+      </button>
     </div>
   );
 };

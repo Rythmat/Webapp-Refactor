@@ -22,6 +22,8 @@ src/components/atlas/data/stateBoundaries.ts
 
 # Generated optimization-baseline artifacts (treemaps, raw reports)
 docs/optimization/**/bundle.html
+# Studio perf baselines and golden-render features: machine-written JSON
+docs/studio-perf/**/*.json
 
 # Vendored third-party build (SpessaSynth audio worklet, minified upstream)
 public/daw-assets/spessasynth_processor.min.js

@@ -433,6 +433,11 @@ export const studioPages = () => {
         element: <StudioInlet />,
         index: true,
       },
+      // The Production tab: the dashboard shell, showing the DAW lessons.
+      {
+        path: 'production',
+        element: <StudioInlet />,
+      },
       {
         path: 'editor',
         // DawApp resolves a song by id when opened with ?song=.

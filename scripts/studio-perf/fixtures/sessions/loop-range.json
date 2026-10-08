@@ -1,0 +1,702 @@
+{
+  "version": 2,
+  "timestamp": 1791327935411,
+  "data": {
+    "projectId": null,
+    "projectName": "golden: loop-range",
+    "composerName": "",
+    "transport": {
+      "bpm": 120,
+      "position": 0,
+      "metronomeEnabled": false,
+      "loopEnabled": true,
+      "loopStart": 1920,
+      "loopEnd": 5760
+    },
+    "tracks": [
+      {
+        "id": "trk-drums",
+        "name": "Drums",
+        "type": "midi",
+        "instrument": "drum-machine",
+        "color": "#f94144",
+        "mute": false,
+        "solo": false,
+        "volume": 0.8,
+        "pan": 0,
+        "recordArmed": false,
+        "monitoring": false,
+        "midiInputId": null,
+        "audioInputId": null,
+        "midiClips": [
+          {
+            "id": "clip-drums",
+            "name": "Drums",
+            "startTick": 0,
+            "events": {
+              "notes": [
+                36, 42, 42, 38, 42, 42, 36, 42, 42, 38, 42, 42, 36, 42, 42, 38,
+                42, 42, 36, 42, 42, 38, 42, 42, 36, 42, 42, 38, 42, 42, 36, 42,
+                42, 38, 42, 42
+              ],
+              "velocities": [
+                110, 80, 70, 110, 80, 70, 110, 80, 70, 110, 80, 70, 110, 80, 70,
+                110, 80, 70, 110, 80, 70, 110, 80, 70, 110, 80, 70, 110, 80, 70,
+                110, 80, 70, 110, 80, 70
+              ],
+              "startTickDeltas": [
+                0, 0, 240, 240, 0, 240, 240, 0, 240, 240, 0, 240, 240, 0, 240,
+                240, 0, 240, 240, 0, 240, 240, 0, 240, 240, 0, 240, 240, 0, 240,
+                240, 0, 240, 240, 0, 240
+              ],
+              "durations": [
+                120, 60, 60, 120, 60, 60, 120, 60, 60, 120, 60, 60, 120, 60, 60,
+                120, 60, 60, 120, 60, 60, 120, 60, 60, 120, 60, 60, 120, 60, 60,
+                120, 60, 60, 120, 60, 60
+              ],
+              "channels": [
+                9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
+                9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9
+              ]
+            }
+          }
+        ],
+        "audioClips": [],
+        "activeEffects": ["compressor"],
+        "settings": {
+          "effects": {
+            "reverb": {
+              "enabled": false,
+              "type": "hall",
+              "decay": 2,
+              "preDelay": 20,
+              "highPass": 100,
+              "lowPass": 12000,
+              "wet": 0.3
+            },
+            "eq": {
+              "enabled": false,
+              "makeup": 0,
+              "bands": [
+                {
+                  "type": "lowcut",
+                  "freq": 30,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                },
+                {
+                  "type": "lowshelf",
+                  "freq": 80,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 250,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 500,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 1000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 3000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "highshelf",
+                  "freq": 8000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "highcut",
+                  "freq": 16000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                }
+              ]
+            },
+            "gate": {
+              "enabled": false,
+              "threshold": -40,
+              "range": 40,
+              "hold": 0.01,
+              "attack": 0.001,
+              "release": 0.1
+            },
+            "compressor": {
+              "enabled": true,
+              "threshold": -24,
+              "ratio": 4,
+              "knee": 10,
+              "attack": 0.003,
+              "release": 0.25,
+              "makeup": 0,
+              "crush": 0,
+              "auto": false,
+              "mode": "studio"
+            },
+            "delay": {
+              "enabled": false,
+              "time": 0.375,
+              "feedback": 0.3,
+              "wet": 0.25
+            },
+            "presence": {
+              "enabled": false,
+              "amount": 50,
+              "frequency": 4000,
+              "bandwidth": 1
+            },
+            "de-esser": {
+              "enabled": false,
+              "amount": 0,
+              "frequency": 6000,
+              "range": 6
+            },
+            "saturator": {
+              "enabled": false,
+              "drive": 0,
+              "mix": 50,
+              "tone": 50
+            },
+            "multiband": {
+              "enabled": false,
+              "depth": 0.3,
+              "time": 0.3,
+              "crossoverLow": 120,
+              "crossoverHigh": 2500,
+              "lowGain": 0,
+              "midGain": 0,
+              "highGain": 0
+            },
+            "ducker": {
+              "enabled": false,
+              "keyTrackId": null,
+              "threshold": -30,
+              "amount": 0.3,
+              "attack": 0.01,
+              "release": 0.2
+            }
+          },
+          "drumKit": "808",
+          "sourceTrackId": "trk-drums"
+        }
+      },
+      {
+        "id": "trk-bass",
+        "name": "Bass",
+        "type": "midi",
+        "instrument": "bass-electric",
+        "color": "#f3722c",
+        "mute": false,
+        "solo": false,
+        "volume": 0.8,
+        "pan": 0,
+        "recordArmed": false,
+        "monitoring": false,
+        "midiInputId": null,
+        "audioInputId": null,
+        "midiClips": [
+          {
+            "id": "clip-bass",
+            "name": "Bass",
+            "startTick": 0,
+            "events": {
+              "notes": [36, 43, 41],
+              "velocities": [100, 100, 100],
+              "startTickDeltas": [960, 2880, 960],
+              "durations": [2400, 960, 960],
+              "channels": [0, 0, 0]
+            }
+          }
+        ],
+        "audioClips": [],
+        "activeEffects": [],
+        "settings": {
+          "effects": {
+            "reverb": {
+              "enabled": false,
+              "type": "hall",
+              "decay": 2,
+              "preDelay": 20,
+              "highPass": 100,
+              "lowPass": 12000,
+              "wet": 0.3
+            },
+            "eq": {
+              "enabled": false,
+              "makeup": 0,
+              "bands": [
+                {
+                  "type": "lowcut",
+                  "freq": 30,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                },
+                {
+                  "type": "lowshelf",
+                  "freq": 80,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 250,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 500,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 1000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "peaking",
+                  "freq": 3000,
+                  "gain": 0,
+                  "Q": 1,
+                  "enabled": true
+                },
+                {
+                  "type": "highshelf",
+                  "freq": 8000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true
+                },
+                {
+                  "type": "highcut",
+                  "freq": 16000,
+                  "gain": 0,
+                  "Q": 0.7,
+                  "enabled": true,
+                  "slope": 12
+                }
+              ]
+            },
+            "gate": {
+              "enabled": false,
+              "threshold": -40,
+              "range": 40,
+              "hold": 0.01,
+              "attack": 0.001,
+              "release": 0.1
+            },
+            "compressor": {
+              "enabled": false,
+              "threshold": -24,
+              "ratio": 4,
+              "knee": 10,
+              "attack": 0.003,
+              "release": 0.25,
+              "makeup": 0,
+              "crush": 0,
+              "auto": false,
+              "mode": "studio"
+            },
+            "delay": {
+              "enabled": false,
+              "time": 0.375,
+              "feedback": 0.3,
+              "wet": 0.25
+            },
+            "presence": {
+              "enabled": false,
+              "amount": 50,
+              "frequency": 4000,
+              "bandwidth": 1
+            },
+            "de-esser": {
+              "enabled": false,
+              "amount": 0,
+              "frequency": 6000,
+              "range": 6
+            },
+            "saturator": {
+              "enabled": false,
+              "drive": 0,
+              "mix": 50,
+              "tone": 50
+            },
+            "multiband": {
+              "enabled": false,
+              "depth": 0.3,
+              "time": 0.3,
+              "crossoverLow": 120,
+              "crossoverHigh": 2500,
+              "lowGain": 0,
+              "midGain": 0,
+              "highGain": 0
+            },
+            "ducker": {
+              "enabled": false,
+              "keyTrackId": null,
+              "threshold": -30,
+              "amount": 0.3,
+              "attack": 0.01,
+              "release": 0.2
+            }
+          },
+          "sends": {
+            "A": 0.35
+          },
+          "sourceTrackId": "trk-bass"
+        }
+      }
+    ],
+    "prism": {
+      "rootNote": null,
+      "rhythmName": "Quarters",
+      "genre": "Pop",
+      "swing": 0,
+      "mode": "ionian"
+    },
+    "chordRegions": [],
+    "returns": [
+      {
+        "id": "A",
+        "label": "Reverb",
+        "volume": 0.8,
+        "fxChain": ["reverb"],
+        "effects": {
+          "reverb": {
+            "enabled": true,
+            "type": "hall",
+            "decay": 2,
+            "preDelay": 20,
+            "highPass": 100,
+            "lowPass": 12000,
+            "wet": 1
+          },
+          "eq": {
+            "enabled": false,
+            "makeup": 0,
+            "bands": [
+              {
+                "type": "lowcut",
+                "freq": 30,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              },
+              {
+                "type": "lowshelf",
+                "freq": 80,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 250,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 500,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 1000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 3000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "highshelf",
+                "freq": 8000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "highcut",
+                "freq": 16000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              }
+            ]
+          },
+          "gate": {
+            "enabled": false,
+            "threshold": -40,
+            "range": 40,
+            "hold": 0.01,
+            "attack": 0.001,
+            "release": 0.1
+          },
+          "compressor": {
+            "enabled": false,
+            "threshold": -24,
+            "ratio": 4,
+            "knee": 10,
+            "attack": 0.003,
+            "release": 0.25,
+            "makeup": 0,
+            "crush": 0,
+            "auto": false,
+            "mode": "studio"
+          },
+          "delay": {
+            "enabled": false,
+            "time": 0.375,
+            "feedback": 0.3,
+            "wet": 0.25
+          },
+          "presence": {
+            "enabled": false,
+            "amount": 50,
+            "frequency": 4000,
+            "bandwidth": 1
+          },
+          "de-esser": {
+            "enabled": false,
+            "amount": 0,
+            "frequency": 6000,
+            "range": 6
+          },
+          "saturator": {
+            "enabled": false,
+            "drive": 0,
+            "mix": 50,
+            "tone": 50
+          },
+          "multiband": {
+            "enabled": false,
+            "depth": 0.3,
+            "time": 0.3,
+            "crossoverLow": 120,
+            "crossoverHigh": 2500,
+            "lowGain": 0,
+            "midGain": 0,
+            "highGain": 0
+          },
+          "ducker": {
+            "enabled": false,
+            "keyTrackId": null,
+            "threshold": -30,
+            "amount": 0.3,
+            "attack": 0.01,
+            "release": 0.2
+          }
+        }
+      },
+      {
+        "id": "B",
+        "label": "Delay",
+        "volume": 0.8,
+        "fxChain": ["delay"],
+        "effects": {
+          "reverb": {
+            "enabled": false,
+            "type": "hall",
+            "decay": 2,
+            "preDelay": 20,
+            "highPass": 100,
+            "lowPass": 12000,
+            "wet": 0.3
+          },
+          "eq": {
+            "enabled": false,
+            "makeup": 0,
+            "bands": [
+              {
+                "type": "lowcut",
+                "freq": 30,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              },
+              {
+                "type": "lowshelf",
+                "freq": 80,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 250,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 500,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 1000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "peaking",
+                "freq": 3000,
+                "gain": 0,
+                "Q": 1,
+                "enabled": true
+              },
+              {
+                "type": "highshelf",
+                "freq": 8000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true
+              },
+              {
+                "type": "highcut",
+                "freq": 16000,
+                "gain": 0,
+                "Q": 0.7,
+                "enabled": true,
+                "slope": 12
+              }
+            ]
+          },
+          "gate": {
+            "enabled": false,
+            "threshold": -40,
+            "range": 40,
+            "hold": 0.01,
+            "attack": 0.001,
+            "release": 0.1
+          },
+          "compressor": {
+            "enabled": false,
+            "threshold": -24,
+            "ratio": 4,
+            "knee": 10,
+            "attack": 0.003,
+            "release": 0.25,
+            "makeup": 0,
+            "crush": 0,
+            "auto": false,
+            "mode": "studio"
+          },
+          "delay": {
+            "enabled": true,
+            "time": 0.375,
+            "feedback": 0.3,
+            "wet": 1
+          },
+          "presence": {
+            "enabled": false,
+            "amount": 50,
+            "frequency": 4000,
+            "bandwidth": 1
+          },
+          "de-esser": {
+            "enabled": false,
+            "amount": 0,
+            "frequency": 6000,
+            "range": 6
+          },
+          "saturator": {
+            "enabled": false,
+            "drive": 0,
+            "mix": 50,
+            "tone": 50
+          },
+          "multiband": {
+            "enabled": false,
+            "depth": 0.3,
+            "time": 0.3,
+            "crossoverLow": 120,
+            "crossoverHigh": 2500,
+            "lowGain": 0,
+            "midGain": 0,
+            "highGain": 0
+          },
+          "ducker": {
+            "enabled": false,
+            "keyTrackId": null,
+            "threshold": -30,
+            "amount": 0.3,
+            "attack": 0.01,
+            "release": 0.2
+          }
+        }
+      }
+    ],
+    "masterAutomation": {}
+  },
+  "golden": {
+    "about": "Export of the loop region (bars 2-3 of three, 120 BPM): 808 drums and the sampled electric bass with a send to the Return A reverb. The bass note that starts in bar 1 sustains into the loop.",
+    "range": "loop",
+    "stems": true,
+    "probes": [
+      {
+        "label": "bass note started before the loop start is heard in the first loop bar",
+        "kind": "levelAt",
+        "stem": "Bass",
+        "from": 0.1,
+        "to": 0.9
+      },
+      {
+        "label": "drums: the first loop downbeat (bar 2) opens the render, at 0 s plus the chains latency",
+        "kind": "onsetNear",
+        "stem": "Drums",
+        "sec": 0,
+        "tolMs": 30
+      }
+    ]
+  }
+}

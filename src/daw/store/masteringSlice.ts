@@ -69,6 +69,25 @@ export interface MasteringSlice {
   removeMasterAutomationPoint: (paramId: string, tick: number) => void;
 }
 
+/**
+ * The mastering chain as live playback should run it: the stored chain, or
+ * every slot switched off while Bypass is on. Only the copy handed to the
+ * engine changes, so the saved chain, undo and collab keep the student's
+ * settings and switching Bypass off brings them straight back. Bypass is a
+ * listening A/B: an export always runs the stored chain (renderProject).
+ */
+export function masteringEffectsForEngine(
+  effects: TrackEffectState,
+  bypass: boolean,
+): TrackEffectState {
+  if (!bypass) return effects;
+  const off = { ...effects };
+  for (const slot of Object.keys(off) as (keyof TrackEffectState)[]) {
+    (off as Record<string, unknown>)[slot] = { ...off[slot], enabled: false };
+  }
+  return off;
+}
+
 // ── Slice ────────────────────────────────────────────────────────────────
 
 export const createMasteringSlice: StateCreator<

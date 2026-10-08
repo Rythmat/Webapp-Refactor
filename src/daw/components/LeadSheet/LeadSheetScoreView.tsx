@@ -12,6 +12,7 @@ import { buildScoreParts } from '../Score/scoreParts';
 import { useScoreEditing } from '../Score/useScoreEditing';
 import { LeadSheetToolbar } from './LeadSheetToolbar';
 import './leadsheet-print.css';
+import { useLeadSheetPrint } from './useLeadSheetPrint';
 
 // ── The lead sheet, written out ────────────────────────────────────────────
 // With a melody assigned, the sheet is one part of a score: the same staff
@@ -25,6 +26,7 @@ interface LeadSheetScoreViewProps {
 }
 
 export function LeadSheetScoreView({ track }: LeadSheetScoreViewProps) {
+  useLeadSheetPrint();
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
   const bpm = useStore((s) => s.bpm);

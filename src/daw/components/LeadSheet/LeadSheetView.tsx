@@ -37,6 +37,7 @@ import {
   type RangeContext,
 } from './leadSheetSelection';
 import './leadsheet-print.css';
+import { useLeadSheetPrint } from './useLeadSheetPrint';
 
 /** Default number of measures per system (row) */
 const DEFAULT_MEASURES_PER_LINE = 4;
@@ -62,6 +63,7 @@ export function LeadSheetView() {
 }
 
 function LeadSheetChartView() {
+  useLeadSheetPrint();
   const chordRegions = useStore((s) => s.chordRegions);
   const MEASURES_PER_LINE =
     useStore((s) => s.measuresPerLine) || DEFAULT_MEASURES_PER_LINE;

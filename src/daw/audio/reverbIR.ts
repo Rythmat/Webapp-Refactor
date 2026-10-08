@@ -6,7 +6,11 @@
 //  - Takes the decode `ctx` as a parameter (never imports audioEngine) so there
 //    is no import cycle with EffectChain, and IRs decode on the same context the
 //    convolver runs on — decodeAudioData resamples to that context's rate, so a
-//    44.1k source auto-matches a 48k engine and never throws on assignment.
+//    44.1k source auto-matches a 48k engine.
+//  - Every cache is keyed by that context's sample rate. A ConvolverNode throws
+//    on a buffer of another rate, and an export renders on its own offline
+//    context, which need not run at the live engine's rate: a buffer decoded
+//    for one context must never reach a convolver on another (audio-core-01).
 //  - `getProcessedIr` is synchronous: returns a ready buffer on a cache hit, or
 //    null (kicking nothing off — the caller decides whether to await
 //    `ensureProcessedIr`). The synthetic IR in EffectChain stays as the instant,
@@ -39,12 +43,17 @@ const DB60 = Math.log(1000);
 let manifestByType: Map<ReverbType, ReverbIrEntry> | null = null;
 let manifestPromise: Promise<Map<ReverbType, ReverbIrEntry>> | null = null;
 
-/** Decoded, trimmed native IR per type — shared across every EffectChain. */
-const nativeCache = new Map<ReverbType, AudioBuffer>();
+/** Decoded native IR per `${sampleRate}:${type}` — shared across EffectChains. */
+const nativeCache = new Map<string, AudioBuffer>();
 /** In-flight native loads, deduped so concurrent chains fetch each file once. */
-const loadPromises = new Map<ReverbType, Promise<AudioBuffer | null>>();
-/** Decay-shaped + gained buffers, keyed `${type}:${quantizedDecay}`. Bounded. */
+const loadPromises = new Map<string, Promise<AudioBuffer | null>>();
+/** Decay-shaped + gained buffers, keyed `${sampleRate}:${type}:${quantizedDecay}`.
+ *  Bounded. */
 const processedCache = new Map<string, AudioBuffer>();
+
+/** Cache key of a type's native IR as decoded for `ctx`. */
+const nativeKey = (ctx: BaseAudioContext, type: ReverbType): string =>
+  `${ctx.sampleRate}:${type}`;
 
 /** Fetch the pack manifest once. 404 / malformed → empty map (synthetic fallback). */
 export function getReverbManifest(): Promise<Map<ReverbType, ReverbIrEntry>> {
@@ -76,14 +85,16 @@ export function getReverbIrMeta(type: ReverbType): ReverbIrEntry | undefined {
   return manifestByType?.get(type);
 }
 
-/** Fetch + decode the native IR for a type (cached, in-flight-deduped). */
+/** Fetch + decode the native IR for a type at ctx's rate (cached, in-flight-
+ *  deduped). */
 function loadNativeIr(
   ctx: BaseAudioContext,
   meta: ReverbIrEntry,
 ): Promise<AudioBuffer | null> {
-  const cached = nativeCache.get(meta.type);
+  const key = nativeKey(ctx, meta.type);
+  const cached = nativeCache.get(key);
   if (cached) return Promise.resolve(cached);
-  const existing = loadPromises.get(meta.type);
+  const existing = loadPromises.get(key);
   if (existing) return existing;
 
   const p = (async () => {
@@ -92,16 +103,16 @@ function loadNativeIr(
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const bytes = await res.arrayBuffer();
       const buf = await ctx.decodeAudioData(bytes);
-      nativeCache.set(meta.type, buf);
+      nativeCache.set(key, buf);
       return buf;
     } catch (err) {
       console.error(`[reverb-ir] failed to load ${meta.file}`, err);
       return null;
     } finally {
-      loadPromises.delete(meta.type);
+      loadPromises.delete(key);
     }
   })();
-  loadPromises.set(meta.type, p);
+  loadPromises.set(key, p);
   return p;
 }
 
@@ -147,9 +158,10 @@ function cacheProcessed(key: string, buf: AudioBuffer): void {
 }
 
 /**
- * Synchronous: the decay-shaped real IR for (type, decay) if its native buffer
- * is already decoded, else null. Never fetches — the caller keeps the synthetic
- * IR until it awaits `ensureProcessedIr`.
+ * Synchronous: the decay-shaped real IR for (type, decay) at ctx's sample rate
+ * if its native buffer is already decoded at that rate, else null. Never
+ * fetches — the caller keeps the synthetic IR until it awaits
+ * `ensureProcessedIr`.
  */
 export function getProcessedIr(
   ctx: BaseAudioContext,
@@ -157,10 +169,10 @@ export function getProcessedIr(
   decay: number,
 ): AudioBuffer | null {
   const meta = manifestByType?.get(type);
-  const native = nativeCache.get(type);
+  const native = nativeCache.get(nativeKey(ctx, type));
   if (!meta || !native) return null;
   const quant = Math.round(decay * 10) / 10;
-  const key = `${type}:${quant}`;
+  const key = `${nativeKey(ctx, type)}:${quant}`;
   let buf = processedCache.get(key);
   if (!buf) {
     buf = applyDecayEnvelope(ctx, native, quant, meta.gain);
@@ -170,9 +182,10 @@ export function getProcessedIr(
 }
 
 /**
- * Async: resolve the manifest, load+decode the native IR, and return the
- * decay-shaped buffer. Null when no real IR exists for the type (stay synthetic).
- * After it resolves, subsequent `getProcessedIr` calls for that type are sync hits.
+ * Async: resolve the manifest, load+decode the native IR at ctx's rate, and
+ * return the decay-shaped buffer. Null when no real IR exists for the type (stay
+ * synthetic). After it resolves, subsequent `getProcessedIr` calls for that type
+ * on a context of that rate are sync hits.
  */
 export async function ensureProcessedIr(
   ctx: BaseAudioContext,

@@ -63,7 +63,9 @@ export class SoundFontAdapter implements InstrumentAdapter {
   private channel = 0;
   private hasChannel = false;
   private program: number;
-  private outputNode: AudioNode | null = null;
+  // The native node this adapter's channel output is wired to (the track
+  // input, or the speakers when that bridge failed), so dispose undoes it.
+  private connectedNode: AudioNode | null = null;
   private activator: ConstantSourceNode | null = null;
 
   constructor(program: number = 0) {
@@ -73,13 +75,26 @@ export class SoundFontAdapter implements InstrumentAdapter {
   async init(ctx: AudioContext, outputNode: AudioNode): Promise<void> {
     this.channel = allocateChannel();
     this.hasChannel = true;
+    try {
+      await this.attach(ctx, outputNode);
+    } catch (err) {
+      // Hand the channel back. An export's offline graph is out of the live
+      // synth's reach, so every bounce fails here; keeping the channel would
+      // use one up per export until live tracks had to share channels, and
+      // tracks on one channel hear each other.
+      this.release();
+      throw err;
+    }
+  }
 
+  private async attach(
+    ctx: AudioContext,
+    outputNode: AudioNode,
+  ): Promise<void> {
     if (!synthInitPromise) {
       synthInitPromise = initSharedSynth(ctx);
     }
     await synthInitPromise;
-
-    this.outputNode = outputNode;
 
     // standardized-audio-context (used by Tone.js) keeps wrapped nodes in a
     // "passive" state with native output connections disconnected until they
@@ -98,13 +113,18 @@ export class SoundFontAdapter implements InstrumentAdapter {
     // AudioNode to ensure cross-context compatibility.
     const nativeOutput =
       (outputNode as MaybeNativeAudioNode)._nativeAudioNode ?? outputNode;
+    // Only this track's channel: the synth's connect() wires all 17 worklet
+    // outputs, so every SoundFont track would also play every other one's
+    // notes (and mute/solo/FX couldn't isolate it).
     try {
-      sharedSynth!.connect(nativeOutput);
+      sharedSynth!.connectChannel(nativeOutput, this.channel);
+      this.connectedNode = nativeOutput;
     } catch {
       // Fallback: connect to speakers if cross-context bridge fails
       const nativeCtx: AudioContext =
         (ctx as MaybeNativeContext)._nativeContext ?? ctx;
-      sharedSynth!.connect(nativeCtx.destination);
+      sharedSynth!.connectChannel(nativeCtx.destination, this.channel);
+      this.connectedNode = nativeCtx.destination;
     }
 
     // Set GM program for this channel
@@ -178,6 +198,22 @@ export class SoundFontAdapter implements InstrumentAdapter {
 
   dispose(): void {
     this.allNotesOff();
+    this.release();
+  }
+
+  /** Unwire the channel output and hand back the channel and activator. */
+  private release(): void {
+    // Undo only this channel's wire: disconnect(node) would cut every output
+    // to that node, silencing another adapter that shares it (the Learn
+    // backing track points both of its adapters at the speakers).
+    if (sharedSynth && this.connectedNode) {
+      try {
+        sharedSynth.disconnectChannel(this.connectedNode, this.channel);
+      } catch {
+        /* may already be disconnected */
+      }
+    }
+    this.connectedNode = null;
     if (this.hasChannel) {
       releaseChannel(this.channel);
       this.hasChannel = false;
@@ -195,17 +231,6 @@ export class SoundFontAdapter implements InstrumentAdapter {
       }
       this.activator = null;
     }
-    if (sharedSynth && this.outputNode) {
-      const nativeOutput =
-        (this.outputNode as MaybeNativeAudioNode)._nativeAudioNode ??
-        this.outputNode;
-      try {
-        sharedSynth.disconnect(nativeOutput);
-      } catch {
-        /* may already be disconnected */
-      }
-    }
-    this.outputNode = null;
   }
 }
 
@@ -243,6 +268,12 @@ async function initSharedSynth(ctx: AudioContext): Promise<void> {
 
   await withTimeout(sharedSynth.isReady, 15_000, 'isReady');
 
+  // Tracks take only their own channel's dry output, so nothing listens to
+  // the synth-wide GS reverb/chorus output any more: switch the effects off
+  // rather than render them unheard. Reverb comes from the DAW's own track
+  // FX and return buses.
+  sharedSynth.setSystemParameter('effectsEnabled', false);
+
   const sfResponse = await withTimeout(
     fetch('/daw-assets/GeneralUser_GS.sf2'),
     30_000,
@@ -258,9 +289,9 @@ async function initSharedSynth(ctx: AudioContext): Promise<void> {
     'addSoundBank',
   );
 
-  // Don't connect to destination — each SoundFontAdapter instance will
-  // connect the shared synth to its track's outputNode so audio flows
-  // through the DAW's per-track effect chain and mastering chain.
+  // Don't connect to destination — each SoundFontAdapter instance connects
+  // its own channel of the shared synth to its track's output node, so audio
+  // flows through the DAW's per-track effect chain and mastering chain.
 
   synthReady = true;
 }

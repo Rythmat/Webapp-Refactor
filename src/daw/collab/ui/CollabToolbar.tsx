@@ -146,10 +146,10 @@ export function CollabToolbar({
           >
             <button
               onClick={handleCreateSession}
-              className="rounded-md py-1.5 text-[10px] font-medium transition-colors hover:brightness-110"
+              className="rounded-full py-1.5 text-xs font-semibold transition-[filter] hover:brightness-90"
               style={{
-                backgroundColor: 'var(--color-accent)',
-                color: '#fff',
+                backgroundColor: '#fff',
+                color: '#101012',
                 border: 'none',
               }}
             >
@@ -228,9 +228,10 @@ export function CollabToolbar({
         >
           <MessageSquare size={13} strokeWidth={2} />
           {unreadCount > 0 && (
+            // Dark on white, as on the white pill: white on teal was about 1.8:1.
             <span
               className="flex size-3 items-center justify-center rounded-full text-[7px] font-bold"
-              style={{ backgroundColor: 'var(--color-accent)', color: '#fff' }}
+              style={{ backgroundColor: '#fff', color: '#101012' }}
             >
               {unreadCount}
             </span>

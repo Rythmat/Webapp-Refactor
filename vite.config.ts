@@ -20,12 +20,28 @@ export default defineConfig({
     repoContentPlugin(),
     analyze &&
       visualizer({
-        filename: 'docs/optimization/baseline-2026-06-10/bundle.html',
+        filename:
+          process.env.ANALYZE_OUT ??
+          'docs/optimization/baseline-2026-06-10/bundle.html',
         template: 'treemap',
         gzipSize: true,
         brotliSize: true,
       }),
+    // The same sizes as JSON, for scripts/studio-perf/bundle.mjs.
+    analyze &&
+      process.env.ANALYZE_JSON &&
+      visualizer({
+        filename: process.env.ANALYZE_JSON,
+        template: 'raw-data',
+        gzipSize: true,
+        brotliSize: true,
+      }),
   ].filter(Boolean),
+  // Scripts that start a dev server of their own (scripts/studio-perf) give it
+  // a separate dep cache, so it never re-optimizes under the owner's server,
+  // and, from a git worktree, the main checkout's env files.
+  cacheDir: process.env.VITE_CACHE_DIR || undefined,
+  envDir: process.env.VITE_ENV_DIR || undefined,
   server: {
     port: 5179,
     strictPort: true,

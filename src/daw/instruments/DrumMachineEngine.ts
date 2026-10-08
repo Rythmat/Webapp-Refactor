@@ -200,7 +200,9 @@ export class DrumMachineEngine implements InstrumentAdapter {
   }
 
   noteOn(note: number, velocity: number, time?: number): void {
-    const t = time ?? Tone.now();
+    // Live playing passes no time; Tone.now() would add the ~100 ms lookAhead.
+    // The choke and velocity writes below share `t`.
+    const t = time ?? Tone.immediate();
     const canonical = canonicalPadNote(note);
     const velGain = Math.max(0, Math.min(1, velocity / 127));
 

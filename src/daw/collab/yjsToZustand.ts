@@ -32,6 +32,54 @@ type SetState = (partial: Partial<AllSlices>) => void;
 export type YjsObserverDisposer = () => void;
 
 /**
+ * A track as the shared doc has it, with this user's own state carried over
+ * from the store by track id. The doc never holds that state (yMapToTrack
+ * fills in defaults): mute/solo/arm/monitoring, and the input routing that
+ * belongs to one person's devices. Without this, any collaborator's edit to
+ * any track disconnected everyone's live input. A role missing from an older
+ * peer's doc reads as 'auto', which analysis resolves from the name.
+ */
+function withLocalTrackState(t: Track, prev: Track | undefined): Track {
+  const shared = t.trackRole ? t : { ...t, trackRole: 'auto' as const };
+  if (!prev) return shared;
+  return {
+    ...shared,
+    mute: prev.mute,
+    solo: prev.solo,
+    recordArmed: prev.recordArmed,
+    monitoring: prev.monitoring,
+    midiInputId: prev.midiInputId,
+    audioInputId: prev.audioInputId,
+    audioInputChannel: prev.audioInputChannel,
+    audioMidiSource: prev.audioMidiSource,
+  };
+}
+
+/** The origin of chord-id repairs: not ORIGIN_LOCAL, so undo skips them. */
+const ORIGIN_CHORD_ID_REPAIR = 'chord-id-repair';
+
+/**
+ * Give every chord region in the doc an id of its own. Pages used to mint
+ * chord ids from a counter that restarted on every load and every peer, so a
+ * room can hold two regions with one id, and an edit by id then lands on the
+ * wrong chord. The repair is written to the doc, not just this store, so
+ * every peer converges on the same ids.
+ */
+function repairChordRegionIds(doc: Y.Doc): void {
+  const seen = new Set<string>();
+  const repeats: Y.Map<unknown>[] = [];
+  for (const ym of getYChordRegions(doc).toArray()) {
+    const id = ym.get('id');
+    if (typeof id === 'string' && id && !seen.has(id)) seen.add(id);
+    else repeats.push(ym);
+  }
+  if (repeats.length === 0) return;
+  doc.transact(() => {
+    for (const ym of repeats) ym.set('id', crypto.randomUUID());
+  }, ORIGIN_CHORD_ID_REPAIR);
+}
+
+/**
  * Transport keys that are shared across the room. Everything else on the
  * transport map (play state, playhead, loop region, metronome, recording) is
  * per-user-local and must never be applied from a remote update — even if a
@@ -124,22 +172,13 @@ export function observeYjsAndPushToStore(
   const yTracks = getYTracks(doc);
   let tracksApplyPending = false;
   const applyTracksFromDoc = () => {
-    // mute/solo/recordArmed/monitoring are per-user-local: yMapToTrack returns
-    // false defaults, so we carry the local user's current values forward by
-    // track id rather than letting a remote track update clobber them.
+    // Per-user-local fields: yMapToTrack returns defaults, so we carry the
+    // local user's current values forward by track id rather than letting a
+    // remote track update clobber them.
     const prevById = new Map(getState().tracks.map((t) => [t.id, t]));
     const tracks: Track[] = yTracks.toArray().map((ym) => {
       const t = yMapToTrack(ym as Y.Map<unknown>);
-      const prev = prevById.get(t.id);
-      return prev
-        ? {
-            ...t,
-            mute: prev.mute,
-            solo: prev.solo,
-            recordArmed: prev.recordArmed,
-            monitoring: prev.monitoring,
-          }
-        : t;
+      return withLocalTrackState(t, prevById.get(t.id));
     });
     setState({ tracks } as Partial<AllSlices>);
   };
@@ -335,8 +374,9 @@ export function observeYjsAndPushToStore(
  * by the initial sync, but nothing copies that state into the store. Call this
  * once, right after the initial sync, to seed the store from the document.
  *
- * Per-user-local track fields (mute/solo/recordArmed/monitoring) are preserved
- * from the current store rather than reset to the doc's `false` defaults.
+ * Per-user-local track fields (mute/solo/recordArmed/monitoring and the input
+ * routing) are preserved from the current store rather than reset to the doc's
+ * defaults, and chord regions sharing an id are given ids of their own.
  */
 export function pullDocIntoStore(
   doc: Y.Doc,
@@ -363,19 +403,11 @@ export function pullDocIntoStore(
     .toArray()
     .map((ym) => {
       const t = yMapToTrack(ym as Y.Map<unknown>);
-      const prev = prevById.get(t.id);
-      return prev
-        ? {
-            ...t,
-            mute: prev.mute,
-            solo: prev.solo,
-            recordArmed: prev.recordArmed,
-            monitoring: prev.monitoring,
-          }
-        : t;
+      return withLocalTrackState(t, prevById.get(t.id));
     });
 
   // ── Chord regions ──
+  repairChordRegionIds(doc);
   patch.chordRegions = getYChordRegions(doc)
     .toArray()
     .map((ym) => yMapToChordRegion(ym as Y.Map<unknown>));

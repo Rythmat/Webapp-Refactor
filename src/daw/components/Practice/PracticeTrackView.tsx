@@ -4,6 +4,7 @@ import { ALL_MODES, DEGREES, MODE_DISPLAY, noteNameInKey } from '@prism/engine';
 import { LearnRoutes } from '@/constants/routes';
 import { keyName } from '@/daw/components/Library/chordInKey';
 import { useStore } from '@/daw/store';
+import { requestRecord } from '@/daw/commands/requestRecord';
 import type { PracticeSession } from '@/daw/store/uiSlice';
 import {
   displayAccidentals,
@@ -91,7 +92,7 @@ export function PracticeTrackView({
   const openTrack = useStore((s) =>
     s.tracks.find((t) => t.id === s.selectedTrackId),
   );
-  const { play, pause, stop, record, setBpm, toggleLoop, setCurrentView } =
+  const { play, pause, stop, setBpm, toggleLoop, setCurrentView } =
     useStore.getState();
 
   const genre = session.kind === 'genre' ? session : null;
@@ -339,10 +340,12 @@ export function PracticeTrackView({
     () => withInit(isPlaying ? pause : play),
     [isPlaying, pause, play, withInit],
   );
-  const toggleRecord = useCallback(
-    () => (isRecording || isCountingIn ? stop() : withInit(record)),
-    [isCountingIn, isRecording, record, stop, withInit],
-  );
+  // Through the editor's one record command, so the overwrite question the
+  // Studio asks covers a take here too (RecordGuard sits at the editor root).
+  const toggleRecord = useCallback(() => {
+    if (isRecording || isCountingIn) stop();
+    else requestRecord(isReady ? undefined : onInit);
+  }, [isCountingIn, isRecording, isReady, onInit, stop]);
 
   // Space plays and pauses, as it does in the full Studio.
   useEffect(() => {
@@ -351,6 +354,8 @@ export function PracticeTrackView({
       const target = event.target as HTMLElement | null;
       if (target?.closest('input, textarea, select, [contenteditable]')) return;
       event.preventDefault();
+      // A held Space repeats keydown; it plays or pauses once.
+      if (event.repeat) return;
       togglePlay();
     };
     window.addEventListener('keydown', onKey);

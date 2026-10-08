@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useMatch, useSearchParams } from 'react-router-dom';
 import { cn } from '@/components/utilities';
 import { StudioRoutes } from '@/constants/routes';
 
@@ -8,28 +8,44 @@ interface Tab {
   to: string;
 }
 
-// Project jumps straight to a blank editor; the rest switch the ?tab= view.
+// Project jumps straight to a blank editor; Production is its own route; the
+// rest switch the ?tab= view. The ?tab= links carry the dashboard path so they
+// leave /studio/production rather than append to it.
 const TABS: Tab[] = [
   {
     slug: 'Project',
     label: 'Project',
     to: `${StudioRoutes.editor.definition}?new=1`,
   },
-  { slug: 'Library', label: 'Library', to: '?tab=Library' },
-  { slug: 'Templates', label: 'Templates', to: '?tab=Templates' },
-  { slug: 'Demos', label: 'Demos', to: '?tab=Demos' },
+  {
+    slug: 'Production',
+    label: 'Production',
+    to: StudioRoutes.production.definition,
+  },
+  {
+    slug: 'Templates',
+    label: 'Templates',
+    to: `${StudioRoutes.root.definition}?tab=Templates`,
+  },
+  {
+    slug: 'Demos',
+    label: 'Demos',
+    to: `${StudioRoutes.root.definition}?tab=Demos`,
+  },
 ];
 
 /**
  * The Studio dashboard's tab bar — one inline row (mirrors LearnTabBar): the
  * "Studio" heading (which links back to the default dashboard), then Project /
- * Library / Templates / Demos as plain text links at the same size as the
- * heading (no pill chrome or highlight). "Project" opens a blank editor; the
- * others switch the in-page view via the `?tab=` param StudioInlet reads.
+ * Production / Templates / Demos as plain text links at the same size as the
+ * heading (no pill chrome or highlight). "Project" opens a blank editor,
+ * "Production" opens the lessons at `/studio/production`, and the others
+ * switch the in-page view via the `?tab=` param StudioInlet reads.
  */
 export const StudioTabBar = () => {
   const [params] = useSearchParams();
-  const active = params.get('tab') ?? '';
+  const onProduction = useMatch(StudioRoutes.production.definition) !== null;
+  const active = onProduction ? 'Production' : (params.get('tab') ?? '');
 
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 md:gap-x-6">

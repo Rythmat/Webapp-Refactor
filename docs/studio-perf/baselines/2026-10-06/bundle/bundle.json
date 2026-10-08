@@ -1,0 +1,487 @@
+{
+ "date": "2026-10-07T01:16:59.962Z",
+ "commit": "f96b3ecc",
+ "dirty": true,
+ "vite": "8.0.2",
+ "envDir": "../Webapp-Refactor",
+ "buildSeconds": 33,
+ "dawApp": {
+  "file": "assets/DawApp-BnLe4--M.js",
+  "rawBytes": 1125808,
+  "gzipBytes": 284926,
+  "brotliBytes": 220046,
+  "viteReported": {
+   "rawBytes": 1125800,
+   "gzipBytes": 288630
+  },
+  "otherDawAppChunks": [],
+  "juneBaseline": {
+   "rawBytes": 1130000,
+   "gzipBytes": 286000
+  },
+  "changeSinceJune": {
+   "rawBytes": -4192,
+   "gzipBytes": -1074
+  },
+  "bootBudgetGzipBytes": 150000,
+  "overBootBudgetGzipBytes": 134926
+ },
+ "entry": {
+  "file": "assets/index-T7PuolGk.js",
+  "rawBytes": 680346,
+  "gzipBytes": 179035,
+  "brotliBytes": 143825
+ },
+ "initialJs": {
+  "files": [
+   "assets/index-T7PuolGk.js",
+   "assets/chunk-BEqpzyXh.js",
+   "assets/preload-helper-Bf_JiD2A.js",
+   "assets/AudioContextOwner-CQnJVfnq.js",
+   "assets/Mixer-93cWoVFc.js",
+   "assets/dist-DMFZ2ts0.js",
+   "assets/react-D-Ueu8eg.js",
+   "assets/react-dom-Ce6KqdVF.js",
+   "assets/authFetch-I-nqYSLX.js",
+   "assets/env-oj9bvZ08.js",
+   "assets/dist-Nm0izuVE.js",
+   "assets/routes-Cv7f7OSd.js",
+   "assets/jsx-runtime-CB8ITjZP.js",
+   "assets/useAuthContext-BEhO4mW-.js",
+   "assets/tslib.es6-xt5OqUcJ.js",
+   "assets/esm-_F7yOfjI.js",
+   "assets/toneBridge-DeFDvJN1.js",
+   "assets/epSampler-DL5K876H.js",
+   "assets/types-D3trOECE.js",
+   "assets/useTelemetryAudio-BLNqqgqP.js",
+   "assets/pianoSampler-avi_Fgyf.js",
+   "assets/utilities-BQWGQwMb.js",
+   "assets/Logo-DvuaHMCj.js",
+   "assets/FullScreenLoading-CFw0hY3J.js",
+   "assets/colord-B3bdltmC.js",
+   "assets/theme-B4fhw4v7.js",
+   "assets/manifest-Dtl_TlOb.js",
+   "assets/songStore-zv5XLP4t.js",
+   "assets/useAuthToken-Dvcet6G_.js",
+   "assets/mutation-BvQW3bTj.js",
+   "assets/MusicAtlasContext-ChDf9pi2.js",
+   "assets/learnTileImages-D097PN_c.js",
+   "assets/middleware-BwwOMh4a.js",
+   "assets/react-FzImbLsE.js",
+   "assets/useSavedSongsStore-ChG0k-DA.js",
+   "assets/useViewedSongsStore-OaOe2NLU.js",
+   "assets/usePrismRhythms-BYJNaBmw.js",
+   "assets/avatarHexGrid-d_6cfUsD.js",
+   "assets/scaleLessons-B5Abzk1c.js",
+   "assets/chordProgressionLibrary-CrR8OW5N.js",
+   "assets/enharmonicEngine-B_8NshJi.js",
+   "assets/chords-9ss3vdh3.js",
+   "assets/prism-engine-CkKWRN1o.js",
+   "assets/store-DBQiZKJD.js",
+   "assets/types-BwbwurZX.js",
+   "assets/samplerChops-BHWcAN1D.js",
+   "assets/SessionSerializer-B2K5nRxb.js",
+   "assets/api-9RjK6QZE.js",
+   "assets/useMutation-DlQv1uPW.js",
+   "assets/data-0eeoB6wz.js",
+   "assets/HexAvatarSVG-D1ptLCru.js",
+   "assets/dist-Cb-UCWLD.js",
+   "assets/dist-AGBABE1I.js",
+   "assets/button-BN-hAf4O.js",
+   "assets/skeleton-BC1qsOhQ.js",
+   "assets/floating-ui.react-dom-CW_BKIpT.js",
+   "assets/dist-Bw0Wf-nl.js",
+   "assets/dist-CMV2XhRj.js",
+   "assets/dist-B0nuZAzj.js",
+   "assets/dist-ZDk6ddmO.js",
+   "assets/dist-BKGeLIWo.js",
+   "assets/tooltip-C_3wBGi4.js",
+   "assets/consoleRoles-DPIgnPcW.js",
+   "assets/mirrorPaths-By6S_kk_.js",
+   "assets/createLucideIcon-BUF01neU.js",
+   "assets/loader-circle-HH9dQuco.js",
+   "assets/log-out-B45TyUVI.js",
+   "assets/x-C88I-3QK.js",
+   "assets/UserWidget-Dr94kmdm.js",
+   "assets/chevron-left-NBuiiWpo.js",
+   "assets/HeaderBar-DDG8hIh9.js",
+   "assets/youtube-CNN6KfI4.js",
+   "assets/DashboardFooter-BkMXgPoM.js",
+   "assets/PianoRollPlay-D4_lYJw0.js",
+   "assets/PianoKeyboard-DjySoMec.js",
+   "assets/PianoKeyboard-COW6yRNs.js",
+   "assets/YouTubePlayer-DDSkK3mn.js",
+   "assets/slugs-BfeST7l_.js",
+   "assets/tablePaths-B3vZ99-4.js",
+   "assets/activity-ClKdugum.js",
+   "assets/graduation-cap-DTd1efdY.js",
+   "assets/house-z_lNf-F7.js",
+   "assets/laptop-Dppp5uDb.js",
+   "assets/search-HvI3LaP2.js",
+   "assets/settings-3b2rEcyI.js",
+   "assets/users-CqdaZx19.js",
+   "assets/DashboardLayout-C1YGL9kq.js",
+   "assets/modeStepsFallback-C48Jah9H.js",
+   "assets/noteSpellingLookup-B4WL-SEe.js",
+   "assets/jamSoundFont-Ddf37UAh.js",
+   "assets/use-motion-value-event-B7EedfQu.js",
+   "assets/FixedDigits-B2ue6qPf.js",
+   "assets/es2015-sCjzW2M6.js",
+   "assets/Combination-B6cpHlSi.js",
+   "assets/dist-BUlvlF9v.js",
+   "assets/popover-CxM_2R1H.js",
+   "assets/bookOne-CSP0e7qH.js",
+   "assets/formatAccidentals-UfKMcsO6.js",
+   "assets/fretboard-BWECmLLQ.js",
+   "assets/check-Bq0BVMVj.js",
+   "assets/info-BGzLz74P.js",
+   "assets/volume-2-C6L6DvRH.js",
+   "assets/guitar-_PoIwrhQ.js",
+   "assets/systemPlan-Q2NITN0t.js",
+   "assets/music-BSmMaoT1.js",
+   "assets/GrandStaff-B3EcdQXP.js",
+   "assets/ProbabilisticOrchestrator-Dcfwaqyx.js",
+   "assets/AudioChordDetector-ClKroasU.js",
+   "assets/chordIdentity-DgJFxyy3.js",
+   "assets/lessonVolumeStore-BhpU8Bvb.js",
+   "assets/MetronomeToggle-C_J1k9VJ.js",
+   "assets/dist-syFPaTpv.js",
+   "assets/dist-6LAdrLzj.js",
+   "assets/react-icons.esm-D24M1h5q.js",
+   "assets/dropdown-menu-BU5BbX3R.js",
+   "assets/dist-B5Wtm8de.js",
+   "assets/useMediaQuery-CjbHshF7.js",
+   "assets/dist-DIeuswFc.js",
+   "assets/switch-DrbQfgnh.js",
+   "assets/guitarAppliedTheoryFundamentals-B79x445n.js",
+   "assets/flowStore-BppXyVJb.js",
+   "assets/resolveStepContent-z6cz43u-.js",
+   "assets/displayAccidentals-D-sfjIHg.js",
+   "assets/insightConstants-BJbhNBUX.js",
+   "assets/chordNotation-CEO9d-gg.js",
+   "assets/useSettingsStore-Ce5aet5W.js",
+   "assets/mspLaunchParams-0ZUincj1.js",
+   "assets/mspResponseInbox-BaGU8R4L.js",
+   "assets/capabilities-CfYHRsZr.js",
+   "assets/useMspReport-CdzUPVEy.js",
+   "assets/msp-C5JbWjB2.js",
+   "assets/useInstrumentStore-Dyl5iDFu.js",
+   "assets/NamModelStore-Cc4_GWqY.js",
+   "assets/guitarTonePrefs-BhZxdgZS.js",
+   "assets/GuitarInputChip-Ke4YPQJw.js",
+   "assets/dist-DfpVZ3-O.js",
+   "assets/dist-erIQrnry.js",
+   "assets/arrow-right-1lPULflY.js",
+   "assets/book-open-B0JmxnLz.js",
+   "assets/chevron-down-CB5ygH0x.js",
+   "assets/chevron-right-DbKXT9CZ.js",
+   "assets/guitar-xS62KPR7.js",
+   "assets/hand-Bzgnx_fW.js",
+   "assets/lock-zPRHrFvf.js",
+   "assets/minus-DTtsqCui.js",
+   "assets/play-CQ4DWude.js",
+   "assets/plus-mR_G6uQe.js",
+   "assets/repeat-CKMUFy0X.js",
+   "assets/square-DO_HqrdI.js",
+   "assets/GenreLessonContainerV2-KVaLlnul.js",
+   "assets/alert-dialog-BadI0zPF.js",
+   "assets/hex-wave-background-DIH_NFAy.js",
+   "assets/hosts-BLk646Oe.js",
+   "assets/contentStore-1pMdMzxD.js",
+   "assets/chordQualityLibrary-CBUNQQwZ.js",
+   "assets/systems-CA0Or7bg.js",
+   "assets/seedStudioFromSong-DmfUHdIb.js",
+   "assets/kindLabels-Th2iwULX.js",
+   "assets/useAdminContent-DT9bi8uf.js",
+   "assets/publishRun-DzEfGtjK.js",
+   "assets/useCapabilities-D8a6Gc16.js",
+   "assets/useRepoMode-B-7zINNA.js",
+   "assets/styles-Y16hlBOj.js",
+   "assets/useUISound-CPQnXTSD.js",
+   "assets/api-BDgI4trK.js",
+   "assets/useUserBioPreferences-jTBSsD_l.js",
+   "assets/localSession-BNgkG6mn.js",
+   "assets/useTelemetryProduct-DvU6I7b8.js",
+   "assets/en-US-Bcq5Umie.js",
+   "assets/normalizeDates-C1G4ZPs8.js",
+   "assets/proxy-CR-pNdYg.js",
+   "assets/use-transform-Cd2sYSmu.js",
+   "assets/arrow-left-CGcG0DtJ.js",
+   "assets/prop-types-DSm1JUj1.js"
+  ],
+  "rawBytes": 3441953,
+  "gzipBytes": 957871
+ },
+ "totalJs": {
+  "files": 514,
+  "rawBytes": 19911855,
+  "gzipBytes": 4969505
+ },
+ "publicJs": {
+  "files": [
+   "daw-assets/basic-pitch-worklet.js",
+   "daw-assets/nam-processor.js",
+   "daw-assets/pitch-correction-processor.js",
+   "daw-assets/spessasynth_processor.min.js"
+  ],
+  "rawBytes": 430092
+ },
+ "dawModules": {
+  "count": 402,
+  "renderedBytes": 2258135
+ },
+ "topDawModules": [
+  {
+   "module": "src/daw/components/Controls/VocalView.tsx",
+   "renderedBytes": 73822,
+   "gzipBytes": 11467,
+   "brotliBytes": 9829,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  },
+  {
+   "module": "src/daw/components/Timeline/Timeline.tsx",
+   "renderedBytes": 72730,
+   "gzipBytes": 14760,
+   "brotliBytes": 12944,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  },
+  {
+   "module": "src/daw/components/Controls/CrystalIcons.ts",
+   "renderedBytes": 62739,
+   "gzipBytes": 19543,
+   "brotliBytes": 17208,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  },
+  {
+   "module": "src/daw/components/Score/useScoreEditing.tsx",
+   "renderedBytes": 61720,
+   "gzipBytes": 13110,
+   "brotliBytes": 11697,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  },
+  {
+   "module": "src/daw/components/Controls/DrumMachineView.tsx",
+   "renderedBytes": 50181,
+   "gzipBytes": 11173,
+   "brotliBytes": 9785,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  },
+  {
+   "module": "src/daw/components/PianoRoll/PianoRoll.tsx",
+   "renderedBytes": 45908,
+   "gzipBytes": 10427,
+   "brotliBytes": 9159,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  },
+  {
+   "module": "src/daw/components/Controls/GuitarBassView.tsx",
+   "renderedBytes": 43584,
+   "gzipBytes": 8225,
+   "brotliBytes": 7208,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  },
+  {
+   "module": "src/daw/store/prismSlice.ts",
+   "renderedBytes": 41852,
+   "gzipBytes": 9877,
+   "brotliBytes": 8836,
+   "chunks": [
+    "assets/store-DBQiZKJD.js"
+   ]
+  },
+  {
+   "module": "src/daw/components/Effects/EffectsPanel.tsx",
+   "renderedBytes": 41782,
+   "gzipBytes": 6692,
+   "brotliBytes": 5840,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  },
+  {
+   "module": "src/daw/prism-engine/data/melodyContours.ts",
+   "renderedBytes": 39589,
+   "gzipBytes": 3810,
+   "brotliBytes": 2963,
+   "chunks": [
+    "assets/prism-engine-CkKWRN1o.js"
+   ]
+  },
+  {
+   "module": "src/daw/prism-engine/data/progressionGraph.ts",
+   "renderedBytes": 37021,
+   "gzipBytes": 3971,
+   "brotliBytes": 3623,
+   "chunks": [
+    "assets/prism-engine-CkKWRN1o.js"
+   ]
+  },
+  {
+   "module": "src/daw/components/Transport/TransportBar.tsx",
+   "renderedBytes": 32625,
+   "gzipBytes": 6443,
+   "brotliBytes": 5643,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  },
+  {
+   "module": "src/daw/components/Studio/StudioView.tsx",
+   "renderedBytes": 32405,
+   "gzipBytes": 6612,
+   "brotliBytes": 5797,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  },
+  {
+   "module": "src/daw/audio/EffectChain.ts",
+   "renderedBytes": 31298,
+   "gzipBytes": 6255,
+   "brotliBytes": 5537,
+   "chunks": [
+    "assets/store-DBQiZKJD.js"
+   ]
+  },
+  {
+   "module": "src/daw/oracle-synth/store/presets/factoryPresets.ts",
+   "renderedBytes": 27409,
+   "gzipBytes": 3173,
+   "brotliBytes": 2628,
+   "chunks": [
+    "assets/SessionSerializer-B2K5nRxb.js"
+   ]
+  },
+  {
+   "module": "src/daw/components/LeadSheet/LeadSheetView.tsx",
+   "renderedBytes": 26124,
+   "gzipBytes": 6238,
+   "brotliBytes": 5566,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  },
+  {
+   "module": "src/daw/components/Controls/GroovesBrowser.tsx",
+   "renderedBytes": 25852,
+   "gzipBytes": 5058,
+   "brotliBytes": 4460,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  },
+  {
+   "module": "src/daw/hooks/usePlaybackEngine.ts",
+   "renderedBytes": 25232,
+   "gzipBytes": 6074,
+   "brotliBytes": 5476,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  },
+  {
+   "module": "src/daw/components/Tutorial/tutorials.ts",
+   "renderedBytes": 23114,
+   "gzipBytes": 5615,
+   "brotliBytes": 4913,
+   "chunks": [
+    "assets/useTutorialProgressStore-BE5di4TO.js"
+   ]
+  },
+  {
+   "module": "src/daw/components/PitchEditor/PitchEditor.tsx",
+   "renderedBytes": 22325,
+   "gzipBytes": 5244,
+   "brotliBytes": 4675,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  },
+  {
+   "module": "src/daw/instruments/TonewheelOrganEngine.ts",
+   "renderedBytes": 21879,
+   "gzipBytes": 5058,
+   "brotliBytes": 4509,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  },
+  {
+   "module": "src/daw/components/Transport/SettingsModal.tsx",
+   "renderedBytes": 19246,
+   "gzipBytes": 3843,
+   "brotliBytes": 3336,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  },
+  {
+   "module": "src/daw/components/Controls/OrganView.tsx",
+   "renderedBytes": 18190,
+   "gzipBytes": 3857,
+   "brotliBytes": 3435,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  },
+  {
+   "module": "src/daw/components/Effects/GraphicEQ.tsx",
+   "renderedBytes": 17615,
+   "gzipBytes": 4885,
+   "brotliBytes": 4312,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  },
+  {
+   "module": "src/daw/components/Controls/SamplerChopsView.tsx",
+   "renderedBytes": 17292,
+   "gzipBytes": 4283,
+   "brotliBytes": 3739,
+   "chunks": [
+    "assets/DawApp-BnLe4--M.js"
+   ]
+  }
+ ],
+ "dawAppComposition": {
+  "node_modules": 124789,
+  "src/daw": 1677343,
+  "src (other)": 181419
+ },
+ "dawAppTopPackages": [
+  {
+   "package": "webmidi",
+   "renderedBytes": 100642
+  },
+  {
+   "package": "lucide-react",
+   "renderedBytes": 9784
+  },
+  {
+   "package": "framer-motion",
+   "renderedBytes": 8505
+  },
+  {
+   "package": "y-indexeddb",
+   "renderedBytes": 3569
+  },
+  {
+   "package": "lib0",
+   "renderedBytes": 2289
+  }
+ ]
+}

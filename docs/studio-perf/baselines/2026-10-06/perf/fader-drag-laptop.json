@@ -1,0 +1,443 @@
+{
+ "scenario": "fader-drag",
+ "profile": "laptop",
+ "meta": {
+  "date": "2026-10-07T01:08:08.330Z",
+  "base": "http://localhost:5263",
+  "commit": "f96b3ecc",
+  "dirty": true,
+  "chrome": "153.0.8010.12",
+  "gpu": "metal",
+  "windows": {
+   "quick": false,
+   "repeat": 3,
+   "idleMs": 10000,
+   "playbackLeadMs": 1000,
+   "playbackMs": 20000,
+   "dragMs": 4000,
+   "gestureGapMs": 1000,
+   "viewGapMs": 1500,
+   "audioTimeoutMs": 60000,
+   "silenceMs": 10000
+  },
+  "loop": true,
+  "loadLimits": {
+   "cores": 14,
+   "busyAbove": 4.7,
+   "baseline": true,
+   "maxLoad": 4.7
+  },
+  "profileSettings": {
+   "viewport": {
+    "width": 1440,
+    "height": 787
+   },
+   "deviceScaleFactor": 2,
+   "cpuThrottle": 1,
+   "network": null
+  }
+ },
+ "runSeconds": 19.1,
+ "machine": {
+  "cores": 14,
+  "load1mStart": 4.13,
+  "load1mEnd": 4.14,
+  "cpuBusy": 0.26
+ },
+ "setup": {
+  "query": "?demo=demo-midnight-groove",
+  "openMs": 996,
+  "audioMs": 380,
+  "settle": {
+   "quiet": true,
+   "ms": 2221
+  },
+  "pageCheckMs": 25.2,
+  "calm": {
+   "calm": true,
+   "ms": 1012
+  }
+ },
+ "control": {
+  "slider": "first track header volume (Radix slider)",
+  "widthPx": 34,
+  "trackId": "c3f3ca8d-f656-46c3-82cb-e21c7cab1e0f",
+  "track": "Keys",
+  "volume": 0.8,
+  "matchedBy": "the header name"
+ },
+ "stats": {
+  "gestures": 3,
+  "movesPerSecond": {
+   "median": 59.4,
+   "min": 59,
+   "max": 59.4,
+   "n": 3
+  },
+  "writesPerSecond": {
+   "median": 109.58230958230958,
+   "min": 108.33333333333333,
+   "max": 110.07371007371006,
+   "n": 3
+  },
+  "commitsPerSecond": {
+   "median": 156.65,
+   "min": 142.14,
+   "max": 164.52,
+   "n": 3
+  },
+  "writesPerMove": {
+   "median": 1.87,
+   "min": 1.86,
+   "max": 1.88,
+   "n": 3
+  },
+  "writesPerGesture": {
+   "median": 446,
+   "min": 442,
+   "max": 448,
+   "n": 3
+  },
+  "commitsPerMove": {
+   "median": 2.7,
+   "min": 2.43,
+   "max": 2.82,
+   "n": 3
+  },
+  "longTaskMsPerMove": {
+   "median": 0,
+   "min": 0,
+   "max": 0.2,
+   "n": 3
+  },
+  "frameP95": {
+   "median": 16.7,
+   "min": 16.7,
+   "max": 16.8,
+   "n": 3
+  },
+  "longTasks": {
+   "count": 1,
+   "totalMs": 52
+  },
+  "keysPerMove": {
+   "tracks": 0.94,
+   "liveAudioPeaks": 0.94
+  },
+  "regionCommitsPerMove": {
+   "TimelineWithHeaders": 2.65,
+   "TransportBar": 2.35,
+   "Timeline": 1.87,
+   "LibraryPanel": 0.94,
+   "ChannelStrip": 0.94,
+   "DawAppInner": 0.94
+  }
+ },
+ "gestures": [
+  {
+   "moves": 237,
+   "movesPerSecond": 59,
+   "seconds": 4.08,
+   "storeWrites": 442,
+   "reactCommits": 639,
+   "longTasks": {
+    "count": 1,
+    "totalMs": 52
+   },
+   "longAnimationFrames": {
+    "count": 1,
+    "blockingMs": 2
+   },
+   "frameP95": 16.8,
+   "perMove": {
+    "storeWrites": 1.86,
+    "reactCommits": 2.7,
+    "longTaskMs": 0.2
+   },
+   "regionCommits": {
+    "TransportBar": 553,
+    "TimelineWithHeaders": 639,
+    "LibraryPanel": 221,
+    "ChannelStrip": 221,
+    "Timeline": 442,
+    "DawAppInner": 221
+   },
+   "watch": {
+    "writes": 442,
+    "keys": {
+     "tracks": 221,
+     "liveAudioPeaks": 221
+    },
+    "target": {
+     "initial": 0.8,
+     "final": 0.49,
+     "writes": 221,
+     "distinctValues": 33,
+     "changed": true
+    },
+    "clipWrites": 0,
+    "otherTracksChanged": []
+   },
+   "probes": {
+    "seconds": 4.08,
+    "frames": 243,
+    "frameMs": {
+     "p50": 16.7,
+     "p95": 16.8,
+     "max": 50
+    },
+    "longTasks": {
+     "count": 1,
+     "totalMs": 52
+    },
+    "longAnimationFrames": {
+     "count": 1,
+     "blockingMs": 2
+    },
+    "appRafCallsPerSecond": 714.6,
+    "reactCommitsPerSecond": 156.65,
+    "storeWritesPerSecond": 108.35,
+    "storeKeys": [
+     {
+      "key": "tracks",
+      "perSecond": 54.18
+     },
+     {
+      "key": "liveAudioPeaks",
+      "perSecond": 54.18
+     }
+    ],
+    "regions": {
+     "TransportBar": {
+      "commitsPerSecond": 135.57,
+      "msPerSecond": 72.78
+     },
+     "TimelineWithHeaders": {
+      "commitsPerSecond": 156.65,
+      "msPerSecond": 73.64
+     },
+     "LibraryPanel": {
+      "commitsPerSecond": 54.18,
+      "msPerSecond": 58.52
+     },
+     "ChannelStrip": {
+      "commitsPerSecond": 54.18,
+      "msPerSecond": 49.4
+     },
+     "Timeline": {
+      "commitsPerSecond": 108.35,
+      "msPerSecond": 0
+     },
+     "DawAppInner": {
+      "commitsPerSecond": 54.18,
+      "msPerSecond": 0
+     }
+    }
+   }
+  },
+  {
+   "moves": 238,
+   "movesPerSecond": 59.4,
+   "seconds": 4.07,
+   "storeWrites": 446,
+   "reactCommits": 670,
+   "longTasks": {
+    "count": 0,
+    "totalMs": 0
+   },
+   "longAnimationFrames": {
+    "count": 0,
+    "blockingMs": 0
+   },
+   "frameP95": 16.7,
+   "perMove": {
+    "storeWrites": 1.87,
+    "reactCommits": 2.82,
+    "longTaskMs": 0
+   },
+   "regionCommits": {
+    "TransportBar": 559,
+    "TimelineWithHeaders": 670,
+    "LibraryPanel": 223,
+    "ChannelStrip": 223,
+    "Timeline": 446,
+    "DawAppInner": 223
+   },
+   "watch": {
+    "writes": 446,
+    "keys": {
+     "tracks": 223,
+     "liveAudioPeaks": 223
+    },
+    "target": {
+     "initial": 0.8,
+     "final": 0.45,
+     "writes": 223,
+     "distinctValues": 38,
+     "changed": true
+    },
+    "clipWrites": 0,
+    "otherTracksChanged": []
+   },
+   "probes": {
+    "seconds": 4.07,
+    "frames": 244,
+    "frameMs": {
+     "p50": 16.7,
+     "p95": 16.7,
+     "max": 16.80000000000109
+    },
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "longAnimationFrames": {
+     "count": 0,
+     "blockingMs": 0
+    },
+    "appRafCallsPerSecond": 719.82,
+    "reactCommitsPerSecond": 164.52,
+    "storeWritesPerSecond": 109.68,
+    "storeKeys": [
+     {
+      "key": "tracks",
+      "perSecond": 54.84
+     },
+     {
+      "key": "liveAudioPeaks",
+      "perSecond": 54.84
+     }
+    ],
+    "regions": {
+     "TransportBar": {
+      "commitsPerSecond": 137.23,
+      "msPerSecond": 68.78
+     },
+     "TimelineWithHeaders": {
+      "commitsPerSecond": 164.52,
+      "msPerSecond": 73.36
+     },
+     "LibraryPanel": {
+      "commitsPerSecond": 54.84,
+      "msPerSecond": 58.28
+     },
+     "ChannelStrip": {
+      "commitsPerSecond": 54.84,
+      "msPerSecond": 49.77
+     },
+     "Timeline": {
+      "commitsPerSecond": 109.68,
+      "msPerSecond": 0
+     },
+     "DawAppInner": {
+      "commitsPerSecond": 54.84,
+      "msPerSecond": 0
+     }
+    }
+   }
+  },
+  {
+   "moves": 238,
+   "movesPerSecond": 59.4,
+   "seconds": 4.07,
+   "storeWrites": 448,
+   "reactCommits": 579,
+   "longTasks": {
+    "count": 0,
+    "totalMs": 0
+   },
+   "longAnimationFrames": {
+    "count": 0,
+    "blockingMs": 0
+   },
+   "frameP95": 16.7,
+   "perMove": {
+    "storeWrites": 1.88,
+    "reactCommits": 2.43,
+    "longTaskMs": 0
+   },
+   "regionCommits": {
+    "TransportBar": 560,
+    "TimelineWithHeaders": 579,
+    "LibraryPanel": 224,
+    "ChannelStrip": 224,
+    "Timeline": 448,
+    "DawAppInner": 224
+   },
+   "watch": {
+    "writes": 448,
+    "keys": {
+     "tracks": 224,
+     "liveAudioPeaks": 224
+    },
+    "target": {
+     "initial": 0.8,
+     "final": 0.46,
+     "writes": 224,
+     "distinctValues": 40,
+     "changed": true
+    },
+    "clipWrites": 0,
+    "otherTracksChanged": []
+   },
+   "probes": {
+    "seconds": 4.07,
+    "frames": 244,
+    "frameMs": {
+     "p50": 16.7,
+     "p95": 16.7,
+     "max": 16.80000000000291
+    },
+    "longTasks": {
+     "count": 0,
+     "totalMs": 0
+    },
+    "longAnimationFrames": {
+     "count": 0,
+     "blockingMs": 0
+    },
+    "appRafCallsPerSecond": 719.78,
+    "reactCommitsPerSecond": 142.14,
+    "storeWritesPerSecond": 110.17,
+    "storeKeys": [
+     {
+      "key": "tracks",
+      "perSecond": 55.08
+     },
+     {
+      "key": "liveAudioPeaks",
+      "perSecond": 55.08
+     }
+    ],
+    "regions": {
+     "TransportBar": {
+      "commitsPerSecond": 137.71,
+      "msPerSecond": 69.67
+     },
+     "TimelineWithHeaders": {
+      "commitsPerSecond": 142.14,
+      "msPerSecond": 73.13
+     },
+     "LibraryPanel": {
+      "commitsPerSecond": 55.08,
+      "msPerSecond": 58.55
+     },
+     "ChannelStrip": {
+      "commitsPerSecond": 55.08,
+      "msPerSecond": 49.43
+     },
+     "Timeline": {
+      "commitsPerSecond": 110.17,
+      "msPerSecond": 0
+     },
+     "DawAppInner": {
+      "commitsPerSecond": 55.08,
+      "msPerSecond": 0
+     }
+    }
+   }
+  }
+ ],
+ "problems": [],
+ "pageErrors": []
+}

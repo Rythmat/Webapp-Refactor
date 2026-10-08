@@ -1,13 +1,13 @@
-import { useCallback, useState, type MouseEvent, type ReactNode } from 'react';
+import { useCallback, type MouseEvent, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { showError } from '@/components/utils/toast';
 import { AtlasRoutes, LearnRoutes, StudioRoutes } from '@/constants/routes';
+import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import type { Song, SongMode } from '@/curriculum/types/songLibrary';
-import { ConfirmModal } from '@/daw/components/common/ConfirmModal';
-import { resetSessionToEmpty } from '@/daw/persistence/SessionSerializer';
 import { useUISound } from '@/hooks/useUISound';
 import {
-  clearLocalSession,
-  unsavedStudioSession,
+  announceKeptWork,
+  replaceSession,
 } from '@/lib/studio-projects/localSession';
 import { seedStudioFromSong } from './seedStudioFromSong';
 import { useSavedSongsStore } from './useSavedSongsStore';
@@ -32,9 +32,9 @@ export interface SongActions {
   toggleSaved: (e?: MouseEvent<HTMLElement>) => void;
   isSaved: boolean;
   /**
-   * Render this alongside the buttons. It is the prompt `openInStudio` raises
-   * when there is an unsaved Studio session to lose, and nothing at all the
-   * rest of the time.
+   * Render this alongside the buttons. Always null now: opening a song keeps
+   * the session it replaces instead of asking first (owner decision 6). Goes
+   * with its callers when milestone 1.4's openSession takes over this flow.
    */
   studioPrompt: ReactNode;
 }
@@ -44,8 +44,7 @@ export function useSongActions(song: Song): SongActions {
   const { play } = useUISound();
   const isSaved = useSavedSongsStore((s) => Boolean(s.savedIds[song.id]));
   const toggleSavedInStore = useSavedSongsStore((s) => s.toggleSaved);
-  // The session the prompt is about, held while the prompt is up.
-  const [sessionAtRisk, setSessionAtRisk] = useState<string | null>(null);
+  const { userId } = useAuthContext();
 
   const openInLesson = useCallback<SongActions['openInLesson']>(
     (e) => {
@@ -64,10 +63,26 @@ export function useSongActions(song: Song): SongActions {
   // A song opens in a fresh session, exactly as the `?song=` boot param does in
   // DawApp. Seeding on top of whatever was last open stacked this song's chords
   // track on the previous one and left its rests and row breaks over this chart.
-  const goToStudio = useCallback(() => {
-    clearLocalSession();
-    resetSessionToEmpty();
-    seedStudioFromSong(song);
+  // The session it replaces is kept first, with a Restore, instead of asking
+  // (owner decision 6).
+  const goToStudio = useCallback(async () => {
+    const result = await replaceSession(
+      userId,
+      () => seedStudioFromSong(song),
+      {
+        reopenable: true,
+      },
+    );
+    if (result.status === 'refused') {
+      showError(
+        "Your current work couldn't be set aside on this device, so it's still open. Save it, then try again.",
+      );
+      return;
+    }
+    if (result.status === 'failed') {
+      showError('That song could not be opened in the Studio.');
+      return;
+    }
     // `/studio` is now the Studio Dashboard; the DAW editor lives at
     // `/studio/editor`. `seeded=1` tells its boot the store is already loaded:
     // without it the boot falls through to crash-recovery restore and puts the
@@ -77,20 +92,14 @@ export function useSongActions(song: Song): SongActions {
     // reader's transposition, and re-seeding from the id would open the
     // original key instead of the one on the screen.
     navigate(`${StudioRoutes.editor.definition}?seeded=1`);
-  }, [navigate, song]);
+    if (result.kept) announceKeptWork(result.kept, userId);
+  }, [navigate, song, userId]);
 
   const openInStudio = useCallback<SongActions['openInStudio']>(
     (e) => {
       stopAndPrevent(e);
       play('select');
-      // Starting fresh is what discards the session in progress, so ask first
-      // and leave the player where they are if they would rather go and save
-      // it. Only ever asked when they have work in there: an empty Studio, or
-      // one holding nothing but a song they opened and didn't touch, goes
-      // straight through.
-      const atRisk = unsavedStudioSession();
-      if (atRisk) setSessionAtRisk(atRisk);
-      else goToStudio();
+      void goToStudio();
     },
     [goToStudio, play],
   );
@@ -118,27 +127,12 @@ export function useSongActions(song: Song): SongActions {
     [toggleSavedInStore, play, song.id],
   );
 
-  const studioPrompt = (
-    <ConfirmModal
-      open={sessionAtRisk !== null}
-      onOpenChange={(open) => {
-        if (!open) setSessionAtRisk(null);
-      }}
-      title={`Open ${song.title} in the Studio?`}
-      description={`Your Studio session “${sessionAtRisk ?? ''}” closes when a song opens, and anything you haven't saved in it will be lost. Cancel if you'd like to go back and save it first.`}
-      confirmLabel="Open song"
-      cancelLabel="Cancel"
-      destructive
-      onConfirm={goToStudio}
-    />
-  );
-
   return {
     openInLesson,
     openInStudio,
     openInGlobe,
     toggleSaved,
     isSaved,
-    studioPrompt,
+    studioPrompt: null,
   };
 }

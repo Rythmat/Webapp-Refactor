@@ -1,5 +1,6 @@
 // ── Real-Time Collaboration Types ────────────────────────────────────────
-// Shared type definitions for the Yjs-based collaboration layer.
+// Shared type definitions for the Yjs-based collaboration layer. The PartyKit
+// server bundles this file too, so keep it free of imports.
 
 /** Connection lifecycle states. */
 export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected';
@@ -123,3 +124,60 @@ export const PRESENCE_COLORS = [
 /** Transaction origin tags for the Zustand ↔ Yjs bridge loop prevention. */
 export const ORIGIN_LOCAL = 'local-zustand' as const;
 export const ORIGIN_REMOTE = 'remote-yjs' as const;
+
+// ── Connection handshake (shared by the web client and server/party.ts) ────
+
+/**
+ * Shape version of the shared studio Y.Doc. The client sends it on every
+ * (re)connect and the server turns away a socket whose version differs from
+ * its own, so two builds that lay the document out differently never edit the
+ * same room. Bump it with every Y.Doc shape change.
+ *
+ * Shipping a bump: deploy the web app first, then `npm run partykit:deploy`
+ * straight after. In between, the old server turns updated tabs away and
+ * they say the session server is being updated (the 4426 reason names the
+ * server's version), while older tabs carry on. Once the new server is live,
+ * older tabs are told to update, and a refresh lets them back in.
+ */
+export const COLLAB_DOC_SCHEMA_VERSION = 1;
+
+/** Connection URL query parameter that carries COLLAB_DOC_SCHEMA_VERSION. */
+export const COLLAB_DOC_SCHEMA_PARAM = 'docSchemaVersion';
+
+/** The reason the server closes a 4426 with. It names the server's version,
+ *  so a client can tell an out-of-date app from a server not yet updated. */
+export function versionMismatchReason(
+  clientVersion: number,
+  serverVersion: number,
+): string {
+  return `Doc schema mismatch (client=${clientVersion}, server=${serverVersion})`;
+}
+
+/** The server's doc schema version named in a 4426 close reason, or null. */
+export function serverVersionInReason(
+  reason: string | null | undefined,
+): number | null {
+  const match = /\bserver=(\d+)\b/.exec(reason ?? '');
+  return match ? Number(match[1]) : null;
+}
+
+/**
+ * WebSocket close codes the collab server uses (4000–4999 are app-defined).
+ * The server also sends a JSON message before closing for the room states
+ * (kicked, full, not found, host left); the handshake failures carry only the
+ * code.
+ */
+export const COLLAB_CLOSE = {
+  /** Missing, invalid or expired auth token. */
+  unauthorized: 4401,
+  /** Kicked by the host, or banned from rejoining. */
+  kicked: 4403,
+  /** No host is in the room. */
+  notFound: 4404,
+  /** The room is at capacity. */
+  full: 4408,
+  /** The host disconnected and the room closed. */
+  hostLeft: 4410,
+  /** The client's COLLAB_DOC_SCHEMA_VERSION differs from the server's. */
+  versionMismatch: 4426,
+} as const;

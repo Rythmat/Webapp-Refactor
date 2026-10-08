@@ -37,7 +37,12 @@ import {
   type LibraryCategory,
 } from '@/daw/data/libraryItems';
 import { InsightContent } from './InsightContent';
-import { LessonPicker } from '@/daw/components/Tutorial/LessonPicker';
+import { showError } from '@/components/utils/toast';
+import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
+import {
+  announceKeptWork,
+  keepOutgoingSession,
+} from '@/lib/studio-projects/localSession';
 
 // ── Icon lookup ─────────────────────────────────────────────────────────
 
@@ -222,9 +227,6 @@ export function LibraryPanel() {
                 className="flex-1 overflow-y-auto"
                 style={{ scrollbarWidth: 'none' }}
               >
-                {/* Step-by-step Studio tutorials, above Templates. */}
-                {!searchQuery && <LessonPicker />}
-
                 {LIBRARY_CATEGORIES.map((cat) => {
                   const items = filteredLibraryItems.filter(
                     (i) => i.category === cat,
@@ -273,19 +275,6 @@ function CategorySection({
   items: LibraryItem[];
 }) {
   const [open, setOpen] = useState(true);
-  const [confirmTemplateId, setConfirmTemplateId] = useState<string | null>(
-    null,
-  );
-  const loadProjectTemplate = useStore((s) => s.loadProjectTemplate);
-
-  const confirmLabel = confirmTemplateId
-    ? (items.find(
-        (i) =>
-          i.dragPayload.kind === 'project-template' &&
-          (i.dragPayload as { templateId: string }).templateId ===
-            confirmTemplateId,
-      )?.label ?? '')
-    : '';
 
   return (
     <div className="border-b" style={{ borderColor: 'var(--color-border)' }}>
@@ -311,24 +300,8 @@ function CategorySection({
             className="overflow-hidden"
           >
             {items.map((item) => (
-              <LibraryItemRow
-                key={item.id}
-                item={item}
-                onRequestConfirm={(templateId) =>
-                  setConfirmTemplateId(templateId)
-                }
-              />
+              <LibraryItemRow key={item.id} item={item} />
             ))}
-            {confirmTemplateId && (
-              <ConfirmReplaceDialog
-                templateLabel={confirmLabel}
-                onConfirm={() => {
-                  loadProjectTemplate(confirmTemplateId);
-                  setConfirmTemplateId(null);
-                }}
-                onCancel={() => setConfirmTemplateId(null)}
-              />
-            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -336,87 +309,37 @@ function CategorySection({
   );
 }
 
-// ── Confirmation Dialog ─────────────────────────────────────────────────
-
-function ConfirmReplaceDialog({
-  templateLabel,
-  onConfirm,
-  onCancel,
-}: {
-  templateLabel: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-}) {
-  return (
-    <div
-      className="px-3 py-2 mx-2 mb-2 rounded-lg"
-      style={{
-        backgroundColor: 'var(--color-surface-2)',
-        border: '1px solid var(--color-border)',
-      }}
-    >
-      <p className="text-[10px] mb-2" style={{ color: 'var(--color-text)' }}>
-        Replace current project with <strong>{templateLabel}</strong> template?
-      </p>
-      <div className="flex items-center gap-1.5">
-        <button
-          onClick={onConfirm}
-          className="flex-1 py-1 rounded text-[9px] font-semibold uppercase tracking-wider cursor-pointer"
-          style={{
-            backgroundColor: 'var(--color-accent)',
-            color: '#000',
-            border: 'none',
-          }}
-        >
-          Replace
-        </button>
-        <button
-          onClick={onCancel}
-          className="flex-1 py-1 rounded text-[9px] font-semibold uppercase tracking-wider cursor-pointer"
-          style={{
-            backgroundColor: 'transparent',
-            color: 'var(--color-text-dim)',
-            border: '1px solid var(--color-border)',
-          }}
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  );
-}
-
 // ── Library Item Row ────────────────────────────────────────────────────
 
-function LibraryItemRow({
-  item,
-  onRequestConfirm,
-}: {
-  item: LibraryItem;
-  onRequestConfirm?: (templateId: string) => void;
-}) {
-  const tracks = useStore((s) => s.tracks);
+function LibraryItemRow({ item }: { item: LibraryItem }) {
+  const { userId } = useAuthContext();
   const loadProjectTemplate = useStore((s) => s.loadProjectTemplate);
 
   const isProjectTemplate = item.dragPayload.kind === 'project-template';
 
+  // No question before a template replaces the project (owner decision 6):
+  // work it holds is kept first, with a Restore, and the load itself stays
+  // one undo step.
   const handleClick = useCallback(() => {
     if (!isProjectTemplate) return;
     const templateId = (
       item.dragPayload as { kind: 'project-template'; templateId: string }
     ).templateId;
-    if (tracks.length > 0 && onRequestConfirm) {
-      onRequestConfirm(templateId);
-    } else {
-      loadProjectTemplate(templateId);
+    const kept = keepOutgoingSession(userId);
+    if (kept.status === 'failed') {
+      showError(
+        "Your work couldn't be set aside on this device, so it's still open. Save it, then try again.",
+      );
+      return;
     }
-  }, [
-    isProjectTemplate,
-    item.dragPayload,
-    tracks.length,
-    onRequestConfirm,
-    loadProjectTemplate,
-  ]);
+    loadProjectTemplate(templateId);
+    if (kept.status === 'kept') {
+      // In a shared session a private project can't come back over it.
+      announceKeptWork(kept.slot, userId, {
+        restorable: !useStore.getState().roomId,
+      });
+    }
+  }, [isProjectTemplate, item.dragPayload, userId, loadProjectTemplate]);
 
   const handleDragStart = useCallback(
     (e: React.DragEvent) => {

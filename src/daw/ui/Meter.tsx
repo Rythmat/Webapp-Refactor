@@ -66,11 +66,25 @@ const silent = (): ChannelState => ({
   clipped: false,
 });
 
+/** Each mounted meter's clip reset. */
+const clipResets = new Set<() => void>();
+
+/**
+ * Resets the clip light of every meter on the page: what a click on one
+ * meter does, for the keyboard. Meters stay out of the tab order (a mixer
+ * would gain a stop per track for a light that only informs), so a host
+ * gives this one control or shortcut ('Reset clip lights').
+ */
+export function resetClipLights(): void {
+  for (const reset of clipResets) reset();
+}
+
 /**
  * A peak meter drawn on a canvas. It subscribes to `source` and paints each
  * reading straight onto the canvas: no React state, so a playing project
  * re-renders nothing here. Bars fall smoothly, the peak holds for a second,
- * and a clip latches red until the meter is clicked.
+ * and a clip latches red until the meter is clicked (or resetClipLights()
+ * runs).
  */
 export function Meter({
   label,
@@ -205,6 +219,15 @@ export function Meter({
     state.current.forEach((ch) => (ch.clipped = false));
     draw();
   };
+  const reset = useRef(resetClip);
+  reset.current = resetClip;
+  useEffect(() => {
+    const resetThis = () => reset.current();
+    clipResets.add(resetThis);
+    return () => {
+      clipResets.delete(resetThis);
+    };
+  }, []);
 
   return (
     <div
@@ -216,16 +239,25 @@ export function Meter({
       {...rest}
     >
       {/* Not a tab stop: a mixer would gain one per track for a light
-          that only informs. Clicking it resets the clip light. */}
-      <canvas
-        ref={canvasRef}
-        role="img"
-        aria-label={`${label} peak meter`}
+          that only informs. Clicking it resets the clip light, and
+          resetClipLights() does it from the keyboard. The click lands on a
+          box at least 24 px across, the target floor, around the thin bars. */}
+      <div
         title="Click to reset the clip light"
         onClick={resetClip}
-        className="block cursor-pointer rounded-sm"
-        style={{ width, height }}
-      />
+        className={cn(
+          'flex cursor-pointer items-center justify-center',
+          vertical ? 'min-w-6' : 'min-h-6',
+        )}
+      >
+        <canvas
+          ref={canvasRef}
+          role="img"
+          aria-label={`${label} peak meter`}
+          className="block rounded-sm"
+          style={{ width, height }}
+        />
+      </div>
       {showPeak && (
         <span className="flex flex-col items-center">
           <span

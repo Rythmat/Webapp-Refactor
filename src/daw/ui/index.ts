@@ -69,7 +69,7 @@ export {
   MenuSubTrigger,
   MenuTrigger,
 } from './Menu';
-export { Meter } from './Meter';
+export { Meter, resetClipLights } from './Meter';
 export type { MeterLevels, MeterProps, MeterSource } from './Meter';
 export {
   Popover,

@@ -9,7 +9,12 @@ import {
 import { Profiler } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MINUS } from '../format';
-import { Meter, type MeterLevels, type MeterSource } from '../Meter';
+import {
+  Meter,
+  resetClipLights,
+  type MeterLevels,
+  type MeterSource,
+} from '../Meter';
 import { COLOR } from '../tokens';
 import { fakeCanvasContext } from './dom';
 
@@ -126,6 +131,57 @@ describe('Meter', () => {
     expect(clipLight()?.color).toBe(COLOR['meter-clip'].value);
     fireEvent.click(screen.getByRole('img'));
     expect(clipLight()?.color).toBe(COLOR['meter-track'].value);
+  });
+
+  it('takes the click on a box at least 24 px across, beside the thin bars', () => {
+    const { source, push } = fakeSource();
+    render(
+      <>
+        <Meter label="Master" source={source} channels={1} />
+        <Meter label="Send" source={null} orientation="horizontal" />
+      </>,
+    );
+    const [vertical, horizontal] = screen
+      .getAllByRole('img')
+      .map((canvas) => canvas.parentElement!);
+    // min-w-6 and min-h-6: 24 px, the target floor (owner decision 2).
+    expect(vertical).toHaveClass('min-w-6', 'cursor-pointer');
+    expect(horizontal).toHaveClass('min-h-6', 'cursor-pointer');
+
+    push(1.5);
+    expect(clipLight()?.color).toBe(COLOR['meter-clip'].value);
+    fireEvent.click(vertical);
+    expect(clipLight()?.color).toBe(COLOR['meter-track'].value);
+  });
+
+  it('resets every clip light from one call, for a keyboard control', () => {
+    const first = fakeSource();
+    const second = fakeSource();
+    const { unmount } = render(
+      <>
+        <Meter label="Drums" source={first.source} channels={1} />
+        <Meter label="Bass" source={second.source} channels={1} />
+      </>,
+    );
+    first.push(1.2);
+    second.push(1.3);
+    const lights = () =>
+      painted.calls.filter(
+        (c) => c.method === 'fillRect' && c.args[1] === 0 && c.args[3] === 4,
+      );
+    painted.calls.length = 0;
+    act(() => resetClipLights());
+    // Both meters repainted with their clip lights back to the track colour.
+    expect(lights().map((c) => c.args[4])).toEqual([
+      COLOR['meter-track'].value,
+      COLOR['meter-track'].value,
+    ]);
+
+    // An unmounted meter is no longer reset.
+    unmount();
+    painted.calls.length = 0;
+    act(() => resetClipLights());
+    expect(painted.calls).toHaveLength(0);
   });
 
   it('shows the held peak in dB, under a Peak caption', () => {

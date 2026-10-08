@@ -53,7 +53,12 @@ import {
   MenuSubTrigger,
   MenuTrigger,
 } from '../Menu';
-import { Meter, type MeterLevels, type MeterSource } from '../Meter';
+import {
+  Meter,
+  resetClipLights,
+  type MeterLevels,
+  type MeterSource,
+} from '../Meter';
 import {
   Popover,
   PopoverClose,
@@ -776,6 +781,7 @@ export function DawUiGallery() {
               pressed={metering}
               onPressedChange={setMetering}
             />
+            <Button onClick={resetClipLights}>Reset clip lights</Button>
           </Row>
         </Section>
 

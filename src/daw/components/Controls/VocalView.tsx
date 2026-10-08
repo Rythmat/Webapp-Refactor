@@ -18,6 +18,11 @@ import type { AudioInputChannel } from '@/daw/store/tracksSlice';
 import { TunerDisplay } from './TunerDisplay';
 import { RotaryKnob } from './RotaryKnob';
 import { PitchMeter } from './PitchMeter';
+import {
+  retuneMs,
+  smoothFromSpeed,
+  speedFromSmooth,
+} from './pitchCorrectionSmooth';
 import { usePitchInfo } from '@/daw/hooks/usePitchInfo';
 import {
   getTrackAudioState,
@@ -816,6 +821,8 @@ export function VocalView({ trackId }: { trackId: string }) {
           ? rootNoteColor(pitchRootNote)
           : modeColor(pitchRootNote, pitchModeKey)
       : selectedColor;
+  // Pitch correction's Smooth (0–100): its saved retune speed, reversed.
+  const pitchSmooth = smoothFromSpeed(selectedBlock?.params.speed ?? 50);
   const pitchWhiteGrad =
     pitchRootNote === -1
       ? 'linear-gradient(to bottom, #e8e8e8, #fff)'
@@ -1504,20 +1511,20 @@ export function VocalView({ trackId }: { trackId: string }) {
                       )
                     }
                   />
-                  {/* Smooth knob */}
+                  {/* Smooth knob: up = a slower, more natural retune */}
                   <RotaryKnob
                     label="SMOOTH"
-                    value={(selectedBlock.params.speed ?? 50) / 100}
+                    value={pitchSmooth / 100}
                     min={0}
                     max={1}
                     size={52}
                     arcColor={pitchAccentColor}
-                    formatValue={(v) => `${((1 - v) * 400).toFixed(0)} ms`}
+                    formatValue={(v) => `${retuneMs(v * 100).toFixed(0)} ms`}
                     onChange={(v) =>
                       updateBlockParam(
                         selectedBlock.id,
                         'speed',
-                        Math.round(v * 100),
+                        speedFromSmooth(Math.round(v * 100)),
                       )
                     }
                   />
@@ -1668,30 +1675,25 @@ export function VocalView({ trackId }: { trackId: string }) {
                                     fontVariantNumeric: 'tabular-nums',
                                   }}
                                 >
-                                  {(
-                                    (1 -
-                                      (selectedBlock.params.speed ?? 50) /
-                                        100) *
-                                    400
-                                  ).toFixed(1)}{' '}
-                                  ms
+                                  {retuneMs(pitchSmooth).toFixed(1)} ms
                                 </span>
                               </div>
                               <input
                                 type="range"
+                                aria-label="Smooth"
                                 min={0}
                                 max={100}
-                                value={selectedBlock.params.speed ?? 50}
+                                value={pitchSmooth}
                                 onChange={(e) =>
                                   updateBlockParam(
                                     selectedBlock.id,
                                     'speed',
-                                    Number(e.target.value),
+                                    speedFromSmooth(Number(e.target.value)),
                                   )
                                 }
                                 className="w-full h-1 rounded-full appearance-none cursor-pointer"
                                 style={{
-                                  background: `linear-gradient(to right, ${pitchAccentColor} ${selectedBlock.params.speed ?? 50}%, rgba(255,255,255,0.08) ${selectedBlock.params.speed ?? 50}%)`,
+                                  background: `linear-gradient(to right, ${pitchAccentColor} ${pitchSmooth}%, rgba(255,255,255,0.08) ${pitchSmooth}%)`,
                                   accentColor: pitchAccentColor,
                                 }}
                               />

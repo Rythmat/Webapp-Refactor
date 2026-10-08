@@ -34,6 +34,11 @@ const KINDS: Record<string, [Identity, keyof typeof SLUG_PATTERN | null]> = {
   genre: ['id', 'genre'],
   subgenre: ['id', 'subgenre'],
   instrument: ['id', 'instrument'],
+  // Instrument content (docs/instrument-content-kinds.md). A groove's id is
+  // verbatim (lesson steps store `groove_funk_02`); the rest are kebab.
+  drum_groove: ['id', 'groove'],
+  instrument_part: ['id', 'part'],
+  feel_profile: ['id', 'feel'],
 };
 
 export function buildSlugPatterns() {

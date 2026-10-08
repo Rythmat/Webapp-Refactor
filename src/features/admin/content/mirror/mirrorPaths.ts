@@ -140,5 +140,11 @@ export function consoleAppPath(pathname: string): string | null {
   const records = new RegExp(`^${MIRROR_BASE}/records/([^/]+)`).exec(pathname);
   if (records) return segmentForKind(records[1]);
   if (pathname.startsWith('/console/lessons/')) return '/learn';
+  // Instrument content is what the Studio's Grooves and Parts tabs play.
+  if (
+    pathname.startsWith('/console/grooves') ||
+    pathname.startsWith('/console/parts')
+  )
+    return '/studio';
   return null;
 }

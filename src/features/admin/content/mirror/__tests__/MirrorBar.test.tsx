@@ -167,12 +167,16 @@ describe('the Records menu', () => {
       ['Lessons', '/console/content/records/activity_flow'],
       ['Fundamentals', '/console/content/records/fundamentals_flow'],
       ['Artist locations', '/console/content/records/artist_location'],
+      ['Feels', '/console/content/records/feel_profile'],
       ['Vocabulary', '/console/content/records/vocabulary'],
       ['Import songs', '/console/content/publishing/import'],
+      // Instrument content, in its own group.
+      ['Parts Library', '/console/parts'],
+      ['Drum Grooves', '/console/grooves'],
     ]);
     expect(
-      within(screen.getByRole('menu')).getByRole('separator'),
-    ).toBeDefined();
+      within(screen.getByRole('menu')).getAllByRole('separator'),
+    ).toHaveLength(2);
   });
 
   it('opens the first table from a page the Table does not hold', () => {

@@ -1,5 +1,6 @@
 {
   "artifactsVersion": 4,
+  "draftVersion": 5,
   "description": "Contract artifacts the content API copies from this repo. Each file's sha256 is recorded here, and __tests__/manifest.test.ts fails when a file changes without its hash being updated. artifactsVersion is the version last handed over to the API, and each file's handedOff is its hash at that hand-off. A file whose sha256 differs from its handedOff is part of the open draft, draftVersion, which is artifactsVersion + 1 while any file differs and absent otherwise; the test holds both to that. At a hand-off, artifactsVersion becomes draftVersion, every handedOff becomes its file's sha256, and draftVersion is removed. A file first added in the draft has a handedOff of 64 zeros until then. The API reports the version it runs in GET /capabilities, so the console can tell when the server's copy is older. See docs/console-content-api-contract.md.",
   "songSchemaLevels": {
     "v1": {
@@ -58,7 +59,7 @@
     },
     {
       "file": "slugPatterns.generated.json",
-      "sha256": "03d8831278adb8d5908d93c4b8ac8c0d25994dedbd479778b529b57c9a35137e",
+      "sha256": "c07d0d48b213610bc48f7f6615bb4a3db97b0080ad49763590bdebc08cb94814",
       "handedOff": "03d8831278adb8d5908d93c4b8ac8c0d25994dedbd479778b529b57c9a35137e",
       "what": "Identity field and slug pattern (regex source) per content kind."
     },

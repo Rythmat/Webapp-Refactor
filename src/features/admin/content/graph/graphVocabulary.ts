@@ -42,6 +42,12 @@ export const KIND_LABEL: Record<EntityKind, string> = {
   pathway: 'Pathway',
   year: 'Year',
   decade: 'Decade',
+  groove: 'Groove',
+  part: 'Part',
+  feel: 'Feel',
+  patch: 'Synth patch',
+  kit: 'Drum kit',
+  lesson: 'Lesson',
 };
 
 const NO_KEYS: ReadonlySet<string> = new Set<string>();

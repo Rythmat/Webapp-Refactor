@@ -39,12 +39,12 @@ describe('the preset groups', () => {
       'kind:year OR kind:decade OR kind:era',
       'kind:place',
       'kind:genre OR kind:subgenre OR kind:scene',
-      'kind:instrument',
+      'kind:instrument OR kind:patch OR kind:kit',
       'kind:artist',
-      'kind:key OR kind:mode OR kind:vibe',
+      'kind:key OR kind:mode OR kind:vibe OR kind:feel',
       'kind:release',
       'kind:studio OR kind:label',
-      'kind:progression',
+      'kind:progression OR kind:part OR kind:groove',
     ]);
     for (const { name } of PRESET_GROUPS) expect(name).toBeTruthy();
     const colours = PRESET_GROUPS.map((g) => g.color);

@@ -1,4 +1,8 @@
 import type { ZodTypeAny } from 'zod';
+import {
+  INSTRUMENT_BODY_SCHEMAS,
+  isInstrumentContentKind,
+} from '@/content/instrument/schemas';
 import { RECORD_SCHEMAS } from '@/content/vocabulary/schemas';
 import type { ValidationProblem } from '@/hooks/data/admin/useAdminContent';
 import {
@@ -57,6 +61,7 @@ const schemaFor = (
   if (kind === 'chord_progression')
     return mode === 'repo' ? chordProgressionBodySchema : undefined;
   if (isVocabularyKind(kind)) return RECORD_SCHEMAS[kind];
+  if (isInstrumentContentKind(kind)) return INSTRUMENT_BODY_SCHEMAS[kind];
   return (recordBodySchemas as Record<string, ZodTypeAny>)[kind];
 };
 

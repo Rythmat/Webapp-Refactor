@@ -9,12 +9,16 @@
   "timeSignature": [4, 4],
   "feltBeats": 4,
   "bars": 4,
-  "tempo": 120,
+  "tempo": 164,
   "tempoUnit": "quarter",
   "swing": 50,
   "grid": "8n",
-  "kit": "natural",
-  "padGains": {},
+  "kit": "custom_natural_2",
+  "padGains": {
+    "38": 0.45,
+    "44": 0.8,
+    "51": 1.3
+  },
   "humanize": {
     "timing": 0,
     "velocity": 0
@@ -33,7 +37,7 @@
     {
       "tick": 480,
       "note": 44,
-      "velocity": 64
+      "velocity": 70
     },
     {
       "tick": 480,
@@ -59,7 +63,7 @@
     {
       "tick": 1440,
       "note": 44,
-      "velocity": 64
+      "velocity": 38
     },
     {
       "tick": 1440,
@@ -82,11 +86,6 @@
       "note": 38,
       "velocity": 44,
       "offset": 80
-    },
-    {
-      "tick": 2400,
-      "note": 38,
-      "velocity": 95
     },
     {
       "tick": 2400,

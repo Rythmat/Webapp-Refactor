@@ -13,7 +13,7 @@
   "tempoUnit": "quarter",
   "swing": 50,
   "grid": "8n",
-  "kit": "natural",
+  "kit": "jazz_ballad_kit",
   "padGains": {},
   "humanize": {
     "timing": 0,
@@ -28,7 +28,7 @@
     {
       "tick": 0,
       "note": 51,
-      "velocity": 64
+      "velocity": 96
     },
     {
       "tick": 240,
@@ -44,7 +44,7 @@
     {
       "tick": 480,
       "note": 44,
-      "velocity": 44
+      "velocity": 70
     },
     {
       "tick": 720,
@@ -82,7 +82,7 @@
     {
       "tick": 1440,
       "note": 44,
-      "velocity": 44
+      "velocity": 70
     },
     {
       "tick": 1680,
@@ -120,7 +120,7 @@
     {
       "tick": 2400,
       "note": 44,
-      "velocity": 44
+      "velocity": 70
     },
     {
       "tick": 2640,
@@ -158,7 +158,7 @@
     {
       "tick": 3360,
       "note": 44,
-      "velocity": 44
+      "velocity": 70
     },
     {
       "tick": 3360,

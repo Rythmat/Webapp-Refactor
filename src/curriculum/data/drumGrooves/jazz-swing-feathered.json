@@ -13,8 +13,12 @@
   "tempoUnit": "quarter",
   "swing": 50,
   "grid": "8n",
-  "kit": "natural",
-  "padGains": {},
+  "kit": "jazzy_custom_natural",
+  "padGains": {
+    "36": 0.5,
+    "44": 1.1,
+    "51": 1.3
+  },
   "humanize": {
     "timing": 0,
     "velocity": 0

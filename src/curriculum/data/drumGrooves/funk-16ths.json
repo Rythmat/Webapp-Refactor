@@ -13,7 +13,7 @@
   "tempoUnit": "quarter",
   "swing": 50,
   "grid": "16n",
-  "kit": "natural",
+  "kit": "custom_custom_natural_01",
   "padGains": {},
   "humanize": {
     "timing": 0,

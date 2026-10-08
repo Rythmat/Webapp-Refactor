@@ -10,7 +10,7 @@
   "tempo": 85,
   "tempoUnit": "quarter",
   "swing": 50,
-  "grid": "16n",
+  "grid": "32n",
   "kit": "808",
   "padGains": {},
   "humanize": {
@@ -62,11 +62,6 @@
       "tick": 1440,
       "note": 38,
       "velocity": 112
-    },
-    {
-      "tick": 1560,
-      "note": 38,
-      "velocity": 96
     },
     {
       "tick": 1680,
@@ -200,6 +195,21 @@
     },
     {
       "tick": 3000,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 1560,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 60,
+      "note": 42,
+      "velocity": 38
+    },
+    {
+      "tick": 2220,
       "note": 42,
       "velocity": 38
     }

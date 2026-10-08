@@ -13,7 +13,7 @@
   "tempoUnit": "quarter",
   "swing": 50,
   "grid": "16n",
-  "kit": "natural",
+  "kit": "custom_natural_2",
   "padGains": {},
   "humanize": {
     "timing": 0,
@@ -23,7 +23,7 @@
     {
       "tick": 0,
       "note": 36,
-      "velocity": 64
+      "velocity": 38
     },
     {
       "tick": 0,
@@ -33,7 +33,7 @@
     {
       "tick": 120,
       "note": 40,
-      "velocity": 76,
+      "velocity": 38,
       "offset": 2
     },
     {
@@ -68,7 +68,7 @@
     {
       "tick": 480,
       "note": 36,
-      "velocity": 89
+      "velocity": 112
     },
     {
       "tick": 480,
@@ -106,7 +106,7 @@
     {
       "tick": 960,
       "note": 36,
-      "velocity": 64
+      "velocity": 38
     },
     {
       "tick": 960,
@@ -149,7 +149,7 @@
     {
       "tick": 1440,
       "note": 36,
-      "velocity": 89
+      "velocity": 112
     },
     {
       "tick": 1440,

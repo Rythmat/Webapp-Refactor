@@ -13,7 +13,7 @@
   "tempoUnit": "quarter",
   "swing": 50,
   "grid": "8n",
-  "kit": "natural",
+  "kit": "jazzy_custom_natural",
   "padGains": {},
   "humanize": {
     "timing": 0,
@@ -32,11 +32,6 @@
     },
     {
       "tick": 480,
-      "note": 40,
-      "velocity": 64
-    },
-    {
-      "tick": 480,
       "note": 44,
       "velocity": 64
     },
@@ -44,12 +39,6 @@
       "tick": 480,
       "note": 51,
       "velocity": 83
-    },
-    {
-      "tick": 720,
-      "note": 38,
-      "velocity": 44,
-      "offset": 80
     },
     {
       "tick": 960,
@@ -94,22 +83,6 @@
       "velocity": 83
     },
     {
-      "tick": 2160,
-      "note": 38,
-      "velocity": 44,
-      "offset": 80
-    },
-    {
-      "tick": 2400,
-      "note": 38,
-      "velocity": 95
-    },
-    {
-      "tick": 2400,
-      "note": 40,
-      "velocity": 64
-    },
-    {
       "tick": 2400,
       "note": 44,
       "velocity": 64
@@ -127,11 +100,6 @@
     },
     {
       "tick": 2880,
-      "note": 38,
-      "velocity": 44
-    },
-    {
-      "tick": 2880,
       "note": 51,
       "velocity": 83
     },
@@ -139,12 +107,6 @@
       "tick": 3120,
       "note": 36,
       "velocity": 64,
-      "offset": 80
-    },
-    {
-      "tick": 3120,
-      "note": 38,
-      "velocity": 44,
       "offset": 80
     },
     {
@@ -170,12 +132,6 @@
     },
     {
       "tick": 3600,
-      "note": 38,
-      "velocity": 44,
-      "offset": 80
-    },
-    {
-      "tick": 3600,
       "note": 48,
       "velocity": 64,
       "offset": 80
@@ -190,11 +146,6 @@
       "tick": 3840,
       "note": 51,
       "velocity": 83
-    },
-    {
-      "tick": 4320,
-      "note": 40,
-      "velocity": 64
     },
     {
       "tick": 4320,
@@ -216,12 +167,6 @@
       "tick": 4800,
       "note": 51,
       "velocity": 83
-    },
-    {
-      "tick": 5040,
-      "note": 38,
-      "velocity": 44,
-      "offset": 80
     },
     {
       "tick": 5280,
@@ -250,19 +195,8 @@
       "velocity": 83
     },
     {
-      "tick": 6000,
-      "note": 38,
-      "velocity": 44,
-      "offset": 80
-    },
-    {
       "tick": 6240,
       "note": 36,
-      "velocity": 64
-    },
-    {
-      "tick": 6240,
-      "note": 40,
       "velocity": 64
     },
     {
@@ -280,11 +214,6 @@
       "note": 51,
       "velocity": 51,
       "offset": 80
-    },
-    {
-      "tick": 6720,
-      "note": 38,
-      "velocity": 44
     },
     {
       "tick": 6720,
@@ -323,6 +252,26 @@
       "note": 51,
       "velocity": 51,
       "offset": 80
+    },
+    {
+      "tick": 2400,
+      "note": 38,
+      "velocity": 70
+    },
+    {
+      "tick": 4320,
+      "note": 38,
+      "velocity": 96
+    },
+    {
+      "tick": 6240,
+      "note": 38,
+      "velocity": 70
+    },
+    {
+      "tick": 480,
+      "note": 38,
+      "velocity": 70
     }
   ]
 }

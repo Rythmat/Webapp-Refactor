@@ -101,7 +101,8 @@ export type ChannelStripTabId =
   | 'fx'
   | 'prism'
   | 'piano-roll'
-  | 'grooves';
+  | 'grooves'
+  | 'parts';
 export type LeadSheetChordFormat = 'jazz' | 'hybrid' | 'numbers';
 
 export interface LeadSheetSection {

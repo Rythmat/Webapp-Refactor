@@ -221,10 +221,12 @@ export const SongDetailView: FC<SongDetailViewProps> = ({
           }}
         />
 
+        {/* Grows when the credits wrap rather than clipping the actions row;
+            the artwork and video keep the header's height as their minimum. */}
         <div
           className={
             page
-              ? 'relative z-10 flex items-stretch gap-4 md:gap-5 h-36 md:h-40'
+              ? 'relative z-10 flex items-stretch gap-4 md:gap-5 min-h-36 md:min-h-40'
               : 'relative z-10 flex items-start gap-4 md:gap-5 min-h-36 md:min-h-40'
           }
         >
@@ -353,13 +355,13 @@ export const SongDetailView: FC<SongDetailViewProps> = ({
               {/* Video player — fills the header height. The ref div stays mounted
               (display toggled, never unmounted) so the YouTube player survives. */}
               <div
-                className="aspect-video h-full flex-shrink-0 overflow-hidden rounded-lg bg-black/40"
+                className="aspect-video h-full min-h-36 md:min-h-40 flex-shrink-0 overflow-hidden rounded-lg bg-black/40"
                 style={{ display: videoId ? 'block' : 'none' }}
               >
                 <div ref={ytContainerRef} className="w-full h-full" />
               </div>
               {!videoId && (
-                <div className="aspect-video h-full flex flex-shrink-0 items-center justify-center rounded-lg bg-white/5 text-white/20 text-xs">
+                <div className="aspect-video h-full min-h-36 md:min-h-40 flex flex-shrink-0 items-center justify-center rounded-lg bg-white/5 text-white/20 text-xs">
                   No video
                 </div>
               )}
@@ -514,7 +516,7 @@ const SongArtwork: FC<{ song: Song }> = ({ song }) => {
   );
 
   return (
-    <div className="relative aspect-square h-full flex-shrink-0 overflow-hidden rounded-2xl">
+    <div className="relative aspect-square h-full min-h-36 md:min-h-40 flex-shrink-0 overflow-hidden rounded-2xl">
       {hasArtistImage ? (
         <img
           src={song.artistImageRef}

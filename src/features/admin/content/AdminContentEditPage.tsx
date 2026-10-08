@@ -1,6 +1,6 @@
 import { Eye, Loader2, Save, SlidersHorizontal, Trash2 } from 'lucide-react';
 import { useMemo, useState, type ReactNode } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,6 +23,7 @@ import { ConsoleBadge } from '../ui/ConsoleBadge';
 import { ConsoleCallout } from '../ui/ConsoleCallout';
 import { ConsolePageHeader } from '../ui/ConsolePageHeader';
 import { CONSOLE_LABEL, consoleTabClass } from '../ui/styles';
+import { INSTRUMENT_PAGES, isInstrumentPageKind } from './instrumentPages';
 import { ContentItemEditor } from './itemEditor/ContentItemEditor';
 import { useContentItemEditor } from './itemEditor/useContentItemEditor';
 import {
@@ -82,6 +83,20 @@ export const AdminContentEditPage = () => {
   // An unknown kind used to open silently as a globe event — a typo in a URL
   // became an editor for the wrong thing, and saving it wrote there.
   if (!isContentKind(params.kind)) return <UnknownKind kind={params.kind} />;
+  // Grooves and parts are edited on their own pages.
+  if (isInstrumentPageKind(params.kind)) {
+    const pages = INSTRUMENT_PAGES[params.kind];
+    return (
+      <Navigate
+        replace
+        to={
+          params.id && params.id !== 'new'
+            ? pages.item(params.id)
+            : pages.list()
+        }
+      />
+    );
+  }
   return <KindEditPage kind={params.kind} />;
 };
 

@@ -9,11 +9,12 @@ import {
 // keeps the list complete; these cases pin what passes the check.
 
 describe('isChannelStripTabId', () => {
-  it('knows the dock’s five tabs', () => {
+  it('knows the dock’s six tabs', () => {
     expect([...CHANNEL_STRIP_TAB_IDS].sort()).toEqual([
       'controls',
       'fx',
       'grooves',
+      'parts',
       'piano-roll',
       'prism',
     ]);

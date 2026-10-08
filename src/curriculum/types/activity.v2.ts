@@ -195,8 +195,8 @@ export interface ActivityStepV2 extends ActivityStep {
  * the drum pattern is the step's `grooveId`.
  */
 export interface BackingStyle {
-  /** Drum kit: 'natural' (default), '808' or 'house'. */
-  kit?: 'natural' | '808' | 'house';
+  /** Drum kit: 'natural' (default), '808', 'house' or a custom kit's id. */
+  kit?: string;
   /** Bass sound; defaults to the genre's (genreBassVoices.ts). */
   bassVoice?: 'electric' | 'finger' | 'fretless' | 'upright' | '808';
   /** Bass pattern id, e.g. 'trap_foundation', 'follow_kick'. */

@@ -13,6 +13,10 @@ import type {
   ReleaseRecord,
   StudioRecord,
 } from '@/content/records/types';
+import {
+  instrumentContentSnapshot,
+  loadLessonInputs,
+} from './instrumentContentSnapshot';
 
 /**
  * A `src/content/data/*.json` file's records. The repo store writes them one
@@ -106,6 +110,10 @@ export async function loadRepoSnapshot(): Promise<GraphSnapshot> {
     pathways: HISTORICAL_MODULES,
     influenceArcs: allConnections(),
     instrumentGenres: INSTRUMENT_GENRES,
+    // Drum grooves, parts, feels, synth patches and drum kits (code-owned),
+    // and the genre lesson levels that play over the grooves.
+    ...instrumentContentSnapshot(),
+    lessons: await loadLessonInputs(),
     asOfYear: new Date().getFullYear(),
   };
   // Who each event is about, by the matcher the globe's artist chips use,

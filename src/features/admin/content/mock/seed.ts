@@ -211,6 +211,23 @@ export async function loadSeed(mode: ContentMockMode): Promise<MockSeed> {
       items.push({ kind, slug: record.slug, body: plain(record) });
   }
 
+  // Instrument content: the files the Drum Grooves designer and the Parts
+  // Library write (docs/instrument-content-kinds.md). Not on today's server.
+  if (!legacy) {
+    const [grooves, parts, feels] = await Promise.all([
+      import('@/curriculum/engine/drumGrooves/registry'),
+      import('@/curriculum/engine/parts/registry'),
+      import('@/curriculum/engine/parts/feel'),
+    ]);
+    const studio = await grooves.loadStudioGrooves();
+    for (const groove of [...grooves.listDesignedGrooves(), ...studio])
+      items.push({ kind: 'drum_groove', slug: groove.id, body: plain(groove) });
+    for (const part of parts.listParts())
+      items.push({ kind: 'instrument_part', slug: part.id, body: plain(part) });
+    for (const feel of feels.FEEL_PROFILES)
+      items.push({ kind: 'feel_profile', slug: feel.id, body: plain(feel) });
+  }
+
   return { items };
 }
 

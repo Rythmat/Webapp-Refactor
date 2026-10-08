@@ -1,0 +1,64 @@
+{
+  "id": "hip-hop-l2-c1-boom-bap-bass",
+  "name": "Hip Hop L2 · C1 Boom Bap Bass",
+  "instrument": "bass",
+  "role": "bassline",
+  "level": 2,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 9,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 90,
+  "swing": 50,
+  "sound": "bass-electric:finger",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1180,
+      "midi": 33,
+      "velocity": 96
+    },
+    {
+      "tick": 1200,
+      "duration": 700,
+      "midi": 33,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 960,
+      "midi": 33,
+      "velocity": 96
+    },
+    {
+      "tick": 3120,
+      "duration": 340,
+      "midi": 33,
+      "velocity": 96
+    },
+    {
+      "tick": 3480,
+      "duration": 360,
+      "midi": 33,
+      "velocity": 96
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "hip-hop",
+    "level": 2,
+    "section": "C",
+    "stepNumber": 1,
+    "title": "C1: Boom Bap Bass",
+    "tag": "hiphop:l2_bass_kick_one_note | hiphop",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "Play A every time the kick hits. Bar 2 adds one on the \"a\" of 2.",
+  "genre": "hip-hop",
+  "chordSymbols": ["Am"]
+}

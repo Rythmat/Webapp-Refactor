@@ -103,7 +103,28 @@ export type EntityKind =
    * (`time.ts`), so standing on the 1980s reaches everything from them.
    */
   | 'year'
-  | 'decade';
+  | 'decade'
+  /**
+   * Instrument content — what lessons, Practice Tracks and the Studio play.
+   * Code-owned in this slice, read from their registries (CODE_OWNERS):
+   *
+   *  - groove: a drum groove (the console's Drum Grooves designer).
+   *  - part: an instrumental part — piano, bass, guitar (the Parts Library).
+   *  - feel: a feel profile, per-16th timing measured from a player.
+   *  - patch: an Oracle Synth patch, factory or Music Atlas.
+   *  - kit: a drum kit, stock or custom.
+   */
+  | 'groove'
+  | 'part'
+  | 'feel'
+  | 'patch'
+  | 'kit'
+  /**
+   * A genre lesson level (`funk-l2`): one node per level, code-owned, so a
+   * lesson can say which grooves it plays over and a part where it was taken
+   * from, ahead of the Learn phase's fuller lesson model.
+   */
+  | 'lesson';
 
 /** `artist:marvin-gaye`, `song:africa`, `place:detroit`. */
 export type EntityId = `${EntityKind}:${string}`;
@@ -143,6 +164,12 @@ const entityKinds = [
   'pathway',
   'year',
   'decade',
+  'groove',
+  'part',
+  'feel',
+  'patch',
+  'kit',
+  'lesson',
 ] as const satisfies readonly EntityKind[];
 
 /** Every entity kind; leaving one out of the list fails to compile. */
@@ -284,6 +311,13 @@ export type EdgeKind =
   | 'uses_song' // teach_day → song
   | 'references_event' // teach_day → event | song
   | 'part_of' // event | song → pathway, a stop on a globe pathway
+  // ── Instrument content ──
+  | 'has_feel' // part | groove → feel profile it is played with
+  | 'played_on' // part → patch, groove → kit: the sound it is voiced on
+  | 'in_style_of' // part | groove → artist, the player it is modelled on
+  | 'excerpt_of' // part → song it is lifted from
+  | 'uses_groove' // lesson → groove its play-alongs play over
+  | 'taken_from' // part → lesson it was taken from
   // ── Influence ──
   /**
    * The one edge the globe already has. `eventConnections.ts` holds thousands
@@ -337,6 +371,12 @@ const edgeKinds = [
   'references_event',
   'part_of',
   'influenced',
+  'has_feel',
+  'played_on',
+  'in_style_of',
+  'excerpt_of',
+  'uses_groove',
+  'taken_from',
 ] as const satisfies readonly EdgeKind[];
 
 /** Every edge kind; leaving one out of the list fails to compile. */
@@ -394,6 +434,12 @@ export const EDGE_LABELS: Record<
   uses_song: { forward: 'uses', inverse: 'taught in' },
   references_event: { forward: 'references', inverse: 'referenced in' },
   part_of: { forward: 'a stop on', inverse: 'passes through' },
+  has_feel: { forward: 'played with feel', inverse: 'feel of' },
+  played_on: { forward: 'played on', inverse: 'sound of' },
+  in_style_of: { forward: 'in the style of', inverse: 'parts in their style' },
+  excerpt_of: { forward: 'excerpt of', inverse: 'parts from it' },
+  uses_groove: { forward: 'plays over', inverse: 'used in' },
+  taken_from: { forward: 'taken from', inverse: 'parts from it' },
   influenced: { forward: 'influenced', inverse: 'influenced by' },
 };
 
@@ -427,19 +473,30 @@ export const EDGE_ENDPOINTS: Record<
   formed_year: { from: ['artist'], to: ['year'] },
   active_in: { from: ['artist'], to: ['decade'] },
   in_genre: {
-    from: ['song', 'progression', 'artist', 'event', 'subgenre'],
+    from: [
+      'song',
+      'progression',
+      'artist',
+      'event',
+      'subgenre',
+      'part',
+      'groove',
+    ],
     to: ['genre', 'subgenre'],
   },
-  uses_progression: { from: ['song'], to: ['progression'] },
-  plays_instrument: { from: ['artist'], to: ['instrument'] },
+  // A part's chords matched to the library are a guess (`inferred`).
+  uses_progression: { from: ['song', 'part'], to: ['progression'] },
+  // An artist plays it; a part or groove is played on it — one edge, so an
+  // instrument's search reaches all three.
+  plays_instrument: { from: ['artist', 'part', 'groove'], to: ['instrument'] },
   typical_in: { from: ['instrument'], to: ['genre', 'subgenre'] },
   // An original is covered by this song; a cover is by another artist or song.
   covers: { from: ['song', 'artist'], to: ['song', 'artist'] },
   samples: { from: ['song'], to: ['song'] },
   interpolates: { from: ['song'], to: ['song'] },
   has_vibe: { from: ['progression', 'song'], to: ['vibe'] },
-  in_key: { from: ['song', 'progression'], to: ['key'] },
-  in_mode: { from: ['song', 'progression'], to: ['mode'] },
+  in_key: { from: ['song', 'progression', 'part'], to: ['key'] },
+  in_mode: { from: ['song', 'progression', 'part'], to: ['mode'] },
   based_in: { from: ['artist', 'label', 'studio'], to: ['place'] },
   // A person's birthplace. A group's is where it formed: its `based_in`.
   born_in: { from: ['artist'], to: ['place'] },
@@ -461,6 +518,12 @@ export const EDGE_ENDPOINTS: Record<
   // `song` because a song's globe event folds onto the song (canonicalId).
   references_event: { from: ['teach_day'], to: ['event', 'song'] },
   part_of: { from: ['event', 'song'], to: ['pathway'] },
+  has_feel: { from: ['part', 'groove'], to: ['feel'] },
+  played_on: { from: ['part', 'groove'], to: ['patch', 'kit'] },
+  in_style_of: { from: ['part', 'groove'], to: ['artist'] },
+  excerpt_of: { from: ['part'], to: ['song'] },
+  uses_groove: { from: ['lesson'], to: ['groove'] },
+  taken_from: { from: ['part'], to: ['lesson'] },
   influenced: {
     from: ['event', 'song', 'artist', 'genre', 'scene'],
     to: ['event', 'song', 'artist', 'genre', 'scene'],
@@ -487,6 +550,18 @@ export const CODE_OWNERS = {
   eras: 'src/components/atlas/data/musicalEras.ts',
   /** Which genres each instrument is typical in (`typical_in`, owner-reviewed). */
   instrumentGenres: 'src/content/graph/instrumentGenres.ts',
+  /** Drum grooves: the lesson set and the Studio's (`drumGrooves/studio/`). */
+  grooves: 'src/curriculum/engine/drumGrooves/registry.ts',
+  /** The Parts Library's instrumental parts. */
+  parts: 'src/curriculum/engine/parts/registry.ts',
+  /** Feel profiles measured from players. */
+  feels: 'src/curriculum/engine/parts/feel.ts',
+  /** Oracle Synth patches: factory and Music Atlas (`presets/atlas/`). */
+  synthPatches: 'src/daw/oracle-synth/store/presets/factoryPresets.ts',
+  /** The genre lesson levels (activity flows), as the repo bundles them. */
+  lessons: 'src/curriculum/data/activityFlows/bundled.ts',
+  /** Drum kits: stock and custom (`customDrumKits/`). */
+  drumKits: 'src/daw/instruments/drumKits.ts',
 } as const;
 
 export type CodeOwner = (typeof CODE_OWNERS)[keyof typeof CODE_OWNERS];

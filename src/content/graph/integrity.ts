@@ -189,7 +189,16 @@ export type ContentKind = RefPath['kind'];
 /** The snapshot lists that hold content items. */
 type RecordList = Exclude<
   SnapshotList,
-  'dayStubs' | 'pathways' | 'influenceArcs'
+  | 'dayStubs'
+  | 'pathways'
+  | 'influenceArcs'
+  // Instrument content is code-owned too: no content kind yet.
+  | 'grooves'
+  | 'parts'
+  | 'feels'
+  | 'patches'
+  | 'kits'
+  | 'lessons'
 >;
 
 type Body = Readonly<Record<string, unknown>>;

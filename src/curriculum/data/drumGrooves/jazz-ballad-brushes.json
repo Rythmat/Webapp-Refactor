@@ -1,0 +1,181 @@
+{
+  "id": "jazz-ballad-brushes",
+  "name": "Jazz Ballad",
+  "description": "Slow brushes, foot hi-hat backbeat, swung 8ths. From ICP Studio.",
+  "genre": "jazz",
+  "style": "Ballad, brushes",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "timeSignature": [4, 4],
+  "feltBeats": 4,
+  "bars": 2,
+  "tempo": 70,
+  "tempoUnit": "quarter",
+  "swing": 50,
+  "grid": "8n",
+  "kit": "jazz_ballad_kit",
+  "padGains": {},
+  "humanize": {
+    "timing": 0,
+    "velocity": 0
+  },
+  "hits": [
+    {
+      "tick": 0,
+      "note": 38,
+      "velocity": 76
+    },
+    {
+      "tick": 0,
+      "note": 51,
+      "velocity": 96
+    },
+    {
+      "tick": 240,
+      "note": 38,
+      "velocity": 76,
+      "offset": 64
+    },
+    {
+      "tick": 480,
+      "note": 38,
+      "velocity": 76
+    },
+    {
+      "tick": 480,
+      "note": 44,
+      "velocity": 70
+    },
+    {
+      "tick": 720,
+      "note": 38,
+      "velocity": 76,
+      "offset": 64
+    },
+    {
+      "tick": 720,
+      "note": 51,
+      "velocity": 19,
+      "offset": 64
+    },
+    {
+      "tick": 960,
+      "note": 38,
+      "velocity": 76
+    },
+    {
+      "tick": 960,
+      "note": 51,
+      "velocity": 64
+    },
+    {
+      "tick": 1200,
+      "note": 38,
+      "velocity": 76,
+      "offset": 64
+    },
+    {
+      "tick": 1440,
+      "note": 38,
+      "velocity": 83
+    },
+    {
+      "tick": 1440,
+      "note": 44,
+      "velocity": 70
+    },
+    {
+      "tick": 1680,
+      "note": 38,
+      "velocity": 76,
+      "offset": 64
+    },
+    {
+      "tick": 1680,
+      "note": 51,
+      "velocity": 19,
+      "offset": 64
+    },
+    {
+      "tick": 1920,
+      "note": 38,
+      "velocity": 76
+    },
+    {
+      "tick": 1920,
+      "note": 51,
+      "velocity": 64
+    },
+    {
+      "tick": 2160,
+      "note": 38,
+      "velocity": 76,
+      "offset": 64
+    },
+    {
+      "tick": 2400,
+      "note": 38,
+      "velocity": 76
+    },
+    {
+      "tick": 2400,
+      "note": 44,
+      "velocity": 70
+    },
+    {
+      "tick": 2640,
+      "note": 38,
+      "velocity": 76,
+      "offset": 64
+    },
+    {
+      "tick": 2640,
+      "note": 51,
+      "velocity": 19,
+      "offset": 64
+    },
+    {
+      "tick": 2880,
+      "note": 38,
+      "velocity": 76
+    },
+    {
+      "tick": 2880,
+      "note": 51,
+      "velocity": 64
+    },
+    {
+      "tick": 3120,
+      "note": 38,
+      "velocity": 76,
+      "offset": 64
+    },
+    {
+      "tick": 3360,
+      "note": 38,
+      "velocity": 83
+    },
+    {
+      "tick": 3360,
+      "note": 44,
+      "velocity": 70
+    },
+    {
+      "tick": 3360,
+      "note": 51,
+      "velocity": 19
+    },
+    {
+      "tick": 3600,
+      "note": 38,
+      "velocity": 76,
+      "offset": 64
+    },
+    {
+      "tick": 3600,
+      "note": 51,
+      "velocity": 19,
+      "offset": 64
+    }
+  ]
+}

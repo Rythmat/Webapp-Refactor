@@ -1,0 +1,277 @@
+{
+  "id": "jazz-swing-modern-4-bar-jimmy-cobb",
+  "name": "Jazz Swing — Modern 4-bar, Jimmy Cobb",
+  "description": "Classic ride cymbal, rotating kick + snare comping pattern. Jimmy Cobb cross-stick on 2 and tom on 4. From ICP Studio.",
+  "genre": "jazz",
+  "style": "Swing",
+  "tags": ["icp-studio", "jimmy-cobb"],
+  "status": "live",
+  "timeSignature": [4, 4],
+  "feltBeats": 4,
+  "bars": 4,
+  "tempo": 120,
+  "tempoUnit": "quarter",
+  "swing": 50,
+  "grid": "8n",
+  "kit": "jazzy_custom_natural",
+  "padGains": {},
+  "humanize": {
+    "timing": 0,
+    "velocity": 0
+  },
+  "hits": [
+    {
+      "tick": 0,
+      "note": 36,
+      "velocity": 64
+    },
+    {
+      "tick": 0,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 480,
+      "note": 44,
+      "velocity": 64
+    },
+    {
+      "tick": 480,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 960,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 1440,
+      "note": 36,
+      "velocity": 64
+    },
+    {
+      "tick": 1440,
+      "note": 44,
+      "velocity": 64
+    },
+    {
+      "tick": 1440,
+      "note": 48,
+      "velocity": 70
+    },
+    {
+      "tick": 1440,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 1680,
+      "note": 48,
+      "velocity": 64,
+      "offset": 80
+    },
+    {
+      "tick": 1680,
+      "note": 51,
+      "velocity": 51,
+      "offset": 80
+    },
+    {
+      "tick": 1920,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 2400,
+      "note": 44,
+      "velocity": 64
+    },
+    {
+      "tick": 2400,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 2640,
+      "note": 51,
+      "velocity": 51,
+      "offset": 80
+    },
+    {
+      "tick": 2880,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 3120,
+      "note": 36,
+      "velocity": 64,
+      "offset": 80
+    },
+    {
+      "tick": 3360,
+      "note": 44,
+      "velocity": 64
+    },
+    {
+      "tick": 3360,
+      "note": 48,
+      "velocity": 70
+    },
+    {
+      "tick": 3360,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 3600,
+      "note": 36,
+      "velocity": 64,
+      "offset": 80
+    },
+    {
+      "tick": 3600,
+      "note": 48,
+      "velocity": 64,
+      "offset": 80
+    },
+    {
+      "tick": 3600,
+      "note": 51,
+      "velocity": 51,
+      "offset": 80
+    },
+    {
+      "tick": 3840,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 4320,
+      "note": 44,
+      "velocity": 64
+    },
+    {
+      "tick": 4320,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 4560,
+      "note": 51,
+      "velocity": 51,
+      "offset": 80
+    },
+    {
+      "tick": 4800,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 5280,
+      "note": 44,
+      "velocity": 64
+    },
+    {
+      "tick": 5280,
+      "note": 48,
+      "velocity": 70
+    },
+    {
+      "tick": 5280,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 5520,
+      "note": 48,
+      "velocity": 64,
+      "offset": 80
+    },
+    {
+      "tick": 5760,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 6240,
+      "note": 36,
+      "velocity": 64
+    },
+    {
+      "tick": 6240,
+      "note": 44,
+      "velocity": 64
+    },
+    {
+      "tick": 6240,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 6480,
+      "note": 51,
+      "velocity": 51,
+      "offset": 80
+    },
+    {
+      "tick": 6720,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 6960,
+      "note": 36,
+      "velocity": 64,
+      "offset": 80
+    },
+    {
+      "tick": 7200,
+      "note": 44,
+      "velocity": 64
+    },
+    {
+      "tick": 7200,
+      "note": 48,
+      "velocity": 70
+    },
+    {
+      "tick": 7200,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 7440,
+      "note": 48,
+      "velocity": 64,
+      "offset": 80
+    },
+    {
+      "tick": 7440,
+      "note": 51,
+      "velocity": 51,
+      "offset": 80
+    },
+    {
+      "tick": 2400,
+      "note": 38,
+      "velocity": 70
+    },
+    {
+      "tick": 4320,
+      "note": 38,
+      "velocity": 96
+    },
+    {
+      "tick": 6240,
+      "note": 38,
+      "velocity": 70
+    },
+    {
+      "tick": 480,
+      "note": 38,
+      "velocity": 70
+    }
+  ]
+}

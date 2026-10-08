@@ -48,6 +48,7 @@ import {
 } from '@/daw/utils/rulerLoop';
 import type { LoopState } from '@/daw/store/transportSlice';
 import { useRollView } from '@/lib/notation';
+import { usePianoRollHost, type PianoRollHost } from './pianoRollHost';
 import { StudioNotationView } from './StudioNotationView';
 import {
   needsRepaint,
@@ -168,7 +169,9 @@ function Playhead({
   height: number;
   handle?: boolean;
 }) {
-  const position = useStore((s) => s.position);
+  const host = usePianoRollHost();
+  const storePosition = useStore((s) => s.position);
+  const position = host ? host.position : storePosition;
   const x = (position - songOffset) * pixelsPerTick;
   if (x < 0 || x > maxX) return null;
   return (
@@ -203,6 +206,7 @@ function Playhead({
 type LoopScope = 'project' | 'editor';
 type StoreState = ReturnType<typeof useStore.getState>;
 const NO_LOOP: LoopState = { enabled: false, start: 0, end: 0 };
+const NO_REGIONS: ChordRegion[] = [];
 
 function readLoop(s: StoreState, scope: LoopScope): LoopState {
   return scope === 'editor'
@@ -210,7 +214,25 @@ function readLoop(s: StoreState, scope: LoopScope): LoopState {
     : { enabled: s.loopEnabled, start: s.loopStart, end: s.loopEnd };
 }
 
-function writeLoop(scope: LoopScope, patch: Partial<LoopState>): void {
+/** The loop and playhead a ruler gesture starts from: the host's, else the store's. */
+function rulerSnapshot(
+  host: PianoRollHost | null,
+  scope: LoopScope,
+): LoopState & { position: number } {
+  if (host) return { ...host.loop, position: host.position };
+  const s = useStore.getState();
+  return { ...readLoop(s, scope), position: s.position };
+}
+
+function writeLoop(
+  scope: LoopScope,
+  patch: Partial<LoopState>,
+  host: PianoRollHost | null = null,
+): void {
+  if (host) {
+    host.setLoop(patch);
+    return;
+  }
   const s = useStore.getState();
   if (scope === 'editor') {
     s.updateEditorLoop(patch);
@@ -270,21 +292,40 @@ export function PianoRoll({
   onSelectionChange,
   clipId,
 }: PianoRollProps) {
-  const rootNote = useStore((s) => s.rootNote);
-  const mode = useStore((s) => s.mode);
-  const tsNum = useStore((s) => s.timeSignatureNumerator);
-  const chordRegions = useStore((s) => s.chordRegions);
+  // Outside the Studio a host stands in for the store (pianoRollHost.ts).
+  const host = usePianoRollHost();
+  const hostRef = useRef(host);
+  hostRef.current = host;
+  const storeRootNote = useStore((s) => s.rootNote);
+  const storeMode = useStore((s) => s.mode);
+  const storeTsNum = useStore((s) => s.timeSignatureNumerator);
+  const storeChordRegions = useStore((s) => s.chordRegions);
   const clipColorMode = useStore((s) => s.clipColorMode);
-  const loopEnabled = useStore((s) => readLoop(s, loopScope).enabled);
-  const loopStart = useStore((s) => readLoop(s, loopScope).start);
-  const loopEnd = useStore((s) => readLoop(s, loopScope).end);
+  const storeLoopEnabled = useStore((s) => readLoop(s, loopScope).enabled);
+  const storeLoopStart = useStore((s) => readLoop(s, loopScope).start);
+  const storeLoopEnd = useStore((s) => readLoop(s, loopScope).end);
+  const rootNote = host ? host.rootNote : storeRootNote;
+  const mode = host ? host.mode : storeMode;
+  const tsNum = host ? host.beatsPerBar : storeTsNum;
+  const chordRegions = host
+    ? (host.chordRegions ?? NO_REGIONS)
+    : storeChordRegions;
+  const loopEnabled = host ? host.loop.enabled : storeLoopEnabled;
+  const loopStart = host ? host.loop.start : storeLoopStart;
+  const loopEnd = host ? host.loop.end : storeLoopEnd;
+  const seek = useCallback(
+    (tick: number) =>
+      hostRef.current ? hostRef.current.seek(tick) : seekTo(tick),
+    [],
+  );
 
   const beatsPerBar = tsNum;
   // Notation overlays the roll (read-only). A drum clip — the one case that
   // arrives with row labels — is written on a drumset staff instead of a
   // grand staff, placed by instrument rather than by pitch.
   const [rollView, setRollView] = useRollView('studio');
-  const showNotation = rollView === 'notation';
+  // A host shows its own notation view (it may not be a Studio key/meter).
+  const showNotation = !host && rollView === 'notation';
   const percussionNotation = Boolean(noteLabels);
 
   // Refs — container + 3 canvases + 3 scroll containers
@@ -1564,9 +1605,10 @@ export function PianoRoll({
       const snapped = (tick: number) =>
         Math.max(0, Math.round(tick / snap) * snap);
       const snap = GRID_VALUES[gridSize];
-      const snapshot = useStore.getState();
-      const { start, end } = readLoop(snapshot, loopScope);
-      const { position } = snapshot;
+      const { start, end, position } = rulerSnapshot(
+        hostRef.current,
+        loopScope,
+      );
       const original = { start, end };
       const target = rulerPressTarget(
         e.clientX - rect.left,
@@ -1611,12 +1653,12 @@ export function PianoRoll({
                 : 'ew-resize';
           // Drawing a fresh loop switches looping on, as in Logic.
           if (d.mode === 'loop' && target === 'empty') {
-            writeLoop(loopScope, { enabled: true });
+            writeLoop(loopScope, { enabled: true }, hostRef.current);
           }
         }
 
         if (d.mode === 'playhead') {
-          seekTo(snapped(tickAt(me.clientX)));
+          seek(snapped(tickAt(me.clientX)));
           return;
         }
 
@@ -1628,7 +1670,7 @@ export function PianoRoll({
             tickAt(me.clientX),
             snap,
           );
-          writeLoop(loopScope, range);
+          writeLoop(loopScope, range, hostRef.current);
           return;
         }
 
@@ -1666,17 +1708,19 @@ export function PianoRoll({
         // A drag already did its work; a click on the handle leaves it put.
         if (d?.mode || target === 'playhead') return;
         if (target === 'empty') {
-          seekTo(snapped(pressTick));
+          seek(snapped(pressTick));
         } else {
-          writeLoop(loopScope, {
-            enabled: !readLoop(useStore.getState(), loopScope).enabled,
-          });
+          writeLoop(
+            loopScope,
+            { enabled: !rulerSnapshot(hostRef.current, loopScope).enabled },
+            hostRef.current,
+          );
         }
       };
       window.addEventListener('mousemove', onMove);
       window.addEventListener('mouseup', onUp);
     },
-    [MAX_ZOOM, gridSize, pixelsPerTick, songOffset, loopScope],
+    [MAX_ZOOM, gridSize, pixelsPerTick, songOffset, loopScope, seek],
   );
 
   // Cursor hint: a grab hand on the playhead handle, resize arrows on a loop
@@ -1686,9 +1730,10 @@ export function PianoRoll({
       const canvas = rulerCanvasRef.current;
       if (!canvas || rulerDragRef.current) return;
       const rect = canvas.getBoundingClientRect();
-      const snapshot = useStore.getState();
-      const { start, end } = readLoop(snapshot, loopScope);
-      const { position } = snapshot;
+      const { start, end, position } = rulerSnapshot(
+        hostRef.current,
+        loopScope,
+      );
       const target = rulerPressTarget(
         e.clientX - rect.left,
         e.clientY - rect.top,
@@ -1731,7 +1776,7 @@ export function PianoRoll({
           borderBottom: '1px solid var(--color-border)',
         }}
       >
-        <RollViewToggle view={rollView} onChange={setRollView} />
+        {!host && <RollViewToggle view={rollView} onChange={setRollView} />}
         <div className="h-4 w-px bg-white/10" />
 
         {/* Tool mode buttons */}

@@ -1,0 +1,64 @@
+{
+  "id": "hip-hop-l1-c27-c1-the-trap-bass-pattern",
+  "name": "Hip Hop L1 · C27 C1: The Trap Bass Pattern",
+  "instrument": "bass",
+  "role": "bassline",
+  "level": 1,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 0,
+    "mode": "dorian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 2,
+  "tempo": 76,
+  "swing": 50,
+  "sound": "bass-electric:finger",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 1150,
+      "midi": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 1200,
+      "duration": 700,
+      "midi": 43,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 1150,
+      "midi": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 3120,
+      "duration": 340,
+      "midi": 44,
+      "velocity": 96
+    },
+    {
+      "tick": 3480,
+      "duration": 340,
+      "midi": 43,
+      "velocity": 96
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "hip-hop",
+    "level": 1,
+    "section": "C",
+    "stepNumber": 27,
+    "title": "C1: The Trap Bass Pattern",
+    "tag": "hiphop:l1_bass_expand_aeolian | hiphop",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "The Aeolian version: bar 2 goes A♭, then G.",
+  "genre": "hip-hop",
+  "chordSymbols": ["Cm"]
+}

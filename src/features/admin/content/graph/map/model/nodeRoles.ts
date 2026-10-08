@@ -75,6 +75,15 @@ export const KIND_ROLES: Readonly<Record<EntityKind, NodeRole>> = {
   instrument: INSTRUMENTS,
   teach_day: CURRICULUM,
   pathway: CURRICULUM,
+  // Instrument content: grooves and parts are items; the sounds they are
+  // voiced on file with the instruments, and a feel is theory, like a mode.
+  groove: NOTE,
+  part: NOTE,
+  feel: THEORY,
+  patch: INSTRUMENTS,
+  kit: INSTRUMENTS,
+  // A genre lesson level is curriculum, like a Teach day.
+  lesson: CURRICULUM,
 };
 
 /** The id prefix of a globe region's place node: `place:region-europe`. */

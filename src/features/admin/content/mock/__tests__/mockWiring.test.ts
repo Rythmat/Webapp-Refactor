@@ -32,7 +32,7 @@ describe('with VITE_CONTENT_MOCK=1', () => {
     const mock = await import('../handleMockRequest');
 
     expect(manifest.contentCdnUrl()).toBe('mock://cdn');
-    expect((await manifest.fetchManifest()).kinds.songs?.itemCount).toBe(640);
+    expect((await manifest.fetchManifest()).kinds.songs?.itemCount).toBe(642);
 
     await songs.ensureSongContent();
     expect(songs.songContentSource()).toBe('cdn');

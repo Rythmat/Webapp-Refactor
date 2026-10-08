@@ -1,0 +1,118 @@
+{
+  "id": "hip-hop-l3-c5-c2-bass-play-along",
+  "name": "Hip Hop L3 · C5 C2: Bass Play-Along",
+  "instrument": "bass",
+  "role": "bassline",
+  "level": 3,
+  "tags": [],
+  "status": "live",
+  "key": {
+    "tonic": 4,
+    "mode": "phrygian"
+  },
+  "timeSignature": [4, 4],
+  "bars": 4,
+  "tempo": 81,
+  "swing": 66,
+  "sound": "bass-electric:finger",
+  "notes": [
+    {
+      "tick": 0,
+      "duration": 220,
+      "midi": 33,
+      "velocity": 96
+    },
+    {
+      "tick": 240,
+      "duration": 940,
+      "midi": 33,
+      "velocity": 96
+    },
+    {
+      "tick": 1200,
+      "duration": 700,
+      "midi": 33,
+      "velocity": 96
+    },
+    {
+      "tick": 1920,
+      "duration": 220,
+      "midi": 35,
+      "velocity": 96
+    },
+    {
+      "tick": 2160,
+      "duration": 940,
+      "midi": 35,
+      "velocity": 96
+    },
+    {
+      "tick": 3120,
+      "duration": 340,
+      "midi": 35,
+      "velocity": 96
+    },
+    {
+      "tick": 3480,
+      "duration": 340,
+      "midi": 35,
+      "velocity": 96
+    },
+    {
+      "tick": 3840,
+      "duration": 220,
+      "midi": 28,
+      "velocity": 96
+    },
+    {
+      "tick": 4080,
+      "duration": 940,
+      "midi": 28,
+      "velocity": 96
+    },
+    {
+      "tick": 5040,
+      "duration": 700,
+      "midi": 28,
+      "velocity": 96
+    },
+    {
+      "tick": 5760,
+      "duration": 220,
+      "midi": 28,
+      "velocity": 96
+    },
+    {
+      "tick": 6000,
+      "duration": 940,
+      "midi": 28,
+      "velocity": 96
+    },
+    {
+      "tick": 6960,
+      "duration": 340,
+      "midi": 28,
+      "velocity": 96
+    },
+    {
+      "tick": 7320,
+      "duration": 340,
+      "midi": 28,
+      "velocity": 96
+    }
+  ],
+  "source": {
+    "kind": "lesson",
+    "genre": "hip-hop",
+    "level": 3,
+    "section": "C",
+    "stepNumber": 5,
+    "title": "C2: Bass Play-Along",
+    "tag": "hiphop:l3_bass_playalong_jazz | hiphop",
+    "hands": "both",
+    "tickOffset": 0
+  },
+  "description": "A, B, E locked to the kick. Swung.",
+  "genre": "hip-hop",
+  "chordSymbols": ["Am7", "B7b9", "Em9", "Em9"]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "groove_ballad_01",
+  "name": "Pop ballad 01",
+  "description": "Imported from the code groove of the same id. Publish to replace it.",
+  "genre": "pop",
+  "status": "draft",
+  "timeSignature": [4, 4],
+  "feltBeats": 4,
+  "bars": 1,
+  "tempo": 100,
+  "tempoUnit": "quarter",
+  "swing": 50,
+  "grid": "8n",
+  "kit": "natural",
+  "padGains": {},
+  "humanize": {
+    "timing": 6,
+    "velocity": 6
+  },
+  "hits": [
+    {
+      "tick": 0,
+      "note": 36,
+      "velocity": 85
+    },
+    {
+      "tick": 0,
+      "note": 42,
+      "velocity": 50
+    },
+    {
+      "tick": 480,
+      "note": 38,
+      "velocity": 78
+    },
+    {
+      "tick": 480,
+      "note": 42,
+      "velocity": 40
+    },
+    {
+      "tick": 960,
+      "note": 42,
+      "velocity": 50
+    },
+    {
+      "tick": 1440,
+      "note": 38,
+      "velocity": 78
+    },
+    {
+      "tick": 1440,
+      "note": 42,
+      "velocity": 40
+    }
+  ]
+}

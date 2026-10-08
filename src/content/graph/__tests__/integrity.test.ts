@@ -1931,17 +1931,17 @@ describe('integrity on the repo data', () => {
   it('counts credits on the songs that have them, every one an artist of its own or a name', () => {
     // Four researched songs had credits, all by name only (set 4, linked 0,
     // inferred 4), until the bulk import of 30 September 2026 credited 561
-    // songs that had none. 565 now hold credits: on 170 every credit links
-    // to an artist, and on the other 395 at least one is a name only (a
+    // songs that had none. 567 now hold credits: on 171 every credit links
+    // to an artist, and on the other 396 at least one is a name only (a
     // session player with no record), which the graph matches by name.
     const credits = report.coverage.find(
       (r) => r.kind === 'song' && r.path === 'credits[].artistGlobeId',
     );
     expect(credits).toMatchObject({
       items: songs.length,
-      set: 565,
-      linked: 170,
-      inferred: 395,
+      set: 567,
+      linked: 171,
+      inferred: 396,
     });
   });
 
@@ -1986,7 +1986,7 @@ describe('integrity on the repo data', () => {
     const orphans = report.rows.filter((r) => r.check === 'orphan');
     const byKind: Record<string, number> = {};
     for (const r of orphans) byKind[r.kind] = (byKind[r.kind] ?? 0) + 1;
-    expect(byKind).toEqual({ artist: 2, progression: 99 });
+    expect(byKind).toEqual({ artist: 2, progression: 98 });
     expect(orphans.filter((r) => r.kind === 'artist').map((r) => r.id)).toEqual(
       ['artist:michael-jackson-and-justin-timberlake', 'artist:unknown-artist'],
     );

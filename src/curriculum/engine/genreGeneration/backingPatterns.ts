@@ -14,6 +14,8 @@
  */
 
 import type { ActivityStepV2 } from '../../types/activity.v2';
+import { buildDesignedDrums } from '../drumGrooves/drumGroove';
+import { getLiveGroove } from '../drumGrooves/registry';
 import { buildApproachNotes, shouldAddApproach } from './bassApproach';
 import { bassFifthMidi } from './bassFifthRule';
 import { bassPC_toMidi } from './chordBassNote';
@@ -738,10 +740,45 @@ export function getGrooveForStyleRef(
   }
 }
 
+/**
+ * The groove id a step actually plays: its own `grooveId`, else its style's.
+ * Hip Hop's default comes from the level (hipHopDrumPattern).
+ */
+export function resolveStepGrooveId(
+  step: Pick<ActivityStepV2, 'grooveId'> & { styleRef?: string },
+  genre: string,
+  level: number,
+): string {
+  if (genre === 'hip-hop') return hipHopDrumPattern(step.grooveId, level).id;
+  return step.grooveId ?? getGrooveForStyleRef(step.styleRef, genre);
+}
+
+/**
+ * The kit a step's drums play on: the step's own (backing_style.kit), else its
+ * published designed groove's, else natural.
+ */
+export function stepDrumKit(
+  step: Pick<ActivityStepV2, 'grooveId' | 'backing_style'>,
+  styleRef: string | undefined,
+  genre: string,
+  level: number,
+): string {
+  return (
+    step.backing_style?.kit ??
+    getLiveGroove(resolveStepGrooveId({ ...step, styleRef }, genre, level))
+      ?.kit ??
+    'natural'
+  );
+}
+
 function buildDrumPatternForGroove(
   bars: number,
   grooveId: GrooveId = 'groove_funk_01',
 ): BackingNote[] {
+  // A published designed groove (console → Drum Grooves) wins over the code
+  // that shares its id; an unknown id falls through to funk_01 as before.
+  const designed = getLiveGroove(grooveId);
+  if (designed) return buildDesignedDrums(designed, bars, BAR_TICKS);
   switch (grooveId) {
     case 'groove_funk_02':
       return buildDrumPattern_02(bars);
@@ -1377,10 +1414,20 @@ function buildHipHopNotes(
   swung: (part: BackingNote[]) => BackingNote[],
 ): BackingNote[] {
   const style = step.backing_style ?? {};
+  // A designed groove may name a step directly; otherwise the hip-hop pattern
+  // the step resolves to (it still drives follow_kick bass below).
+  const designed = getLiveGroove(step.grooveId);
   const drums = hipHopDrumPattern(step.grooveId, level);
+  const designedDrums = designed ?? getLiveGroove(drums.id);
   const notes: BackingNote[] = [];
   if (engineGenerates.includes('drums')) {
-    notes.push(...swung(buildHipHopDrums(BACKING_BARS, drums)));
+    notes.push(
+      ...swung(
+        designedDrums
+          ? buildDesignedDrums(designedDrums, BACKING_BARS, BAR_TICKS)
+          : buildHipHopDrums(BACKING_BARS, drums),
+      ),
+    );
   }
   if (engineGenerates.includes('bass')) {
     notes.push(

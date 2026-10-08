@@ -195,7 +195,7 @@ export type GetApiExperienceBoostData = any;
 export type GetApiExperienceSummaryData = any;
 
 export interface GetApiExperienceSummaryParams {
-  days?: string | number;
+  days?: string | (string | number);
 }
 
 export type GetApiGameOptionsData = any;
@@ -3466,7 +3466,7 @@ export namespace Experience {
   export namespace GetApiExperienceSummary {
     export type RequestParams = {};
     export type RequestQuery = {
-      days?: string | number;
+      days?: string | (string | number);
     };
     export type RequestBody = never;
     export type RequestHeaders = {};

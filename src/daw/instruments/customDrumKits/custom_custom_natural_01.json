@@ -1,0 +1,17 @@
+{
+  "id": "custom_custom_natural_01",
+  "label": "Tight kick custom_natural",
+  "base": "natural",
+  "samples": {
+    "36": "/daw-assets/samples/drums/uploads/mv02i9xn-dilla-kicks019.wav",
+    "38": "/daw-assets/samples/drums/uploads/mv02mzbp-dilla-snare123.wav",
+    "40": "/daw-assets/samples/drums/uploads/muzqnsgw-xstick---snares-on---4.mp3",
+    "41": "/daw-assets/samples/drums/uploads/muzqp01y-floor-tom---snares-on---4.mp3",
+    "42": "/daw-assets/samples/drums/uploads/muzqoedb-hihat---closed---4.mp3",
+    "44": "/daw-assets/samples/drums/uploads/muz0n9io-hihat---foot-close---3.wav",
+    "45": "/daw-assets/samples/drums/uploads/muzqp9o6-rack-tom---snares-on---4.mp3",
+    "46": "/daw-assets/samples/drums/uploads/muz0mobh-hihat---opened-3---4.wav",
+    "49": "/daw-assets/samples/drums/uploads/muzqpop0-ride---crash---4.mp3",
+    "51": "/daw-assets/samples/drums/uploads/muzqpup3-ride---5.mp3"
+  }
+}

@@ -1,5 +1,6 @@
 import type { DemoProject } from '@/daw/data/demoProjects';
 import { withDemoSynthPresets } from '@/daw/data/demoSynthPresets';
+import { seedTemplateSynthPatches } from '@/daw/data/templateSynthPatches';
 import { importPendingJamSession } from '@/daw/jam-import/importJamSession';
 import { resetProjectState } from '@/daw/persistence/projectDocument/initialState';
 import { markDocumentBaseline } from '@/daw/persistence/saveStatusStore';
@@ -37,6 +38,8 @@ import type { BootIntent } from '@/lib/studio-projects/localSession';
 export function seedTemplate(templateId: string): void {
   // A load of its own: the template goes in over a new project's state.
   useStore.getState().loadProjectTemplate(templateId);
+  // Its synth tracks' patches, before the baseline so they aren't an edit.
+  seedTemplateSynthPatches(templateId);
   resetUndoHistory();
   markDocumentBaseline();
 }

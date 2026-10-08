@@ -439,6 +439,71 @@ export const CONTENT_KINDS: Record<ContentKind, KindSpec> = {
     ],
     formKeys: ['id', 'name', 'section', 'worldInstrumentId', 'typicalIn'],
   },
+
+  // ── Instrument content (docs/instrument-content-kinds.md) ──
+  // Grooves and parts are edited on their own pages (instrumentPages.ts);
+  // these specs name them for the lists, labels and templates.
+  drum_groove: {
+    label: 'Drum grooves',
+    singular: 'drum groove',
+    blurb:
+      'The grooves lesson play-alongs, Practice Tracks and the Studio’s Grooves tab play. Edited in the Drum Grooves designer.',
+    fields: [
+      { path: 'id', label: 'Id', type: 'text' },
+      { path: 'name', label: 'Name', type: 'text' },
+      { path: 'genre', label: 'Genre', type: 'text' },
+      { path: 'style', label: 'Style', type: 'text' },
+      {
+        path: 'status',
+        label: 'Status',
+        type: 'select',
+        options: ['draft', 'live'],
+      },
+    ],
+    formKeys: ['id', 'name', 'genre', 'style', 'status'],
+  },
+
+  instrument_part: {
+    label: 'Parts',
+    singular: 'part',
+    blurb:
+      'Instrumental parts — piano, bass, guitar — lessons and the Studio draw on. Edited in the Parts Library.',
+    fields: [
+      { path: 'id', label: 'Id', type: 'text' },
+      { path: 'name', label: 'Name', type: 'text' },
+      { path: 'genre', label: 'Genre', type: 'text' },
+      { path: 'style', label: 'Style', type: 'text' },
+      {
+        path: 'status',
+        label: 'Status',
+        type: 'select',
+        options: ['draft', 'live'],
+      },
+    ],
+    formKeys: ['id', 'name', 'genre', 'style', 'status'],
+  },
+
+  feel_profile: {
+    label: 'Feels',
+    singular: 'feel',
+    blurb:
+      'How a style places each 16th against the grid, measured from a player. Saved from a played part in the Parts Library.',
+    fields: [
+      { path: 'id', label: 'Id', type: 'text' },
+      { path: 'name', label: 'Name', type: 'text' },
+      {
+        path: 'description',
+        label: 'Description',
+        type: 'textarea',
+        wide: true,
+      },
+      { path: 'source', label: 'Measured from', type: 'text', wide: true },
+      { path: 'step', label: 'Step (ticks)', type: 'number' },
+      { path: 'positions', label: 'Positions per cycle', type: 'number' },
+    ],
+    formKeys: ['id', 'name', 'description', 'source', 'step', 'positions'],
+    jsonLabel: 'Offsets and accents per position',
+  },
 };
 
 /** Tab order in the console. */
@@ -457,6 +522,9 @@ export const KIND_ORDER: ContentKind[] = [
   'genre',
   'subgenre',
   'instrument',
+  'feel_profile',
+  'drum_groove',
+  'instrument_part',
 ];
 
 // Own keys only: `in` also accepts inherited ones, so a URL of

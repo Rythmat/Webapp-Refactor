@@ -23,6 +23,7 @@ import { CHORDS, getChordColorFromNotes } from '@prism/engine';
 import {
   buildBackingNotes,
   getGrooveForStyleRef,
+  stepDrumKit,
   type BackingNote,
 } from '@/curriculum/engine/genreGeneration/backingPatterns';
 import { chordSymbolTones } from '@/curriculum/engine/genreGeneration/chordSymbolTones';
@@ -41,6 +42,7 @@ import {
   flowMode,
 } from '@/curriculum/utils/flowKey';
 import { formatAccidentalsForDisplay } from '@/curriculum/utils/formatAccidentals';
+import type { DrumKitId } from '@/daw/instruments/drumKits';
 import { nextChordId, type ChordRegion } from '@/daw/store/prismSlice';
 import type { MidiClip, StudioBassVoice } from '@/daw/store/tracksSlice';
 import { formatChord, normalizeQuality, parseChord } from '@/lib/chordNotation';
@@ -122,7 +124,7 @@ export interface GenrePracticeTrackResult {
   /** Which of `voicingSets` the keyboard opens on. */
   defaultVoicing: string | null;
   /** The lesson's drum kit, so the Studio's drums sound like the play-along. */
-  drumKit: 'natural' | '808' | 'house';
+  drumKit: DrumKitId;
   /** The lesson's bass sound; undefined = the sampled electric bass. */
   bassVoice?: StudioBassVoice;
   /**
@@ -208,11 +210,12 @@ function tonicSymbol(keyLabel: string, mode: string, genre: string): string {
 function lessonSounds(
   flow: ActivityFlowV2,
   step: ActivityStepV2 | null,
+  backingStep: ActivityStepV2,
 ): Pick<GenrePracticeTrackResult, 'drumKit' | 'bassVoice'> {
   const style = step?.backing_style;
   const voice = style?.bassVoice ?? genreBassVoice(flow.genre)?.id;
   return {
-    drumKit: style?.kit ?? 'natural',
+    drumKit: stepDrumKit(backingStep, step?.styleRef, flow.genre, flow.level),
     bassVoice: voice === 'electric' ? undefined : voice,
   };
 }
@@ -711,6 +714,6 @@ export function buildGenrePracticeTrack(
       step?.direction ??
       null,
     grooveId,
-    ...lessonSounds(flow, step),
+    ...lessonSounds(flow, step, backingStep),
   };
 }

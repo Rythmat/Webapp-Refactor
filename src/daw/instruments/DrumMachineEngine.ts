@@ -1,6 +1,12 @@
 import * as Tone from 'tone';
 import type { InstrumentAdapter } from './InstrumentAdapter';
-import { DRUM_KIT_CONFIGS, DRUM_PADS, type DrumKitId } from './drumKits';
+import {
+  DRUM_KIT_CONFIGS,
+  DRUM_PADS,
+  padSampleUrl,
+  type DrumKitConfig,
+  type DrumKitId,
+} from './drumKits';
 
 // Kit/pad data lives in the tone-free ./drumKits module; re-export so
 // existing importers of this file keep working.
@@ -154,10 +160,26 @@ export class DrumMachineEngine implements InstrumentAdapter {
   // ── Private ─────────────────────────────────────────────────────────
 
   private async loadKit(kitId: DrumKitId): Promise<void> {
+    const config = DRUM_KIT_CONFIGS.find((c) => c.id === kitId);
+    return this.loadConfig(config, kitId);
+  }
+
+  /**
+   * Load a kit that isn't registered yet — the Drum Grooves designer auditions
+   * a custom kit while it is being built, before its file exists.
+   */
+  async loadKitConfig(config: DrumKitConfig): Promise<void> {
+    this.currentKit = config.id;
+    return this.loadConfig(config, config.id);
+  }
+
+  private async loadConfig(
+    config: DrumKitConfig | undefined,
+    kitId: DrumKitId,
+  ): Promise<void> {
     const seq = ++this.loadSeq;
     this.loaded = false;
 
-    const config = DRUM_KIT_CONFIGS.find((c) => c.id === kitId);
     if (!config) {
       console.warn(`[DrumMachineEngine] Unknown kit: ${kitId}`);
       return;
@@ -167,9 +189,9 @@ export class DrumMachineEngine implements InstrumentAdapter {
     // commits (overlapping loads resolve last-wins, losers are discarded).
     const newPlayers = new Map<number, Tone.Player>();
     await Promise.all(
-      Object.entries(config.samples).map(async ([noteStr, filename]) => {
+      Object.keys(config.samples).map(async (noteStr) => {
         const padNote = Number(noteStr);
-        const url = `${config.baseUrl}${filename}${config.ext}`;
+        const url = padSampleUrl(config, padNote);
         const player = new Tone.Player(url);
         await Tone.loaded();
         newPlayers.set(padNote, player);

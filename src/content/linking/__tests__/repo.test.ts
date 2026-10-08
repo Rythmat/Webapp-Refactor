@@ -215,11 +215,11 @@ describe('Stage 1 on the repo data', () => {
     expect(plan.progressionSongs.report).toMatchObject({
       withText: 76,
       named: 80,
-      linked: 21,
+      linked: 22,
       sure: 0,
       likely: 1,
     });
-    expect(plan.progressionSongs.report.unmatched).toHaveLength(55);
+    expect(plan.progressionSongs.report.unmatched).toHaveLength(54);
     expect(plan.progressionSongs.report.disagree).toEqual([
       expect.objectContaining({ progression: 528, songId: 'changes' }),
     ]);

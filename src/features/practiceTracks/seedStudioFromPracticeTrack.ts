@@ -60,6 +60,9 @@ export const seedStudioFromPracticeTrack = (
   store.addMidiClip(bassTrackId, result.bassClip);
 
   const drumsTrackId = store.addTrack('midi', 'drum-machine', 'Drums');
+  if (result.drumKit && result.drumKit !== 'natural') {
+    store.setDrumKit(drumsTrackId, result.drumKit);
+  }
   store.addMidiClip(drumsTrackId, result.beatClip);
 
   const chordsTrackId = store.addTrack(

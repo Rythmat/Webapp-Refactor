@@ -2071,8 +2071,8 @@ describe('the Atlas graph on the repo data', () => {
       songs.filter((s) => yearOf(s.year)).length,
     );
     // 569 until the bulk import of 30 September 2026 gave 58 undated songs
-    // their year.
-    expect(count('from_year', 'song')).toBe(627);
+    // their year; 628 once the Music Maps charts began (We Shall Overcome).
+    expect(count('from_year', 'song')).toBe(629);
     expect(count('in_decade')).toBe(years.size);
     expect(count('from_era')).toBe(
       [...years].filter((y) => eraForYear(y)).length,

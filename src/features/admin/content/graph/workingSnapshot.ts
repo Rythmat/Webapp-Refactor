@@ -6,8 +6,11 @@ import {
 } from '@/content/graph/deriveGraph';
 import { canonicalId } from '@/content/graph/ids';
 import type { EntityId, EntityKind } from '@/content/graph/types';
+import type { DrumGroove } from '@/curriculum/engine/drumGrooves/drumGroove';
+import type { InstrumentPart } from '@/curriculum/engine/parts/part';
 import type { ContentKind } from '@/hooks/data/admin/useAdminContent';
 import type { ExportRow } from '@/hooks/data/admin/useContentExport';
+import { grooveInput, partInput } from './instrumentInputs';
 
 /**
  * The working copy of the Atlas: the repo's snapshot with the content API's
@@ -59,6 +62,12 @@ interface KindList {
   field: string;
   /** The node an item defines; null for items that state things about others. */
   node: EntityKind | null;
+  /**
+   * The stored body as the graph's list holds it, where the two differ:
+   * instrument content is read through `instrumentInputs.ts`, which turns a
+   * groove's or part's body into vocabulary ids. Absent: the body as stored.
+   */
+  project?: (body: Body) => unknown;
 }
 
 /**
@@ -78,6 +87,29 @@ export const WORKING_KINDS = {
   // Where an artist's songs are pinned (design C24): a statement about an
   // artist, not a node of its own.
   artist_location: { list: 'artistLocations', field: 'id', node: null },
+  // Instrument content (docs/instrument-content-kinds.md), projected into
+  // the graph's input shape.
+  drum_groove: {
+    list: 'grooves',
+    field: 'id',
+    node: 'groove',
+    // A body already in the graph's shape (no hits) passes through.
+    project: (body: Body) =>
+      'hits' in body ? grooveInput(body as unknown as DrumGroove) : body,
+  },
+  instrument_part: {
+    list: 'parts',
+    field: 'id',
+    node: 'part',
+    project: (body: Body) =>
+      'notes' in body ? partInput(body as unknown as InstrumentPart) : body,
+  },
+  feel_profile: {
+    list: 'feels',
+    field: 'id',
+    node: 'feel',
+    project: (body: Body) => ({ id: body.id, name: body.name }),
+  },
 } as const satisfies Partial<Record<ContentKind, KindList>>;
 
 export type WorkingContentKind = keyof typeof WORKING_KINDS;
@@ -163,10 +195,9 @@ export function mergeSnapshot(
       const body = drawnBody(row);
       if (!body || drawn.has(row.slug)) continue;
       // A partial body may lack its identity; the export's slug is it.
-      drawn.set(
-        row.slug,
-        spec.field in body ? body : { ...body, [spec.field]: row.slug },
-      );
+      const whole =
+        spec.field in body ? body : { ...body, [spec.field]: row.slug };
+      drawn.set(row.slug, (spec.project ? spec.project(whole) : whole) as Body);
       const status = itemStatusOf(row);
       if (node && status && !statuses.has(node)) statuses.set(node, status);
     }

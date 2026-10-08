@@ -1,0 +1,279 @@
+{
+  "id": "partido-alto",
+  "name": "Partido Alto",
+  "description": "Brazilian 4-bar phrase, shifting hi-hat accents. From ICP Studio.",
+  "genre": "latin",
+  "style": "Partido Alto",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "timeSignature": [2, 4],
+  "feltBeats": 2,
+  "bars": 4,
+  "tempo": 90,
+  "tempoUnit": "quarter",
+  "swing": 50,
+  "grid": "16n",
+  "kit": "custom_natural_2",
+  "padGains": {},
+  "humanize": {
+    "timing": 0,
+    "velocity": 0
+  },
+  "hits": [
+    {
+      "tick": 0,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 120,
+      "note": 38,
+      "velocity": 76
+    },
+    {
+      "tick": 120,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 240,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 360,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 480,
+      "note": 36,
+      "velocity": 70
+    },
+    {
+      "tick": 480,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 600,
+      "note": 38,
+      "velocity": 13
+    },
+    {
+      "tick": 600,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 720,
+      "note": 36,
+      "velocity": 70
+    },
+    {
+      "tick": 720,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 840,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 960,
+      "note": 36,
+      "velocity": 70
+    },
+    {
+      "tick": 960,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 1080,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 1200,
+      "note": 38,
+      "velocity": 76
+    },
+    {
+      "tick": 1200,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 1320,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 1440,
+      "note": 36,
+      "velocity": 70
+    },
+    {
+      "tick": 1440,
+      "note": 42,
+      "velocity": 102
+    },
+    {
+      "tick": 1560,
+      "note": 38,
+      "velocity": 13
+    },
+    {
+      "tick": 1560,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 1680,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 1800,
+      "note": 36,
+      "velocity": 70
+    },
+    {
+      "tick": 1800,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 1920,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 2040,
+      "note": 38,
+      "velocity": 76
+    },
+    {
+      "tick": 2040,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 2160,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 2280,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 2400,
+      "note": 36,
+      "velocity": 70
+    },
+    {
+      "tick": 2400,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 2520,
+      "note": 38,
+      "velocity": 13
+    },
+    {
+      "tick": 2520,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 2640,
+      "note": 36,
+      "velocity": 70
+    },
+    {
+      "tick": 2640,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 2760,
+      "note": 42,
+      "velocity": 10
+    },
+    {
+      "tick": 2880,
+      "note": 38,
+      "velocity": 76
+    },
+    {
+      "tick": 2880,
+      "note": 42,
+      "velocity": 70
+    },
+    {
+      "tick": 3000,
+      "note": 42,
+      "velocity": 19
+    },
+    {
+      "tick": 3120,
+      "note": 42,
+      "velocity": 19
+    },
+    {
+      "tick": 3240,
+      "note": 42,
+      "velocity": 19
+    },
+    {
+      "tick": 3480,
+      "note": 38,
+      "velocity": 70
+    },
+    {
+      "tick": 3480,
+      "note": 46,
+      "velocity": 51
+    },
+    {
+      "tick": 3600,
+      "note": 36,
+      "velocity": 70
+    },
+    {
+      "tick": 3600,
+      "note": 42,
+      "velocity": 19
+    },
+    {
+      "tick": 3720,
+      "note": 36,
+      "velocity": 96
+    },
+    {
+      "tick": 3720,
+      "note": 38,
+      "velocity": 38
+    },
+    {
+      "tick": 3720,
+      "note": 46,
+      "velocity": 51
+    },
+    {
+      "tick": 3120,
+      "note": 38,
+      "velocity": 38
+    },
+    {
+      "tick": 3360,
+      "note": 42,
+      "velocity": 112
+    }
+  ]
+}

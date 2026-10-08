@@ -94,7 +94,13 @@ const newStep = (
 export const LessonLevelEditor: FC<{
   flow: LessonFlowBody;
   onChange: (flow: LessonFlowBody) => void;
-}> = ({ flow, onChange }) => {
+  /** Open a step's notes in the Parts editor (section, index in section). */
+  onEditNotes?: (
+    section: ActivitySectionId,
+    index: number,
+    hands: 'both' | 'rh' | 'lh',
+  ) => void;
+}> = ({ flow, onChange, onEditNotes }) => {
   const sections = flow.sections ?? [];
   const [activeId, setActiveId] = useState<ActivitySectionId>(
     sections[0]?.id ?? 'A',
@@ -390,6 +396,11 @@ export const LessonLevelEditor: FC<{
                   {isOpen && (
                     <StepEditor
                       step={step}
+                      onEditNotes={
+                        onEditNotes
+                          ? (hands) => onEditNotes(active.id, index, hands)
+                          : undefined
+                      }
                       onChange={(next) =>
                         patchSteps((steps) =>
                           steps.map((s, i) => (i === index ? next : s)),

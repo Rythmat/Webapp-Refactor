@@ -30,12 +30,12 @@ import {
  * | Year               | kind:year OR kind:decade OR kind:era      | #9dabc8 |
  * | Location           | kind:place (cities and regions)           | #b194a9 |
  * | Genre              | kind:genre OR kind:subgenre OR kind:scene | #d2b9a0 |
- * | Instruments        | kind:instrument                           | #7698a8 |
+ * | Instruments        | kind:instrument, patch, kit               | #7698a8 |
  * | Artists            | kind:artist                               | #adbd14 |
- * | Key                | kind:key OR kind:mode OR kind:vibe        | #a5ae9e |
+ * | Key                | kind:key, mode, vibe, feel                | #a5ae9e |
  * | Records            | kind:release                              | #787694 |
  * | Studios & Labels   | kind:studio OR kind:label                 | #cab5d1 |
- * | Chord Progressions | kind:progression                          | #fc91ee |
+ * | Chord Progressions | kind:progression, part, groove            | #fc91ee |
  *
  * The palette's thirteenth colour, a deep raspberry, is kept for Openings
  * and is the first a new group is offered.
@@ -85,12 +85,23 @@ export const PRESET_GROUPS: readonly ColorGroup[] = [
   preset('Year', 'kind:year OR kind:decade OR kind:era', 'Year'),
   preset('Location', 'kind:place', 'Location'),
   preset('Genre', 'kind:genre OR kind:subgenre OR kind:scene', 'Genre'),
-  preset('Instruments', 'kind:instrument', 'Instruments'),
+  // The sounds parts and grooves are voiced on file with the instruments.
+  preset(
+    'Instruments',
+    'kind:instrument OR kind:patch OR kind:kit',
+    'Instruments',
+  ),
   preset('Artists', 'kind:artist', 'Artists'),
-  preset('Key', 'kind:key OR kind:mode OR kind:vibe', 'Key'),
+  preset('Key', 'kind:key OR kind:mode OR kind:vibe OR kind:feel', 'Key'),
   preset('Records', 'kind:release', 'Records'),
   preset('Studios & Labels', 'kind:studio OR kind:label', 'Studios & Labels'),
-  preset('Chord Progressions', 'kind:progression', 'Chord Progressions'),
+  // Grooves and parts are written material like progressions; they share the
+  // colour until Cortex's palette gives instrument content one of its own.
+  preset(
+    'Chord Progressions',
+    'kind:progression OR kind:part OR kind:groove',
+    'Chord Progressions',
+  ),
 ];
 
 /** A fresh, editable copy of the presets. */

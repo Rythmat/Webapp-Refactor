@@ -138,7 +138,7 @@ describe('the seed data against the schemas', () => {
     // Both kinds: the hand-authored `evt-` events and the `song-` events
     // derived from the charts. Body v2 only adds optional fields, so the
     // events as the globe has them today pass unchanged.
-    expect(BUNDLED_MUSIC_HISTORY).toHaveLength(1723);
+    expect(BUNDLED_MUSIC_HISTORY).toHaveLength(1725);
     expect(
       problems(
         recordBodySchemas.globe_event,

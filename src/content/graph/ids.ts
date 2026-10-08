@@ -56,6 +56,15 @@ export const SLUG_PATTERN: Record<EntityKind, RegExp> = {
   pathway: KEBAB,
   year: /^[1-9]\d{0,3}$/,
   decade: /^[1-9]\d{0,2}0s$/,
+  // Lesson steps store groove ids as written (`groove_funk_02`, `trap_a`,
+  // the Studio's `groove-rock-2`), so they are verbatim; new ones are kebab.
+  groove: /^[a-z0-9]+([_-][a-z0-9]+)*$/,
+  part: KEBAB,
+  feel: KEBAB,
+  patch: KEBAB,
+  kit: KEBAB,
+  // The flow's own key: the genre with its separators folded, then the level.
+  lesson: /^[a-z0-9]+-l[0-9]+$/,
 };
 
 /** Kinds whose stored ids are used verbatim — normalising them would rewrite them. */
@@ -63,6 +72,7 @@ const VERBATIM: ReadonlySet<EntityKind> = new Set([
   'song',
   'event',
   'progression',
+  'groove',
 ]);
 
 /**

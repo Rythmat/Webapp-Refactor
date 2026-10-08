@@ -25,6 +25,9 @@ const KIND_LABELS: Record<ContentKind, string> = {
   genre: 'Genres',
   subgenre: 'Subgenres',
   instrument: 'Instruments',
+  drum_groove: 'Drum grooves',
+  instrument_part: 'Parts',
+  feel_profile: 'Feels',
 };
 
 export const kindLabel = (kind: ContentKind): string =>

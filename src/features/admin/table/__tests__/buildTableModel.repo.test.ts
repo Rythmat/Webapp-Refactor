@@ -85,7 +85,7 @@ describe('the tables on the repo data', () => {
     // of the Bay" (Jerry Bruckheimer, Don Simpson).
     const roster = new Set(ARTIST_REGISTRY.map((a) => a.slug));
     const offRoster = ARTIST_ROWS.filter((row) => !roster.has(row.slug));
-    expect(offRoster).toHaveLength(1020);
+    expect(offRoster).toHaveLength(1027);
     expect(withRecord('artists')).toHaveLength(
       ARTIST_REGISTRY.length + offRoster.length,
     );
@@ -185,8 +185,8 @@ describe('the tables on the repo data', () => {
       }
     }
     // Nobody had a birth date or place until the bulk import of 30
-    // September 2026 gave 591 artists one.
-    expect(model('artists').coverage.born.filled).toBe(591);
+    // September 2026 gave 592 artists one.
+    expect(model('artists').coverage.born.filled).toBe(592);
   });
 
   it(`builds each table in ${BUDGET_MS} ms or less (${LIMIT_MS} ms under load)`, () => {

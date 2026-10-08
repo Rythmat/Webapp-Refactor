@@ -1,5 +1,5 @@
 /**
- * The bundled song library — 641 hand-authored chord charts.
+ * The bundled song library — 643 hand-authored chord charts.
  *
  * No longer the runtime source of truth: published songs are fetched from the
  * CDN by src/content/songStore.ts, which imports this module DYNAMICALLY as its
@@ -509,6 +509,7 @@ import { soul_man } from './soul_man';
 import { space_oddity } from './space_oddity';
 import { stand_by_me } from './stand_by_me';
 import { starman } from './starman';
+import { stay } from './stay';
 import { stay_with_me } from './stay_with_me';
 import { stay_with_you } from './stay_with_you';
 import { steal_my_kisses } from './steal_my_kisses';
@@ -607,6 +608,7 @@ import { way_over_yonder } from './way_over_yonder';
 import { we_are_family } from './we_are_family';
 import { we_didnt_start_the_fire } from './we_didnt_start_the_fire';
 import { we_found_love } from './we_found_love';
+import { we_shall_overcome } from './we_shall_overcome';
 import { what_a_wonderful_world } from './what_a_wonderful_world';
 import { what_i_got } from './what_i_got';
 import { what_i_like_about_you } from './what_i_like_about_you';
@@ -1157,6 +1159,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   space_oddity: space_oddity,
   stand_by_me: stand_by_me,
   starman: starman,
+  stay: stay,
   stay_with_me: stay_with_me,
   stay_with_you: stay_with_you,
   steal_my_kisses: steal_my_kisses,
@@ -1257,6 +1260,7 @@ export const BUNDLED_SONGS: Record<string, Song> = {
   we_are_family: we_are_family,
   we_didnt_start_the_fire: we_didnt_start_the_fire,
   we_found_love: we_found_love,
+  we_shall_overcome: we_shall_overcome,
   what_a_wonderful_world: what_a_wonderful_world,
   what_i_got: what_i_got,
   what_i_like_about_you: what_i_like_about_you,

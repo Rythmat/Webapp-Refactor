@@ -1,0 +1,103 @@
+{
+  "id": "jazz-waltz",
+  "name": "Jazz Waltz",
+  "description": "3/4 with 2-bar ride phrasing. From ICP Studio.",
+  "genre": "jazz",
+  "style": "Waltz",
+  "tags": ["icp-studio"],
+  "status": "live",
+  "timeSignature": [3, 4],
+  "feltBeats": 3,
+  "bars": 2,
+  "tempo": 120,
+  "tempoUnit": "quarter",
+  "swing": 50,
+  "grid": "8n",
+  "kit": "natural",
+  "padGains": {},
+  "humanize": {
+    "timing": 0,
+    "velocity": 0
+  },
+  "hits": [
+    {
+      "tick": 0,
+      "note": 36,
+      "velocity": 51
+    },
+    {
+      "tick": 0,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 480,
+      "note": 44,
+      "velocity": 57
+    },
+    {
+      "tick": 480,
+      "note": 51,
+      "velocity": 76
+    },
+    {
+      "tick": 720,
+      "note": 51,
+      "velocity": 51,
+      "offset": 80
+    },
+    {
+      "tick": 960,
+      "note": 44,
+      "velocity": 57
+    },
+    {
+      "tick": 960,
+      "note": 51,
+      "velocity": 76
+    },
+    {
+      "tick": 1440,
+      "note": 51,
+      "velocity": 83
+    },
+    {
+      "tick": 1920,
+      "note": 44,
+      "velocity": 57
+    },
+    {
+      "tick": 1920,
+      "note": 51,
+      "velocity": 76
+    },
+    {
+      "tick": 2160,
+      "note": 36,
+      "velocity": 57,
+      "offset": 80
+    },
+    {
+      "tick": 2400,
+      "note": 44,
+      "velocity": 57
+    },
+    {
+      "tick": 2400,
+      "note": 51,
+      "velocity": 76
+    },
+    {
+      "tick": 2640,
+      "note": 36,
+      "velocity": 57,
+      "offset": 80
+    },
+    {
+      "tick": 2640,
+      "note": 51,
+      "velocity": 51,
+      "offset": 80
+    }
+  ]
+}

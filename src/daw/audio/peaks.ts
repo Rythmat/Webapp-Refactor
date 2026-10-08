@@ -12,11 +12,14 @@ import { buildPeakLevels, type PeakLevel } from './peakLevels';
 // own pyramid, and a pyramid goes away with its buffer: nothing here evicts or
 // clears anything in AudioBufferStore.
 //
-// A buffer longer than WORKER_MIN_SECONDS is summarised in a worker from a
-// copy of its channels, so a long take never blocks a frame. Until the worker
-// answers, its pyramid reads as null and the timeline draws a flat line.
-// Without workers (tests, or a browser that refuses one) every buffer is
-// summarised on the page.
+// A buffer longer than WORKER_MIN_SECONDS is summarised in a worker, so a
+// long take never blocks a frame. Long takes queue for it and go one at a
+// time, a channel at a time, each from a copy made only when it is sent: a
+// project that opens with six long stems holds one channel's copy, not six
+// takes' worth. Until a take's pyramid arrives it reads as null and the
+// timeline draws a flat line for it. Without workers (tests, or a browser
+// that refuses one), and once the worker fails or stops answering, buffers
+// are summarised on the page.
 
 /** Buffers longer than this are summarised in the peaks worker. */
 export const WORKER_MIN_SECONDS = 30;
@@ -32,7 +35,10 @@ export interface PeakPyramid {
   levels: PeakLevel[];
 }
 
-/** Sent to the peaks worker: copies of a buffer's channels. */
+/**
+ * Sent to the peaks worker: copies of a buffer's channels. The page sends one
+ * channel at a time; the worker summarises however many it is given.
+ */
 export interface PeaksRequest {
   id: number;
   length: number;
@@ -86,12 +92,31 @@ function summarise(buffer: SampleSource): PeakPyramid {
 
 // ── The worker ──────────────────────────────────────────────────────────────
 
+/**
+ * How long the worker may take over one channel. It takes about 50 ms for a
+ * 40 s stereo take, so a worker this late is stuck: it is given up, and the
+ * page summarises what it held and everything after.
+ */
+export const WORKER_TIMEOUT_MS = 10_000;
+
 let worker: Worker | null = null;
 /** Set once a worker could not be made or failed: the page builds from then on. */
 let workerUnavailable = false;
 let nextJob = 1;
-/** Buffers whose pyramids the worker is building, by job id. */
-const jobs = new Map<number, SampleSource>();
+
+/** Long takes waiting for the worker, oldest first. */
+const queue: SampleSource[] = [];
+
+/** The one channel the worker is summarising. */
+interface Job {
+  id: number;
+  buffer: SampleSource;
+  channel: number;
+  /** The levels of the buffer's earlier channels. */
+  levels: PeakLevel[] | null;
+  timer: ReturnType<typeof setTimeout>;
+}
+let job: Job | null = null;
 
 function openWorker(): Worker | null {
   if (worker) return worker;
@@ -113,57 +138,102 @@ function openWorker(): Worker | null {
   return worker;
 }
 
-/** Hands a buffer to the worker; false when there is no worker to take it. */
-function requestFromWorker(buffer: SampleSource): boolean {
-  const port = openWorker();
-  if (!port) return false;
-  // The worker gets copies: an AudioBuffer's own channels cannot be
-  // transferred, and the copies can, so nothing is copied a second time.
-  const channels = Array.from({ length: channelsOf(buffer) }, (_, c) =>
-    buffer.getChannelData(c).slice(),
-  );
-  const id = nextJob++;
-  const request: PeaksRequest = { id, length: buffer.length, channels };
-  try {
-    port.postMessage(
-      request,
-      channels.map((c) => c.buffer as ArrayBuffer),
-    );
-  } catch {
-    abandonWorker();
-    return false;
-  }
-  jobs.set(id, buffer);
+/** Queues a long take for the worker; false when there is no worker. */
+function queueForWorker(buffer: SampleSource): boolean {
+  if (!openWorker()) return false;
   pending.add(buffer);
-  return true;
+  queue.push(buffer);
+  if (!job) sendNext();
+  // Sending can fail, which gives the worker up and empties the queue.
+  return pending.has(buffer);
+}
+
+/** Starts the oldest queued take, when the worker is free. */
+function sendNext(): void {
+  const buffer = queue.shift();
+  if (buffer) sendChannel(buffer, 0, null);
+}
+
+function sendChannel(
+  buffer: SampleSource,
+  channel: number,
+  levels: PeakLevel[] | null,
+): void {
+  if (!worker) {
+    pending.delete(buffer);
+    return;
+  }
+  // A copy, made now: an AudioBuffer's own data cannot be transferred, and
+  // the copy can, so the page lets go of it as it is sent.
+  const data = buffer.getChannelData(channel).slice();
+  const id = nextJob++;
+  const request: PeaksRequest = { id, length: buffer.length, channels: [data] };
+  try {
+    worker.postMessage(request, [data.buffer as ArrayBuffer]);
+  } catch {
+    // Not sent, so not the worker's job: let it go with the queue, and the
+    // page summarises it.
+    pending.delete(buffer);
+    abandonWorker();
+    return;
+  }
+  job = {
+    id,
+    buffer,
+    channel,
+    levels,
+    timer: setTimeout(abandonWorker, WORKER_TIMEOUT_MS),
+  };
 }
 
 function settle(response: PeaksResponse): void {
-  const buffer = jobs.get(response.id);
-  if (!buffer) return;
-  jobs.delete(response.id);
+  if (!job || response.id !== job.id) return;
+  const { buffer, channel, levels } = job;
+  clearTimeout(job.timer);
+  job = null;
+  if ('error' in response) {
+    // The worker could not read this one; the page builds it instead of
+    // asking again.
+    finish(buffer, summarise(buffer));
+  } else {
+    const merged = levels
+      ? levels.map((level, l) => ({
+          bucketSize: level.bucketSize,
+          min: [...level.min, ...response.levels[l].min],
+          max: [...level.max, ...response.levels[l].max],
+        }))
+      : response.levels;
+    if (channel + 1 < channelsOf(buffer)) {
+      sendChannel(buffer, channel + 1, merged);
+      return;
+    }
+    finish(buffer, { length: buffer.length, levels: merged });
+  }
+  sendNext();
+}
+
+function finish(buffer: SampleSource, pyramid: PeakPyramid): void {
   pending.delete(buffer);
-  pyramids.set(
-    buffer,
-    'levels' in response
-      ? { length: buffer.length, levels: response.levels }
-      : // The worker could not read this one; the page builds it instead of
-        // asking again.
-        summarise(buffer),
-  );
+  pyramids.set(buffer, pyramid);
   notify();
 }
 
 /**
- * The worker failed as a whole: its jobs are dropped, and their buffers, and
- * every later one, are summarised on the page the next time they are drawn.
+ * The worker failed as a whole, or stopped answering: it is stopped, the
+ * take it held and the queued ones are let go, and they, and every later
+ * one, are summarised on the page the next time they are drawn.
  */
 function abandonWorker(): void {
   worker?.terminate();
   worker = null;
   workerUnavailable = true;
-  for (const buffer of jobs.values()) pending.delete(buffer);
-  jobs.clear();
+  if (job) {
+    clearTimeout(job.timer);
+    pending.delete(job.buffer);
+    job = null;
+  }
+  for (const buffer of queue) pending.delete(buffer);
+  queue.length = 0;
   notify();
 }
 
@@ -178,7 +248,7 @@ export function getPeakPyramid(buffer: SampleSource): PeakPyramid | null {
   const built = pyramids.get(buffer);
   if (built) return built;
   if (pending.has(buffer)) return null;
-  if (buffer.duration > WORKER_MIN_SECONDS && requestFromWorker(buffer)) {
+  if (buffer.duration > WORKER_MIN_SECONDS && queueForWorker(buffer)) {
     return null;
   }
   const pyramid = summarise(buffer);

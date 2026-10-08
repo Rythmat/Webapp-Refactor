@@ -204,7 +204,10 @@ describe('audio clip waveforms', () => {
     expect(flatLines()).toBe(1);
     expect(count('quadraticCurveTo')).toBe(0);
 
+    // The worker takes one channel at a time.
     const [worker] = StandInWorker.made;
+    expect(worker.requests).toHaveLength(1);
+    act(() => worker.reply());
     expect(worker.requests).toHaveLength(1);
     act(() => worker.reply());
     // The arrival redraws the timeline, now with the waveform.

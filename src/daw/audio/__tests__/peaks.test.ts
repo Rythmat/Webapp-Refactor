@@ -319,6 +319,7 @@ describe('getPeakPyramid on the page', () => {
 class StandInWorker {
   static made: StandInWorker[] = [];
   static failToConstruct = false;
+  static failToPost = false;
   onmessage: ((event: MessageEvent<PeaksResponse>) => void) | null = null;
   onerror: ((event: ErrorEvent) => void) | null = null;
   onmessageerror: (() => void) | null = null;
@@ -334,6 +335,7 @@ class StandInWorker {
   }
 
   postMessage(request: PeaksRequest, transfer: Transferable[]) {
+    if (StandInWorker.failToPost) throw new Error('could not clone');
     this.requests.push({ request, transfer });
   }
 
@@ -364,6 +366,7 @@ describe('getPeakPyramid with the worker', () => {
   beforeEach(() => {
     StandInWorker.made = [];
     StandInWorker.failToConstruct = false;
+    StandInWorker.failToPost = false;
     vi.stubGlobal('Worker', StandInWorker);
   });
 
@@ -373,7 +376,7 @@ describe('getPeakPyramid with the worker', () => {
     expect(StandInWorker.made).toHaveLength(0);
   });
 
-  it('sends a longer take to the worker as transferred channel copies', async () => {
+  it('sends a longer take to the worker a channel at a time, as transferred copies', async () => {
     const { getPeakPyramid, subscribePeakPyramids } = await freshPeaks();
     const left = noise(RATE * 31, 2);
     const right = noise(RATE * 31, 3);
@@ -389,25 +392,116 @@ describe('getPeakPyramid with the worker', () => {
     expect(String(worker.url)).toMatch(/workers\/peaksWorker\.ts$/);
     expect(worker.requests).toHaveLength(1);
 
-    const { request, transfer } = worker.requests[0];
-    expect(request.length).toBe(take.length);
-    expect(request.channels).toHaveLength(2);
-    // Copies, never the buffer's own channel data, and each one transferred.
+    // One channel: a copy, never the buffer's own data, and transferred.
     // Identity is checked as a boolean: given two different arrays, not.toBe
     // deep-compares them for its message, which takes seconds at this length.
-    expect(request.channels[0] === left || request.channels[1] === right).toBe(
-      false,
-    );
-    expect(sameSamples(request.channels[0], left)).toBe(true);
-    expect(sameSamples(request.channels[1], right)).toBe(true);
-    expect(transfer).toEqual(request.channels.map((c) => c.buffer));
+    const first = worker.requests[0];
+    expect(first.request.length).toBe(take.length);
+    expect(first.request.channels).toHaveLength(1);
+    expect(first.request.channels[0] === left).toBe(false);
+    expect(sameSamples(first.request.channels[0], left)).toBe(true);
+    expect(first.transfer).toEqual([first.request.channels[0].buffer]);
+
+    // The right channel goes once the left one is back.
+    worker.reply();
+    expect(arrived).not.toHaveBeenCalled();
+    expect(getPeakPyramid(take)).toBeNull();
+    expect(worker.requests).toHaveLength(1);
+    const second = worker.requests[0];
+    expect(second.request.channels).toHaveLength(1);
+    expect(second.request.channels[0] === right).toBe(false);
+    expect(sameSamples(second.request.channels[0], right)).toBe(true);
+    expect(second.transfer).toEqual([second.request.channels[0].buffer]);
 
     worker.reply();
     expect(arrived).toHaveBeenCalledTimes(1);
-    const pyramid = getPeakPyramid(take);
-    expect(pyramid!.levels).toEqual(
+    expect(getPeakPyramid(take)!.levels).toEqual(
       buildPeakLevels([left, right], take.length),
     );
+  });
+
+  it('queues long takes one at a time, copying each only as it is sent', async () => {
+    const { getPeakPyramid } = await freshPeaks();
+    // A project opening with three long stems used to copy all three, both
+    // channels each, in one draw, and hand them all to the worker at once.
+    const takes = [4, 5, 6].map((seed) => fakeBuffer([noise(RATE * 31, seed)]));
+    for (const take of takes) expect(getPeakPyramid(take)).toBeNull();
+    const [worker] = StandInWorker.made;
+    expect(worker.requests).toHaveLength(1);
+    expect(takes.map((t) => t.getChannelData.mock.calls.length)).toEqual([
+      1, 0, 0,
+    ]);
+
+    worker.reply();
+    expect(getPeakPyramid(takes[0])).not.toBeNull();
+    expect(getPeakPyramid(takes[1])).toBeNull();
+    expect(worker.requests).toHaveLength(1);
+    expect(takes.map((t) => t.getChannelData.mock.calls.length)).toEqual([
+      1, 1, 0,
+    ]);
+
+    worker.reply();
+    worker.reply();
+    expect(takes.every((t) => getPeakPyramid(t) !== null)).toBe(true);
+    expect(StandInWorker.made).toHaveLength(1);
+  });
+
+  it('gives up a worker that stops answering, and builds on the page', async () => {
+    vi.useFakeTimers();
+    try {
+      const { getPeakPyramid, subscribePeakPyramids, WORKER_TIMEOUT_MS } =
+        await freshPeaks();
+      const arrived = vi.fn();
+      subscribePeakPyramids(arrived);
+      const a = fakeBuffer([noise(RATE * 31, 7)]);
+      const b = fakeBuffer([noise(RATE * 32, 8)]);
+      expect(getPeakPyramid(a)).toBeNull();
+      expect(getPeakPyramid(b)).toBeNull();
+      const [worker] = StandInWorker.made;
+
+      // An answer in time stops its clock, and the next take gets its own.
+      vi.advanceTimersByTime(WORKER_TIMEOUT_MS - 1);
+      worker.reply();
+      expect(arrived).toHaveBeenCalledTimes(1);
+      vi.advanceTimersByTime(WORKER_TIMEOUT_MS - 1);
+      expect(worker.terminated).toBe(false);
+
+      // No answer for b: the worker is stopped, and b and every later long
+      // take are summarised on the page.
+      vi.advanceTimersByTime(1);
+      expect(worker.terminated).toBe(true);
+      expect(arrived).toHaveBeenCalledTimes(2);
+      expect(getPeakPyramid(b)).not.toBeNull();
+      expect(getPeakPyramid(fakeBuffer([noise(RATE * 40, 9)]))).not.toBeNull();
+      expect(StandInWorker.made).toHaveLength(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('builds on the page when a take cannot be sent to the worker', async () => {
+    const { getPeakPyramid } = await freshPeaks();
+    StandInWorker.failToPost = true;
+    expect(getPeakPyramid(fakeBuffer([noise(RATE * 31, 10)]))).not.toBeNull();
+    expect(StandInWorker.made[0].terminated).toBe(true);
+  });
+
+  it('lets every take go when a later channel cannot be sent', async () => {
+    const { getPeakPyramid, subscribePeakPyramids } = await freshPeaks();
+    const arrived = vi.fn();
+    subscribePeakPyramids(arrived);
+    const stereo = fakeBuffer([noise(RATE * 31, 11), noise(RATE * 31, 12)]);
+    const queued = fakeBuffer([noise(RATE * 31, 13)]);
+    expect(getPeakPyramid(stereo)).toBeNull();
+    expect(getPeakPyramid(queued)).toBeNull();
+
+    // The left channel comes back, and the right one cannot be sent.
+    StandInWorker.failToPost = true;
+    StandInWorker.made[0].reply();
+    expect(StandInWorker.made[0].terminated).toBe(true);
+    expect(arrived).toHaveBeenCalledTimes(1);
+    expect(getPeakPyramid(stereo)).not.toBeNull();
+    expect(getPeakPyramid(queued)).not.toBeNull();
   });
 
   it('builds on the page when the worker cannot be made', async () => {

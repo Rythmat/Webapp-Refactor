@@ -14,10 +14,8 @@ import {
   articulationSide,
   articulationsFor,
   articulationKey,
-  dropNoteIds,
   durationTicks,
   groupChordArticulations,
-  remapNoteIds,
   slurKey,
   tieSpan,
   tieFromNote,
@@ -151,34 +149,6 @@ describe('slurs', () => {
 
   it('ignores a slur to itself', () => {
     expect(toggleSlur([], 'a', 'a')).toEqual([]);
-  });
-});
-
-describe('following notes as they change', () => {
-  it('moves marks onto the new ids', () => {
-    const marks = ['t:c:0:60|staccato', 't:c:480:62|accent'];
-    const rename = new Map([['t:c:0:60', 't:c:0:64']]);
-    expect(remapNoteIds(marks, rename)).toEqual([
-      't:c:0:64|staccato',
-      't:c:480:62|accent',
-    ]);
-  });
-
-  it('moves both ends of a slur', () => {
-    const slurs = [slurKey('t:c:0:60', 't:c:480:62')];
-    const rename = new Map([
-      ['t:c:0:60', 't:c:0:62'],
-      ['t:c:480:62', 't:c:480:64'],
-    ]);
-    expect(remapNoteIds(slurs, rename)).toEqual([
-      slurKey('t:c:0:62', 't:c:480:64'),
-    ]);
-  });
-
-  it('drops marks whose note is gone', () => {
-    const marks = ['n1|staccato', 'n2|accent'];
-    expect(dropNoteIds(marks, new Set(['n1']))).toEqual(['n2|accent']);
-    expect(dropNoteIds([slurKey('n1', 'n2')], new Set(['n2']))).toEqual([]);
   });
 });
 
@@ -546,16 +516,5 @@ describe('pinned spellings', () => {
     const entries = withSpelling(['n2|D♭4'], 'n1', 'C♯4');
     expect(entries).toContain('n2|D♭4');
     expect(entries).toContain('n1|C♯4');
-  });
-
-  it('follows a note onto its new id after an edit', () => {
-    const entries = withSpelling([], 't:c:0:60', 'C4');
-    const moved = remapNoteIds(entries, new Map([['t:c:0:60', 't:c:0:61']]));
-    expect(spellingMap(moved).get('t:c:0:61')).toBe('C4');
-  });
-
-  it('drops the spelling when its note is gone', () => {
-    const entries = withSpelling([], 'n1', 'C♯4');
-    expect(dropNoteIds(entries, new Set(['n1']))).toEqual([]);
   });
 });

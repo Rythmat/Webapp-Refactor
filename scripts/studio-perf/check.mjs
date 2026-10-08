@@ -17,7 +17,9 @@
  * It starts one bypass dev server for every browser suite (--reuse=URL uses
  * one that is already running; --port=5263 picks the port), runs the suites
  * one after another so they don't skew each other's timings, prints a table,
- * and exits 1 if any suite failed. `--only=roundtrip,lessons` runs a subset.
+ * and exits 1 if any suite failed. `--only=roundtrip,lessons` runs a subset;
+ * `--fake-audio` gives every browser suite Chrome's fake audio output
+ * (harness.mjs), for a machine whose audio output never renders.
  */
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -36,14 +38,42 @@ const outRoot = baseline
       new Date().toLocaleDateString('en-CA'),
     )
   : join(ROOT, 'docs/studio-perf/runs/check');
-mkdirSync(outRoot, { recursive: true });
 
-/** Vitest files: the persistence and autosave ratchets, the anchor inventory. */
+/**
+ * Vitest files: the persistence and autosave ratchets, the anchor inventory,
+ * and the project document's guards (milestone 1.3): the registry's coverage,
+ * the codec, its migrations and format, the quarantine, cloud opens, the
+ * per-user prefs, the save status and new-project state, and the contracts
+ * under them (note ids, cloud track ids, new-track defaults, the session
+ * generation, link seeds, chord identity, boot links).
+ */
 const UNIT_TESTS = [
   'src/daw/persistence/__tests__/persistenceMatrix.test.ts',
   'src/daw/hooks/__tests__/autosaveStarvation.test.ts',
   'src/daw/components/Tutorial/__tests__/tutorialAnchors.test.ts',
   'src/daw/persistence/__tests__/fixtures/manifest.test.ts',
+  'src/daw/persistence/__tests__/fieldCoverage.test.ts',
+  'src/daw/persistence/__tests__/codecV3.test.ts',
+  'src/daw/persistence/__tests__/v3Shape.test.ts',
+  'src/daw/persistence/__tests__/migrations.test.ts',
+  'src/daw/persistence/__tests__/quarantine.test.ts',
+  'src/daw/persistence/__tests__/cloudOpen.test.ts',
+  'src/daw/persistence/__tests__/sessionSize.test.ts',
+  'src/daw/persistence/__tests__/sessionFingerprint.test.ts',
+  'src/daw/persistence/__tests__/legacyPrefs.test.ts',
+  'src/daw/persistence/__tests__/prefsStore.test.ts',
+  'src/daw/persistence/__tests__/saveStatusStore.test.ts',
+  'src/daw/persistence/__tests__/projectReset.test.ts',
+  'src/daw/persistence/projectDocument/__tests__/initialState.test.ts',
+  'src/daw/persistence/projectDocument/__tests__/notationCodec.test.ts',
+  'src/daw/persistence/projectDocument/__tests__/cloudIds.test.ts',
+  'src/daw/persistence/projectDocument/__tests__/trackDefaults.test.ts',
+  'src/daw/model/__tests__/noteIds.test.ts',
+  'src/daw/session/__tests__/sessionGeneration.test.ts',
+  'src/daw/session/__tests__/linkSeeds.test.ts',
+  'src/daw/harmony/__tests__/chordIdentity.test.ts',
+  'src/daw/__tests__/DawApp.bootLinks.test.tsx',
+  'src/daw/components/ChannelStrip/__tests__/ChannelStrip.restoredTab.test.tsx',
 ];
 
 /** Browser suites, in the order they run. `server: false` builds instead. */
@@ -64,6 +94,17 @@ const SUITES = [
     : []),
 ].filter((suite) => !only || only.has(suite.name));
 
+// A name that is no suite of this tier would run nothing and pass.
+const unknown = [...(only ?? [])].filter(
+  (name) => name !== 'unit' && !SUITES.some((suite) => suite.name === name),
+);
+if (unknown.length > 0) {
+  throw new Error(
+    `--only=${unknown.join(',')} names no suite of the ${full ? 'full' : 'fast'} tier`,
+  );
+}
+mkdirSync(outRoot, { recursive: true });
+
 const results = [];
 const run = (name, command, commandArgs) => {
   const started = Date.now();
@@ -80,7 +121,14 @@ const run = (name, command, commandArgs) => {
 };
 
 if (!only || only.has('unit')) {
-  run('unit', 'npx', ['vitest', 'run', ...UNIT_TESTS.filter(existsSync)]);
+  // A test that moved or was renamed must fail the tier, not drop out of it.
+  const missing = UNIT_TESTS.filter((file) => !existsSync(join(ROOT, file)));
+  if (missing.length > 0) {
+    console.log(`\n── unit ─ missing: ${missing.join(', ')}`);
+    results.push({ name: 'unit', pass: false, seconds: 0, missing: true });
+  } else {
+    run('unit', 'npx', ['vitest', 'run', ...UNIT_TESTS]);
+  }
 }
 
 const needsServer = SUITES.some((suite) => suite.server !== false);
@@ -113,6 +161,7 @@ try {
       ...(suite.server === false ? [] : [`--reuse=${base}`]),
       `--out=${join(outRoot, suite.name)}`,
       ...suite.args,
+      ...(args['fake-audio'] === 'true' ? ['--fake-audio'] : []),
     ]);
   }
 } finally {

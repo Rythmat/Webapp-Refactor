@@ -12,7 +12,6 @@ import {
   jamProgramChange,
   getLocalChannel,
 } from '@/components/JamRoom/jamSoundFont';
-import { useStore } from '@/daw/store';
 import { ArcadeGameHeader } from './ArcadeGameHeader';
 import { useGameAudio, type GameAudioEngine } from './useGameAudio';
 
@@ -410,8 +409,6 @@ export type ChromaProps = {
 };
 
 export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
-  const setRootNote = useStore((s) => s.setRootNote);
-
   // The Crystal soundfont starts loading with the first render, and Start stays
   // held until it can actually play — the sequence is the whole puzzle, so a
   // silent round is an unplayable one.
@@ -419,6 +416,10 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
 
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [phase, setPhase] = useState<Phase>('select');
+  // A round's root is the first note of its sequence, the game's own state.
+  // The Studio's key (the DAW store's rootNote) belongs to the project open
+  // there: the game used to clear it on every Start and Play Again, wiping
+  // that project's key, key colour and key lock.
   const [sequence, setSequence] = useState<number[]>([]);
   const [userInput, setUserInput] = useState<number[]>([]);
   const [attemptsLeft, setAttemptsLeft] = useState(2);
@@ -528,12 +529,11 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
     setUserInput([]);
     setAttemptsLeft(cfg.attempts);
     setCrystalLit(false);
-    setRootNote(null);
 
     sp('playing');
     await playSeq(seq);
     sp('input');
-  }, [sp, playSeq, setRootNote]);
+  }, [sp, playSeq]);
 
   // ── Reset ───────────────────────────────────────────────────────────────
 
@@ -542,9 +542,8 @@ export default function Chroma({ onCorrect, onWrong }: ChromaProps = {}) {
     setSequence([]);
     setUserInput([]);
     setPlayingIdx(null);
-    setRootNote(null);
     sp('select');
-  }, [sp, setRootNote]);
+  }, [sp]);
 
   // ── Derived display ─────────────────────────────────────────────────────
 

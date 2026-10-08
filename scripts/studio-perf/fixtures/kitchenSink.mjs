@@ -1,21 +1,24 @@
 /* eslint-env node */
 /**
  * The kitchen sink for the reload round-trip suite (roundtrip.mjs): one page
- * function that gives every field of the audit's persistence matrix a value
- * that is NOT its default (docs/studio-audit-2026-10/areas.md on branch
- * studio/audit-archive, section state-reload, "MATRIX"), so a reload path that
- * drops or resets a field shows up as a difference in the fingerprint
- * (fingerprint.mjs).
+ * function that gives every field the project draft or the per-user prefs
+ * keep a value that is NOT its default (the doc, view and pref fields of the
+ * registry, src/daw/persistence/projectDocument/fields.ts), so a reload path
+ * that drops or resets a field shows up as a difference in the fingerprint
+ * (fingerprint.mjs). roundtrip.mjs checks that after it no project-level
+ * field is still at its default.
  *
  *   await page.evaluate(applyKitchenSink, { assetId });
  *
  * It runs in the editor page (the dev auth bypass exposes the stores on
  * window), so it must be self-contained: Playwright sends the function's
- * source, not its closure. It edits through the stores' own actions wherever
- * one exists (tracksSlice, prismSlice, uiSlice, transportSlice,
- * masteringSlice, returnsSlice, markersSlice, tutorialSlice and the Oracle
- * Synth store), so it walks the same code a click would; the one raw
- * setState (measuresPerLine) is a field only seeders write that way.
+ * source, not its closure. It reaches modules without a window handle
+ * through installDevModules (fingerprint.mjs), which the page must run as an
+ * init script. It edits through the stores' own actions wherever one exists
+ * (tracksSlice, prismSlice, uiSlice, transportSlice, masteringSlice,
+ * returnsSlice, markersSlice, tutorialSlice and the Oracle Synth store), so
+ * it walks the same code a click would; the one raw setState
+ * (measuresPerLine) is a field only seeders write that way.
  *
  * `assetId` is an audio asset the mock Studio API already holds
  * (mockStudioApi.mjs `seedAsset`). The guitar track gets a clip on it, which
@@ -32,6 +35,10 @@
  * Values are chosen so a reset is visible: each differs from the slice
  * default AND from what a load would re-derive (trackRole differs from
  * guessTrackRole, audioInputChannel from the guitar default {mono, 0}).
+ * The fields of a track, a clip, a note, a controller event, a chord region
+ * and a marker are held to the same rule across the project:
+ * sinkFieldsAtDefault lists any that no entity sets, and roundtrip.mjs
+ * refuses to run on such a sink.
  */
 
 /**
@@ -53,11 +60,13 @@ export async function applyKitchenSink({ assetId = null } = {}) {
       await sleep(50);
     }
   };
-  // The per-track synth patch cache is module state with no window handle;
-  // the dev server serves each source module at one URL, so importing that
-  // URL gives the very instance the editor uses (checked below). The browser
-  // resolves these URLs, not node, hence a specifier the linter skips.
-  const devModule = (url) => import(url);
+  // The per-track synth patch cache is module state with no window handle:
+  // installDevModules imports the URL the editor loaded it from, so this is
+  // the very instance the editor uses (checked below).
+  const devModule = window.__RT_DEV_MODULE__;
+  if (!devModule) {
+    throw new Error('kitchen sink: the page has no dev-module resolver');
+  }
   const synthTrackState = await devModule(
     '/src/daw/oracle-synth/synthTrackState.ts',
   );
@@ -216,20 +225,25 @@ export async function applyKitchenSink({ assetId = null } = {}) {
     name: 'Kitchen Chop',
   });
 
-  // ── Clips. The Keys clip carries a length and sustain-pedal data, the two
-  // clip fields the serializers drop (state-reload-13).
-  const note = (n, start, dur, velocity = 90) => ({
+  // ── Clips. The Keys clip carries a length and controller data (the
+  // sustain pedal, a mod-wheel move), the two clip fields the serializers
+  // dropped (state-reload-13). The Lead's starts a bar in: a note's tick
+  // counts from the start of its clip, so there it is not the note's tick
+  // in the song, and a load that mixes the two loses the Score marks on it.
+  // The beat is on channel 10 (9 counted from zero), as a General MIDI drum
+  // part comes in.
+  const note = (n, start, dur, velocity = 90, channel = 0) => ({
     note: n,
     velocity,
     startTick: start,
     durationTicks: dur,
-    channel: 0,
+    channel,
   });
   const leadClip = 'kitchen-clip-lead';
   act().addMidiClip(lead, {
     id: leadClip,
     name: 'Lead Line',
-    startTick: 0,
+    startTick: 1920,
     events: [
       note(74, 0, 480),
       note(76, 480, 480),
@@ -253,6 +267,7 @@ export async function applyKitchenSink({ assetId = null } = {}) {
     ],
     ccEvents: [
       { tick: 0, controller: 64, value: 127, channel: 0 },
+      { tick: 960, controller: 1, value: 72, channel: 1 },
       { tick: 1900, controller: 64, value: 0, channel: 0 },
       { tick: 1920, controller: 64, value: 127, channel: 0 },
     ],
@@ -262,10 +277,10 @@ export async function applyKitchenSink({ assetId = null } = {}) {
     name: 'Beat',
     startTick: 0,
     events: [
-      note(36, 0, 120, 110),
-      note(42, 240, 60, 70),
-      note(38, 480, 120, 100),
-      note(42, 720, 60, 70),
+      note(36, 0, 120, 110, 9),
+      note(42, 240, 60, 70, 9),
+      note(38, 480, 120, 100, 9),
+      note(42, 720, 60, 70, 9),
     ],
   });
   const guitarClip = 'kitchen-clip-guitar';
@@ -281,19 +296,6 @@ export async function applyKitchenSink({ assetId = null } = {}) {
       offsetSeconds: 0.1,
       gain: 0.8,
     });
-    // Pitch-correction edits are keyed by audio clip (state-reload-14).
-    act().setPitchSegments(guitarClip, [
-      {
-        id: 'kitchen-seg-1',
-        startTimeMs: 0,
-        endTimeMs: 400,
-        medianFreqHz: 220,
-        midiNote: 57,
-        centsOffset: 12,
-        pitchContour: [219, 220, 221],
-      },
-    ]);
-    act().addPitchEdit(guitarClip, 'kitchen-seg-1', 59);
   }
 
   // An imported clip with no asset yet: the decoded audio and the original
@@ -372,7 +374,9 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   // ── Chord lane, in the lane's own naming: hybrid `name`, letter
   // `noteName`, and `degreeKey` counted from the tonic with the full quality
   // (the Insight panel parses it). Ids come from the store's own counter
-  // (setChordRegions tags regions without one): state-reload-05.
+  // (setChordRegions tags regions without one): state-reload-05. The first
+  // region carries a chord identity whose label is its name (decision D3:
+  // nothing fills one before milestone 1.16a, but every save keeps it).
   act().setChordRegions(
     [
       ['1 min7', 'D min7', '1 minor7', [120, 80, 200], [50, 53, 57, 60]],
@@ -389,19 +393,36 @@ export async function applyKitchenSink({ assetId = null } = {}) {
       degreeKey,
       midis,
       confidence: 0.9,
+      ...(i === 0
+        ? {
+            identity: {
+              rootPc: 2,
+              quality: 'min7',
+              bassPc: 2,
+              source: 'given',
+              label: name,
+            },
+          }
+        : {}),
     })),
     true,
   );
+  // Clip colouring by harmony, a project field: setChordRegions has already
+  // turned it on, and this says so outright.
+  act().setClipColorMode('prism');
   act().setChordRecordMode('merge');
   // A chord written in the lead sheet after the lane, then one region marked
-  // as melody (it leaves the lane and is remembered in melodyOverrides).
+  // as melody (it leaves the lane).
   act().insertChordRegion(8640, 'b6 maj7', 'Bb maj7', [90, 90, 220]);
   const regionIds = act().chordRegions.map((r) => r.id);
   act().markAsMelody(regionIds[regionIds.length - 1]);
 
-  // ── Lead sheet and Score marks. Score marks are keyed by note id
-  // (`trackId:clipId:startTick:note`, scoreParts.ts) and chord marks by
-  // `trackId:regionId`, so they are built from the real ids.
+  // ── Lead sheet and Score marks. Score marks are keyed by note
+  // (`trackId:clipId:startTick:note` in memory, startTick from the start of
+  // the clip, scoreParts.ts; the draft stores them by note id) and chord
+  // marks by `trackId:regionId`, so they are built from the real ids. The
+  // ticks are the notes' own, from the start of their clip: the Lead's
+  // first note is at 0 although its clip starts at 1920.
   const noteId = (track, clip, start, n) => `${track}:${clip}:${start}:${n}`;
   const firstRegion = act().chordRegions[0].id;
   store.setState({ measuresPerLine: 3 });
@@ -439,20 +460,10 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   // ── Markers, mastering, Master bus and returns ──
   act().addMarker(0, 'Intro', '#ff5577');
   act().addMarker(3840, 'Verse');
-  act().setMasteringStyle('warm');
-  act().setMasteringEq('low', 3);
-  act().setMasteringEq('high', -2);
-  act().setMasteringPresence(70);
-  act().setMasteringDeEsser({ amount: 30, frequency: 7000 });
-  act().setMasteringLoudness(1.5);
-  act().setMasteringStereoField('wide');
-  act().setMasteringDynamics({
-    compression: 65,
-    character: 40,
-    saturation: 20,
-  });
-  act().setMasteringAmount(80);
   act().addMasteringFx('saturator');
+  act().updateMasteringEffects({
+    saturator: { ...act().masteringEffects.saturator, drive: 35, tone: 62 },
+  });
   act().toggleMasteringBypass();
   act().setMasterVolume(0.55);
   act().upsertMasterAutomationPoint('volume', { tick: 0, value: 0.7 });
@@ -477,7 +488,11 @@ export async function applyKitchenSink({ assetId = null } = {}) {
     openTrack: 'chords',
   });
 
-  // ── View state last (zoom, scroll, grid, tool, selection, panels, view).
+  // ── View state last: the view of this project (zoom, scroll, panels,
+  // the selected track, the automation lane, the playhead), the prefs (grid)
+  // and the session (tool, clip selection). The clip is selected after the
+  // view changes, which would put a Create selection away, so a selection
+  // that outlives a new project shows in the leak check.
   act().setTimelineZoom(2.5);
   act().setTimelineScrollLeft(120);
   act().setTimelineGridSize('1/8');
@@ -485,11 +500,13 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   act().toggleTripletMode();
   act().setActiveTool('pencil');
   act().setSelectedTrackId(keys);
-  act().setSelectedClip(keysClip, keys);
   act().setAutomationOpenTrackId(lead);
   act().setAutomationParamId('pan');
   act().setChannelStripTab('fx');
+  act().setLibraryOpen(false);
+  act().setPosition(960);
   act().setCurrentView('leadsheet');
+  act().setSelectedClip(keysClip, keys);
   await sleep(50);
 
   return {
@@ -512,4 +529,81 @@ export async function applyKitchenSink({ assetId = null } = {}) {
     },
     regionIds: act().chordRegions.map((r) => r.id),
   };
+}
+
+/**
+ * Runs in the page, after applyKitchenSink: the fields of a track, a MIDI
+ * clip, a note, a controller event, an audio clip, a chord region and a
+ * marker (the registry's, src/daw/persistence/projectDocument/fields.ts)
+ * that no such entity in the open project holds at other than its default,
+ * as `track.volume`, `note.channel`. The fingerprint shows every one of them
+ * however the registry grows, but a field the sink never sets could be lost
+ * without any scenario seeing it. Ids are minted, so they are left out, and
+ * so are a track's clip lists, whose clips are checked as entities of their
+ * own. (The project-level fields roundtrip.mjs checks against a fresh
+ * project's fingerprint.)
+ */
+export async function sinkFieldsAtDefault() {
+  const registry = await window.__RT_DEV_MODULE__(
+    '/src/daw/persistence/projectDocument/fields.ts',
+  );
+  const s = window.__MA_STORE__.getState();
+  // Canonical JSON, as the fingerprint compares values: key order and
+  // undefined keys don't count, and undefined reads as null.
+  const canon = (value) => {
+    if (Array.isArray(value)) return `[${value.map(canon).join(',')}]`;
+    if (value && typeof value === 'object') {
+      const keys = Object.keys(value)
+        .filter((k) => value[k] !== undefined)
+        .sort();
+      return `{${keys.map((k) => `${JSON.stringify(k)}:${canon(value[k])}`).join(',')}}`;
+    }
+    return JSON.stringify(value ?? null);
+  };
+  const specDefault = (specs) => (key) => {
+    const { default: value } = specs[key];
+    return typeof value === 'function' ? value() : value;
+  };
+  const midiClips = s.tracks.flatMap((t) => t.midiClips);
+  const kinds = [
+    [
+      'track',
+      [...registry.TRACK_DOC_FIELDS, ...registry.TRACK_PER_USER_FIELDS],
+      s.tracks,
+      // Without an instrument and a name: what a load fills in for a field
+      // a save lacks.
+      (key) => registry.trackFieldDefault(key),
+    ],
+    ...[
+      ['midiClip', registry.MIDI_CLIP_FIELDS, midiClips],
+      ['note', registry.NOTE_EVENT_FIELDS, midiClips.flatMap((c) => c.events)],
+      [
+        'cc',
+        registry.CC_EVENT_FIELDS,
+        midiClips.flatMap((c) => c.ccEvents ?? []),
+      ],
+      [
+        'audioClip',
+        registry.AUDIO_CLIP_FIELDS,
+        s.tracks.flatMap((t) => t.audioClips),
+      ],
+      ['region', registry.CHORD_REGION_FIELDS, s.chordRegions],
+      ['marker', registry.MARKER_FIELDS, s.markers],
+    ].map(([kind, specs, entities]) => [
+      kind,
+      Object.keys(specs),
+      entities,
+      specDefault(specs),
+    ]),
+  ];
+  const skip = new Set(['id', 'midiClips', 'audioClips']);
+  return kinds.flatMap(([kind, keys, entities, defaultOf]) =>
+    keys
+      .filter((key) => !skip.has(key))
+      .filter((key) => {
+        const fallback = canon(defaultOf(key));
+        return !entities.some((entity) => canon(entity[key]) !== fallback);
+      })
+      .map((key) => `${kind}.${key}`),
+  );
 }

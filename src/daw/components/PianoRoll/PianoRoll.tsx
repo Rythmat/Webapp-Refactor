@@ -1,4 +1,11 @@
-import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
+import {
+  useRef,
+  useEffect,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MousePointer2,
@@ -13,6 +20,8 @@ import {
   type MidiNoteEvent,
 } from '@prism/engine';
 import { RollViewToggle } from '@/components/notation/RollViewToggle';
+import { mintNoteId } from '@/daw/model/noteIds';
+import { useSessionGeneration } from '@/daw/session/useSessionGeneration';
 import { useStore } from '@/daw/store';
 import { displayAccidentals } from '@/daw/utils/displayAccidentals';
 import type { ChordRegion } from '@/daw/store/prismSlice';
@@ -231,6 +240,14 @@ interface PianoRollProps {
    *  whenever the selection changes — e.g. so the host can send them to
    *  Insight. */
   onSelectionChange?: (indices: number[]) => void;
+  /**
+   * The clip `events` belong to; null for a blank roll, whose first note
+   * makes its clip. The selection is indices into `events`, so it is let go
+   * when the roll moves to another clip, or stays mounted through a load:
+   * kept, it would pick (and Delete would remove) the notes at the same
+   * indices in the next clip.
+   */
+  clipId?: string | null;
 }
 
 export function PianoRoll({
@@ -243,6 +260,7 @@ export function PianoRoll({
   onAuditionNote,
   loopScope = 'project',
   onSelectionChange,
+  clipId,
 }: PianoRollProps) {
   const rootNote = useStore((s) => s.rootNote);
   const mode = useStore((s) => s.mode);
@@ -306,6 +324,18 @@ export function PianoRoll({
   const selectSingle = useCallback((i: number | null) => {
     setSelectedIndices(i === null ? new Set() : new Set([i]));
   }, []);
+  // The selection belongs to the clip and the session it was made in (see
+  // clipId). The generation moves on with every load of the project, which
+  // can leave the roll mounted over the new project's notes. Cleared before
+  // paint, so no stale selection is drawn or acted on.
+  const generation = useSessionGeneration();
+  const selectionScope = useRef({ clipId, generation });
+  useLayoutEffect(() => {
+    const scope = selectionScope.current;
+    if (scope.clipId === clipId && scope.generation === generation) return;
+    selectionScope.current = { clipId, generation };
+    setSelectedIndices(new Set());
+  }, [clipId, generation]);
   useEffect(() => {
     onSelectionChange?.([...selectedIndices].sort((a, b) => a - b));
   }, [selectedIndices, onSelectionChange]);
@@ -1052,7 +1082,10 @@ export function PianoRoll({
           const pitch = VIEW_MAX - Math.floor(y / rowH);
 
           if (pitch >= VIEW_MIN && pitch <= VIEW_MAX) {
+            // A drawn note is a new note: it gets its id here, and the
+            // selection finds it by that id.
             const newNote: MidiNoteEvent = {
+              id: mintNoteId(),
               note: pitch,
               velocity,
               startTick: snappedTick,
@@ -1064,12 +1097,7 @@ export function PianoRoll({
             );
             onChange(newEvents);
             onAuditionNote?.(pitch, velocity);
-            const addedIdx = newEvents.findIndex(
-              (n) =>
-                n.startTick === snappedTick &&
-                n.note === pitch &&
-                n.durationTicks === gridTicks,
-            );
+            const addedIdx = newEvents.findIndex((n) => n.id === newNote.id);
             selectSingle(addedIdx >= 0 ? addedIdx : null);
           }
           break;

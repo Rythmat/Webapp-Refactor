@@ -147,6 +147,13 @@ export function openGenrePracticeTrack(
   return practiceTrackUrl(flow.genre, flow.level, section);
 }
 
+/** A genre Practice Track as the Studio opens it (resolvePracticeTrack). */
+export interface ResolvedPracticeTrack {
+  track: GenrePracticeTrackResult;
+  genreLabel: string;
+  returnTo: string;
+}
+
 /**
  * The Studio's side: the track the URL names, from the box if the lesson just
  * left one there, else rebuilt from the flow. Null when the parameters name
@@ -156,11 +163,7 @@ export async function resolvePracticeTrack(
   genre: string,
   level: number,
   section: ActivitySectionId,
-): Promise<{
-  track: GenrePracticeTrackResult;
-  genreLabel: string;
-  returnTo: string;
-} | null> {
+): Promise<ResolvedPracticeTrack | null> {
   const handed = takePracticeTrack(genre, level, section);
   if (handed) {
     return {

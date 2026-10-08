@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { StudioRoutes } from '@/constants/routes';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
-import { studioProjectsApi } from '@/lib/studio-projects/api';
+import { studioProjectsApi } from '@/lib/studio-projects/projectsClient';
 import { studioTileAccent } from '@/lib/studioProjectTile';
 import {
   useRecentLessons,

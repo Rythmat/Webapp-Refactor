@@ -6,9 +6,10 @@
  *
  * - the outgoing work is kept before anything is cleared, and a link that
  *   can't keep it changes nothing (audit state-reload-03, ia-flows-02);
- * - the seed is the new baseline, not an undo step, and a link that can
- *   open it again leaves nothing for the next link to keep, while a jam
- *   import, its only copy, stays keepable (state-reload-21);
+ * - the seed is the new baseline, not an undo step and not an unsaved
+ *   change, and a link that can open it again leaves nothing for the next
+ *   link to keep, while a jam import, its only copy, stays keepable
+ *   (state-reload-21);
  * - a seed that fails, such as a practice track whose groove won't load,
  *   puts the kept work back (practice-tutorial-07).
  *
@@ -26,20 +27,26 @@ import {
 } from 'vitest';
 import {
   forgetLiveSession,
-  isPristineSession,
   resetSessionToEmpty,
 } from '@/daw/persistence/SessionSerializer';
+import {
+  hasWorkToKeep,
+  isDocumentDirty,
+  useSaveStatusStore,
+} from '@/daw/persistence/saveStatusStore';
 import { useStore } from '@/daw/store';
 import {
   canUndo,
   initUndoTracking,
   resetUndoHistory,
+  undo,
 } from '@/daw/store/undoMiddleware';
 import {
   keepOutgoingSession,
   listKeptSessions,
   readLocalSession,
   replaceSession,
+  writeLocalSession,
 } from '../localSession';
 
 const s = () => useStore.getState();
@@ -128,6 +135,27 @@ describe('a link replacing the session', () => {
     });
     expect(outcome).toEqual({ status: 'opened', kept: null });
   });
+
+  it('on a fresh page, keeps both the autosave and what the student added while it loaded', async () => {
+    // A link waits for its fetch with the editor already on screen; the
+    // last session's only copy is the autosave.
+    workInProgress('Yesterday');
+    expect(writeLocalSession('u1')).toBe(true);
+    forgetLiveSession();
+    useStore.setState(useStore.getInitialState(), true);
+    s().addTrack('midi', 'piano-sampler', 'Doodle');
+
+    const outcome = await replaceSession('u1', openTemplate, {
+      reopenable: true,
+    });
+
+    expect(outcome).toEqual({
+      status: 'opened',
+      kept: expect.objectContaining({ projectName: 'Yesterday' }),
+      also: expect.objectContaining({ projectName: 'Untitled Project' }),
+    });
+    expect(names('u1')).toEqual(['Untitled Project', 'Yesterday']);
+  });
 });
 
 describe('the seed', () => {
@@ -148,7 +176,28 @@ describe('the seed', () => {
     // boot effect, before any awaited step.
     workInProgress();
     void replaceSession('u1', openTemplate, { reopenable: true });
-    expect(isPristineSession()).toBe(true);
+    expect(isDocumentDirty()).toBe(false);
+    expect(hasWorkToKeep()).toBe(false);
+  });
+
+  it('is the baseline once an async seed finishes, and not before', async () => {
+    workInProgress();
+    let finish = () => {};
+    const opening = replaceSession(
+      'u1',
+      async () => {
+        openTemplate();
+        await new Promise<void>((resolve) => (finish = resolve));
+        s().setBpm(88); // the rest of the seed, after its fetch
+      },
+      { reopenable: true },
+    );
+    finish();
+    await opening;
+
+    expect(s().bpm).toBe(88);
+    expect(isDocumentDirty()).toBe(false);
+    expect(useSaveStatusStore.getState().savedComplete).toBe(true);
   });
 
   it('holds no work for the next link while it is as the link opened it', async () => {
@@ -160,12 +209,37 @@ describe('the seed', () => {
     expect(keepOutgoingSession('u1').status).toBe('kept');
   });
 
+  it('holds no work again once an edit is undone', async () => {
+    await replaceSession('u1', openTemplate, { reopenable: true });
+    s().updateTrack(s().tracks[0].id, { volume: 0.2 });
+    settle();
+    expect(hasWorkToKeep()).toBe(true);
+
+    expect(undo()).toBe(true);
+    expect(hasWorkToKeep()).toBe(false);
+    expect(keepOutgoingSession('u1')).toEqual({ status: 'nothing' });
+  });
+
+  it('holds no work for arming a track or turning the metronome on', async () => {
+    await replaceSession('u1', openTemplate, { reopenable: true });
+    s().toggleRecordArm(s().tracks[0].id);
+    s().toggleMetronome();
+    expect(keepOutgoingSession('u1')).toEqual({ status: 'nothing' });
+  });
+
   it('stays keepable when it is the only copy (a jam import)', async () => {
     await replaceSession('u1', () => {
       s().addTrack('midi', 'soundfont', 'Ana');
       s().addTrack('midi', 'soundfont', 'Ben');
     });
+    expect(useSaveStatusStore.getState().savedComplete).toBe(false);
     expect(keepOutgoingSession('u1').status).toBe('kept');
+  });
+
+  it('holds no work while a shared session opens empty', async () => {
+    // A collab link seeds nothing until the room's project arrives.
+    await replaceSession('u1', () => {});
+    expect(keepOutgoingSession('u1')).toEqual({ status: 'nothing' });
   });
 });
 

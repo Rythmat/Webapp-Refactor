@@ -25,6 +25,7 @@ export interface ScoreMarkSnapshot {
   scoreArticulations: string[];
   scoreSlurs: string[];
   scoreSpellings: string[];
+  scoreSlashNotes: string[];
   scoreSystemBreaks: number[];
   scorePageBreaks: number[];
   scoreSystemRuns: Array<[number, number]>;
@@ -48,6 +49,7 @@ const MARK_KEYS = [
   'scoreArticulations',
   'scoreSlurs',
   'scoreSpellings',
+  'scoreSlashNotes',
   'scoreSystemBreaks',
   'scorePageBreaks',
   'scoreSystemRuns',
@@ -68,6 +70,7 @@ function liveMarks(): ScoreMarkSnapshot {
     scoreArticulations: state.scoreArticulations,
     scoreSlurs: state.scoreSlurs,
     scoreSpellings: state.scoreSpellings,
+    scoreSlashNotes: state.scoreSlashNotes,
     scoreSystemBreaks: state.scoreSystemBreaks,
     scorePageBreaks: state.scorePageBreaks,
     scoreSystemRuns: state.scoreSystemRuns,

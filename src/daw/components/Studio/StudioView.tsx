@@ -1,11 +1,20 @@
-import React, { useEffect, useRef, useCallback, useState } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useCallback,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import * as Slider from '@radix-ui/react-slider';
 import { Sliders } from 'lucide-react';
 import { useStore, useTrackIds, useTrack, useTrackCount } from '@/daw/store';
 import { useShallow } from 'zustand/react/shallow';
 import type { EffectSlotType, TrackEffectState } from '@/daw/audio/EffectChain';
 import { audioEngine } from '@/daw/audio/AudioEngine';
-import { getTrackAudioState } from '@/daw/hooks/usePlaybackEngine';
+import {
+  getTrackAudioState,
+  subscribeEngineReady,
+} from '@/daw/hooks/usePlaybackEngine';
 import { useMeterLevel } from '@/daw/hooks/useMeterLevel';
 import { FixedDigits } from '@/components/common/FixedDigits';
 import { useCompressorMeters } from '@/daw/hooks/useCompressorMeters';
@@ -617,8 +626,12 @@ const MixingStrip = React.memo(function MixingStrip({
     returns.push({ id: returnMeta[i], label: returnMeta[i + 1] });
   }
 
-  const analyser =
-    getTrackAudioState(trackId)?.trackEngine.getAnalyserNode() ?? null;
+  // Read again whenever engines are made or retired: a load can replace
+  // this track's engine under the same id.
+  const analyser = useSyncExternalStore(
+    subscribeEngineReady,
+    () => getTrackAudioState(trackId)?.trackEngine.getAnalyserNode() ?? null,
+  );
   const liveLevel = useMeterLevel(analyser);
 
   if (!track) return null;

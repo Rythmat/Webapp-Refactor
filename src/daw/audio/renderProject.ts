@@ -37,8 +37,6 @@
 //     (getNativePedalInputNode); replicating that offline needs the chain params
 //     applied to an offline adapter plus remote NAM model loading — deferred, so
 //     for now these tracks export the raw recorded signal, not the amped tone.
-//   • Pitch-editor edits on audio clips (resolvePitchBuffer) — the bounce uses
-//     the original recorded buffer, not the pitch-shifted render.
 //   • Automation of gate/ducker params — those are JS poll-loops absent from the
 //     offline render (only the direct-AudioParam automatable set is covered).
 
@@ -66,6 +64,7 @@ import { ChopsSampler } from '@/daw/instruments/ChopsSampler';
 import {
   getTrackSynthState,
   applySynthStateToEngine,
+  defaultSynthTrackState,
 } from '@/daw/oracle-synth/synthTrackState';
 import {
   DEFAULT_SAMPLER_FILTER_HZ,
@@ -300,9 +299,12 @@ export async function renderProject(
                 }
                 te.setInstrument(instrument);
                 if (instrument instanceof OracleSynthAdapter) {
-                  const patch = getTrackSynthState(track.id);
+                  // A track with no patch of its own plays the default
+                  // patch, as live playback gives it (usePlaybackEngine).
+                  const patch =
+                    getTrackSynthState(track.id) ?? defaultSynthTrackState();
                   const engine = instrument.getEngine();
-                  if (patch && engine) {
+                  if (engine) {
                     applySynthStateToEngine(engine, patch, { projectBpm: bpm });
                   }
                 } else if (instrument instanceof DrumMachineEngine) {

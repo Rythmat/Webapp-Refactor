@@ -81,7 +81,14 @@ describe('ChannelStrip PIANO ROLL tab', () => {
     render(<ChannelStrip />);
 
     expect(roll.props).not.toBeNull();
-    expect(roll.props!.events).toBe(events);
+    // addMidiClip gave the id-less notes ids (decision D2), so the store
+    // holds a copy of `events`; the roll gets the stored array itself.
+    const stored = useStore.getState().tracks.find((t) => t.id === trackId)!
+      .midiClips[0].events;
+    expect(roll.props!.events).toBe(stored);
+    expect(stored).toEqual(
+      events.map((e) => ({ ...e, id: expect.any(String) })),
+    );
     // PianoRoll's contract: its left edge is clip tick `clipStartTick` (a note
     // drawn there is stored at it) and song tick `timelineStartTick +
     // clipStartTick` (where its playhead and loop are measured from).

@@ -143,7 +143,7 @@ describe('DrumMachineView grid', () => {
     // empty grid adds one. The kick at clip tick 0 must be at x = 0.
     fireEvent.mouseDown(grid(container), { clientX: 0, clientY: KICK_Y });
 
-    expect(clipEvents()).toEqual([hit(KICK, 0)]);
+    expect(clipEvents()).toMatchObject([hit(KICK, 0)]);
   });
 
   it('keeps the playhead in song time: at the clip start it is at x = 0', () => {

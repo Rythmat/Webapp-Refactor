@@ -331,6 +331,7 @@ export function KeyboardView({ trackId }: { trackId: string }) {
           {clip && track ? (
             <PianoRoll
               events={clip.events}
+              clipId={clip.id}
               // Events are clip-relative: the roll starts at the clip's own
               // tick 0; the clip's song position only places the playhead
               // and loop.

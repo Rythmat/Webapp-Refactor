@@ -192,6 +192,7 @@ export function PianoRollModal() {
             {clip && track ? (
               <PianoRoll
                 events={clip.events}
+                clipId={clip.id}
                 clipStartTick={pianoRollStartTick}
                 timelineStartTick={clip.startTick}
                 loopScope="editor"

@@ -6,6 +6,7 @@
  *
  *   const api = createMockStudioApi({ mode: 'legacy' });
  *   const assetId = api.seedAsset({ bytes, contentType: 'audio/wav' });
+ *   const projectId = api.seedProject({ name: 'Earlier work' });
  *   await api.install(context);   // before the editor loads
  *
  * One instance can serve several contexts, so a project saved in one page
@@ -38,19 +39,38 @@
  * are plain JSON { error }. What the mock models of the server, because the
  * round trips depend on it:
  *
- * - it keeps only the fields the client's request types declare
- *   (CloudProjectInput in SessionSerializer.ts: name, composerName, bpm,
- *   prism {rootNote, rhythmName, genre, swing}, returns, and per track the
- *   mixer fields, activeEffects, the opaque settings blob, columnar
- *   midiClips and asset-backed audioClips), which is all today's client
- *   sends;
+ * - by default it keeps the fields the client's request types declare, and
+ *   only those (CloudProjectInput in SessionSerializer.ts: name,
+ *   composerName, bpm, prism {rootNote, rhythmName, genre, swing}, returns,
+ *   and per track the mixer fields, activeEffects, the opaque settings
+ *   blob, columnar midiClips and asset-backed audioClips);
+ * - a MIDI clip keeps its id, name and startTick and its five note columns
+ *   (notes, velocities, startTickDeltas, durations, channels): the shape
+ *   music-atlas-api declares for it (MidiClipColumnar, which
+ *   src/lib/studio-projects/api.ts mirrors) and the only one a server that
+ *   validates its input plausibly keeps. Anything else a client puts there
+ *   (a column only the local draft has: note ids, a clip length, CC data)
+ *   is dropped, so the round trip never shows such a field as carried by
+ *   today's cloud until milestone 1.5's document carries it. That the real
+ *   API stores midiClips exactly so is an assumption no one has checked
+ *   against the server yet;
+ * - it stores each track's settings blob and the project's returns as
+ *   sent, although the shapes api.ts mirrors declare neither. Much of what a
+ *   cloud open brings back rides in settings: the track's saved id
+ *   (sourceTrackId, decision D4), its effects, its instrument state and its
+ *   Oracle patch. So what R3 shows as kept assumes the real API keeps them
+ *   too, which is also unchecked. With `strictShape` the mock keeps only
+ *   what api.ts declares (no settings, no returns), which shows what a cloud
+ *   open would lose if the API kept no more (roundtrip.mjs --strict-api);
  * - it mints new track and audio-clip row ids on every write, ordinal by
  *   position, as a full replace does. The R3 id results do not hang on
- *   this: the client sends no track or audio-clip id on save and mints its
- *   own for each on open (deserializeCloudProject), and roundtrip.mjs
- *   records how many reopened track ids are the mock's (none today).
- *   Whether the real API keeps row ids across a PUT is unchecked: the local
- *   music-atlas-api checkout predates the Studio routes;
+ *   this: the client sends no row id on save, loads each track under the
+ *   id it saved in the settings blob (settings.sourceTrackId) and mints
+ *   audio-clip ids on open (deserializeCloudProject), and roundtrip.mjs
+ *   records how many reopened track ids are the mock's (none) and how many
+ *   the saved ones. Whether the real API keeps row ids across a PUT is
+ *   unchecked: the local music-atlas-api checkout predates the Studio
+ *   routes;
  * - a write that references an audio asset that is missing or not ready is
  *   refused (the server's assertAudioAssetsReady);
  * - it does not model auth (any bearer token is accepted), asset ownership
@@ -96,6 +116,29 @@ class HttpError extends Error {
 const pick = (source, keys) =>
   Object.fromEntries(keys.map((key) => [key, source?.[key] ?? null]));
 
+/** `source`'s own `keys`, and nothing else (a missing key stays missing). */
+const keepOnly = (source, keys) =>
+  Object.fromEntries(
+    keys
+      .filter((key) => source && Object.hasOwn(source, key))
+      .map((key) => [key, source[key]]),
+  );
+
+/** What a stored MIDI clip keeps (see the header). */
+const MIDI_CLIP_KEYS = ['id', 'name', 'startTick'];
+const MIDI_NOTE_COLUMNS = [
+  'notes',
+  'velocities',
+  'startTickDeltas',
+  'durations',
+  'channels',
+];
+
+const storedMidiClip = (clip) => ({
+  ...keepOnly(clip, MIDI_CLIP_KEYS),
+  events: keepOnly(clip?.events, MIDI_NOTE_COLUMNS),
+});
+
 function corsHeaders() {
   // No credentials are sent, so `*` is allowed; Authorization still has to
   // be named explicitly for the preflight to pass.
@@ -108,8 +151,11 @@ function corsHeaders() {
   };
 }
 
-/** The legacy (today's) contract: route table over the shared state. */
-function legacyRoutes(state) {
+/**
+ * The legacy (today's) contract: route table over the shared state. With
+ * `strictShape`, a write keeps only what api.ts declares (see the header).
+ */
+function legacyRoutes(state, { strictShape }) {
   const { projects, assets } = state;
 
   const live = (id) => {
@@ -136,7 +182,7 @@ function legacyRoutes(state) {
   const detail = (p) => ({
     ...summary(p),
     prism: p.prism,
-    returns: p.returns,
+    ...(Object.hasOwn(p, 'returns') ? { returns: p.returns } : {}),
     tracks: p.tracks,
   });
 
@@ -164,7 +210,7 @@ function legacyRoutes(state) {
       composerName: input.composerName ?? null,
       bpm: input.bpm,
       prism: pick(input.prism, ['rootNote', 'rhythmName', 'genre', 'swing']),
-      returns: input.returns ?? null,
+      ...(strictShape ? {} : { returns: input.returns ?? null }),
       tracks: input.tracks.map((t, ordinal) => ({
         id: randomUUID(),
         ordinal,
@@ -179,8 +225,8 @@ function legacyRoutes(state) {
           'pan',
         ]),
         activeEffects: t.activeEffects ?? [],
-        settings: t.settings ?? null,
-        midiClips: t.midiClips ?? [],
+        ...(strictShape ? {} : { settings: t.settings ?? null }),
+        midiClips: (t.midiClips ?? []).map(storedMidiClip),
         audioClips: (t.audioClips ?? []).map((c) => ({
           id: randomUUID(),
           assetId: c.assetId,
@@ -386,16 +432,20 @@ const ROUTES = { legacy: legacyRoutes };
 
 /**
  * A fresh mock. `mode` is 'legacy' (today's contract) or 'document' (not
- * implemented yet: throws MockModeNotImplemented).
+ * implemented yet: throws MockModeNotImplemented). `strictShape` keeps only
+ * what api.ts declares of a project (see the header).
  */
-export function createMockStudioApi({ mode = 'legacy' } = {}) {
+export function createMockStudioApi({
+  mode = 'legacy',
+  strictShape = false,
+} = {}) {
   if (!API_MODES.includes(mode)) {
     throw new Error(`unknown mock Studio API mode "${mode}"`);
   }
   if (!ROUTES[mode]) throw new MockModeNotImplemented(mode);
 
   const state = { projects: new Map(), assets: new Map() };
-  const routes = ROUTES[mode](state);
+  const routes = ROUTES[mode](state, { strictShape });
   const log = [];
   const writes = [];
 
@@ -478,6 +528,7 @@ export function createMockStudioApi({ mode = 'legacy' } = {}) {
 
   return {
     mode,
+    strictShape,
     /** project id → stored project (as the server would hold it). */
     projects: state.projects,
     /** asset id → asset row, with its bytes. */
@@ -519,6 +570,28 @@ export function createMockStudioApi({ mode = 'legacy' } = {}) {
         bytes,
       });
       return id;
+    },
+
+    /**
+     * A project with no tracks, as if a client had created it earlier
+     * (through the create route itself, though no request is logged), for a
+     * session that needs a cloud link the mock can answer for. Returns its
+     * id.
+     */
+    seedProject({ name = 'Seeded project', bpm = 120 } = {}) {
+      const create = routes.find(
+        (r) => r.method === 'POST' && r.pattern.test(`${API_PREFIX}/projects`),
+      );
+      const project = create.handle({
+        params: [],
+        body: {
+          name,
+          bpm,
+          prism: { rootNote: null, rhythmName: '', genre: '', swing: 0 },
+          tracks: [],
+        },
+      });
+      return project.id;
     },
 
     /** Installs the routes on a BrowserContext (or a Page). */

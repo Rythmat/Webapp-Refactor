@@ -15,6 +15,9 @@ const BAR = 1920;
 
 const note = (midi: number, startTick: number, durationTicks = 480) =>
   ({
+    // Each fixture note has a pitch of its own, so a per-pitch id is unique;
+    // the store keeps a note's id, and so do the scissors on either half.
+    id: `note-${midi}`.padEnd(12, '0'),
     note: midi,
     velocity: 96,
     startTick,

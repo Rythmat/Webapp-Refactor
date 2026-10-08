@@ -2,8 +2,10 @@
 // Save-before-leaving modal. Shown when the local user clicks "Leave Session"
 // or when the host disconnects. Saving stores a copy to the user's OWN account;
 // either choice then tears down the session and opens a fresh solo project.
+// Work the reset would lose (what a cloud copy can't hold yet, or a session
+// that began with the student's own work) goes to a kept slot first.
 
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogOut } from 'lucide-react';
@@ -11,6 +13,7 @@ import { useStore } from '@/daw/store/index';
 import { useDawBodyTokens } from '@/daw/hooks/useDawBodyTokens';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import {
+  SaveSupersededError,
   saveCurrentProjectToCloud,
   studioProjectsApi,
 } from '@/lib/studio-projects/api';
@@ -86,6 +89,11 @@ export function LeaveSavePrompt() {
     finishLeave();
   }, [token, userId, finishLeave]);
 
+  // The copy Save & Leave saved, while it is still the open project: pressed
+  // again (its work couldn't be set aside, below), it saves over that copy
+  // instead of making another.
+  const savedCopyRef = useRef<string | null>(null);
+
   const handleSaveAndLeave = useCallback(async () => {
     if (!token) {
       showError('You must be signed in to save.');
@@ -95,17 +103,43 @@ export function LeaveSavePrompt() {
     try {
       // Force a brand-new project owned by THIS user — never overwrite the
       // host's project.
-      useStore.getState().setProjectId(null);
-      await saveCurrentProjectToCloud(token);
-      showSuccess('Saved to your projects');
-      finishLeave();
+      if (useStore.getState().projectId !== savedCopyRef.current) {
+        useStore.getState().setProjectId(null);
+      }
+      savedCopyRef.current = (await saveCurrentProjectToCloud(token)).id;
     } catch (err) {
+      if (err instanceof SaveSupersededError) {
+        setSaving(false);
+        return;
+      }
       showError(
         `Save failed: ${err instanceof Error ? err.message : 'unknown error'}`,
       );
       setSaving(false);
+      return;
     }
-  }, [token, finishLeave]);
+    // Today's cloud payload has no place for the chord lane, the mode, the
+    // metre, markers, mastering, the Score and Lead Sheet marks, the Prism
+    // progression and the rest that only milestone 1.5's document carries,
+    // so a project holding any of them was saved only in part (D7), and the
+    // reset clears the autosave, the only other copy of what was left out.
+    // Such a session goes to a kept slot first, as when a link replaces it
+    // (one that gives way to other kept work first: the cloud holds the
+    // rest). A project saved whole has nothing to keep.
+    const kept = keepOutgoingSession(userId);
+    if (kept.status === 'failed') {
+      showError(
+        "Saved to your projects, but not all of this session fits in a cloud copy yet, and the rest couldn't be set aside on this device, so it's still open.",
+      );
+      setSaving(false);
+      return;
+    }
+    showSuccess('Saved to your projects');
+    // The reset reloads the page, so the kept-work toast (with Restore)
+    // waits for the editor's next boot.
+    if (kept.status === 'kept') announceKeptWorkAfterReload(kept.slot);
+    finishLeave();
+  }, [token, userId, finishLeave]);
 
   return createPortal(
     <AnimatePresence>

@@ -24,6 +24,15 @@
  * UI state alone write nothing, and nothing is written before the page holds
  * a session or after File ▸ New Project has dropped it.
  *
+ * 1.3 takes the trigger from the project document registry (decision D8,
+ * audit state-reload-29 and engine-hooks-01): a doc key, a track's doc or
+ * per-user field, or the Oracle patch starts a write; a view key (the
+ * playhead, zoom, scroll, the view) goes with the next write or the flush,
+ * never on a schedule of its own; a pref or session key never reaches the
+ * draft. A write that storage refused is tried again by the flush. The
+ * registry cases are generated from its key lists, so a key added later is
+ * covered without touching this file.
+ *
  * The hook is mounted for real (renderHook) against the real store, under
  * fake timers. Playback is simulated by writing setPosition at the rate
  * useTransport does, because the real transport loop needs Tone.js and
@@ -42,8 +51,24 @@ import { cleanup, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useSynthStore } from '@/daw/oracle-synth/store';
 import { captureSynthState } from '@/daw/oracle-synth/synthTrackState';
+import {
+  DOC_KEYS,
+  LOCAL_KEYS,
+  PREF_KEYS,
+  SESSION_KEYS,
+  STORE_FIELDS,
+  TRACK_DOC_FIELDS,
+  TRACK_PER_USER_FIELDS,
+  VIEW_KEYS,
+  type StoreDataKey,
+} from '@/daw/persistence/projectDocument/fields';
+import {
+  isDocumentDirty,
+  markDocumentBaseline,
+  useSaveStatusStore,
+} from '@/daw/persistence/saveStatusStore';
 import { forgetLiveSession } from '@/daw/persistence/SessionSerializer';
-import { useStore } from '@/daw/store';
+import { useStore, type AllSlices, type Track } from '@/daw/store';
 import {
   clearLocalSession,
   markSessionLoaded,
@@ -103,6 +128,11 @@ function hideTab(): void {
 /** The pitches of the saved clip, or [] when nothing was saved. */
 function savedPitches(): number[] {
   return readLocalSession()?.data.tracks[0]?.midiClips[0]?.events.notes ?? [];
+}
+
+/** How the saved draft says the project was last seen (its view keys). */
+function savedView(): Record<string, unknown> | undefined {
+  return readLocalSession()?.data.view as Record<string, unknown> | undefined;
 }
 
 /** Filter 1's cutoff in the Lead's saved Oracle patch, if one was saved. */
@@ -254,17 +284,119 @@ describe('crash-recovery autosave', () => {
     expect(readLocalSession()?.data.tracks[0]?.volume).toBeLessThan(0.5);
   });
 
-  it('writes nothing for playback, selection or zoom alone', () => {
+  // state-reload-29: a whole-session write after every scroll or selection.
+  it('never starts a write while only the playhead moves', () => {
     renderHook(() => useAutosave());
     vi.advanceTimersByTime(1500);
     autosaveWrites.mockClear();
     s().play();
     play(10_000);
-    s().setSelectedTrackId(keysId);
-    s().setTimelineZoom(2);
     vi.advanceTimersByTime(10_000);
 
     expect(autosaveWrites).not.toHaveBeenCalled();
+  });
+
+  it('leaves selection, zoom and scroll to the flush, never a write per frame', () => {
+    renderHook(() => useAutosave());
+    vi.advanceTimersByTime(1500);
+    autosaveWrites.mockClear();
+    s().setSelectedTrackId(keysId);
+    // A pinch zoom and a scroll: a store write every frame for a second.
+    for (let frame = 1; frame <= 60; frame++) {
+      s().setTimelineZoom(1 + frame / 60);
+      s().setTimelineScrollLeft(frame * 10);
+      vi.advanceTimersByTime(16);
+    }
+    vi.advanceTimersByTime(10_000);
+    expect(autosaveWrites).not.toHaveBeenCalled();
+
+    window.dispatchEvent(new Event('pagehide'));
+    expect(autosaveWrites).toHaveBeenCalledTimes(1);
+    expect(savedView()).toMatchObject({
+      timelineZoom: 2,
+      timelineScrollLeft: 600,
+      selectedTrackId: keysId,
+    });
+  });
+
+  it('takes a change to the view along with the next write', () => {
+    renderHook(() => useAutosave());
+    vi.advanceTimersByTime(1500);
+    autosaveWrites.mockClear();
+    s().setTimelineZoom(3);
+    drawNote();
+    vi.advanceTimersByTime(1500);
+
+    expect(autosaveWrites).toHaveBeenCalledTimes(1);
+    expect(savedPitches()).toEqual([60]);
+    expect(savedView()?.timelineZoom).toBe(3);
+    // Written: the flush has nothing left to write.
+    window.dispatchEvent(new Event('pagehide'));
+    expect(autosaveWrites).toHaveBeenCalledTimes(1);
+  });
+
+  // engine-hooks-01: a write storage refused was forgotten until the next
+  // edit; the page's last chance tries it again.
+  it('tries a write that did not land again when the page is hidden', () => {
+    renderHook(() => useAutosave());
+    autosaveWrites.mockImplementationOnce(() => false);
+    drawNote();
+    vi.advanceTimersByTime(1500);
+    expect(autosaveWrites).toHaveBeenCalledTimes(1);
+    expect(savedPitches()).toEqual([]);
+
+    hideTab();
+    expect(autosaveWrites).toHaveBeenCalledTimes(2);
+    expect(savedPitches()).toEqual([60]);
+  });
+
+  it('writes where the playhead stopped when the tab is hidden', () => {
+    renderHook(() => useAutosave());
+    vi.advanceTimersByTime(1500);
+    autosaveWrites.mockClear();
+    s().play();
+    play(2_000);
+    s().stop();
+    s().setPosition(1920);
+    hideTab();
+
+    expect(autosaveWrites).toHaveBeenCalledTimes(1);
+    expect(readLocalSession()?.data.transport.position).toBe(1920);
+  });
+
+  // Arming, monitoring and inputs are this person's, on this device: the
+  // draft keeps them (decision D5), though they never change the project.
+  it('writes a track being armed, which is no change to the project', () => {
+    renderHook(() => useAutosave());
+    vi.advanceTimersByTime(1500);
+    markDocumentBaseline();
+    autosaveWrites.mockClear();
+    s().toggleRecordArm(keysId);
+    vi.advanceTimersByTime(1500);
+
+    expect(autosaveWrites).toHaveBeenCalledTimes(1);
+    expect(readLocalSession()?.data.tracks[0]?.recordArmed).toBe(
+      s().tracks[0].recordArmed,
+    );
+    expect(isDocumentDirty()).toBe(false);
+  });
+
+  // synth-store-01: a knob turned on the synth is a change to the project,
+  // which the save status hears from the autosave's synth subscription.
+  it('tells the save status about a synth-only edit', () => {
+    const leadId = s().addTrack('midi', 'oracle-synth', 'Lead');
+    renderHook(() => useStoreBridge(null, leadId));
+    renderHook(() => useAutosave());
+    vi.advanceTimersByTime(1500);
+    markDocumentBaseline();
+    const before = useSaveStatusStore.getState().documentVersion;
+
+    useSynthStore.getState().setFilterParam(0, 'cutoff', 640);
+
+    expect(useSaveStatusStore.getState().documentVersion).toBeGreaterThan(
+      before,
+    );
+    expect(isDocumentDirty()).toBe(true);
   });
 
   // The store a page starts with is empty: written before the boot has
@@ -293,5 +425,105 @@ describe('crash-recovery autosave', () => {
     window.dispatchEvent(new Event('pagehide'));
 
     expect(readLocalSession()).toBeNull();
+  });
+});
+
+// ── By the registry ───────────────────────────────────────────────────────
+
+/** A value whose content (and so whose reference) differs from `value`. */
+function different(value: unknown): unknown {
+  if (typeof value === 'number') return value + 1;
+  if (typeof value === 'boolean') return !value;
+  if (typeof value === 'string') return `${value}-changed`;
+  if (value === null || value === undefined) return 1;
+  if (value instanceof Map) return new Map([...value, ['changed', 1]]);
+  if (value instanceof Set) return new Set([...value, -1]);
+  if (Array.isArray(value)) {
+    const first: unknown = value[0];
+    if (first !== null && typeof first === 'object' && 'id' in first) {
+      return [
+        ...value,
+        { ...structuredClone(first), id: `${String(first.id)}-copy` },
+      ];
+    }
+    return [...value, 1];
+  }
+  return { ...(value as object), changed: 1 };
+}
+
+/** A store write to `key` alone, the way its own setter would make it. */
+const writeKey = (key: StoreDataKey) =>
+  useStore.setState({ [key]: different(s()[key]) } as Partial<AllSlices>);
+
+/** A write to one field of the first track alone. */
+const writeTrackField = (field: keyof Track) =>
+  useStore.setState({
+    tracks: s().tracks.map((track, i) =>
+      i === 0 ? { ...track, [field]: different(track[field]) } : track,
+    ),
+  });
+
+/**
+ * What the autosave makes of `change`: a write it schedules ('scheduled'),
+ * one only the next flush makes ('flush'), or none at all ('never').
+ */
+function autosaveOf(change: () => void): 'scheduled' | 'flush' | 'never' {
+  autosaveWrites.mockClear();
+  change();
+  vi.advanceTimersByTime(10_000);
+  if (autosaveWrites.mock.calls.length > 0) return 'scheduled';
+  window.dispatchEvent(new Event('pagehide'));
+  return autosaveWrites.mock.calls.length > 0 ? 'flush' : 'never';
+}
+
+/** The keys among `keys` whose change the autosave doesn't treat as `want`. */
+function notTreatedAs<K extends string>(
+  want: ReturnType<typeof autosaveOf>,
+  keys: readonly K[],
+  write: (key: K) => void,
+): string[] {
+  renderHook(() => useAutosave());
+  vi.advanceTimersByTime(1500); // the write the editor's arrival makes
+  return keys.filter((key) => autosaveOf(() => write(key)) !== want);
+}
+
+describe('what reaches the draft, by the registry', () => {
+  it('a doc key starts a write', () => {
+    const keys = DOC_KEYS.filter((key) => key !== 'tracks');
+    expect(notTreatedAs('scheduled', keys, writeKey)).toEqual([]);
+  });
+
+  it('a track field starts a write, a per-user one included', () => {
+    const fields = [...TRACK_DOC_FIELDS, ...TRACK_PER_USER_FIELDS];
+    expect(notTreatedAs('scheduled', fields, writeTrackField)).toEqual([]);
+  });
+
+  it('a view key waits for the next write or the flush', () => {
+    expect(notTreatedAs('flush', VIEW_KEYS, writeKey)).toEqual([]);
+  });
+
+  it('a pref or session key never reaches the draft', () => {
+    // Prefs are kept per user apart from any project (prefsStore).
+    const keys = [...PREF_KEYS, ...SESSION_KEYS];
+    expect(notTreatedAs('never', keys, writeKey)).toEqual([]);
+  });
+
+  it('covers every Track field', () => {
+    const covered = new Set([...TRACK_DOC_FIELDS, ...TRACK_PER_USER_FIELDS]);
+    const fields = Object.keys(s().tracks[0]) as (keyof Track)[];
+    expect(fields.filter((field) => !covered.has(field))).toEqual([]);
+  });
+
+  it('reaches the draft for exactly the keys the draft holds (LOCAL_KEYS)', () => {
+    const keys = (Object.keys(STORE_FIELDS) as StoreDataKey[]).filter(
+      (key) => key !== 'tracks',
+    );
+    const local = new Set(LOCAL_KEYS);
+    renderHook(() => useAutosave());
+    vi.advanceTimersByTime(1500);
+    const wrong = keys.filter(
+      (key) => (autosaveOf(() => writeKey(key)) !== 'never') !== local.has(key),
+    );
+    expect(wrong).toEqual([]);
   });
 });

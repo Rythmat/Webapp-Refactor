@@ -103,20 +103,20 @@ export function buildClipboard(source: CopySource): LeadSheetClipboard {
   };
 }
 
-/** A chord region reduced to where it starts and what it says. */
-interface ChordStart {
-  startTick: number;
-  name: string;
-  noteName: string;
-  color: [number, number, number];
-  degreeKey?: string;
-  id?: string;
-}
+/**
+ * A chord region by where it starts and what it says. A region kept from the
+ * lane is passed whole, so it keeps everything it holds (its id, the notes it
+ * was read from, its identity); a pasted chord has only what the clipboard
+ * carries, and no id yet.
+ */
+type ChordStart = Omit<ChordRegion, 'id' | 'endTick'> &
+  Partial<Pick<ChordRegion, 'id' | 'endTick'>>;
 
 /**
  * Rebuild contiguous regions from their starts: each runs to the next one,
  * and the last keeps the old end — or the end of the pasted block when that
- * reaches further.
+ * reaches further. Only the ends change: a kept region is the same chord on
+ * the same beat.
  */
 function regionsFromStarts(
   starts: ChordStart[],
@@ -124,13 +124,9 @@ function regionsFromStarts(
 ): ChordRegion[] {
   const sorted = [...starts].sort((a, b) => a.startTick - b.startTick);
   return sorted.map((start, i) => ({
+    ...start,
     id: start.id ?? '',
-    startTick: start.startTick,
     endTick: sorted[i + 1]?.startTick ?? Math.max(endTick, start.startTick),
-    name: start.name,
-    noteName: start.noteName,
-    color: start.color,
-    ...(start.degreeKey ? { degreeKey: start.degreeKey } : {}),
   }));
 }
 
@@ -148,29 +144,20 @@ export function pasteChords(
 
   const from = targetTick;
   const to = targetTick + clipboard.spanTicks;
-  const kept: ChordStart[] = regions
-    .filter((region) =>
-      clipboard.replace
-        ? region.startTick < from || region.startTick >= to
-        : !clipboard.chords.some(
-            (chord) => chord.tickOffset + targetTick === region.startTick,
-          ),
-    )
-    .map((region) => ({
-      startTick: region.startTick,
-      name: region.name,
-      noteName: region.noteName,
-      color: region.color,
-      degreeKey: region.degreeKey,
-      id: region.id,
-    }));
+  const kept: ChordStart[] = regions.filter((region) =>
+    clipboard.replace
+      ? region.startTick < from || region.startTick >= to
+      : !clipboard.chords.some(
+          (chord) => chord.tickOffset + targetTick === region.startTick,
+        ),
+  );
 
   const incoming: ChordStart[] = clipboard.chords.map((chord) => ({
     startTick: targetTick + chord.tickOffset,
     name: chord.name,
     noteName: chord.noteName,
     color: chord.color,
-    degreeKey: chord.degreeKey,
+    ...(chord.degreeKey ? { degreeKey: chord.degreeKey } : {}),
   }));
 
   const previousEnd = regions.reduce(

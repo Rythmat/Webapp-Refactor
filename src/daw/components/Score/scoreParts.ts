@@ -1,5 +1,6 @@
 import { midiNameInKey, noteNameInKey } from '@prism/engine';
 import { parseNoteName } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
+import { noteKey } from '@/daw/model/noteKeys';
 import type { Track } from '@/daw/store/tracksSlice';
 import { guessTrackRole } from '@/daw/utils/trackRole';
 import {
@@ -92,29 +93,28 @@ export function buildScoreParts({
       track,
       drums,
       notes: track.midiClips.flatMap((clip) =>
-        clip.events.map((event) => ({
-          id: `${track.id}:${clip.id}:${event.startTick}:${event.note}`,
-          ...(slashNotes?.has(
-            `${track.id}:${clip.id}:${event.startTick}:${event.note}`,
-          )
-            ? { slash: true }
-            : {}),
-          midi: event.note,
-          startTick: clip.startTick + event.startTick,
-          durationTicks: event.durationTicks,
-          // A drum note names an instrument, not a pitch — it is not spelled.
-          // A spelling the user pinned with an accidental wins over the key's.
-          ...(drums
-            ? {}
-            : (() => {
-                const noteId = `${track.id}:${clip.id}:${event.startTick}:${event.note}`;
-                const pinned = spellings?.get(noteId);
-                if (pinned) return { name: pinned };
-                return rootNote !== null
-                  ? { name: midiNameInKey(event.note, rootNote, mode) }
-                  : {};
-              })()),
-        })),
+        clip.events.map((event) => {
+          const id = noteKey(track.id, clip.id, event.startTick, event.note);
+          return {
+            id,
+            ...(slashNotes?.has(id) ? { slash: true } : {}),
+            midi: event.note,
+            startTick: clip.startTick + event.startTick,
+            durationTicks: event.durationTicks,
+            // A drum note names an instrument, not a pitch — it is not
+            // spelled. A spelling the user pinned with an accidental wins
+            // over the key's.
+            ...(drums
+              ? {}
+              : (() => {
+                  const pinned = spellings?.get(id);
+                  if (pinned) return { name: pinned };
+                  return rootNote !== null
+                    ? { name: midiNameInKey(event.note, rootNote, mode) }
+                    : {};
+                })()),
+          };
+        }),
       ) as NotationNoteInput[],
     };
   });

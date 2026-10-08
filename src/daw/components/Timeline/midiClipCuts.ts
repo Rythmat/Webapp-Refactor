@@ -65,6 +65,10 @@ function controllersAt(
  * its notes (as every clip's does after a reload: the length isn't saved
  * yet). Only a half left without notes keeps the span it was cut to, as
  * durationTicks: nothing else could show it.
+ *
+ * Every note lands in exactly one half (one sounding over the cut is cut
+ * short in the left one), so each keeps its stored id and the ids stay
+ * unique: a cut mints none.
  */
 export function splitMidiClip(
   clip: MidiClip,

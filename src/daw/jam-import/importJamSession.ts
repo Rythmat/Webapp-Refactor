@@ -6,15 +6,12 @@
 // quantized to a 1/16 grid, and the project takes that tempo.
 
 import type { MidiNoteEvent } from '@prism/engine';
-import { resetProjectState } from '@/daw/persistence/projectDocument/initialState';
-import { markDocumentBaseline } from '@/daw/persistence/saveStatusStore';
 import { useStore } from '@/daw/store';
 import type { MidiClip } from '@/daw/store/tracksSlice';
-import { resetUndoHistory } from '@/daw/store/undoMiddleware';
 import { GM_PROGRAMS } from '@/daw/instruments/gmPrograms';
 import {
   loadJamSession,
-  clearJamSession,
+  type JamSession,
   type JamSessionNote,
 } from './jamSession';
 
@@ -23,19 +20,27 @@ const GRID_TICKS = PPQ / 4; // 1/16 note
 const MIN_DURATION_TICKS = PPQ / 8; // 1/32 note floor
 
 /**
- * Open the pending jam session (if any) as a new studio project, at the jam's
- * tempo, with per-participant MIDI tracks. Consumes the saved session once it
- * is in the project. Returns the number of tracks created; with no jam
- * waiting, the project is left as it is and this returns 0.
+ * The jam recording waiting to be opened, or null when there is none (or it
+ * is unreadable, or holds no notes). Never clears it: the jam stays to open
+ * again until an open has put it in a project (openSession clears it after
+ * ready, clearJamSession).
  */
-export function importPendingJamSession(): number {
+export function readPendingJam(): JamSession | null {
   const session = loadJamSession();
-  if (!session || session.notes.length === 0) {
-    // Nothing to open: an empty or unreadable hand-off is dropped.
-    clearJamSession();
-    return 0;
-  }
+  if (!session || !Array.isArray(session.notes) || session.notes.length === 0)
+    return null;
+  return session;
+}
 
+/**
+ * Write a jam recording into the (just reset) project: the jam's tempo, then
+ * one MIDI track per participant and instrument, plus one drum track.
+ * Returns the number of tracks created. The apply step of openSession's
+ * 'jam' intent, and of a collab host bringing a jam into its room: no reset,
+ * no baseline, no undo reset and no clear of the hand-off, which are all the
+ * opener's.
+ */
+export function applyJamSession(session: JamSession): number {
   const bpm = session.bpm > 0 ? session.bpm : 120;
   const ticksPerMs = (PPQ * bpm) / 60000;
   const quantize = (tick: number) =>
@@ -71,10 +76,8 @@ export function importPendingJamSession(): number {
     return { events, lengthTicks };
   };
 
-  // A new project at the jam's tempo, never the one before with the jam
-  // added. The ticks above count that tempo, so the notes play back as they
-  // were played and sit on the project's grid.
-  resetProjectState('jam');
+  // The project takes the jam's tempo. The ticks above count that tempo, so
+  // the notes play back as they were played and sit on the project's grid.
   const store = useStore.getState();
   store.setBpm(bpm);
   let created = 0;
@@ -150,13 +153,5 @@ export function importPendingJamSession(): number {
     }
   }
 
-  // The recording is in the project now. Consumed only here, so an import
-  // that fails leaves the jam to open again.
-  clearJamSession();
-  // The import is no edit to undo. The jam room is gone, so the project is
-  // the only copy of the jam: it stays work to keep, even untouched, until
-  // it is saved (savedComplete false).
-  resetUndoHistory();
-  markDocumentBaseline({ savedComplete: false });
   return created;
 }

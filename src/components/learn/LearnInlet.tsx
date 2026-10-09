@@ -20,7 +20,7 @@ import {
 import { SLUG_TO_CURRICULUM_GENRE } from '@/curriculum/bridge/genreIdMap';
 import { getActivityFlow } from '@/curriculum/data/activityFlows';
 import { getGenreProfile } from '@/curriculum/data/genreProfiles';
-import { isGuitarMode } from '@/curriculum/data/guitar/modes/modeNames';
+import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
 import { buildCurriculumLessonId } from '@/curriculum/hooks/useCurriculumProgress';
 import { MeshGradientBg } from '@/daw/components/MeshGradientBg';
 import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
@@ -171,6 +171,9 @@ interface ContentSubItem {
   route: string;
   genre?: string;
   level?: number;
+  /** A Relative / Parallel mode: its slug and key, for its guitar lesson. */
+  mode?: string;
+  keyLabel?: string;
 }
 
 interface ContentItem {
@@ -328,6 +331,8 @@ function buildRelativeSubItems(keyLabel: string): ContentSubItem[] {
         mode: mode.slug,
         key: keyLabelToUrlParam(note),
       }),
+      mode: mode.slug,
+      keyLabel: note,
     };
   });
 }
@@ -340,6 +345,8 @@ function buildParallelSubItems(keyLabel: string): ContentSubItem[] {
       mode: mode.slug,
       key: keyLabelToUrlParam(keyLabel),
     }),
+    mode: mode.slug,
+    keyLabel,
   }));
 }
 
@@ -1408,14 +1415,25 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   const savedLearnItems = useSavedItemsStore((s) => s.saved);
 
   const theorySections = useMemo(() => {
-    // On guitar the diatonic modes have lessons so far; the rest say so.
+    // On guitar, the families the guitar catalog has live have lessons and
+    // the rest say so. A Relative / Parallel tile's modes open their guitar
+    // lessons.
     const forInstrument = (items: ContentItem[]): ContentItem[] =>
       onGuitar
-        ? items.map((item) =>
-            isTheoryItemOnGuitar(item)
-              ? item
-              : { ...item, comingSoon: COMING_SOON_FOR_GUITAR },
-          )
+        ? items.map((item) => {
+            if (!isTheoryItemOnGuitar(item)) {
+              return { ...item, comingSoon: COMING_SOON_FOR_GUITAR };
+            }
+            if (item.mode || !item.subItems) return item;
+            return {
+              ...item,
+              subItems: item.subItems.map((sub) =>
+                sub.mode && sub.keyLabel
+                  ? { ...sub, route: guitarLessonRoute(sub.mode, sub.keyLabel) }
+                  : sub,
+              ),
+            };
+          })
         : items;
     const all = [
       {
@@ -1559,7 +1577,7 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
     // Guitar: the key's Guitar Atlas lesson. Its chapters come from the book,
     // loaded on demand; if keys are clicked quickly, the last one wins. No
     // percentages: the server's progress is the piano lessons'.
-    if (onGuitar && isGuitarMode(mode)) {
+    if (onGuitar && isGuitarTheorySlug(mode)) {
       const request = ++guitarChaptersRequest.current;
       const label = `${keyLabel} ${modeTitle}`;
       const route = guitarLessonRoute(mode, keyLabel);
@@ -1608,11 +1626,22 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
   // Auto-select the first key/level when a tile is expanded
   useEffect(() => {
     if (!expandedMode) return;
+    // Every guitar Theory tile opens on its first key (the others can't open).
+    const theoryData = onGuitar
+      ? [
+          ...THEORY_DATA,
+          ...PENTATONIC_BLUES_DATA,
+          ...HARMONIC_MINOR_DATA,
+          ...MELODIC_MINOR_DATA,
+          ...HARMONIC_MAJOR_DATA,
+          ...DOUBLE_HARMONIC_DATA,
+        ]
+      : [...THEORY_DATA, ...PENTATONIC_BLUES_DATA];
     const data =
       subTab === 'Genre'
         ? COURSES_DATA
         : subTab === 'Theory'
-          ? [...THEORY_DATA, ...PENTATONIC_BLUES_DATA]
+          ? theoryData
           : techniqueData;
     const item = data.find((d) => (d.expandId ?? d.mode) === expandedMode);
     if (item?.mode) {
@@ -1743,7 +1772,11 @@ export const LearnInlet: React.FC<LearnInletProps> = ({
             className="mb-2 text-xs font-semibold uppercase tracking-wider"
             style={{ color: 'var(--color-text-dim)' }}
           >
-            {expandedItem.mode ? 'Keys' : 'Levels'}
+            {expandedItem.mode
+              ? 'Keys'
+              : /^(relative|parallel):/.test(expandedItem.expandId ?? '')
+                ? 'Modes'
+                : 'Levels'}
           </h4>
           {(() => {
             const items: React.ReactNode[] = [];

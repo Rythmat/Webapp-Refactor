@@ -809,12 +809,13 @@ export const LearnRoutes = {
     key: string;
   }>('/parallel/:key', { prefix: learnPrefix }),
 
-  // Guitar (The Guitar Atlas): its key centers are Theory → Ionian (Major) on
-  // guitar. Static first segment, so these outrank '/:mode' and '/:mode/:key'.
+  // Guitar: Theory's tiles on guitar, by their slug ('ionian', 'ionian#5',
+  // encoded here). Static first segment, so these outrank '/:mode' and
+  // '/:mode/:key'.
   /** Bare '/learn/guitar': not a page; sends the student to Theory. */
   guitar: createRouteDefinition('/guitar', { prefix: learnPrefix }),
 
-  /** A mode's guitar overview: the keys, the book's scale box. */
+  /** A Theory tile's guitar overview: the keys, the scale box. */
   guitarOverview: createRouteDefinition<{
     mode: string;
   }>('/guitar/:mode', { prefix: learnPrefix }),

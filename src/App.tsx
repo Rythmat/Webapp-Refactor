@@ -2,7 +2,6 @@ import { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { DashboardResponsiveTest } from './__qa/DashboardResponsiveTest';
 import { HipHopGrooveAudition } from './__qa/hipHopAudition/HipHopGrooveAudition';
-import ModalSphereDemo from './components/ui/3d-orb-demo';
 import { CustomCursor } from './components/ui/CustomCursor';
 import { isMarketingHost } from './constants/hosts';
 import { AppContext } from './contexts/AppContext';
@@ -44,6 +43,9 @@ const DawUiGallery = import.meta.env.DEV
 
 // musicatlas.io only serves public pages; everything else hands off to the
 // app host, where sign-in state lives (see constants/hosts.ts).
+// The Modal Sphere loads with its own page, not with the app.
+const ModalSphereDemo = lazy(() => import('./components/ui/3d-orb-demo'));
+
 const marketingHostRoutes = () => [
   landingPages(),
   marketingPages(),
@@ -72,7 +74,18 @@ const appRoutes = () => [
   songsPages(),
   curriculumPages(),
   searchPages(),
-  { path: '/modal-sphere', element: <ModalSphereDemo /> },
+  {
+    path: '/modal-sphere',
+    element: (
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-[hsl(var(--ui-background))]" />
+        }
+      >
+        <ModalSphereDemo />
+      </Suspense>
+    ),
+  },
   ...(import.meta.env.DEV
     ? [
         { path: '/__dashboard-qa', element: <DashboardResponsiveTest /> },

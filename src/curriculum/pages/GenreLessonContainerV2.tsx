@@ -41,6 +41,7 @@ import {
   getGuitarCenter,
   getGuitarShape,
 } from '@/curriculum/data/guitar/centers';
+import { guitarScaleEntry } from '@/curriculum/data/guitar/theoryCatalog';
 import {
   currentEventForMidi,
   nextEventForMidi,
@@ -433,7 +434,7 @@ function GenreLessonContainerV2Inner({
     // mode's. Piano's 'major' scale id has no entry here and keeps its
     // existing fallback.
     const modeSlug = isGuitar
-      ? guitarCenter.mode
+      ? guitarScaleEntry(guitarCenter.mode).slug
       : (SCALE_TO_MODE[flow.params.defaultScaleId ?? ''] ?? 'dorian');
     return colorForKeyMode(
       keyName,

@@ -21,7 +21,7 @@ import type {
 } from '@/curriculum/types/activity.v2';
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
 import { GuitarTheoryToggles } from './GuitarTheoryToggles';
-import { SameRootCompare } from './SameRootCompare';
+import { SameRootCompare, sameRootCompareFits } from './SameRootCompare';
 import { InfoItem, NoteCard } from './noteParts';
 import {
   CHANGE_PREFIXES,
@@ -202,7 +202,10 @@ export const GuitarTheoryPanel = memo(function GuitarTheoryPanel({
 
   if (!prefix) return null;
   const hasToggles = isMap || changes || allowRomanToggle;
-  const compare = shape && onHearShape ? shape : undefined;
+  const compare =
+    shape && onHearShape && sameRootCompareFits(shape, keyCenter)
+      ? shape
+      : undefined;
   if (
     notes.intro.length === 0 &&
     notes.info.length === 0 &&

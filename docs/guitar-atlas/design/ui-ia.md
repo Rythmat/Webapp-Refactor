@@ -4,7 +4,7 @@
 >
 > - Routes: `/learn/guitar/ionian` is the guitar overview (`GuitarModeOverview`: the piano `ModeOverview` page with the book's major-scale ScaleBox in place of the keyboard, key tiles in book order). `/learn/guitar/ionian/:key?section=A|B|D` is the lesson (`GuitarModeLesson`, replacing `GuitarAppliedTheoryFundamentalsLesson`). Bare `/learn/guitar` and any other mode go to `/learn?tab=Theory`.
 > - Access follows Theory: the overview and the C lesson are free; the other 11 keys need Premium (`RequirePremium`, as the piano `LessonRoute`).
-> - With Guitar selected, the Technique tab is hidden, and every Theory tile except Ionian (Major) is disabled with "Coming soon for guitar".
+> - With Guitar selected, the Technique tab is hidden, and every Theory tile except Ionian (Major) is disabled with "Coming soon for guitar". (Superseded: see the Rest of Theory update.)
 > - The old `/curriculum/guitar/applied-theory-fundamentals[/:key]` paths only redirect (replace) to the new ones, keeping the key and query. The guitar key picker is gone; `AppliedTheoryFundamentalsKeyPicker` is piano-only again.
 > - Internal ids are unchanged (genre `guitar-applied-theory-fundamentals`, module, tags, builder), so saved progress carries over. The lesson breadcrumb reads Theory › Guitar · Ionian (Major), and the header shows the key ("C Major (Ionian)").
 
@@ -15,6 +15,26 @@
 > - Lessons, steps and shape ids name a key center: `'C'` (Book One, the same ids as before) or `'D:dorian'`. Everything mode-dependent is derived in `data/guitar/centers.ts`.
 > - Routes: `/learn/guitar/:mode[/:key]` take any diatonic mode. The Ionian overview and C Ionian stay free; everything else needs Premium, as on piano. Each mode keeps its own progress (genre `guitar-mode-<mode>`).
 > - Modal lessons teach all seven triads (B5 adds 7, B6 plays 1-7). Book One's major-key theory notes show in Ionian only; the modes have their own (`modes: 'modal'` in `theoryNotes.ts`).
+
+> **Rest of Theory update (2026-10-07).** Guitar now teaches every Learn → Theory tile: the 7 diatonic modes, the 24 Relative and Parallel key tiles (which list them), the 4 pentatonic and blues scales, and the 28 modes of the harmonic minor, melodic minor, harmonic major and double harmonic families.
+>
+> - **Catalog.** `src/curriculum/data/guitar/theoryCatalog.ts` has one entry per tile:
+>
+>   - its tile slug (used in URLs, encoded by `LearnRoutes`: `/learn/guitar/ionian%235/c`);
+>   - its ASCII engine key (`ioniansharp5`), family, title, progress genre and nearest diatonic `colourMode`.
+>
+>   `LIVE_GUITAR_FAMILIES` decides which tiles open. Any tile left out reads "Coming soon for guitar" and its URLs go back to Theory.
+>
+> - **Centers.** These are built in code (`src/curriculum/data/guitar/scales`); no book key lends them shapes.
+>   - Scale positions use Book One's layout where a hand can play it. Otherwise they use the most compact comfortable box, sometimes with a one-fret index stretch (`playableScalePosition`). Double harmonic major sits on string 5.
+>   - Chord boxes are generated grips (`src/lib/guitar/theory/grips.ts`). Four-note chords are root-position Drop 2 on strings 6-3 or 5-2; triads are Book One's four-string R-5-R-3 grips. Every grip passes `gripProblems`: no open strings, at most a four-fret span, a finger for every note, real barres only, the root in the bass.
+> - **Lessons.** The seven-note families run the modes' lesson (A 14 steps, B 48, D 9) with Music Maps vamping on each mode's colour chord (`COLOUR` in `scaleTables.ts`). Pentatonic and blues have Melody (A 14) and Play-Along (D 9) only:
+>   - D1 is a phrase over the piano lesson's progression, with drums, bass and chords;
+>   - D2 strums its chords;
+>   - D3 has five Music Maps (the blues maps add V7).
+> - **Chord qualities.** Nine new ones: aug, maj(♭5), sus2(♭5), dim7, m(maj7), maj7♯5, 7♭5, m6, sus2(♭5)add6. The Studio detector has no template for maj(♭5) or sus2(♭5), so a strum of those is read from its chroma (`chromaPitchClasses`).
+> - **Theory notes.** These are scoped by family (`modes` takes a family or a list), and 24 new notes were added. See `beato-knowledge-copy.md`.
+> - **Access.** As on piano, every overview and lesson but Ionian's (and C Ionian) needs Premium.
 
 ## Goals
 

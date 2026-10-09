@@ -58,7 +58,9 @@ export const FIELD_CLASSES = {
   context:
     'the lesson or practice screen the project was opened for: session state until milestone 1.15',
   runtime:
-    'whether decoded audio is there: the bytes of a clip never uploaded live only in memory until milestone 1.4',
+    'whether decoded audio is there: since milestone 1.4 the draft keeps the bytes of a clip or a Chops sample never uploaded',
+  media:
+    'the audio on this device exactly: a digest of each decoded buffer, and the size of the original bytes of audio never uploaded (E8: a reload gives back those bytes, so a restore that maps the wrong bytes to a clip or degrades them shows); a cloud copy decodes the uploaded asset instead, which a save re-encodes to Opus by design (upload-pending.ts), so the cloud comparison leaves this class out',
   session: 'never saved; every new project starts it over',
 };
 
@@ -141,7 +143,7 @@ export async function fingerprintPage() {
     isPlaying: s.isPlaying,
     moduleAccess: 'ok',
     coverage: { missing: [] },
-    autosave: null,
+    draft: null,
   };
   const devModule = window.__RT_DEV_MODULE__;
   let registry = null;
@@ -268,6 +270,36 @@ export async function fingerprintPage() {
   };
   const keep = (value) => value;
 
+  // ── Decoded audio ──
+  /**
+   * What a decoded buffer holds, so a restore that maps the wrong bytes to a
+   * clip, or degrades them, shows as a change and not only as "loaded":
+   * its length, rate and channels, and the sum of channel 0 at 64 points.
+   */
+  const bufferDigest = (buffer) => {
+    if (!buffer) return null;
+    const data = buffer.getChannelData(0);
+    const stride = Math.max(1, Math.floor(buffer.length / 64));
+    let sum = 0;
+    for (let i = 0; i < buffer.length; i += stride) sum += data[i];
+    return {
+      length: buffer.length,
+      sampleRate: buffer.sampleRate,
+      numberOfChannels: buffer.numberOfChannels,
+      sum: Math.round(sum * 10_000) / 10_000,
+    };
+  };
+  /**
+   * The size of the original bytes kept for audio that lives only on this
+   * device (no asset, no sourceUrl): what a save would upload as they are.
+   * Audio with an asset or a URL is fetched again, so it needs none:
+   * 'remote'.
+   */
+  const originalBytes = (key, hasSource) =>
+    hasSource
+      ? 'remote'
+      : (audioBuffers.getOriginalAudio?.(key)?.bytes?.byteLength ?? null);
+
   // ── Fields ──
   const fields = {};
   /**
@@ -280,9 +312,9 @@ export async function fingerprintPage() {
     key,
     sources,
     value,
-    { derived = false, runtime = false } = {},
+    { derived = false, runtime = false, media = false } = {},
   ) => {
-    let cls = runtime ? 'runtime' : null;
+    let cls = media ? 'media' : runtime ? 'runtime' : null;
     let cloud = false;
     let resetOnNew = true;
     for (const source of sources) {
@@ -372,17 +404,34 @@ export async function fingerprintPage() {
       if (registry.TRACK_FIELDS[k].scope === 'session') continue;
       at(k, [`track.${k}`], t[k]);
     }
+    const sampleKey = t.samplerSample
+      ? samplerChops.samplerBufferKey(t.samplerSample.sampleId)
+      : null;
+    const sampleBuffer = sampleKey
+      ? audioBuffers.getAudioBuffer(sampleKey)
+      : null;
     at(
       'samplerSample.bufferLoaded',
       [],
+      !t.samplerSample ? null : Boolean(sampleBuffer),
+      { runtime: true },
+    );
+    at(
+      'samplerSample.bufferDigest',
+      [],
+      !t.samplerSample ? null : bufferDigest(sampleBuffer),
+      { media: true },
+    );
+    at(
+      'samplerSample.originalBytes',
+      [],
       !t.samplerSample
         ? null
-        : Boolean(
-            audioBuffers.getAudioBuffer(
-              samplerChops.samplerBufferKey(t.samplerSample.sampleId),
-            ),
+        : originalBytes(
+            sampleKey,
+            Boolean(t.samplerSample.assetId || t.samplerSample.sourceUrl),
           ),
-      { runtime: true },
+      { media: true },
     );
     if (t.instrument === 'oracle-synth') {
       const snap = synthTrackState.getTrackSynthState(t.id);
@@ -442,11 +491,18 @@ export async function fingerprintPage() {
         audioKeys.map((k) => `audioClip.${k}`),
         ref,
       );
+      const buffer = audioBuffers.getAudioBuffer(c.id);
+      at(`audioClips[${j}].bufferLoaded`, [], Boolean(buffer), {
+        runtime: true,
+      });
+      at(`audioClips[${j}].bufferDigest`, [], bufferDigest(buffer), {
+        media: true,
+      });
       at(
-        `audioClips[${j}].bufferLoaded`,
+        `audioClips[${j}].originalBytes`,
         [],
-        Boolean(audioBuffers.getAudioBuffer(c.id)),
-        { runtime: true },
+        originalBytes(c.id, Boolean(c.assetId || c.sourceUrl)),
+        { media: true },
       );
     });
   });
@@ -657,20 +713,25 @@ export async function fingerprintPage() {
       new Set(noteIds).size === noteIds.length,
   };
 
+  // The tab's draft (milestone 1.4: the device drafts replaced the
+  // localStorage autosave), as last committed: window.__MA_DRAFTS__
+  // (src/daw/persistence/drafts/devHandle.ts).
   try {
-    const raw = localStorage.getItem('musicAtlas:daw:autosave');
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      meta.autosave = {
-        version: parsed.version,
-        schema: parsed.schema ?? null,
-        timestamp: parsed.timestamp,
-        bytes: raw.length,
-        tracks: parsed.data?.tracks?.length ?? null,
-      };
+    const drafts = window.__MA_DRAFTS__;
+    const id = drafts?.status().draftId ?? null;
+    if (id) {
+      const stored = (await drafts.list()).find((m) => m.draftId === id);
+      meta.draft = stored
+        ? {
+            draftId: id,
+            origin: stored.origin,
+            writeSeq: stored.writeSeq,
+            chars: stored.chars,
+          }
+        : { draftId: id, origin: null, writeSeq: null, chars: null };
     }
   } catch {
-    meta.autosave = { error: 'unreadable' };
+    meta.draft = { error: 'unreadable' };
   }
 
   return { fields, ids, meta };

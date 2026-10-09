@@ -13,6 +13,8 @@ import {
   QUALITY_TONES,
   chordSemitones,
   formulaText,
+  isSeventhQuality,
+  isTriadQuality,
   shapeToneLabels,
   shapeTones,
   spellChordTones,
@@ -27,32 +29,69 @@ const QUALITIES: BookChordQuality[] = [
   'maj',
   'min',
   'dim',
+  'aug',
+  'majb5',
+  'sus2b5',
   'maj7',
   'dom7',
   'min7',
   'min7b5',
+  'dim7',
+  'minMaj7',
+  'maj7#5',
+  'dom7b5',
+  'min6',
+  'sus2b5add6',
 ];
 
 describe('chord tones', () => {
-  it('has the formula table for the seven qualities', () => {
+  it('has the formula table for the sixteen qualities', () => {
     expect(QUALITIES.map(formulaText)).toEqual([
       'R 3 5',
       'R ♭3 5',
       'R ♭3 ♭5',
+      'R 3 ♯5',
+      'R 3 ♭5',
+      'R 2 ♭5',
       'R 3 5 7',
       'R 3 5 ♭7',
       'R ♭3 5 ♭7',
       'R ♭3 ♭5 ♭7',
+      'R ♭3 ♭5 𝄫7',
+      'R ♭3 5 7',
+      'R 3 ♯5 7',
+      'R 3 ♭5 ♭7',
+      'R ♭3 5 6',
+      'R 2 ♭5 6',
     ]);
     expect(QUALITIES.map(chordSemitones)).toEqual([
       [0, 4, 7],
       [0, 3, 7],
       [0, 3, 6],
+      [0, 4, 8],
+      [0, 4, 6],
+      [0, 2, 6],
       [0, 4, 7, 11],
       [0, 4, 7, 10],
       [0, 3, 7, 10],
       [0, 3, 6, 10],
+      [0, 3, 6, 9],
+      [0, 3, 7, 11],
+      [0, 4, 8, 11],
+      [0, 4, 6, 10],
+      [0, 3, 7, 9],
+      [0, 2, 6, 9],
     ]);
+    // Every chord is three or four notes, and says which.
+    expect(QUALITIES.filter(isTriadQuality)).toEqual([
+      'maj',
+      'min',
+      'dim',
+      'aug',
+      'majb5',
+      'sus2b5',
+    ]);
+    expect(QUALITIES.filter(isSeventhQuality)).toHaveLength(10);
     // The UI's formula strings say the same thing.
     for (const q of QUALITIES) {
       expect(GUITAR_THEORY_STRINGS[`formula.${q}`]).toBe(formulaText(q));
@@ -62,6 +101,25 @@ describe('chord tones', () => {
     expect(QUALITY_TONES.dim).toEqual(['third', 'fifth']);
     expect(QUALITY_TONES.dom7).toEqual(['third', 'seventh']);
     expect(QUALITY_TONES.min7b5).toEqual(['third', 'fifth', 'seventh']);
+    // A sus2's 2 takes the 3rd's slot, a 6 the 7th's.
+    expect(CHORD_FORMULA.sus2b5[2]).toEqual({ label: '2', role: 'third' });
+    expect(CHORD_FORMULA.min6[9]).toEqual({ label: '6', role: 'seventh' });
+    expect(CHORD_FORMULA.dim7[9]).toEqual({ label: 'bb7', role: 'seventh' });
+  });
+
+  it('writes and speaks the new tone labels', () => {
+    expect(toneLabelText('bb7')).toBe('𝄫7');
+    expect(toneLabelText('#5')).toBe('♯5');
+    expect(spokenToneLabel('bb7')).toBe('double flat 7');
+    expect(spokenToneLabel('#5')).toBe('sharp 5');
+    expect(spokenToneLabel('b5')).toBe('flat 5');
+  });
+
+  it('spells the new chords by their own letters', () => {
+    expect(spellChordTones('C', 'dim7')).toEqual(['C', 'Eb', 'Gb', 'Bbb']);
+    expect(spellChordTones('C', 'min6')).toEqual(['C', 'Eb', 'G', 'A']);
+    expect(spellChordTones('C', 'aug')).toEqual(['C', 'E', 'G#']);
+    expect(spellChordTones('C', 'sus2b5add6')).toEqual(['C', 'D', 'Gb', 'A']);
   });
 
   it('labels each string of a shape, low to high', () => {

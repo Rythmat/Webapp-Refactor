@@ -13,7 +13,7 @@ import type {
 } from '@/curriculum/types/activity.v2';
 import { useGuitarDisplaySettings } from '@/features/learn/useGuitarDisplaySettings';
 import { ChordFamilyStrip } from './ChordFamilyStrip';
-import { SameRootCompare } from './SameRootCompare';
+import { SameRootCompare, sameRootCompareFits } from './SameRootCompare';
 import {
   BlockLabel,
   COMPARE_SHEET_LOOK,
@@ -80,7 +80,10 @@ export const GuitarStepNotes = memo(function GuitarStepNotes({
     notes.prefix === 'B7' && notes.theoryStep.shapeIds.length === 1
       ? getGuitarShape(notes.theoryStep.shapeIds[0])
       : undefined;
-  const compare = shape && onHearShape ? shape : undefined;
+  const compare =
+    shape && onHearShape && sameRootCompareFits(shape, keyCenter)
+      ? shape
+      : undefined;
   // A new step starts with every "More notes" item closed.
   const stepKey = `${keyCenter}|${activityId(step)}`;
 

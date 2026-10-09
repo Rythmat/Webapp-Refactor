@@ -16,7 +16,7 @@ import type {
   GuitarShapeDiagram,
   GuitarStringNumber,
 } from '@/lib/guitar/types';
-import { chordToneLabel } from './chordTones';
+import { chordToneLabel, isTriadQuality } from './chordTones';
 import type {
   ChordToneLabel,
   SeventhQuality,
@@ -31,15 +31,22 @@ export type DropFamily =
   | 'drop2and4'
   | 'drop2and3';
 
-/** Position of each tone in a stack of thirds: R 0, 3rd 1, 5th 2, 7th 3. */
+/**
+ * Position of each tone in a stack of thirds: R 0, 3rd 1, 5th 2, 7th 3. A
+ * sus2's 2 stands in the 3rd's place and a 6 in the 7th's.
+ */
 const STACK: Readonly<Record<ChordToneLabel, 0 | 1 | 2 | 3>> = {
   R: 0,
+  '2': 1,
   '3': 1,
   b3: 1,
   '5': 2,
   b5: 2,
+  '#5': 2,
+  '6': 3,
   '7': 3,
   b7: 3,
+  bb7: 3,
 };
 
 // Voice numbers of the close-position chord (1 = top), read from the top of
@@ -69,8 +76,6 @@ export function dropFamily(
     .join('');
   return DROP_SIGNATURES[sig] ?? null;
 }
-
-const TRIAD_QUALITIES: readonly BookChordQuality[] = ['maj', 'min', 'dim'];
 
 const TRIAD_FAMILY_BY_LOWEST_STRING: Partial<
   Record<GuitarStringNumber, VoicingFamily>
@@ -106,7 +111,7 @@ export function classifyVoicing(
 
   let family: VoicingFamily;
   if (toneOrder.length !== labels.length) family = 'unclassified';
-  else if (TRIAD_QUALITIES.includes(quality)) {
+  else if (isTriadQuality(quality)) {
     if (usesOpenStrings) family = 'open-chord';
     else if (notes.length === 6) family = 'root6-full-barre';
     else family = TRIAD_FAMILY_BY_LOWEST_STRING[lowest] ?? 'unclassified';

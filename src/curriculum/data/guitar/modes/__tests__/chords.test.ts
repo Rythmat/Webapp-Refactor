@@ -30,10 +30,19 @@ const DETECTOR: Record<BookChordQuality, string> = {
   maj: 'major',
   min: 'minor',
   dim: 'diminished',
+  aug: 'augmented',
+  majb5: 'majorb5',
+  sus2b5: 'sus2b5',
   maj7: 'major7',
   min7: 'minor7',
   dom7: 'dominant7',
   min7b5: 'minor7b5',
+  dim7: 'diminished7',
+  minMaj7: 'minormajor7',
+  'maj7#5': 'major7#5',
+  dom7b5: 'dominant7b5',
+  min6: 'minor6',
+  sus2b5add6: 'sus2b5add6',
 };
 const MODAL = GUITAR_MODES.filter(isGuitarModalMode);
 const sorted = (pcs: Iterable<number>) =>
@@ -103,6 +112,7 @@ describe('mode chords', () => {
           expect(shapeNotes(shape.frets)[0].midi % 12).toBe(rootPc);
         }
         // Every shape but the diminished triad is Book One's own.
+        if (center.family !== 'diatonic') throw new Error('Not a mode');
         const parent = GUITAR_ATLAS_BOOK_ONE[center.parentKey];
         for (const shape of center.triads) {
           if (shape.quality === 'dim') continue;

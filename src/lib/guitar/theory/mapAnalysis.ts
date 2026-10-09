@@ -7,7 +7,7 @@
 import { chordRootPc } from '@/curriculum/data/guitar/centers';
 import type {
   GuitarCenter,
-  GuitarMode,
+  GuitarScaleKey,
   GuitarMusicMap,
 } from '@/curriculum/data/guitar/types';
 import {
@@ -17,6 +17,7 @@ import {
   shapePitchClasses,
   shapePositions,
 } from '@/lib/guitar/fretboard';
+import { isTriadQuality } from './chordTones';
 import { FUNCTION_OF_DEGREE } from './keyTheory';
 import type {
   BookShape,
@@ -107,7 +108,7 @@ export function analyzeChange(
  */
 export function analyzeMusicMap(
   map: GuitarMusicMap,
-  mode: GuitarMode,
+  mode: GuitarScaleKey,
 ): MusicMapAnalysis {
   const { bars } = map;
   const n = bars.length;
@@ -168,11 +169,7 @@ export function analyzeMusicMap(
     hasSevenChord: major && degrees.includes(7),
     triadBarsIn7thMap:
       map.example >= 4
-        ? bars.flatMap((b, i) =>
-            b.quality === 'maj' || b.quality === 'min' || b.quality === 'dim'
-              ? [i]
-              : [],
-          )
+        ? bars.flatMap((b, i) => (isTriadQuality(b.quality) ? [i] : []))
         : [],
     dom7ToOne,
   };

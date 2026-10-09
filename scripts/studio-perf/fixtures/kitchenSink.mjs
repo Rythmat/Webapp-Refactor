@@ -32,6 +32,13 @@
  * (engine-hooks-16), and the cloud round trip takes the save's upload path
  * (POST /assets, the signed PUT, finalize).
  *
+ * The Chops Drop track gets the third kind (milestone 1.4): a Chops sample
+ * whose bytes exist only in memory, as a file dropped on the sampler leaves
+ * one (SamplerChopsView.tsx commitSample: decoded buffer and original bytes
+ * under samplerBufferKey(sampleId), neither an asset nor a sourceUrl). Its
+ * bytes are a short tone made here, so they differ from the Vocals clip's
+ * and the draft stores them as media of their own.
+ *
  * Values are chosen so a reset is visible: each differs from the slice
  * default AND from what a load would re-derive (trackRole differs from
  * guessTrackRole, audioInputChannel from the guitar default {mono, 0}).
@@ -124,6 +131,7 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   const vocals = add('audio', 'vocal-fx', 'Vocals');
   const chops = add('midi', 'sampler', 'Chops');
   const strings = add('midi', 'soundfont', 'Strings');
+  const chopsDrop = add('midi', 'sampler', 'Chops Drop');
 
   const palette = {
     [lead]: '#e4572e',
@@ -135,6 +143,7 @@ export async function applyKitchenSink({ assetId = null } = {}) {
     [vocals]: '#ff006e',
     [chops]: '#3a86ff',
     [strings]: '#06d6a0',
+    [chopsDrop]: '#fb5607',
   };
   for (const [id, color] of Object.entries(palette)) {
     act().updateTrack(id, { color });
@@ -302,6 +311,15 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   // bytes go into the editor's AudioBufferStore, as a Library sample drop
   // puts them (Timeline.tsx handleDrop), and only a cloud save uploads them.
   const audioBuffers = await devModule('/src/daw/audio/AudioBufferStore.ts');
+  // Decoded the way the editor decodes (load-audio.ts getDecodeContext: the
+  // engine's context, or the page's fallback), so a draft restore or a cloud
+  // open, which decode the same bytes there, gives the same buffer and the
+  // fingerprint's bufferDigest compares like with like.
+  const loadAudio = await devModule('/src/lib/studio-assets/load-audio.ts');
+  const decode = (data) =>
+    typeof loadAudio.getDecodeContext === 'function'
+      ? loadAudio.getDecodeContext().decodeAudioData(data)
+      : new OfflineAudioContext(1, 1, 44_100).decodeAudioData(data);
   const importedClip = 'kitchen-clip-imported';
   const response = await fetch('/daw-assets/samples/chops/demo-vox-c4.wav');
   if (!response.ok) {
@@ -312,9 +330,7 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   const bytes = await response.arrayBuffer();
   // decodeAudioData may detach its input, so keep a copy for the upload.
   const original = bytes.slice(0);
-  const decoded = await new OfflineAudioContext(1, 1, 44_100).decodeAudioData(
-    bytes,
-  );
+  const decoded = await decode(bytes);
   audioBuffers.setAudioBuffer(importedClip, decoded);
   audioBuffers.setOriginalAudio(importedClip, original, 'audio/wav');
   act().addAudioClip(vocals, {
@@ -327,6 +343,59 @@ export async function applyKitchenSink({ assetId = null } = {}) {
     fadeInTicks: 0,
     fadeOutTicks: 0,
   });
+
+  // A Chops sample dropped from a file: its decoded buffer and original
+  // bytes live only in AudioBufferStore under samplerBufferKey(sampleId), as
+  // SamplerChopsView's commitSample leaves them, until a save uploads them.
+  // The bytes are a 0.4 s 440 Hz tone (16-bit mono WAV) made here.
+  const samplerChops = await devModule('/src/daw/instruments/samplerChops.ts');
+  const toneWav = (() => {
+    const rate = 22_050;
+    const frames = Math.round(rate * 0.4);
+    const view = new DataView(new ArrayBuffer(44 + frames * 2));
+    const text = (at, value) =>
+      [...value].forEach((c, i) => view.setUint8(at + i, c.charCodeAt(0)));
+    text(0, 'RIFF');
+    view.setUint32(4, 36 + frames * 2, true);
+    text(8, 'WAVE');
+    text(12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, rate, true);
+    view.setUint32(28, rate * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    text(36, 'data');
+    view.setUint32(40, frames * 2, true);
+    for (let i = 0; i < frames; i++) {
+      const fade = Math.min(1, i / 200, (frames - i) / 200);
+      const v = Math.sin((2 * Math.PI * 440 * i) / rate) * 0.5 * fade;
+      view.setInt16(44 + i * 2, Math.round(v * 32_767), true);
+    }
+    return view.buffer;
+  })();
+  const toneOriginal = toneWav.slice(0);
+  const tone = await decode(toneWav);
+  const droppedSampleId = samplerChops.mintSamplerSampleId();
+  const droppedKey = samplerChops.samplerBufferKey(droppedSampleId);
+  audioBuffers.setAudioBuffer(droppedKey, tone);
+  audioBuffers.setOriginalAudio(droppedKey, toneOriginal, 'audio/wav');
+  act().setSamplerSample(chopsDrop, {
+    sampleId: droppedSampleId,
+    assetId: null,
+    rootNote: 'A4',
+    attack: 0.02,
+    release: 0.3,
+    name: 'Dropped Tone',
+    durationSeconds: tone.duration,
+  });
+  if (
+    act().tracks.find((t) => t.id === chopsDrop)?.samplerSample?.sampleId !==
+    droppedSampleId
+  ) {
+    throw new Error('kitchen sink: the dropped Chops sample did not take');
+  }
 
   // ── Oracle Synth patch. The patch lives in the synth store and reaches a
   // track only through the panel's store bridge, so open the Lead's panel,
@@ -520,6 +589,7 @@ export async function applyKitchenSink({ assetId = null } = {}) {
       vocals,
       chops,
       strings,
+      chopsDrop,
     },
     clipIds: {
       leadClip,
@@ -527,6 +597,7 @@ export async function applyKitchenSink({ assetId = null } = {}) {
       guitarClip: assetId ? guitarClip : null,
       importedClip,
     },
+    samplerSampleIds: { chopsDrop: droppedSampleId },
     regionIds: act().chordRegions.map((r) => r.id),
   };
 }

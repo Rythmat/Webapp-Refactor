@@ -1,5 +1,7 @@
 /* eslint-disable import/order, react/jsx-sort-props, tailwindcss/classnames-order, tailwindcss/enforces-shorthand, tailwindcss/no-custom-classname, tailwindcss/migration-from-tailwind-2 */
 import {
+  Suspense,
+  lazy,
   useState,
   useEffect,
   useRef,
@@ -31,6 +33,11 @@ import {
 import { useBeatGrid } from '@/curriculum/songLibrary/useBeatGrid';
 import { useSongActions } from '@/features/songs/useSongActions';
 import { SongCredits } from './SongCredits';
+import { useLearnInstrument } from '@/features/learn/useInstrumentStore';
+
+// On guitar, the song's chords as guitar boxes, above the chart. Loaded on
+// demand, so the guitar code stays out of the piano page.
+const SongGuitarChords = lazy(() => import('./guitar/SongGuitarChords'));
 import type { Song } from '@/curriculum/types/songLibrary';
 
 /** The song list: Learn's Songs tab. */
@@ -106,6 +113,7 @@ export const SongDetailView: FC<SongDetailViewProps> = ({
   // chart, the key line and the Studio hand-off all read `displaySong`, while
   // the recording, the beat grid and the song's id stay with the original.
   const [semitones, setSemitones] = useState(0);
+  const onGuitar = useLearnInstrument() === 'guitar';
   const [savingVersion, setSavingVersion] = useState(false);
   useEffect(() => setSemitones(0), [song.id]);
   const displaySong = useMemo(
@@ -330,7 +338,10 @@ export const SongDetailView: FC<SongDetailViewProps> = ({
             {slots.actions ?? (
               <div className="flex items-center gap-2 pt-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <SongActionPills song={displaySong ?? song} />
+                  <SongActionPills
+                    song={displaySong ?? song}
+                    transpose={semitones}
+                  />
                   <FavoriteStar songId={song.id} />
                   <ChartNotationSwitch />
                   <button
@@ -390,6 +401,13 @@ export const SongDetailView: FC<SongDetailViewProps> = ({
             // is open, and that chord belongs to the copy it came from.
             key={semitones}
             song={displaySong ?? song}
+            leading={
+              onGuitar ? (
+                <Suspense fallback={null}>
+                  <SongGuitarChords song={displaySong ?? song} />
+                </Suspense>
+              ) : undefined
+            }
             loopSection={loopSection}
             onToggleLoop={(si) =>
               setLoopSection(loopSection === si ? null : si)
@@ -445,9 +463,18 @@ const FavoriteStar: FC<{ songId: string }> = ({ songId }) => {
   );
 };
 
-const SongActionPills: FC<{ song: Song }> = ({ song }) => {
-  const { openInLesson, openInStudio, openInGlobe, studioPrompt } =
-    useSongActions(song);
+/**
+ * `song` is the chart as shown (transposed or not), so a lesson opens in the
+ * key on the screen; `transpose` carries that offset into the Studio link,
+ * which rebuilds the same chart from the song's id.
+ */
+const SongActionPills: FC<{ song: Song; transpose: number }> = ({
+  song,
+  transpose,
+}) => {
+  const { openInLesson, openInStudio, openInGlobe } = useSongActions(song, {
+    transpose,
+  });
   const pills: { label: string; iconSrc: string; onClick: () => void }[] = [
     {
       label: 'Open in Lesson',
@@ -479,7 +506,6 @@ const SongActionPills: FC<{ song: Song }> = ({ song }) => {
           <img src={iconSrc} alt="" draggable={false} width={28} height={28} />
         </button>
       ))}
-      {studioPrompt}
     </>
   );
 };

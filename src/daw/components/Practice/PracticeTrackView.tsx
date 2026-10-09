@@ -20,6 +20,7 @@ import {
 } from '@/features/practiceTracks/chordVoicings';
 import { keyboardWindow } from '@/features/practiceTracks/genre/practiceKeyboard';
 import { useSettingsStore } from '@/features/settings/useSettingsStore';
+import { PracticeHeader } from '@/daw/shell/topbar/PracticeHeader';
 import { ChordChart } from './ChordChart';
 import { ScaleKeyboard, type KeyboardScale } from './ScaleKeyboard';
 import { SegmentedToggle } from './SegmentedToggle';
@@ -506,30 +507,11 @@ export function PracticeTrackView({
       style={{ color: 'var(--color-text)' }}
       data-testid="practice-track-view"
     >
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <button
-          type="button"
-          onClick={backToLesson}
-          className="rounded-full px-4 py-1.5 text-sm transition-colors hover:bg-white/5"
-          style={{ border: '1px solid var(--color-border)' }}
-        >
-          &larr; Back to lesson
-        </button>
-        <h1
-          className="text-sm font-medium"
-          style={{ color: 'var(--color-text-dim)' }}
-        >
-          {displayAccidentals(projectName)}
-        </h1>
-        <button
-          type="button"
-          onClick={() => setCurrentView('arrange')}
-          className="rounded-full px-4 py-1.5 text-sm font-semibold transition-colors"
-          style={{ background: ACCENT, color: '#191919' }}
-        >
-          Take it to the Studio &rarr;
-        </button>
-      </header>
+      <PracticeHeader
+        projectName={displayAccidentals(projectName)}
+        onBack={backToLesson}
+        onTakeToStudio={() => setCurrentView('arrange')}
+      />
 
       <div className="mx-auto mt-4 flex w-full max-w-4xl flex-col items-center gap-4 sm:mt-6 sm:gap-6">
         <div className="text-center">

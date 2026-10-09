@@ -35,7 +35,7 @@ const QUALITY_DISPLAY: Record<string, string> = {
   'dim7(♭9)': 'diminished 7 (♭9)',
   'maj7(♯9)': 'major 7 (♯9)',
   'maj7(♯5♯9)': 'major 7 (♯5♯9)',
-  'maj7 ♭9': 'major 7 (♭9)',
+  'maj7(♭9)': 'major 7 (♭9)',
   maj7sharp9: 'major 7 (♯9)',
   dom9: 'dominant 9',
   maj9: 'major 9',
@@ -51,12 +51,12 @@ const QUALITY_DISPLAY: Record<string, string> = {
   'dim7(add9)': 'diminished 7 (add 9)',
   'sus2(♭5)': 'sus2 (♭5)',
   'sus2(♭5)add6': 'sus2 (♭5) add 6',
-  'sus2(♭5)Add6♭9': 'sus2 (♭5) add 6♭9',
+  'sus2(♭5)add6(♭9)': 'sus2 (♭5) add 6 (♭9)',
   min6: 'minor 6',
   maj6: 'major 6',
   min69: 'minor 6/9',
   'min6/9': 'minor 6/9',
-  'min6 Add ♭9': 'minor 6 (add ♭9)',
+  'min6(♭9)': 'minor 6 (♭9)',
 };
 
 export function qualityDisplayName(quality: string): string {

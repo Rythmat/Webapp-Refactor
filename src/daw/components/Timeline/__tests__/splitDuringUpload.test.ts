@@ -60,7 +60,15 @@ async function splitDuringUpload(): Promise<void> {
 
 beforeEach(() => {
   upload.mockReset();
-  useStore.setState({ tracks: [], bpm: 120, remoteUsers: new Map() });
+  // A project with a cloud copy: its takes upload the moment they stop (a
+  // never-saved one keeps them in its draft until the first Save).
+  useStore.setState({
+    tracks: [],
+    bpm: 120,
+    remoteUsers: new Map(),
+    projectId: 'project-1',
+    roomId: null,
+  });
   trackId = useStore.getState().addTrack('audio', 'vocal-fx', 'Vox');
   useStore.getState().addAudioClip(trackId, take);
   setAudioBuffer('take', {

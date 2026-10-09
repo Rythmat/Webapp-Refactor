@@ -93,6 +93,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as prettier from 'prettier';
+import { DEV_USER_KEY, waitForDraft } from './fixtures/drafts.mjs';
 import {
   PROFILES,
   ROOT,
@@ -108,6 +109,7 @@ import {
   driverFor,
   knownFailureFor,
 } from './lessonDrivers.mjs';
+import { createMockStudioApi } from './mockStudioApi.mjs';
 import { startRecording, stopRecording } from './probes.mjs';
 
 /** tutorials.ts as the dev server serves it to the page. */
@@ -128,8 +130,12 @@ const PRODUCTION_PATH = '/studio/production';
 /** The upgrade prompt's title (src/daw/components/Tutorial/UpgradeLessonDialog.tsx). */
 const UPGRADE_TITLE = 'This lesson uses Prism, part of Premium';
 
-/** The editor's crash copy in localStorage (localSession.ts). */
-const AUTOSAVE_KEY = 'musicAtlas:daw:autosave';
+/**
+ * Where a student's lesson completions live since milestone 1.4: per user,
+ * `music-atlas-tutorial-progress:<userKey>` (useTutorialProgressStore.ts),
+ * here the dev bypass user's.
+ */
+const PROGRESS_KEY = `music-atlas-tutorial-progress:${DEV_USER_KEY}`;
 
 /** The work a gate's link is opened over: a named project with a track. */
 const GATE_WORK = { project: 'Lesson gate check', track: 'Gate check synth' };
@@ -603,6 +609,16 @@ function personasFrom(args) {
     }
   }
   return PERSONAS.filter((name) => names.includes(name));
+}
+
+/**
+ * Installs a mock Studio API (mockStudioApi.mjs) on `context`, so nothing a
+ * lesson does (a save, the Projects dialog, an upload) reaches a real API
+ * with the bypass token. One mock per context: each lesson starts with no
+ * cloud projects.
+ */
+async function installMockApi(context) {
+  await createMockStudioApi({ mode: 'legacy' }).install(context);
 }
 
 /**
@@ -1301,6 +1317,7 @@ async function recordIdle(page, idleSeconds) {
 async function idleWithoutLesson(browser, base, profile, persona, idleSeconds) {
   const { context, page } = await newPage(browser, profile);
   try {
+    await installMockApi(context);
     await applyPersona(page, persona);
     await openEditor(page, base, '?new=1');
     await checkPersona(page, persona);
@@ -1354,6 +1371,7 @@ async function runLesson(env) {
   let session = null;
   try {
     session = await newPage(browser, profile);
+    await installMockApi(session.context);
     const { page } = session;
     page.on('console', (msg) => {
       const line = keptConsoleLine(msg);
@@ -1398,20 +1416,21 @@ async function runLesson(env) {
         `[${profile}/${persona}] ${lesson.id} ${i + 1}/${lesson.steps.length} ${res.id}: ${label} (${seconds(res.ms.total)})${res.pass ? '' : ` — ${res.reasons[0]}`}`,
       );
     }
-    const end = await page.evaluate((id) => {
-      let progress = null;
-      try {
-        progress = JSON.parse(
-          localStorage.getItem('music-atlas-tutorial-progress') ?? 'null',
-        );
-      } catch {
-        // Unreadable progress is the same as none.
-      }
-      return {
-        active: window.__MA_STORE__.getState().activeTutorialId,
-        marked: progress?.state?.completedAt?.[id] != null,
-      };
-    }, lesson.id);
+    const end = await page.evaluate(
+      ({ id, key }) => {
+        let progress = null;
+        try {
+          progress = JSON.parse(localStorage.getItem(key) ?? 'null');
+        } catch {
+          // Unreadable progress is the same as none.
+        }
+        return {
+          active: window.__MA_STORE__.getState().activeTutorialId,
+          marked: progress?.state?.completedAt?.[id] != null,
+        };
+      },
+      { id: lesson.id, key: PROGRESS_KEY },
+    );
     run.ended = end.active === null;
     run.completed = end.marked;
   } catch (error) {
@@ -1583,19 +1602,18 @@ async function linkGate(env, check) {
     return window.__MA_STORE__.getState().projectName;
   }, GATE_WORK);
   const workTracks = await page.evaluate(tracksOf);
-  const saved = await page
-    .waitForFunction(
-      ([key, name]) => (localStorage.getItem(key) ?? '').includes(name),
-      [AUTOSAVE_KEY, GATE_WORK.track],
-      { timeout: 15_000, polling: 200 },
-    )
-    .then(
-      () => true,
-      () => false,
-    );
-  if (!saved) {
+  // The tab's draft (milestone 1.4) holds the work once it has caught up.
+  // Lesson pages load no dev-module resolver and hold no pending audio,
+  // so the media check is skipped by name.
+  const draft = await waitForDraft(page, {
+    quietMs: 500,
+    timeout: 15_000,
+    allowMissing: true,
+    requireMedia: false,
+  });
+  if (!draft?.text?.includes(GATE_WORK.track)) {
     check.reasons.push(
-      'the editor never saved the work to open the link over (no autosave)',
+      'the editor never saved the work to open the link over (no draft holds it)',
     );
     return;
   }
@@ -1649,8 +1667,10 @@ async function linkGate(env, check) {
       );
     }
   }
-  if (after.search) {
-    check.notes.push(
+  // Milestone 1.4: an open that ends in the upgrade prompt takes its own
+  // keys out of the address bar, so a refresh doesn't ask again.
+  if (new URLSearchParams(after.search).has('tutorial')) {
+    check.reasons.push(
       `the link stayed in the address bar (${after.search}), so a refresh asks again`,
     );
   }
@@ -1666,7 +1686,7 @@ const GATE_CHECKS = [
   {
     id: 'link',
     describe:
-      'a ?tutorial= link loaded over saved work starts no lesson, keeps the work open and shows the upgrade prompt',
+      'a ?tutorial= link loaded over saved work starts no lesson, keeps the work open, shows the upgrade prompt and leaves the address bar',
     run: linkGate,
   },
 ];
@@ -1725,6 +1745,7 @@ async function runGatedLesson(env) {
     let session = null;
     try {
       session = await newPage(browser, profile, { probes: false });
+      await installMockApi(session.context);
       session.page.on('console', (msg) => {
         const line = keptConsoleLine(msg);
         if (line !== null) consoleErrors.push(line);

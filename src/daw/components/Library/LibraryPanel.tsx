@@ -37,14 +37,7 @@ import {
   type LibraryCategory,
 } from '@/daw/data/libraryItems';
 import { InsightContent } from './InsightContent';
-import { showError } from '@/components/utils/toast';
-import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
-import { seedTemplate } from '@/daw/session/linkSeeds';
-import { inSharedSession } from '@/daw/session/sharedSession';
-import {
-  announceKeptWork,
-  replaceSession,
-} from '@/lib/studio-projects/localSession';
+import { openSession } from '@/daw/session/openSession';
 
 // ── Icon lookup ─────────────────────────────────────────────────────────
 
@@ -315,56 +308,30 @@ function CategorySection({
 
 /**
  * Open a template in place of the project, as the dashboard's template tile
- * does (decision D10). No question first (owner decision 6): the work it
- * replaces is kept, with a Restore, and the template is a new project, so a
- * Save makes a new cloud project rather than writing over the one it
- * replaced. Never in a shared session (inSharedSession), where it would
- * replace the room's project for everyone, nor while a take is recording
- * into a track it would remove. A room the student hosted and left is no
- * shared session: it closed, and its project is theirs again.
+ * does (decision D10), through openSession: no question first (owner
+ * decision 6), the work it replaces is kept with a Restore, a take still
+ * recording is stopped and kept first, and the template is a new project,
+ * so a Save makes a new cloud project rather than writing over the one it
+ * replaced. Never in a shared session (E15: membership is the room id),
+ * where it would replace the room's project for everyone.
  */
-async function openTemplate(
-  templateId: string,
-  userId: string | null,
-): Promise<void> {
-  if (inSharedSession()) {
-    showError('Leave the shared session to open a template.');
-    return;
-  }
-  if (useStore.getState().isRecording) {
-    showError('Stop recording first, then open a template.');
-    return;
-  }
-  const result = await replaceSession(userId, () => seedTemplate(templateId), {
-    reopenable: true,
-  });
-  if (result.status === 'refused') {
-    showError(
-      "Your work couldn't be set aside on this device, so it's still open. Save it, then try again.",
-    );
-    return;
-  }
-  if (result.status === 'failed') {
-    console.error('Template could not be opened', result.error);
-    showError('That template could not be opened.');
-    return;
-  }
-  if (result.kept) announceKeptWork(result.kept, userId);
-  if (result.also) announceKeptWork(result.also, userId);
+function openTemplate(templateId: string): void {
+  if (useStore.getState().roomId !== null) return;
+  void openSession({ kind: 'template', templateId }, { source: 'library' });
 }
 
 function LibraryItemRow({ item }: { item: LibraryItem }) {
-  const { userId } = useAuthContext();
-
   const isProjectTemplate = item.dragPayload.kind === 'project-template';
+  const inRoom = useStore((s) => isProjectTemplate && s.roomId !== null);
+  const disabled = item.disabled || inRoom;
 
   const handleClick = useCallback(() => {
     if (!isProjectTemplate) return;
     const templateId = (
       item.dragPayload as { kind: 'project-template'; templateId: string }
     ).templateId;
-    void openTemplate(templateId, userId);
-  }, [isProjectTemplate, item.dragPayload, userId]);
+    openTemplate(templateId);
+  }, [isProjectTemplate, item.dragPayload]);
 
   const handleDragStart = useCallback(
     (e: React.DragEvent) => {
@@ -386,19 +353,17 @@ function LibraryItemRow({ item }: { item: LibraryItem }) {
       onDragStart={
         item.disabled || isProjectTemplate ? undefined : handleDragStart
       }
-      onClick={isProjectTemplate ? handleClick : undefined}
+      onClick={isProjectTemplate && !disabled ? handleClick : undefined}
+      aria-disabled={isProjectTemplate && disabled ? true : undefined}
+      title={inRoom ? 'Leave the shared session to open a template' : undefined}
       className="flex items-center gap-2 px-4 py-1 text-[11px] transition-colors"
       style={{
-        color: item.disabled ? 'var(--color-text-dim)' : 'var(--color-text)',
-        opacity: item.disabled ? 0.5 : 1,
-        cursor: item.disabled
-          ? 'default'
-          : isProjectTemplate
-            ? 'pointer'
-            : 'grab',
+        color: disabled ? 'var(--color-text-dim)' : 'var(--color-text)',
+        opacity: disabled ? 0.5 : 1,
+        cursor: disabled ? 'default' : isProjectTemplate ? 'pointer' : 'grab',
       }}
       onMouseEnter={(e) => {
-        if (!item.disabled)
+        if (!disabled)
           e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)';
       }}
       onMouseLeave={(e) => {

@@ -3,6 +3,7 @@ import * as Tone from 'tone';
 import { useStore } from '@/daw/store';
 import { MidiRecorder } from '@/daw/audio/MidiRecorder';
 import { buildRecordedClip } from '@/daw/audio/recordedClip';
+import { beginTake } from '@/daw/session/takesInFlight';
 
 // ── useMidiRecording ────────────────────────────────────────────────────
 // Manages the MIDI recording lifecycle:
@@ -18,6 +19,9 @@ export function useMidiRecording() {
   // Tick the take punched in at. It becomes the clip's front, so a player who
   // comes in late keeps that rest instead of having it trimmed away.
   const punchInTickRef = useRef(0);
+  // The take in progress, counted for openSession (takesInFlight): an open
+  // that replaces the session waits for it to be committed into it.
+  const settleTakeRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (isRecording) {
@@ -29,22 +33,34 @@ export function useMidiRecording() {
       // uses (usePlaybackEngine), so a simultaneous audio + MIDI take lines up.
       punchInTickRef.current = useStore.getState().position;
       recorderRef.current.startRecording();
+      settleTakeRef.current?.();
+      const recorder = recorderRef.current;
+      settleTakeRef.current = beginTake('midi', {
+        alive: () => recorder.isRecording(),
+      });
     } else if (recorderRef.current.isRecording()) {
-      const { notes, ccEvents } = recorderRef.current.stopRecording();
-      if (notes.length > 0) {
-        // Find the first record-armed MIDI track
-        const armedTrack = tracks.find(
-          (t) => t.recordArmed && t.type === 'midi',
-        );
-        if (armedTrack) {
-          // Anchored to punch-in, so a take that came in after the downbeat
-          // keeps that rest at the front of the clip instead of sliding up to
-          // it. See buildRecordedClip.
-          addMidiClip(armedTrack.id, {
-            id: crypto.randomUUID(),
-            ...buildRecordedClip(notes, ccEvents, punchInTickRef.current),
-          });
+      // Settled once the clip is in the store, or the take is dropped.
+      const settle = settleTakeRef.current;
+      settleTakeRef.current = null;
+      try {
+        const { notes, ccEvents } = recorderRef.current.stopRecording();
+        if (notes.length > 0) {
+          // Find the first record-armed MIDI track
+          const armedTrack = tracks.find(
+            (t) => t.recordArmed && t.type === 'midi',
+          );
+          if (armedTrack) {
+            // Anchored to punch-in, so a take that came in after the downbeat
+            // keeps that rest at the front of the clip instead of sliding up
+            // to it. See buildRecordedClip.
+            addMidiClip(armedTrack.id, {
+              id: crypto.randomUUID(),
+              ...buildRecordedClip(notes, ccEvents, punchInTickRef.current),
+            });
+          }
         }
+      } finally {
+        settle?.();
       }
     }
   }, [isRecording, tracks, addMidiClip]);
@@ -64,19 +80,26 @@ export function useMidiRecording() {
   // Revisit with the 1.3 persistence work.
   useEffect(() => {
     const recorder = recorderRef.current;
+    const settleRef = settleTakeRef;
     return () => {
-      if (!recorder.isRecording()) return;
-      const { notes, ccEvents } = recorder.stopRecording();
-      if (notes.length === 0) return;
-      const state = useStore.getState();
-      const armedTrack = state.tracks.find(
-        (t) => t.recordArmed && t.type === 'midi',
-      );
-      if (!armedTrack) return;
-      state.addMidiClip(armedTrack.id, {
-        id: crypto.randomUUID(),
-        ...buildRecordedClip(notes, ccEvents, punchInTickRef.current),
-      });
+      const settle = settleRef.current;
+      settleRef.current = null;
+      try {
+        if (!recorder.isRecording()) return;
+        const { notes, ccEvents } = recorder.stopRecording();
+        if (notes.length === 0) return;
+        const state = useStore.getState();
+        const armedTrack = state.tracks.find(
+          (t) => t.recordArmed && t.type === 'midi',
+        );
+        if (!armedTrack) return;
+        state.addMidiClip(armedTrack.id, {
+          id: crypto.randomUUID(),
+          ...buildRecordedClip(notes, ccEvents, punchInTickRef.current),
+        });
+      } finally {
+        settle?.();
+      }
     };
   }, []);
 

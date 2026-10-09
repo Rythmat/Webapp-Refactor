@@ -73,8 +73,39 @@
  *   routes;
  * - a write that references an audio asset that is missing or not ready is
  *   refused (the server's assertAudioAssetsReady);
- * - it does not model auth (any bearer token is accepted), asset ownership
- *   or size limits.
+ * - projects have an owner: the student the request's bearer token names
+ *   (ownerOfToken: the dev bypass's 'dev-bypass-token' is
+ *   'dev-bypass-user', and harness.mjs asUser serves another student
+ *   'dev-bypass-token:<userId>'). The list holds only the caller's projects,
+ *   and another student's project answers 404 to GET, PUT, PATCH, DELETE and
+ *   cleanup, as a server that scopes by owner does, so two students on one
+ *   device (R22, the '~device' claim) never see each other's cloud work. A
+ *   request with no bearer token answers 401. seedProject takes `owner`
+ *   (default the bypass user). Assets are not owner-scoped, and no session
+ *   is checked (any token is accepted), nor are size limits;
+ * - by default an asset is reserved for any projectId, even a deleted or
+ *   missing project's, and a deleted project's assets stay. With
+ *   `rejectAssetsForDeletedProjects`, POST /assets answers 404 when its
+ *   projectId names a project that is missing, deleted or another
+ *   student's (as GET does), and a project delete (the DELETE route or
+ *   deleteProject) reclaims the project's assets, so an upload that races a
+ *   delete elsewhere sees the 404 a save restarts from (R17).
+ *
+ * Faults (milestone 1.4): `fault({ method, path, status | abort | body |
+ * delayMs, times })` makes the next `times` requests (default every one)
+ * that match `method` (any when left out) and `path` (a substring of the URL
+ * path, or a RegExp) wait `delayMs`, then fail with `status` (a plain JSON
+ * error, as the API sends one), be aborted with the network error `abort`
+ * (Playwright route.abort: 'internetdisconnected', 'failed', 'timedout',
+ * …), or be answered with `body` (a SuperJSON 2xx body, `status` or 200: a
+ * payload the client cannot use, such as a project whose tracks are not a
+ * list), or, with only a delay, go on to the route as usual. `clearFaults()` drops them.
+ * Offline is an abort fault ('internetdisconnected') together with
+ * context.setOffline(true): setOffline flips navigator.onLine and fires
+ * 'offline', but a routed request is still fulfilled under it, so without the
+ * fault an offline save would succeed; setOffline(false) then fires 'online'.
+ * A faulted request is logged with `fault: true` (and `aborted` or its
+ * status) and never counts as a write.
  *
  * Mode 'document' is the milestone 1.5 contract (plan.md 1.5: a `document`
  * JSONB field with `documentSchema`, `revision` and `writtenAtRevision`,
@@ -106,6 +137,26 @@ export class MockModeNotImplemented extends Error {
   }
 }
 
+/** The dev auth bypass's own student and token (src/auth/devBypass.ts). */
+export const DEV_OWNER = 'dev-bypass-user';
+const DEV_TOKEN = 'dev-bypass-token';
+
+/**
+ * The student a bearer token names: the bypass's token is its user, and
+ * 'dev-bypass-token:<userId>' (harness.mjs asUser) is <userId>. Any other
+ * token is its own owner. null without a bearer token.
+ */
+export function ownerOfToken(authorization) {
+  const match = /^Bearer\s+(.+)$/i.exec(authorization ?? '');
+  if (!match) return null;
+  const token = match[1].trim();
+  if (token === DEV_TOKEN) return DEV_OWNER;
+  if (token.startsWith(`${DEV_TOKEN}:`)) {
+    return token.slice(DEV_TOKEN.length + 1) || DEV_OWNER;
+  }
+  return token;
+}
+
 class HttpError extends Error {
   constructor(status, message) {
     super(message);
@@ -134,6 +185,21 @@ const MIDI_NOTE_COLUMNS = [
   'channels',
 ];
 
+/**
+ * Drops every asset of project `projectId` (a delete that reclaims them,
+ * `rejectAssetsForDeletedProjects`). Returns how many went.
+ */
+function reclaimProjectAssets(assets, projectId) {
+  let reclaimed = 0;
+  for (const [id, asset] of assets) {
+    if (asset.projectId === projectId) {
+      assets.delete(id);
+      reclaimed += 1;
+    }
+  }
+  return reclaimed;
+}
+
 const storedMidiClip = (clip) => ({
   ...keepOnly(clip, MIDI_CLIP_KEYS),
   events: keepOnly(clip?.events, MIDI_NOTE_COLUMNS),
@@ -153,14 +219,18 @@ function corsHeaders() {
 
 /**
  * The legacy (today's) contract: route table over the shared state. With
- * `strictShape`, a write keeps only what api.ts declares (see the header).
+ * `strictShape`, a write keeps only what api.ts declares; with
+ * `rejectAssetsForDeletedProjects`, assets follow their project's life (see
+ * the header).
  */
-function legacyRoutes(state, { strictShape }) {
+function legacyRoutes(state, { strictShape, rejectAssetsForDeletedProjects }) {
   const { projects, assets } = state;
 
-  const live = (id) => {
+  // Another owner's project is as missing as a deleted one (no leak of
+  // whether it exists).
+  const live = (id, owner) => {
     const project = projects.get(id);
-    if (!project || project.deletedAt) {
+    if (!project || project.deletedAt || project.owner !== owner) {
       throw new HttpError(404, `Studio project ${id} not found`);
     }
     return project;
@@ -198,7 +268,7 @@ function legacyRoutes(state, { strictShape }) {
   };
 
   // A full write: the project row's scalar fields plus a new track tree.
-  const write = (input, existing) => {
+  const write = (input, existing, owner) => {
     if (!input || typeof input.name !== 'string' || !input.tracks) {
       throw new HttpError(400, 'Invalid project body');
     }
@@ -206,6 +276,7 @@ function legacyRoutes(state, { strictShape }) {
     const now = new Date();
     return {
       id: existing?.id ?? randomUUID(),
+      owner: existing?.owner ?? owner,
       name: input.name,
       composerName: input.composerName ?? null,
       bpm: input.bpm,
@@ -243,7 +314,12 @@ function legacyRoutes(state, { strictShape }) {
       libraryInstruments: existing?.libraryInstruments ?? [],
       collaborators: existing?.collaborators ?? [],
       createdAt: existing?.createdAt ?? now,
-      updatedAt: now,
+      // A strictly later stamp than the one it replaces: two writes in the
+      // same millisecond must still read as a change (E11 compares them).
+      updatedAt:
+        existing?.updatedAt && existing.updatedAt.getTime() >= now.getTime()
+          ? new Date(existing.updatedAt.getTime() + 1)
+          : now,
       deletedAt: null,
     };
   };
@@ -273,27 +349,31 @@ function legacyRoutes(state, { strictShape }) {
     [
       'GET',
       `^${projectsPath}$`,
-      () =>
+      ({ owner }) =>
         [...projects.values()]
-          .filter((p) => !p.deletedAt)
+          .filter((p) => !p.deletedAt && p.owner === owner)
           .sort((a, b) => b.updatedAt - a.updatedAt)
           .map(summary),
     ],
     [
       'POST',
       `^${projectsPath}$`,
-      ({ body }) => {
-        const project = write(body, null);
+      ({ body, owner }) => {
+        const project = write(body, null, owner);
         projects.set(project.id, project);
         return detail(project);
       },
     ],
-    ['GET', `^${projectsPath}/${ID}$`, ({ params }) => detail(live(params[0]))],
+    [
+      'GET',
+      `^${projectsPath}/${ID}$`,
+      ({ params, owner }) => detail(live(params[0], owner)),
+    ],
     [
       'PUT',
       `^${projectsPath}/${ID}$`,
-      ({ params, body }) => {
-        const project = write(body, live(params[0]));
+      ({ params, body, owner }) => {
+        const project = write(body, live(params[0], owner), owner);
         projects.set(project.id, project);
         return detail(project);
       },
@@ -301,8 +381,8 @@ function legacyRoutes(state, { strictShape }) {
     [
       'PATCH',
       `^${projectsPath}/${ID}/meta$`,
-      ({ params, body }) => {
-        const project = live(params[0]);
+      ({ params, body, owner }) => {
+        const project = live(params[0], owner);
         for (const key of [
           'libraryGenre',
           'libraryStatus',
@@ -322,16 +402,23 @@ function legacyRoutes(state, { strictShape }) {
     [
       'DELETE',
       `^${projectsPath}/${ID}$`,
-      ({ params }) => {
-        const project = live(params[0]);
+      ({ params, owner }) => {
+        const project = live(params[0], owner);
         project.deletedAt = new Date();
+        if (rejectAssetsForDeletedProjects) {
+          reclaimProjectAssets(assets, project.id);
+        }
         return { id: project.id, deletedAt: project.deletedAt };
       },
     ],
     [
       'POST',
       `^${projectsPath}/${ID}/cleanup-pending-assets$`,
-      ({ params }) => {
+      ({ params, owner }) => {
+        // A deleted project's pending assets can still be cleaned up.
+        if (projects.get(params[0])?.owner !== owner) {
+          throw new HttpError(404, `Studio project ${params[0]} not found`);
+        }
         let deletedRows = 0;
         for (const [id, asset] of assets) {
           if (
@@ -361,7 +448,11 @@ function legacyRoutes(state, { strictShape }) {
     [
       'POST',
       `^${assetsPath}$`,
-      ({ body }) => {
+      ({ body, owner }) => {
+        // The project must be the caller's and live (live() throws the 404).
+        if (rejectAssetsForDeletedProjects && body?.projectId != null) {
+          live(body.projectId, owner);
+        }
         const id = randomUUID();
         const asset = {
           id,
@@ -433,11 +524,14 @@ const ROUTES = { legacy: legacyRoutes };
 /**
  * A fresh mock. `mode` is 'legacy' (today's contract) or 'document' (not
  * implemented yet: throws MockModeNotImplemented). `strictShape` keeps only
- * what api.ts declares of a project (see the header).
+ * what api.ts declares of a project, and `rejectAssetsForDeletedProjects`
+ * refuses an asset for a project that is gone and reclaims a deleted
+ * project's assets (see the header).
  */
 export function createMockStudioApi({
   mode = 'legacy',
   strictShape = false,
+  rejectAssetsForDeletedProjects = false,
 } = {}) {
   if (!API_MODES.includes(mode)) {
     throw new Error(`unknown mock Studio API mode "${mode}"`);
@@ -445,19 +539,83 @@ export function createMockStudioApi({
   if (!ROUTES[mode]) throw new MockModeNotImplemented(mode);
 
   const state = { projects: new Map(), assets: new Map() };
-  const routes = ROUTES[mode](state, { strictShape });
+  const routes = ROUTES[mode](state, {
+    strictShape,
+    rejectAssetsForDeletedProjects,
+  });
   const log = [];
   const writes = [];
+  /** Active faults, in the order they were added (fault()). */
+  let faults = [];
 
   const record = (entry) => {
     log.push({ at: Date.now(), ...entry });
   };
+
+  /** The first fault that matches the request, with a use left, or null. */
+  const takeFault = (method, path) => {
+    const found = faults.find(
+      (f) =>
+        f.left > 0 &&
+        (!f.method || f.method === method) &&
+        (f.path instanceof RegExp ? f.path.test(path) : path.includes(f.path)),
+    );
+    if (found) found.left -= 1;
+    return found ?? null;
+  };
+
+  /**
+   * Applies a fault to a request: waits its delay, then aborts or fails it.
+   * Resolves true when the request was answered (aborted or failed), false
+   * when it goes on to the route as usual (a delay alone).
+   */
+  async function applyFault(fault, route, method, path) {
+    if (fault.delayMs > 0) {
+      await new Promise((done) => setTimeout(done, fault.delayMs));
+    }
+    if (fault.abort) {
+      record({ method, path, status: 0, fault: true, aborted: fault.abort });
+      await route.abort(fault.abort).catch(() => {});
+      return true;
+    }
+    if (fault.body !== undefined) {
+      const status = fault.status || 200;
+      record({ method, path, status, fault: true, body: true });
+      await route
+        .fulfill({
+          status,
+          headers: { ...corsHeaders(), 'content-type': 'application/json' },
+          body: SuperJSON.stringify(fault.body),
+        })
+        .catch(() => {});
+      return true;
+    }
+    if (fault.status) {
+      record({ method, path, status: fault.status, fault: true });
+      await route
+        .fulfill({
+          status: fault.status,
+          headers: { ...corsHeaders(), 'content-type': 'application/json' },
+          body: JSON.stringify({ error: `mock fault ${fault.status}` }),
+        })
+        .catch(() => {});
+      return true;
+    }
+    return false;
+  }
 
   async function handleStorage(route, request, url) {
     const [, action, id] = url.pathname.split('/');
     const asset = state.assets.get(id);
     if (request.method() === 'OPTIONS') {
       return route.fulfill({ status: 204, headers: corsHeaders() });
+    }
+    const fault = takeFault(request.method(), url.pathname);
+    if (
+      fault &&
+      (await applyFault(fault, route, request.method(), url.pathname))
+    ) {
+      return undefined;
     }
     if (action === 'upload' && request.method() === 'PUT' && asset) {
       asset.bytes = request.postDataBuffer() ?? Buffer.alloc(0);
@@ -488,6 +646,19 @@ export function createMockStudioApi({
     }
     // A base that already ends in /api resolves to this same path.
     const path = url.pathname;
+    const fault = takeFault(method, path);
+    if (fault && (await applyFault(fault, route, method, path))) {
+      return undefined;
+    }
+    const owner = ownerOfToken(request.headers().authorization);
+    if (!owner && path.startsWith(`${API_PREFIX}/projects`)) {
+      record({ method, path, status: 401, error: 'no bearer token' });
+      return route.fulfill({
+        status: 401,
+        headers: { ...corsHeaders(), 'content-type': 'application/json' },
+        body: JSON.stringify({ error: 'Unauthorized' }),
+      });
+    }
     let body;
     try {
       const text = request.postData();
@@ -500,9 +671,9 @@ export function createMockStudioApi({
       const match = r.pattern.exec(path);
       if (!match) continue;
       try {
-        const result = r.handle({ params: match.slice(1), body });
-        if (method !== 'GET') writes.push({ method, path, body });
-        record({ method, path, status: 200 });
+        const result = r.handle({ params: match.slice(1), body, owner });
+        if (method !== 'GET') writes.push({ method, path, body, owner });
+        record({ method, path, status: 200, owner });
         return route.fulfill({
           status: 200,
           headers: { ...corsHeaders(), 'content-type': 'application/json' },
@@ -510,7 +681,7 @@ export function createMockStudioApi({
         });
       } catch (error) {
         const status = error instanceof HttpError ? error.status : 500;
-        record({ method, path, status, error: error.message });
+        record({ method, path, status, owner, error: error.message });
         return route.fulfill({
           status,
           headers: { ...corsHeaders(), 'content-type': 'application/json' },
@@ -529,11 +700,12 @@ export function createMockStudioApi({
   return {
     mode,
     strictShape,
+    rejectAssetsForDeletedProjects,
     /** project id → stored project (as the server would hold it). */
     projects: state.projects,
     /** asset id → asset row, with its bytes. */
     assets: state.assets,
-    /** Every intercepted request: { at, method, path, status, error? }. */
+    /** Every intercepted request: { at, method, path, status, owner?, error? }. */
     log,
     /** Every successful non-GET API call with its parsed body. */
     writes,
@@ -573,25 +745,118 @@ export function createMockStudioApi({
     },
 
     /**
-     * A project with no tracks, as if a client had created it earlier
-     * (through the create route itself, though no request is logged), for a
-     * session that needs a cloud link the mock can answer for. Returns its
-     * id.
+     * A project, as if a client had created it earlier (through the create
+     * route itself, though no request is logged), for a session that needs
+     * a cloud link the mock can answer for. `detail` is a project body as
+     * the client sends one (name, bpm, composerName, prism, returns,
+     * tracks); by default a project with no tracks. `owner` is the student
+     * it belongs to (default the dev bypass's user; asUser's userId for
+     * another). Returns its id.
      */
-    seedProject({ name = 'Seeded project', bpm = 120 } = {}) {
+    seedProject({ owner = DEV_OWNER, ...detail } = {}) {
       const create = routes.find(
         (r) => r.method === 'POST' && r.pattern.test(`${API_PREFIX}/projects`),
       );
       const project = create.handle({
         params: [],
+        owner,
         body: {
-          name,
-          bpm,
+          name: 'Seeded project',
+          bpm: 120,
           prism: { rootNote: null, rhythmName: '', genre: '', swing: 0 },
           tracks: [],
+          ...detail,
         },
       });
       return project.id;
+    },
+
+    /**
+     * Another device's save of project `id`: the stored project with
+     * `changes` (fields of the stored row, e.g. a name or a bpm) and a new
+     * updatedAt, as a PUT from elsewhere leaves it. No request is logged.
+     */
+    touchProject(id, changes = {}) {
+      const project = state.projects.get(id);
+      if (!project || project.deletedAt) {
+        throw new Error(`mock: no live project ${id}`);
+      }
+      Object.assign(project, changes, {
+        updatedAt: new Date(
+          Math.max(Date.now(), project.updatedAt.getTime() + 1),
+        ),
+      });
+      return project.updatedAt;
+    },
+
+    /**
+     * Deletes project `id` as another device would (a soft delete: GET and
+     * PUT then answer 404, and the list leaves it out; with
+     * `rejectAssetsForDeletedProjects` its assets go too, and a new one for
+     * it is refused). No request is logged.
+     */
+    deleteProject(id) {
+      const project = state.projects.get(id);
+      if (project) {
+        project.deletedAt = new Date();
+        if (rejectAssetsForDeletedProjects) {
+          reclaimProjectAssets(state.assets, id);
+        }
+      }
+      return Boolean(project);
+    },
+
+    /**
+     * Fails, answers or delays requests (see the header): { method?, path,
+     * status? | abort? | body?, delayMs?, times? }. Returns a function that
+     * removes it.
+     */
+    fault({
+      method = null,
+      path,
+      status = 0,
+      abort = null,
+      body = undefined,
+      delayMs = 0,
+      times = Infinity,
+    }) {
+      if (!path)
+        throw new Error('mock fault: give it a path (substring or RegExp)');
+      const entry = {
+        method: method ? method.toUpperCase() : null,
+        path,
+        status,
+        abort,
+        body,
+        delayMs,
+        left: times,
+      };
+      faults.push(entry);
+      return () => {
+        faults = faults.filter((f) => f !== entry);
+      };
+    },
+
+    /**
+     * The offline fault: every Studio API and bucket request is aborted as
+     * a disconnected network aborts it. Use it with context.setOffline(true)
+     * (roundtrip.mjs setOffline does both). Returns the remover.
+     */
+    offlineFault() {
+      return this.fault({
+        path: /^\/(api\/studio\/|upload\/|download\/)/,
+        abort: 'internetdisconnected',
+      });
+    },
+
+    /** Drops every fault. */
+    clearFaults() {
+      faults = [];
+    },
+
+    /** The API requests (not the bucket's) logged since index `from`. */
+    requestsSince(from = 0) {
+      return log.slice(from).filter((l) => l.path.startsWith(API_PREFIX));
     },
 
     /** Installs the routes on a BrowserContext (or a Page). */

@@ -7,9 +7,8 @@
  * component tree and be unit-tested. The lesson/globe routes are consumed by
  * Phase 2 app-route slides; they're exported now for API stability.
  */
-import { AtlasRoutes, LearnRoutes } from '@/constants/routes';
-import type { Song, SongMode } from '@/curriculum/types/songLibrary';
-import { keyLabelToUrlParam } from '@/lib/musicKeyUrl';
+import { AtlasRoutes } from '@/constants/routes';
+import type { Song } from '@/curriculum/types/songLibrary';
 import type { SlideMedia } from './types';
 
 /** Extract a YouTube video id from a watch / share / embed URL. Ported from `SongDetailPage`. */
@@ -57,26 +56,9 @@ export const getFeaturedVisual = (song: Song): SlideMedia =>
     ? { type: 'artistImage', songId: song.id }
     : { type: 'globePreview' };
 
-/** `useSongActions.openInLesson`'s mode mapping — major/minor → church-mode slugs. */
-const normalizeLessonMode = (mode: SongMode): string => {
-  if (mode === 'major') return 'ionian';
-  if (mode === 'minor') return 'aeolian';
-  return mode;
-};
-
-/**
- * The Theory lesson route `openInLesson` navigates to (`/learn/:mode/:key`).
- *
- * `song.key` is a full label ('C major', 'B♭ minor'); the Lesson page parses
- * `:key` as a bare letter+accidental token (`urlParamToKeyLabel`), so it MUST
- * be canonicalized — passing the raw label silently resolves accidental keys
- * to the wrong note (e.g. 'B♭ major' → 'B' natural).
- */
-export const songLessonRoute = (song: Song): string =>
-  LearnRoutes.lesson({
-    mode: normalizeLessonMode(song.mode),
-    key: keyLabelToUrlParam(song.key.trim().split(/\s+/)[0] ?? ''),
-  });
+// The lesson route moved beside the song actions that use it; re-exported
+// for the slide deck's callers.
+export { songLessonRoute } from '@/features/songs/songLessonRoute';
 
 /**
  * The Globe route `openInGlobe` navigates to — lands with the song's pin

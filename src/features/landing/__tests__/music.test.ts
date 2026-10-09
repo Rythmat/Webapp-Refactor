@@ -10,6 +10,7 @@ import {
   KEY_CENTERS,
   songKeyColor,
 } from '../music';
+import { KEY_RAINBOW_COLORS } from '../rainbow';
 
 const hits = (song: Parameters<typeof songDemoChart>[0]) =>
   songDemoChart(song).flatMap((s) => s.bars.flat());
@@ -143,5 +144,11 @@ describe('theory helpers', () => {
       expect(m.midis).toHaveLength(8);
       expect(m.midis[7] - m.midis[0]).toBe(12);
     }
+  });
+});
+
+describe('KEY_RAINBOW_COLORS', () => {
+  it('matches the key-center colors without loading the theory engine', () => {
+    expect(KEY_RAINBOW_COLORS).toEqual(KEY_CENTERS.map((k) => k.color));
   });
 });

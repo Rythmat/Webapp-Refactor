@@ -9,8 +9,9 @@ import {
   spellScale,
 } from '@/curriculum/engine/genreGeneration/enharmonicEngine';
 import { GUITAR_ATLAS_BOOK_ONE, keyPitchClass } from '../bookOne';
+import { heptatonicDegreeLabels } from '../degreeLabels';
 import type {
-  GuitarCenter,
+  DiatonicGuitarCenter,
   GuitarChordShape,
   GuitarKeyName,
   GuitarModalMode,
@@ -31,7 +32,12 @@ import { pentatonicPosition, scalePosition } from './positions';
 export * from './modeNames';
 export * from './modeTables';
 export { diminishedTriadShape, parentDegreeOf, parentKeyOf } from './chords';
-export { pentatonicPosition, scalePosition } from './positions';
+export {
+  isComfortablePosition,
+  pentatonicPosition,
+  playableScalePosition,
+  scalePosition,
+} from './positions';
 export { MODE_MUSIC_MAPS } from './musicMapTemplates';
 
 /**
@@ -72,7 +78,7 @@ function buildMusicMaps(
 export function buildModeCenter(
   key: GuitarKeyName,
   mode: GuitarModalMode,
-): GuitarCenter {
+): DiatonicGuitarCenter {
   const steps = MODE_STEPS[mode];
   const tonicPc = keyPitchClass(key);
   const spelled = spellScale(key, [...steps]);
@@ -99,6 +105,7 @@ export function buildModeCenter(
   return {
     id: `${key}:${mode}`,
     key,
+    family: 'diatonic',
     mode,
     displayName,
     source: parent.source,
@@ -106,6 +113,9 @@ export function buildModeCenter(
     tonicPc,
     steps,
     spelling,
+    degreeLabels: heptatonicDegreeLabels(steps),
+    chordSteps: steps,
+    chordSpelling: spelling,
     parentKey,
     parentDegree: parentDegreeOf(mode, 1),
     scaleNotes: spelling,

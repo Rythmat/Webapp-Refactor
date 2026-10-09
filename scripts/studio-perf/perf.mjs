@@ -85,6 +85,26 @@
  *   10 s after Play and then only until its downloads finish. Fails when a
  *   load failed, the DawApp request or the module/mounted marks are missing,
  *   or the demo stayed silent.
+ * - autosave (milestone 1.4, R24): the draft autosave while the demo plays
+ *   (4-bar loop) and the first track's fader is dragged for the playback
+ *   window (20 s), then 10 s idle. From the editor's DEV marks
+ *   ma:draft:write:start/end: how many draft writes ran (target
+ *   ≤ ceil(window / maxWait) + 1, the debounce's 1 s and maxWait's 5 s),
+ *   each write's main-thread time (budget 5 ms at p95, judged only when
+ *   the editor marks it: the snapshot's ma:draft:snapshot:start/end plus
+ *   ma:draft:write:start to ma:draft:write:issued, the synchronous part of
+ *   the IndexedDB write; without those marks it is reported unmeasured),
+ *   each write's commit span (start to commit, mostly waiting on the disk;
+ *   reported, never judged), long tasks overlapping a write (target 0),
+ *   mirror writes while the tab is visible (target 0: the mirror is for
+ *   hidden, pagehide and freeze only), the TopRail slot's React commits
+ *   (its DevProfiler region EditorTopRailSlot, when DawApp has one)
+ *   against its chip and Undo/Redo flips (target: no more commits than
+ *   flips + 1), with its DOM-changing frames as a secondary check. Idle: 0
+ *   writes once the last change is committed, and the dragged fader's
+ *   final volume is the one the draft body holds (finalValueCommitted).
+ *   Fails when the window saw no draft write at all, the transport stopped,
+ *   or the fader never changed the volume.
  *
  * Drags are reported per move and per gesture as well as per second: every
  * pointer move waits for the page to take it, so a slow page gets fewer
@@ -135,6 +155,7 @@ export const SCENARIOS = [
   'fader-drag',
   'note-drag',
   'load',
+  'autosave',
 ];
 
 const DEMO = '?demo=demo-midnight-groove';
@@ -1914,6 +1935,315 @@ async function load({ browser, base, profile, windows }) {
   };
 }
 
+/* ── R24: the draft autosave while playing (milestone 1.4) ─────────────── */
+
+/**
+ * In-page: watches the draft autosave until stopDraftMonitor. Draft writes
+ * come from the editor's DEV marks (ma:draft:write:start/end, autosave.ts),
+ * long tasks from the longtask timeline, mirror writes from
+ * Storage.prototype.setItem on 'musicAtlas:daw:mirror:*' keys, and the
+ * TopRail slot (chip · Undo · Redo) from a MutationObserver: the frames in
+ * which its DOM changed, and the chip's data-state and the buttons'
+ * disabled flips.
+ */
+function startDraftMonitor() {
+  const m = {
+    t0: performance.now(),
+    writes: [],
+    open: null,
+    longTasks: [],
+    mirrorWrites: 0,
+    chipFlips: 0,
+    undoFlips: 0,
+    slotFrames: 0,
+    snapshotOpen: null,
+    snapshotMs: null,
+    issued: null,
+  };
+  window.__maDraftMonitor = m;
+  m.marks = new PerformanceObserver((list) => {
+    // Marks arrive in time order; the snapshot taken before a write is the
+    // last one that ended since the previous write.
+    for (const entry of [...list.getEntries()].sort(
+      (a, b) => a.startTime - b.startTime,
+    )) {
+      if (entry.name === 'ma:draft:snapshot:start') {
+        m.snapshotOpen = entry.startTime;
+      } else if (
+        entry.name === 'ma:draft:snapshot:end' &&
+        m.snapshotOpen !== null
+      ) {
+        m.snapshotMs = entry.startTime - m.snapshotOpen;
+        m.snapshotOpen = null;
+      } else if (entry.name === 'ma:draft:write:start') {
+        m.open = entry.startTime;
+        m.issued = null;
+      } else if (entry.name === 'ma:draft:write:issued' && m.open !== null) {
+        m.issued = entry.startTime;
+      } else if (entry.name === 'ma:draft:write:end' && m.open !== null) {
+        m.writes.push({
+          start: m.open,
+          end: entry.startTime,
+          mainThread:
+            m.issued === null ? null : m.issued - m.open + (m.snapshotMs ?? 0),
+        });
+        m.open = null;
+        m.issued = null;
+        m.snapshotMs = null;
+      }
+    }
+  });
+  m.marks.observe({ type: 'mark' });
+  try {
+    m.tasks = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        m.longTasks.push({
+          start: entry.startTime,
+          end: entry.startTime + entry.duration,
+        });
+      }
+    });
+    m.tasks.observe({ type: 'longtask' });
+  } catch {
+    m.tasks = null;
+  }
+  const setItem = Storage.prototype.setItem;
+  m.restore = () => {
+    Storage.prototype.setItem = setItem;
+  };
+  Storage.prototype.setItem = function (key, value) {
+    if (String(key).startsWith('musicAtlas:daw:mirror:')) m.mirrorWrites += 1;
+    return setItem.call(this, key, value);
+  };
+  const slot = document.querySelector('[data-slot="toprail-leading"]');
+  m.slotFound = Boolean(slot);
+  let frameCounted = false;
+  m.observer = new MutationObserver((records) => {
+    for (const r of records) {
+      if (r.type !== 'attributes' || !(r.target instanceof Element)) continue;
+      if (
+        r.attributeName === 'data-state' &&
+        r.target.matches('[data-testid="save-chip"]')
+      ) {
+        m.chipFlips += 1;
+      }
+      if (
+        r.attributeName === 'disabled' &&
+        r.target.closest(
+          '[data-testid="undo-button"], [data-testid="redo-button"]',
+        )
+      ) {
+        m.undoFlips += 1;
+      }
+    }
+    if (!frameCounted) {
+      frameCounted = true;
+      m.slotFrames += 1;
+      requestAnimationFrame(() => {
+        frameCounted = false;
+      });
+    }
+  });
+  if (slot) {
+    m.observer.observe(slot, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      characterData: true,
+    });
+  }
+}
+
+/** In-page: stops startDraftMonitor and returns what it saw. */
+function stopDraftMonitor() {
+  const m = window.__maDraftMonitor;
+  m.marks.disconnect();
+  m.tasks?.disconnect();
+  m.observer.disconnect();
+  m.restore();
+  const pctOf = (values) => {
+    const sorted = [...values].sort((a, b) => a - b);
+    const at = (p) =>
+      sorted.length
+        ? Number(
+            sorted[
+              Math.min(sorted.length - 1, Math.floor(p * sorted.length))
+            ].toFixed(1),
+          )
+        : null;
+    return {
+      n: sorted.length,
+      p50: at(0.5),
+      p95: at(0.95),
+      max: sorted.length ? Number(sorted.at(-1).toFixed(1)) : null,
+    };
+  };
+  const main = m.writes
+    .map((w) => w.mainThread)
+    .filter((v) => typeof v === 'number');
+  const overlapping = m.longTasks.filter((t) =>
+    m.writes.some((w) => t.start < w.end && w.start < t.end),
+  );
+  return {
+    seconds: Number(((performance.now() - m.t0) / 1000).toFixed(2)),
+    writes: m.writes.length,
+    // Start to commit: mostly the disk; reported, never judged.
+    commitMs: pctOf(m.writes.map((w) => w.end - w.start)),
+    // Snapshot plus the write's synchronous part, when the editor marks
+    // them (n 0: unmeasured).
+    mainThreadMs: pctOf(main),
+    longTasks: m.longTasks.length,
+    longTasksOverlappingWrites: overlapping.length,
+    mirrorWrites: m.mirrorWrites,
+    slotFound: m.slotFound,
+    slotFrames: m.slotFrames,
+    chipFlips: m.chipFlips,
+    undoFlips: m.undoFlips,
+  };
+}
+
+/** In-page: whether the draft has every change committed (none writing). */
+function draftCaughtUp() {
+  const st = window.__MA_DRAFTS__?.status();
+  return Boolean(
+    st?.draftId &&
+      !st.paused &&
+      !st.writing &&
+      st.pendingSeq === st.committedSeq,
+  );
+}
+
+async function autosave({ browser, base, profile, windows }) {
+  const session = await openDemo(browser, base, profile);
+  const { page } = session;
+  try {
+    const problems = [];
+    const ready = await page
+      .waitForFunction(draftCaughtUp, null, { timeout: 30_000, polling: 100 })
+      .then(
+        () => true,
+        () => false,
+      );
+    if (!ready) {
+      throw new Error(
+        'the editor exposes no settled draft autosave (window.__MA_DRAFTS__, milestone 1.4)',
+      );
+    }
+    const constants = await page.evaluate(
+      () => window.__MA_DRAFTS__.constants ?? null,
+    );
+    const maxWaitMs = constants?.MAX_WAIT_MS ?? 5000;
+    const slider = await page.evaluate(findVolumeSlider);
+    if (!slider?.trackId) throw new Error('no track volume slider on screen');
+    await page.evaluate(() => {
+      const store = window.__MA_STORE__.getState();
+      store.setLoopEnabled(true);
+      store.play();
+    });
+    await sleep(windows.playbackLeadMs);
+    // Playing, while the fader is dragged for the whole window.
+    await startRecording(page);
+    await page.evaluate(startDraftMonitor);
+    await page.evaluate(watchGesture, {
+      kind: 'volume',
+      trackId: slider.trackId,
+    });
+    const centre = slider.left + slider.width / 2;
+    const reach = slider.width * 0.3;
+    await page.mouse.move(slider.thumbX, slider.y);
+    await page.mouse.down();
+    const input = await sweep(page, windows.playbackMs, (t) => ({
+      x: centre + reach * Math.sin((2 * Math.PI * t) / 500),
+      y: slider.y,
+    }));
+    await page.mouse.up();
+    await drainFrame(page);
+    const gesture = await page.evaluate(finishGesture);
+    const playing = await page.evaluate(
+      () => window.__MA_STORE__.getState().isPlaying,
+    );
+    const active = await page.evaluate(stopDraftMonitor);
+    const probes = await stopRecording(page);
+    await page.evaluate(() => window.__MA_STORE__.getState().stop());
+    // Idle: once the last change is committed, nothing is written.
+    await page
+      .waitForFunction(draftCaughtUp, null, {
+        timeout: maxWaitMs + 10_000,
+        polling: 100,
+      })
+      .catch(() => {});
+    await sleep(500);
+    await page.evaluate(startDraftMonitor);
+    await sleep(windows.idleMs);
+    const idleWindow = await page.evaluate(stopDraftMonitor);
+    // What the drag left is what the draft holds.
+    const finalValue = await page.evaluate(async (trackId) => {
+      const drafts = window.__MA_DRAFTS__;
+      const body = await drafts.readBody(drafts.status().draftId);
+      let stored = null;
+      try {
+        stored =
+          JSON.parse(body?.text ?? 'null')?.data?.tracks?.find(
+            (t) => t.id === trackId,
+          )?.volume ?? null;
+      } catch {
+        stored = null;
+      }
+      return {
+        store:
+          window.__MA_STORE__.getState().tracks.find((t) => t.id === trackId)
+            ?.volume ?? null,
+        draft: stored,
+      };
+    }, slider.trackId);
+    // The TopRail slot's React commits, when DawApp profiles it.
+    const slotRegion = probes.regions?.EditorTopRailSlot ?? null;
+    const slotCommits = slotRegion
+      ? Math.round(slotRegion.commitsPerSecond * probes.seconds)
+      : null;
+    const maxWrites = Math.ceil(windows.playbackMs / maxWaitMs) + 1;
+    if (active.writes === 0) problems.push('no draft write ran while playing');
+    if (!playing) problems.push('the transport stopped during the window');
+    if (!gesture.target.changed) {
+      problems.push(`the drag never changed ${slider.track}'s volume`);
+    }
+    if (!active.slotFound) problems.push('no TopRail slot on screen');
+    problems.push(...probeProblems(probes));
+    return {
+      setup: session.setup,
+      control: { track: slider.track, trackId: slider.trackId },
+      input,
+      active,
+      idle: idleWindow,
+      finalValue,
+      slotCommits,
+      probes,
+      targets: {
+        writesAtMost: maxWrites,
+        writesOk: active.writes <= maxWrites,
+        mainThreadP95BudgetMs: 5,
+        // null: the editor does not mark it yet (unmeasured, not missed).
+        mainThreadOk:
+          active.mainThreadMs.n > 0 ? active.mainThreadMs.p95 <= 5 : null,
+        noLongTaskOnWrite: active.longTasksOverlappingWrites === 0,
+        noMirrorWhileVisible: active.mirrorWrites === 0,
+        slotCommitsOk:
+          slotCommits === null
+            ? null
+            : slotCommits <= active.chipFlips + active.undoFlips + 1,
+        slotFramesOk: active.slotFrames <= active.chipFlips + active.undoFlips,
+        idleNoWrites: idleWindow.writes === 0,
+        finalValueCommitted:
+          finalValue.store !== null && finalValue.draft === finalValue.store,
+      },
+      problems,
+      pageErrors: session.errors,
+    };
+  } finally {
+    await session.context.close();
+  }
+}
+
 const RUNNERS = {
   idle,
   playback,
@@ -1921,6 +2251,7 @@ const RUNNERS = {
   'fader-drag': faderDrag,
   'note-drag': noteDrag,
   load,
+  autosave,
 };
 
 /* ── Summary ───────────────────────────────────────────────────────────── */
@@ -2033,6 +2364,51 @@ function probeTable(runs, extraHeaders = [], extra = () => []) {
       keyList(p.storeKeys),
       regionList(p.regions),
       ...extra(run),
+    ];
+  });
+  return table(headers, rows);
+}
+
+function autosaveTable(runs) {
+  const yes = (ok) => (ok ? 'yes' : '**no**');
+  const headers = [
+    'profile',
+    'writes (target)',
+    'main thread per write p50 / p95 / max (ms, n)',
+    'commit p50 / p95 / max (ms)',
+    'long tasks (on a write)',
+    'mirror writes',
+    'slot commits / frames / chip + undo flips',
+    'idle writes',
+    'frame p95 (ms)',
+    'TransportBar commits/s',
+    'targets met',
+  ];
+  const rows = runs.map((run) => {
+    const why = unusable(run);
+    if (why) return [run.profile, why];
+    const { active, idle: quiet, targets: t, probes } = run;
+    const main = active.mainThreadMs;
+    const commit = active.commitMs;
+    const ms = (v) => (v === null ? '–' : v);
+    // The yes/no targets (the others are their limits).
+    const missed = Object.entries(t)
+      .filter(([, value]) => value === false)
+      .map(([key]) => key);
+    return [
+      run.profile,
+      `${active.writes} (≤${t.writesAtMost})`,
+      main.n > 0
+        ? `${ms(main.p50)} / ${ms(main.p95)} / ${ms(main.max)} (n ${main.n})`
+        : 'unmeasured (no snapshot/issued marks)',
+      `${ms(commit.p50)} / ${ms(commit.p95)} / ${ms(commit.max)}`,
+      `${active.longTasks} (${active.longTasksOverlappingWrites})`,
+      active.mirrorWrites,
+      `${run.slotCommits ?? '–'} / ${active.slotFrames} / ${active.chipFlips} + ${active.undoFlips}`,
+      quiet.writes,
+      probes.frameMs.p95,
+      probes.regions?.TransportBar?.commitsPerSecond ?? 0,
+      missed.length ? `${yes(false)}: ${missed.join(', ')}` : yes(true),
     ];
   });
   return table(headers, rows);
@@ -2434,6 +2810,24 @@ function summarize(results, meta, limits) {
       `downloads finish, at least ${seconds(windows.silenceMs)} after Play.`,
       'Stage A targets: boot chunk ≤150 KB gzip; the editor paints without',
       'waiting for songs content; Play is never silent (1.12b).',
+    ].join('\n'),
+  );
+  add(
+    'autosave',
+    `Draft autosave while playing and dragging a fader (${seconds(windows.playbackMs)}), then idle (${seconds(windows.idleMs)})`,
+    autosaveTable(of('autosave')),
+    [
+      'R24 (milestone 1.4). Writes come from the DEV marks',
+      'ma:draft:write:start/end. Main thread per write = the snapshot',
+      '(ma:draft:snapshot:start/end) + write start to ma:draft:write:issued',
+      '(budget 5 ms at p95; "unmeasured" until the editor sets those marks).',
+      'Commit = write start to its commit, mostly disk wait (reported only).',
+      'Targets: writes ≤ ceil(window / maxWait) + 1; no long task overlapping',
+      'a write; no mirror write while visible; TopRail-slot React commits',
+      '(DevProfiler EditorTopRailSlot) ≤ chip + Undo/Redo flips + 1, and no',
+      'more DOM-changing frames than flips; 0 writes idle; the fader’s final',
+      'volume is in the draft body. A missed target is listed here, not as a',
+      'problem; an unmeasured one (null) is neither.',
     ].join('\n'),
   );
   const problems = results.flatMap((run) =>

@@ -76,7 +76,39 @@ export function suggestedFingers(position: GuitarScalePosition): {
       ? (finger as FingerNumber)
       : null;
   });
+  if (!usesOpen && fingers.some((f) => f === null)) {
+    const stretched = stretchFingers(position.playOrder, lowest);
+    if (stretched) return { anchor: lowest + 1, fingers: stretched };
+  }
   return { anchor, fingers };
+}
+
+/**
+ * A position five frets wide that uses all five (harmonic minor, Phrygian
+ * dominant): the hand sits one fret up, from `lowest + 1`, and the first
+ * finger reaches back to `lowest` on the strings that need it. Each string
+ * is played from one place; null when a string needs both ends.
+ */
+function stretchFingers(
+  playOrder: readonly FretPosition[],
+  lowest: number,
+): FingerNumber[] | null {
+  const strings = new Map<number, number[]>();
+  for (const p of playOrder) {
+    strings.set(p.string, [...(strings.get(p.string) ?? []), p.fret]);
+  }
+  const reachesBack = new Set<number>();
+  for (const [string, frets] of strings) {
+    if (Math.max(...frets) - Math.min(...frets) > 3) return null;
+    if (frets.includes(lowest)) reachesBack.add(string);
+  }
+  const fingers = playOrder.map((p) => {
+    const anchor = reachesBack.has(p.string) ? lowest : lowest + 1;
+    return p.fret - anchor + 1;
+  });
+  return fingers.every((f) => f >= 1 && f <= 4)
+    ? (fingers as FingerNumber[])
+    : null;
 }
 
 /**

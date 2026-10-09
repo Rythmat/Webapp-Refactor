@@ -25,8 +25,9 @@ export const PIANO_TECHNIQUE_DATA: readonly TechniqueItem[] = [
   },
 ];
 
-// Guitar has no Technique lessons yet: The Guitar Atlas's key centers are
-// Theory → Ionian (Major) on guitar, and the Technique tab is hidden there.
+// Guitar has no Technique lessons yet: its lessons are in Theory (The
+// Guitar Atlas's key centers are Ionian (Major)), and the Technique tab is
+// hidden there.
 const GUITAR_TECHNIQUE_DATA: readonly TechniqueItem[] = [];
 
 export function techniqueDataFor(

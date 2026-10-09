@@ -102,17 +102,27 @@ export interface TargetNote {
 }
 
 /**
- * Chord qualities the Studio chord detector (AudioChordDetector) reports for
- * the chords guitar lessons use — keys of @prism/engine's CHORDS table.
+ * The qualities of the chords guitar lessons use, as keys of @prism/engine's
+ * CHORDS table. The Studio chord detector (AudioChordDetector) can name all
+ * of them except majorb5 and sus2b5, which it has no template for.
  */
 export type DetectorChordQuality =
   | 'major'
   | 'minor'
   | 'diminished'
+  | 'augmented'
+  | 'majorb5'
+  | 'sus2b5'
   | 'major7'
   | 'minor7'
   | 'dominant7'
-  | 'minor7b5';
+  | 'minor7b5'
+  | 'diminished7'
+  | 'minormajor7'
+  | 'major7#5'
+  | 'dominant7b5'
+  | 'minor6'
+  | 'sus2b5add6';
 
 /**
  * One chord the student is asked to play, on the same tick timeline as the

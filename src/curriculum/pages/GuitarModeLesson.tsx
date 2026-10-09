@@ -1,10 +1,12 @@
 /**
- * A mode's guitar lesson in one key: Learn → Theory → Ionian (Major) … Locrian
- * on guitar. Ionian is a key center of The Guitar Atlas: Book One; the other
- * diatonic modes are built on it (data/guitar/modes).
+ * A Theory tile's guitar lesson in one key: Learn → Theory → Ionian (Major),
+ * Phrygian Dominant, Minor Blues … on guitar. Ionian is a key center of The
+ * Guitar Atlas: Book One; the other diatonic modes are built on it
+ * (data/guitar/modes), the rest of Theory on generated grips
+ * (data/guitar/scales). `:mode` is the tile's slug ('ionian#5').
  *
  * The guitar counterpart of the piano mode lessons at /learn/:mode/:key. A
- * mode with no guitar content goes back to Theory. The premium gate (C Ionian
+ * tile with no guitar content goes back to Theory. The premium gate (C Ionian
  * free, the rest Premium) is the route's, as for piano (ClassroomPages).
  * Opening it (from the overview or a shared link) makes guitar this device's
  * Learn instrument, so Theory shows guitar on return.
@@ -15,11 +17,8 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { LearnRoutes } from '@/constants/routes';
-import { buildGuitarModeFlow } from '@/curriculum/data/activityFlows/guitarAppliedTheoryFundamentals';
-import {
-  GUITAR_MODE_TITLE,
-  isGuitarMode,
-} from '@/curriculum/data/guitar/modes';
+import { buildGuitarTheoryFlow } from '@/curriculum/data/activityFlows/guitarTheoryFlows';
+import { guitarTheoryEntry } from '@/curriculum/data/guitar/theoryCatalog';
 import { GenreLessonContainerV2 } from '@/curriculum/pages/GenreLessonContainerV2';
 import type { ActivitySectionId } from '@/curriculum/types/activity';
 import { useInstrumentStore } from '@/features/learn/useInstrumentStore';
@@ -34,13 +33,15 @@ export default function GuitarModeLesson() {
   // Same conversion as the piano routes: display label ("F♯") → ASCII ("F#").
   // The builder maps other spellings of a book key (e.g. G♭) onto it.
   const keyName = urlParamToKeyLabel(key).replace('♯', '#').replace('♭', 'b');
-  const guitarMode = isGuitarMode(mode) ? mode : null;
+  const entry = guitarTheoryEntry(mode);
+  const guitarMode = entry?.slug ?? null;
   const flow = useMemo(
-    () => buildGuitarModeFlow(keyName, guitarMode ?? 'ionian'),
+    () => buildGuitarTheoryFlow(keyName, guitarMode ?? 'ionian'),
     [keyName, guitarMode],
   );
 
-  // A section the flow doesn't have (guitar has no C) opens the first.
+  // A section the flow doesn't have (guitar has no C; pentatonic and blues
+  // have no B) opens the first.
   const requested = searchParams.get('section');
   const section: ActivitySectionId =
     flow.sections.find((s) => s.id === requested)?.id ?? 'A';
@@ -59,7 +60,7 @@ export default function GuitarModeLesson() {
     if (guitarMode) setInstrument('guitar');
   }, [guitarMode, setInstrument]);
 
-  if (!guitarMode) return <Navigate replace to={THEORY_TAB_ROUTE} />;
+  if (!guitarMode || !entry) return <Navigate replace to={THEORY_TAB_ROUTE} />;
 
   return (
     <GenreLessonContainerV2
@@ -69,7 +70,7 @@ export default function GuitarModeLesson() {
       genre={flow.genre}
       level={1}
       initialSection={section}
-      displayName={`Guitar · ${GUITAR_MODE_TITLE[guitarMode]}`}
+      displayName={`Guitar · ${entry.title}`}
       overviewRoute={LearnRoutes.guitarOverview({ mode: guitarMode })}
       rootCrumb={ROOT_CRUMB}
       practiceReturnTo={practiceReturnTo}

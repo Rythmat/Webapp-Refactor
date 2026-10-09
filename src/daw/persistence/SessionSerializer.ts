@@ -228,8 +228,8 @@ export function serializeSessionForCloud(
 // when the page last loaded, reset or seeded it, so the editor's boot knows
 // the store holds the live session (restoring the autosave over it would put
 // an older copy over newer work) and the autosave knows there is a session
-// worth writing. It lives here, not in localSession.ts, because every load
-// below sets it and localSession.ts already imports this module.
+// worth writing. It lives here, beside every load below that sets it (the
+// draft autosave and openSession read it; 1.4 retired 1.3's localSession.ts).
 
 let loadedAt: number | null = null;
 // The session as it stood when markSessionPristine noted it.

@@ -33,16 +33,10 @@ vi.mock('@/daw/dev/DevProfiler', () => ({
 vi.mock('@/daw/hooks/useTransport', () => ({
   seekTo: (tick: number) => h.seekTo(tick),
 }));
-// The bar's menus and collab dialogs aren't under test.
+// The bar's menus and collab controls aren't under test. (The collab
+// dialogs mount at the DawApp root since 1.4.)
 vi.mock('../FileMenu', () => ({ FileMenu: () => null }));
 vi.mock('@/daw/collab/ui/CollabToolbar', () => ({ CollabToolbar: () => null }));
-vi.mock('@/daw/collab/ui/LeaveSavePrompt', () => ({
-  LeaveSavePrompt: () => null,
-}));
-vi.mock('@/daw/collab/ui/KickedModal', () => ({ KickedModal: () => null }));
-vi.mock('@/daw/collab/ui/WaitingForSessionModal', () => ({
-  WaitingForSessionModal: () => null,
-}));
 vi.mock('@/daw/commands/requestRecord', () => ({ requestRecord: vi.fn() }));
 
 import { useStore } from '@/daw/store';

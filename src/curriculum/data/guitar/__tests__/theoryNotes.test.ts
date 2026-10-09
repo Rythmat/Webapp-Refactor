@@ -12,12 +12,13 @@ import {
   type GuitarSubsectionPrefix,
 } from '@/lib/guitar/theory';
 import {
-  buildGuitarAppliedTheoryFundamentalsFlow,
   buildGuitarModeFlow,
+  buildGuitarScaleFlow,
 } from '../../activityFlows/guitarAppliedTheoryFundamentals';
 import { GUITAR_KEY_ORDER } from '../bookOne';
 import { centerId, getGuitarCenter, getGuitarShape } from '../centers';
 import { GUITAR_MODES, isGuitarModalMode } from '../modes';
+import { GUITAR_THEORY_CATALOG } from '../theoryCatalog';
 import {
   THEORY_CONDITIONS,
   THEORY_TOKENS,
@@ -30,6 +31,7 @@ import {
   GUITAR_THEORY_NOTES,
   GUITAR_THEORY_STRINGS,
   familyTag,
+  noteAppliesTo,
   noteHasPrefix,
   notesFor,
   resolveTheoryNote,
@@ -65,11 +67,7 @@ interface Surface {
  */
 function surfaces(id: GuitarCenterId): Surface[] {
   const center = getGuitarCenter(id);
-  const steps = theoryStepsFor(
-    center.mode === 'ionian'
-      ? buildGuitarAppliedTheoryFundamentalsFlow(center.key)
-      : buildGuitarModeFlow(center.key, center.mode),
-  );
+  const steps = theoryStepsFor(buildGuitarScaleFlow(center.key, center.mode));
   const out: Surface[] = [
     { prefix: 'KEY', ctx: { center } },
     { prefix: 'B', ctx: { center } },
@@ -103,6 +101,25 @@ const SURFACES = Object.fromEntries(
   GUITAR_KEY_ORDER.map((key) => [key, surfaces(key)]),
 ) as Record<GuitarKeyName, Surface[]>;
 
+/**
+ * The rest of Theory: each family's first mode and the pentatonic and blues
+ * scales in every key, the other modes in C, F# and Db.
+ */
+const FAMILY_SURFACES = new Map<GuitarCenterId, Surface[]>(
+  GUITAR_THEORY_CATALOG.filter((e) => e.family !== 'diatonic').flatMap(
+    (entry) => {
+      const keys: readonly GuitarKeyName[] =
+        entry.degree === 1 || entry.degree === null
+          ? GUITAR_KEY_ORDER
+          : ['C', 'F#', 'Db'];
+      return keys.map((key) => {
+        const id = centerId(key, entry.key);
+        return [id, surfaces(id)] as const;
+      });
+    },
+  ),
+);
+
 /** The other modes' lessons, every key. */
 const MODAL_SURFACES = new Map<GuitarCenterId, Surface[]>(
   GUITAR_MODES.filter(isGuitarModalMode).flatMap((mode) =>
@@ -114,11 +131,11 @@ const MODAL_SURFACES = new Map<GuitarCenterId, Surface[]>(
 );
 
 describe('guitar theory notes: structure', () => {
-  it('has 82 notes with unique ids and 61 UI strings', () => {
-    expect(GUITAR_THEORY_NOTES).toHaveLength(82);
+  it('has 106 notes with unique ids and 70 UI strings', () => {
+    expect(GUITAR_THEORY_NOTES).toHaveLength(106);
     const ids = GUITAR_THEORY_NOTES.map((n) => n.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(Object.keys(GUITAR_THEORY_STRINGS)).toHaveLength(61);
+    expect(Object.keys(GUITAR_THEORY_STRINGS)).toHaveLength(70);
   });
 
   it('uses valid prefixes, conditions and tokens', () => {
@@ -176,14 +193,14 @@ function resolveAll(
   for (const [key, keySurfaces] of entries) {
     for (const { prefix, ctx } of keySurfaces) {
       const d = deriveTheoryContext(ctx);
-      const ionian = ctx.center.mode === 'ionian';
       for (const note of GUITAR_THEORY_NOTES) {
         if (!noteHasPrefix(note, prefix)) continue;
         if (!THEORY_CONDITIONS[note.when](d)) continue;
         const where = `${key} ${ctx.step?.id ?? prefix} ${note.id}`;
         const resolved = resolveTheoryNote(note, ctx);
-        // Ionian's notes stay out of the modes and the modes' out of Ionian.
-        if (note.modes && (note.modes === 'ionian') !== ionian) {
+        // Each lesson's notes stay out of the others' (Ionian, the modes,
+        // each family of the rest of Theory).
+        if (!noteAppliesTo(note, ctx.center)) {
           if (resolved) problems.push(`${where}: shown in the wrong mode`);
           continue;
         }
@@ -231,6 +248,25 @@ describe('guitar theory notes: resolution', () => {
       expect(resolveAll(entries, shown)).toEqual([]);
     },
   );
+
+  it.each([
+    'pentatonic-blues',
+    'harmonic-minor',
+    'melodic-minor',
+    'harmonic-major',
+    'double-harmonic',
+  ])('resolves every token in the %s lessons', (family) => {
+    const keys = new Set(
+      GUITAR_THEORY_CATALOG.filter((e) => e.family === family).map(
+        (e) => e.key,
+      ),
+    );
+    const entries = [...FAMILY_SURFACES].filter(([id]) =>
+      keys.has(id.split(':')[1] as never),
+    );
+    expect(entries.length).toBeGreaterThan(12);
+    expect(resolveAll(entries, shown)).toEqual([]);
+  });
 
   it('shows every note somewhere', () => {
     expect([...shown].sort()).toEqual(
@@ -371,12 +407,16 @@ describe('guitar theory notes: resolution', () => {
 describe('guitar theory notes: conditions', () => {
   it('each condition holds somewhere and fails somewhere', () => {
     const outcomes = new Map<string, Set<boolean>>();
-    // Book One's every step, and each mode's key header.
+    // Book One's every step, each mode's key header, and the rest of
+    // Theory's every step.
     const contexts = [
       ...GUITAR_KEY_ORDER.flatMap((key) => SURFACES[key].map((s) => s.ctx)),
       ...[...MODAL_SURFACES.keys()].map((id) => ({
         center: getGuitarCenter(id),
       })),
+      ...[...FAMILY_SURFACES.values()].flatMap((list) =>
+        list.map((s) => s.ctx),
+      ),
     ];
     for (const ctx of contexts) {
       const d = deriveTheoryContext(ctx);
@@ -387,8 +427,9 @@ describe('guitar theory notes: conditions', () => {
     const constant = [...outcomes]
       .filter(([, seen]) => seen.size < 2)
       .map(([id]) => id);
-    // Every key's 7th-chord page has a climbing top line.
-    expect(constant.sort()).toEqual(['always', 'hasTopLineRun']);
+    // (Every 7th-chord page has a climbing top line; pentatonic and blues
+    // lessons have no 7th-chord page.)
+    expect(constant.sort()).toEqual(['always']);
   });
 
   it('reads timing, articulation and the Roman-numeral setting from the step', () => {

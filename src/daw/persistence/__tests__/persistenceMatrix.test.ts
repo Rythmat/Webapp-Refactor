@@ -3,13 +3,21 @@
  * Persistence matrix: which parts of a Studio project survive a reload today.
  *
  * Each probe writes one non-default value into the editor store, reloads, and
- * checks that the value is back. Two reloads are measured:
+ * checks that the value is back. Three reloads are measured:
  *
  * - Browser refresh (the local autosave): `serializeSession` → JSON, as
  *   localStorage holds it → `deserializeSession` in a new page. The
  *   student's prefs (metronome, count-in, grid, chord-ruler labels) are no
  *   part of the draft since milestone 1.3: each page keeps them per user, as
  *   the editor does (prefsStore's sync), so a refresh carries them too.
+ * - A draft reopened after a reload (milestone 1.4): the session's draft in
+ *   IndexedDB (fake-indexeddb), written by the real DraftSessionPort (claim,
+ *   activate, begin, then a strict flushOutgoing, pending audio included),
+ *   then claimed, read and applied by a new page's port, with its pending
+ *   audio restored. Every row a refresh keeps, a reopened draft keeps too;
+ *   two more rows check the bytes of audio that never reached the cloud (an
+ *   un-uploaded take and a dropped Chops sample) are in the media store and
+ *   the draft's manifest, and come back.
  * - Cloud reopen (File ▸ Save, then open from the dashboard):
  *   `serializeSessionForCloud` → JSON, as the request body →
  *   `deserializeCloudProject` in a new page. The stand-in server echoes the
@@ -34,18 +42,21 @@
  * an `it.fails` case can only fail because of the reload.
  *
  * Not probed: the lesson and practice context (tutorial step, practice
- * session), which milestone 1.15 moves into the draft;
+ * session), which milestone 1.15 moves into the draft (DraftMeta.context);
  * leadSheetMelodyTrackId (nothing writes it); audioMidiSource, the
- * Guitar/Bass-to-MIDI binding, which the registry keeps session-only as the
- * feature was built (fields.ts), where decision D5 listed it as per-user
- * view state: the owner has yet to rule, and a draft row belongs here if D5
- * stands; and session state such as the tool and the clip selection, which
- * no reload keeps. The view of the project (current view, zoom, scroll,
- * selected track, automation lane, dock tab) is in the draft since milestone
- * 1.3, and probed.
+ * Guitar/Bass-to-MIDI binding, which the registry keeps session-only
+ * (fields.ts; a reload asks the student to pick their input again); takes
+ * still being recorded, which no draft holds until milestone 1.11d; and
+ * session state such as the tool and the clip selection, which no reload
+ * keeps. The view of the project (current view, zoom, scroll, selected
+ * track, automation lane, dock tab) is in the draft since milestone 1.3,
+ * and probed; the bytes of un-uploaded audio are in the draft's media
+ * since 1.4, and probed in the reopened-draft column.
  *
  * Run: npx vitest run src/daw/persistence/__tests__/persistenceMatrix.test.ts
  */
+import { Blob as NodeBlob } from 'node:buffer';
+import { IDBFactory, IDBKeyRange } from 'fake-indexeddb';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   StrumMode,
@@ -61,7 +72,38 @@ import type * as SynthPatchModule from '@/daw/oracle-synth/synthTrackState';
 import type * as StoreModule from '@/daw/store';
 import type { ChordRegion } from '@/daw/store/prismSlice';
 import type { AudioClip, MidiClip, Track } from '@/daw/store/tracksSlice';
+import type { DraftMeta } from '@/lib/studio-projects/drafts/types';
 import type * as Codec from '../SessionSerializer';
+
+// The reopened-draft column keeps drafts in IndexedDB (fake-indexeddb, a new
+// database per test) and pending audio as Blobs: Node's Blob, since
+// fake-indexeddb clones values with Node's structuredClone, which can't
+// clone jsdom's.
+(globalThis as { IDBKeyRange?: unknown }).IDBKeyRange = IDBKeyRange;
+(globalThis as { Blob?: unknown }).Blob = NodeBlob;
+
+/** No Web Audio here: a decode gives back a stand-in buffer of the bytes. */
+vi.mock('@/lib/studio-assets/load-audio', async (importOriginal) => {
+  const real =
+    await importOriginal<typeof import('@/lib/studio-assets/load-audio')>();
+  return {
+    ...real,
+    getDecodeContext: () => ({
+      decodeAudioData: async (bytes: ArrayBuffer) =>
+        fakeAudioBuffer(bytes.byteLength),
+    }),
+  };
+});
+
+function fakeAudioBuffer(length: number): AudioBuffer {
+  return {
+    duration: length / 48_000,
+    sampleRate: 48_000,
+    numberOfChannels: 1,
+    length,
+    getChannelData: () => new Float32Array(length),
+  } as unknown as AudioBuffer;
+}
 
 // ── Pages ────────────────────────────────────────────────────────────────
 
@@ -104,13 +146,20 @@ const st = (p: Page) => p.store.getState();
 // here; each test starts without either.
 const remembered = new Map<string, unknown>();
 
+/** Every draft autosave a page started, stopped after each test. */
+const draftControllers: (() => void)[] = [];
+
 beforeEach(() => {
   localStorage.clear();
+  sessionStorage.clear();
   remembered.clear();
+  // A device with no drafts yet.
+  (globalThis as { indexedDB?: unknown }).indexedDB = new IDBFactory();
 });
 
 afterEach(() => {
   for (const close of prefsSyncs.splice(0)) close();
+  for (const stop of draftControllers.splice(0)) stop();
   localStorage.clear();
 });
 
@@ -144,6 +193,73 @@ const reopenFromCloud: Reload = async (page) => {
     updatedAt: new Date(),
     tracks: body.tracks.map((t, i) => ({ ...t, id: `row-${i}`, ordinal: i })),
   });
+  return next;
+};
+
+/** The student's drafts namespace. */
+const DRAFT_USER = { userId: STUDENT, userKey: STUDENT };
+
+/** This page's draft modules (the port, its controller, the store). */
+async function draftsOf() {
+  const autosave = await import('../drafts/autosave');
+  const port = await import('../drafts/draftSessionPort');
+  const store = await import('@/lib/studio-projects/drafts/draftStore');
+  const generation = await import('@/daw/session/sessionGeneration');
+  return { autosave, port, store, generation };
+}
+
+/** The draft the last restoreDraft reload reopened, and its store. */
+let reopened: {
+  meta: DraftMeta;
+  store: import('@/lib/studio-projects/drafts/draftStore').DraftStore;
+} | null = null;
+
+/**
+ * A reload with drafts (milestone 1.4): this page's session gets its draft
+ * (claim, activate, begin) and is flushed strictly, pending audio included;
+ * a new page claims that draft, reads and applies it, and restores its
+ * audio. The page going away writes its prefs, as a refresh does.
+ */
+const restoreDraft: Reload = async (page) => {
+  const before = await draftsOf();
+  // The page's own store and controller start from scratch.
+  before.store.resetDraftStoreForTests();
+  before.autosave.resetDraftAutosaveForTests();
+  before.port.resetDraftSessionPortForTests();
+  draftControllers.push(before.autosave.startDraftAutosave());
+  const port = before.port.getDraftSessionPort();
+  const claim = await port.claim(DRAFT_USER, { boot: false });
+  port.activate(claim);
+  await port.begin({ source: 'new', reopenable: true, fingerprint: null });
+  await port.flushOutgoing('reload');
+  page.closePrefs();
+
+  const next = await loadPage();
+  const after = await draftsOf();
+  after.autosave.resetDraftAutosaveForTests();
+  after.port.resetDraftSessionPortForTests();
+  draftControllers.push(after.autosave.startDraftAutosave());
+  const nextPort = after.port.getDraftSessionPort();
+  const claimed = await nextPort.claim(DRAFT_USER, {
+    draftId: claim.draftId,
+    boot: true,
+  });
+  const prepared = await nextPort.read(claimed);
+  nextPort.activate(claimed);
+  nextPort.apply(prepared);
+  const meta = await nextPort.begin({
+    source: 'import',
+    reopenable: false,
+    fingerprint: null,
+  });
+  await nextPort.restoreMedia(
+    prepared.meta,
+    after.generation.getSessionGeneration(),
+  );
+  reopened = {
+    meta: meta ?? prepared.meta,
+    store: after.store.getDraftStore(),
+  };
   return next;
 };
 
@@ -820,7 +936,7 @@ const probes = {
       }),
   },
   // The lesson bass a Practice Track hands the Studio
-  // (seedStudioFromGenrePracticeTrack); unset means the sampled electric.
+  // (applyGenrePracticeTrack); unset means the sampled electric.
   bassVoice: {
     write: (p) => {
       const bass = st(p).addTrack('midi', 'bass-electric', 'Bass');
@@ -1107,6 +1223,139 @@ describe('a browser refresh (local autosave) keeps', () => {
   it('MIDI clip length', kept(probes.midiClipLength));
   it('MIDI controller data (sustain pedal)', kept(probes.sustainPedal));
   it('an uploaded audio take', kept(probes.audioTake));
+});
+
+/** Rows a refresh keeps (above); a draft reopened after a reload keeps each. */
+const LOCAL_ROWS: [string, Probe][] = [
+  ['the project name and composer', probes.identity],
+  ['the cloud project id', probes.projectId],
+  ['the tempo', probes.tempo],
+  ['the loop', probes.loop],
+  ['the metronome', probes.metronome],
+  ['the count-in, grid and chord-ruler labels', probes.userPrefs],
+  ['the playhead', probes.playhead],
+  ['the view, zoom, scroll, selected track and dock tab', probes.projectView],
+  ['the time signature', probes.timeSignature],
+  ['the key, rhythm, genre and swing', probes.keyAndFeel],
+  ['the mode', probes.mode],
+  ['Prism strum and tilt', probes.strumAndTilt],
+  ['the Prism progression being built', probes.prismProgression],
+  ['the chord lane', probes.chordLane],
+  ['a chord identity', probes.chordIdentity],
+  ['clip colouring by harmony', probes.clipColorMode],
+  ['lead-sheet sections', probes.leadSheetSections],
+  ['lead-sheet repeats', probes.leadSheetRepeats],
+  ['lead-sheet row sizes', probes.measureRowSizes],
+  ['multi-bar rests', probes.multiBarRests],
+  ['fermatas', probes.fermatas],
+  ['the lead-sheet chord format', probes.chordFormat],
+  ['the lead-sheet melody toggle', probes.leadSheetMelody],
+  ['Score articulations', probes.articulations],
+  ['Score slurs', probes.slurs],
+  ['pinned Score spellings', probes.pinnedSpellings],
+  ['Score slash notes', probes.slashNotes],
+  ['Score system and page breaks', probes.scoreLayout],
+  ['Score text, segno and coda marks', probes.textMarks],
+  ['chord symbols shown on a part', probes.chordSymbolsOnPart],
+  ['chords hidden on a part', probes.chordHiddenOnPart],
+  ['timeline markers', probes.markers],
+  ['marker ids', probes.markerIds],
+  ['the mastering FX chain', probes.masteringChain],
+  ['the mastering bypass', probes.masteringBypass],
+  ['the master volume', probes.masterVolume],
+  ['master automation', probes.masterAutomation],
+  ['the return buses', probes.returnBuses],
+  ['the track ids', probes.trackIds],
+  ['the track order, types and instruments', probes.trackList],
+  ['track volume, pan, colour, mute and solo', probes.trackMix],
+  ['track effects', probes.trackEffects],
+  ['the ducker key track', probes.duckerKey],
+  ['aux sends', probes.sends],
+  ['track automation', probes.trackAutomation],
+  ['the drum kit and pad mix', probes.drumKitAndPads],
+  ['the instrument program and preset name', probes.instrumentPreset],
+  ['the bass voice', probes.bassVoice],
+  ['the Chops sample', probes.samplerSample],
+  ['the organ drawbars and switches', probes.organState],
+  ['the guitar pedal chain', probes.pedalChain],
+  ['the vocal pedal chain', probes.vocalChain],
+  ['the Oracle synth patch', probes.oracleSynthPatch],
+  ['the track role', probes.trackRole],
+  ['the live input channel', probes.inputChannel],
+  ['record arm, monitoring and input devices', probes.inputRouting],
+  ['MIDI clip notes, name and position', probes.midiNotes],
+  ['note ids', probes.noteIds],
+  ['MIDI clip length', probes.midiClipLength],
+  ['MIDI controller data (sustain pedal)', probes.sustainPedal],
+  ['an uploaded audio take', probes.audioTake],
+];
+
+describe('a draft reopened after a reload (IndexedDB) keeps', () => {
+  // Milestone 1.4: the session's draft in IndexedDB, through the real
+  // DraftSessionPort on both pages. Everything a refresh keeps.
+  it.each(LOCAL_ROWS)('%s', (_title, probe) => survives(probe, restoreDraft));
+
+  // E8: the bytes of audio that never reached the cloud live in the draft's
+  // media (content-addressed), listed in its manifest, and come back.
+  it.each([
+    {
+      name: 'the bytes of an un-uploaded take',
+      add: (p: Page) => {
+        const clip: AudioClip = {
+          id: 'take-pending',
+          startTick: 0,
+          duration: 1920,
+          fadeInTicks: 0,
+          fadeOutTicks: 0,
+          assetId: null,
+        };
+        st(p).addAudioClip(track(p, 'Guitar').id, clip);
+        return { key: 'take-pending', clipId: 'take-pending' };
+      },
+    },
+    {
+      name: 'the bytes of a dropped sampler sample',
+      add: (p: Page) => {
+        const chops = st(p).addTrack('midi', 'sampler', 'Chops');
+        st(p).setSamplerSample(chops, {
+          ...CHOP,
+          sampleId: 'smp-pending',
+          assetId: null,
+        });
+        return { key: 'sampler:smp-pending', sampleId: 'smp-pending' };
+      },
+    },
+  ])('$name', async ({ add }) => {
+    const page = await loadPage();
+    buildProject(page);
+    const buffers = await import('@/daw/audio/AudioBufferStore');
+    const item: { key: string; clipId?: string; sampleId?: string } = add(page);
+    const bytes = new Uint8Array(4096).map((_, i) => i % 251).buffer;
+    buffers.setAudioBuffer(item.key, fakeAudioBuffer(4096));
+    buffers.setOriginalAudio(item.key, bytes, 'audio/wav');
+
+    const next = await restoreDraft(page);
+
+    const ref = reopened?.meta.media.find((m) =>
+      item.clipId
+        ? m.clipIds.includes(item.clipId)
+        : m.samplerSampleIds.includes(item.sampleId!),
+    );
+    expect(ref).toMatchObject({ contentType: 'audio/wav', size: 4096 });
+    expect(reopened?.meta.mediaMissing).toBe(0);
+    const stored = await reopened!.store.getMedia(STUDENT, ref!.mediaId);
+    expect(new Uint8Array(await stored!.blob.arrayBuffer())).toEqual(
+      new Uint8Array(bytes),
+    );
+    // Back on the new page: the original bytes (for the first Save's
+    // upload) and a buffer to play.
+    const nextBuffers = await import('@/daw/audio/AudioBufferStore');
+    expect(
+      new Uint8Array(nextBuffers.getOriginalAudio(item.key)!.bytes),
+    ).toEqual(new Uint8Array(bytes));
+    expect(nextBuffers.getAudioBuffer(item.key)).toBeDefined();
+    expect(st(next).tracks.length).toBeGreaterThan(0);
+  });
 });
 
 describe('a cloud save and reopen (client codec, echo server) keeps', () => {

@@ -25,6 +25,7 @@ export const QUALITY_DISPLAY: Record<string, string> = {
   susb2: 'sus(\u266D2)',
   susb2b5: 'sus(\u266D2\u266D5)',
   sus2b5: 'sus2(\u266D5)',
+  majorb5: 'maj(\u266D5)',
   major4: 'maj4',
   minor4: 'min4',
   Add2: 'add2',
@@ -32,6 +33,7 @@ export const QUALITY_DISPLAY: Record<string, string> = {
   // 6th chords
   major6: 'maj6',
   minor6: 'min6',
+  sus2b5add6: 'sus2(\u266D5)add6',
   major6add9: 'maj6/9',
   // 7th chords
   major7: 'maj7',

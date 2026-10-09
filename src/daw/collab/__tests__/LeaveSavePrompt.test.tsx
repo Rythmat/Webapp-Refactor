@@ -11,14 +11,12 @@ import {
   vi,
 } from 'vitest';
 
-vi.mock('@/contexts/AuthContext/hooks/useAuthContext', () => ({
-  useAuthContext: () => ({ token: 'tok', userId: 'u1' }),
+vi.mock('@/contexts/AuthContext/hooks/useAuthToken', () => ({
+  useAuthToken: () => 'tok',
 }));
-vi.mock('@/daw/collab/CollabProvider', () => ({
-  useCollab: () => ({ leaveRoom: () => {} }),
-}));
-vi.mock('@/lib/studio-projects/newProject', () => ({
-  resetToNewProject: () => {},
+// Leaving opens a new project through openSession; not under test here.
+vi.mock('@/daw/session/openSession', () => ({
+  openSession: vi.fn(async () => ({ status: 'cancelled' })),
 }));
 
 import {

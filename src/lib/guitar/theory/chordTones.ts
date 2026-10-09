@@ -22,8 +22,14 @@ const MAJ3: FormulaTone = { label: '3', role: 'third' };
 const MIN3: FormulaTone = { label: 'b3', role: 'third' };
 const P5: FormulaTone = { label: '5', role: 'fifth' };
 const DIM5: FormulaTone = { label: 'b5', role: 'fifth' };
+const AUG5: FormulaTone = { label: '#5', role: 'fifth' };
 const MAJ7: FormulaTone = { label: '7', role: 'seventh' };
 const MIN7: FormulaTone = { label: 'b7', role: 'seventh' };
+const DIM7: FormulaTone = { label: 'bb7', role: 'seventh' };
+// A sus2 chord's 2 stands where the 3rd would, and a 6 where the 7th would,
+// so every four-note chord keeps the R, third, fifth, seventh slots.
+const SUS2: FormulaTone = { label: '2', role: 'third' };
+const SIX: FormulaTone = { label: '6', role: 'seventh' };
 
 /** Semitones above the root → chord tone. A missing entry is not in the chord. */
 export const CHORD_FORMULA: Readonly<
@@ -32,10 +38,19 @@ export const CHORD_FORMULA: Readonly<
   maj: { 0: R, 4: MAJ3, 7: P5 },
   min: { 0: R, 3: MIN3, 7: P5 },
   dim: { 0: R, 3: MIN3, 6: DIM5 },
+  aug: { 0: R, 4: MAJ3, 8: AUG5 },
+  majb5: { 0: R, 4: MAJ3, 6: DIM5 },
+  sus2b5: { 0: R, 2: SUS2, 6: DIM5 },
   maj7: { 0: R, 4: MAJ3, 7: P5, 11: MAJ7 },
   dom7: { 0: R, 4: MAJ3, 7: P5, 10: MIN7 },
   min7: { 0: R, 3: MIN3, 7: P5, 10: MIN7 },
   min7b5: { 0: R, 3: MIN3, 6: DIM5, 10: MIN7 },
+  dim7: { 0: R, 3: MIN3, 6: DIM5, 9: DIM7 },
+  minMaj7: { 0: R, 3: MIN3, 7: P5, 11: MAJ7 },
+  'maj7#5': { 0: R, 4: MAJ3, 8: AUG5, 11: MAJ7 },
+  dom7b5: { 0: R, 4: MAJ3, 6: DIM5, 10: MIN7 },
+  min6: { 0: R, 3: MIN3, 7: P5, 9: SIX },
+  sus2b5add6: { 0: R, 2: SUS2, 6: DIM5, 9: SIX },
 };
 
 /** The tones that make the quality what it is; diagnostics listen for these. */
@@ -45,11 +60,30 @@ export const QUALITY_TONES: Readonly<
   maj: ['third'],
   min: ['third'],
   dim: ['third', 'fifth'],
+  aug: ['third', 'fifth'],
+  majb5: ['third', 'fifth'],
+  sus2b5: ['third', 'fifth'],
   maj7: ['third', 'seventh'],
   dom7: ['third', 'seventh'],
   min7: ['third', 'seventh'],
   min7b5: ['third', 'fifth', 'seventh'],
+  dim7: ['third', 'fifth', 'seventh'],
+  minMaj7: ['third', 'seventh'],
+  'maj7#5': ['third', 'fifth', 'seventh'],
+  dom7b5: ['third', 'fifth', 'seventh'],
+  min6: ['third', 'seventh'],
+  sus2b5add6: ['third', 'fifth', 'seventh'],
 };
+
+/** A three-note chord (a triad, or a triad-like sus2(♭5)). */
+export function isTriadQuality(quality: BookChordQuality): boolean {
+  return Object.keys(CHORD_FORMULA[quality]).length === 3;
+}
+
+/** A four-note chord: a 7th chord, or a 6 chord in a 7th chord's place. */
+export function isSeventhQuality(quality: BookChordQuality): boolean {
+  return Object.keys(CHORD_FORMULA[quality]).length === 4;
+}
 
 const mod12 = (n: number) => ((n % 12) + 12) % 12;
 
@@ -128,15 +162,21 @@ export function shapeTones(
   return tones;
 }
 
-/** 'b3' → '♭3'. */
+/** 'b3' → '♭3', 'bb7' → '𝄫7', '#5' → '♯5'. */
 export function toneLabelText(label: ChordToneLabel): string {
-  return label.replace('b', '♭');
+  return label.replace('bb', '𝄫').replace('b', '♭').replace('#', '♯');
 }
 
-/** For aria: 'R' → 'root', 'b3' → 'flat 3'. */
+/** For aria: 'R' → 'root', 'b3' → 'flat 3', 'bb7' → 'double flat 7'. */
 export function spokenToneLabel(label: ChordToneLabel): string {
   if (label === 'R') return 'root';
-  return label.replace('b', 'flat ');
+  return label.replace(/^(bb|b|#)/, (accidental) =>
+    accidental === 'bb'
+      ? 'double flat '
+      : accidental === 'b'
+        ? 'flat '
+        : 'sharp ',
+  );
 }
 
 /** The formula line under a chord name: 'R ♭3 ♭5 ♭7'. */

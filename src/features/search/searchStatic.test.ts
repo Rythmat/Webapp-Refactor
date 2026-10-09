@@ -128,6 +128,28 @@ describe('searchStatic', () => {
     ).toBe('/learn/guitar/ionian');
   });
 
+  it('finds the other guitar Theory tiles by "guitar" and their name', () => {
+    expect(
+      searchStatic('guitar dorian').find((g) => g.category === 'theory')
+        ?.results[0]?.to,
+    ).toBe('/learn/guitar/dorian');
+    // A bare mode name still leads with piano.
+    expect(
+      searchStatic('dorian').find((g) => g.category === 'theory')?.results[0]
+        ?.to,
+    ).toBe('/learn/dorian');
+  });
+
+  it('links the harmonic and melodic families by their Theory slugs', () => {
+    const links = (query: string) =>
+      searchStatic(query)
+        .find((g) => g.category === 'theory')
+        ?.results.map((r) => r.to);
+    expect(links('melodic minor')).toContain('/learn/melodicminor');
+    expect(links('harmonic minor')).toContain('/learn/harmonicminor');
+    expect(links('harmonic major')).toContain('/learn/harmonicmajor');
+  });
+
   it('matches a real song by its title and links to /songs/:id', () => {
     const song = getStaticIndex().find((e) => e.result.category === 'songs')!;
     const songs = searchStatic(song.result.title).find(

@@ -4,7 +4,6 @@ import {
   FileDown,
   FileUp,
   ChevronDown,
-  ChevronRight,
   Music,
   FilePlus,
   Save,
@@ -15,6 +14,14 @@ import {
   AudioWaveform,
 } from 'lucide-react';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
+import { getAudioBuffer } from '@/daw/audio/AudioBufferStore';
+import {
+  setLastSaved,
+  useCloudSaveStore,
+  whenSavesSettled,
+} from '@/daw/commands/cloudSaveStore';
+import { saveProject } from '@/daw/commands/saveProject';
+import { samplerBufferKey } from '@/daw/instruments/samplerChops';
 import { useStore } from '@/daw/store';
 import {
   importMidiFile,
@@ -22,24 +29,13 @@ import {
   downloadMidiBlob,
 } from '@/daw/midi/MidiFileIO';
 import { downloadLeadSheet } from '@/daw/midi/MusicXmlExport';
-import { deserializeCloudProject } from '@/daw/persistence/SessionSerializer';
-import { inSharedSession } from '@/daw/session/sharedSession';
-import {
-  SaveSupersededError,
-  saveCurrentProjectToCloud,
-  studioProjectsApi,
-  type StudioProjectSummary,
-} from '@/lib/studio-projects/api';
-import { resetToNewProject } from '@/lib/studio-projects/newProject';
-import {
-  announceKeptWork,
-  announceKeptWorkAfterReload,
-  keepOutgoingSession,
-  replaceSession,
-} from '@/lib/studio-projects/localSession';
-import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
-import { loadCloudProjectAudio } from '@/lib/studio-assets/load-audio';
-import { PartialUploadError } from '@/lib/studio-assets/upload-pending';
+import { openSession } from '@/daw/session/openSession';
+import { getSessionDeps } from '@/daw/session/sessionDeps';
+import { getSessionGeneration } from '@/daw/session/sessionGeneration';
+import { useProjectsDialogStore } from '@/daw/shell/projects/useProjectsDialogStore';
+import { modShortcut } from '@/daw/shell/topbar/platformKeys';
+import { studioProjectsApi } from '@/lib/studio-projects/api';
+import type { AssetStamp } from '@/lib/studio-assets/upload-pending';
 import { showError, showSuccess } from '@/components/utils/toast';
 import {
   DEFAULT_EXPORT_CHOICES,
@@ -63,27 +59,71 @@ function rescaleTick(tick: number, sourcePpq: number): number {
 const itemClass =
   'flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-xs outline-none transition-colors hover:bg-white/5';
 const itemStyle = { color: 'var(--color-text)' };
+const dimItemStyle = { color: 'var(--color-text-dim)' };
 const separatorStyle = {
   height: 1,
   backgroundColor: 'rgba(255, 255, 255, 0.08)',
   margin: '4px 8px',
 };
 
+/**
+ * The project the server just deleted reclaimed its audio assets (E12: the
+ * session stays open as device-only work). Clips and Chops samples whose
+ * audio is still in memory go back to pending, so the device draft keeps
+ * their bytes and the next Save uploads them again. Only in the session
+ * the Delete was asked in. upload-pending is loaded on demand, as by every
+ * other caller: it pulls in the Opus encoder and the assets API, which stay
+ * out of the editor's entry chunk.
+ */
+async function unstampDeletedAssets(generation: number): Promise<void> {
+  const { revertAssetStamps } = await import(
+    '@/lib/studio-assets/upload-pending'
+  );
+  if (getSessionGeneration() !== generation) return;
+  const stamps: AssetStamp[] = [];
+  for (const track of useStore.getState().tracks) {
+    for (const clip of track.audioClips) {
+      if (clip.assetId && getAudioBuffer(clip.id)) {
+        stamps.push({
+          kind: 'clip',
+          trackId: track.id,
+          clipId: clip.id,
+          assetId: clip.assetId,
+        });
+      }
+    }
+    const sample = track.samplerSample;
+    if (
+      sample?.assetId &&
+      !sample.sourceUrl &&
+      getAudioBuffer(samplerBufferKey(sample.sampleId))
+    ) {
+      stamps.push({
+        kind: 'sample',
+        trackId: track.id,
+        sampleId: sample.sampleId,
+        assetId: sample.assetId,
+      });
+    }
+  }
+  revertAssetStamps(stamps, { generation });
+}
+
 // ── Component ───────────────────────────────────────────────────────────────
 
 export function FileMenu() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const token = useAuthToken();
-  const { userId } = useAuthContext();
-  // During a collab session, New Project and Open are unavailable: New Project
-  // would reload and silently drop the user, and Open isn't supported in a
-  // shared session (each user saves to their own account instead).
-  const isCollabActive = useStore((s) => s.isCollabActive);
+  // In a shared session (E15: membership is the room id), New and Open are
+  // off: either would replace the room's project for everyone in it, or be
+  // replaced by it. Each student saves a copy to their own account instead.
+  const inRoom = useStore((s) => s.roomId !== null);
+  const saving = useCloudSaveStore((s) => s.phase === 'saving');
+  // The modifier the student's keyboard has: ⌘ on a Mac, Ctrl elsewhere.
+  const saveKeys = modShortcut('S').label;
+  const analyzeKeys = modShortcut('U', { shift: true }).label;
 
-  // Controlled state lets us close the "Open" submenu on mouse-leave and reset
-  // it whenever the root menu closes (e.g. after a selection is processed).
   const [menuOpen, setMenuOpen] = useState(false);
-  const [openSubmenu, setOpenSubmenu] = useState(false);
 
   // Radix portals the menu content to document.body, which is outside the
   // `.daw-root` element that the theme tokens (--color-surface-2, etc.) are
@@ -112,201 +152,92 @@ export function FileMenu() {
     setMenuVars(vars as unknown as React.CSSProperties);
   }, [menuOpen]);
 
-  // Cloud project list for the Open submenu. Re-fetched on save / delete.
-  const [cloudProjects, setCloudProjects] = useState<StudioProjectSummary[]>(
-    [],
-  );
-  const [cloudListError, setCloudListError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
   const [exportAudioOpen, setExportAudioOpen] = useState(false);
   const [exportChoices, setExportChoices] = useState<ExportChoices>(
     DEFAULT_EXPORT_CHOICES,
   );
 
-  const refreshCloudProjects = useCallback(async () => {
-    if (!token) return;
-    try {
-      const list = await studioProjectsApi.list(token);
-      setCloudProjects(list);
-      setCloudListError(null);
-    } catch (err) {
-      console.error('Failed to list cloud projects', err);
-      setCloudListError(
-        err instanceof Error ? err.message : 'Failed to list projects',
-      );
-    }
-  }, [token]);
-
-  useEffect(() => {
-    void refreshCloudProjects();
-  }, [refreshCloudProjects]);
-
   // ── Project management ──
 
-  // No question (owner decision 6): unsaved work is kept first, and the
-  // toast with its Restore waits for the editor's boot after the reload.
-  const handleNewProject = useCallback(async () => {
-    const kept = keepOutgoingSession(userId);
-    if (kept.status === 'failed') {
-      showError(
-        "Your work couldn't be set aside on this device, so it's still open. Save it, then try again.",
-      );
-      return;
-    }
-    if (kept.status === 'kept') announceKeptWorkAfterReload(kept.slot);
+  // In place, with no question (owner decision 6) and no reload: the work
+  // it replaces is kept first, with a Restore (openSession).
+  const handleNewProject = useCallback(() => {
+    if (useStore.getState().roomId !== null) return;
+    void openSession({ kind: 'new' }, { source: 'menu' });
+  }, []);
 
-    // If the user was working on a cloud project, eagerly clean up any failed-
-    // upload orphans for it before reloading. Best-effort — if the cleanup
-    // call fails, the hourly cron will still catch them within ~25h.
-    const previousProjectId = useStore.getState().projectId;
-    if (previousProjectId && token) {
-      try {
-        await studioProjectsApi.cleanupPendingAssets(token, previousProjectId);
-      } catch (err) {
-        console.warn(
-          'Failed to clean up pending assets for previous project',
-          err,
-        );
-      }
-    }
+  // One save path for the menu, Cmd/Ctrl-S and the chip: saveProject toasts
+  // the outcome and handles a student who isn't signed in.
+  const handleSave = useCallback(() => {
+    void saveProject({ source: 'menu' });
+  }, []);
 
-    // Drop the local autosave (so the reload doesn't restore the session we're
-    // leaving) and reload into a blank project.
-    resetToNewProject();
-  }, [token, userId]);
-
-  const handleSave = useCallback(async () => {
-    if (!token) {
-      showError('You must be signed in to save.');
-      return;
-    }
-    setSaving(true);
-    try {
-      await saveCurrentProjectToCloud(token);
-      await refreshCloudProjects();
-      showSuccess('Project saved');
-    } catch (err) {
-      // Another project opened, or this one was deleted or saved as a copy,
-      // while the save waited: nothing was sent, and nothing went wrong.
-      if (err instanceof SaveSupersededError) return;
-      console.error('Cloud save failed', err);
-      if (err instanceof PartialUploadError) {
-        // Partial success — succeeded clips kept their assetIds, retry will
-        // only re-upload the failed ones. Show the helper's own message.
-        showError(err.message);
-      } else {
-        showError(
-          `Save failed: ${err instanceof Error ? err.message : 'unknown error'}`,
-        );
-      }
-    } finally {
-      setSaving(false);
-    }
-  }, [token, refreshCloudProjects]);
-
-  const handleSaveAs = useCallback(async () => {
-    if (!token) {
-      showError('You must be signed in to save.');
-      return;
-    }
-    const state = useStore.getState();
-    const name = window.prompt('Project name:', state.projectName);
+  // window.prompt stays until 2.3's Prompt primitive. The copy takes the
+  // name and the cloud link only once it is saved.
+  const handleSaveAs = useCallback(() => {
+    const name = window.prompt(
+      'Project name:',
+      useStore.getState().projectName,
+    );
     if (!name || !name.trim()) return;
-    const trimmed = name.trim();
-    // Apply as the session title only when allowed (no-op for a non-host in a
-    // collab session — the host owns the shared title). Either way the cloud
-    // copy is saved under `trimmed` via the name override below.
-    state.setProjectName(trimmed);
-    // Clear projectId so the helper POSTs (creates a new project) instead of
-    // overwriting the currently loaded one.
-    state.setProjectId(null);
-    setSaving(true);
-    try {
-      await saveCurrentProjectToCloud(token, trimmed);
-      await refreshCloudProjects();
-      showSuccess(`Saved as "${trimmed}"`);
-    } catch (err) {
-      if (err instanceof SaveSupersededError) return;
-      console.error('Cloud save-as failed', err);
-      if (err instanceof PartialUploadError) {
-        showError(err.message);
-      } else {
-        showError(
-          `Save As failed: ${err instanceof Error ? err.message : 'unknown error'}`,
-        );
-      }
-    } finally {
-      setSaving(false);
-    }
-  }, [token, refreshCloudProjects]);
+    void saveProject({ source: 'menu', saveAs: { name: name.trim() } });
+  }, []);
 
-  const handleOpenProject = useCallback(
-    async (id: string) => {
-      if (!token) {
-        showError('You must be signed in to open a cloud project.');
-        return;
-      }
-      try {
-        const project = await studioProjectsApi.get(token, id);
-        // The project replaces the session the way an editor link does: the
-        // work it held is kept first, and an unchanged copy of this project
-        // has no work for the next link to keep.
-        const result = await replaceSession(
-          userId,
-          () => deserializeCloudProject(project),
-          { reopenable: true },
-        );
-        if (result.status === 'refused') {
-          showError(
-            "Your work couldn't be set aside on this device, so it's still open. Save it, then try again.",
-          );
-          return;
-        }
-        if (result.status === 'failed') throw result.error;
-        // Restore offered where restoreKeptWork allows it: not in a shared
-        // session, though a host whose room has closed may.
-        const restorable = !inSharedSession();
-        if (result.kept) announceKeptWork(result.kept, userId, { restorable });
-        if (result.also) announceKeptWork(result.also, userId, { restorable });
-        useStore.getState().offerChordAnalysis();
-        // Audio buffers download + decode in the background; clips appear in
-        // the timeline immediately and become playable as their bytes arrive.
-        void loadCloudProjectAudio(token).catch((err) => {
-          console.error('Audio asset load failed', err);
-        });
-      } catch (err) {
-        console.error('Cloud open failed', err);
-        showError(
-          `Open failed: ${err instanceof Error ? err.message : 'unknown error'}`,
-        );
-      }
-    },
-    [token, userId],
-  );
+  // The Projects dialog: drafts on this device and the account's projects.
+  // It shows a tick after the store opens it, once this menu has closed.
+  const handleOpen = useCallback(() => {
+    if (useStore.getState().roomId !== null) return;
+    useProjectsDialogStore.getState().openDialog();
+  }, []);
 
+  // Deletes the open project from the account. The session stays open as
+  // work on this device (E12), no longer linked to it, so the next Save
+  // makes a new project. window.confirm stays until 2.3.
   const handleDeleteProject = useCallback(async () => {
     if (!token) {
-      showError('You must be signed in to delete a cloud project.');
+      showError('Sign in to delete a project from your account.');
       return;
     }
+    // A save still out would PUT to the deleted project, get a 404 and
+    // re-create it (E12): let it land first, then read what is open.
+    await whenSavesSettled(10_000);
     const state = useStore.getState();
-    if (!state.projectId) {
-      showError('This project has not been saved to the cloud yet.');
+    const projectId = state.projectId;
+    if (!projectId) {
+      showError('This project has not been saved to your account yet.');
       return;
     }
     if (!window.confirm(`Delete project "${state.projectName}"?`)) return;
+    const generation = getSessionGeneration();
+    const drafts = getSessionDeps()?.drafts ?? null;
+    const draftId = drafts?.activeDraftId() ?? null;
     try {
-      await studioProjectsApi.remove(token, state.projectId);
-      state.setProjectId(null);
-      await refreshCloudProjects();
-      showSuccess('Project deleted');
+      await studioProjectsApi.remove(token, projectId);
     } catch (err) {
       console.error('Cloud delete failed', err);
       showError(
-        `Delete failed: ${err instanceof Error ? err.message : 'unknown error'}`,
+        "Couldn't delete the project. Check your connection and try again.",
       );
+      return;
     }
-  }, [token, refreshCloudProjects]);
+    const live =
+      getSessionGeneration() === generation &&
+      useStore.getState().projectId === projectId;
+    if (live) {
+      // The next draft write takes the project id from the store.
+      useStore.getState().setProjectId(null);
+      setLastSaved(null);
+      await unstampDeletedAssets(generation).catch((err: unknown) => {
+        console.error('Re-pending the deleted project’s audio failed', err);
+      });
+    }
+    // The draft that held this project no longer points at it, whether it
+    // is still open or not, so reopening it never re-creates the project.
+    if (drafts && draftId) {
+      void drafts.patchCloud(draftId, { projectId: null, cloud: null });
+    }
+    showSuccess('Project deleted');
+  }, [token]);
 
   // ── MIDI import/export ──
 
@@ -420,15 +351,7 @@ export function FileMenu() {
         onChange={handleFileChange}
       />
 
-      <DropdownMenu.Root
-        open={menuOpen}
-        onOpenChange={(open) => {
-          setMenuOpen(open);
-          // Reset the submenu when the whole menu closes so it doesn't
-          // auto-reopen the next time the File menu is opened.
-          if (!open) setOpenSubmenu(false);
-        }}
-      >
+      <DropdownMenu.Root open={menuOpen} onOpenChange={setMenuOpen}>
         <DropdownMenu.Trigger asChild>
           <button
             data-tutorial-id="file-menu"
@@ -454,27 +377,34 @@ export function FileMenu() {
             }}
             sideOffset={4}
           >
-            {/* Project management — New Project is hidden during a collab
-                session (it reloads, which would drop the user from the room). */}
-            {!isCollabActive && (
-              <>
-                <DropdownMenu.Item
-                  className={itemClass}
-                  style={itemStyle}
-                  onSelect={() => void handleNewProject()}
-                >
-                  <FilePlus size={13} strokeWidth={2} />
-                  New Project
-                </DropdownMenu.Item>
+            {/* Project management. New and Open are off in a shared session:
+                either would replace the room's project for everyone. */}
+            <DropdownMenu.Item
+              className={itemClass}
+              style={inRoom ? dimItemStyle : itemStyle}
+              onSelect={handleNewProject}
+              disabled={inRoom}
+            >
+              <FilePlus size={13} strokeWidth={2} />
+              New Project
+            </DropdownMenu.Item>
 
-                <div style={separatorStyle} />
-              </>
-            )}
+            <DropdownMenu.Item
+              className={itemClass}
+              style={inRoom ? dimItemStyle : itemStyle}
+              onSelect={handleOpen}
+              disabled={inRoom}
+            >
+              <FolderOpen size={13} strokeWidth={2} />
+              Open…
+            </DropdownMenu.Item>
+
+            <div style={separatorStyle} />
 
             <DropdownMenu.Item
               className={itemClass}
               style={itemStyle}
-              onSelect={() => void handleSave()}
+              onSelect={handleSave}
               disabled={saving}
             >
               <Save size={13} strokeWidth={2} />
@@ -483,79 +413,19 @@ export function FileMenu() {
                 className="ml-auto text-[10px]"
                 style={{ color: 'var(--color-text-dim)' }}
               >
-                {'⌘'}S
+                {saveKeys}
               </span>
             </DropdownMenu.Item>
 
             <DropdownMenu.Item
               className={itemClass}
               style={itemStyle}
-              onSelect={() => void handleSaveAs()}
+              onSelect={handleSaveAs}
               disabled={saving}
             >
               <SaveAll size={13} strokeWidth={2} />
               Save As…
             </DropdownMenu.Item>
-
-            {/* Open submenu — disabled during a collab session (opening a
-                different project isn't supported in a shared session). */}
-            <DropdownMenu.Sub open={openSubmenu} onOpenChange={setOpenSubmenu}>
-              <DropdownMenu.SubTrigger
-                className={itemClass}
-                style={
-                  isCollabActive
-                    ? { color: 'var(--color-text-dim)' }
-                    : itemStyle
-                }
-                disabled={isCollabActive}
-              >
-                <FolderOpen size={13} strokeWidth={2} />
-                Open
-                <ChevronRight size={11} className="ml-auto" strokeWidth={2} />
-              </DropdownMenu.SubTrigger>
-              <DropdownMenu.Portal>
-                <DropdownMenu.SubContent
-                  className="z-50 min-w-[200px] rounded-lg p-1 shadow-lg"
-                  style={{
-                    ...menuVars,
-                    backgroundColor: 'var(--color-surface-2)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                  }}
-                  sideOffset={4}
-                  // Close the submenu as soon as the pointer leaves it.
-                  onPointerLeave={() => setOpenSubmenu(false)}
-                >
-                  {cloudListError ? (
-                    <DropdownMenu.Item
-                      className={itemClass}
-                      style={{ color: 'var(--color-text-dim)' }}
-                      disabled
-                    >
-                      {cloudListError}
-                    </DropdownMenu.Item>
-                  ) : cloudProjects.length === 0 ? (
-                    <DropdownMenu.Item
-                      className={itemClass}
-                      style={{ color: 'var(--color-text-dim)' }}
-                      disabled
-                    >
-                      (No saved projects)
-                    </DropdownMenu.Item>
-                  ) : (
-                    cloudProjects.map((p) => (
-                      <DropdownMenu.Item
-                        key={p.id}
-                        className={itemClass}
-                        style={itemStyle}
-                        onSelect={() => void handleOpenProject(p.id)}
-                      >
-                        {p.name}
-                      </DropdownMenu.Item>
-                    ))
-                  )}
-                </DropdownMenu.SubContent>
-              </DropdownMenu.Portal>
-            </DropdownMenu.Sub>
 
             <DropdownMenu.Item
               className={itemClass}
@@ -564,6 +434,7 @@ export function FileMenu() {
                 color: 'var(--color-text-dim)',
               }}
               onSelect={() => void handleDeleteProject()}
+              disabled={saving}
             >
               <Trash2 size={13} strokeWidth={2} />
               Delete Project
@@ -622,7 +493,7 @@ export function FileMenu() {
                 className="ml-auto text-[10px]"
                 style={{ color: 'var(--color-text-dim)' }}
               >
-                {'⇧⌘'}U
+                {analyzeKeys}
               </span>
             </DropdownMenu.Item>
 

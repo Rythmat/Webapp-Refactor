@@ -13,25 +13,77 @@ import { DEFAULT_KEYSCALE } from './keyScaleSlice';
 import { withUniqueModRouteIds } from './modulationSlice';
 import { migrateModRoute } from '../../audio/modMath';
 import type { SynthStore } from '../storeTypes';
+import {
+  getLocalStoreUserKey,
+  onLocalStoreUserChange,
+  type UserKey,
+} from '@/lib/local-store/userScope';
 
-const STORAGE_KEY = 'oracle-synth-presets';
+// ── The student's own presets, per user ─────────────────────────────────────
+//
+// Saved presets follow the student, not a project or a device: on a shared
+// Chromebook each user keeps theirs under their own key
+// (`oracle-synth-presets:<userKey>`, userScope.ts). The pre-1.4 list was one
+// per device (LEGACY_PRESETS_KEY); a user's first load copies it into their
+// own key, so nobody loses a preset they could see before. The device list
+// itself is never written or deleted (an older tab may still use it).
+//
+// Following userScope.ts: nothing is read or written while the device's user
+// is unknown (auth hasn't answered yet); the list is empty then, and a preset
+// saved meanwhile joins the user's list once they are known. A signed-out
+// session keeps its own under 'anon'. The store reloads the list whenever
+// the user changes.
 
-function loadUserPresets(): StoredPreset[] {
+/** The pre-1.4 device-wide list: read once per user, never written. */
+export const LEGACY_PRESETS_KEY = 'oracle-synth-presets';
+
+/** Where a user's own presets live. */
+export function userPresetsKey(userKey: UserKey): string {
+  return `${LEGACY_PRESETS_KEY}:${userKey}`;
+}
+
+function readPresetList(key: string): StoredPreset[] | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw) as StoredPreset[];
+    const raw = localStorage.getItem(key);
+    if (raw === null) return null;
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as StoredPreset[]) : [];
   } catch {
     return [];
   }
 }
 
-function saveUserPresets(presets: StoredPreset[]): void {
+function writePresetList(key: string, presets: StoredPreset[]): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
+    localStorage.setItem(key, JSON.stringify(presets));
   } catch {
     // Storage full or unavailable — silently fail
   }
+}
+
+/**
+ * The current user's saved presets: their own list, or on their first load
+ * a copy of the device list (written to their key at once when it holds
+ * anything, so later changes to the device list by an older tab don't leak
+ * in; an empty copy writes nothing, so merely opening the synth doesn't make
+ * someone count as another user of the device). Empty while the user is
+ * unknown.
+ */
+export function loadUserPresets(): StoredPreset[] {
+  const userKey = getLocalStoreUserKey();
+  if (userKey === null) return [];
+  const key = userPresetsKey(userKey);
+  const own = readPresetList(key);
+  if (own !== null) return own;
+  const device = readPresetList(LEGACY_PRESETS_KEY) ?? [];
+  if (device.length > 0) writePresetList(key, device);
+  return device;
+}
+
+function saveUserPresets(presets: StoredPreset[]): void {
+  const userKey = getLocalStoreUserKey();
+  if (userKey === null) return;
+  writePresetList(userPresetsKey(userKey), presets);
 }
 
 /** Extract serializable preset data from current store state */
@@ -177,94 +229,122 @@ export const createPresetSlice: StateCreator<
   [],
   [],
   PresetSlice
-> = (set, get) => ({
-  presetName: 'INITIALIZE',
-  isDirty: false,
-  userPresets: loadUserPresets(),
-  packPresets: [],
-  packDisplayName: null,
-
-  registerPackPresets: (displayName, presets) =>
-    set({ packDisplayName: displayName, packPresets: presets }),
-
-  setPresetName: (name) => set({ presetName: name }),
-  markDirty: () => set({ isDirty: true }),
-
-  loadPreset: (name) => {
-    // Check factory presets first
-    const factory = FACTORY_PRESETS.find((p) => p.name === name);
-    if (factory) {
-      set(applyPresetData(factory) as Partial<SynthStore>);
+> = (set, get) => {
+  // Another user on this page (a sign-in, a sign-out, a switch of account
+  // without a reload): show theirs. Presets saved while the user was still
+  // unknown were never written: they join the newly known user's list. The
+  // synth store is a page singleton, so this subscription lasts as long as
+  // the page.
+  let loadedFor: UserKey | null = getLocalStoreUserKey();
+  onLocalStoreUserChange(() => {
+    const userKey = getLocalStoreUserKey();
+    const previous = loadedFor;
+    loadedFor = userKey;
+    if (userKey === previous) return;
+    const loaded = loadUserPresets();
+    const unsaved =
+      previous === null && userKey !== null
+        ? get().userPresets.filter(
+            (p) => !loaded.some((l) => l.name === p.name),
+          )
+        : [];
+    if (unsaved.length === 0) {
+      set({ userPresets: loaded });
       return;
     }
-    const state = get();
-    // Then extension-pack presets
-    const pack = state.packPresets.find((p) => p.name === name);
-    if (pack) {
-      set(applyPresetData(pack.data) as Partial<SynthStore>);
-      return;
-    }
-    // Then user presets
-    const user = state.userPresets.find((p) => p.name === name);
-    if (user) {
-      set(applyPresetData(user.data) as Partial<SynthStore>);
-    }
-  },
+    const merged = [...loaded, ...unsaved];
+    saveUserPresets(merged);
+    set({ userPresets: merged });
+  });
+  return {
+    presetName: 'INITIALIZE',
+    isDirty: false,
+    userPresets: loadUserPresets(),
+    packPresets: [],
+    packDisplayName: null,
 
-  savePreset: (name) => {
-    const state = get();
-    const data = extractPresetData(state, name);
-    const stored: StoredPreset = { name, data, isFactory: false };
+    registerPackPresets: (displayName, presets) =>
+      set({ packDisplayName: displayName, packPresets: presets }),
 
-    const existing = state.userPresets.filter((p) => p.name !== name);
-    const updated = [...existing, stored];
-    saveUserPresets(updated);
-    set({ userPresets: updated, presetName: name, isDirty: false });
-  },
+    setPresetName: (name) => set({ presetName: name }),
+    markDirty: () => set({ isDirty: true }),
 
-  deletePreset: (name) => {
-    const state = get();
-    const updated = state.userPresets.filter((p) => p.name !== name);
-    saveUserPresets(updated);
-    set({ userPresets: updated });
-  },
+    loadPreset: (name) => {
+      // Check factory presets first
+      const factory = FACTORY_PRESETS.find((p) => p.name === name);
+      if (factory) {
+        set(applyPresetData(factory) as Partial<SynthStore>);
+        return;
+      }
+      const state = get();
+      // Then extension-pack presets
+      const pack = state.packPresets.find((p) => p.name === name);
+      if (pack) {
+        set(applyPresetData(pack.data) as Partial<SynthStore>);
+        return;
+      }
+      // Then user presets
+      const user = state.userPresets.find((p) => p.name === name);
+      if (user) {
+        set(applyPresetData(user.data) as Partial<SynthStore>);
+      }
+    },
 
-  exportPreset: () => {
-    const state = get();
-    const data = extractPresetData(state, state.presetName);
-    return JSON.stringify(data, null, 2);
-  },
+    savePreset: (name) => {
+      const state = get();
+      const data = extractPresetData(state, name);
+      const stored: StoredPreset = { name, data, isFactory: false };
 
-  importPreset: (json) => {
-    try {
-      const data = JSON.parse(json) as PresetData;
-      if (!data.name || !data.version || !data.oscillators) return false;
-      set(applyPresetData(data) as Partial<SynthStore>);
-      return true;
-    } catch {
-      return false;
-    }
-  },
+      const existing = state.userPresets.filter((p) => p.name !== name);
+      const updated = [...existing, stored];
+      saveUserPresets(updated);
+      set({ userPresets: updated, presetName: name, isDirty: false });
+    },
 
-  initPreset: () => {
-    set(applyPresetData(INITIALIZE) as Partial<SynthStore>);
-  },
+    deletePreset: (name) => {
+      const state = get();
+      const updated = state.userPresets.filter((p) => p.name !== name);
+      saveUserPresets(updated);
+      set({ userPresets: updated });
+    },
 
-  getPresetList: () => {
-    const state = get();
-    const factory = FACTORY_PRESETS.map((p) => ({
-      name: p.name,
-      isFactory: true,
-    }));
-    const pack = state.packPresets.map((p) => ({
-      name: p.name,
-      isFactory: true,
-      isPack: true,
-    }));
-    const user = state.userPresets.map((p) => ({
-      name: p.name,
-      isFactory: false,
-    }));
-    return [...factory, ...pack, ...user];
-  },
-});
+    exportPreset: () => {
+      const state = get();
+      const data = extractPresetData(state, state.presetName);
+      return JSON.stringify(data, null, 2);
+    },
+
+    importPreset: (json) => {
+      try {
+        const data = JSON.parse(json) as PresetData;
+        if (!data.name || !data.version || !data.oscillators) return false;
+        set(applyPresetData(data) as Partial<SynthStore>);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+
+    initPreset: () => {
+      set(applyPresetData(INITIALIZE) as Partial<SynthStore>);
+    },
+
+    getPresetList: () => {
+      const state = get();
+      const factory = FACTORY_PRESETS.map((p) => ({
+        name: p.name,
+        isFactory: true,
+      }));
+      const pack = state.packPresets.map((p) => ({
+        name: p.name,
+        isFactory: true,
+        isPack: true,
+      }));
+      const user = state.userPresets.map((p) => ({
+        name: p.name,
+        isFactory: false,
+      }));
+      return [...factory, ...pack, ...user];
+    },
+  };
+};

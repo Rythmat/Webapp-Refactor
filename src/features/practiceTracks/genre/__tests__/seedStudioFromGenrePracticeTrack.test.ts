@@ -3,20 +3,23 @@ import { describe, expect, it } from 'vitest';
 import { funkL2 } from '@/curriculum/data/activityFlows/funk_v2';
 import type { ActivitySectionId } from '@/curriculum/types/activity';
 import { resetSessionToEmpty } from '@/daw/persistence/SessionSerializer';
+import { resetProjectState } from '@/daw/persistence/projectDocument/initialState';
 import { useStore } from '@/daw/store';
 import { buildGenrePracticeTrack } from '../buildGenrePracticeTrack';
-import { seedStudioFromGenrePracticeTrack } from '../seedStudioFromGenrePracticeTrack';
+import { applyGenrePracticeTrack } from '../seedStudioFromGenrePracticeTrack';
 
-/** Each seed starts from an empty session, so seeding twice in one test is
- *  two independent Practice Tracks rather than one with both sets of tracks. */
+/** Each seed starts from an empty session, reset the way openSession resets
+ *  before it applies, so seeding twice in one test is two independent
+ *  Practice Tracks rather than one with both sets of tracks. */
 const seed = (section: ActivitySectionId) => {
   resetSessionToEmpty();
+  resetProjectState('practice');
   const track = buildGenrePracticeTrack(funkL2, section)!;
-  const studentTrackId = seedStudioFromGenrePracticeTrack(track, 'Funk');
+  const studentTrackId = applyGenrePracticeTrack(track, 'Funk');
   return { track, studentTrackId, state: useStore.getState() };
 };
 
-describe('seedStudioFromGenrePracticeTrack', () => {
+describe('applyGenrePracticeTrack', () => {
   it('names the project after the level and section', () => {
     expect(seed('A').state.projectName).toBe('Funk L2 — Melody Practice Track');
   });

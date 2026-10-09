@@ -58,9 +58,9 @@ export function keyNumberLabel(
   return labels[(((midi - tonicPc) % 12) + 12) % 12];
 }
 
-/** Mode names keep their capital in a lowercased title. */
+/** Mode names keep their capital in a lowercased title ('E Phrygian dominant'). */
 const MODE_NAME =
-  /^(Ionian|Dorian|Phrygian|Lydian|Mixolydian|Aeolian|Locrian)$/;
+  /^(Ionian|Dorian|Phrygian|Lydian|Mixolydian|Aeolian|Locrian|Ultraphrygian|Oriental)$/;
 
 /** The note name in the key, without its octave: 'B♭', 'F♯'. */
 export function keyNoteName(midi: number, tonicPc: number): string {

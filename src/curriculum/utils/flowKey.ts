@@ -11,6 +11,10 @@
 
 import { ALL_MODES } from '@prism/engine';
 import {
+  guitarScaleEntry,
+  isGuitarScaleKey,
+} from '../data/guitar/theoryCatalog';
+import {
   spellScale,
   buildSpellingMap,
 } from '../engine/genreGeneration/enharmonicEngine';
@@ -87,7 +91,12 @@ const SCALE_TO_MODE: Record<string, string> = {
 
 /** The Prism mode a scale id is coloured and spelled in. */
 export function modeForScaleId(scaleId: string | undefined): string {
-  return SCALE_TO_MODE[scaleId ?? ''] ?? 'dorian';
+  const mode = SCALE_TO_MODE[scaleId ?? ''];
+  if (mode) return mode;
+  // The rest of Theory on guitar: its nearest diatonic mode.
+  return isGuitarScaleKey(scaleId)
+    ? guitarScaleEntry(scaleId).colourMode
+    : 'dorian';
 }
 
 /** The Prism mode this flow is coloured and spelled in. */
@@ -111,6 +120,7 @@ const SCALE_TITLES: Record<string, string> = {
 export function scaleTitle(scaleId: string): string {
   return (
     SCALE_TITLES[scaleId] ??
+    (isGuitarScaleKey(scaleId) ? guitarScaleEntry(scaleId).title : null) ??
     scaleId
       .split('_')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))

@@ -12,6 +12,10 @@ import {
 } from '@/constants/routes';
 import { contentGeneration, MUSIC_HISTORY } from '@/content/contentStore';
 import {
+  GUITAR_THEORY_CATALOG,
+  isGuitarTheorySlug,
+} from '@/curriculum/data/guitar/theoryCatalog';
+import {
   getGenreTileImage,
   getTheoryTileImage,
 } from '@/curriculum/data/learnTileImages';
@@ -147,7 +151,9 @@ function buildTheory(): IndexEntry[] {
       category: 'theory',
       title: m.label,
       subtitle: 'Scale & Mode',
-      to: LearnRoutes.overview({ mode: m.slug }),
+      // Theory's slugs are lowercase ('melodicminor'); the ids keep their
+      // old spelling.
+      to: LearnRoutes.overview({ mode: m.slug.toLowerCase() }),
       icon,
       thumb: { src: getTheoryTileImage(m.slug.toLowerCase()), shape: 'hex' },
     },
@@ -155,9 +161,27 @@ function buildTheory(): IndexEntry[] {
 }
 
 /* ── Guitar (The Guitar Atlas), while its rollout flag is on ─────────── */
-// Its key centers are Theory → Ionian (Major) on guitar.
+// Theory on guitar: Ionian (Major), The Guitar Atlas's key centers, first,
+// then every other tile the guitar catalog has live.
 function buildGuitar(): IndexEntry[] {
   if (!isGuitarLearnEnabled()) return [];
+  const others = GUITAR_THEORY_CATALOG.filter(
+    (e) => e.key !== 'ionian' && isGuitarTheorySlug(e.slug),
+  ).map((e) => ({
+    category: 'theory' as const,
+    // Always with "Guitar", so a bare mode name still ranks piano first.
+    keywords: [`Guitar ${e.name}`, `Guitar ${e.title}`, `Guitar ${e.slug}`],
+    result: {
+      id: `theory-guitar-${e.slug}`,
+      category: 'theory' as const,
+      title: `Guitar: ${e.title}`,
+      subtitle:
+        e.family === 'diatonic' ? 'The Guitar Atlas' : 'Theory on guitar',
+      to: LearnRoutes.guitarOverview({ mode: e.slug }),
+      icon: CATEGORY_META.theory.icon,
+      thumb: { src: getTheoryTileImage(e.slug), shape: 'hex' as const },
+    },
+  }));
   return [
     {
       category: 'theory',
@@ -185,6 +209,7 @@ function buildGuitar(): IndexEntry[] {
         thumb: { src: getTheoryTileImage('ionian'), shape: 'hex' },
       },
     },
+    ...others,
   ];
 }
 

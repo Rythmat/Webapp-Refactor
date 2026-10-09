@@ -102,8 +102,8 @@ export interface SaveStatus {
    * The baseline is a cloud save that left content out (cloudSaveGaps): the
    * cloud holds the rest of the project, and savedComplete is false for that
    * alone. Cleared by the next baseline, and once the session lets go of that
-   * cloud copy. A session kept only for those gaps gives way to other kept
-   * work first (localSession).
+   * cloud copy. (1.3's localSession let a session kept only for those gaps
+   * give way to other kept work first; 1.4's drafts keep it as work.)
    */
   savedInPart: boolean;
 }
@@ -629,6 +629,14 @@ function liveFingerprint(fresh = false): string {
   return fingerprint;
 }
 
+/**
+ * The live document's fingerprint, kept per documentVersion: what the chip
+ * and the draft snapshot compare, without re-serializing between edits.
+ */
+export function liveDocumentFingerprint(): string {
+  return liveFingerprint(false);
+}
+
 /** The live document at one moment: what a save sends, captured before it. */
 export interface DocumentSnapshot {
   readonly version: number;
@@ -771,8 +779,8 @@ export function isDocumentEmpty(
  *
  * It judges the live session only. On a fresh page, before anything loads,
  * the store is empty and this is false, while the stored draft may be the
- * only copy of the last session: the caller judges that draft itself, as
- * localSession's outgoingWork does on a fresh page.
+ * only copy of the last session: the caller judges that draft itself (the
+ * draft store's draftHasWork).
  */
 export function hasWorkToKeep(): boolean {
   const status = useSaveStatusStore.getState();

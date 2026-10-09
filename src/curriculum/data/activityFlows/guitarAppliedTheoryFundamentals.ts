@@ -40,6 +40,10 @@ import {
   shapePitchClasses,
 } from '@/lib/guitar/fretboard';
 import type { FretPosition } from '@/lib/guitar/types';
+import {
+  SCALE_LESSONS,
+  type ScaleProgressionChord,
+} from '@/lib/learn/scaleLessons';
 import type {
   ActivityFlowV2,
   ActivitySectionV2,
@@ -51,7 +55,9 @@ import type {
 import { toBookKey } from '../guitar/bookOne';
 import {
   centerId,
+  centerModeName,
   centerScalePosition,
+  chordShapeId,
   chordRootPc,
   chordSymbol,
   getGuitarCenter,
@@ -59,11 +65,15 @@ import {
   seventhShapeId,
   triadShapeId,
 } from '../guitar/centers';
-import { COLOUR_CHORD, GUITAR_MODE_NAME } from '../guitar/modes';
+import { COLOUR_CHORD, GUITAR_MODE_NAME, isGuitarMode } from '../guitar/modes';
+import { COLOUR, isPentatonicScale } from '../guitar/scales';
+import { guitarScaleEntry } from '../guitar/theoryCatalog';
 import type {
   BookChordQuality,
   GuitarCenter,
   GuitarMode,
+  GuitarPentatonicScale,
+  GuitarScaleKey,
   GuitarMusicMap,
   GuitarScalePosition,
   GuitarScaleSlot,
@@ -106,10 +116,19 @@ const ENGINE_QUALITY: Record<BookChordQuality, DetectorChordQuality> = {
   maj: 'major',
   min: 'minor',
   dim: 'diminished',
+  aug: 'augmented',
+  majb5: 'majorb5',
+  sus2b5: 'sus2b5',
   maj7: 'major7',
   min7: 'minor7',
   dom7: 'dominant7',
   min7b5: 'minor7b5',
+  dim7: 'diminished7',
+  minMaj7: 'minormajor7',
+  'maj7#5': 'major7#5',
+  dom7b5: 'dominant7b5',
+  min6: 'minor6',
+  sus2b5add6: 'sus2b5add6',
 };
 
 type Assessment = ActivityStepV2['assessment'];
@@ -323,6 +342,10 @@ interface StepInput {
   chordSymbols?: string[];
   chordTargets?: ChordTarget[];
   guitar: ActivityStepV2['guitar'];
+  /** A backing track under the step (pentatonic/blues play-alongs). */
+  grooveId?: string;
+  swing?: number;
+  backing_parts?: ActivityStepV2['backing_parts'];
 }
 
 function createStepFactory() {
@@ -342,6 +365,9 @@ function createStepFactory() {
     ...(input.chordSymbols ? { chordSymbols: input.chordSymbols } : {}),
     ...(input.chordTargets ? { chordTargets: input.chordTargets } : {}),
     guitar: input.guitar,
+    ...(input.grooveId ? { grooveId: input.grooveId } : {}),
+    ...(input.swing ? { swing: input.swing } : {}),
+    ...(input.backing_parts ? { backing_parts: input.backing_parts } : {}),
   });
 }
 
@@ -425,11 +451,11 @@ const SCALE_STEPS: {
   },
 ];
 
-/** 'Major Scale' (Book One), 'Dorian Scale'. */
+/** 'Major Scale' (Book One), 'Dorian Scale', 'Phrygian Dominant Scale'. */
 function scaleTitle(center: GuitarCenter): string {
   return center.mode === 'ionian'
     ? 'Major Scale'
-    : `${GUITAR_MODE_NAME[center.mode]} Scale`;
+    : `${centerModeName(center)} Scale`;
 }
 
 function buildScaleSteps(center: GuitarCenter, step: Step) {
@@ -480,10 +506,14 @@ function buildPentatonicSteps(center: GuitarCenter, step: Step) {
 
 /**
  * The second chord of the two-chord drills (B3, D2): 4 in Book One; in a
- * mode, the chord that carries its colour note (Dorian's IV, Lydian's II).
+ * mode, the chord that carries its colour note (Dorian's IV, Lydian's II,
+ * harmonic minor's V).
  */
 function pairDegree(center: GuitarCenter): number {
-  return center.mode === 'ionian' ? 4 : COLOUR_CHORD[center.mode];
+  if (center.mode === 'ionian') return 4;
+  if (center.family === 'diatonic') return COLOUR_CHORD[center.mode];
+  if (isPentatonicScale(center.mode)) return 4;
+  return COLOUR[center.mode].chord;
 }
 
 function buildMelodySteps(center: GuitarCenter, step: Step) {
@@ -1043,8 +1073,13 @@ function buildPlayAlongSteps(center: GuitarCenter, step: Step) {
     }),
   ];
 
+  return [...melody, ...chords, ...buildMapSteps(center, step)];
+}
+
+/** D3: the center's five Music Maps, each played twice. */
+function buildMapSteps(center: GuitarCenter, step: Step) {
   const BAR_WORDS = ['', 'One Bar', 'Two Bars', '', 'Four Bars'];
-  const maps = center.musicMaps.map((map) =>
+  return center.musicMaps.map((map) =>
     step({
       section: 'D',
       subsection: 'D3: Music Maps',
@@ -1067,8 +1102,6 @@ function buildPlayAlongSteps(center: GuitarCenter, step: Step) {
       },
     }),
   );
-
-  return [...melody, ...chords, ...maps];
 }
 
 // ── Builder ───────────────────────────────────────────────────────────────
@@ -1136,4 +1169,236 @@ export function buildGuitarAppliedTheoryFundamentalsFlow(
   keyName: string,
 ): ActivityFlowV2 {
   return buildGuitarModeFlow(keyName, 'ionian');
+}
+
+// ── The rest of Theory ────────────────────────────────────────────────────
+// The harmonic minor, melodic minor, harmonic major and double harmonic
+// modes run the modes' lesson as it is, on their own key centers (generated
+// grips, data/guitar/scales). The pentatonic and blues scales have no Chords
+// chapter, as on piano: Melody, then a Play-Along on the scale's own
+// progression, its chords and its Music Maps, over a backing track.
+
+/** Pentatonic/blues play-alongs: a backing under a steady pulse. */
+const SCALE_GROOVE = 'groove_pop_01';
+/** The blues scales swing their eighths. */
+const BLUES_SWING = 62;
+
+const PROGRESSION_QUALITY: Readonly<
+  Record<ScaleProgressionChord['quality'], BookChordQuality>
+> = {
+  major: 'maj',
+  minor: 'min',
+  major7: 'maj7',
+  dominant7: 'dom7',
+};
+
+/** A pentatonic/blues center's chord box as the flow plays it. */
+function scaleChord(center: GuitarCenter, index: number): GuitarChord {
+  if (center.family === 'diatonic') throw new Error('Not a scale center');
+  const shape = center.chords[index];
+  return {
+    shapeId: chordShapeId(center, index + 1),
+    frets: shape.frets,
+    degree: shape.degree,
+    quality: shape.quality,
+    symbol: chordSymbol(center, shape.degree, shape.quality),
+  };
+}
+
+/** The piano lesson's progression, one chord per bar, as the center's boxes. */
+function progressionChords(
+  center: GuitarCenter,
+  scale: GuitarPentatonicScale,
+): GuitarChord[] {
+  if (center.family === 'diatonic') throw new Error('Not a scale center');
+  return SCALE_LESSONS[scale].progression.map((bar) => {
+    const semitones = MAJOR_SCALE_INTERVALS[bar.degree - 1] + bar.accidental;
+    const degree = center.chordSteps.indexOf(mod12(semitones)) + 1;
+    const quality = PROGRESSION_QUALITY[bar.quality];
+    const index = center.chords.findIndex(
+      (c) => c.degree === degree && c.quality === quality,
+    );
+    if (index < 0) {
+      throw new Error(`${scale}: no box for ${bar.degree} ${bar.quality}`);
+    }
+    return scaleChord(center, index);
+  });
+}
+
+function mod12(n: number): number {
+  return ((n % 12) + 12) % 12;
+}
+
+/** D1 and D2 of a pentatonic/blues lesson, over its progression. */
+function buildScalePlayAlongSteps(
+  center: GuitarCenter,
+  scale: GuitarPentatonicScale,
+  step: Step,
+) {
+  const position = center.majorScale;
+  const progression = progressionChords(center, scale);
+  const symbols = progression.map((c) => c.symbol);
+  const swing = scale.endsWith('blues') ? { swing: BLUES_SWING } : {};
+  const backing = (parts: ('drums' | 'bass' | 'chords')[]) => ({
+    grooveId: SCALE_GROOVE,
+    ...swing,
+    backing_parts: {
+      engine_generates: parts,
+      student_plays: [parts.includes('chords') ? 'melody' : 'chords'],
+    } as ActivityStepV2['backing_parts'],
+  });
+  const guitarMelody = {
+    keyCenter: center.id,
+    scalePosition: 'major' as const,
+  };
+  /** A phrase played from the start of each of the progression's bars. */
+  const everyBar = (degrees: readonly number[], barsPerPhrase: 1 | 2) =>
+    [0, 1, 2, 3]
+      .filter((bar) => bar % barsPerPhrase === 0)
+      .flatMap((bar) =>
+        degrees.map((degree, i) =>
+          note(
+            position.playOrder[degree - 1],
+            bar * WHOLE_NOTE +
+              (barsPerPhrase === 2 && i >= 3
+                ? WHOLE_NOTE + (i - 3) * TICKS_PER_BEAT
+                : i * TICKS_PER_BEAT),
+            NORMAL_DURATION,
+          ),
+        ),
+      );
+  const distinct = progression.filter(
+    (c, i) => progression.findIndex((d) => d.shapeId === c.shapeId) === i,
+  );
+  const two = distinct.slice(0, 2);
+
+  const melody = [
+    step({
+      section: 'A',
+      subsection: 'D1: Melody with Play Along',
+      activity: 'D1.1: Three Note Contour — Play Along',
+      direction: `In a steady tempo, play this phrase at the start of every bar while the band plays ${symbols.join(', ')}.`,
+      suffix: 'melody_playalong_3note',
+      assessment: 'pitch_order_timing_duration',
+      successFeedback: 'Nice — right in the pocket with the band.',
+      targetNotes: everyBar(CONTOUR_A_DEGREES, 1),
+      chordSymbols: symbols,
+      guitar: guitarMelody,
+      ...backing(['drums', 'bass', 'chords']),
+    }),
+    step({
+      section: 'A',
+      subsection: 'D1: Melody with Play Along',
+      activity: 'D1.2: Connect Two 3 Note Contours — Play Along',
+      direction: `In a steady tempo, play this longer phrase twice while the band plays ${symbols.join(', ')}.`,
+      suffix: 'melody_playalong_connected',
+      assessment: 'pitch_order_timing_duration',
+      successFeedback: 'Great — the full phrase, right in time with the band.',
+      targetNotes: everyBar(CONTOUR_CONNECTED_DEGREES, 2),
+      chordSymbols: symbols,
+      guitar: guitarMelody,
+      ...backing(['drums', 'bass', 'chords']),
+    }),
+  ];
+  const chords = [
+    step({
+      section: 'B',
+      subsection: 'D2: Chords with Play Along',
+      activity: 'D2.1: Two Chords — Play Along',
+      direction: `Now strum ${two.map((c) => c.symbol).join(', ')} along with the drums and bass!`,
+      suffix: 'chords_playalong_two',
+      assessment: 'pitch_order_timing_duration',
+      successFeedback: 'Locked in with the band — nice work.',
+      ...chordSequence(center, two, [HALF_NOTE, HALF_NOTE]),
+      chordSymbols: two.map((c) => c.symbol),
+      guitar: { keyCenter: center.id, shapeIds: two.map((c) => c.shapeId) },
+      ...backing(['drums', 'bass']),
+    }),
+    step({
+      section: 'B',
+      subsection: 'D2: Chords with Play Along',
+      activity: 'D2.2: The Progression — Play Along',
+      direction: `Now strum the progression, ${symbols.join(', ')}, one chord a bar, along with the drums and bass!`,
+      suffix: 'chords_playalong_progression',
+      assessment: 'pitch_order_timing_duration',
+      successFeedback: 'The whole progression, right in time with the band.',
+      ...chordSequence(
+        center,
+        progression,
+        progression.map(() => WHOLE_NOTE),
+      ),
+      chordSymbols: symbols,
+      guitar: {
+        keyCenter: center.id,
+        shapeIds: progression.map((c) => c.shapeId),
+      },
+      ...backing(['drums', 'bass']),
+    }),
+  ];
+  return [...melody, ...chords];
+}
+
+/**
+ * Builds the guitar lesson for any Theory scale in a key: the diatonic modes
+ * as buildGuitarModeFlow does, and the rest of Theory on generated centers.
+ * @param keyName - ASCII key name, e.g. 'C', 'F#', 'Db' (falls back to C).
+ * @param scale - The scale's engine key: 'dorian', 'phrygiandominant'.
+ */
+export function buildGuitarScaleFlow(
+  keyName: string,
+  scale: GuitarScaleKey,
+): ActivityFlowV2 {
+  if (isGuitarMode(scale)) return buildGuitarModeFlow(keyName, scale);
+  const key = toBookKey(keyName) ?? 'C';
+  const center = getGuitarCenter(centerId(key, scale));
+  const entry = guitarScaleEntry(scale);
+  const step = createStepFactory();
+  const melody = [
+    ...buildScaleSteps(center, step),
+    ...buildMelodySteps(center, step),
+  ];
+
+  let sections: ActivitySectionV2[];
+  let practiceChords: string[];
+  if (isPentatonicScale(scale)) {
+    sections = [
+      { id: 'A', name: 'Melody', steps: melody },
+      {
+        id: 'D',
+        name: 'Play-Along',
+        steps: [
+          ...buildScalePlayAlongSteps(center, scale, step),
+          ...buildMapSteps(center, step),
+        ],
+      },
+    ];
+    practiceChords = progressionChords(center, scale).map((c) => c.symbol);
+  } else {
+    sections = [
+      { id: 'A', name: 'Melody', steps: melody },
+      { id: 'B', name: 'Chords', steps: buildChordSteps(center, step) },
+      { id: 'D', name: 'Play-Along', steps: buildPlayAlongSteps(center, step) },
+    ];
+    practiceChords = center.musicMaps[4].bars.map((bar) =>
+      chordSymbol(center, bar.degree, bar.quality),
+    );
+  }
+
+  return {
+    genre: entry.genre,
+    level: 1,
+    version: 'v2',
+    title: `${entry.title} — Guitar`,
+    params: {
+      defaultKey: `${key} ${entry.name}`,
+      defaultScale: [...center.steps],
+      defaultScaleId: scale,
+      tempoRange: [60, 100],
+      swing: 0,
+      grooves: [],
+      instrument: 'guitar',
+      practiceTrack: { chords: practiceChords },
+    },
+    sections,
+  };
 }

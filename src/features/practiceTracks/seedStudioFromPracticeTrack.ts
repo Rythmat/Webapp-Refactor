@@ -1,37 +1,60 @@
 import { noteNameLetter, MODE_DISPLAY } from '@prism/engine';
-import { resetProjectState } from '@/daw/persistence/projectDocument/initialState';
-import { markDocumentBaseline } from '@/daw/persistence/saveStatusStore';
 import { useStore } from '@/daw/store';
-import { resetUndoHistory } from '@/daw/store/undoMiddleware';
-import type {
-  PracticeLevel,
-  PracticeTrackResult,
+import {
+  generatePracticeTrack,
+  type PracticeLevel,
+  type PracticeMode,
+  type PracticeOpenTrack,
 } from './generatePracticeTrack';
 
+// ── A Theory Practice Track as a Studio project ────────────────────────────
+//
+// The editor's `?practiceMode=<mode>&practiceRoot=<root>&practiceOpen=<...>`
+// link (openSession's 'practiceMode' intent) opens one in two steps:
+//
+// - prepare (preparePracticeModeTrack): build the track. Async, since its
+//   Drums groove is a fetched `.mid` (Studio's own Grooves-browser import
+//   pipeline), and it changes nothing: the project on screen stays until the
+//   practice track is ready, and one that can't be built replaces nothing.
+// - apply (applyPracticeModeTrack): write it into the store, synchronously,
+//   after openSession has reset the project. No reset, no baseline and no
+//   undo reset of its own: those are the opener's.
+
+/** A built Theory Practice Track, ready to apply. */
+export type PracticeModeTrack = Awaited<
+  ReturnType<typeof generatePracticeTrack>
+>;
+
 /**
- * Open a Theory Practice Track (generatePracticeTrack: a diatonic mode or
- * scale on a root) as a new Studio project: project metadata, key/mode/tempo,
- * chord regions, and Bass/Drums/Chords/Melody tracks — one of Chords/Melody
- * (whichever matches the track's `openTrack`) is added empty for the student
+ * Build a Theory Practice Track (a diatonic mode or scale on a root, `root`
+ * a 0-11 semitone from C). Changes nothing; rejects when its groove can't be
+ * fetched, as generatePracticeTrack does.
+ */
+export function preparePracticeModeTrack(
+  mode: PracticeMode,
+  root: number,
+  openTrack: PracticeOpenTrack,
+  level: PracticeLevel,
+): Promise<PracticeModeTrack> {
+  return generatePracticeTrack(mode, root, openTrack, level);
+}
+
+/**
+ * Write a built Practice Track into the (just reset) project: project name,
+ * key/mode/tempo, chord regions, and Bass/Drums/Chords/Melody tracks. One of
+ * Chords/Melody (whichever `openTrack` names) is added empty for the student
  * to fill in themselves. `useStore.getState()` is a module singleton, so this
- * runs outside React — mirrors `seedStudioFromSong`, for the
- * `/studio/editor?practiceMode=<mode>&practiceRoot=<root>&practiceOpen=<...>`
- * boot param (`DawApp`).
- *
- * Synchronous: the caller generates the track first, since its Drums groove
- * is a fetched `.mid` (Studio's own Grooves-browser import pipeline). The
- * project on screen stays until the practice track is ready, and a groove
- * that fails to arrive replaces nothing. The track starts from a new project
- * (resetProjectState), never on top of the one before.
+ * runs outside React.
  *
  * Returns the open track's id. That track is selected, record-armed and
  * monitored, so a MIDI keyboard plays into it and Record captures the take.
+ * The practice screen itself (setPracticeSession, the loop, the view) is the
+ * opener's.
  */
-export const seedStudioFromPracticeTrack = (
-  result: PracticeTrackResult,
-  level: PracticeLevel = 1,
-): string => {
-  resetProjectState('practice');
+export function applyPracticeModeTrack(
+  result: PracticeModeTrack,
+  opts: { openTrack: PracticeOpenTrack; level: PracticeLevel },
+): string {
   const store = useStore.getState();
 
   const rootLabel = noteNameLetter(60 + result.rootNote);
@@ -39,7 +62,7 @@ export const seedStudioFromPracticeTrack = (
     result.scaleTitle ?? MODE_DISPLAY[result.mode] ?? result.mode;
 
   store.setProjectName(
-    `${rootLabel} ${modeLabel} Practice Track — Level ${level}`,
+    `${rootLabel} ${modeLabel} Practice Track — Level ${opts.level}`,
   );
   store.setRootNote(result.rootNote);
   store.setMode(result.mode);
@@ -84,15 +107,11 @@ export const seedStudioFromPracticeTrack = (
   store.setCurrentView('arrange');
 
   const openTrackId =
-    result.openTrack === 'melody' ? melodyTrackId : chordsTrackId;
+    opts.openTrack === 'melody' ? melodyTrackId : chordsTrackId;
   for (const track of useStore.getState().tracks) {
     const isOpen = track.id === openTrackId;
     store.updateTrack(track.id, { recordArmed: isOpen, monitoring: isOpen });
   }
   store.setSelectedTrackId(openTrackId);
-  // The practice track as it opened: nothing to undo, and no work to keep
-  // until the student plays into it.
-  resetUndoHistory();
-  markDocumentBaseline();
   return openTrackId;
-};
+}

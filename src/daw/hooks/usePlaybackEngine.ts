@@ -38,6 +38,7 @@ import {
   defaultSynthTrackState,
 } from '@/daw/oracle-synth/synthTrackState';
 import { getSessionGeneration } from '@/daw/session/sessionGeneration';
+import { beginTake } from '@/daw/session/takesInFlight';
 import { useSessionGeneration } from '@/daw/session/useSessionGeneration';
 import { PianoSampler } from '@/daw/instruments/PianoSampler';
 import { SamplerInstrument } from '@/daw/instruments/SamplerInstrument';
@@ -360,6 +361,9 @@ function finishAudioTake(
         : null;
   stoppingAdapter?.stopRecordingStream();
 
+  // Counted for openSession (takesInFlight) until the clip is in the store or
+  // the take is lost: an open that replaces the session waits for it.
+  const settleTake = beginTake('audio');
   const ctx = audioEngine.getContext();
   recorder
     .stopRecording(ctx)
@@ -416,10 +420,10 @@ function finishAudioTake(
             await uploadRecordedClip(token, trackId, clipId);
           })().catch((err) => {
             console.error('[recording] immediate upload failed', err);
+            // Fixed text: the error carries request details (method, path,
+            // status) that are not for students.
             showError(
-              `Recorded audio couldn't be saved to the cloud: ${
-                err instanceof Error ? err.message : 'unknown error'
-              }. It will retry on the next Save.`,
+              'Your recording is kept on this device. It will upload when you save.',
             );
           });
         }
@@ -427,7 +431,8 @@ function finishAudioTake(
     })
     .catch((err) => {
       console.warn('Failed to stop audio recording:', err);
-    });
+    })
+    .finally(settleTake);
 }
 
 export function usePlaybackEngine(isReady: boolean, token: string | null) {
@@ -444,6 +449,10 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
   const metronomeRef = useRef<MetronomeEngine | null>(null);
 
   const audioRecorderRef = useRef<AudioRecorder | null>(null);
+  // The running take, counted for openSession (takesInFlight) from its start,
+  // so an open that stops the transport waits for it even before this
+  // effect has seen the stop. finishAudioTake counts the commit itself.
+  const audioTakeSettleRef = useRef<(() => void) | null>(null);
   const recordStartTickRef = useRef<number>(0);
   const isActivelyRecordingRef = useRef(false);
   // Auto-stop timer that enforces the per-track 5-minute audio recording cap.
@@ -1057,6 +1066,11 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       const recorder = new AudioRecorder();
       audioRecorderRef.current = recorder;
       recordStartTickRef.current = startTickForLimit;
+      audioTakeSettleRef.current?.();
+      const settleThisTake = beginTake('audio', {
+        alive: () => audioRecorderRef.current === recorder,
+      });
+      audioTakeSettleRef.current = settleThisTake;
 
       recordLimitTimerRef.current = setTimeout(() => {
         // stop() flips isRecording/isPlaying off, which re-runs this effect and
@@ -1150,6 +1164,10 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
           .catch((err) => {
             console.warn('Audio recording failed:', err);
             audioRecorderRef.current = null;
+            settleThisTake();
+            if (audioTakeSettleRef.current === settleThisTake) {
+              audioTakeSettleRef.current = null;
+            }
             isActivelyRecordingRef.current = false;
             if (recordLimitTimerRef.current !== null) {
               clearTimeout(recordLimitTimerRef.current);
@@ -1168,9 +1186,14 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       isActivelyRecordingRef.current = false;
       cleanupLiveRecordingArtifacts();
       audioRecorderRef.current = null;
+      const settleStart = audioTakeSettleRef.current;
+      audioTakeSettleRef.current = null;
 
-      if (!wasRecording || !recorder) return;
-      finishAudioTake(recorder, recordStartTickRef.current, tokenRef);
+      // finishAudioTake counts the commit before the start's count goes.
+      if (wasRecording && recorder) {
+        finishAudioTake(recorder, recordStartTickRef.current, tokenRef);
+      }
+      settleStart?.();
     }
   }, [isReady, isPlaying, isRecording, tracks]);
 
@@ -1188,9 +1211,12 @@ export function usePlaybackEngine(isReady: boolean, token: string | null) {
       const recorder = audioRecorderRef.current;
       audioRecorderRef.current = null;
       isActivelyRecordingRef.current = false;
+      const settleStart = audioTakeSettleRef.current;
+      audioTakeSettleRef.current = null;
       if (recorder?.isRecording()) {
         finishAudioTake(recorder, recordStartTickRef.current, tokenRef);
       }
+      settleStart?.();
 
       schedulerRef.current.cancelAll();
       audioClipSchedulerRef.current.cancelAll();

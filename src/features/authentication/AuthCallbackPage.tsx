@@ -1,11 +1,11 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ErrorBox } from '@/components/ErrorBox';
-import { FullScreenLoading } from '@/components/FullScreenLoading';
 import { Button } from '@/components/ui/button';
 import { AuthRoutes } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
+import { AuthAlert } from '@/layouts/AuthLayout/AuthAlert';
+import { AuthStatus } from '@/layouts/AuthLayout/AuthStatus';
 
 // If the exchange + bootstrap hasn't resolved (and hasn't errored) by this point,
 // treat it as stuck rather than showing an indefinite spinner.
@@ -61,18 +61,14 @@ export const AuthCallbackPage = () => {
     };
 
     return (
-      <div className="mx-auto flex max-w-md flex-col gap-4 p-6">
-        <ErrorBox message={message} />
+      <div className="mx-auto flex max-w-md flex-col gap-4 p-2 sm:p-4">
+        <AuthAlert>{message}</AuthAlert>
         <div className="flex flex-col gap-2">
-          <Button
-            className="w-full bg-[#4d3a49] text-white hover:bg-[#5c4657]"
-            onClick={retry}
-            type="button"
-          >
+          <Button className="w-full rounded-full" onClick={retry} type="button">
             Try signing in again
           </Button>
           <Button
-            className="w-full border-0 bg-[#3a3535] text-white hover:bg-[#726969]"
+            className="w-full rounded-full"
             onClick={() => navigate(AuthRoutes.signIn())}
             type="button"
             variant="outline"
@@ -85,5 +81,5 @@ export const AuthCallbackPage = () => {
   }
 
   // Auth0 React SDK handles code/state exchange; keep this route passive while loading.
-  return <FullScreenLoading />;
+  return <AuthStatus label="Signing you in…" />;
 };

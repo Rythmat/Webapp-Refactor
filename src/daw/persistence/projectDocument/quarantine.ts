@@ -434,8 +434,8 @@ export type BackupOutcome =
  * user's oldest beyond MAX_BACKUPS_PER_USER once this one is stored. On
  * 'failed' a write of new work may still go ahead: the backup guards against
  * a bug, and blocking the autosave on it would risk more than it saves. A
- * write that would only change the draft's format waits (the autosave's
- * restoredDraft, in localSession). Never throws.
+ * write that would only change the draft's format waits (1.3's autosave
+ * did, in the localSession.ts 1.4 removed). Never throws.
  */
 export function backupBeforeMigration(
   raw: string,

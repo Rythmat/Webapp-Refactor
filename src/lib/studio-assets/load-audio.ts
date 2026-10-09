@@ -15,7 +15,12 @@ const downloadsInFlight = new Set<string>();
 // engine is up we decode on its context to avoid spawning extra contexts.
 let fallbackDecodeCtx: AudioContext | null = null;
 
-function getDecodeContext(): AudioContext {
+/**
+ * The context to decode audio bytes on: the engine's once it is up, else one
+ * shared fallback. Also used by the draft media restore (pendingMedia), so a
+ * restored clip decodes where a cloud one would.
+ */
+export function getDecodeContext(): AudioContext {
   if (audioEngine.getIsInitialized()) return audioEngine.getContext();
   if (!fallbackDecodeCtx) fallbackDecodeCtx = new AudioContext();
   return fallbackDecodeCtx;

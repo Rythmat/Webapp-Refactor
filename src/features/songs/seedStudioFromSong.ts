@@ -3,27 +3,27 @@ import {
   exportSongToChordRegions,
 } from '@/curriculum/songLibrary/exportToStudio';
 import type { Song } from '@/curriculum/types/songLibrary';
-import { resetProjectState } from '@/daw/persistence/projectDocument/initialState';
-import { markDocumentBaseline } from '@/daw/persistence/saveStatusStore';
 import { useStore } from '@/daw/store';
-import { resetUndoHistory } from '@/daw/store/undoMiddleware';
 
 /**
- * Open a song's chart as a new Studio project: project metadata,
+ * Apply a song's chart to the project just reset: project metadata,
  * key/mode/tempo, chord regions, and a chords MIDI clip. `useStore.getState()`
- * is a module singleton, so this runs outside React — shared by
- * `useSongActions.openInStudio` and the `/studio/editor?song=<id>` boot param
- * (`DawApp`), both inside replaceSession, which keeps the work it replaces.
+ * is a module singleton, so this runs outside React. It is the apply step of
+ * the editor's `?song=<id>[&transpose=<n>]` link (openSession's 'song'
+ * intent; the Song page's Open in Studio navigates there), which keeps the
+ * work it replaces first, resets the project, and hands this the chart
+ * already transposed.
  *
- * The song starts from a new project (resetProjectState), never on top of the
- * one before: whatever that left (a key lock, which silently kept the song's
- * key out; a loop, a chord record mode, a Score mark, a lesson) would shape
- * this one.
+ * Synchronous, and nothing but the song's writes (1.4 CONTRACTS): no reset,
+ * no baseline and no undo reset, which are the opener's (openSession
+ * switching, then baselining). The song must land on a new project, never on
+ * top of the one before: whatever that left (a key lock, which silently kept
+ * the song's key out; a loop, a chord record mode, a Score mark, a lesson)
+ * would shape this one.
  */
-export const seedStudioFromSong = (song: Song): void => {
+export const applySong = (song: Song): void => {
   const { regions, restMap, fermatas, rowSizes, sectionMarks } =
     exportSongToChordRegions(song, { voicingMode: 'auto', bassLine: false });
-  resetProjectState('song');
   const store = useStore.getState();
   store.setProjectName(song.title);
   store.setComposerName(song.artist);
@@ -64,11 +64,4 @@ export const seedStudioFromSong = (song: Song): void => {
     store.setLoopRange(0, clip.durationTicks ?? 7680);
   }
   store.setCurrentView('arrange');
-  // Seeding is not something the player did, so it is not something they can
-  // undo, and the song as it opened is the save status's baseline: until the
-  // player changes it, it holds no work for the next link to keep.
-  // Auto-capture debounces by 300ms, so this also cancels the capture the
-  // writes above have already queued.
-  resetUndoHistory();
-  markDocumentBaseline();
 };

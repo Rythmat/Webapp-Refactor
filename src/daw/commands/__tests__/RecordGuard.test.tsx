@@ -19,13 +19,6 @@ vi.mock('@/daw/components/Prism/CircleOfFifths', () => ({
 vi.mock('@/daw/collab/ui/CollabToolbar', () => ({
   CollabToolbar: () => null,
 }));
-vi.mock('@/daw/collab/ui/LeaveSavePrompt', () => ({
-  LeaveSavePrompt: () => null,
-}));
-vi.mock('@/daw/collab/ui/KickedModal', () => ({ KickedModal: () => null }));
-vi.mock('@/daw/collab/ui/WaitingForSessionModal', () => ({
-  WaitingForSessionModal: () => null,
-}));
 
 import {
   dismissRecordRequest,

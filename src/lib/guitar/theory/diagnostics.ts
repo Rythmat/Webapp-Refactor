@@ -17,8 +17,10 @@ import {
 } from '@/lib/guitar/fretboard';
 import type { GuitarStringNumber } from '@/lib/guitar/types';
 import {
+  QUALITY_TONES,
   chordFormulaTones,
   chordSemitones,
+  isSeventhQuality,
   shapeTones,
   spellChordTones,
   toneLabelText,
@@ -87,7 +89,7 @@ export const PRESENT_RATIO = 0.35;
  */
 export const MIN_CHORD_TONE_LEVEL = 0.1;
 
-/** Which missing tone to name first. ♭5 only outranks the root in min7♭5 and dim. */
+/** Which missing tone to name first. An altered 5th outranks the root where it defines the chord. */
 const MISSING_RANK: Readonly<Record<ChordToneRole, number>> = {
   third: 0,
   seventh: 1,
@@ -96,12 +98,6 @@ const MISSING_RANK: Readonly<Record<ChordToneRole, number>> = {
 };
 const FLAT_FIVE_RANK = 2;
 
-const SEVENTH_QUALITIES: readonly BookChordQuality[] = [
-  'maj7',
-  'dom7',
-  'min7',
-  'min7b5',
-];
 const POWER_AND_SUS = ['5', 'sus2', 'sus4'];
 
 const mod12 = (n: number) => ((n % 12) + 12) % 12;
@@ -148,7 +144,11 @@ export function diagnoseChord(input: DiagnosticInput): ChordDiagnosis {
   const missing = targetPcs.filter((pc) => !labelPcs.includes(pc));
   const extra = labelPcs.filter((pc) => !targetPcs.includes(pc));
   const sameRoot = label.rootPc === rootPc;
-  const isSeventh = SEVENTH_QUALITIES.includes(target.quality);
+  const isSeventh = isSeventhQuality(target.quality);
+  // A 6 chord's top tone is a 6, which the "missing 7" hint would misname;
+  // a sus2 chord has no 3rd for the "missing 3" check to listen for.
+  const topIsSeventh = /7$/.test(formula[formula.length - 1].label);
+  const hasThird = formula.some((t) => t.label === '3' || t.label === 'b3');
 
   const level = (pcs: number[]) =>
     chroma ? median(pcs.map((p) => chroma[p])) : 0;
@@ -175,6 +175,7 @@ export function diagnoseChord(input: DiagnosticInput): ChordDiagnosis {
     // D2: the detector's simpler same-root chord for a 7th — ask the chroma.
     if (
       isSeventh &&
+      topIsSeventh &&
       sameRoot &&
       labelPcs.length >= 3 &&
       labelPcs.length < targetPcs.length &&
@@ -223,6 +224,7 @@ export function diagnoseChord(input: DiagnosticInput): ChordDiagnosis {
       heard(rootPc, others(rootPc, pcOf('third'))) &&
       heard(fifth, others(fifth, pcOf('third')));
     if (
+      hasThird &&
       sameRoot &&
       (POWER_AND_SUS.includes(label.quality) || (rootAndFifth && thirdsAbsent))
     ) {
@@ -260,8 +262,7 @@ export function diagnoseChord(input: DiagnosticInput): ChordDiagnosis {
     // D6: wrong — name the most telling missing tone.
     const rank = (pc: number) => {
       const role = formula[targetPcs.indexOf(pc)].role;
-      return role === 'fifth' &&
-        (target.quality === 'min7b5' || target.quality === 'dim')
+      return role === 'fifth' && QUALITY_TONES[target.quality].includes('fifth')
         ? FLAT_FIVE_RANK
         : MISSING_RANK[role];
     };

@@ -7,6 +7,7 @@
 import { shapeNotes } from '@/lib/guitar/fretboard';
 import {
   analyzeMusicMap,
+  chordFormulaTones,
   classifyVoicing,
   hiddenTriad,
   keyChange,
@@ -28,28 +29,41 @@ import {
   type TheoryNoteCondition,
   type VoicingInfo,
 } from '@/lib/guitar/theory';
+import { SCALE_LESSONS } from '@/lib/learn/scaleLessons';
 import type { ActivityFlowV2 } from '../../types/activity.v2';
 import { GUITAR_KEY_ORDER, keyScaleSpelling } from './bookOne';
 import {
+  centerModeName,
   centerScalePosition,
   chordName,
   chordRootName,
   chordRootPc,
   chordSymbol,
   degreeAccidental,
+  diatonicSevenths,
   diatonicTriads,
   getGuitarShape,
+  qualityWords,
 } from './centers';
 import {
   COLOUR_CHORD,
   COLOUR_DEGREE,
-  GUITAR_MODE_NAME,
   MODE_COLOUR_TEXT,
   isGuitarModalMode,
 } from './modes';
+import {
+  BLUE_NOTE_INDEX,
+  COLOUR,
+  COLOUR_TEXT,
+  SCALE_PARTNER,
+} from './scales/scaleTables';
+import { guitarScaleEntry } from './theoryCatalog';
 import type {
+  BookChordQuality,
   GuitarCenter,
+  GuitarHeptatonicScale,
   GuitarMusicMap,
+  GuitarPentatonicScale,
   GuitarPentatonic,
   GuitarScalePosition,
   GuitarScaleSlot,
@@ -170,6 +184,7 @@ function voicingOf(center: GuitarCenter, shape: BookShape): VoicingInfo {
  * sounds like D major from its 7, but spells E𝄫 where D major has E.
  */
 function modeRespelled(center: GuitarCenter): boolean {
+  if (center.family !== 'diatonic') return false;
   const parent = keyScaleSpelling(center.parentKey);
   return center.spelling.some((name) => !parent.includes(name));
 }
@@ -206,7 +221,9 @@ export const THEORY_CONDITIONS: Readonly<
   notFirstKeyNoRespell: (d) => !!d.keyShift && !d.keyShift.respelled,
   isFlatSwitch: (d) => !!d.keyShift?.respelled,
   modeSpelledLikeParent: (d) =>
-    d.center.mode !== 'ionian' && !modeRespelled(d.center),
+    d.center.family === 'diatonic' &&
+    d.center.mode !== 'ionian' &&
+    !modeRespelled(d.center),
   modeRespelled: (d) => d.center.mode !== 'ionian' && modeRespelled(d.center),
   scaleHasOpenStrings: (d) => d.position.playOrder.some((p) => p.fret === 0),
   inTimeStep: (d) => !!d.step?.inTime,
@@ -239,11 +256,128 @@ export const THEORY_CONDITIONS: Readonly<
   mapHasTriadBarIn7thMap: (d) => !!d.analysis?.triadBarsIn7thMap.length,
   mapHasDom7ToOne: (d) => !!d.analysis?.dom7ToOne.length,
 
-  hasTopLineRun: (d) => topLineRuns(d.center).length > 0,
-  octaveIsSameShape: (d) => octaveReturnKind(d.center) === 'same-shape',
-  octaveIsNewShape: (d) => octaveReturnKind(d.center) === 'new-shape',
-  octaveNotHigher: (d) => octaveReturnKind(d.center) === 'not-higher',
+  // A 7th-chord page's; pentatonic and blues lessons have none.
+  hasTopLineRun: (d) => hasSevenths(d) && topLineRuns(d.center).length > 0,
+  octaveIsSameShape: (d) =>
+    hasSevenths(d) && octaveReturnKind(d.center) === 'same-shape',
+  octaveIsNewShape: (d) =>
+    hasSevenths(d) && octaveReturnKind(d.center) === 'new-shape',
+  octaveNotHigher: (d) =>
+    hasSevenths(d) && octaveReturnKind(d.center) === 'not-higher',
+
+  // The rest of Theory
+  handStill: (d) => d.center.family === 'diatonic' || !stretchOf(d.position),
+  positionNeedsStretch: (d) => !!stretchOf(d.position),
+  octaveTwoOverTwoUp: (d) => {
+    const { playOrder } = d.position;
+    const low = playOrder[0];
+    const high = playOrder[playOrder.length - 1];
+    return high.string === low.string - 2 && high.fret === low.fret + 2;
+  },
+  modeIsFamilyParent: (d) => familyParentOf(d)?.degree === 1,
+  modeIsFamilyMode: (d) => (familyParentOf(d)?.degree ?? 1) > 1,
+  scaleHasAugmentedSecond: (d) => augmentedSeconds(d.center).length > 0,
+  scaleHasBlueNote: (d) => blueNoteIndex(d) !== undefined,
+  hasAugTriad: (d) => familyTriads(d).includes('aug'),
+  hasTwoDimTriads: (d) =>
+    familyTriads(d).filter((q) => q === 'dim').length === 2,
+  hasMajFlat5Triad: (d) => familyTriads(d).includes('majb5'),
+  hasSus2Flat5Triad: (d) => familyTriads(d).includes('sus2b5'),
+  stepChordsHaveThird: (d) =>
+    chordsOf(d).every((s) =>
+      chordFormulaTones(s.quality).some(
+        (t) => t.label === '3' || t.label === 'b3',
+      ),
+    ),
+  chordTopIsSeventh: (d) =>
+    chordsOf(d).every((s) => {
+      const tones = chordFormulaTones(s.quality);
+      return tones.length < 4 || /7$/.test(tones[3].label);
+    }),
+  chordIsMinMaj7: (d) => d.shape?.quality === 'minMaj7',
+  chordIsAugMaj7: (d) => d.shape?.quality === 'maj7#5',
+  chordIsDim7: (d) => d.shape?.quality === 'dim7',
+  chordIsHalfDim: (d) => d.shape?.quality === 'min7b5',
+  chordIsMin6: (d) => d.shape?.quality === 'min6',
+  chordIsDom7b5: (d) => d.shape?.quality === 'dom7b5',
+  chordIsSus2b5add6: (d) => d.shape?.quality === 'sus2b5add6',
 };
+
+// ── The rest of Theory ─────────────────────────────────────────────────────
+
+const hasSevenths = (d: DerivedTheoryContext) => d.center.sevenths.length > 0;
+
+/**
+ * Where a position needs the first finger to reach back a fret (a five-fret
+ * shape that uses all five): the fret the hand sits on, and the one below.
+ */
+function stretchOf(
+  position: GuitarScalePosition,
+): { anchor: number; low: number } | null {
+  const frets = position.playOrder.map((p) => p.fret).filter((f) => f > 0);
+  const low = Math.min(...frets);
+  const { anchor } = suggestedFingers(position);
+  return anchor > low ? { anchor, low } : null;
+}
+
+function familyParentOf(d: DerivedTheoryContext) {
+  return d.center.family === 'diatonic' ? null : d.center.familyParent;
+}
+
+/** A seven-note family mode's triads; none for pentatonic and blues. */
+function familyTriads(d: DerivedTheoryContext): BookChordQuality[] {
+  return familyParentOf(d) ? diatonicTriads(d.center) : [];
+}
+
+/** The chords a note is about: its chord box, or the step's. */
+function chordsOf(d: DerivedTheoryContext): readonly BookShape[] {
+  return d.shape ? [d.shape] : d.stepShapes;
+}
+
+/** Neighbouring notes a step and a half apart, by index (the last wraps to 1). */
+function augmentedSeconds(center: GuitarCenter): number[] {
+  if (center.family === 'diatonic' || center.family === 'pentatonic-blues') {
+    return [];
+  }
+  return gapsOf(center, 3);
+}
+
+/** Indexes i where note i + 1 (or the octave) is `semitones` above note i. */
+function gapsOf(center: GuitarCenter, semitones: number): number[] {
+  const { steps } = center;
+  return steps.flatMap((step, i) => {
+    const next = i === steps.length - 1 ? 12 : steps[i + 1];
+    return next - step === semitones ? [i] : [];
+  });
+}
+
+function blueNoteIndex(d: DerivedTheoryContext): number | undefined {
+  return d.center.family === 'pentatonic-blues'
+    ? BLUE_NOTE_INDEX[d.center.mode as GuitarPentatonicScale]
+    : undefined;
+}
+
+/** The interval's two ends by degree label: '♭6 and 7', '7 and 1'. */
+function pairText(center: GuitarCenter, i: number, joiner: string): string {
+  const labels = center.degreeLabels;
+  return `${labels[i]}${joiner}${i === labels.length - 1 ? 1 : labels[i + 1]}`;
+}
+
+const NUMBER_WORD = [
+  'zero',
+  'one',
+  'two',
+  'three',
+  'four',
+  'five',
+  'six',
+  'seven',
+];
+
+/** A quality as prose: 'minor 7(♭5)', 'major 7(♯5)'. */
+function qualityProse(quality: BookChordQuality): string {
+  return qualityWords(quality).replace(/b5/g, '♭5').replace(/#5/g, '♯5');
+}
 
 // ── Tokens ─────────────────────────────────────────────────────────────────
 
@@ -281,7 +415,30 @@ export type TheoryToken =
   | 'pentDegrees'
   | 'skipped'
   | 'triadPattern'
-  | 'dimDegree';
+  | 'dimDegree'
+  // The rest of Theory
+  | 'noteCount'
+  | 'scaleDegrees'
+  | 'scaleNoteNames'
+  | 'scaleCharacter'
+  | 'partnerKey'
+  | 'partnerName'
+  | 'blueNote'
+  | 'blueDegree'
+  | 'halfStepCount'
+  | 'halfStepList'
+  | 'augSecondPairs'
+  | 'stretchFret'
+  | 'lowFret'
+  | 'familyParentKey'
+  | 'familyName'
+  | 'familyDegree'
+  | 'augDegree'
+  | 'dimDegrees'
+  | 'majb5Degree'
+  | 'sus2b5Degree'
+  | 'seventhKinds'
+  | 'seventhKindCount';
 
 /** Tokens whose values are note or chord names (restyled for ♭ and ♯). */
 export const SPELLED_TOKENS: ReadonlySet<TheoryToken> = new Set([
@@ -300,6 +457,10 @@ export const SPELLED_TOKENS: ReadonlySet<TheoryToken> = new Set([
   'thirdNote',
   'parentKey',
   'colourNote',
+  'scaleNoteNames',
+  'partnerKey',
+  'blueNote',
+  'familyParentKey',
 ]);
 
 const STRING_NAMES = ['', 'high E', 'B', 'G', 'D', 'A', 'low E'];
@@ -375,7 +536,14 @@ function degreeLabel(center: GuitarCenter, degree: number): string {
   return `${degreeAccidental(center, degree as ScaleDegree)}${degree}`;
 }
 
-const TRIAD_WORD = { maj: 'major', min: 'minor', dim: 'diminished' } as const;
+const TRIAD_WORD: Partial<Record<BookChordQuality, string>> = {
+  maj: 'major',
+  min: 'minor',
+  dim: 'diminished',
+  aug: 'augmented',
+  majb5: 'major(♭5)',
+  sus2b5: 'sus2(♭5)',
+};
 
 /** The pentatonic the step plays (the first when it plays none). */
 function pentatonicOf(d: DerivedTheoryContext): GuitarPentatonic | undefined {
@@ -433,24 +601,34 @@ export const THEORY_TOKENS: Readonly<
   thirdNote: (d) => dominantTones(d)?.dominant[1],
   tonicThird: (d) => dominantTones(d)?.tonic[1],
 
-  mode: (d) => GUITAR_MODE_NAME[d.center.mode],
-  parentKey: (d) => modalMode(d) && d.center.parentKey,
-  parentDegree: (d) => modalMode(d) && d.center.parentDegree,
+  mode: (d) => centerModeName(d.center),
+  parentKey: (d) =>
+    d.center.family === 'diatonic' && modalMode(d)
+      ? d.center.parentKey
+      : undefined,
+  parentDegree: (d) =>
+    d.center.family === 'diatonic' && modalMode(d)
+      ? d.center.parentDegree
+      : undefined,
   colourText: (d) => {
     const mode = modalMode(d);
-    return mode && MODE_COLOUR_TEXT[mode];
+    if (mode) return MODE_COLOUR_TEXT[mode];
+    const scale = familyScale(d);
+    return scale && COLOUR_TEXT[scale];
   },
   colourNote: (d) => {
-    const mode = modalMode(d);
-    return mode && d.center.spelling[COLOUR_DEGREE[mode] - 1];
+    const degree = colourDegreeOf(d);
+    return degree && d.center.spelling[degree - 1];
   },
   colourDegree: (d) => {
-    const mode = modalMode(d);
-    return mode && degreeLabel(d.center, COLOUR_DEGREE[mode]);
+    const degree = colourDegreeOf(d);
+    return degree && degreeLabel(d.center, degree);
   },
   colourChord: (d) => {
     const mode = modalMode(d);
-    return mode && COLOUR_CHORD[mode];
+    if (mode) return COLOUR_CHORD[mode];
+    const scale = familyScale(d);
+    return scale && COLOUR[scale].chord;
   },
   // 'from 2 to ♭3, and from 6 to ♭7'.
   halfSteps: (d) => {
@@ -483,7 +661,86 @@ export const THEORY_TOKENS: Readonly<
   },
   triadPattern: (d) =>
     diatonicTriads(d.center)
-      .map((quality, i) => `${i + 1} ${TRIAD_WORD[quality]}`)
+      .map((quality, i) => `${i + 1} ${TRIAD_WORD[quality] ?? quality}`)
       .join(', '),
   dimDegree: (d) => diatonicTriads(d.center).indexOf('dim') + 1 || undefined,
+
+  // The rest of Theory
+  noteCount: (d) => NUMBER_WORD[d.center.steps.length],
+  scaleDegrees: (d) => listText(d.center.degreeLabels),
+  scaleNoteNames: (d) => listText(d.center.spelling),
+  scaleCharacter: (d) =>
+    d.center.family === 'pentatonic-blues'
+      ? SCALE_LESSONS[d.center.mode as GuitarPentatonicScale].character
+      : undefined,
+  partnerKey: (d) => {
+    if (d.center.family !== 'pentatonic-blues') return undefined;
+    const partner = SCALE_PARTNER[d.center.mode as GuitarPentatonicScale];
+    return d.center.spelling[partner.index];
+  },
+  partnerName: (d) => {
+    if (d.center.family !== 'pentatonic-blues') return undefined;
+    const partner = SCALE_PARTNER[d.center.mode as GuitarPentatonicScale];
+    return SCALE_LESSONS[partner.scale].title;
+  },
+  blueNote: (d) => {
+    const i = blueNoteIndex(d);
+    return i === undefined ? undefined : d.center.spelling[i];
+  },
+  blueDegree: (d) => {
+    const i = blueNoteIndex(d);
+    return i === undefined ? undefined : d.center.degreeLabels[i];
+  },
+  halfStepCount: (d) => NUMBER_WORD[gapsOf(d.center, 1).length],
+  halfStepList: (d) =>
+    listText(gapsOf(d.center, 1).map((i) => pairText(d.center, i, '–'))),
+  augSecondPairs: (d) => {
+    const pairs = augmentedSeconds(d.center);
+    return pairs.length
+      ? pairs.map((i) => pairText(d.center, i, ' and ')).join(', and between ')
+      : undefined;
+  },
+  stretchFret: (d) => stretchOf(d.position)?.anchor,
+  lowFret: (d) => stretchOf(d.position)?.low,
+  familyParentKey: (d) => familyParentOf(d)?.tonic,
+  familyName: (d) => {
+    const parent = familyParentOf(d);
+    return parent ? guitarScaleEntry(parent.scale).name : undefined;
+  },
+  familyDegree: (d) => familyParentOf(d)?.degree,
+  augDegree: (d) => familyTriads(d).indexOf('aug') + 1 || undefined,
+  dimDegrees: (d) => {
+    const degrees = familyTriads(d).flatMap((q, i) =>
+      q === 'dim' ? [String(i + 1)] : [],
+    );
+    return degrees.length ? listText(degrees) : undefined;
+  },
+  majb5Degree: (d) => familyTriads(d).indexOf('majb5') + 1 || undefined,
+  sus2b5Degree: (d) => familyTriads(d).indexOf('sus2b5') + 1 || undefined,
+  seventhKinds: (d) => {
+    if (!familyParentOf(d)) return undefined;
+    const kinds = [...new Set(diatonicSevenths(d.center))];
+    return listText(kinds.map(qualityProse));
+  },
+  seventhKindCount: (d) =>
+    familyParentOf(d)
+      ? NUMBER_WORD[new Set(diatonicSevenths(d.center)).size]
+      : undefined,
 };
+
+/** A seven-note family mode's scale key; undefined elsewhere. */
+function familyScale(
+  d: DerivedTheoryContext,
+): GuitarHeptatonicScale | undefined {
+  return familyParentOf(d)
+    ? (d.center.mode as GuitarHeptatonicScale)
+    : undefined;
+}
+
+/** The colour note's degree, in a mode or a seven-note family mode. */
+function colourDegreeOf(d: DerivedTheoryContext): number | undefined {
+  const mode = modalMode(d);
+  if (mode) return COLOUR_DEGREE[mode];
+  const scale = familyScale(d);
+  return scale && COLOUR[scale].note;
+}

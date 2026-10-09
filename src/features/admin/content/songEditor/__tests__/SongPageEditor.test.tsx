@@ -38,7 +38,6 @@ vi.mock('@/features/songs/useSongActions', () => ({
     openInLesson: () => {},
     openInStudio: () => {},
     openInGlobe: () => {},
-    studioPrompt: null,
   }),
 }));
 

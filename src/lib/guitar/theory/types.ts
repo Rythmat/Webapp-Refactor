@@ -10,7 +10,18 @@ import type {
 } from '@/lib/guitar/types';
 
 /** Rendered with ♭ via toneLabelText; 'R', never '1', so it can't read as finger 1. */
-export type ChordToneLabel = 'R' | '3' | 'b3' | '5' | 'b5' | '7' | 'b7';
+export type ChordToneLabel =
+  | 'R'
+  | '2'
+  | '3'
+  | 'b3'
+  | '5'
+  | 'b5'
+  | '#5'
+  | '6'
+  | '7'
+  | 'b7'
+  | 'bb7';
 export type ChordToneRole = 'root' | 'third' | 'fifth' | 'seventh';
 /** Scale degree in a major key. */
 export type KeyDegree = 7 | 6 | 5 | 4 | 3 | 2 | 1;
@@ -186,7 +197,38 @@ export type TheoryNoteCondition =
   | 'hasTopLineRun'
   | 'octaveIsSameShape'
   | 'octaveIsNewShape'
-  | 'octaveNotHigher';
+  | 'octaveNotHigher'
+  // The rest of Theory
+  | 'handStill'
+  | 'positionNeedsStretch'
+  | 'octaveTwoOverTwoUp'
+  | 'modeIsFamilyParent'
+  | 'modeIsFamilyMode'
+  | 'scaleHasAugmentedSecond'
+  | 'scaleHasBlueNote'
+  | 'hasAugTriad'
+  | 'hasTwoDimTriads'
+  | 'hasMajFlat5Triad'
+  | 'hasSus2Flat5Triad'
+  | 'stepChordsHaveThird'
+  | 'chordTopIsSeventh'
+  | 'chordIsMinMaj7'
+  | 'chordIsAugMaj7'
+  | 'chordIsDim7'
+  | 'chordIsHalfDim'
+  | 'chordIsMin6'
+  | 'chordIsDom7b5'
+  | 'chordIsSus2b5add6';
+
+/** A note's lessons: see GuitarTheoryNote.modes. */
+export type TheoryNoteScope =
+  | 'ionian'
+  | 'modal'
+  | 'pentatonic-blues'
+  | 'harmonic-minor'
+  | 'melodic-minor'
+  | 'harmonic-major'
+  | 'double-harmonic';
 
 export interface GuitarTheoryNote {
   /** Stable, e.g. 'b7.drop3mute'. */
@@ -197,10 +239,11 @@ export interface GuitarTheoryNote {
   kind: 'theory' | 'technique' | 'listening' | 'practice';
   when: TheoryNoteCondition;
   /**
-   * Which lessons the note belongs to: 'ionian' (Book One's major keys) or
-   * 'modal' (the other modes). Absent: every lesson.
+   * Which lessons the note belongs to: 'ionian' (Book One's major keys),
+   * 'modal' (the other diatonic modes) or a family from the rest of Theory,
+   * alone or as a list. Absent: every lesson.
    */
-  modes?: 'ionian' | 'modal';
+  modes?: TheoryNoteScope | readonly TheoryNoteScope[];
   /** ≤ 5 words. */
   title: string;
   /** 1–4 sentences, ≤ 20 words each; {tokens} are resolved per key and step. */

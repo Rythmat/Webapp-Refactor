@@ -10,6 +10,7 @@ import { useAwards } from '@/hooks/data/useAwards';
 import { useStreak } from '@/hooks/data/useStreak';
 import { useAvatarConfig } from '@/hooks/useAvatarConfig';
 import { ChordNotationSwitcher } from './ChordNotationSwitcher';
+import { setTopRailSlot } from './topRailSlot';
 
 const CREDITS_PLACEHOLDER = 12;
 // Notifications count is not yet backed by a real feed — inline a zero here
@@ -50,6 +51,14 @@ export const TopRail = ({ className }: TopRailProps) => {
         className,
       )}
     >
+      {/* Leading slot: the Studio editor portals its save chip and
+          Undo/Redo here while it is open (EditorTopRailSlot). Empty
+          elsewhere. */}
+      <div
+        ref={setTopRailSlot}
+        data-slot="toprail-leading"
+        className="mr-auto flex min-w-0 items-center gap-2"
+      />
       <div className="flex items-center gap-6 text-white">
         {/* Chord notation — only once turned on in Settings ▸ Look & Feel. */}
         <ChordNotationSwitcher />

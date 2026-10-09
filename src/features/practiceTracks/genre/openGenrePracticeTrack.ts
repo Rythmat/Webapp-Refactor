@@ -47,6 +47,25 @@ export function stashPracticeTrack(next: PendingPracticeTrack): void {
 }
 
 /**
+ * The pending Practice Track if it is the one the parameters asked for,
+ * left in the box. The Studio reads it this way while it opens the track,
+ * so an open that is refused, cancelled or superseded leaves it for the
+ * next try; it takes it (takePracticeTrack) once the track is open.
+ */
+export function peekPracticeTrack(
+  genre: string,
+  level: number,
+  section: ActivitySectionId,
+): PendingPracticeTrack | null {
+  return pending &&
+    pending.genre === genre &&
+    pending.level === level &&
+    pending.section === section
+    ? pending
+    : null;
+}
+
+/**
  * Take the pending Practice Track if it is the one the parameters asked for.
  * Reading it clears it, so a later refresh rebuilds rather than replaying a
  * track from a navigation that has already happened.
@@ -56,13 +75,7 @@ export function takePracticeTrack(
   level: number,
   section: ActivitySectionId,
 ): PendingPracticeTrack | null {
-  const found =
-    pending &&
-    pending.genre === genre &&
-    pending.level === level &&
-    pending.section === section
-      ? pending
-      : null;
+  const found = peekPracticeTrack(genre, level, section);
   pending = null;
   return found;
 }
@@ -158,13 +171,21 @@ export interface ResolvedPracticeTrack {
  * The Studio's side: the track the URL names, from the box if the lesson just
  * left one there, else rebuilt from the flow. Null when the parameters name
  * nothing real.
+ *
+ * Reads the box without emptying it by default: this is openSession's
+ * prepare step, which changes nothing, and the open takes the track
+ * (takePracticeTrack) only once it is ready. `consume: true` empties the box
+ * as it reads, as the pre-1.4 boot did.
  */
 export async function resolvePracticeTrack(
   genre: string,
   level: number,
   section: ActivitySectionId,
+  opts: { consume?: boolean } = {},
 ): Promise<ResolvedPracticeTrack | null> {
-  const handed = takePracticeTrack(genre, level, section);
+  const handed = opts.consume
+    ? takePracticeTrack(genre, level, section)
+    : peekPracticeTrack(genre, level, section);
   if (handed) {
     return {
       track: handed.track,

@@ -70,7 +70,7 @@ const VALUE_FLAGS = new Set(
   [
     'out reuse port profile gpu', // harness.mjs, every check
     'only', // check.mjs
-    'scenario api-mode calibrate known fixtures-dir', // roundtrip.mjs
+    'scenario api-mode calibrate known fixtures-dir prev-base tier', // roundtrip.mjs
     'fixture rates goldens block fixtures-dir', // golden.mjs
     'persona lesson idle-seconds step-timeout', // lessons.mjs
     'scenario repeat audio-timeout max-load', // perf.mjs
@@ -232,6 +232,7 @@ export async function newPage(
     deviceScaleFactor: profile.deviceScaleFactor,
   });
   if (probes) await context.addInitScript(installProbes);
+  await guardPartyKit(context);
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (error) => errors.push(String(error).slice(0, 500)));
@@ -254,20 +255,293 @@ export async function newPage(
 }
 
 /**
+ * Closes every PartyKit WebSocket a page of `context` opens. The dev
+ * server's VITE_PARTYKIT_HOST (the main checkout's env) is not a loopback
+ * host, so without this a collab boot in a check would dial a deployed
+ * PartyKit with the bypass token. A collab open then fails the way a dead
+ * room does.
+ */
+export async function guardPartyKit(context) {
+  await context.routeWebSocket(/\/parties\//, (ws) => ws.close());
+}
+
+/**
+ * Whether the editor's open has settled (milestone 1.4). Runs in the page.
+ * An open has finished since the page loaded (or since markOpenBoundary,
+ * for an in-page navigation): the session store's lastOutcome is set and is
+ * not the one recorded at the boundary, so a poll that lands between the
+ * editor's mount and useSessionBoot's start (phase still 'idle') or reads
+ * the previous open's 'ready' does not pass. The open ended 'ready', or
+ * 'failed' (a failure after the switch: the error panel is up and the kept
+ * work, or a new empty draft, is open). The editor root is not aria-busy and
+ * no Opening overlay is up.
+ */
+export function editorOpenSettled() {
+  const session = window.__MA_SESSION__?.getState();
+  if (!session || !window.__MA_STORE__) return false;
+  const outcome = session.lastOutcome;
+  const fresh = outcome != null && outcome !== window.__RT_PREV_OUTCOME__;
+  return (
+    fresh &&
+    (session.phase === 'ready' || session.phase === 'failed') &&
+    !document.querySelector('.daw-root[aria-busy="true"]') &&
+    !document.querySelector('[data-testid="opening-overlay"]')
+  );
+}
+
+/**
+ * In the page: records the session's current outcome as the boundary an
+ * in-page navigation's open must move past (editorOpenSettled). A full page
+ * load needs none (its store starts with no outcome). Call it in the same
+ * task as the navigation, before it; with no editor loaded yet (no
+ * window.__MA_SESSION__) the boundary set before stays.
+ */
+export function markOpenBoundary() {
+  const session = window.__MA_SESSION__;
+  if (session) window.__RT_PREV_OUTCOME__ = session.getState().lastOutcome;
+}
+
+/**
  * Opens the editor at `/studio/editor<query>` and waits until the store is
- * exposed and the track area is on screen.
+ * exposed, an open has finished on this page (editorOpenSettled: the
+ * Opening overlay is gone, so it covers no anchor) and the track area is on
+ * screen. A failure of asUser's served module is thrown here, by name.
  */
 export async function openEditor(page, base, query = '', timeout = 180_000) {
   await page.goto(`${base}/studio/editor${query}`, {
     waitUntil: 'domcontentloaded',
     timeout,
   });
-  await page.waitForFunction(() => Boolean(window.__MA_STORE__), null, {
-    timeout,
-  });
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    throwAsUserError(page.context());
+    // The store and the session are exposed together (DawApp), so a
+    // settled open means the store is out too. A navigation in progress
+    // destroys the context the evaluate runs in: poll again.
+    const ready = await page.evaluate(editorOpenSettled).catch(() => false);
+    if (ready) break;
+    if (Date.now() > deadline) {
+      throw new Error(
+        `openEditor: the editor's open did not settle within ${timeout} ms`,
+      );
+    }
+    await new Promise((done) => setTimeout(done, 100));
+  }
   await page.waitForSelector('[data-tutorial-id="add-track-button"]', {
-    timeout,
+    timeout: Math.max(1000, deadline - Date.now()),
   });
+}
+
+/**
+ * Crashes `page`'s renderer as a real crash does (CDP Page.crash): no
+ * pagehide, no visibilitychange, nothing flushed; committed IndexedDB and
+ * localStorage data survive and its locks are freed. Page.crash never
+ * answers, so it is sent without waiting; the page's 'crash' event is. A
+ * crashed Page cannot be reloaded: open another tab of the same context.
+ */
+export async function crash(page, timeout = 15_000) {
+  const cdp = await page.context().newCDPSession(page);
+  const crashed = page.waitForEvent('crash', { timeout });
+  cdp.send('Page.crash').catch(() => {});
+  await crashed;
+}
+
+/** The CDP session a quota override is set through, kept per page. */
+async function quotaSession(page) {
+  page.__rtQuotaCdp ??= await page.context().newCDPSession(page);
+  return page.__rtQuotaCdp;
+}
+
+/**
+ * Caps the storage quota of `page`'s origin (CDP
+ * Storage.overrideQuotaForOrigin): `quotaBytes` outright, or the origin's
+ * current usage plus `headroomBytes`. Writes past it abort with
+ * QuotaExceededError (an IndexedDB transaction's abort), while
+ * navigator.storage.estimate() keeps reporting the real quota. Resolves to
+ * { usage, quota } as set.
+ *
+ * What Chrome 153 does with it (probed, build/harness/quota-debug*.mjs):
+ * the cap holds only while the CDP session that set it lives (this keeps
+ * one per page: closing the page lifts it), and IndexedDB keeps the quota
+ * it found when the origin first used IndexedDB in the context, so a cap
+ * set after the editor has opened its drafts does not reach them. To cap
+ * the editor's drafts, cap the origin before the editor loads
+ * (presetQuota). resetQuota lifts a cap at any time.
+ */
+export async function setQuota(page, { quotaBytes, headroomBytes = 0 } = {}) {
+  const origin = new URL(page.url()).origin;
+  const usage = await page.evaluate(async () => {
+    const { usage } = await navigator.storage.estimate();
+    return usage ?? 0;
+  });
+  const quota = quotaBytes ?? usage + headroomBytes;
+  const cdp = await quotaSession(page);
+  await cdp.send('Storage.overrideQuotaForOrigin', {
+    origin,
+    quotaSize: quota,
+  });
+  return { usage, quota };
+}
+
+/** Lifts setQuota's (or presetQuota's) cap on `page`'s origin. */
+export async function resetQuota(page) {
+  const origin = new URL(page.url()).origin;
+  const cdp = await quotaSession(page);
+  await cdp.send('Storage.overrideQuotaForOrigin', { origin });
+}
+
+/**
+ * Caps `base`'s origin in `context` before any page of it uses IndexedDB
+ * (see setQuota): a holder page of the origin, which boots no app, sets the
+ * cap and stays open to keep it. Resolves to { usage, quota, reset() }:
+ * reset() lifts the cap and closes the holder. Open the editor after this.
+ */
+export async function presetQuota(context, base, quotaBytes) {
+  const holder = await context.newPage();
+  await holder.goto(`${base}/@vite/client`, { waitUntil: 'domcontentloaded' });
+  const set = await setQuota(holder, { quotaBytes });
+  return {
+    ...set,
+    holder,
+    reset: async () => {
+      await resetQuota(holder).catch(() => {});
+      await holder.close().catch(() => {});
+    },
+  };
+}
+
+/** The key prefix fillLocalStorage writes under (clearLocalStorageFill). */
+const FILL_PREFIX = 'rt:fill:';
+
+/**
+ * Fills `page`'s localStorage with filler under 'rt:fill:<n>', in chunks of
+ * 256K characters, until `chars` more are stored or it is full (Chrome holds
+ * about 5M characters per origin). Resolves to { stored, full }.
+ */
+export async function fillLocalStorage(page, chars = Infinity) {
+  return page.evaluate(
+    ({ prefix, want }) => {
+      const chunk = 'x'.repeat(256 * 1024);
+      let stored = 0;
+      let n = 0;
+      while (localStorage.getItem(`${prefix}${n}`) !== null) n += 1;
+      for (; stored < want; n++) {
+        const piece =
+          want - stored < chunk.length ? chunk.slice(0, want - stored) : chunk;
+        try {
+          localStorage.setItem(`${prefix}${n}`, piece);
+          stored += piece.length;
+        } catch {
+          if (piece.length > 1024) {
+            // Try a smaller piece before calling it full.
+            const half = piece.slice(0, Math.floor(piece.length / 2));
+            try {
+              localStorage.setItem(`${prefix}${n}`, half);
+              stored += half.length;
+              continue;
+            } catch {
+              // Full.
+            }
+          }
+          return { stored, full: true };
+        }
+      }
+      return { stored, full: false };
+    },
+    { prefix: FILL_PREFIX, want: Number.isFinite(chars) ? chars : 1e9 },
+  );
+}
+
+/** Removes what fillLocalStorage wrote. */
+export async function clearLocalStorageFill(page) {
+  await page.evaluate((prefix) => {
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith(prefix)) localStorage.removeItem(key);
+    }
+  }, FILL_PREFIX);
+}
+
+/** The dev auth bypass's module, its user's id and token (src/auth/devBypass.ts). */
+const BYPASS_MODULE = '/src/auth/devBypass.ts';
+export const DEV_BYPASS_USER_ID = 'dev-bypass-user';
+export const DEV_BYPASS_TOKEN = 'dev-bypass-token';
+const BYPASS_USER_ID = /(\bid:\s*)(['"])dev-bypass-user\2/;
+const BYPASS_TOKEN = /(\btoken:\s*)(['"])dev-bypass-token\2/;
+
+/**
+ * The bearer token asUser serves `userId` (the bypass's own for its user).
+ * mockStudioApi.mjs reads the owner of a request back from it.
+ */
+export const devTokenFor = (userId) =>
+  !userId || userId === DEV_BYPASS_USER_ID
+    ? DEV_BYPASS_TOKEN
+    : `${DEV_BYPASS_TOKEN}:${userId}`;
+
+/**
+ * Signs every page of `context` in as `userId` instead of the bypass's
+ * 'dev-bypass-user' (another student on the same device: the same
+ * localStorage, IndexedDB and locks). The bypass module is served to the
+ * context with its user id and its token rewritten (the token to
+ * devTokenFor(userId), so the mock Studio API tells the two students'
+ * projects apart), the way lessons.mjs serves it another plan; no product
+ * code changes and no other context sees it. Call it again to switch user
+ * (pages loaded after that get the new one); asUser(context, null) goes
+ * back to the bypass's own user. Conditional request headers are dropped so
+ * the browser never revalidates into another user's copy.
+ *
+ * When the module no longer has the user id or the token to rewrite, the
+ * request is aborted (the editor never loads) and the reason is kept on the
+ * context: openEditor (and asUserError) report it by name instead of a
+ * generic load timeout.
+ */
+export async function asUser(context, userId) {
+  const previous = context.__rtAsUser;
+  if (previous) await context.unroute(previous.match, previous.handler);
+  context.__rtAsUser = null;
+  context.__rtAsUserError = null;
+  if (!userId || userId === DEV_BYPASS_USER_ID) return;
+  const match = (url) => url.pathname === BYPASS_MODULE;
+  const handler = async (route) => {
+    try {
+      const headers = { ...route.request().headers() };
+      delete headers['if-none-match'];
+      delete headers['if-modified-since'];
+      const response = await route.fetch({ headers });
+      const source = await response.text();
+      const withUser = source.replace(
+        BYPASS_USER_ID,
+        (_, lead, quote) => `${lead}${quote}${userId}${quote}`,
+      );
+      const body = withUser.replace(
+        BYPASS_TOKEN,
+        (_, lead, quote) => `${lead}${quote}${devTokenFor(userId)}${quote}`,
+      );
+      if (withUser === source || body === withUser) {
+        throw new Error(
+          `asUser: ${BYPASS_MODULE} no longer names its user 'dev-bypass-user' and its token 'dev-bypass-token'; has it changed?`,
+        );
+      }
+      const out = { ...response.headers() };
+      delete out['content-length'];
+      delete out.etag;
+      out['cache-control'] = 'no-store';
+      await route.fulfill({ status: response.status(), headers: out, body });
+    } catch (error) {
+      context.__rtAsUserError ??= String(error?.message ?? error);
+      await route.abort('failed').catch(() => {});
+    }
+  };
+  await context.route(match, handler);
+  context.__rtAsUser = { match, handler };
+}
+
+/** Why asUser could not serve its user to `context`, or null. */
+export const asUserError = (context) => context.__rtAsUserError ?? null;
+
+/** Throws asUser's failure on `context`, if it had one. */
+export function throwAsUserError(context) {
+  const error = asUserError(context);
+  if (error) throw new Error(error);
 }
 
 /**

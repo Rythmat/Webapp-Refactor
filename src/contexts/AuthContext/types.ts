@@ -72,6 +72,11 @@ export type AuthContextActions = {
     password: string,
   ) => Promise<void>;
   signInWithProvider: (provider: 'google' | 'apple') => Promise<void>;
+  /** Auth0 Google login with `email` as `login_hint` (after One Tap / the GIS button). */
+  signInWithGoogleHint: (
+    email: string,
+    options?: { returnTo?: string },
+  ) => Promise<void>;
   signUp: () => Promise<void>;
   signUpAsTeacher: (input: CreateTeacherParams) => Promise<void>;
   signUpAsStudent: (input: CreateStudentParams) => Promise<void>;

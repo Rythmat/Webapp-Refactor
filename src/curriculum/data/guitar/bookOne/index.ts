@@ -128,10 +128,19 @@ const QUALITY_HYBRID: Readonly<Record<BookChordQuality, string>> = {
   maj: 'maj',
   min: 'min',
   dim: 'dim',
+  aug: 'aug',
+  majb5: 'maj(b5)',
+  sus2b5: 'sus2(b5)',
   maj7: 'maj7',
   min7: 'min7',
   dom7: 'dom7',
   min7b5: 'min7(b5)',
+  dim7: 'dim7',
+  minMaj7: 'min(maj7)',
+  'maj7#5': 'maj7(#5)',
+  dom7b5: 'dom7(b5)',
+  min6: 'min6',
+  sus2b5add6: 'sus2(b5)add6',
 };
 
 /** The Hybrid Number System label: '2 min7', '7 min7(b5)'. */

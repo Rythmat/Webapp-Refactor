@@ -64,6 +64,7 @@ import {
   QUALITY_TONES,
   CHORD_FORMULA,
   formulaText,
+  isSeventhQuality,
   spokenToneLabel,
   toneLabelText,
 } from '@/lib/guitar/theory/chordTones';
@@ -186,7 +187,7 @@ export function chordTheory({
   const id = centerId ?? (degree ? bookKeyOf(rootPc, degree) : null);
   let notes: DiagramInfoNote[] = [];
   if (id && degree) {
-    const seventh = quality !== 'maj' && quality !== 'min' && quality !== 'dim';
+    const seventh = isSeventhQuality(quality);
     const popover = notesFor(seventh ? 'B7' : 'B1', {
       center: getGuitarCenter(id),
       shape: { ...shape, degree, quality },
@@ -368,6 +369,7 @@ export const ChordBox = memo(function ChordBox({
   labelMode: labelModeProp,
   theory: withTheory = true,
   variant = 'default',
+  toneLabels,
 }: ChordBoxProps) {
   const storedMode = useGuitarDisplaySettings((s) => s.chordBoxLabels);
   // A Book One chord shape carries its own degree and quality.
@@ -382,8 +384,10 @@ export const ChordBox = memo(function ChordBox({
         : null,
     [withTheory, shape, name, rootPc, quality, degree, centerId],
   );
+  // Chord-tone labels come from the theory layer, or are given (song chords).
   const chordTones =
-    (labelModeProp ?? storedMode) === 'chordTones' && theory !== null;
+    (labelModeProp ?? storedMode) === 'chordTones' &&
+    (theory !== null || toneLabels !== undefined);
 
   const model = useMemo(() => {
     const missingPcs = new Set(diagnostics?.missingPcs);
@@ -405,8 +409,9 @@ export const ChordBox = memo(function ChordBox({
       const tone = theory?.toneByString.get(string);
       let label: string | undefined;
       if (showFingers) {
-        if (chordTones) label = tone && toneLabelText(tone);
-        else label = finger ? String(finger) : undefined;
+        if (chordTones) {
+          label = tone ? toneLabelText(tone) : toneLabels?.get(string);
+        } else label = finger ? String(finger) : undefined;
       }
       dots.push({
         string,
@@ -450,7 +455,16 @@ export const ChordBox = memo(function ChordBox({
 
     const barres = shape.barre ? [shape.barre] : undefined;
     return { muted, open, dots, barres, extras, label };
-  }, [shape, name, rootPc, showFingers, diagnostics, theory, chordTones]);
+  }, [
+    shape,
+    name,
+    rootPc,
+    showFingers,
+    diagnostics,
+    theory,
+    chordTones,
+    toneLabels,
+  ]);
 
   if (variant === 'lesson') {
     return (

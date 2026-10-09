@@ -1,11 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp';
-import { AlertCircle } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -39,6 +37,10 @@ import { AuthRoutes } from '@/constants/routes';
 import { useAuthActions, useAuthContext } from '@/contexts/AuthContext';
 import { useClassroomDetailsByCode } from '@/hooks/data';
 import { useMusicalForm } from '@/hooks/useMusicalForm';
+import { AuthAlert } from '@/layouts/AuthLayout/AuthAlert';
+
+/** Narrower code slots on phones, so all 8 fit down to a 320px screen. */
+const OTP_SLOT = 'max-sm:w-8 max-[359px]:w-7';
 
 const codeFormSchema = z.object({
   classroomCode: z
@@ -199,6 +201,7 @@ export const StudentRegistrationPage = () => {
                     <FormLabel>Class Code</FormLabel>
                     <FormControl>
                       <InputOTP
+                        containerClassName="max-[359px]:gap-1"
                         maxLength={8}
                         pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
                         value={field.value}
@@ -211,16 +214,16 @@ export const StudentRegistrationPage = () => {
                         }}
                       >
                         <InputOTPGroup>
-                          <InputOTPSlot index={0} />
-                          <InputOTPSlot index={1} />
-                          <InputOTPSlot index={2} />
-                          <InputOTPSlot index={3} />
+                          <InputOTPSlot className={OTP_SLOT} index={0} />
+                          <InputOTPSlot className={OTP_SLOT} index={1} />
+                          <InputOTPSlot className={OTP_SLOT} index={2} />
+                          <InputOTPSlot className={OTP_SLOT} index={3} />
                         </InputOTPGroup>
                         <InputOTPGroup>
-                          <InputOTPSlot index={4} />
-                          <InputOTPSlot index={5} />
-                          <InputOTPSlot index={6} />
-                          <InputOTPSlot index={7} />
+                          <InputOTPSlot className={OTP_SLOT} index={4} />
+                          <InputOTPSlot className={OTP_SLOT} index={5} />
+                          <InputOTPSlot className={OTP_SLOT} index={6} />
+                          <InputOTPSlot className={OTP_SLOT} index={7} />
                         </InputOTPGroup>
                       </InputOTP>
                     </FormControl>
@@ -242,10 +245,7 @@ export const StudentRegistrationPage = () => {
             </form>
           </Form>
           {classroomError && (
-            <Alert className="mt-4" variant="destructive">
-              <AlertCircle className="size-4" />
-              <AlertDescription>Invalid classroom code</AlertDescription>
-            </Alert>
+            <AuthAlert className="mt-4">Invalid classroom code</AuthAlert>
           )}
         </CardContent>
       </div>
@@ -373,12 +373,9 @@ export const StudentRegistrationPage = () => {
               </form>
             </Form>
             {signUpError && (
-              <Alert className="mt-4" variant="destructive">
-                <AlertCircle className="size-4" />
-                <AlertDescription>
-                  {signUpError || 'Failed to complete account setup'}
-                </AlertDescription>
-              </Alert>
+              <AuthAlert className="mt-4">
+                {signUpError || 'Failed to complete account setup'}
+              </AuthAlert>
             )}
           </CardContent>
         </div>

@@ -1,16 +1,19 @@
 // @vitest-environment jsdom
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { ChordBar, Song, SongMode } from '@/curriculum/types/songLibrary';
 import { regionToMeasures } from '@/daw/midi/leadSheetUtils';
 import { resetSessionToEmpty } from '@/daw/persistence/SessionSerializer';
-import {
-  hasWorkToKeep,
-  isDocumentDirty,
-} from '@/daw/persistence/saveStatusStore';
+import { resetProjectState } from '@/daw/persistence/projectDocument/initialState';
+import { isDocumentDirty } from '@/daw/persistence/saveStatusStore';
+import { getSessionGeneration } from '@/daw/session/sessionGeneration';
 import { useStore } from '@/daw/store';
-import { canUndo } from '@/daw/store/undoMiddleware';
+import {
+  canUndo,
+  initUndoTracking,
+  resetUndoHistory,
+} from '@/daw/store/undoMiddleware';
 import { ticksPerBar } from '@/daw/utils/timelineScale';
-import { seedStudioFromSong } from '../seedStudioFromSong';
+import { applySong } from '../seedStudioFromSong';
 
 /**
  * What the Studio has to agree with the Songs page about: the key, the mode,
@@ -46,9 +49,11 @@ const song = (over: Partial<Song> = {}): Song =>
     ...over,
   }) as Song;
 
+/** Open a song the way openSession does: reset, then apply. */
 const seed = (s: Song) => {
   resetSessionToEmpty();
-  seedStudioFromSong(s);
+  resetProjectState('open:song');
+  applySong(s);
   return useStore.getState();
 };
 
@@ -63,7 +68,7 @@ const barOfEachChord = (state: ReturnType<typeof useStore.getState>) => {
     .filter((c) => c.name);
 };
 
-describe('seedStudioFromSong', () => {
+describe('applySong', () => {
   it('carries the title, tempo and key across', () => {
     const state = seed(song());
     expect(state.projectName).toBe('Test Song');
@@ -160,25 +165,39 @@ describe('seedStudioFromSong', () => {
     ]);
   });
 
-  it('leaves nothing on the undo stack and nothing unsaved, so an untouched song reads as untouched', () => {
-    // Opening a song is not an edit the player made. The song as it opened is
-    // also the save status's baseline, so the next link has no work in it to
-    // keep.
-    seed(song());
-    expect(canUndo()).toBe(false);
-    expect(isDocumentDirty()).toBe(false);
-    expect(hasWorkToKeep()).toBe(false);
+  describe('applySong, the apply step openSession runs', () => {
+    beforeAll(() => initUndoTracking());
+    afterEach(() => vi.useRealTimers());
+
+    it('does no reset, baseline or undo reset of its own', () => {
+      // Those are the opener's (openSession switching, then baselining):
+      // the apply never bumps the session generation inside the open, never
+      // takes a baseline with the wrong savedComplete, and never clears a
+      // history it doesn't own.
+      vi.useFakeTimers();
+      resetSessionToEmpty();
+      resetUndoHistory();
+      useStore.getState().addTrack('midi', 'piano-sampler', 'Before');
+      vi.advanceTimersByTime(1000);
+      expect(canUndo()).toBe(true);
+
+      const generation = getSessionGeneration();
+      applySong(song());
+      vi.advanceTimersByTime(1000);
+      expect(getSessionGeneration()).toBe(generation);
+      expect(canUndo()).toBe(true);
+      expect(isDocumentDirty()).toBe(true);
+      // The 'Before' track is still there: the apply did not reset.
+      expect(useStore.getState().tracks.map((t) => t.name)).toContain('Before');
+    });
   });
 
   it('opens each song as a new project, never stacked on the one before', () => {
-    resetSessionToEmpty();
-    seedStudioFromSong(song());
-    seedStudioFromSong(
+    seed(song());
+    // The opener resets before each apply: only the second song is left.
+    const state = seed(
       song({ id: 'u', title: 'Other Song', tempo: 90, keyRoot: 67 }),
     );
-    const state = useStore.getState();
-    // The seed starts a new project itself, so even a caller that skips the
-    // reset gets only the second song.
     expect(state.projectName).toBe('Other Song');
     expect(state.tracks.map((t) => t.name)).toEqual(['Other Song — Chords']);
     expect([state.bpm, state.rootNote]).toEqual([90, 7]);
@@ -189,7 +208,8 @@ describe('seedStudioFromSong', () => {
     useStore.getState().setRootNote(2);
     // The transport's key popover locks the key as it closes.
     useStore.getState().toggleRootLock();
-    seedStudioFromSong(song({ keyRoot: 67 }));
+    resetProjectState('open:song');
+    applySong(song({ keyRoot: 67 }));
     expect(useStore.getState().rootNote).toBe(7);
   });
 });

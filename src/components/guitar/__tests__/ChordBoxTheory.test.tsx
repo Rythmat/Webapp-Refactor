@@ -383,3 +383,60 @@ describe('ChordBox (i) popover', () => {
     );
   });
 });
+
+describe('chord-tone labels given by the caller', () => {
+  afterEach(cleanup);
+
+  // A song's E7sus4, open: 0-2-0-2-0-0 (no Book One quality).
+  const E7SUS4: GuitarShapeDiagram = {
+    frets: '0-2-0-2-0-0',
+    diagramStartFret: 1,
+    fingering: [
+      { finger: 2, string: 5, fret: 2 },
+      { finger: 3, string: 3, fret: 2 },
+    ],
+  };
+  const tones = new Map([
+    [6, 'R'],
+    [5, '5'],
+    [4, '♭7'],
+    [3, '4'],
+    [2, '5'],
+    [1, 'R'],
+  ] as const);
+
+  it('labels a chord with no theory layer from toneLabels', () => {
+    const host = render(
+      <ChordBox
+        shape={E7SUS4}
+        name="E7sus4"
+        rootPc={4}
+        keyColor={RED}
+        labelMode="chordTones"
+        toneLabels={tones}
+      />,
+    ).container;
+    expect(labelsByString(host)).toEqual({
+      6: 'R',
+      5: '5',
+      4: '♭7',
+      3: '4',
+      2: '5',
+      1: 'R',
+    });
+  });
+
+  it('keeps fingers without them, or in finger mode', () => {
+    const fingers = render(
+      <ChordBox
+        shape={E7SUS4}
+        name="E7sus4"
+        rootPc={4}
+        keyColor={RED}
+        labelMode="fingers"
+        toneLabels={tones}
+      />,
+    ).container;
+    expect(labelsByString(fingers)).toMatchObject({ 5: '2', 3: '3' });
+  });
+});

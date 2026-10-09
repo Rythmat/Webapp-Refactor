@@ -184,19 +184,30 @@ export function keyNumberLabelsOf(center: GuitarCenter): string[] | undefined {
     : undefined;
 }
 
-function halfStepBrackets(position: GuitarScalePosition): FretBracket[] {
-  return stepSizes(position.playOrder).flatMap(({ from, to, size }) =>
-    size === 'H' && from.string === to.string
-      ? [
-          {
-            string: from.string,
-            fromFret: from.fret,
-            toFret: to.fret,
-            label: 'H',
-            spoken: 'half step',
-          },
-        ]
-      : [],
+/**
+ * Brackets over the half steps that sit on one string. With `wide`, also
+ * over the step and a half of a harmonic or double harmonic scale ('W+H');
+ * a pentatonic's three-fret gaps stay unmarked, as in Book One.
+ */
+function halfStepBrackets(
+  position: GuitarScalePosition,
+  wide = false,
+): FretBracket[] {
+  return stepSizes(position.playOrder).flatMap(
+    ({ from, to, size, semitones }) => {
+      if (from.string !== to.string) return [];
+      const bracket = {
+        string: from.string,
+        fromFret: from.fret,
+        toFret: to.fret,
+      };
+      if (size === 'H')
+        return [{ ...bracket, label: 'H', spoken: 'half step' }];
+      if (wide && semitones === 3) {
+        return [{ ...bracket, label: 'W+H', spoken: 'step and a half' }];
+      }
+      return [];
+    },
   );
 }
 
@@ -221,7 +232,10 @@ export function guitarVisualModel(
       anchor,
       ghosts:
         scalePosition === 'major' ? [] : pentatonicGhosts(center, position),
-      halfSteps: halfStepBrackets(position),
+      halfSteps: halfStepBrackets(
+        position,
+        center.family !== 'diatonic' && center.family !== 'pentatonic-blues',
+      ),
     };
   }
 

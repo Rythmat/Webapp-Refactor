@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { showSuccess } from '@/components/utils/toast';
+import { getSessionGeneration } from '@/daw/session/sessionGeneration';
 import { useStore } from '@/daw/store';
 import { roleList, setListOptions } from '@/features/setlists/setListsStore';
 import {
@@ -25,8 +26,33 @@ import { chartFromStudio, type StudioChartSource } from './toSetListChart';
  * a real answer; the sets keep the page they have.
  */
 
-/** Fires after every successful cloud save, from all save paths. */
+/**
+ * Fires after every successful cloud save, from all save paths, with detail
+ * {projectId, generation}: the project saved and the session it was saved in.
+ */
 export const PROJECT_SAVED_EVENT = 'ma-studio-project-saved';
+
+/** What a saved event says (saveCurrentProjectToCloud). */
+export interface ProjectSavedDetail {
+  projectId?: string;
+  generation?: number;
+}
+
+/**
+ * Whether a saved event is about the project open now: the same cloud
+ * project, in the same session. A save that finished after another project
+ * opened (or for a copy the session let go of) is not, and must not ask
+ * about this project's set lists.
+ */
+export function isSaveOfOpenProject(event: Event): boolean {
+  const detail = (event as CustomEvent<ProjectSavedDetail | null>).detail;
+  const projectId = useStore.getState().projectId;
+  if (!detail || !projectId || detail.projectId !== projectId) return false;
+  return (
+    detail.generation === undefined ||
+    detail.generation === getSessionGeneration()
+  );
+}
 /** Fires after a cloud project is deleted, from all delete paths. */
 export const PROJECT_DELETED_EVENT = 'ma-studio-project-deleted';
 
@@ -261,12 +287,16 @@ export const SetListUpdatePrompt: FC = () => {
   // dismissing the offer doesn't bring it back unasked.
   const [stale, setStale] = useState<ReturnType<typeof staleFor>>([]);
 
-  const onSaved = useCallback(() => {
-    const behind = staleFor(chart);
-    if (behind.length === 0) return;
-    setStale(behind);
-    setAsking(true);
-  }, [chart, staleFor]);
+  const onSaved = useCallback(
+    (event: Event) => {
+      if (!isSaveOfOpenProject(event)) return;
+      const behind = staleFor(chart);
+      if (behind.length === 0) return;
+      setStale(behind);
+      setAsking(true);
+    },
+    [chart, staleFor],
+  );
 
   useEffect(() => {
     window.addEventListener(PROJECT_SAVED_EVENT, onSaved);

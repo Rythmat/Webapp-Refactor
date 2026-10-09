@@ -7,9 +7,25 @@ import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { Users, MessageSquare, Link2 } from 'lucide-react';
 import { useStore } from '@/daw/store/index';
+import { openSession } from '@/daw/session/openSession';
 import { useCollab } from '../CollabProvider';
 import { useCollaboratorCount } from '../presence';
 import { InviteModal } from './InviteModal';
+
+/**
+ * The room code in what the student typed or pasted: the code itself, or a
+ * session link that carries it (`…/studio/editor?collab=<code>`).
+ */
+function joinCodeOf(typed: string): string {
+  const text = typed.trim();
+  if (!text.includes('collab=')) return text;
+  try {
+    const url = new URL(text, 'https://x.invalid');
+    return url.searchParams.get('collab')?.trim() || text;
+  } catch {
+    return text;
+  }
+}
 
 interface CollabToolbarProps {
   onToggleUserList: () => void;
@@ -31,7 +47,9 @@ export function CollabToolbar({
   const setRoomError = useStore((s) => s._setRoomError);
   const setLeavePrompt = useStore((s) => s._setLeavePrompt);
   const collaboratorCount = useCollaboratorCount();
-  const { createAndJoinRoom, joinRoomById } = useCollab();
+  const { createAndJoinRoom } = useCollab();
+  // E15: membership is the room id. A Join while one is set is off.
+  const inRoom = useStore((s) => s.roomId !== null);
   const inviteRequested = useStore((s) => s.inviteRequested);
   const setInviteRequested = useStore((s) => s._setInviteRequested);
   const [showCreatePopover, setShowCreatePopover] = useState(false);
@@ -64,14 +82,22 @@ export function CollabToolbar({
     setInviteOpen(true);
   }, [createAndJoinRoom]);
 
-  const handleJoinRoom = useCallback(() => {
-    const id = joinId.trim();
-    if (!id) return;
+  // The Join opens the room's session through openSession (milestone 1.4):
+  // the work open now is kept first, the Opening overlay shows the wait,
+  // and a join that fails says why in the error panel.
+  // The typed code is cleared only once the session opened: a refused join
+  // (a mistyped code, a toast) leaves it there to fix.
+  const handleJoinRoom = useCallback(async () => {
+    const code = joinCodeOf(joinId);
+    if (!code || useStore.getState().roomId !== null) return;
     setRoomError(null);
-    joinRoomById(id, 'editor');
-    // Keep the popover open: it hides automatically once isCollabActive flips
-    // true on a successful sync, and stays visible to show roomError on failure.
-  }, [joinId, joinRoomById, setRoomError]);
+    setShowCreatePopover(false);
+    const outcome = await openSession(
+      { kind: 'collab', code, host: false, jamImport: false, awaitHost: false },
+      { source: 'toolbar' },
+    );
+    if (outcome.status === 'ready') setJoinId('');
+  }, [joinId, setRoomError]);
 
   // Close popover on outside click
   useEffect(() => {
@@ -177,8 +203,9 @@ export function CollabToolbar({
                   if (roomError) setRoomError(null);
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleJoinRoom();
+                  if (e.key === 'Enter') void handleJoinRoom();
                 }}
+                disabled={inRoom}
                 placeholder="Enter room id"
                 spellCheck={false}
                 autoComplete="off"
@@ -189,8 +216,8 @@ export function CollabToolbar({
                 }}
               />
               <button
-                onClick={handleJoinRoom}
-                disabled={!joinId.trim()}
+                onClick={() => void handleJoinRoom()}
+                disabled={!joinId.trim() || inRoom}
                 className="rounded-md px-2 py-1 text-[10px] font-medium transition-colors hover:bg-white/10 disabled:opacity-40"
                 style={{
                   color: 'var(--color-text)',

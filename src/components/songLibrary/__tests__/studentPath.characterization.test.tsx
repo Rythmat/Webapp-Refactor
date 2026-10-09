@@ -44,7 +44,6 @@ vi.mock('@/features/songs/useSongActions', () => ({
     openInGlobe: () => {},
     toggleSaved: () => {},
     isSaved: false,
-    studioPrompt: null,
   }),
 }));
 

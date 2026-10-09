@@ -5,6 +5,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -14,47 +15,47 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // records the draft it minted itself (sessionDraftProjectId, set by
 // ensureProjectId) and whether it started from an empty project. The renamed
 // "Discard this session's changes" deletes that draft only when the session
-// started empty; a session that started with work keeps the draft and sets
-// the work aside in a kept slot before the reset clears the autosave.
+// started empty and was never saved; any other session may hold the
+// student's own work, so its draft stays and the work is kept on this
+// device.
 //
-// Save & Leave saves a copy to the student's own projects. Today's cloud
-// copy can't hold a chord lane, markers and the rest only milestone 1.5's
-// document carries (D7), and the reset after the save clears the autosave,
-// so a session saved only in part goes to a kept slot first.
+// Since milestone 1.4 both choices continue in a new blank project IN PLACE
+// (no reload): openSession({kind:'new'}, {source:'leave-collab', keep}),
+// which leaves the room before the reset and keeps the outgoing work as a
+// device draft when keep is 'auto' (only session work is discarded). Save &
+// Leave saves a copy to the student's own projects through saveProject
+// first; a session saved only in part is kept by that leave.
 
 const h = vi.hoisted(() => ({
-  leaveRoom: vi.fn(),
-  resetToNewProject: vi.fn(),
+  openSession: vi.fn(),
   showError: vi.fn(),
+  showSuccess: vi.fn(),
 }));
 
-vi.mock('@/contexts/AuthContext/hooks/useAuthContext', () => ({
-  useAuthContext: () => ({ token: 'tok', userId: 'u1' }),
+vi.mock('@/contexts/AuthContext/hooks/useAuthToken', () => ({
+  useAuthToken: () => 'tok',
 }));
-vi.mock('@/daw/collab/CollabProvider', () => ({
-  useCollab: () => ({ leaveRoom: h.leaveRoom }),
-}));
-vi.mock('@/lib/studio-projects/newProject', () => ({
-  resetToNewProject: h.resetToNewProject,
+vi.mock('@/daw/session/openSession', () => ({
+  openSession: h.openSession,
 }));
 vi.mock('@/components/utils/toast', () => ({
   showError: h.showError,
-  showSuccess: vi.fn(),
+  showSuccess: h.showSuccess,
   showWarning: vi.fn(),
 }));
 // The save's audio pass: nothing in these sessions needs uploading.
-vi.mock('@/lib/studio-assets/upload-pending', () => ({
+vi.mock('@/lib/studio-assets/upload-pending', async (importOriginal) => ({
+  ...(await importOriginal<
+    typeof import('@/lib/studio-assets/upload-pending')
+  >()),
   uploadPendingAudioClips: vi.fn(async () => undefined),
   reconcileMissingAssets: vi.fn(async () => ({ unrecoverable: 0 })),
 }));
 
+import { registerSaveAuth } from '@/daw/commands/saveProject';
 import { forgetLiveSession } from '@/daw/persistence/SessionSerializer';
 import { useStore } from '@/daw/store';
 import { ensureProjectId, studioProjectsApi } from '@/lib/studio-projects/api';
-import {
-  listKeptSessions,
-  readKeptSession,
-} from '@/lib/studio-projects/localSession';
 import { LeaveSavePrompt } from '../ui/LeaveSavePrompt';
 
 const store = () => useStore.getState();
@@ -72,7 +73,7 @@ function makeBeat(name = 'Beat'): void {
   });
 }
 
-/** A take is recorded: the first upload mints the cloud project if needed. */
+/** A take is recorded: in a room, the first upload mints the cloud project. */
 async function recordTake(mintedId: string): Promise<void> {
   vi.spyOn(studioProjectsApi, 'create').mockResolvedValue({
     id: mintedId,
@@ -80,18 +81,52 @@ async function recordTake(mintedId: string): Promise<void> {
   await ensureProjectId('tok');
 }
 
+/** openSession leaves the room, as the switch does, and opens. */
+function openSessionLeaves(status: 'ready' | 'refused' = 'ready') {
+  h.openSession.mockImplementation(async () => {
+    if (status === 'refused') {
+      return {
+        status: 'refused',
+        error: {
+          kind: 'storage',
+          message: 'kept',
+          retryable: false,
+          surface: 'toast',
+        },
+      };
+    }
+    store()._clearCollab();
+    return {
+      status: 'ready',
+      draftId: 'd-new',
+      kept: null,
+      forked: false,
+      generation: 1,
+    };
+  });
+}
+
+/** The keep policy each openSession call asked for. */
+const leaves = () =>
+  h.openSession.mock.calls.map(([intent, opts]) => [intent, opts]);
+
+let unregisterAuth: () => void = () => {};
+
 beforeEach(() => {
   localStorage.clear();
   sessionStorage.clear();
   useStore.setState(useStore.getInitialState(), true);
   forgetLiveSession();
-  h.leaveRoom.mockReset();
-  h.resetToNewProject.mockReset();
+  h.openSession.mockReset();
   h.showError.mockReset();
+  h.showSuccess.mockReset();
+  openSessionLeaves();
+  unregisterAuth = registerSaveAuth(() => 'tok');
 });
 
 afterEach(() => {
   cleanup();
+  unregisterAuth();
   vi.restoreAllMocks();
 });
 
@@ -200,7 +235,7 @@ describe("LeaveSavePrompt — Discard this session's changes", () => {
     store()._setLeavePrompt(true);
   });
 
-  it('deletes the draft of a session that started empty (a ?collab= joiner)', async () => {
+  it('deletes the draft of a session that started empty (a ?collab= joiner), keeping nothing of it', async () => {
     const remove = removeSpy();
     // The collab link opened an empty project, the first sync pulled the
     // room's project in, and a take minted the draft.
@@ -212,9 +247,10 @@ describe("LeaveSavePrompt — Discard this session's changes", () => {
 
     expect(remove).toHaveBeenCalledTimes(1);
     expect(remove).toHaveBeenCalledWith('tok', 'draft-1');
-    expect(listKeptSessions('u1')).toEqual([]);
-    expect(h.leaveRoom).toHaveBeenCalledTimes(1);
-    expect(h.resetToNewProject).toHaveBeenCalledTimes(1);
+    expect(leaves()).toEqual([
+      [{ kind: 'new' }, { source: 'leave-collab', keep: 'discard' }],
+    ]);
+    expect(store().leavePromptPending).toBe(false);
   });
 
   it('never deletes a host’s draft that holds their unsaved work from before the session, and keeps that work', async () => {
@@ -229,13 +265,10 @@ describe("LeaveSavePrompt — Discard this session's changes", () => {
     await discard();
 
     expect(remove).not.toHaveBeenCalled();
-    // The reset clears the autosave, so the work went to a kept slot first.
-    const kept = listKeptSessions('u1');
-    expect(kept).toHaveLength(1);
-    const session = readKeptSession(kept[0].key)?.session;
-    expect(session?.data.tracks.map((t) => t.name)).toEqual(['Beat']);
-    expect(h.leaveRoom).toHaveBeenCalledTimes(1);
-    expect(h.resetToNewProject).toHaveBeenCalledTimes(1);
+    // The work is kept on this device by the open (keep 'auto').
+    expect(leaves()).toEqual([
+      [{ kind: 'new' }, { source: 'leave-collab', keep: 'auto' }],
+    ]);
   });
 
   it('keeps the saved song a host started the session from', async () => {
@@ -248,11 +281,12 @@ describe("LeaveSavePrompt — Discard this session's changes", () => {
     await discard();
 
     expect(remove).not.toHaveBeenCalled();
-    expect(h.leaveRoom).toHaveBeenCalledTimes(1);
-    expect(h.resetToNewProject).toHaveBeenCalledTimes(1);
+    expect(leaves()).toEqual([
+      [{ kind: 'new' }, { source: 'leave-collab', keep: 'auto' }],
+    ]);
   });
 
-  it('keeps the draft once it was saved this session', async () => {
+  it('keeps the draft, and the work, once it was saved this session', async () => {
     const remove = removeSpy();
     store()._setRoomInfo('room-a', 'editor');
     store()._setSessionDraftProjectId('draft-1');
@@ -261,6 +295,26 @@ describe("LeaveSavePrompt — Discard this session's changes", () => {
     await discard();
 
     expect(remove).not.toHaveBeenCalled();
+    expect(leaves()).toEqual([
+      [{ kind: 'new' }, { source: 'leave-collab', keep: 'auto' }],
+    ]);
+  });
+
+  it('deletes nothing when the leave is refused, since the room still plays its takes', async () => {
+    const remove = removeSpy();
+    openSessionLeaves('refused');
+    store()._setRoomInfo('room-a', 'editor', 'room-a');
+    makeBeat('Room');
+    await recordTake('draft-1');
+
+    await discard();
+
+    expect(leaves()).toEqual([
+      [{ kind: 'new' }, { source: 'leave-collab', keep: 'discard' }],
+    ]);
+    expect(remove).not.toHaveBeenCalled();
+    expect(store().roomId).toBe('room-a');
+    expect(store().leavePromptPending).toBe(true);
   });
 
   it('still leaves when the delete fails', async () => {
@@ -271,26 +325,25 @@ describe("LeaveSavePrompt — Discard this session's changes", () => {
 
     await discard();
 
-    expect(h.leaveRoom).toHaveBeenCalledTimes(1);
-    expect(h.resetToNewProject).toHaveBeenCalledTimes(1);
+    expect(leaves()).toEqual([
+      [{ kind: 'new' }, { source: 'leave-collab', keep: 'discard' }],
+    ]);
   });
 
-  it('stays in the prompt when the work can’t be set aside on this device', async () => {
+  it('comes back when the work can’t be kept on this device, still in the room', async () => {
+    openSessionLeaves('refused');
     makeBeat('Beat');
     store()._setRoomInfo('room-a', 'owner');
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
-    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
-      throw new DOMException('full', 'QuotaExceededError');
-    });
 
     await discard();
 
-    expect(h.showError).toHaveBeenCalledWith(
-      expect.stringMatching(/couldn't be set aside/),
-    );
-    expect(h.leaveRoom).not.toHaveBeenCalled();
-    expect(h.resetToNewProject).not.toHaveBeenCalled();
+    // openSession said why (a toast); the student is still in the room.
+    expect(h.openSession).toHaveBeenCalledTimes(1);
+    expect(store().roomId).toBe('room-a');
     expect(store().leavePromptPending).toBe(true);
+    expect(
+      screen.getByRole('button', { name: "Discard this session's changes" }),
+    ).not.toBeDisabled();
   });
 });
 
@@ -310,11 +363,14 @@ describe('LeaveSavePrompt — Save & Leave', () => {
   const saveAndLeave = async () => {
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Save & Leave' }));
-      // The save waits on its queue, the audio pass and the requests.
-      for (let i = 0; i < 10; i++) {
-        await new Promise((resolve) => setTimeout(resolve, 0));
-      }
     });
+    // The save waits on its queue, the audio pass and the requests: done
+    // once the prompt no longer reads Saving… (or has closed).
+    await waitFor(
+      () =>
+        expect(screen.queryByRole('button', { name: 'Saving…' })).toBeNull(),
+      { timeout: 5000 },
+    );
   };
   /** A chord lane: today's cloud payload has no place for one. */
   const addChordLane = () =>
@@ -328,14 +384,12 @@ describe('LeaveSavePrompt — Save & Leave', () => {
         color: [1, 2, 3],
       },
     ]);
-  const keptNotice = () =>
-    JSON.parse(sessionStorage.getItem('musicAtlas:daw:keptNotice') ?? 'null');
 
   beforeEach(() => {
     store()._setLeavePrompt(true);
   });
 
-  it('keeps what the cloud copy can’t hold yet, then leaves', async () => {
+  it('saves a copy of the student’s own, then leaves keeping what the copy can’t hold', async () => {
     const { create, update } = mockCloud();
     // A guest in the host's project, which has a chord lane.
     store()._setRoomInfo('room-a', 'editor', 'room-a');
@@ -348,57 +402,45 @@ describe('LeaveSavePrompt — Save & Leave', () => {
 
     // A copy of the student's own; the host's project is never written.
     expect(create).toHaveBeenCalledTimes(1);
-    expect(update).toHaveBeenCalledWith('tok', 'copy-1', expect.anything());
     expect(update).not.toHaveBeenCalledWith(
       'tok',
       'host-song',
       expect.anything(),
     );
-    // The reset clears the autosave, so the session went to a kept slot,
-    // marked as one whose cloud copy holds the rest, and is announced with a
-    // Restore once the editor boots again.
-    const kept = listKeptSessions('u1');
-    expect(kept).toHaveLength(1);
-    const slot = readKeptSession(kept[0].key);
-    expect(slot?.cloudCopy).toBe('partial');
-    expect(slot?.session.data.chordRegions?.map((r) => r.name)).toEqual(['C']);
-    expect(keptNotice()?.key).toBe(kept[0].key);
-    expect(h.leaveRoom).toHaveBeenCalledTimes(1);
-    expect(h.resetToNewProject).toHaveBeenCalledTimes(1);
+    expect(h.showSuccess).toHaveBeenCalledWith('Saved to your projects');
+    // In place, keeping what the copy can't hold (keep 'auto').
+    expect(leaves()).toEqual([
+      [{ kind: 'new' }, { source: 'leave-collab', keep: 'auto' }],
+    ]);
   });
 
-  it('keeps nothing when the cloud copy holds the whole session', async () => {
-    mockCloud();
+  it('stays in the prompt when the save fails, and leaves nothing', async () => {
+    vi.spyOn(studioProjectsApi, 'create').mockRejectedValue(new Error('500'));
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     store()._setRoomInfo('room-a', 'editor', 'room-a');
     makeBeat('Room');
     render(<LeaveSavePrompt />);
 
     await saveAndLeave();
 
-    expect(listKeptSessions('u1')).toEqual([]);
-    expect(keptNotice()).toBeNull();
-    expect(h.leaveRoom).toHaveBeenCalledTimes(1);
-    expect(h.resetToNewProject).toHaveBeenCalledTimes(1);
+    expect(h.openSession).not.toHaveBeenCalled();
+    expect(h.showSuccess).not.toHaveBeenCalled();
+    expect(store().leavePromptPending).toBe(true);
+    expect(
+      screen.getByRole('button', { name: 'Save & Leave' }),
+    ).not.toBeDisabled();
   });
 
-  it('stays in the prompt when what the copy lacks can’t be set aside, and saves over the same copy when pressed again', async () => {
+  it('saves over the same copy when pressed again after the leave was refused', async () => {
     const { create, update } = mockCloud();
+    openSessionLeaves('refused');
     store()._setRoomInfo('room-a', 'editor', 'room-a');
     makeBeat('Room');
     addChordLane();
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
-    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
-      throw new DOMException('full', 'QuotaExceededError');
-    });
     render(<LeaveSavePrompt />);
 
     await saveAndLeave();
 
-    expect(h.showError).toHaveBeenCalledWith(
-      expect.stringMatching(/couldn't be set aside/),
-    );
-    expect(h.leaveRoom).not.toHaveBeenCalled();
-    expect(h.resetToNewProject).not.toHaveBeenCalled();
     expect(store().leavePromptPending).toBe(true);
     expect(store().chordRegions).toHaveLength(1);
     expect(
@@ -408,8 +450,9 @@ describe('LeaveSavePrompt — Save & Leave', () => {
     await saveAndLeave();
 
     expect(create).toHaveBeenCalledTimes(1);
-    expect(update).toHaveBeenCalledTimes(2);
-    expect(update.mock.calls.map(([, id]) => id)).toEqual(['copy-1', 'copy-1']);
-    expect(h.resetToNewProject).not.toHaveBeenCalled();
+    expect(new Set(update.mock.calls.map(([, id]) => id))).toEqual(
+      new Set(['copy-1']),
+    );
+    expect(h.openSession).toHaveBeenCalledTimes(2);
   });
 });

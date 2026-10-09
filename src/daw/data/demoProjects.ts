@@ -129,7 +129,7 @@ export interface DemoProject {
   accent: string;
   bundle: CloudProjectDetail;
   /** Grooves-library id (groovesLibrary.ts) added as a Drums track when the
-   *  demo opens, trimmed to the demo's length — see applyDemoDrums.ts. */
+   *  demo opens, trimmed to the demo's length — see demoSeed.ts. */
   drumGrooveId?: string;
   /** Oracle Synth factory preset name (factoryPresets.ts) per track name,
    *  applied as that track's patch when the demo opens — see

@@ -159,6 +159,11 @@ export interface ChordBoxProps {
    * itself plays the chord (default 'default').
    */
   variant?: DiagramVariant;
+  /**
+   * Each sounding string's chord tone, for a chord with no Book One quality
+   * (a song's 7sus4, 13): "Chord tones" labels read these.
+   */
+  toneLabels?: ReadonlyMap<GuitarStringNumber, string>;
 }
 
 /** A note from theoryNotes.ts, resolved, for an (i) popover. */

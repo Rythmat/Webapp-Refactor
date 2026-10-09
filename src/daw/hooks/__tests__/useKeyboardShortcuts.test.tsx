@@ -9,8 +9,9 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/lib/studio-projects/api', () => ({
-  saveCurrentProjectToCloud: vi.fn(() => Promise.resolve()),
+vi.mock('@/daw/commands/saveProject', () => ({
+  saveProject: vi.fn(() => Promise.resolve({ status: 'saved' })),
+  registerSaveAuth: vi.fn(() => () => {}),
 }));
 vi.mock('@/daw/store/undoMiddleware', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/daw/store/undoMiddleware')>()),
@@ -52,8 +53,12 @@ import { PrismSuggestionModal } from '@/daw/components/Prism/PrismSuggestionModa
 import { RecordGuard } from '@/daw/components/Transport/RecordGuard';
 import { useStore } from '@/daw/store';
 import type { ViewType } from '@/daw/store/uiSlice';
-import { smartUndo } from '@/daw/store/undoMiddleware';
-import { saveCurrentProjectToCloud } from '@/lib/studio-projects/api';
+import { smartRedo, smartUndo } from '@/daw/store/undoMiddleware';
+import { registerSaveAuth, saveProject } from '@/daw/commands/saveProject';
+import {
+  INITIAL_SESSION_STATE,
+  useSessionStore,
+} from '@/daw/session/sessionStore';
 
 // ── Fixtures ───────────────────────────────────────────────────────────────
 
@@ -207,10 +212,13 @@ const clip = () =>
 beforeEach(() => {
   reset();
   vi.mocked(smartUndo).mockClear();
-  vi.mocked(saveCurrentProjectToCloud).mockClear();
+  vi.mocked(smartRedo).mockClear();
+  vi.mocked(saveProject).mockClear();
+  vi.mocked(registerSaveAuth).mockClear();
 });
 
 afterEach(() => {
+  useSessionStore.setState({ ...INITIAL_SESSION_STATE });
   cleanup();
   document.body.innerHTML = '';
   dismissRecordRequest();
@@ -420,7 +428,59 @@ describe('useKeyboardShortcuts: keys stay where the student is working', () => {
     const input = focusOn('<input type="text" />', 'input');
     const event = press('KeyS', { metaKey: true }, input);
     expect(event.defaultPrevented).toBe(true);
-    expect(saveCurrentProjectToCloud).toHaveBeenCalledWith('token');
+    expect(saveProject).toHaveBeenCalledWith({ source: 'shortcut' });
+  });
+
+  it('saves on Ctrl+S too, with the token registered for saveProject', () => {
+    renderHook(() => useKeyboardShortcuts('token'));
+    const event = press('KeyS', { ctrlKey: true });
+    expect(event.defaultPrevented).toBe(true);
+    expect(saveProject).toHaveBeenCalledTimes(1);
+
+    const getToken = vi.mocked(registerSaveAuth).mock.calls[0][0];
+    expect(getToken()).toBe('token');
+  });
+
+  it('saves even when signed out: saveProject says so itself', () => {
+    renderHook(() => useKeyboardShortcuts(null));
+    press('KeyS', { metaKey: true });
+    expect(saveProject).toHaveBeenCalledWith({ source: 'shortcut' });
+    expect(vi.mocked(registerSaveAuth).mock.calls[0][0]()).toBeNull();
+  });
+
+  it('does nothing while a session opens, but still keeps Cmd+S from the browser', () => {
+    renderHook(() => useKeyboardShortcuts('token'));
+    useSessionStore.setState({ phase: 'preparing' });
+
+    let save!: KeyboardEvent;
+    expectNoStoreChange(() => {
+      save = press('KeyS', { metaKey: true });
+      press('Space');
+      press('KeyM');
+      press('KeyZ', { metaKey: true });
+    });
+    expect(save.defaultPrevented).toBe(true);
+    expect(saveProject).not.toHaveBeenCalled();
+    expect(smartUndo).not.toHaveBeenCalled();
+
+    useSessionStore.setState({ phase: 'ready' });
+    press('Space');
+    expect(useStore.getState().isPlaying).toBe(true);
+  });
+
+  it('neither undoes nor redoes while recording (the buttons are disabled)', () => {
+    renderHook(() => useKeyboardShortcuts('token'));
+    useStore.setState({ isRecording: true });
+
+    press('KeyZ', { metaKey: true });
+    press('KeyZ', { ctrlKey: true });
+    press('KeyZ', { metaKey: true, shiftKey: true });
+    expect(smartUndo).not.toHaveBeenCalled();
+    expect(smartRedo).not.toHaveBeenCalled();
+
+    useStore.setState({ isRecording: false });
+    press('KeyZ', { metaKey: true });
+    expect(smartUndo).toHaveBeenCalledTimes(1);
   });
 
   it("leaves Cmd+= to the browser's page zoom", () => {
@@ -468,7 +528,7 @@ describe('useKeyboardShortcuts: keys stay where the student is working', () => {
     press('KeyS', { metaKey: true });
     const heldSave = press('KeyS', { metaKey: true, repeat: true });
     expect(heldSave.defaultPrevented).toBe(true);
-    expect(saveCurrentProjectToCloud).toHaveBeenCalledTimes(1);
+    expect(saveProject).toHaveBeenCalledTimes(1);
   });
 });
 

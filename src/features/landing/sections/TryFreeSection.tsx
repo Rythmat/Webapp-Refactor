@@ -5,21 +5,10 @@ import { AuthRoutes } from '@/constants/routes';
 import { LissajousMark } from '../motion/LissajousMark';
 import { MagneticButton } from '../motion/MagneticButton';
 import { LOGO } from '../motion/lissajous';
-import { KEY_CENTERS } from '../music';
+import { RainbowHorizon } from './RainbowHorizon';
 import { PRODUCTION_CURVE } from './heroWords';
 
 const EASE = [0.2, 0.8, 0.2, 1] as const;
-
-/** The hero rim's rainbow (the 12 key-center colors), left to right. */
-const RAINBOW = `linear-gradient(to right, ${KEY_CENTERS.map((k) => k.color).join(', ')})`;
-
-/** The hero horizon's light streaks: 1px lines 7px apart, fading off the rim. */
-const STREAKS = {
-  backgroundImage:
-    'repeating-linear-gradient(to right, rgba(255,255,255,0.09) 0 1px, transparent 1px 7px)',
-  maskImage: 'linear-gradient(to bottom, #000, transparent)',
-  WebkitMaskImage: 'linear-gradient(to bottom, #000, transparent)',
-};
 
 /** Fades a piece up the first time the section scrolls into view. */
 const reveal = (reduce: boolean, delay = 0) =>
@@ -49,22 +38,7 @@ export const TryFreeSection = () => {
       aria-labelledby="try-free-title"
       className="relative isolate overflow-hidden pb-24 pt-24 md:pb-28 md:pt-32"
     >
-      {/* The straightened horizon: streaks, bloom (half clipped by the top
-          edge, as the arc's is by the frame), then the crisp rim. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-64"
-      >
-        <div className="absolute inset-0" style={STREAKS} />
-        <div
-          className="absolute inset-x-0 -top-6 h-12 opacity-55 blur-2xl"
-          style={{ backgroundImage: RAINBOW }}
-        />
-        <div
-          className="absolute inset-x-0 top-0 h-0.5"
-          style={{ backgroundImage: RAINBOW }}
-        />
-      </div>
+      <RainbowHorizon />
 
       <div className="relative z-10 flex flex-col items-center px-5 text-center">
         <motion.h2
@@ -78,7 +52,7 @@ export const TryFreeSection = () => {
           {...reveal(reduce, 0.1)}
           className="mt-3 text-base text-white/55 md:text-lg"
         >
-          Free to start — right in your browser, no download needed.
+          Start for Free
         </motion.p>
         <motion.span
           aria-hidden

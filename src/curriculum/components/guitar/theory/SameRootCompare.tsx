@@ -75,6 +75,28 @@ function rootOf(
   return fret === null ? null : { string, fret };
 }
 
+const LADDER_QUALITIES = new Set(['maj7', 'dom7', 'min7', 'min7b5']);
+
+/**
+ * Whether the comparison speaks for this box. The rest of Theory's chords
+ * join it only when they are one of the four kinds on the grip the ladder
+ * uses (drop 2 on string 5, drop 3 on string 6); a mode's always do.
+ */
+export function sameRootCompareFits(
+  shape: GuitarChordShape,
+  keyCenter: GuitarCenterId,
+): boolean {
+  const center = getGuitarCenter(keyCenter);
+  if (center.family === 'diatonic') return true;
+  if (!LADDER_QUALITIES.has(shape.quality)) return false;
+  const voicing = classifyVoicing(
+    shape,
+    chordRootPc(center, shape.degree),
+    shape.quality,
+  );
+  return voicing.family === (voicing.rootString === 5 ? 'drop2' : 'drop3');
+}
+
 export const SameRootCompare = memo(function SameRootCompare({
   chordShape,
   keyCenter,

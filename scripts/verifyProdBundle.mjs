@@ -52,6 +52,21 @@ const FORBIDDEN = [
     why: 'DEV bypass app session id (devBypass.ts)',
   },
   { marker: 'VITE_DEV_AUTH_BYPASS', why: 'DEV bypass env flag name' },
+  // The Studio editor's test handles (milestone 1.4): set only behind
+  // DEV_AUTH_BYPASS (DawApp.tsx, persistence/drafts/devHandle.ts), so the
+  // window names fold away with the bypass.
+  {
+    marker: '__MA_DRAFTS__',
+    why: 'Studio draft autosave dev handle (persistence/drafts/devHandle.ts)',
+  },
+  {
+    marker: '__MA_SESSION__',
+    why: 'Studio session store dev handle (DawApp.tsx)',
+  },
+  {
+    marker: '__MA_CLOUD_SAVE__',
+    why: 'Studio cloud save store dev handle (DawApp.tsx)',
+  },
   // The offline content mock (src/features/admin/content/mock) is DEV-only in
   // the same way: its switch folds to false and its chunk must not be emitted.
   {

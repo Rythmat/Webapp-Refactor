@@ -29,16 +29,27 @@ export type GuitarKeyName =
 
 /**
  * Chord qualities as the book's Hybrid Number System abbreviates them, plus
- * the diminished triad the modal lessons add (Book One never prints one).
+ * the diminished triad the modal lessons add (Book One never prints one) and
+ * the chords of the harmonic, melodic and double harmonic families: the
+ * augmented and two ♭5 triads, and six more four-note chords.
  */
 export type BookChordQuality =
   | 'maj'
   | 'min'
   | 'dim'
+  | 'aug'
+  | 'majb5'
+  | 'sus2b5'
   | 'maj7'
   | 'min7'
   | 'dom7'
-  | 'min7b5';
+  | 'min7b5'
+  | 'dim7'
+  | 'minMaj7'
+  | 'maj7#5'
+  | 'dom7b5'
+  | 'min6'
+  | 'sus2b5add6';
 
 export type ScaleDegree = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
@@ -135,14 +146,74 @@ export type GuitarMode =
 
 export type GuitarModalMode = Exclude<GuitarMode, 'ionian'>;
 
+// ── The rest of Theory ────────────────────────────────────────────────────
+
+/** Learn → Theory's families, as its Mode Family filter names them. */
+export type GuitarScaleFamily =
+  | 'diatonic'
+  | 'pentatonic-blues'
+  | 'harmonic-minor'
+  | 'melodic-minor'
+  | 'harmonic-major'
+  | 'double-harmonic';
+
+/**
+ * The seven-note modes of the harmonic minor, melodic minor, harmonic major
+ * and double harmonic scales, by an ASCII engine key: the Theory tile's slug
+ * with '#' as 'sharp', '♭' as 'flat' and '𝄫' as 'doubleflat' (and the tile
+ * 'mixolydiannat6', whose mode is Mixolydian ♭6, as 'mixolydianflat6').
+ */
+export type GuitarHeptatonicScale =
+  | 'harmonicminor'
+  | 'locriannat6'
+  | 'ioniansharp5'
+  | 'doriansharp4'
+  | 'phrygiandominant'
+  | 'lydiansharp2'
+  | 'altereddiminished'
+  | 'melodicminor'
+  | 'dorianflat2'
+  | 'lydianaugmented'
+  | 'lydiandominant'
+  | 'mixolydianflat6'
+  | 'locriannat2'
+  | 'altereddominant'
+  | 'harmonicmajor'
+  | 'dorianflat5'
+  | 'altereddominantnat5'
+  | 'melodicminorsharp4'
+  | 'mixolydianflat2'
+  | 'lydianaugmentedsharp2'
+  | 'locriandoubleflat7'
+  | 'doubleharmonicmajor'
+  | 'lydiansharp2sharp6'
+  | 'ultraphrygian'
+  | 'doubleharmonicminor'
+  | 'oriental'
+  | 'ioniansharp2sharp5'
+  | 'locriandoubleflat3doubleflat7';
+
+/** The pentatonic and blues scales (five and six notes). */
+export type GuitarPentatonicScale =
+  | 'majorpentatonic'
+  | 'minorpentatonic'
+  | 'majorblues'
+  | 'minorblues';
+
+export type GuitarExtendedScale = GuitarHeptatonicScale | GuitarPentatonicScale;
+
+/** Every scale guitar Theory can teach: a diatonic mode or one of the rest. */
+export type GuitarScaleKey = GuitarMode | GuitarExtendedScale;
+
 /**
  * A key center as lessons, steps and shape ids name it: the book key alone
- * for Ionian ('C', exactly as before modes existed), key and mode otherwise
- * ('D:dorian').
+ * for Ionian ('C', exactly as before modes existed), key and scale otherwise
+ * ('D:dorian', 'E:phrygiandominant'). Never an underscore: piano scale ids
+ * have them, and every flow is asked for its center.
  */
 export type GuitarCenterId =
   | GuitarKeyName
-  | `${GuitarKeyName}:${GuitarModalMode}`;
+  | `${GuitarKeyName}:${Exclude<GuitarScaleKey, 'ionian'>}`;
 
 /** A pentatonic a center teaches (A4, and A5 for a second one). */
 export interface GuitarPentatonic {
@@ -155,25 +226,63 @@ export interface GuitarPentatonic {
   notes: readonly string[];
 }
 
-/**
- * One key center in one mode: Book One's key center for Ionian, or one built
- * from the parent major key's Book One shapes (data/guitar/modes). Every
- * mode-dependent name, root and label is derived from this.
- */
-export interface GuitarCenter extends GuitarKeyCenter {
+interface GuitarCenterCommon extends GuitarKeyCenter {
   id: GuitarCenterId;
-  mode: GuitarMode;
   tonicPc: number;
-  /** The mode's semitone steps from the tonic, 7 of them. */
+  /** The scale's semitone steps from the tonic: 7, or 5-6 for pentatonic/blues. */
   steps: readonly number[];
-  /** The mode spelled from its tonic, ASCII accidentals ('Ebb' when due). */
+  /** The scale spelled from its tonic, ASCII accidentals ('Ebb' when due). */
   spelling: readonly string[];
+  /** Each note's degree as written: '1', '♭3', '♯4', '𝄫7'. */
+  degreeLabels: readonly string[];
+  /**
+   * The seven-note frame chord degrees count in: the scale itself, or for
+   * pentatonic/blues the mode its chords come from (minor pentatonic's ♭VI
+   * is degree 6 of Aeolian).
+   */
+  chordSteps: readonly number[];
+  chordSpelling: readonly string[];
+  /** A4 first; Dorian and Phrygian have a second (A5). */
+  pentatonics: readonly GuitarPentatonic[];
+}
+
+/**
+ * One key center in one diatonic mode: Book One's key center for Ionian, or
+ * one built from the parent major key's Book One shapes (data/guitar/modes).
+ */
+export interface DiatonicGuitarCenter extends GuitarCenterCommon {
+  family: 'diatonic';
+  mode: GuitarMode;
   /** The Book One key whose notes (and chord shapes) the mode uses. */
   parentKey: GuitarKeyName;
   /** The tonic's degree in the parent key: 1 Ionian, 2 Dorian … */
   parentDegree: ScaleDegree;
-  /** A4 first; Dorian and Phrygian have a second (A5). */
-  pentatonics: readonly GuitarPentatonic[];
 }
+
+/**
+ * A key center in one of the other Theory families (data/guitar/scales):
+ * its chord boxes and scale position are generated, not borrowed from a book
+ * key.
+ */
+export interface ExtendedGuitarCenter extends GuitarCenterCommon {
+  family: Exclude<GuitarScaleFamily, 'diatonic'>;
+  mode: GuitarExtendedScale;
+  /**
+   * The family's first mode this one is played from: D Locrian ♮6 is
+   * C harmonic minor from its 2. Null for pentatonic/blues.
+   */
+  familyParent: {
+    scale: GuitarHeptatonicScale;
+    /** Spelled, ASCII accidentals. */
+    tonic: string;
+    tonicPc: number;
+    degree: ScaleDegree;
+  } | null;
+  /** Pentatonic/blues: the chords of its progression; otherwise empty. */
+  chords: readonly GuitarChordShape[];
+}
+
+/** Every mode-dependent name, root and label is derived from this. */
+export type GuitarCenter = DiatonicGuitarCenter | ExtendedGuitarCenter;
 
 export type { GuitarBarre };

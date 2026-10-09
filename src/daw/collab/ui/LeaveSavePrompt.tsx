@@ -1,9 +1,11 @@
 // ── LeaveSavePrompt ──────────────────────────────────────────────────────
 // Save-before-leaving modal. Shown when the local user clicks "Leave Session"
 // or when the host disconnects. Saving stores a copy to the user's OWN account;
-// either choice then tears down the session and opens a fresh solo project.
-// Work the reset would lose (what a cloud copy can't hold yet, or a session
-// that began with the student's own work) goes to a kept slot first.
+// either choice then leaves the room and continues in a new blank project, in
+// place (openSession, source 'leave-collab': no reload). The room is left
+// before the reset, so the empty project never reaches the room. Work the
+// cloud copy can't hold yet, or a session that began with the student's own
+// work, is kept as a device draft with a Restore, as when a link replaces it.
 
 import { useCallback, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -11,26 +13,36 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LogOut } from 'lucide-react';
 import { useStore } from '@/daw/store/index';
 import { useDawBodyTokens } from '@/daw/hooks/useDawBodyTokens';
-import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
-import {
-  SaveSupersededError,
-  saveCurrentProjectToCloud,
-  studioProjectsApi,
-} from '@/lib/studio-projects/api';
-import {
-  announceKeptWorkAfterReload,
-  keepOutgoingSession,
-} from '@/lib/studio-projects/localSession';
-import { resetToNewProject } from '@/lib/studio-projects/newProject';
-import { showError, showSuccess } from '@/components/utils/toast';
-import { useCollab } from '../CollabProvider';
+import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
+import { saveProject } from '@/daw/commands/saveProject';
+import { openSession } from '@/daw/session/openSession';
+import { studioProjectsApi } from '@/lib/studio-projects/api';
+import { showSuccess } from '@/components/utils/toast';
+
+/**
+ * Leave the room and continue in a new blank project. The prompt closes as
+ * the open starts (the Opening overlay shows the rest); when the open is
+ * refused (the work open now couldn't be kept on this device, which a toast
+ * says) and the room is still joined, it comes back. True once left.
+ */
+async function leaveToNewProject(keep: 'auto' | 'discard'): Promise<boolean> {
+  useStore.getState()._setLeavePrompt(false);
+  const outcome = await openSession(
+    { kind: 'new' },
+    { source: 'leave-collab', keep },
+  );
+  if (outcome.status === 'ready' || outcome.status === 'failed') return true;
+  if (useStore.getState().roomId !== null) {
+    useStore.getState()._setLeavePrompt(true);
+  }
+  return false;
+}
 
 export function LeaveSavePrompt() {
   const pending = useStore((s) => s.leavePromptPending);
   const connectionStatus = useStore((s) => s.connectionStatus);
   const setLeavePrompt = useStore((s) => s._setLeavePrompt);
-  const { token, userId } = useAuthContext();
-  const { leaveRoom } = useCollab();
+  const token = useAuthToken();
   const [saving, setSaving] = useState(false);
   // Portaled to <body>, outside .daw-root: it holds the DAW tokens there
   // itself, and for as long as it is mounted, so the card stays opaque
@@ -41,42 +53,32 @@ export function LeaveSavePrompt() {
   // is already over, so there's nothing to cancel back into.
   const hostLeft = connectionStatus !== 'connected';
 
-  const finishLeave = useCallback(() => {
-    leaveRoom();
-    // Reloads into a blank solo project (also resets leavePromptPending).
-    resetToNewProject();
-  }, [leaveRoom]);
-
-  // "Discard this session's changes": the session is being abandoned, and the
-  // reset after it clears the autosave. Nothing from before the session may go
-  // with it.
-  // - A session that started from an empty project holds only session work.
-  //   Reclaim the draft it minted (on the first record-stop or upload) along
-  //   with the assets only that draft uses — the server keeps any asset
-  //   another, saved project still references, so a collaborator who DID save
-  //   is unaffected. Not once a save was made: the draft is the saved project.
-  // - One that started with work may still hold the student's own, unsaved
-  //   work: a host's room is seeded from their project, and a joiner who
-  //   leaves before the first sync still has theirs. Its draft stays in their
-  //   library, and the work goes to a kept slot before the reset, as when a
-  //   link replaces it (owner decision 6).
+  // "Discard this session's changes": the session is being abandoned.
+  // Nothing from before the session may go with it.
+  // - A session that started from an empty project and was never saved
+  //   holds only session work. Reclaim the draft it minted (on the first
+  //   record-stop or upload) along with the assets only that draft uses —
+  //   the server keeps any asset another, saved project still references,
+  //   so a collaborator who DID save is unaffected — and keep nothing of it
+  //   on this device (keep 'discard').
+  // - Any other session may hold the student's own work: a host's room is
+  //   seeded from their project, a joiner who leaves before the first sync
+  //   still has theirs, and a saved session's draft is their saved project.
+  //   Its cloud draft stays in their library, and what differs from it is
+  //   kept on this device, as when a link replaces it (owner decision 6).
   const handleDiscardSessionChanges = useCallback(async () => {
     const { sessionStartedEmpty, sessionSaved, sessionDraftProjectId } =
       useStore.getState();
-    if (!sessionStartedEmpty) {
-      const kept = keepOutgoingSession(userId);
-      if (kept.status === 'failed') {
-        showError(
-          "Your work couldn't be set aside on this device, so it's still open. Use Save & Leave instead.",
-        );
-        return;
-      }
-      // The reset reloads the page, so the kept-work toast (with Restore)
-      // waits for the editor's next boot.
-      if (kept.status === 'kept') announceKeptWorkAfterReload(kept.slot);
-    } else if (token && sessionDraftProjectId && !sessionSaved) {
+    const onlySessionWork = sessionStartedEmpty && !sessionSaved;
+    const toDelete = onlySessionWork && token ? sessionDraftProjectId : null;
+    setSaving(true);
+    // Leave first: the open can still be refused (a take that won't
+    // finish) or superseded, and the student is then still in the room,
+    // where peers play this student's takes from that project's assets.
+    const left = await leaveToNewProject(onlySessionWork ? 'discard' : 'auto');
+    if (left && toDelete && token) {
       try {
-        await studioProjectsApi.remove(token, sessionDraftProjectId);
+        await studioProjectsApi.remove(token, toDelete);
       } catch (err) {
         // Best-effort cleanup — never block leaving on it. The hourly orphan
         // cron is the backstop for anything left behind.
@@ -86,60 +88,35 @@ export function LeaveSavePrompt() {
         );
       }
     }
-    finishLeave();
-  }, [token, userId, finishLeave]);
+    setSaving(false);
+  }, [token]);
 
   // The copy Save & Leave saved, while it is still the open project: pressed
-  // again (its work couldn't be set aside, below), it saves over that copy
-  // instead of making another.
+  // again (the leave was refused, below), it saves over that copy instead of
+  // making another.
   const savedCopyRef = useRef<string | null>(null);
 
+  // A copy owned by THIS student, never the host's project. saveProject
+  // words a failure itself (and says nothing when another open superseded
+  // it); a session saved only in part is kept on this device by the leave
+  // (keep 'auto': what isn't the same as its cloud copy is work).
   const handleSaveAndLeave = useCallback(async () => {
-    if (!token) {
-      showError('You must be signed in to save.');
-      return;
-    }
     setSaving(true);
-    try {
-      // Force a brand-new project owned by THIS user — never overwrite the
-      // host's project.
-      if (useStore.getState().projectId !== savedCopyRef.current) {
-        useStore.getState().setProjectId(null);
-      }
-      savedCopyRef.current = (await saveCurrentProjectToCloud(token)).id;
-    } catch (err) {
-      if (err instanceof SaveSupersededError) {
-        setSaving(false);
-        return;
-      }
-      showError(
-        `Save failed: ${err instanceof Error ? err.message : 'unknown error'}`,
-      );
+    const again =
+      savedCopyRef.current !== null &&
+      useStore.getState().projectId === savedCopyRef.current;
+    const result = await saveProject(
+      again ? { source: 'leave' } : { source: 'leave', asNewProject: true },
+    );
+    if (result.status !== 'saved') {
       setSaving(false);
       return;
     }
-    // Today's cloud payload has no place for the chord lane, the mode, the
-    // metre, markers, mastering, the Score and Lead Sheet marks, the Prism
-    // progression and the rest that only milestone 1.5's document carries,
-    // so a project holding any of them was saved only in part (D7), and the
-    // reset clears the autosave, the only other copy of what was left out.
-    // Such a session goes to a kept slot first, as when a link replaces it
-    // (one that gives way to other kept work first: the cloud holds the
-    // rest). A project saved whole has nothing to keep.
-    const kept = keepOutgoingSession(userId);
-    if (kept.status === 'failed') {
-      showError(
-        "Saved to your projects, but not all of this session fits in a cloud copy yet, and the rest couldn't be set aside on this device, so it's still open.",
-      );
-      setSaving(false);
-      return;
-    }
+    savedCopyRef.current = result.projectId;
     showSuccess('Saved to your projects');
-    // The reset reloads the page, so the kept-work toast (with Restore)
-    // waits for the editor's next boot.
-    if (kept.status === 'kept') announceKeptWorkAfterReload(kept.slot);
-    finishLeave();
-  }, [token, userId, finishLeave]);
+    await leaveToNewProject('auto');
+    setSaving(false);
+  }, []);
 
   return createPortal(
     <AnimatePresence>

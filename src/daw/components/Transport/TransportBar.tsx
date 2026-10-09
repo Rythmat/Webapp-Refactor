@@ -38,9 +38,6 @@ import { chordNotationLockTitle } from '@/daw/utils/chordRegionNotation';
 import { useChordNotation } from '@/lib/chordNotation';
 import { CollabToolbar } from '@/daw/collab/ui/CollabToolbar';
 import { requestRecord } from '@/daw/commands/requestRecord';
-import { LeaveSavePrompt } from '@/daw/collab/ui/LeaveSavePrompt';
-import { KickedModal } from '@/daw/collab/ui/KickedModal';
-import { WaitingForSessionModal } from '@/daw/collab/ui/WaitingForSessionModal';
 
 // ── View Switcher ───────────────────────────────────────────────────────
 
@@ -918,14 +915,9 @@ export const TransportBar = memo(function TransportBar({
             chatPanelOpen={chatPanelOpen}
           />
 
-          {/* Save-before-leaving prompt (collab) */}
-          <LeaveSavePrompt />
-
-          {/* "You have been kicked" popup (collab) */}
-          <KickedModal />
-
-          {/* "Waiting on session creation" popup (jam→studio handoff) */}
-          <WaitingForSessionModal />
+          {/* The collab prompts (leave, kicked) mount at the DawApp root,
+              so they show in Practice too; the Opening overlay's host wait
+              replaced "Waiting on session creation" (milestone 1.4). */}
 
           {/* Library toggle */}
           <motion.button

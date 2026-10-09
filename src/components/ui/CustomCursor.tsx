@@ -8,8 +8,10 @@ import './custom-cursor.css';
 const INTERACTIVE_SELECTOR =
   'a[href], button, [role="button"], input:not([type="hidden"]), select, textarea, label, summary, [data-clickable], [class*="cursor-pointer"]';
 
-// Full-canvas experiences that own their pointer/contextual cursors.
-const EXCLUDED_PREFIXES = ['/studio/editor', '/atlas', '/arcade'];
+// Full-canvas experiences that own their pointer/contextual cursors, and the
+// auth pages, whose Google sign-in iframe swallows the pointer (the hexagon
+// would freeze at its edge).
+const EXCLUDED_PREFIXES = ['/studio/editor', '/atlas', '/arcade', '/auth'];
 const isExcluded = (path: string) =>
   EXCLUDED_PREFIXES.some((p) => path.startsWith(p));
 
@@ -20,7 +22,7 @@ const HEX_POINTS = '12,1 21.53,6.5 21.53,17.5 12,23 2.47,17.5 2.47,6.5';
  * App-wide custom cursor: a white hexagon that follows the pointer, with inner
  * hexagons that recede toward the centre when hovering a clickable element.
  * Desktop/mouse only; disabled on the DAW editor, Atlas globe, and Arcade games
- * (which keep their native/contextual cursors).
+ * (which keep their native/contextual cursors), and on the auth pages.
  */
 export const CustomCursor = () => {
   const ref = useRef<HTMLDivElement>(null);

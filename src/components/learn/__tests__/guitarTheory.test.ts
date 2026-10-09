@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   COMING_SOON_FOR_GUITAR,
-  GUITAR_THEORY_MODES,
   guitarLessonRoute,
   guitarTheoryChapters,
   isTheoryItemOnGuitar,
@@ -29,8 +28,8 @@ vi.mock(
 );
 
 describe('guitarTheory', () => {
-  it('has guitar lessons for the seven diatonic modes', () => {
-    expect(GUITAR_THEORY_MODES).toEqual([
+  it('has guitar lessons for every Theory tile', () => {
+    const diatonic = [
       'ionian',
       'dorian',
       'phrygian',
@@ -38,19 +37,31 @@ describe('guitarTheory', () => {
       'mixolydian',
       'aeolian',
       'locrian',
-    ]);
-    for (const mode of GUITAR_THEORY_MODES) {
+    ];
+    for (const mode of diatonic) {
       expect(isTheoryItemOnGuitar({ mode })).toBe(true);
     }
     for (const mode of [
       'ionian#5',
       'ionian#2#5',
       'dorian♭2',
+      'locrian𝄫3𝄫7',
       'majorpentatonic',
+      'minorblues',
     ]) {
-      expect(isTheoryItemOnGuitar({ mode })).toBe(false);
+      expect(isTheoryItemOnGuitar({ mode })).toBe(true);
     }
-    // Relative / Parallel key tiles have no mode.
+    // Not a Theory slug.
+    expect(isTheoryItemOnGuitar({ mode: 'harmonicMinor' })).toBe(false);
+    // Relative / Parallel key tiles open when all their modes do.
+    const keyTile = (modes: string[]) => ({
+      subItems: modes.map((mode) => ({ mode })),
+    });
+    expect(isTheoryItemOnGuitar(keyTile(diatonic))).toBe(true);
+    expect(isTheoryItemOnGuitar(keyTile(['ionian', 'superlocrian']))).toBe(
+      false,
+    );
+    expect(isTheoryItemOnGuitar({ subItems: [{}] })).toBe(false);
     expect(isTheoryItemOnGuitar({})).toBe(false);
     expect(COMING_SOON_FOR_GUITAR).toBe('Coming soon for guitar');
   });
@@ -88,6 +99,17 @@ describe('guitarTheory', () => {
     const aeolian = await guitarTheoryChapters('aeolian', 'A');
     expect(aeolian.map((c) => c.stepCount)).toEqual([20, 48, 9]);
     expect(await guitarTheoryChapters('harmonicMinor', 'C')).toEqual([]);
+    const ionianSharp5 = await guitarTheoryChapters('ionian#5', 'E♭');
+    expect(ionianSharp5.map((c) => [c.id, c.stepCount, c.route])).toEqual([
+      ['A', 14, '/learn/guitar/ionian%235/eflat?section=A'],
+      ['B', 48, '/learn/guitar/ionian%235/eflat?section=B'],
+      ['D', 9, '/learn/guitar/ionian%235/eflat?section=D'],
+    ]);
+    const blues = await guitarTheoryChapters('minorblues', 'A');
+    expect(blues.map((c) => [c.id, c.name, c.stepCount])).toEqual([
+      ['A', 'Melody', 14],
+      ['D', 'Play-Along', 9],
+    ]);
   });
 
   it('spells sharp and flat keys the way the lesson URLs do', async () => {

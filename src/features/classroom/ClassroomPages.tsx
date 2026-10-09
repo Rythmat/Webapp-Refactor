@@ -22,7 +22,7 @@ import { DashboardContentSkeleton } from '@/layouts/DashboardLayout';
 import { ClassroomDashboard } from '@/layouts/DashboardLayout/ClassroomDashboard';
 import { LibraryInlet } from '@/components/Library/libraryInlet';
 import { LearnInlet } from '@/components/learn/LearnInlet';
-import { GUITAR_THEORY_MODES } from '@/components/learn/guitarTheory';
+import { isGuitarTheorySlug } from '@/curriculum/data/guitar/theoryCatalog';
 import { AwardsInlet } from '@/components/Awards/AwardsInlet';
 import { PlanPage } from '@/features/settings/PlanPage';
 import { SettingsHub } from '@/features/settings/SettingsHub';
@@ -556,11 +556,10 @@ const OverviewRoute = () => {
 
 const THEORY_TAB_ROUTE = LearnRoutes.root(undefined, { tab: 'Theory' });
 
-// Guitar has the seven diatonic modes (Ionian from The Guitar Atlas: Book
-// One); the Theory tab marks the other modes as coming soon, and their links
-// go back to it, ungated.
-const isGuitarTheoryMode = (mode: string | undefined) =>
-  !!mode && GUITAR_THEORY_MODES.includes(mode);
+// Guitar teaches the Theory families its catalog has live (the diatonic
+// modes, Ionian from The Guitar Atlas: Book One, first); the Theory tab marks
+// the rest as coming soon, and their links go back to it, ungated.
+const isGuitarTheoryMode = isGuitarTheorySlug;
 
 const GuitarOverviewRoute = () => {
   const { mode } = useParams<{ mode: string }>();

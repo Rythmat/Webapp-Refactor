@@ -1,10 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle } from 'lucide-react';
 import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import { z } from 'zod';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
   CardContent,
@@ -31,6 +29,7 @@ import { useAuthActions, useAuthContext } from '@/contexts/AuthContext';
 import { GetTeachersInvitationsByCodeData } from '@/contexts/MusicAtlasContext';
 import { useTeacherInvitationDetails } from '@/hooks/data';
 import { useMusicalForm } from '@/hooks/useMusicalForm';
+import { AuthAlert } from '@/layouts/AuthLayout/AuthAlert';
 import { TeacherInvitationCard } from './components/TeacherInvitationCard';
 
 const formSchema = z.object({
@@ -213,12 +212,9 @@ export const TeacherRegistrationPage = () => {
               </form>
             </Form>
             {signUpError && (
-              <Alert className="mt-4" variant="destructive">
-                <AlertCircle className="size-4" />
-                <AlertDescription>
-                  {signUpError || 'Failed to complete registration'}
-                </AlertDescription>
-              </Alert>
+              <AuthAlert className="mt-4">
+                {signUpError || 'Failed to complete registration'}
+              </AuthAlert>
             )}
           </CardContent>
         </div>

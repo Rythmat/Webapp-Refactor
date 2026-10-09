@@ -219,6 +219,11 @@ describe('learn routes: guitar', () => {
     '/learn/guitar/dorian/c',
     '/learn/guitar/aeolian/a',
     '/learn/guitar/lydian/fsharp',
+    // The rest of Theory, by its tiles' encoded slugs.
+    '/learn/guitar/minorblues',
+    '/learn/guitar/ionian%235/c',
+    '/learn/guitar/locrian%F0%9D%84%AB3%F0%9D%84%AB7/d',
+    '/learn/guitar/harmonicminor/c',
   ])('gates %s behind Premium, as on piano', async (url) => {
     renderRoute(learnPages(), url);
     const gate = await screen.findByTestId('premium-gate');
@@ -229,7 +234,11 @@ describe('learn routes: guitar', () => {
     ).toBeInTheDocument();
   });
 
-  it.each(['/learn/guitar/harmonicMinor', '/learn/guitar/dorian♭2/d'])(
+  it.each([
+    '/learn/guitar/harmonicMinor',
+    '/learn/guitar/superlocrian/d',
+    '/learn/guitar/relative/c',
+  ])(
     'sends %s, a mode with no guitar content, back to Theory, ungated',
     async (url) => {
       renderRoute(learnPages(), url);

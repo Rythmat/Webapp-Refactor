@@ -51,6 +51,7 @@ import {
   IDENTITY_PASS,
   chordIdentityScore,
   chordToneDiagnostics,
+  identifyChordFromPitchClasses,
   pitchClassName,
 } from '@/learn/audio/guitar/chordIdentity';
 import { guitarNoteOff, guitarNoteOn } from '@/learn/audio/guitar/guitarVoice';
@@ -206,6 +207,15 @@ const QUALITY_SHORT: Record<string, string> = {
   dominant7: '7',
   minor7b5: 'm7♭5',
   diminished: '°',
+  augmented: '+',
+  majorb5: '(♭5)',
+  sus2b5: 'sus2(♭5)',
+  diminished7: '°7',
+  minormajor7: 'm(maj7)',
+  'major7#5': 'maj7♯5',
+  dominant7b5: '7♭5',
+  minor6: 'm6',
+  sus2b5add6: 'sus2(♭5)add6',
   '5': '5',
   sus2: 'sus2',
   sus4: 'sus4',
@@ -240,6 +250,10 @@ export function heardPitchClasses(
 ): number[] {
   const { pcs, chroma } = event;
   if (!chroma) return pcs;
+  if (!isNameableChord(targetPcs)) {
+    const fromChroma = chromaPitchClasses(chroma, targetPcs);
+    return fromChroma.length ? fromChroma : pcs;
+  }
   const named = new Set(pcs);
   const missing = targetPcs.filter((pc) => !named.has(pc));
   if (missing.length === 0 || missing.length === targetPcs.length) return pcs;
@@ -253,6 +267,34 @@ export function heardPitchClasses(
     (pc) => chroma[pc] >= CHROMA_TONE_RATIO * median,
   );
   return heard.length ? [...pcs, ...heard].sort((a, b) => a - b) : pcs;
+}
+
+/**
+ * Whether the Studio detector has a name for a chord's notes. It has none
+ * for major(♭5) and sus2(♭5), two of the double harmonic modes' triads.
+ */
+export function isNameableChord(targetPcs: readonly number[]): boolean {
+  return identifyChordFromPitchClasses(targetPcs) !== null;
+}
+
+/**
+ * For a chord the detector can't name, what the strum sounded, from the
+ * chroma alone: each target tone at least CHROMA_TONE_RATIO of the target
+ * tones' median, and any other tone as loud as that median (a stray string,
+ * not an overtone). Empty when the chroma is silent.
+ */
+export function chromaPitchClasses(
+  chroma: ArrayLike<number>,
+  targetPcs: readonly number[],
+): number[] {
+  const levels = targetPcs.map((pc) => chroma[pc]).sort((a, b) => a - b);
+  const median = levels[Math.floor(levels.length / 2)] ?? 0;
+  if (median <= 0) return [];
+  return [...Array(12).keys()].filter((pc) =>
+    targetPcs.includes(pc)
+      ? chroma[pc] >= CHROMA_TONE_RATIO * median
+      : chroma[pc] >= median,
+  );
 }
 
 export function classifyGuitarStep(step: ActivityStepV2): GuitarStepKind {
@@ -603,7 +645,13 @@ export function useGuitarLessonEvaluation(
       // Which chord this strum is meant to be.
       const group = isIT ? chordGroupAt(tick) : currentChordGroup();
 
-      if (event.unclear) {
+      // A chord the detector can't name never sounds "clear" to it: its
+      // chroma is all there is to go on.
+      const readChroma =
+        !!group &&
+        !!event.chroma &&
+        !isNameableChord(group.target.pitchClasses);
+      if (event.unclear && !readChroma) {
         unclearCountRef.current += 1;
         if (group) unclearTargetsRef.current.add(group.targetIndex);
         setHeardChord(null);
@@ -628,7 +676,10 @@ export function useGuitarLessonEvaluation(
       }
 
       setHeardChord({
-        label: chordLabel(event.rootPc, event.quality, keyRoot),
+        label:
+          readChroma && score >= IDENTITY_PASS
+            ? group.target.symbol
+            : chordLabel(event.rootPc, event.quality, keyRoot),
         confidence: event.confidence,
         matchesCurrent: score >= IDENTITY_PASS,
       });

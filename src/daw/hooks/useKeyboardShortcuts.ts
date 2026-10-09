@@ -2,10 +2,8 @@ import { useEffect, useRef } from 'react';
 import { useStore } from '@/daw/store';
 import { midiClipLength } from '@/daw/components/Timeline/midiClipCuts';
 import type { ToolType } from '@/daw/store/uiSlice';
-import {
-  SaveSupersededError,
-  saveCurrentProjectToCloud,
-} from '@/lib/studio-projects/api';
+import { registerSaveAuth, saveProject } from '@/daw/commands/saveProject';
+import { isOpening } from '@/daw/session/sessionStore';
 import { smartUndo, smartRedo } from '@/daw/store/undoMiddleware';
 import { exportMidiFile, downloadMidiBlob } from '@/daw/midi/MidiFileIO';
 import { getAudioBuffer, setAudioBuffer } from '@/daw/audio/AudioBufferStore';
@@ -96,6 +94,8 @@ function togglePlayback() {
 // - Option is held: the Score writes rests on ⌥R;
 // - focus is in a text field (only ⌘S still saves) or another form control
 //   (undo still works there);
+// - a session is opening (the Opening overlay is up): nothing runs, though
+//   ⌘S is still kept from the browser's Save Page;
 // - focus is in a dialog or menu, except the modal piano roll, where Space
 //   and undo keep working.
 // Clip and timeline keys (copy, paste, duplicate, select, delete, nudge,
@@ -113,6 +113,10 @@ export function useKeyboardShortcuts(token: string | null) {
   const tokenRef = useRef(token);
   tokenRef.current = token;
 
+  // saveProject reads the token through this, until the editor registers
+  // its own (and alongside it after).
+  useEffect(() => registerSaveAuth(() => tokenRef.current), []);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.defaultPrevented || e.altKey) return;
@@ -121,24 +125,18 @@ export function useKeyboardShortcuts(token: string | null) {
       const isMod = e.metaKey || e.ctrlKey;
       const target = e.target;
 
-      // Cmd+S: Save current project to the cloud (POST or PUT depending on
-      // whether a projectId is already stamped on the store). Works even
-      // while typing: it never touches the text.
+      // Cmd+S: Save the project to the cloud, as File ▸ Save does (the same
+      // toasts and chip). Works even while typing: saveProject commits the
+      // field first.
       if (e.code === 'KeyS' && isMod) {
         e.preventDefault();
-        if (e.repeat) return;
-        const currentToken = tokenRef.current;
-        if (!currentToken) {
-          console.warn('Cmd-S ignored: not authenticated');
-          return;
-        }
-        void saveCurrentProjectToCloud(currentToken).catch((err) => {
-          // Another project opened (or this one went) while it waited.
-          if (err instanceof SaveSupersededError) return;
-          console.error('Cmd-S cloud save failed', err);
-        });
+        if (e.repeat || isOpening()) return;
+        void saveProject({ source: 'shortcut' });
         return;
       }
+
+      // An open is under way: the project is about to change under the keys.
+      if (isOpening()) return;
 
       // ⌘Z, ⌘A, ⌘C and ⌘V in a text field edit its text.
       if (isTextField(target)) return;
@@ -158,9 +156,11 @@ export function useKeyboardShortcuts(token: string | null) {
         !isInKeyWidget(target);
 
       // Cmd+Z: Undo / Cmd+Shift+Z: Redo. Not on the practice screen: it shows
-      // no undo, and its history can reach back past its backing tracks.
+      // no undo, and its history can reach back past its backing tracks. Not
+      // while recording either, as the Undo/Redo buttons are disabled then.
       if (e.code === 'KeyZ' && isMod) {
         if (practice) return;
+        if (useStore.getState().isRecording) return;
         e.preventDefault();
         if (e.shiftKey) {
           smartRedo();

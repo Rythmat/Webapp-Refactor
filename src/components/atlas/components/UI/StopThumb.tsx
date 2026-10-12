@@ -23,7 +23,8 @@ const GLYPHS: Record<AtlasStop['kind'], LucideIcon> = {
 };
 
 /**
- * A 16:9 tile for a stop: its video thumbnail when it has one, otherwise a
+ * A 16:9 tile for a stop: its video thumbnail when it has one (the 120×90
+ * one, cropped to 16:9; the tile is 56–80 px wide), otherwise a
  * glyph on its country colour. Falls back to the glyph if the thumbnail fails
  * to load, rather than leaving a broken-image box in the trail.
  */
@@ -42,8 +43,11 @@ export function StopThumb({
       <img
         alt=""
         className={`aspect-video w-full rounded object-cover ${className}`}
+        decoding="async"
+        height={90}
         loading="lazy"
         src={presentation.thumb}
+        width={160}
         onError={() => setFailed(true)}
       />
     );

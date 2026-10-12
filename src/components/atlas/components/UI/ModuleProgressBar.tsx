@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useMemo } from 'react';
-import { HISTORICAL_MODULES, MUSIC_HISTORY } from '@/components/atlas/data';
+import { getEventById, getModuleById } from '@/components/atlas/data/lookups';
 import { focusEvent } from '@/components/atlas/navigation/focusEvent';
 import {
   useAtlasDispatch,
@@ -12,18 +12,13 @@ export function ModuleProgressBar() {
   const activeModule = useAtlasSelector((s) => s.activeModule);
   const dispatch = useAtlasDispatch();
 
-  const mod = useMemo(
-    () =>
-      activeModule
-        ? HISTORICAL_MODULES.find((m) => m.id === activeModule.moduleId)
-        : null,
-    [activeModule],
-  );
+  const moduleId = activeModule?.moduleId;
+  const mod = useMemo(() => getModuleById(moduleId), [moduleId]);
 
   const events = useMemo(() => {
     if (!mod) return [];
     return mod.eventIds
-      .map((id) => MUSIC_HISTORY.find((e) => e.id === id))
+      .map((id) => getEventById(id))
       .filter((e): e is HistoricalEvent => !!e);
   }, [mod]);
 

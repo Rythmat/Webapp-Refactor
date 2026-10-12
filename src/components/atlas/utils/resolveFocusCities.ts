@@ -1,9 +1,5 @@
-import {
-  CITIES,
-  HISTORICAL_MODULES,
-  MUSIC_HISTORY,
-  getTour,
-} from '@/components/atlas/data';
+import { CITIES, getTour } from '@/components/atlas/data';
+import { getEventById, getModuleById } from '@/components/atlas/data/lookups';
 import type { ModuleProgress, TourProgress } from '@/components/atlas/types';
 import { matchCity } from './resolveEventRegion';
 
@@ -21,11 +17,11 @@ export function resolveFocusCities(
   activeTour: TourProgress | null,
 ): Set<string> | null {
   if (activeModule) {
-    const mod = HISTORICAL_MODULES.find((m) => m.id === activeModule.moduleId);
+    const mod = getModuleById(activeModule.moduleId);
     if (!mod) return null;
     const ids = new Set<string>();
     for (const eventId of mod.eventIds) {
-      const ev = MUSIC_HISTORY.find((e) => e.id === eventId);
+      const ev = getEventById(eventId);
       if (!ev) continue;
       // Same matcher the panels use, so a pathway step lights the city its
       // event is actually in (Portland, Maine — not Portland, Oregon).

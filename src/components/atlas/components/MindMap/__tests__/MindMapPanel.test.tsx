@@ -7,6 +7,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { AtlasNavigationProvider } from '@/components/atlas/navigation/useAtlasNavigate';
 import type { MindMapBoard } from '@/content/graph/mindMapBoard';
 import { writeMindMapHandoff } from '@/features/classroom/msp/mindMapHandoff';
 import { appendMspLaunchParams } from '@/features/classroom/msp/mspLaunchParams';
@@ -71,7 +72,9 @@ const renderAt = (url: string) => {
   window.history.replaceState({}, '', url);
   return render(
     <MemoryRouter initialEntries={[url]}>
-      <MindMapPanel />
+      <AtlasNavigationProvider>
+        <MindMapPanel />
+      </AtlasNavigationProvider>
       <Where />
     </MemoryRouter>,
   );

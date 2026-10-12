@@ -1,16 +1,16 @@
 import { ZoomIn, ZoomOut } from 'lucide-react';
 import { useMemo, useEffect, useState, useCallback } from 'react';
-import {
-  useAppState,
-  useAppDispatch,
-} from '@/components/atlas/context/AppContext';
 import { CITIES, MUSICAL_ERAS } from '@/components/atlas/data';
 import { getArtist, getEventsForArtist } from '@/components/atlas/data/artists';
 import type { MusicalEra } from '@/components/atlas/data/musicalEras';
 import {
   useAtlasNavigate,
-  useAtlasStop,
+  useAtlasStopSelector,
 } from '@/components/atlas/navigation/useAtlasNavigate';
+import {
+  useAtlasDispatch,
+  useAtlasSelector,
+} from '@/components/atlas/state/atlasStore';
 import type {
   HistoricalEvent,
   SelectedLocation,
@@ -71,13 +71,20 @@ function getDisplayNames(
 }
 
 export function RegionTimeline() {
-  const { selectedLocation, pinnedEvent, selectedEra } = useAppState();
-  const dispatch = useAppDispatch();
+  const selectedLocation = useAtlasSelector((s) => s.selectedLocation);
+  const pinnedEvent = useAtlasSelector((s) => s.pinnedEvent);
+  const selectedEra = useAtlasSelector((s) => s.selectedEra);
+  const dispatch = useAtlasDispatch();
   const navigate = useAtlasNavigate();
   // On an artist stop the timeline becomes that artist's career, so the bar
   // along the bottom and the list on the left tell the same story.
-  const stop = useAtlasStop();
-  const artist = stop.kind === 'artist' ? getArtist(stop.artist) : null;
+  const artistName = useAtlasStopSelector((stop) =>
+    stop.kind === 'artist' ? stop.artist : null,
+  );
+  const artist = useMemo(
+    () => (artistName ? getArtist(artistName) : null),
+    [artistName],
+  );
 
   const locationEvents = useMemo(
     () =>
@@ -137,12 +144,14 @@ export function RegionTimeline() {
     setViewCenter((fullStart + fullEnd) / 2);
   }, [fullStart, fullEnd]);
 
-  // Re-center on pinned event
+  // Keep the pinned event in view while zoomed in: re-center on it when the
+  // pin changes AND when zooming in. Without zoom in the dependencies, zooming
+  // in kept the old centre and could push the pinned event out of the window.
   useEffect(() => {
     if (relevantPinned && zoom > 1) {
       setViewCenter(relevantPinned.year);
     }
-  }, [relevantPinned]);
+  }, [relevantPinned, zoom]);
 
   // Visible window
   const viewSpan = fullRange / zoom;

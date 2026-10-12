@@ -1,16 +1,16 @@
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useMemo } from 'react';
-import {
-  useAppState,
-  useAppDispatch,
-} from '@/components/atlas/context/AppContext';
 import { HISTORICAL_MODULES, MUSIC_HISTORY } from '@/components/atlas/data';
 import { focusEvent } from '@/components/atlas/navigation/focusEvent';
+import {
+  useAtlasDispatch,
+  useAtlasSelector,
+} from '@/components/atlas/state/atlasStore';
 import type { HistoricalEvent } from '@/components/atlas/types';
 
 export function ModuleProgressBar() {
-  const { activeModule } = useAppState();
-  const dispatch = useAppDispatch();
+  const activeModule = useAtlasSelector((s) => s.activeModule);
+  const dispatch = useAtlasDispatch();
 
   const mod = useMemo(
     () =>

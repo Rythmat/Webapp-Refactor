@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
-import { useAppDispatch } from '@/components/atlas/context/AppContext';
 import { HISTORICAL_MODULES, MUSIC_HISTORY } from '@/components/atlas/data';
 import { focusEvent } from '@/components/atlas/navigation/focusEvent';
+import { useAtlasDispatch } from '@/components/atlas/state/atlasStore';
 
 /**
  * Start a guided Pathway (a `HistoricalModule`): flag it active, then fly the
@@ -10,7 +10,7 @@ import { focusEvent } from '@/components/atlas/navigation/focusEvent';
  * Pathways tab links into.
  */
 export function useStartPathway() {
-  const dispatch = useAppDispatch();
+  const dispatch = useAtlasDispatch();
 
   return useCallback(
     (moduleId: string) => {

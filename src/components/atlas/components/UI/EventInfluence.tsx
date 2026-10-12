@@ -1,16 +1,16 @@
 import { ArrowUpRight, ArrowDownRight, ChevronDown } from 'lucide-react';
 import { memo, useMemo, useState } from 'react';
 import {
-  useAppDispatch,
-  useAppState,
-} from '@/components/atlas/context/AppContext';
-import {
   getUpstreamChain,
   getDownstreamChain,
   getEventCountryColor,
   getContrastColor,
 } from '@/components/atlas/data';
 import type { UpstreamChainNode } from '@/components/atlas/data/eventConnections';
+import {
+  useAtlasDispatch,
+  useAtlasSelector,
+} from '@/components/atlas/state/atlasStore';
 import type { HistoricalEvent } from '@/components/atlas/types';
 import { contentGeneration } from '@/content/contentStore';
 
@@ -88,13 +88,16 @@ function CollapsibleInfluence({
   defaultOpen?: boolean;
   affectsGlobe?: boolean;
 }) {
-  const dispatch = useAppDispatch();
-  const { visibleArcDirections } = useAppState();
+  const dispatch = useAtlasDispatch();
+  // Selects one boolean, so toggling the other direction leaves this alone.
+  const arcsShown = useAtlasSelector((s) =>
+    s.visibleArcDirections.has(direction),
+  );
   const [localOpen, setLocalOpen] = useState(defaultOpen);
   // Inline (affectsGlobe): the open state mirrors the globe's arc visibility, so
   // starting the video (which opens both arcs) also expands these sections.
   // Modal (affectsGlobe=false): purely local, since the globe is hidden.
-  const open = affectsGlobe ? visibleArcDirections.has(direction) : localOpen;
+  const open = affectsGlobe ? arcsShown : localOpen;
   return (
     <div>
       <button
@@ -139,10 +142,9 @@ function EventInfluenceInner({
   className?: string;
 }) {
   // Both walks cross the whole influence graph — a hub event's downstream tree
-  // runs to ~495 nodes — and this component re-renders whenever anything in the
-  // atlas context changes. contentGeneration is in the deps because
-  // MUSIC_HISTORY is filled in place after the CDN bundle lands (see
-  // contentStore.ts), which the event id alone would not reflect.
+  // runs to ~495 nodes — so they run once per event. contentGeneration is in
+  // the deps because MUSIC_HISTORY is filled in place after the CDN bundle
+  // lands (see contentStore.ts), which the event id alone would not reflect.
   const { upstreamChain, downstreamChain, upstreamCount, downstreamCount } =
     useMemo(() => {
       const up = getUpstreamChain(event.id);
@@ -153,7 +155,6 @@ function EventInfluenceInner({
         upstreamCount: countNodes(up),
         downstreamCount: countNodes(down),
       };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [event.id, contentGeneration]);
 
   if (upstreamChain.length === 0 && downstreamChain.length === 0) return null;

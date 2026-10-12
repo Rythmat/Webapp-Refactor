@@ -1,9 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import {
-  useAppDispatch,
-  useAppState,
-} from '@/components/atlas/context/AppContext';
 import {
   HISTORICAL_MODULES,
   MUSIC_HISTORY,
@@ -12,10 +8,13 @@ import {
 } from '@/components/atlas/data';
 import { getEventsForArtist } from '@/components/atlas/data/artists';
 import { useStartPathway, useStartTour } from '@/components/atlas/hooks';
-import { stopKey } from './atlasStop';
+import {
+  useAtlasDispatch,
+  useAtlasSelector,
+} from '@/components/atlas/state/atlasStore';
+import { stopFromSearchParams, stopKey } from './atlasStop';
 import { consumeFlown, flyToFit, focusEvent } from './focusEvent';
 import { resolvePlaceFly } from './resolvePlaceFly';
-import { useAtlasStop } from './useAtlasNavigate';
 
 /**
  * Drive the globe's reducer state from the URL.
@@ -28,13 +27,17 @@ import { useAtlasStop } from './useAtlasNavigate';
  * ignored the rest.
  */
 export function useAtlasUrlSync(): void {
-  const stop = useAtlasStop();
-  const key = stopKey(stop);
+  // Read straight from the router, not useAtlasStop: these effects must see a
+  // new URL in the same commit it lands, in the order declared below.
   const [params] = useSearchParams();
+  const stop = useMemo(() => stopFromSearchParams(params), [params]);
+  const key = stopKey(stop);
   const eraId = params.get('era');
-  const { activeModule, activeTour, selectedEra, selectedLocation } =
-    useAppState();
-  const dispatch = useAppDispatch();
+  const inModule = useAtlasSelector((s) => s.activeModule !== null);
+  const inTour = useAtlasSelector((s) => s.activeTour !== null);
+  const selectedEra = useAtlasSelector((s) => s.selectedEra);
+  const selectedLocation = useAtlasSelector((s) => s.selectedLocation);
+  const dispatch = useAtlasDispatch();
   const startPathway = useStartPathway();
   const startTour = useStartTour();
 
@@ -52,10 +55,8 @@ export function useAtlasUrlSync(): void {
   // Leaving a sequence: any stop that is not the running pathway or tour ends
   // it, exactly as if the user had pressed its Exit button.
   useEffect(() => {
-    if (stop.kind !== 'pathway' && activeModule) {
-      dispatch({ type: 'EXIT_MODULE' });
-    }
-    if (stop.kind !== 'tour' && activeTour) dispatch({ type: 'EXIT_TOUR' });
+    if (stop.kind !== 'pathway' && inModule) dispatch({ type: 'EXIT_MODULE' });
+    if (stop.kind !== 'tour' && inTour) dispatch({ type: 'EXIT_TOUR' });
     // Only on stop changes — the sequence bars manage their own steps.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);

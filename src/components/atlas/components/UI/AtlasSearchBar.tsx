@@ -12,7 +12,7 @@ import type { AtlasStop } from '@/components/atlas/navigation/atlasStop';
 import { describeStop } from '@/components/atlas/navigation/describeStop';
 import {
   useAtlasNavigate,
-  useAtlasStop,
+  useAtlasStopSelector,
 } from '@/components/atlas/navigation/useAtlasNavigate';
 import {
   searchGlobe,
@@ -50,7 +50,6 @@ const isMac =
  */
 export function AtlasSearchBar() {
   const navigate = useAtlasNavigate();
-  const stop = useAtlasStop();
   const inputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const listboxId = useId();
@@ -60,7 +59,9 @@ export function AtlasSearchBar() {
   const [active, setActive] = useState(-1);
 
   // Show the committed query while its results panel is up.
-  const committed = stop.kind === 'search' ? stop.query : null;
+  const committed = useAtlasStopSelector((stop) =>
+    stop.kind === 'search' ? stop.query : null,
+  );
   useEffect(() => {
     if (committed !== null) setQuery(committed);
   }, [committed]);

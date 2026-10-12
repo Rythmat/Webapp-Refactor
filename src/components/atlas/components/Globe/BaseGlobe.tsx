@@ -1,11 +1,7 @@
 import type { Feature } from 'geojson';
 import { useRef, useMemo, useState, useCallback, useEffect } from 'react';
-import type { GlobeMethods } from 'react-globe.gl';
+import type { GlobeMethods, GlobeProps } from 'react-globe.gl';
 import { MeshLambertMaterial } from 'three';
-import {
-  useAppState,
-  useAppDispatch,
-} from '@/components/atlas/context/AppContext';
 import {
   CITIES,
   getRecursiveArcsForEvent,
@@ -22,8 +18,12 @@ import { stopKey } from '@/components/atlas/navigation/atlasStop';
 import { markFlown } from '@/components/atlas/navigation/focusEvent';
 import {
   useAtlasNavigate,
-  useAtlasStop,
+  useAtlasStopSelector,
 } from '@/components/atlas/navigation/useAtlasNavigate';
+import {
+  useAtlasDispatch,
+  useAtlasSelector,
+} from '@/components/atlas/state/atlasStore';
 import type { SelectedLocation } from '@/components/atlas/types';
 import { resolveFocusCities } from '@/components/atlas/utils/resolveFocusCities';
 import { GlobeController } from './GlobeController';
@@ -161,20 +161,81 @@ type AnimatableGlobe = GlobeMethods & {
   resumeAnimation: () => void;
 };
 
+type GlobeComponent = typeof import('react-globe.gl').default;
+
+/**
+ * react-globe.gl with its `globeOffset` following the details card.
+ *
+ * When an event card is expanded it overlays the left, so the globe slides
+ * right by half the card's occluding width and the centred region clears it.
+ * This lives in its own component, subscribed to the card's width alone, so a
+ * resize — and every frame of the ~500 ms tween after it — re-renders only
+ * this wrapper. react-kapsule then forwards just the one prop that changed;
+ * BaseGlobe and every layer accessor are left alone.
+ */
+function OffsetGlobe({
+  Globe,
+  globeRef,
+  ...props
+}: GlobeProps & {
+  Globe: GlobeComponent;
+  globeRef: React.MutableRefObject<GlobeMethods | undefined>;
+}) {
+  const detailsPanelWidth = useAtlasSelector((s) => s.detailsPanelWidth);
+  const targetShiftX = detailsPanelWidth
+    ? Math.round((16 + detailsPanelWidth) / 2)
+    : 0;
+
+  // Animate the lens-shift so the region glides into view instead of jumping
+  // when a card opens / closes / resizes. Tweens the offset over ~500ms via rAF;
+  // a new target mid-tween eases from the current value (no snap).
+  const [shiftX, setShiftX] = useState(0);
+  const shiftRef = useRef(0);
+  const shiftRaf = useRef<number | null>(null);
+  useEffect(() => {
+    const from = shiftRef.current;
+    const to = targetShiftX;
+    if (Math.abs(from - to) < 0.5) {
+      shiftRef.current = to;
+      setShiftX(to);
+      return;
+    }
+    const duration = 500;
+    let startTs: number | null = null;
+    const tick = (ts: number) => {
+      startTs ??= ts;
+      const p = Math.min(1, (ts - startTs) / duration);
+      const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+      const value = from + (to - from) * eased;
+      shiftRef.current = value;
+      setShiftX(value);
+      shiftRaf.current = p < 1 ? requestAnimationFrame(tick) : null;
+    };
+    if (shiftRaf.current) cancelAnimationFrame(shiftRaf.current);
+    shiftRaf.current = requestAnimationFrame(tick);
+    return () => {
+      if (shiftRaf.current) cancelAnimationFrame(shiftRaf.current);
+    };
+  }, [targetShiftX]);
+
+  // Off-axis lens-shift via react-globe.gl's globeOffset (px): positive x frames
+  // the region to the right while the canvas keeps rendering the full viewport.
+  const globeOffset = useMemo<[number, number]>(() => [shiftX, 0], [shiftX]);
+
+  return <Globe ref={globeRef} {...props} globeOffset={globeOffset} />;
+}
+
 export function BaseGlobe() {
   const globeRef = useRef<GlobeMethods | undefined>(undefined);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const { countries, adminRegions, loading, error } = useGeoData();
-  const {
-    pinnedEvent,
-    selectedLocation,
-    visibleArcDirections,
-    activeModule,
-    activeTour,
-    detailsPanelWidth,
-  } = useAppState();
-  const dispatch = useAppDispatch();
+  const pinnedEvent = useAtlasSelector((s) => s.pinnedEvent);
+  const selectedLocation = useAtlasSelector((s) => s.selectedLocation);
+  const visibleArcDirections = useAtlasSelector((s) => s.visibleArcDirections);
+  const activeModule = useAtlasSelector((s) => s.activeModule);
+  const activeTour = useAtlasSelector((s) => s.activeTour);
+  const dispatch = useAtlasDispatch();
   const navigate = useAtlasNavigate();
   const [GlobeModule, setGlobeModule] = useState<
     typeof import('react-globe.gl').default | null
@@ -290,8 +351,9 @@ export function BaseGlobe() {
   // Pinned marker removed — the pinned city is shown via its highlighted hex.
   // An artist stop lights up every place that artist's events happened, so the
   // globe shows the shape of a career (Wes Montgomery: Indianapolis → New York).
-  const stop = useAtlasStop();
-  const artist = stop.kind === 'artist' ? stop.artist : null;
+  const artist = useAtlasStopSelector((stop) =>
+    stop.kind === 'artist' ? stop.artist : null,
+  );
   const pinnedPointData: PinnedPoint[] = useMemo(() => {
     if (!artist) return [];
     return getEventsForArtist(artist).map((e) => ({
@@ -554,48 +616,6 @@ export function BaseGlobe() {
     };
   }, [globeReady]);
 
-  // When an event card is expanded it overlays the left; slide the globe right
-  // by half the card's occluding width so the centred region clears the card.
-  const targetShiftX = detailsPanelWidth
-    ? Math.round((16 + detailsPanelWidth) / 2)
-    : 0;
-
-  // Animate the lens-shift so the region glides into view instead of jumping
-  // when a card opens / closes / resizes. Tweens the offset over ~500ms via rAF;
-  // a new target mid-tween eases from the current value (no snap).
-  const [shiftX, setShiftX] = useState(0);
-  const shiftRef = useRef(0);
-  const shiftRaf = useRef<number | null>(null);
-  useEffect(() => {
-    const from = shiftRef.current;
-    const to = targetShiftX;
-    if (Math.abs(from - to) < 0.5) {
-      shiftRef.current = to;
-      setShiftX(to);
-      return;
-    }
-    const duration = 500;
-    let startTs: number | null = null;
-    const tick = (ts: number) => {
-      startTs ??= ts;
-      const p = Math.min(1, (ts - startTs) / duration);
-      const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
-      const value = from + (to - from) * eased;
-      shiftRef.current = value;
-      setShiftX(value);
-      shiftRaf.current = p < 1 ? requestAnimationFrame(tick) : null;
-    };
-    if (shiftRaf.current) cancelAnimationFrame(shiftRaf.current);
-    shiftRaf.current = requestAnimationFrame(tick);
-    return () => {
-      if (shiftRaf.current) cancelAnimationFrame(shiftRaf.current);
-    };
-  }, [targetShiftX]);
-
-  // Off-axis lens-shift via react-globe.gl's globeOffset (px): positive x frames
-  // the region to the right while the canvas keeps rendering the full viewport.
-  const globeOffset = useMemo<[number, number]>(() => [shiftX, 0], [shiftX]);
-
   return (
     <div
       ref={containerRef}
@@ -661,9 +681,9 @@ export function BaseGlobe() {
       )}
 
       {ready && (
-        <Globe
-          ref={globeRef}
-          globeOffset={globeOffset}
+        <OffsetGlobe
+          Globe={Globe}
+          globeRef={globeRef}
           rendererConfig={RENDERER_CONFIG}
           arcAltitudeAutoScale={0.4}
           arcColor={arcColorAccessor}

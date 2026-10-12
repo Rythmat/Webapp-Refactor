@@ -1,10 +1,10 @@
 import { ChevronLeft, ChevronRight, MapPin, X } from 'lucide-react';
 import { useMemo } from 'react';
-import {
-  useAppState,
-  useAppDispatch,
-} from '@/components/atlas/context/AppContext';
 import { getTour, resolveTourStops } from '@/components/atlas/data';
+import {
+  useAtlasDispatch,
+  useAtlasSelector,
+} from '@/components/atlas/state/atlasStore';
 import { resolveStopEvent } from '@/components/atlas/utils/resolveStopEvent';
 
 /**
@@ -14,8 +14,8 @@ import { resolveStopEvent } from '@/components/atlas/utils/resolveStopEvent';
  * EXECUTE_SEARCH / SELECT_LOCATION actions the rest of the globe uses.
  */
 export function GuidedTourBar() {
-  const { activeTour } = useAppState();
-  const dispatch = useAppDispatch();
+  const activeTour = useAtlasSelector((s) => s.activeTour);
+  const dispatch = useAtlasDispatch();
 
   const tour = useMemo(
     () => (activeTour ? getTour(activeTour.tourId) : undefined),

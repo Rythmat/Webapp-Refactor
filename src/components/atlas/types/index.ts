@@ -59,21 +59,6 @@ export interface HistoricalEvent {
   videoId?: string;
 }
 
-// --- UI types ---
-export type CategoryTab =
-  | 'Region'
-  | 'Decade'
-  | 'City'
-  | 'Genre'
-  | 'Culture'
-  | 'Musicians';
-
-export interface MenuItem {
-  id: string;
-  label: string;
-  icon: string;
-}
-
 // --- Selection (discriminated union) ---
 export type SelectedLocation =
   | { type: 'country'; name: string; iso: string }
@@ -109,17 +94,7 @@ export interface TourProgress {
 
 // --- App State ---
 export interface AppState {
-  currentYear: number;
-  selectedDecades: number[];
-  selectedRegions: RegionId[];
-  selectedNations: string[];
-  selectedSubdivisions: string[];
-  selectedCities: string[];
   selectedLocation: SelectedLocation | null;
-  activeTab: CategoryTab;
-  searchQuery: string;
-  isSearchOpen: boolean;
-  searchResults: HistoricalEvent[];
   pinnedEvent: HistoricalEvent | null;
   activeModule: ModuleProgress | null;
   activeTour: TourProgress | null;
@@ -140,21 +115,11 @@ export interface AppState {
 }
 
 export type AppAction =
-  | { type: 'SET_YEAR'; payload: number }
-  | { type: 'TOGGLE_DECADE'; payload: number }
-  | { type: 'TOGGLE_REGION'; payload: RegionId }
-  | { type: 'TOGGLE_NATION'; payload: string }
-  | { type: 'TOGGLE_SUBDIVISION'; payload: string }
-  | { type: 'TOGGLE_CITY'; payload: string }
   | { type: 'SELECT_LOCATION'; payload: SelectedLocation | null }
-  | { type: 'SET_TAB'; payload: CategoryTab }
-  | { type: 'SET_SEARCH'; payload: string }
-  | { type: 'SET_SEARCH_OPEN'; payload: boolean }
-  | { type: 'SET_SEARCH_RESULTS'; payload: HistoricalEvent[] }
   | { type: 'PIN_EVENT'; payload: HistoricalEvent | null }
   | {
       type: 'EXECUTE_SEARCH';
-      payload: { year?: number; lat?: number; lng?: number; zoom?: number };
+      payload: { lat?: number; lng?: number; zoom?: number };
     }
   | { type: 'CLEAR_FLY_TARGET' }
   | { type: 'SET_GLOBE_ROTATING'; payload: boolean }

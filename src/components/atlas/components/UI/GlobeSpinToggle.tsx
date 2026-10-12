@@ -1,8 +1,8 @@
 import { Pause, Play } from 'lucide-react';
 import {
-  useAppDispatch,
-  useAppState,
-} from '@/components/atlas/context/AppContext';
+  useAtlasDispatch,
+  useAtlasSelector,
+} from '@/components/atlas/state/atlasStore';
 
 /**
  * The globe's spin control.
@@ -23,8 +23,8 @@ import {
  * the top right — and `z-[1001]` so nothing can win a tie against it.
  */
 export function GlobeSpinToggle() {
-  const { globeRotating } = useAppState();
-  const dispatch = useAppDispatch();
+  const globeRotating = useAtlasSelector((s) => s.globeRotating);
+  const dispatch = useAtlasDispatch();
 
   return (
     <button

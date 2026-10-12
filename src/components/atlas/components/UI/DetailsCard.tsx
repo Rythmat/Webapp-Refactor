@@ -18,14 +18,14 @@ import {
 import { EventInfluence } from '@/components/atlas/components/UI/EventInfluence';
 import { EventVideo } from '@/components/atlas/components/UI/EventVideo';
 import { GenreBadge } from '@/components/atlas/components/UI/GenreBadge';
-import {
-  useAppState,
-  useAppDispatch,
-} from '@/components/atlas/context/AppContext';
 import { CITIES } from '@/components/atlas/data';
 import type { AtlasArtist } from '@/components/atlas/data/artists';
 import { songIdForEvent } from '@/components/atlas/data/songEventAliases';
 import { useAtlasNavigate } from '@/components/atlas/navigation/useAtlasNavigate';
+import {
+  useAtlasDispatch,
+  useAtlasSelector,
+} from '@/components/atlas/state/atlasStore';
 import type { HistoricalEvent } from '@/components/atlas/types';
 import { getEventsForLocation } from '@/components/atlas/utils/getEventsForLocation';
 import { SongRoutes } from '@/constants/routes';
@@ -223,9 +223,12 @@ function EventList({
 }
 
 export function DetailsCard() {
-  const { selectedLocation, pinnedEvent, activeModule, activeTour } =
-    useAppState();
-  const dispatch = useAppDispatch();
+  const selectedLocation = useAtlasSelector((s) => s.selectedLocation);
+  const pinnedEvent = useAtlasSelector((s) => s.pinnedEvent);
+  const sequenceActive = useAtlasSelector(
+    (s) => s.activeModule !== null || s.activeTour !== null,
+  );
+  const dispatch = useAtlasDispatch();
   const navigate = useAtlasNavigate();
   const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set());
   const [collapsed, setCollapsed] = useState(false);
@@ -233,23 +236,30 @@ export function DetailsCard() {
   const [width, setWidth] = useState(480);
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
-  const sequenceActive = !!(activeModule || activeTour);
 
+  // While dragging, the width is written straight to the card's style and
+  // React hears about it once, on release: re-rendering the card and its event
+  // list on every mouse move is what made the drag stutter. The globe still
+  // follows along, through the ResizeObserver below.
   const onDragStart = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
+      const card = cardRef.current;
+      if (!card) return;
       dragRef.current = { startX: e.clientX, startWidth: width };
+      let next = width;
       const onMove = (mv: MouseEvent) => {
         if (!dragRef.current) return;
         const delta = mv.clientX - dragRef.current.startX;
-        const next = Math.min(
+        next = Math.min(
           Math.max(dragRef.current.startWidth + delta, 280),
           Math.round(window.innerWidth * 0.72),
         );
-        setWidth(next);
+        card.style.width = `${next}px`;
       };
       const onUp = () => {
         dragRef.current = null;
+        setWidth(next);
         window.removeEventListener('mousemove', onMove);
         window.removeEventListener('mouseup', onUp);
       };
@@ -304,7 +314,9 @@ export function DetailsCard() {
 
   // Report the card's occluding width to the globe while an event is expanded so
   // it can shift the region clear of the card. The ResizeObserver tracks drag-
-  // resize + enlarge; cleanup clears it (unmount / nothing pinned).
+  // resize + enlarge, and delivers at most once per frame; only the globe's
+  // offset subscribes to the width, so a report re-renders nothing else.
+  // Cleanup clears it (unmount / nothing pinned).
   useEffect(() => {
     const el = cardRef.current;
     if (!el || !pinnedEvent) {

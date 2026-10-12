@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { AppAction, HistoricalEvent } from '@/components/atlas/types';
-import { appReducer, initialAppState } from './AppContext';
+import { appReducer, initialAppState } from './appReducer';
 
 const event: HistoricalEvent = {
   id: 'evt-test-1923',
@@ -71,5 +71,31 @@ describe('atlas reducer — globe rotation', () => {
       payload: false,
     });
     expect(next).toBe(initialAppState);
+  });
+});
+
+describe('atlas reducer — details panel width', () => {
+  it('records the width the card reports', () => {
+    const next = appReducer(initialAppState, {
+      type: 'SET_DETAILS_PANEL_WIDTH',
+      payload: 480,
+    });
+    expect(next.detailsPanelWidth).toBe(480);
+  });
+
+  /**
+   * The card's ResizeObserver reports on every layout, and the store notifies
+   * subscribers only when the state object changes — so an unchanged width
+   * must hand back the same state, or the globe's offset re-renders for
+   * nothing.
+   */
+  it('does not churn state identity when the width is unchanged', () => {
+    const wide = appReducer(initialAppState, {
+      type: 'SET_DETAILS_PANEL_WIDTH',
+      payload: 480,
+    });
+    expect(
+      appReducer(wide, { type: 'SET_DETAILS_PANEL_WIDTH', payload: 480 }),
+    ).toBe(wide);
   });
 });

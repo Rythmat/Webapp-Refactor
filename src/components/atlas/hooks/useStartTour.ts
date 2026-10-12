@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import { useAppDispatch } from '@/components/atlas/context/AppContext';
 import { getTour, resolveTourStops } from '@/components/atlas/data';
+import { useAtlasDispatch } from '@/components/atlas/state/atlasStore';
 import { resolveStopEvent } from '@/components/atlas/utils/resolveStopEvent';
 
 /**
@@ -10,7 +10,7 @@ import { resolveStopEvent } from '@/components/atlas/utils/resolveStopEvent';
  * GuidedTourBar, which repeats the same fly/select for each stop.
  */
 export function useStartTour() {
-  const dispatch = useAppDispatch();
+  const dispatch = useAtlasDispatch();
 
   return useCallback(
     (tourId: string) => {

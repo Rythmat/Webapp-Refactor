@@ -1,10 +1,9 @@
 import { useEffect, useRef } from 'react';
 import type { GlobeMethods } from 'react-globe.gl';
 import {
-  useAppState,
-  useAppDispatch,
-} from '@/components/atlas/context/AppContext';
-import { REGIONS } from '@/components/atlas/data';
+  useAtlasDispatch,
+  useAtlasSelector,
+} from '@/components/atlas/state/atlasStore';
 
 interface Props {
   globeRef: React.MutableRefObject<GlobeMethods | undefined>;
@@ -24,27 +23,10 @@ function zoomToAltitude(zoom: number): number {
 const AUTO_ROTATE_SPEED = 2.3;
 
 export function GlobeController({ globeRef, ready }: Props) {
-  const dispatch = useAppDispatch();
-  const { selectedRegions, searchFlyTarget, globeRotating } = useAppState();
-  const prevLength = useRef(selectedRegions.length);
+  const dispatch = useAtlasDispatch();
+  const searchFlyTarget = useAtlasSelector((s) => s.searchFlyTarget);
+  const globeRotating = useAtlasSelector((s) => s.globeRotating);
   const prevReady = useRef(false);
-
-  // Fly to region when a new region is toggled on
-  useEffect(() => {
-    if (selectedRegions.length > prevLength.current && globeRef.current) {
-      const lastRegionId = selectedRegions[selectedRegions.length - 1];
-      const region = REGIONS.find((r) => r.id === lastRegionId);
-
-      if (region) {
-        const [lat, lng] = region.center;
-        globeRef.current.pointOfView(
-          { lat, lng, altitude: region.altitude },
-          1500,
-        );
-      }
-    }
-    prevLength.current = selectedRegions.length;
-  }, [selectedRegions, globeRef]);
 
   // Fly to search target. Depends on `ready` so a target set before the globe
   // finished loading (e.g. a deep-link) is applied once it's initialised.

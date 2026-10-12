@@ -1,6 +1,5 @@
 import './index.css';
 import { Component, Suspense, lazy, type ReactNode } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { BaseGlobe } from '@/components/atlas/components/Globe';
 import { ArtistPanel } from '@/components/atlas/components/UI/ArtistPanel';
 import { AtlasToolbar } from '@/components/atlas/components/UI/AtlasToolbar';
@@ -11,11 +10,15 @@ import { ModuleProgressBar } from '@/components/atlas/components/UI/ModuleProgre
 import { RegionTimeline } from '@/components/atlas/components/UI/RegionTimeline';
 import { SearchResultsPanel } from '@/components/atlas/components/UI/SearchResultsPanel';
 import {
-  AppProvider,
-  useAppState,
-} from '@/components/atlas/context/AppContext';
-import { useAtlasStop } from '@/components/atlas/navigation/useAtlasNavigate';
+  AtlasNavigationProvider,
+  useAtlasParams,
+  useAtlasStop,
+} from '@/components/atlas/navigation/useAtlasNavigate';
 import { useAtlasUrlSync } from '@/components/atlas/navigation/useAtlasUrlSync';
+import {
+  AtlasStoreProvider,
+  useAtlasSelector,
+} from '@/components/atlas/state/atlasStore';
 
 // A Cortex lesson's Promoter mind map (`?mindmap=1`), loaded only when asked.
 const MindMapPanel = lazy(
@@ -52,27 +55,54 @@ class ErrorBoundary extends Component<
   }
 }
 
-function AppLayout() {
-  const { selectedLocation, activeModule, activeTour, pinnedEvent } =
-    useAppState();
-  const stop = useAtlasStop();
-  const [params] = useSearchParams();
-  // Not a stop param, so it stays on the URL however the student explores.
-  const mindMapOpen = params.get('mindmap') === '1';
-  // The URL is the source of truth for what the globe shows — every param a
-  // deep-link, bookmark, lesson link, or Back press can carry is applied here.
+/**
+ * The URL is the source of truth for what the globe shows — every param a
+ * deep-link, bookmark, lesson link, or Back press can carry is applied here.
+ *
+ * A component of its own so the router subscription stops here instead of
+ * re-rendering the page, and last in the tree so its effects run after every
+ * panel's, as they did when the layout called the hook.
+ */
+function AtlasUrlSync() {
   useAtlasUrlSync();
+  return null;
+}
 
-  // The left panel follows the stop: an artist or a search has its own panel;
-  // otherwise the selected region's details card.
-  const sidePanel =
-    stop.kind === 'artist' ? (
-      <ArtistPanel name={stop.artist} />
-    ) : stop.kind === 'search' ? (
-      <SearchResultsPanel query={stop.query} />
-    ) : selectedLocation && (!activeTour || pinnedEvent) ? (
-      <DetailsCard />
-    ) : null;
+/**
+ * The left panel follows the stop: an artist or a search has its own panel;
+ * otherwise the selected region's details card.
+ */
+function LeftPanel() {
+  const stop = useAtlasStop();
+  const showDetails = useAtlasSelector(
+    (s) =>
+      s.selectedLocation !== null &&
+      (s.activeTour === null || s.pinnedEvent !== null),
+  );
+  if (stop.kind === 'artist') return <ArtistPanel name={stop.artist} />;
+  if (stop.kind === 'search') return <SearchResultsPanel query={stop.query} />;
+  return showDetails ? <DetailsCard /> : null;
+}
+
+function MindMap() {
+  // Not a stop param, so it stays on the URL however the student explores.
+  const open = useAtlasParams((params) => params.get('mindmap') === '1');
+  if (!open) return null;
+  return (
+    <Suspense fallback={null}>
+      <MindMapPanel />
+    </Suspense>
+  );
+}
+
+/**
+ * The page's frame. It subscribes to two booleans and nothing else, so a
+ * dispatch or a URL change re-renders only the pieces that read it — the
+ * globe in particular.
+ */
+function AppLayout() {
+  const inModule = useAtlasSelector((s) => s.activeModule !== null);
+  const inTour = useAtlasSelector((s) => s.activeTour !== null);
 
   return (
     <div
@@ -83,16 +113,13 @@ function AppLayout() {
       <div className="relative flex-1">
         <BaseGlobe />
         <GlobeSpinToggle />
-        {sidePanel}
-        {!activeModule && !activeTour && <RegionTimeline />}
-        {activeModule && <ModuleProgressBar />}
-        {activeTour && <GuidedTourBar />}
-        {mindMapOpen && (
-          <Suspense fallback={null}>
-            <MindMapPanel />
-          </Suspense>
-        )}
+        <LeftPanel />
+        {!inModule && !inTour && <RegionTimeline />}
+        {inModule && <ModuleProgressBar />}
+        {inTour && <GuidedTourBar />}
+        <MindMap />
       </div>
+      <AtlasUrlSync />
     </div>
   );
 }
@@ -100,9 +127,11 @@ function AppLayout() {
 export default function App() {
   return (
     <ErrorBoundary>
-      <AppProvider>
-        <AppLayout />
-      </AppProvider>
+      <AtlasStoreProvider>
+        <AtlasNavigationProvider>
+          <AppLayout />
+        </AtlasNavigationProvider>
+      </AtlasStoreProvider>
     </ErrorBoundary>
   );
 }

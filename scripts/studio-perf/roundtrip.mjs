@@ -47,11 +47,15 @@
  * - R3 cloud save → open: File ▸ Save (the editor's real save path) against
  *   the mock, then ?project=<id> in a fresh context (another device). The
  *   sink's imported clip and dropped Chops sample have no asset yet, so the
- *   save takes its upload path. The sink holds what only the 1.5 document
- *   carries, so the chip must not read plain "Saved" afterwards
- *   (chipHonestAfterLegacySave). Once per API mode; 'document' is the
- *   milestone 1.5 contract and is reported as skipped until it exists
- *   (mockStudioApi.mjs). R3:sameDevice opens the project on the device that
+ *   save takes its upload path. Once per API mode (mockStudioApi.mjs): the
+ *   cloud document (milestone 1.5) goes where the mode says
+ *   (documentWhereExpected: the `document` field, or the interim fallback
+ *   on the first track's settings for the legacy API), the save holds the
+ *   whole sink and the chip reads plain "Saved" (chipSavedWhenComplete).
+ *   In document mode an app from before 1.5 then saves the project over
+ *   it (mock saveAsOlderApp: the rows without the document), and a third
+ *   device still opens all of it (olderAppKeepsDocument), saying an older
+ *   version saved it last (olderAppNoticeShown). R3:sameDevice opens the project on the device that
  *   saved it: a newer draft of it wins while the cloud copy is unchanged
  *   (newerDraftPreferred), and the cloud copy wins once another device
  *   saved it, with the draft still listed (cloudNewerPreferred).
@@ -503,7 +507,23 @@ const FLAGS = {
   savedToast: { goal: true, text: '"Project saved" shown' },
   chipHonestAfterLegacySave: {
     goal: true,
-    text: 'after saving a project with document-only data the chip read "Saved on this device" (local, partial), never plain "Saved"',
+    text: 'after a save that left document-only data out (no track for the interim fallback) the chip read "Saved on this device" (local, partial), never plain "Saved"',
+  },
+  chipSavedWhenComplete: {
+    goal: true,
+    text: 'after a save that held the whole project the chip read plain "Saved"',
+  },
+  documentWhereExpected: {
+    goal: true,
+    text: 'the cloud document went in the API’s document field (document mode) or on the first track’s settings (legacy mode), and nowhere else',
+  },
+  olderAppKeepsDocument: {
+    goal: true,
+    text: 'after an app from before 1.5 saved the project over it, another device still opened all of it',
+  },
+  olderAppNoticeShown: {
+    goal: true,
+    text: 'that open said an older version of Music Atlas saved the project last',
   },
   newerDraftPreferred: {
     goal: true,
@@ -617,11 +637,10 @@ const RESTORE_CLASSES = RELOAD_CLASSES.filter((cls) => cls !== 'context');
 
 /**
  * Losses a later milestone owns: field (or `group:field`, for one scenario
- * group) → milestone. In R3 every field only the milestone 1.5 document
- * carries (registry cloud 'document') is 1.5's as well, and so are the R3
- * losses that follow from one (CLOUD_DOCUMENT_FOLLOWERS). A leak (R4) is
- * never a later milestone's (ownerOf). Whatever is left unowned is the open
- * milestone's to fix.
+ * group) → milestone. A leak (R4) is never a later milestone's (ownerOf).
+ * Whatever is left unowned is the open milestone's to fix. (Since milestone
+ * 1.5 the cloud document carries every registry field, so an R3 loss is
+ * nobody's but the open milestone's.)
  */
 const LOSS_OWNERS = {
   'context.tutorial': '1.15',
@@ -641,35 +660,15 @@ const LOSS_OWNERS = {
   'R12:view.channelStripTab': '1.15',
 };
 
-/**
- * R3 losses that follow from a field only the 1.5 document carries. (An
- * Oracle patch that follows the project's key takes the default mode along
- * too, but the fingerprint leaves that copy of the key out of the patch, so
- * any change to a patch is unowned.)
- */
-const CLOUD_DOCUMENT_FOLLOWERS = {
-  // The legacy payload carries no note ids, so a cloud open derives them.
-  'ids.notes': '1.5',
-  // Worked out from the mode, which only the document carries.
-  'harmony.keyColour': '1.5',
-};
-
 /** Who owns a loss of scenario group `group`, or null. */
 function ownerOf(group, unit) {
   // A new project starts every field it compares over, so whatever a link
   // carries over is a reset the open milestone owes, even in a field a later
   // milestone persists (the lesson context, decoded audio).
   if (group === 'R4') return null;
-  const owner =
-    LOSS_OWNERS[`${group}:${unit.field}`] ?? LOSS_OWNERS[unit.field];
-  if (owner) return owner;
-  if (group === 'R3') {
-    if (unit.cloud === 'document') return '1.5';
-    if (CLOUD_DOCUMENT_FOLLOWERS[unit.field]) {
-      return CLOUD_DOCUMENT_FOLLOWERS[unit.field];
-    }
-  }
-  return null;
+  return (
+    LOSS_OWNERS[`${group}:${unit.field}`] ?? LOSS_OWNERS[unit.field] ?? null
+  );
 }
 
 /**
@@ -710,10 +709,9 @@ function selfCheck() {
   }
   // A leak labelled as a later milestone's would drop out of the Unowned
   // column, and so out of sight before --update-known records it.
-  const leaked = [
-    ...Object.keys(LOSS_OWNERS).map((key) => key.replace(/^R\d+:/, '')),
-    ...Object.keys(CLOUD_DOCUMENT_FOLLOWERS),
-  ].filter((field) => ownerOf('R4', { field, cloud: 'document' }) !== null);
+  const leaked = Object.keys(LOSS_OWNERS)
+    .map((key) => key.replace(/^R\d+:/, ''))
+    .filter((field) => ownerOf('R4', { field, cloud: 'document' }) !== null);
   if (leaked.length > 0) {
     throw new Error(
       `harness self-check: an R4 leak of ${leaked.join(', ')} is labelled as a later milestone's`,
@@ -1749,7 +1747,8 @@ const UPLOAD_STEPS = [
 /**
  * R3: File ▸ Save, then ?project=<id> in a fresh context. The mock keeps
  * what the client sends, settings and returns included, unless the run asks
- * for only what api.ts declares (--strict-api).
+ * for only what api.ts declares (--strict-api). In document mode, an app
+ * from before 1.5 then saves the project, and a third context opens it.
  */
 async function cloudSaveOpen(run, mode) {
   const strictShape = run.args['strict-api'] === 'true';
@@ -1783,22 +1782,40 @@ async function cloudSaveOpen(run, mode) {
   const sent = put?.body ?? {};
   const sentClips = (sent.tracks ?? []).flatMap((t) => t.midiClips ?? []);
   const requests = api.log.map((l) => `${l.method} ${l.path} ${l.status}`);
+  // Where the cloud document went: the API's field, or a track's settings.
+  const onTracks = (sent.tracks ?? []).flatMap((t, i) =>
+    t.settings?.projectDoc ? [i] : [],
+  );
+  const documentWhere = {
+    field: sent.document !== undefined,
+    tracks: onTracks,
+  };
   const flags = {
     savedToast: saved.savedToast,
     uploadedPendingAudio: UPLOAD_STEPS.every((step) =>
       requests.some((r) => step.test(r)),
     ),
     // The sink holds chords, notation, markers, a 6/8 metre and mastering,
-    // which only the 1.5 document carries: the save is incomplete, and the
-    // chip must say the work is (partly) on this device.
-    chipHonestAfterLegacySave:
-      saved.chip?.state === 'local' && saved.chip?.reason === 'partial',
+    // which only the cloud document carries: it rides along, so the save
+    // holds the whole project.
+    chipSavedWhenComplete: saved.chip?.state === 'saved',
+    documentWhereExpected:
+      mode === 'document'
+        ? documentWhere.field && onTracks.length === 0
+        : !documentWhere.field &&
+          onTracks.length === 1 &&
+          onTracks[0] === 0 &&
+          sent.document === undefined,
   };
   const checks = {
     savePath: 'File ▸ Save',
     apiShape: strictShape ? 'strict' : 'client',
     toasts: saved.toasts,
     chip: saved.chip,
+    documentWhere,
+    documentBytes: JSON.stringify(
+      sent.document ?? sent.tracks?.[onTracks[0]]?.settings?.projectDoc ?? null,
+    ).length,
     requests,
     sentFields: {
       project: Object.keys(sent).sort(),
@@ -1809,8 +1826,9 @@ async function cloudSaveOpen(run, mode) {
           (sent.tracks ?? []).flatMap((t) => Object.keys(t.settings ?? {})),
         ),
       ].sort(),
-      // The local draft's clips carry more (note ids, length, CC); the cloud
-      // payload must not, until 1.5 (mockStudioApi.mjs keeps only these).
+      // The local draft's clips carry more (note ids, length, CC): the
+      // cloud document carries those, not the clips (mockStudioApi.mjs keeps
+      // only these).
       midiClip: [...new Set(sentClips.flatMap((c) => Object.keys(c)))].sort(),
       midiClipEvents: [
         ...new Set(sentClips.flatMap((c) => Object.keys(c.events ?? {}))),
@@ -1843,11 +1861,18 @@ async function cloudSaveOpen(run, mode) {
           saved.before.ids.tracks.includes(id),
         ).length,
       };
+      const diffs = compareFingerprints(saved.before, snapshot, {
+        ...COMPARE.cloud,
+        defaults: run.defaults,
+      });
+      if (mode === 'document') {
+        Object.assign(
+          flags,
+          await olderAppSaves(run, api, projectId, snapshot),
+        );
+      }
       return {
-        diffs: compareFingerprints(saved.before, snapshot, {
-          ...COMPARE.cloud,
-          defaults: run.defaults,
-        }),
+        diffs,
         extraLosses: [],
         flags,
         checks: { ...checks, settle: [after] },
@@ -1857,6 +1882,56 @@ async function cloudSaveOpen(run, mode) {
     api,
     { allowCrash: true },
   );
+}
+
+/**
+ * R3 in document mode, after the open: an app from before 1.5 saves the
+ * project (the rows as it opened them, without the document), and another
+ * device opens it. The API kept the document, so the open matches the one
+ * before (`opened`) but for what every open mints (labelled to a later
+ * milestone), and says an older version saved it last.
+ */
+async function olderAppSaves(run, api, projectId, opened) {
+  const documentBefore = JSON.stringify(
+    api.projects.get(projectId)?.document ?? null,
+  );
+  api.saveAsOlderApp(projectId);
+  const kept =
+    JSON.stringify(api.projects.get(projectId)?.document ?? null) ===
+    documentBefore;
+  const result = await withSession(
+    run,
+    `?project=${encodeURIComponent(projectId)}`,
+    async ({ page, crashed: state }) => {
+      if (state) return null;
+      await page.waitForFunction(
+        (id) => window.__MA_STORE__.getState().projectId === id,
+        projectId,
+        { timeout: 30_000 },
+      );
+      await settle(page, 'after an older app saved the project');
+      const toast = await waitForToast(page, {
+        match: /older version of Music Atlas/i,
+        timeout: 5000,
+      });
+      return { snapshot: await fingerprint(page), toast };
+    },
+    api,
+    { allowCrash: true },
+  );
+  const lost = result
+    ? compareFingerprints(opened, result.snapshot, {
+        ...COMPARE.cloud,
+        defaults: run.defaults,
+      }).filter((d) => ownerOf('R3', d) === null)
+    : null;
+  if (lost?.length) {
+    console.warn(`  R3 older app: lost ${lost.map((d) => d.field).join(', ')}`);
+  }
+  return {
+    olderAppKeepsDocument: kept && lost !== null && lost.length === 0,
+    olderAppNoticeShown: Boolean(result?.toast),
+  };
 }
 
 /**

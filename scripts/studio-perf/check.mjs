@@ -56,7 +56,8 @@ const outRoot = baseline
  * draft store, its lock, pointer and mirror, the legacy import, the
  * autosave and its media, openSession and its boot links, the save path and
  * its chip, the Opening overlay and the Projects dialog, the per-user
- * stores and the sign-out hook. A path that is gone fails the tier (a test
+ * stores and the sign-out hook; and milestone 1.5's cloud document and the
+ * mock API's two modes. A path that is gone fails the tier (a test
  * that moved or was renamed must be listed again, not dropped).
  */
 const UNIT_TESTS = [
@@ -69,6 +70,9 @@ const UNIT_TESTS = [
   'src/daw/persistence/__tests__/migrations.test.ts',
   'src/daw/persistence/__tests__/quarantine.test.ts',
   'src/daw/persistence/__tests__/cloudOpen.test.ts',
+  'src/daw/persistence/__tests__/cloudDocument.test.ts',
+  'src/daw/persistence/__tests__/cloudFixtures.test.ts',
+  'scripts/studio-perf/__tests__/mockStudioApi.test.mjs',
   'src/daw/persistence/__tests__/sessionSize.test.ts',
   'src/daw/persistence/__tests__/sessionFingerprint.test.ts',
   'src/daw/persistence/__tests__/legacyPrefs.test.ts',

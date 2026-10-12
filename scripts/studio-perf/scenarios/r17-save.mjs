@@ -2,7 +2,7 @@
 /**
  * R17 the save chip and save failures (milestone 1.4, E12/E13). Each
  * scenario has a mock API of its own, so its faults never reach another.
- * The project is a riff with nothing only the 1.5 document carries (no
+ * The project is a riff with nothing only the cloud document carries (no
  * chords, ionian, 4/4), so a complete save can read plain "Saved".
  *
  * Fast:
@@ -15,10 +15,12 @@
  * - overlap: every PUT takes 1.5 s; three saves around two edits. No two
  *   PUTs are ever in flight together, the repeats coalesce into one more
  *   PUT, and the cloud ends with the last edit (savesSerialized).
- * - legacyIncomplete: the riff in D dorian (the mode only the 1.5 document
- *   carries): after File ▸ Save the toast names what stays on this device
- *   and the chip reads "Saved on this device" with reason partial, never
- *   plain "Saved" (chipHonestAfterLegacySave).
+ * - legacyIncomplete: a project in D dorian with no track (the mode only
+ *   the cloud document carries, and the legacy API's interim fallback
+ *   rides on the first track, milestone 1.5): after File ▸ Save the toast
+ *   names what stays on this device until the project has a track, and
+ *   the chip reads "Saved on this device" with reason partial, never plain
+ *   "Saved" (chipHonestAfterLegacySave).
  *
  * Full:
  * - serverErrors: a PUT answering 500 once is retried once and saves
@@ -322,9 +324,9 @@ async function legacyIncomplete(kit, run) {
     run,
     '?new=1',
     async ({ page }) => {
-      await seedRiff(page, 'Dorian Tune');
       await page.evaluate(() => {
         const s = window.__MA_STORE__.getState();
+        s.setProjectName('Dorian Tune');
         s.setRootNote(2);
         s.setMode('dorian');
       });
@@ -344,7 +346,9 @@ async function legacyIncomplete(kit, run) {
           chipHonestAfterLegacySave:
             chip?.state === 'local' &&
             chip?.reason === 'partial' &&
-            /stays? on this device/.test(toast?.text ?? ''),
+            /stays? on this device until the project has a track/.test(
+              toast?.text ?? '',
+            ),
         },
         checks: { chip, savedToastText: toast?.text ?? null },
         after: await kit.fingerprint(page),

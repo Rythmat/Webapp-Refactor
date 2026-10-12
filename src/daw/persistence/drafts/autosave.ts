@@ -1435,7 +1435,8 @@ type RetireResult =
  * Bounded by DRAFT_RETIRE_TIMEOUT_MS: a store that doesn't answer leaves
  * the record as it is (it has work, so prunes keep it) and resolves null.
  * When the store fails, nothing changed: the live draft stays live, writes
- * resume, and it throws (the open is refused).
+ * resume, and it throws. openSession goes on with the flushed draft (still
+ * a session draft) as the kept work, and activate lets it go.
  */
 export async function retireOutgoingDraft(
   policy: 'auto' | 'discard',

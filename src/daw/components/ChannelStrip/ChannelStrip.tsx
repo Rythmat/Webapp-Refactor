@@ -122,8 +122,12 @@ export function ChannelStrip() {
   const prevTrackCount = useRef(0);
   const { isPremium } = useIsPremium();
 
-  const selectedTrackId = useStore((s) => s.selectedTrackId);
-  const tracks = useStore((s) => s.tracks);
+  // The selected track and the selected clip's track only, not the whole
+  // tracks array: an edit to another track re-renders nothing here.
+  const track = useStore((s) =>
+    s.tracks.find((t) => t.id === s.selectedTrackId),
+  );
+  const trackCount = useStore((s) => s.tracks.length);
   const selectedClipId = useStore((s) => s.selectedClipId);
   const selectedClipTrackId = useStore((s) => s.selectedClipTrackId);
   const updateMidiClipEvents = useStore((s) => s.updateMidiClipEvents);
@@ -150,19 +154,20 @@ export function ChannelStrip() {
     const firstTrack = prevTrackCount.current === 0;
     const opened = generation !== seenGeneration.current;
     if (
-      tracks.length > 0 &&
+      trackCount > 0 &&
       (firstTrack || opened) &&
       !isChannelStripTabId(activeTab)
     ) {
       setActiveTab('controls');
     }
     seenGeneration.current = generation;
-    prevTrackCount.current = tracks.length;
-  }, [tracks.length, generation, activeTab, setActiveTab]);
-  const track = tracks.find((t) => t.id === selectedTrackId);
+    prevTrackCount.current = trackCount;
+  }, [trackCount, generation, activeTab, setActiveTab]);
 
   // Piano roll: find selected clip
-  const selectedClipTrack = tracks.find((t) => t.id === selectedClipTrackId);
+  const selectedClipTrack = useStore((s) =>
+    s.tracks.find((t) => t.id === selectedClipTrackId),
+  );
   const selectedClip = selectedClipTrack?.midiClips.find(
     (c) => c.id === selectedClipId,
   );

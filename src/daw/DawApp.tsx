@@ -31,15 +31,8 @@ import { useMusicalTyping } from '@/daw/hooks/useMusicalTyping';
 import { useAuthContext } from '@/contexts/AuthContext/hooks/useAuthContext';
 import { useAuthToken } from '@/contexts/AuthContext/hooks/useAuthToken';
 import { StudioRoutes } from '@/constants/routes';
-import { useAudioChordDetection } from '@/daw/hooks/useAudioChordDetection';
-import { useGuitarMidiDetection } from '@/daw/hooks/useGuitarMidiDetection';
-import { useMidiInputRouting } from '@/daw/hooks/useMidiInputRouting';
 import { useStudioCurrentProjectNote } from '@/daw/hooks/useStudioCurrentProjectNote';
-import { useStudioMonitor } from '@/daw/hooks/useStudioMonitor';
-import { useCollabAudioLoader } from '@/daw/hooks/useCollabAudioLoader';
-import { usePlaybackEngine } from '@/daw/hooks/usePlaybackEngine';
 import { useTheme } from '@/daw/hooks/useTheme';
-import { useTransport } from '@/daw/hooks/useTransport';
 import { useStore } from '@/daw/store';
 import { useSynthStore } from '@/daw/oracle-synth/store';
 import { initUndoTracking } from '@/daw/store/undoMiddleware';
@@ -52,7 +45,6 @@ import { UserList } from '@/daw/collab/ui/UserList';
 import { ChatPanel } from '@/daw/collab/ui/ChatPanel';
 import { registerSaveAuth } from '@/daw/commands/saveProject';
 import { useCloudSaveStore } from '@/daw/commands/cloudSaveStore';
-import { useDraftAutosave } from '@/daw/persistence/drafts/autosave';
 import { getDraftSessionPort } from '@/daw/persistence/drafts/draftSessionPort';
 import { installDraftDevHandle } from '@/daw/persistence/drafts/devHandle';
 import {
@@ -70,6 +62,8 @@ import { clearCloudProjectCache } from '@/daw/shell/projects/cloudProjectList';
 import { EditorTopRailSlot } from '@/daw/shell/topbar/EditorTopRailSlot';
 import { userKeyOf } from '@/lib/local-store/userScope';
 import { audioEngine } from '@/daw/audio/AudioEngine';
+import { EngineHost } from '@/daw/engine/EngineHost';
+import { getPlayheadTick } from '@/daw/engine/playheadClock';
 import { DevProfiler, devMark, useDevCommitCount } from '@/daw/dev/DevProfiler';
 
 // Dev-only: when the editor chunk finished evaluating (scripts/studio-perf).
@@ -159,25 +153,18 @@ function DawAppInner() {
   const lessonAccessFor = useLessonAccess();
   const collab = useCollab();
   const navigate = useNavigate();
-  useTransport();
-  usePlaybackEngine(isReady, authToken);
+  // The audio side (transport, track engines, MIDI input, draft autosave,
+  // collab audio, live analysis) lives in EngineHost below, so a play or a
+  // track edit doesn't re-render the editor shell (milestone 1.7).
   // The one keyboard listener and the global keys (milestone 1.6), and the
   // computer keyboard as a piano while the student has it on.
   useGlobalCommands();
   useMusicalTyping();
-  // MIDI input before the draft autosave: React cleans up effects in the
-  // order they are declared, so a take kept as the editor closes
-  // (useMidiRecording) lands while the autosave still listens, and its
-  // unmount flush writes it.
-  useMidiInputRouting();
-  useDraftAutosave();
   // The student's own editor settings (metronome, count-in, snap, grid,
   // triplets, chord-ruler note names), kept per user apart from any project.
   // Held off until auth knows who the student is.
   usePrefsSync(userId, ownerKnown);
-  useStudioMonitor(isReady, authToken);
   useStudioCurrentProjectNote(userId);
-  useCollabAudioLoader(authToken);
   useDevCommitCount('DawAppInner');
 
   // Dev-only load-timeline marks for scripts/studio-perf.
@@ -185,8 +172,6 @@ function DawAppInner() {
   useEffect(() => {
     if (isReady) devMark('engine-ready');
   }, [isReady]);
-  useAudioChordDetection();
-  useGuitarMidiDetection();
   useTheme();
   // Portaled dialogs and popovers read the DAW palette from body.daw-active
   // (daw.css) while the editor is mounted. Interim: 2.1 moves the tokens to
@@ -311,12 +296,16 @@ function DawAppInner() {
       __MA_AUDIO_ENGINE__?: unknown;
       __MA_SESSION__?: unknown;
       __MA_CLOUD_SAVE__?: unknown;
+      __MA_PLAYHEAD__?: unknown;
     };
     w.__MA_STORE__ = useStore;
     w.__MA_SYNTH_STORE__ = useSynthStore;
     w.__MA_AUDIO_ENGINE__ = audioEngine;
     w.__MA_SESSION__ = useSessionStore;
     w.__MA_CLOUD_SAVE__ = useCloudSaveStore;
+    // The live playhead: the store's position moves only on pause, stop and
+    // seek since milestone 1.7.
+    w.__MA_PLAYHEAD__ = { tick: getPlayheadTick };
     // window.__MA_DRAFTS__: the draft autosave's status, list, flush.
     return installDraftDevHandle();
   }, []);
@@ -338,6 +327,7 @@ function DawAppInner() {
       style={{ backgroundColor: 'var(--color-bg)' }}
       aria-busy={busy ? 'true' : undefined}
     >
+      <EngineHost isReady={isReady} authToken={authToken} />
       {currentView === 'practice' && practiceSession ? (
         <DevProfiler id="PracticeTrackView">
           <PracticeTrackView

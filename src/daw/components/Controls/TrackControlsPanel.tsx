@@ -64,9 +64,10 @@ const POP_OUT_BUTTON_INSTRUMENTS = new Set([
 // ── TrackControlsPanel ──────────────────────────────────────────────────
 
 export function TrackControlsPanel() {
-  const selectedTrackId = useStore((s) => s.selectedTrackId);
-  const tracks = useStore((s) => s.tracks);
-  const track = tracks.find((t) => t.id === selectedTrackId);
+  // The selected track only: an edit to another track re-renders nothing.
+  const track = useStore((s) =>
+    s.tracks.find((t) => t.id === s.selectedTrackId),
+  );
   const generation = useSessionGeneration();
   const [popOut, setPopOut] = useState(false);
   const openPopOut = useCallback(() => setPopOut(true), []);

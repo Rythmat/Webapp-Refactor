@@ -282,11 +282,14 @@ describe('a take kept on the way out, in the device draft', () => {
   });
 
   // React cleans up one component's effects in the order they were declared,
-  // so the test above holds in the editor only while DawApp keeps this order.
-  it('relies on DawApp declaring the MIDI hooks before the draft autosave', () => {
-    const dawApp = readFileSync(resolve(__dirname, '../../DawApp.tsx'), 'utf8');
-    const midiHooks = dawApp.indexOf('useMidiInputRouting();');
-    const autosave = dawApp.indexOf('useDraftAutosave();');
+  // so the test above holds in the editor only while EngineHost keeps this order.
+  it('relies on EngineHost declaring the MIDI hooks before the draft autosave', () => {
+    const host = readFileSync(
+      resolve(__dirname, '../../engine/EngineHost.tsx'),
+      'utf8',
+    );
+    const midiHooks = host.indexOf('useMidiInputRouting();');
+    const autosave = host.indexOf('useDraftAutosave();');
 
     expect(midiHooks).toBeGreaterThan(-1);
     expect(autosave).toBeGreaterThan(-1);

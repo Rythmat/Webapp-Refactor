@@ -1,0 +1,408 @@
+import * as Tone from 'tone';
+import { useStore, type Track } from '@/daw/store';
+import { audioEngine } from '@/daw/audio/AudioEngine';
+import { TrackEngine } from '@/daw/audio/TrackEngine';
+import type { AutomationScheduler } from '@/daw/audio/AutomationScheduler';
+import { DrumMachineEngine } from '@/daw/instruments/DrumMachineEngine';
+import { ChopsSampler } from '@/daw/instruments/ChopsSampler';
+import { OracleSynthAdapter } from '@/daw/instruments/OracleSynthAdapter';
+import { SoundFontAdapter } from '@/daw/instruments/SoundFontAdapter';
+import { TonewheelOrganEngine } from '@/daw/instruments/TonewheelOrganEngine';
+import {
+  applySynthStateToEngine,
+  defaultSynthTrackState,
+  getTrackSynthState,
+} from '@/daw/oracle-synth/synthTrackState';
+import {
+  getSessionGeneration,
+  onSessionGeneration,
+} from '@/daw/session/sessionGeneration';
+import {
+  applyDrumPads,
+  applyOrganState,
+  applySamplerState,
+  applySends,
+  applyStaticTrackParams,
+  createInstrument,
+  getTrackAudioState,
+  needsNewEngine,
+  notifyEngineReady,
+  retireTrackAudio,
+  trackEngineRegistry,
+  type TrackAudioState,
+} from './trackAudio';
+
+// ── Track reconciler ────────────────────────────────────────────────────
+// Keeps every track's audio (TrackEngine + instrument) in step with the
+// store's tracks. It replaces usePlaybackEngine's effect on [tracks], which
+// re-applied volume, pan, every effect, the sends and the automation of
+// EVERY track on ANY track change (a rename, a clip edit, a Prism recolour)
+// and re-rendered the editor shell to do it (engine-hooks-03).
+//
+// It listens to the store directly and keeps the track object it last
+// applied for each id. An unchanged object is skipped; a changed one is
+// compared field by field, and only what changed reaches the engine.
+// Collab rebuilds every track object on a remote change, so fields compare
+// by value, not identity. While playing, a track whose lanes or static
+// values changed gets its automation re-asserted, all at one transport tick.
+//
+// A track gets a new engine when its instrument, its bass voice or the
+// session generation changes (needsNewEngine). An instrument loads
+// asynchronously; when it is ready it is wired in only if its engine is
+// still the one registered for the track, and disposed otherwise.
+
+/** JSON equality for the small settings objects (effects, sends, pads). */
+function sameValue(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (a === undefined || b === undefined) return false;
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
+/** The engine-facing fields that are re-asserted under automation. */
+function staticChanged(prev: Track, next: Track): boolean {
+  return (
+    prev.volume !== next.volume ||
+    prev.pan !== next.pan ||
+    !sameValue(prev.effects, next.effects) ||
+    !sameValue(prev.sends, next.sends)
+  );
+}
+
+interface Applied {
+  track: Track;
+  audible: boolean;
+}
+
+export interface TrackReconciler {
+  /** Brings every engine to the store's tracks now. */
+  reconcile(): void;
+  /** Stops listening. The engines stay (usePlaybackEngine disposes them). */
+  stop(): void;
+}
+
+/**
+ * Starts reconciling the store's tracks into `trackEngineRegistry`. Runs a
+ * first pass at once. `automationScheduler` is the playback engine's, so a
+ * retired track's automation is cleared and a changed one re-asserted.
+ */
+export function startTrackReconciler(
+  automationScheduler: AutomationScheduler,
+): TrackReconciler {
+  const applied = new Map<string, Applied>();
+  // A return added or removed re-wires every track's sends.
+  let returnIds = '';
+  let stopped = false;
+
+  /** The live transport tick for this pass, read at most once. */
+  let passTick: number | null = null;
+  const tickNow = () => (passTick ??= Tone.getTransport().ticks);
+
+  function reassert(track: Track, engine: TrackEngine): void {
+    automationScheduler.clearTrack(track.id);
+    applyStaticTrackParams(engine, track);
+    automationScheduler.scheduleTrack(
+      track.id,
+      engine,
+      track.automation,
+      tickNow(),
+      useStore.getState().bpm,
+    );
+  }
+
+  function applyMonitoring(state: TrackAudioState, track: Track): void {
+    const instrument = state.instrument as
+      | { setMonitoring?: (on: boolean) => void }
+      | null
+      | undefined;
+    instrument?.setMonitoring?.(track.monitoring);
+  }
+
+  /** Brings an existing engine from `prev` to `next`, field by field. */
+  function update(
+    state: TrackAudioState,
+    prev: Applied,
+    next: Track,
+    audible: boolean,
+    sendsRewired: boolean,
+    playing: boolean,
+  ): void {
+    const engine = state.trackEngine;
+    const old = prev.track;
+    if (audible !== prev.audible) engine.setAudible(audible);
+
+    if (old !== next) {
+      const statics = staticChanged(old, next);
+      const lanes = !sameValue(old.automation, next.automation);
+      if (playing && (statics || lanes || sendsRewired)) {
+        // Static writes stomp an automated param: hand the param back to
+        // the lanes, which re-applies the static base first.
+        reassert(next, engine);
+      } else {
+        if (old.volume !== next.volume) engine.setVolume(next.volume);
+        if (old.pan !== next.pan) engine.setPan(next.pan);
+        if (!sameValue(old.effects, next.effects)) {
+          engine.updateEffects(next.effects);
+        }
+        if (sendsRewired || !sameValue(old.sends, next.sends)) {
+          applySends(engine, next);
+        }
+      }
+      if (old.monitoring !== next.monitoring) applyMonitoring(state, next);
+      updateInstrument(state, old, next);
+    } else if (sendsRewired) {
+      if (playing) reassert(next, engine);
+      else applySends(engine, next);
+    }
+  }
+
+  /** Instrument settings the track is the source of truth for. */
+  function updateInstrument(
+    state: TrackAudioState,
+    old: Track,
+    next: Track,
+  ): void {
+    const instrument = state.instrument;
+    // Kit changes from the store (view, project load, collab peer) land
+    // here; setKit is idempotent and last-wins under races.
+    if (instrument instanceof DrumMachineEngine) {
+      const kitId = next.drumKit ?? 'natural';
+      if (instrument.getKit() !== kitId) {
+        instrument
+          .setKit(kitId)
+          .then(() => {
+            const current = currentTrack(next.id);
+            if (current) applyDrumPads(instrument, current);
+          })
+          .catch((err) => {
+            console.error('[Audio] Drum kit load failed:', err);
+          });
+      } else if (!sameValue(old.drumPads, next.drumPads)) {
+        applyDrumPads(instrument, next);
+      }
+    }
+    // The GM sound, the organ settings and the sampler's sample likewise
+    // follow undo, project load and collab peers.
+    if (instrument instanceof SoundFontAdapter) {
+      const program = next.gmProgram ?? 0;
+      if (instrument.getProgram() !== program) instrument.setProgram(program);
+    }
+    if (
+      instrument instanceof TonewheelOrganEngine &&
+      old.organState !== next.organState
+    ) {
+      applyOrganState(instrument, next);
+    }
+    if (
+      instrument instanceof ChopsSampler &&
+      !sameValue(old.samplerSample, next.samplerSample)
+    ) {
+      applySamplerState(instrument, next);
+    }
+  }
+
+  /** Makes a track's engine and starts loading its instrument. */
+  function create(
+    track: Track,
+    audible: boolean,
+    generation: number,
+    playing: boolean,
+  ): void {
+    const ctx = audioEngine.getContext();
+    const trackEngine = new TrackEngine(ctx, audioEngine.getMasterGain());
+    trackEngine.setVolume(track.volume);
+    trackEngine.setAudible(audible);
+    trackEngine.setPan(track.pan);
+    trackEngine.updateEffects(track.effects);
+    applySends(trackEngine, track);
+    if (playing) reassert(track, trackEngine);
+    // Ducker key source: resolve any OTHER track's analyser by id from the
+    // registry. Returns null for self (no feedback) or a missing key (fail
+    // silent), and re-resolves live so key deletion/creation is handled.
+    const ownId = track.id;
+    trackEngine.setKeySourceResolver((keyId) =>
+      keyId === ownId
+        ? null
+        : (getTrackAudioState(keyId)?.trackEngine.getAnalyserNode() ?? null),
+    );
+
+    const instrument = createInstrument(
+      track.instrument,
+      track.gmProgram,
+      track.drumKit,
+      track.bassVoice,
+    );
+
+    if (instrument) {
+      console.log(
+        `[Audio] Initializing ${track.instrument} for track "${track.name}"...`,
+      );
+      instrument
+        .init(ctx, trackEngine.getInputNode())
+        .then(() => {
+          // The track's engine was made again (a load, a new instrument) or
+          // removed while this loaded: let the instrument go rather than
+          // wire it into a disposed engine, where it would keep running
+          // (and holding a SoundFont channel) unheard.
+          const state = trackEngineRegistry.get(track.id);
+          if (state?.trackEngine !== trackEngine) {
+            instrument.dispose();
+            return;
+          }
+          trackEngine.setInstrument(instrument);
+          console.log(`[Audio] Instrument ready for track "${track.name}"`);
+          // What the track holds now, not when the load began: an edit made
+          // meanwhile reached the store but not this instrument.
+          const current = currentTrack(track.id) ?? track;
+          // Apply the track's saved Oracle Synth patch to its fresh engine so
+          // a loaded project plays with the right sound even before the synth
+          // panel (which would otherwise be the first thing to sync it) opens.
+          // A track with no patch of its own plays the default patch its
+          // panel shows. The engine's own starting sound differs from it
+          // (filter 1 at 20 kHz, not 13.4), so the track used to change
+          // sound when its panel first opened, and change back on a reload.
+          if (instrument instanceof OracleSynthAdapter) {
+            const synthEngine = instrument.getEngine();
+            if (synthEngine) {
+              applySynthStateToEngine(
+                synthEngine,
+                getTrackSynthState(track.id) ?? defaultSynthTrackState(),
+                { projectBpm: useStore.getState().bpm },
+              );
+            }
+          }
+          // Saved drum pad mixes (the kit itself was passed to the
+          // constructor, so init() already loaded the right samples), organ
+          // settings and the sampler's sample. The sample buffer may still be
+          // fetching (project load); the buffer-store subscription in
+          // usePlaybackEngine re-applies on arrival.
+          if (instrument instanceof DrumMachineEngine) {
+            applyDrumPads(instrument, current);
+          }
+          if (instrument instanceof TonewheelOrganEngine) {
+            applyOrganState(instrument, current);
+          }
+          if (instrument instanceof ChopsSampler) {
+            applySamplerState(instrument, current);
+          }
+          applyMonitoring(state, current);
+          // Tap audio-input adapters into the live-monitor send bus so this
+          // user's mic / instrument FX can be streamed to collaborators.
+          const monitorBus = audioEngine.getMonitorBus();
+          const getTap = (
+            instrument as { getMonitorOutputNode?: () => AudioNode | null }
+          ).getMonitorOutputNode;
+          if (monitorBus && typeof getTap === 'function') {
+            try {
+              getTap.call(instrument)?.connect(monitorBus);
+            } catch (err) {
+              console.warn('[Audio] monitor tap connect failed:', err);
+            }
+          }
+          notifyEngineReady();
+        })
+        .catch((err) => {
+          console.error(
+            `[Audio] Instrument init FAILED for track "${track.name}":`,
+            err,
+          );
+        });
+    }
+
+    trackEngineRegistry.set(track.id, {
+      trackEngine,
+      instrument,
+      instrumentType: track.instrument,
+      bassVoice: track.bassVoice,
+      generation,
+    });
+  }
+
+  function reconcile(): void {
+    if (stopped) return;
+    const s = useStore.getState();
+    const tracks = s.tracks;
+    const generation = getSessionGeneration();
+    const playing = s.isPlaying;
+    passTick = null;
+    // Whether this pass made or let go of an engine (see the end).
+    let enginesChanged = false;
+
+    const ids = audioEngine.getReturnIds().join('|');
+    const sendsRewired = ids !== returnIds;
+    returnIds = ids;
+
+    const currentIds = new Set(tracks.map((t) => t.id));
+    for (const [id, state] of trackEngineRegistry) {
+      if (currentIds.has(id)) continue;
+      retireTrackAudio(id, state, automationScheduler);
+      applied.delete(id);
+      enginesChanged = true;
+    }
+
+    // Mute and solo: a track is audible unless muted, or another track is
+    // soloed and it isn't, so one solo changes every track's gate.
+    const anySolo = tracks.some((t) => t.solo);
+    for (const track of tracks) {
+      const audible = !track.mute && (track.solo || !anySolo);
+      const existing = trackEngineRegistry.get(track.id);
+      const prev = applied.get(track.id);
+      // An engine this reconciler didn't apply (left by a previous start)
+      // is made again too, rather than guessed at.
+      if (existing && (!prev || needsNewEngine(existing, track, generation))) {
+        retireTrackAudio(track.id, existing, automationScheduler);
+        applied.delete(track.id);
+        enginesChanged = true;
+      }
+      const state = trackEngineRegistry.get(track.id);
+      if (state && prev) {
+        update(state, prev, track, audible, sendsRewired, playing);
+      } else {
+        create(track, audible, generation, playing);
+        enginesChanged = true;
+      }
+      applied.set(track.id, { track, audible });
+    }
+
+    // Readers that hold a track's engine (the meters, the instrument panels)
+    // re-read on this. A load makes every engine again under the same track
+    // ids, so a reader keyed on the id alone would keep the disposed engine.
+    if (enginesChanged) notifyEngineReady();
+  }
+
+  function safeReconcile(): void {
+    try {
+      reconcile();
+    } catch (err) {
+      console.error('[Audio] track reconcile failed:', err);
+    }
+  }
+
+  // Runs inside the store write that changed the tracks. A load bumps the
+  // generation, seeds the patch caches and sets the tracks in one
+  // synchronous block (sessionGeneration.ts), so the write sees the new
+  // generation with the new tracks. A bump with no track write (a reset of
+  // an unchanged project) reconciles once that block is done.
+  const unsubscribeTracks = useStore.subscribe(
+    (s) => s.tracks,
+    () => safeReconcile(),
+  );
+  const unsubscribeGeneration = onSessionGeneration(() => {
+    queueMicrotask(safeReconcile);
+  });
+
+  safeReconcile();
+
+  return {
+    reconcile: safeReconcile,
+    stop() {
+      stopped = true;
+      unsubscribeTracks();
+      unsubscribeGeneration();
+      applied.clear();
+    },
+  };
+}
+
+function currentTrack(id: string): Track | undefined {
+  return useStore.getState().tracks.find((t) => t.id === id);
+}

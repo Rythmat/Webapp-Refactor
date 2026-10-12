@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import * as Tone from 'tone';
 import { useStore } from '@/daw/store';
+import { addFrameTask } from '@/daw/engine/engineClock';
+import { getPlayheadTick } from '@/daw/engine/playheadClock';
 import { MidiRecorder } from '@/daw/audio/MidiRecorder';
 import { buildRecordedClip } from '@/daw/audio/recordedClip';
 import { beginTake } from '@/daw/session/takesInFlight';
@@ -13,7 +15,6 @@ import { beginTake } from '@/daw/session/takesInFlight';
 
 export function useMidiRecording() {
   const isRecording = useStore((s) => s.isRecording);
-  const tracks = useStore((s) => s.tracks);
   const addMidiClip = useStore((s) => s.addMidiClip);
   const recorderRef = useRef(new MidiRecorder());
   // Tick the take punched in at. It becomes the clip's front, so a player who
@@ -25,13 +26,14 @@ export function useMidiRecording() {
 
   useEffect(() => {
     if (isRecording) {
-      // This effect re-runs whenever `tracks` changes (a fader move, an audio
-      // take landing). Guard against that: a second startRecording() would drop
-      // the take in progress and re-anchor it to wherever the playhead is now.
+      // A second startRecording() would drop the take in progress and
+      // re-anchor it to wherever the playhead is now.
       if (recorderRef.current.isRecording()) return;
       // Anchor to the playhead at punch-in — the same tick the audio recorder
       // uses (usePlaybackEngine), so a simultaneous audio + MIDI take lines up.
-      punchInTickRef.current = useStore.getState().position;
+      // The live playhead: a punch-in while playing is past the store's
+      // parked position.
+      punchInTickRef.current = Math.round(getPlayheadTick());
       recorderRef.current.startRecording();
       settleTakeRef.current?.();
       const recorder = recorderRef.current;
@@ -46,9 +48,9 @@ export function useMidiRecording() {
         const { notes, ccEvents } = recorderRef.current.stopRecording();
         if (notes.length > 0) {
           // Find the first record-armed MIDI track
-          const armedTrack = tracks.find(
-            (t) => t.recordArmed && t.type === 'midi',
-          );
+          const armedTrack = useStore
+            .getState()
+            .tracks.find((t) => t.recordArmed && t.type === 'midi');
           if (armedTrack) {
             // Anchored to punch-in, so a take that came in after the downbeat
             // keeps that rest at the front of the clip instead of sliding up
@@ -63,7 +65,7 @@ export function useMidiRecording() {
         settle?.();
       }
     }
-  }, [isRecording, tracks, addMidiClip]);
+  }, [isRecording, addMidiClip]);
 
   // A take still running when the editor closes is kept, as Stop would keep
   // it. useTransport's unmount pause clears isRecording, but the effect above
@@ -103,17 +105,17 @@ export function useMidiRecording() {
     };
   }, []);
 
-  // Live recording display: poll recorder at ~15fps and push snapshots to store
+  // Live recording display: snapshots of the take reach the store about 15
+  // times a second, on the editor's frame loop.
   useEffect(() => {
     if (!isRecording) return;
-    const armedTrack = tracks.find((t) => t.recordArmed && t.type === 'midi');
+    const armedTrack = useStore
+      .getState()
+      .tracks.find((t) => t.recordArmed && t.type === 'midi');
     if (!armedTrack) return;
 
-    let rafId: number;
-    let lastUpdate = 0;
-
-    const poll = (now: number) => {
-      if (now - lastUpdate >= 66) {
+    const stopTask = addFrameTask(
+      () => {
         const snapshot = recorderRef.current.getSnapshot(
           Math.round(Tone.getTransport().ticks),
         );
@@ -128,17 +130,15 @@ export function useMidiRecording() {
               Math.min(punchInTickRef.current, snapshot[0].startTick),
             );
         }
-        lastUpdate = now;
-      }
-      rafId = requestAnimationFrame(poll);
-    };
-    rafId = requestAnimationFrame(poll);
+      },
+      { fps: 15, name: 'record-midi' },
+    );
 
     return () => {
-      cancelAnimationFrame(rafId);
+      stopTask();
       useStore.getState().clearLiveRecording();
     };
-  }, [isRecording, tracks]);
+  }, [isRecording]);
 
   return recorderRef.current;
 }

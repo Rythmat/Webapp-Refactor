@@ -14,29 +14,32 @@
 // extra calls during normal editing are cheap no-ops.
 
 import { useEffect } from 'react';
-import { useStore } from '@/daw/store';
+import { useStore, type Track } from '@/daw/store';
 import {
   loadPendingClipAudio,
   loadPendingSamplerSamples,
 } from '@/lib/studio-assets/load-audio';
 
 export function useCollabAudioLoader(token: string | null): void {
-  const tracks = useStore((s) => s.tracks);
-
   useEffect(() => {
-    // Only walk + download when something is actually missing; the loaders
-    // re-check and guard themselves, this just avoids a needless microtask.
-    if (token) {
-      const hasPending = tracks.some((t) =>
-        t.audioClips.some((c) => c.assetId),
+    const load = (tracks: Track[]) => {
+      // Only walk + download when something is actually missing; the loaders
+      // re-check and guard themselves, this just avoids a needless microtask.
+      if (token) {
+        const hasPending = tracks.some((t) =>
+          t.audioClips.some((c) => c.assetId),
+        );
+        if (hasPending) void loadPendingClipAudio(token);
+      }
+      // Sampler one-shots: bundled (sourceUrl) samples load without a token,
+      // uploaded ones need it — the loader sorts that out per track.
+      const hasPendingSample = tracks.some(
+        (t) => t.samplerSample && (t.samplerSample.sourceUrl || token),
       );
-      if (hasPending) void loadPendingClipAudio(token);
-    }
-    // Sampler one-shots: bundled (sourceUrl) samples load without a token,
-    // uploaded ones need it — the loader sorts that out per track.
-    const hasPendingSample = tracks.some(
-      (t) => t.samplerSample && (t.samplerSample.sourceUrl || token),
-    );
-    if (hasPendingSample) void loadPendingSamplerSamples(token);
-  }, [tracks, token]);
+      if (hasPendingSample) void loadPendingSamplerSamples(token);
+    };
+    load(useStore.getState().tracks);
+    // Follows the tracks without re-rendering the editor on every edit.
+    return useStore.subscribe((s) => s.tracks, load);
+  }, [token]);
 }

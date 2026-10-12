@@ -1,11 +1,6 @@
 export { REGIONS } from './regions';
 export { CITIES } from './cities';
-export {
-  SIDEBAR_ITEMS,
-  CATEGORY_TABS,
-  DECADES,
-  GEOJSON_URLS,
-} from './menuItems';
+export { GEOJSON_URLS } from './menuItems';
 export { MUSIC_HISTORY } from './musicHistory';
 export {
   COUNTRY_FLAG_COLORS,

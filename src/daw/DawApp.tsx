@@ -61,6 +61,7 @@ import { isBusyPhase, useSessionStore } from '@/daw/session/sessionStore';
 import { useSessionBoot } from '@/daw/session/useSessionBoot';
 import { OpeningHost } from '@/daw/shell/opening/OpeningHost';
 import { ProjectsDialogHost } from '@/daw/shell/projects/ProjectsDialogHost';
+import { SaveConflictDialog } from '@/daw/shell/topbar/SaveConflictDialog';
 import { useProjectsDialogStore } from '@/daw/shell/projects/useProjectsDialogStore';
 import { clearCloudProjectCache } from '@/daw/shell/projects/cloudProjectList';
 import { EditorTopRailSlot } from '@/daw/shell/topbar/EditorTopRailSlot';
@@ -407,6 +408,7 @@ function DawAppInner() {
         <EditorTopRailSlot />
       </DevProfiler>
       <ProjectsDialogHost />
+      <SaveConflictDialog />
       {/* The Opening overlay, the error panel and the Premium prompt. A
           direct child of .daw-root, left out of the inert toggle above. */}
       <OpeningHost />

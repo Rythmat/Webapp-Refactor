@@ -296,6 +296,26 @@ export function announceProjectDraftKept(draftId: string): void {
   });
 }
 
+/**
+ * What a cloud open couldn't use of the project's cloud document (milestone
+ * 1.5, deserializeCloudProject's report): a document from a newer app, or
+ * one an older app saved the project over since.
+ */
+export function announceCloudDocumentReport(report: {
+  stale: boolean;
+  newer: boolean;
+}): void {
+  if (report.newer) {
+    showNotice(
+      'A newer version of Music Atlas saved this project. Reload to see all of it.',
+    );
+  } else if (report.stale) {
+    showNotice(
+      'An older version of Music Atlas saved this project last, so some chord symbols or notation may be from an earlier save.',
+    );
+  }
+}
+
 /** A rejoin found the room gone: the project stays as it is. */
 export function announceRoomGone(message: string): void {
   showNotice(message);

@@ -48,6 +48,7 @@ import { classifyStudioFailure } from '@/lib/studio-projects/studioApiError';
 import { NOT_FOUND_MESSAGES, notFoundError } from './parseBootIntent';
 import { openError, openErrorFromFailure, signedOutError } from './openErrors';
 import {
+  announceCloudDocumentReport,
   announceOpenedProjectDraft,
   announceProjectDraftKept,
 } from './sessionNotices';
@@ -648,18 +649,22 @@ function cloudProject(
   claim: DraftClaim,
   notice?: () => void,
 ): PreparedOpen {
+  let report: ReturnType<typeof deserializeCloudProject> | null = null;
   return seeded(claim, {
     name: project.name || null,
-    // Stable track ids (1.3); a decode that throws fails the open.
-    apply: () =>
-      deserializeCloudProject(
+    // Stable track ids (1.3) and the cloud document (1.5); a decode that
+    // throws fails the open.
+    apply: () => {
+      report = deserializeCloudProject(
         project as unknown as Parameters<typeof deserializeCloudProject>[0],
-      ),
+      );
+    },
     baseline: { source: 'project', ref: project.id, reopenable: true },
     lastSaved: () => cloudOpenedRecord(project),
     afterReady: ({ stillCurrent }) => {
       if (!stillCurrent()) return;
       useStore.getState().offerChordAnalysis();
+      if (report) announceCloudDocumentReport(report);
       notice?.();
     },
   });

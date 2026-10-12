@@ -93,6 +93,12 @@ export const promoterTask = (focus: string, goal: number): LocalizedText => ({
   es: `Encuentra ${goal} conexiones con ${focus} en el Globo y arma un mapa mental. Envíalo cuando termines.`,
 });
 
+/** The Promoter slide's one-line headline; the task itself is the question. */
+export const promoterHeadline = (focus: string): LocalizedText => ({
+  en: `Map ${focus}’s connections on the Globe.`,
+  es: `Mapea las conexiones de ${focus} en el Globo.`,
+});
+
 export const producerTask = (tutorial: string): LocalizedText => ({
   en: `Open the Studio and follow the “${tutorial}” tutorial together.`,
   es: `Abre el Studio y sigan juntos el tutorial “${tutorial}”.`,

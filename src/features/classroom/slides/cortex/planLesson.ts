@@ -4,7 +4,7 @@ import { kindOf, linked, type LessonGraph } from './graphQueries';
 import { performerOptions } from './performerLesson';
 import { producerOptions } from './producerTutorial';
 import { promoterBoard } from './promoterBoard';
-import { showcaseFor } from './showcase';
+import { SHOWCASE_SLIDE_FACTS, showcaseFor } from './showcase';
 import type { CortexLessonPlan, LessonFocus } from './types';
 
 /**
@@ -82,6 +82,14 @@ export const planCortexLesson = (
         ),
       ),
     ].join(', ')}.`,
+    ...(showcase.facts.length > SHOWCASE_SLIDE_FACTS
+      ? [
+          `More to share about ${focus.label}: ${showcase.facts
+            .slice(SHOWCASE_SLIDE_FACTS)
+            .map((f) => f.text.en)
+            .join(' · ')}`,
+        ]
+      : []),
     promoter
       ? `Promoter: ${promoter.nodes.length - 1} things to find on the Globe, ${promoter.edges.length} connections among them; the challenge asks for ${promoter.goal}.`
       : 'Promoter: too few confirmed connections for a mind map.',

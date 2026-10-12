@@ -108,9 +108,10 @@ describe('a generated Cortex lesson', () => {
       media: { type: 'artistImage', songId: 'night_drive' },
       accent: '#0a9396',
     });
-    expect((slides[1] as { body?: { en: string } }).body?.en).toContain(
-      'Born in Motor City in 1950.',
-    );
+    const body = (slides[1] as { body?: { en: string } }).body?.en ?? '';
+    expect(body).toContain('Born in Motor City in 1950.');
+    // One fact a line, and no more than fit on the slide in two languages.
+    expect(body.split('\n').length).toBeLessThanOrEqual(3);
     expect(slides[2]).toMatchObject({
       kind: 'media',
       media: { type: 'youtube', videoId: 'nightDrive1', startSec: 12 },
@@ -127,6 +128,13 @@ describe('a generated Cortex lesson', () => {
       board: { focus: 'artist:ana-lux', goal: 5 },
     });
     expect(slides[3].title.en).toBe('Group Project: Promoter');
+    // A one-line headline on the slide; the whole task is the question.
+    expect(slides[3]).toMatchObject({
+      prompt: { en: 'Map Ana Lux’s connections on the Globe.' },
+    });
+    expect(group.question.en).toBe(
+      "Find 5 connections to Ana Lux on the Globe and build a mind map. Submit it when you're done.",
+    );
   });
 
   it('times the Individual Project and opens the Studio library', () => {

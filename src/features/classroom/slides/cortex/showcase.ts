@@ -435,9 +435,18 @@ export const accentFor = (focus: Pick<LessonFocus, 'kind'>): string =>
   cortexColor(focus.kind === 'artist' ? 'Artists' : 'Location');
 
 /** The Showcase facts as one slide body, a line each. */
-export const showcaseBody = (
-  facts: readonly ShowcaseFact[],
-): LocalizedText => ({
-  en: facts.map((f) => f.text.en).join('\n'),
-  es: facts.map((f) => f.text.es ?? f.text.en).join('\n'),
-});
+/**
+ * How many facts the Showcase slide shows. Shown in both languages they are
+ * twice as many lines, and more than three run off the slide; the rest go to
+ * the teacher's notes as things to say.
+ */
+export const SHOWCASE_SLIDE_FACTS = 3;
+
+/** The Showcase slide's body: its first facts, one a line. */
+export const showcaseBody = (facts: readonly ShowcaseFact[]): LocalizedText => {
+  const shown = facts.slice(0, SHOWCASE_SLIDE_FACTS);
+  return {
+    en: shown.map((f) => f.text.en).join('\n'),
+    es: shown.map((f) => f.text.es ?? f.text.en).join('\n'),
+  };
+};

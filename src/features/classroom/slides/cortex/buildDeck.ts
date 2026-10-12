@@ -10,6 +10,7 @@ import {
   listenTitle,
   performerTask,
   producerTask,
+  promoterHeadline,
   promoterTask,
   todayWith,
 } from './copy';
@@ -157,7 +158,7 @@ const groupInteraction = (
       if (!board) return null;
       const task = promoterTask(plan.focus.label, board.goal);
       return {
-        prompt: task,
+        prompt: promoterHeadline(plan.focus.label),
         interaction: {
           id,
           type: 'atlas',

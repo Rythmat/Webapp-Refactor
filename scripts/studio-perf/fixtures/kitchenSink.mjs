@@ -567,6 +567,7 @@ export async function applyKitchenSink({ assetId = null } = {}) {
   act().setTimelineGridSize('1/8');
   act().toggleTimelineSnap();
   act().toggleTripletMode();
+  act().setSingleKeyShortcuts(false);
   act().setActiveTool('pencil');
   act().setSelectedTrackId(keys);
   act().setAutomationOpenTrackId(lead);

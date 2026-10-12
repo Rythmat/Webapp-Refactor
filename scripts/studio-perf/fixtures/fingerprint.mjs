@@ -645,6 +645,11 @@ export async function fingerprintPage() {
   );
   put('view.activeTool', ['store.activeTool'], s.activeTool);
   put(
+    'view.singleKeyShortcuts',
+    ['store.singleKeyShortcuts'],
+    s.singleKeyShortcuts,
+  );
+  put(
     'view.selectedTrack',
     ['store.selectedTrackId'],
     refTrack(s.selectedTrackId),

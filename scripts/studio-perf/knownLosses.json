@@ -2,7 +2,7 @@
   "about": "Today's round-trip results per profile and scenario (scripts/studio-perf/roundtrip.mjs; what each scenario compares comes from the project document registry since milestone 1.3, and the session lives in the device drafts since milestone 1.4). losses: field -> number of keys lost per kind (a tracks[] or clips[] field counts one key per track or clip, and a track or clip that is gone altogether counts once, as 'tracks[] (whole track)' or '... (whole clip)'); flags: the scenario's yes/no checks; pageErrors: uncaught page errors. A run fails on more keys of a kind than listed, a flag moving away from its goal, or more page errors. Rewrite with --update-known once a fix lands.",
   "format": 2,
   "updatedAt": "2026-10-12",
-  "commit": "91407532",
+  "commit": "bf870f39",
   "profiles": {
     "chromebook": {
       "R1-refresh-while-playing": {
@@ -539,6 +539,20 @@
           "practiceHeaderChip": true,
           "targetsAtLeast24": true,
           "undoRedoWork": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R26-keys": {
+        "flags": {
+          "altRInLeadSheet": true,
+          "deleteInScoreKeepsClip": true,
+          "noticeOnce": true,
+          "pageZoomFree": true,
+          "recordGuardBothWays": true,
+          "sheetListsCommands": true,
+          "typingChipFits": true,
+          "typingKeepsTransport": true
         },
         "pageErrors": 0,
         "losses": {}
@@ -1586,6 +1600,20 @@
           "practiceHeaderChip": true,
           "targetsAtLeast24": true,
           "undoRedoWork": true
+        },
+        "pageErrors": 0,
+        "losses": {}
+      },
+      "R26-keys": {
+        "flags": {
+          "altRInLeadSheet": true,
+          "deleteInScoreKeepsClip": true,
+          "noticeOnce": true,
+          "pageZoomFree": true,
+          "recordGuardBothWays": true,
+          "sheetListsCommands": true,
+          "typingChipFits": true,
+          "typingKeepsTransport": true
         },
         "pageErrors": 0,
         "losses": {}

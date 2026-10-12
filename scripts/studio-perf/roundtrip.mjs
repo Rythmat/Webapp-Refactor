@@ -808,6 +808,21 @@ function installWatch() {
   }, 100);
 }
 
+/**
+ * Init script: the 1.6 "shortcuts changed" notice counts as seen for every
+ * user, so it never lands among the toasts a scenario reads. R26 opens
+ * without it to see the notice itself.
+ */
+function markShortcutsNoticeSeen(users) {
+  try {
+    for (const user of users) {
+      localStorage.setItem(`musicAtlas:daw:shortcutsNotice:${user}`, '1');
+    }
+  } catch {
+    // An opaque origin (about:blank) has no storage; the editor page does.
+  }
+}
+
 /** Init script: leaves a hand-off (a recorded jam) once per tab. */
 function seedHandoffOnce({ key, value }) {
   try {
@@ -1344,12 +1359,18 @@ async function fingerprint(page) {
  * (a loss to report, not a harness error). `handoff` is left in
  * localStorage before the first load (a recorded jam). `stallIdb` installs
  * R7:idbStalled's IndexedDB stall (inactive until the page asks for it).
+ * The 1.6 shortcuts notice is marked seen unless `shortcutsNotice` is set.
  */
 async function openEditorContext(
   run,
   query,
   api = run.api,
-  { allowCrash = false, handoff: seed = null, stallIdb = false } = {},
+  {
+    allowCrash = false,
+    handoff: seed = null,
+    stallIdb = false,
+    shortcutsNotice = false,
+  } = {},
 ) {
   const session = await newPage(run.browser, run.profile, { probes: false });
   await api.install(session.context);
@@ -1359,6 +1380,12 @@ async function openEditorContext(
   await session.context.addInitScript(bootDraftSnapshot);
   if (stallIdb) await session.context.addInitScript(installIdbStall);
   if (seed) await session.context.addInitScript(seedHandoffOnce, seed);
+  if (!shortcutsNotice) {
+    await session.context.addInitScript(markShortcutsNoticeSeen, [
+      'anon',
+      encodeURIComponent(DEV_USER),
+    ]);
+  }
   trackNetwork(session.page, run.base);
   // Uncaught page errors, reported with the scenario that opened the page.
   run.pageErrors?.push(session.errors);

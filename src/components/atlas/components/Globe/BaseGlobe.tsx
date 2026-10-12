@@ -391,8 +391,29 @@ export function BaseGlobe() {
     globeRef.current
       ?.renderer()
       .setPixelRatio(Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO));
+    // scripts/measureGlobe.mjs times the first globe frame from this mark.
+    performance.mark('atlas:globe-ready');
     setGlobeReady(true);
   }, []);
+
+  // Dev server only: lets scripts/measureGlobe.mjs aim the camera and find a
+  // city on screen, so it can click a real hex. The literal DEV guard folds
+  // the hook out of production builds (verifyProdBundle.mjs checks).
+  useEffect(() => {
+    if (!import.meta.env.DEV || !globeReady) return;
+    const w = window as unknown as { __atlasGlobeDebug?: unknown };
+    w.__atlasGlobeDebug = {
+      screenOf: (lat: number, lng: number, altitude = 0) =>
+        globeRef.current?.getScreenCoords(lat, lng, altitude) ?? null,
+      pointOfView: (
+        pov: { lat: number; lng: number; altitude: number },
+        ms = 0,
+      ) => globeRef.current?.pointOfView(pov, ms),
+    };
+    return () => {
+      delete w.__atlasGlobeDebug;
+    };
+  }, [globeReady]);
 
   // Check if a polygon feature matches the current selection
   const isSelected = useCallback(

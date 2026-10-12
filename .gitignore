@@ -59,6 +59,8 @@ src/scripts/enrichment/_cache/
 
 # Studio perf check runs (baselines and goldens under docs/studio-perf are committed)
 docs/studio-perf/runs/
+# Globe page measurement runs (scripts/measureGlobe.mjs; docs/globe-ui/baseline.json is committed)
+docs/globe-ui/runs/
 # Per-run evidence a baseline does not need: lesson screenshots, raw golden dumps
 docs/studio-perf/baselines/**/shots/
 docs/studio-perf/baselines/**/actual/

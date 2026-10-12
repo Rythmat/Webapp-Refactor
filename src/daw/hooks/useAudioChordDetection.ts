@@ -1,14 +1,20 @@
 // ── useAudioChordDetection ────────────────────────────────────────────────
-// RAF polling hook that detects chords from armed audio tracks (guitar-fx,
-// bass-fx, vocal-fx) and writes detected MIDI notes to the store.
-// Mounted once in DawApp — no UI output.
+// Detects chords from armed audio tracks (guitar-fx, bass-fx, vocal-fx) and
+// writes detected MIDI notes to the store. Mounted once in DawApp, no UI.
+//
+// The analysis runs as an engineClock task at ~20 Hz, registered only while
+// a record-armed audio track has an engine with a chord analyser. Which
+// tracks are armed comes from a store subscription and the engines from the
+// engine-ready notice, so an editor with nothing armed makes no frame calls.
 //
 // Uses AudioChordDetector with HMM temporal smoothing (debouncing handled
 // internally by the detector's HMM, not by frame counting).
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useStore } from '@/daw/store';
-import { trackEngineRegistry } from './usePlaybackEngine';
+import { subscribeEngineReady, trackEngineRegistry } from './usePlaybackEngine';
+import { addFrameTask } from '@/daw/engine/engineClock';
+import { getPlayheadTick } from '@/daw/engine/playheadClock';
 import {
   AudioChordDetector,
   type InputType,
@@ -21,12 +27,50 @@ import { getAudioBuffer } from '@/daw/audio/AudioBufferStore';
 import { CHORDS, ALL_MODES } from '@prism/engine';
 import { deriveChordRegionsFromAudioSnapshots } from '@/daw/store/prismSlice';
 import { audioChordAnalysis } from '@/daw/utils/chordAnalysis';
-import type { GuitarFxAdapter } from '@/daw/instruments/GuitarFxAdapter';
-import type { VocalFxAdapter } from '@/daw/instruments/VocalFxAdapter';
+import type { InstrumentAdapter } from '@/daw/instruments/InstrumentAdapter';
 
 const AUDIO_INSTRUMENT_TYPES = new Set(['guitar-fx', 'bass-fx', 'vocal-fx']);
 const VOCAL_TYPES = new Set(['vocal-fx']);
-const THROTTLE_MS = 50; // ~20Hz analysis rate
+const ANALYSIS_FPS = 20;
+// Compensates for the detector's vote buffer (~300 ms group delay).
+const VOTE_LATENCY_MS = 300;
+
+interface ChordSource {
+  trackId: string;
+  instrument: string;
+  /** The engine's adapter: a new one under the same track id is a new input. */
+  adapter: InstrumentAdapter;
+  analyser: AnalyserNode;
+}
+
+/** The first record-armed audio track whose engine has a chord analyser. */
+function findChordSource(): ChordSource | null {
+  for (const t of useStore.getState().tracks) {
+    if (!t.recordArmed || !AUDIO_INSTRUMENT_TYPES.has(t.instrument)) continue;
+    const adapter = trackEngineRegistry.get(t.id)?.instrument as
+      | (InstrumentAdapter & {
+          getChordAnalyserNode?: () => AnalyserNode | null;
+        })
+      | null
+      | undefined;
+    const analyser = adapter?.getChordAnalyserNode?.() ?? null;
+    if (adapter && analyser) {
+      return { trackId: t.id, instrument: t.instrument, adapter, analyser };
+    }
+  }
+  return null;
+}
+
+/** The armed audio tracks, as a key that changes only when they do. */
+function armedAudioKey(s: ReturnType<typeof useStore.getState>): string {
+  let key = '';
+  for (const t of s.tracks) {
+    if (t.recordArmed && AUDIO_INSTRUMENT_TYPES.has(t.instrument)) {
+      key += `${t.id}:${t.instrument};`;
+    }
+  }
+  return key;
+}
 
 function notesEqual(a: number[], b: number[]): boolean {
   if (a.length !== b.length) return false;
@@ -37,103 +81,86 @@ function notesEqual(a: number[], b: number[]): boolean {
 }
 
 export function useAudioChordDetection(): void {
-  const detectorRef = useRef<AudioChordDetector | null>(null);
-  const prevNotesRef = useRef<number[]>([]);
-  const lastTimeRef = useRef(0);
-  const lastTrackIdRef = useRef<string | null>(null);
-  const lastKeyRef = useRef<string | null>(null);
-  const rafRef = useRef(0);
-  const recordingChordsRef = useRef<{ tick: number; notes: number[] }[]>([]);
-  const wasRecordingRef = useRef(false);
-  const recordingStartTickRef = useRef(0);
-  const recordingTrackIdRef = useRef<string | null>(null);
-  const offlineAnalysisTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
-
   useEffect(() => {
-    // Default to guitar — will be recreated if instrument type changes
-    let detector = new AudioChordDetector(16384, 'guitar');
-    detectorRef.current = detector;
+    // Made on first use: an editor with no armed audio track never needs one.
+    let detector: AudioChordDetector | null = null;
     let currentInputType: InputType = 'guitar';
+    let lastSource: ChordSource | null = null;
+    let lastKey: string | null = null;
+    let prevNotes: number[] = [];
+    let lastPushed: { rootPc: number; quality: string } | null = null;
+    let lastTuning: number | null = null;
+    let stopTask: (() => void) | null = null;
 
-    function tick(time: number) {
-      rafRef.current = requestAnimationFrame(tick);
+    let recordingChords: { tick: number; notes: number[] }[] = [];
+    let wasRecording = false;
+    let recordingStartTick = 0;
+    let recordingTrackId: string | null = null;
+    let offlineAnalysisTimer: ReturnType<typeof setTimeout> | null = null;
 
-      // Throttle to ~20Hz
-      if (time - lastTimeRef.current < THROTTLE_MS) return;
-      lastTimeRef.current = time;
-
-      // Find the first record-armed audio track with a chord analyser
-      const { tracks } = useStore.getState();
-      let analyser: AnalyserNode | null = null;
-      let activeTrackId: string | null = null;
-      let instrumentType: string | null = null;
-
-      for (const t of tracks) {
-        if (!t.recordArmed || !AUDIO_INSTRUMENT_TYPES.has(t.instrument))
-          continue;
-        const entry = trackEngineRegistry.get(t.id);
-        if (!entry) continue;
-        const adapter = entry.instrument as
-          | (GuitarFxAdapter & {
-              getChordAnalyserNode?: () => AnalyserNode | null;
-            })
-          | (VocalFxAdapter & {
-              getChordAnalyserNode?: () => AnalyserNode | null;
-            })
-          | null;
-        if (adapter?.getChordAnalyserNode) {
-          analyser = adapter.getChordAnalyserNode();
-          if (analyser) {
-            activeTrackId = t.id;
-            instrumentType = t.instrument;
-            break;
-          }
-        }
+    const clearNotes = () => {
+      if (prevNotes.length > 0) {
+        prevNotes = [];
+        useStore.getState().setAudioActiveNotes([]);
       }
+    };
 
-      if (!analyser) {
-        // No armed audio track — clear if we had notes
-        if (prevNotesRef.current.length > 0) {
-          prevNotesRef.current = [];
-          useStore.getState().setAudioActiveNotes([]);
-        }
-        if (lastTrackIdRef.current !== null) {
-          detector.reset();
-          lastTrackIdRef.current = null;
-        }
+    /** Start or stop the analysis task to match the armed tracks and engines. */
+    const sync = () => {
+      const source = findChordSource();
+      if (source && !stopTask) {
+        stopTask = addFrameTask(tick, {
+          fps: ANALYSIS_FPS,
+          name: 'audio-chord-detection',
+        });
+      } else if (!source && stopTask) {
+        stopTask();
+        stopTask = null;
+        clearNotes();
+        detector?.reset();
+        lastSource = null;
+      }
+    };
+
+    function tick() {
+      const source = findChordSource();
+      if (!source) {
+        // Disarmed or the engine went away between notices.
+        sync();
         return;
       }
+      const { analyser } = source;
 
-      // Reset HMM when track changes
-      if (activeTrackId !== lastTrackIdRef.current) {
-        lastTrackIdRef.current = activeTrackId;
-        // Recreate detector if input type changed
-        const newInputType: InputType = VOCAL_TYPES.has(instrumentType!)
+      // A different track, or a new engine under the same track (a project
+      // reload, an instrument swap): the HMM's history is for another input.
+      if (
+        !detector ||
+        source.trackId !== lastSource?.trackId ||
+        source.adapter !== lastSource?.adapter
+      ) {
+        const inputType: InputType = VOCAL_TYPES.has(source.instrument)
           ? 'vocal'
           : 'guitar';
-        if (newInputType !== currentInputType) {
-          currentInputType = newInputType;
-          detector = new AudioChordDetector(16384, newInputType);
-          detectorRef.current = detector;
+        if (!detector || inputType !== currentInputType) {
+          currentInputType = inputType;
+          detector = new AudioChordDetector(16384, inputType);
+          lastKey = null;
         } else {
           detector.reset();
         }
       }
+      lastSource = source;
 
       // Update key context: prefer MusicIntelligenceBus (UNISON-detected key),
       // fall back to manually-set session key from prism store
       const { rootNote, mode, detectedKeyRootPc, detectedMode } =
         useStore.getState();
-      const busRoot = detectedKeyRootPc;
-      const busMode = detectedMode;
-      const effectiveRoot = busRoot ?? rootNote;
-      const effectiveMode = busMode ?? mode;
+      const effectiveRoot = detectedKeyRootPc ?? rootNote;
+      const effectiveMode = detectedMode ?? mode;
       const keyStr =
         effectiveRoot !== null ? `${effectiveRoot}:${effectiveMode}` : null;
-      if (keyStr !== lastKeyRef.current) {
-        lastKeyRef.current = keyStr;
+      if (keyStr !== lastKey) {
+        lastKey = keyStr;
         if (effectiveRoot !== null && effectiveMode) {
           const intervals = ALL_MODES[effectiveMode];
           if (intervals) {
@@ -166,13 +193,20 @@ export function useAudioChordDetection(): void {
       }
 
       // Only update store when notes actually change (HMM handles debouncing)
-      if (!notesEqual(notes, prevNotesRef.current)) {
-        prevNotesRef.current = notes;
+      if (!notesEqual(notes, prevNotes)) {
+        prevNotes = notes;
         useStore.getState().setAudioActiveNotes(notes);
       }
 
-      // Push live chord to MusicIntelligenceBus for live UNISON analysis
-      if (result && result.confidence > 0.5) {
+      // Push live chord to MusicIntelligenceBus for live UNISON analysis,
+      // once per chord change (the stream is a list of changes).
+      if (
+        result &&
+        result.confidence > 0.5 &&
+        (result.rootPc !== lastPushed?.rootPc ||
+          result.quality !== lastPushed?.quality)
+      ) {
+        lastPushed = { rootPc: result.rootPc, quality: result.quality };
         useStore.getState().pushLiveChord({
           rootPc: result.rootPc,
           quality: result.quality,
@@ -180,120 +214,143 @@ export function useAudioChordDetection(): void {
         });
       }
 
-      // Push tuning estimate to MusicIntelligenceBus for shared tuner display
+      // Push tuning estimate to MusicIntelligenceBus for shared tuner display,
+      // to the cent the tuner shows, and only when that changes.
       if (result?.tuningCents !== undefined) {
-        useStore.getState().setGlobalTuningCents(result.tuningCents);
+        const cents = Math.round(result.tuningCents);
+        if (cents !== lastTuning) {
+          lastTuning = cents;
+          useStore.getState().setGlobalTuningCents(cents);
+        }
       }
 
-      // Capture chord snapshots during audio recording for chord ruler
-      const { isPlaying, isRecording, position, bpm } = useStore.getState();
-      const currentlyRecording = isPlaying && isRecording;
-
-      if (currentlyRecording && notes.length > 0) {
-        // Compensate for vote buffer latency (~300ms group delay)
-        const VOTE_LATENCY_MS = 300;
+      // Capture chord snapshots during audio recording for chord ruler. The
+      // store's position is parked during playback: read the live playhead.
+      const { isPlaying, isRecording, bpm } = useStore.getState();
+      if (isPlaying && isRecording && notes.length > 0) {
+        if (recordingTrackId === null) recordingTrackId = source.trackId;
         const latencyTicks = Math.round(
           (VOTE_LATENCY_MS * (bpm * 480)) / 60000,
         );
-        const compensatedTick = Math.max(0, position - latencyTicks);
-        recordingChordsRef.current.push({
-          tick: compensatedTick,
+        recordingChords.push({
+          tick: Math.max(0, getPlayheadTick() - latencyTicks),
           notes: [...notes],
         });
       }
-
-      // Track recording start for offline analysis
-      if (currentlyRecording && !wasRecordingRef.current) {
-        recordingStartTickRef.current = position;
-        recordingTrackIdRef.current = activeTrackId;
-      }
-
-      if (wasRecordingRef.current && !currentlyRecording) {
-        // Recording just stopped — propose chord symbols from the live
-        // snapshots (instant). Insight offers them; the chord lane only takes
-        // them on "Use Chord Symbols".
-        const {
-          rootNote,
-          mode,
-          proposeChordSymbols,
-          tracks: storeTracks,
-          bpm,
-        } = useStore.getState();
-        if (recordingChordsRef.current.length > 0) {
-          const regions = deriveChordRegionsFromAudioSnapshots(
-            recordingChordsRef.current,
-            (rootNote ?? 0) + 48,
-            mode,
-          );
-          proposeChordSymbols(audioChordAnalysis(regions, rootNote ?? 0, mode));
-        }
-
-        // Schedule offline refinement — runs async, replaces the proposal with more accurate results
-        const capturedTrackId = recordingTrackIdRef.current;
-        const capturedStartTick = recordingStartTickRef.current;
-        const capturedBpm = bpm;
-        if (capturedTrackId) {
-          const track = storeTracks.find((t) => t.id === capturedTrackId);
-          const lastClip = track?.audioClips[track.audioClips.length - 1];
-          if (lastClip) {
-            // Delay slightly to ensure AudioBuffer is stored (recording stop is async)
-            offlineAnalysisTimerRef.current = setTimeout(() => {
-              const audioBuffer = getAudioBuffer(lastClip.id);
-              if (!audioBuffer) return;
-              const { rootNote: rn, mode: m } = useStore.getState();
-              const effectiveRoot = rn ?? 0;
-              const modeIntervals = m ? ALL_MODES[m] : undefined;
-              const offlineFrames = analyzeChords(
-                audioBuffer,
-                effectiveRoot,
-                modeIntervals,
-                capturedBpm,
-              );
-              if (offlineFrames.length === 0) return;
-              const snapshots = offlineFramesToSnapshots(
-                offlineFrames,
-                capturedStartTick,
-                capturedBpm,
-                audioBuffer.sampleRate,
-              );
-              const refinedRegions = deriveChordRegionsFromAudioSnapshots(
-                snapshots,
-                effectiveRoot + 48,
-                m,
-              );
-              if (refinedRegions.length > 0) {
-                useStore
-                  .getState()
-                  .proposeChordSymbols(
-                    audioChordAnalysis(refinedRegions, effectiveRoot, m),
-                  );
-              }
-
-              // Run full UNISON analysis only if user has already activated it
-              if (useStore.getState().unisonDoc) {
-                useStore.getState().analyzeAudio(audioBuffer, {
-                  bpm: capturedBpm,
-                  keyRootPc: effectiveRoot,
-                  modeIntervals,
-                });
-              }
-            }, 500); // wait for AudioBuffer to be stored
-          }
-        }
-
-        recordingChordsRef.current = [];
-      }
-
-      wasRecordingRef.current = currentlyRecording;
     }
 
-    rafRef.current = requestAnimationFrame(tick);
+    /** Recording just stopped: propose chord symbols from what was heard. */
+    const finishRecording = () => {
+      // Propose chord symbols from the live snapshots (instant). Insight
+      // offers them; the chord lane only takes them on "Use Chord Symbols".
+      const {
+        rootNote,
+        mode,
+        proposeChordSymbols,
+        tracks: storeTracks,
+        bpm,
+      } = useStore.getState();
+      if (recordingChords.length > 0) {
+        const regions = deriveChordRegionsFromAudioSnapshots(
+          recordingChords,
+          (rootNote ?? 0) + 48,
+          mode,
+        );
+        proposeChordSymbols(audioChordAnalysis(regions, rootNote ?? 0, mode));
+      }
+
+      // Schedule offline refinement — runs async, replaces the proposal with more accurate results
+      const capturedTrackId = recordingTrackId;
+      const capturedStartTick = recordingStartTick;
+      const capturedBpm = bpm;
+      if (capturedTrackId) {
+        const track = storeTracks.find((t) => t.id === capturedTrackId);
+        const lastClip = track?.audioClips[track.audioClips.length - 1];
+        if (lastClip) {
+          // Delay slightly to ensure AudioBuffer is stored (recording stop is async)
+          offlineAnalysisTimer = setTimeout(() => {
+            offlineAnalysisTimer = null;
+            const audioBuffer = getAudioBuffer(lastClip.id);
+            if (!audioBuffer) return;
+            const { rootNote: rn, mode: m } = useStore.getState();
+            const effectiveRoot = rn ?? 0;
+            const modeIntervals = m ? ALL_MODES[m] : undefined;
+            const offlineFrames = analyzeChords(
+              audioBuffer,
+              effectiveRoot,
+              modeIntervals,
+              capturedBpm,
+            );
+            if (offlineFrames.length === 0) return;
+            const snapshots = offlineFramesToSnapshots(
+              offlineFrames,
+              capturedStartTick,
+              capturedBpm,
+              audioBuffer.sampleRate,
+            );
+            const refinedRegions = deriveChordRegionsFromAudioSnapshots(
+              snapshots,
+              effectiveRoot + 48,
+              m,
+            );
+            if (refinedRegions.length > 0) {
+              useStore
+                .getState()
+                .proposeChordSymbols(
+                  audioChordAnalysis(refinedRegions, effectiveRoot, m),
+                );
+            }
+
+            // Run full UNISON analysis only if user has already activated it
+            if (useStore.getState().unisonDoc) {
+              useStore.getState().analyzeAudio(audioBuffer, {
+                bpm: capturedBpm,
+                keyRootPc: effectiveRoot,
+                modeIntervals,
+              });
+            }
+          }, 500); // wait for AudioBuffer to be stored
+        }
+      }
+
+      recordingChords = [];
+      recordingTrackId = null;
+    };
+
+    // Recording start and stop come from the store, not from the analysis
+    // frames, so a take still finishes when its track lost its analyser
+    // (disarmed, engine swapped) before the stop.
+    const onRecordingChange = (recording: boolean) => {
+      if (recording && !wasRecording) {
+        recordingStartTick = getPlayheadTick();
+        recordingTrackId = findChordSource()?.trackId ?? null;
+        recordingChords = [];
+      } else if (!recording && wasRecording) {
+        finishRecording();
+      }
+      wasRecording = recording;
+    };
+
+    const unsubscribeArmed = useStore.subscribe(armedAudioKey, sync);
+    const unsubscribeRecording = useStore.subscribe(
+      (s) => s.isPlaying && s.isRecording,
+      onRecordingChange,
+    );
+    const unsubscribeEngines = subscribeEngineReady(sync);
+    onRecordingChange(
+      useStore.getState().isPlaying && useStore.getState().isRecording,
+    );
+    sync();
 
     return () => {
-      cancelAnimationFrame(rafRef.current);
-      if (offlineAnalysisTimerRef.current) {
-        clearTimeout(offlineAnalysisTimerRef.current);
-        offlineAnalysisTimerRef.current = null;
+      unsubscribeArmed();
+      unsubscribeRecording();
+      unsubscribeEngines();
+      stopTask?.();
+      stopTask = null;
+      if (offlineAnalysisTimer) {
+        clearTimeout(offlineAnalysisTimer);
+        offlineAnalysisTimer = null;
       }
       useStore.getState().setAudioActiveNotes([]);
     };

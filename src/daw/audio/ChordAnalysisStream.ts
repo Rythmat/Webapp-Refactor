@@ -13,7 +13,7 @@ import {
   type AudioChordResult,
 } from './AudioChordDetector';
 
-/** Studio's analysis rate (useAudioChordDetection THROTTLE_MS): ~20 Hz. */
+/** Studio's analysis rate (useAudioChordDetection ANALYSIS_FPS): ~20 Hz. */
 export const CHORD_STREAM_THROTTLE_MS = 50;
 /** The detector's FFT size — its analyser must match (16384 = 341 ms @ 48k). */
 export const CHORD_ANALYSER_FFT_SIZE = 16384;

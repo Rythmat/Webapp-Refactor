@@ -1,6 +1,8 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useEffect } from 'react';
 import { Filter } from '../../audio/Filter';
-import { useAnimationFrame } from '../../hooks/useAnimationFrame';
+import { useOnScreen } from '../../hooks/useAnimationFrame';
+import { useSynthStore } from '../../store';
+import { addFrameTask } from '@/daw/engine/engineClock';
 import styles from './FilterResponseVisualizer.module.css';
 
 interface FilterResponseVisualizerProps {
@@ -17,9 +19,18 @@ for (let i = 0; i < NUM_POINTS; i++) {
 }
 
 /**
- * Draws a live frequency response curve by polling the actual
- * BiquadFilterNode on each animation frame. This reflects LFO
- * modulation and any other real-time parameter changes.
+ * Frames drawn after a filter change (~330 ms at 30 fps): the engine applies
+ * a change a render later and glides to it over a few ms (smoothParam), and
+ * the curve follows the glide.
+ */
+export const FILTER_SETTLE_FRAMES = 10;
+
+/**
+ * Draws the filter's frequency response from the engine's visualization
+ * filter. That filter carries the knob values only (per-voice modulation
+ * is not reflected, see SynthEngine.getFilter), so the curve changes only
+ * when the filter params do: it is redrawn for a few frames after each
+ * change, on resize and when it comes on screen, and not otherwise.
  */
 export const FilterResponseVisualizer: React.FC<FilterResponseVisualizerProps> =
   React.memo(({ liveFilter, height = 50, color = '#e8a040' }) => {
@@ -86,7 +97,47 @@ export const FilterResponseVisualizer: React.FC<FilterResponseVisualizerProps> =
       drawCtx.fill();
     }, [liveFilter, color]);
 
-    useAnimationFrame(draw, !!liveFilter);
+    const onScreen = useOnScreen(canvasRef);
+    const drawRef = useRef(draw);
+    drawRef.current = draw;
+
+    useEffect(() => {
+      if (!liveFilter || !onScreen) return;
+      let stopTask: (() => void) | null = null;
+      let framesLeft = 0;
+      const kick = () => {
+        framesLeft = FILTER_SETTLE_FRAMES;
+        if (stopTask) return;
+        stopTask = addFrameTask(
+          () => {
+            drawRef.current();
+            if (--framesLeft <= 0) {
+              stopTask?.();
+              stopTask = null;
+            }
+          },
+          { fps: 30, name: 'oracle-filter-response' },
+        );
+      };
+      kick();
+      const unsubscribe = useSynthStore.subscribe((s) => s.filters, kick);
+      const canvas = canvasRef.current;
+      const resize =
+        canvas && typeof ResizeObserver !== 'undefined'
+          ? new ResizeObserver(kick)
+          : null;
+      if (canvas) resize?.observe(canvas);
+      return () => {
+        unsubscribe();
+        resize?.disconnect();
+        stopTask?.();
+      };
+    }, [liveFilter, onScreen]);
+
+    // A new colour is a redraw, not a change of filter.
+    useEffect(() => {
+      if (onScreen) draw();
+    }, [draw, onScreen]);
 
     return (
       <canvas

@@ -3,6 +3,7 @@ import { getAudioStream } from '@/daw/midi/AudioInputEnumerator';
 import { yinDetectSingle } from '@/audio/pitch/YinCore';
 import { midiNameInKey } from '@/daw/prism-engine/data/notes';
 import { useStore } from '@/daw/store';
+import { addFrameTask } from '@/daw/engine/engineClock';
 
 // ── Constants ────────────────────────────────────────────────────────────
 
@@ -68,21 +69,45 @@ function medianOfArray(arr: number[]): number {
  *   This eliminates redundant AudioContext creation and enables data sharing
  *   with the chord detector (which uses the same AnalyserNode).
  */
+/** What the tuner shows, as it shows it (cents whole, Hz to 0.1). */
+interface TunerReading {
+  note: string;
+  octave: number;
+  cents: number;
+  frequency: number;
+}
+
+const NO_READING: TunerReading = {
+  note: '',
+  octave: 0,
+  cents: 0,
+  frequency: 0,
+};
+
+function sameReading(a: TunerReading, b: TunerReading): boolean {
+  return (
+    a.note === b.note &&
+    a.octave === b.octave &&
+    a.cents === b.cents &&
+    a.frequency === b.frequency
+  );
+}
+
 export function useTuner(
   deviceId: string | null,
   externalAnalyser?: AnalyserNode | null,
 ) {
   const [active, setActive] = useState(false);
-  const [note, setNote] = useState('');
-  const [octave, setOctave] = useState(0);
-  const [cents, setCents] = useState(0);
-  const [frequency, setFrequency] = useState(0);
+  const [reading, setReading] = useState<TunerReading>(NO_READING);
   const [error, setError] = useState<string | null>(null);
+  const { note, octave, cents, frequency } = reading;
 
   // Audio resources (only used in standalone mode, null when using external analyser)
   const ctxRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const rafRef = useRef<number>(0);
+  // The analysis task on the shared frame loop, while the tuner runs.
+  const stopTaskRef = useRef<(() => void) | null>(null);
+  const readingRef = useRef<TunerReading>(NO_READING);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const isExternalRef = useRef(false);
 
@@ -93,9 +118,16 @@ export function useTuner(
   const noteCountRef = useRef<number>(0);
   const smoothedCentsRef = useRef<number>(0);
 
+  /** Show `next`, rendering only when something shown changed. */
+  const publish = useCallback((next: TunerReading) => {
+    if (sameReading(readingRef.current, next)) return;
+    readingRef.current = next;
+    setReading(next);
+  }, []);
+
   const stop = useCallback(() => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    rafRef.current = 0;
+    stopTaskRef.current?.();
+    stopTaskRef.current = null;
 
     // Only release audio resources in standalone mode
     if (!isExternalRef.current) {
@@ -119,12 +151,9 @@ export function useTuner(
     smoothedCentsRef.current = 0;
 
     setActive(false);
-    setNote('');
-    setOctave(0);
-    setCents(0);
-    setFrequency(0);
+    publish(NO_READING);
     setError(null);
-  }, []);
+  }, [publish]);
 
   const start = useCallback(async () => {
     // Stop any previous session
@@ -180,55 +209,55 @@ export function useTuner(
           maxFreq: 1200,
           rmsThreshold: RMS_THRESHOLD,
         });
+        // Unvoiced: the display holds the last note.
+        if (freq <= 0) return;
 
-        if (freq > 0) {
-          // Median filter on frequency
-          const history = freqHistoryRef.current;
-          history.push(freq);
-          if (history.length > SMOOTHING_SIZE) history.shift();
+        // Median filter on frequency
+        const history = freqHistoryRef.current;
+        history.push(freq);
+        if (history.length > SMOOTHING_SIZE) history.shift();
 
-          const smoothedFreq =
-            history.length >= 3 ? medianOfArray(history) : freq;
+        const smoothedFreq =
+          history.length >= 3 ? medianOfArray(history) : freq;
 
-          const result = freqToNote(smoothedFreq);
+        const result = freqToNote(smoothedFreq);
 
-          // Note hysteresis — only switch if new note holds for N frames
-          const noteKey = `${result.note}${result.octave}`;
-          const lastKey = `${lastNoteRef.current}${lastOctaveRef.current}`;
+        // Note hysteresis — only switch if new note holds for N frames
+        const noteKey = `${result.note}${result.octave}`;
+        const lastKey = `${lastNoteRef.current}${lastOctaveRef.current}`;
+        let shown = readingRef.current;
 
-          if (noteKey !== lastKey) {
-            noteCountRef.current++;
-            if (noteCountRef.current >= NOTE_HOLD_FRAMES) {
-              lastNoteRef.current = result.note;
-              lastOctaveRef.current = result.octave;
-              noteCountRef.current = 0;
-              setNote(result.note);
-              setOctave(result.octave);
-            }
-          } else {
+        if (noteKey !== lastKey) {
+          noteCountRef.current++;
+          if (noteCountRef.current >= NOTE_HOLD_FRAMES) {
+            lastNoteRef.current = result.note;
+            lastOctaveRef.current = result.octave;
             noteCountRef.current = 0;
-            setNote(result.note);
-            setOctave(result.octave);
+            shown = { ...shown, note: result.note, octave: result.octave };
           }
-
-          // EMA smoothing on cents
-          smoothedCentsRef.current =
-            smoothedCentsRef.current * (1 - CENTS_ALPHA) +
-            result.cents * CENTS_ALPHA;
-          setCents(Math.round(smoothedCentsRef.current));
-
-          setFrequency(Math.round(smoothedFreq * 10) / 10);
+        } else {
+          noteCountRef.current = 0;
+          shown = { ...shown, note: result.note, octave: result.octave };
         }
 
-        rafRef.current = requestAnimationFrame(tick);
+        // EMA smoothing on cents
+        smoothedCentsRef.current =
+          smoothedCentsRef.current * (1 - CENTS_ALPHA) +
+          result.cents * CENTS_ALPHA;
+
+        publish({
+          ...shown,
+          cents: Math.round(smoothedCentsRef.current),
+          frequency: Math.round(smoothedFreq * 10) / 10,
+        });
       };
-      rafRef.current = requestAnimationFrame(tick);
+      stopTaskRef.current = addFrameTask(tick, { name: 'tuner' });
     } catch (err) {
       console.warn('Tuner: could not start audio stream', err);
       setError('Could not access audio device');
       stop();
     }
-  }, [deviceId, externalAnalyser, stop]);
+  }, [deviceId, externalAnalyser, stop, publish]);
 
   // Cleanup on unmount
   useEffect(() => stop, [stop]);

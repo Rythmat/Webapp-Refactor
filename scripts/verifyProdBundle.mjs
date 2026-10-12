@@ -31,6 +31,19 @@
  * build at all, because then the check would be looking for a name that no
  * longer exists and would pass whatever happened.
  *
+ * THE GLOBE STAYS LAZY, AND WITHIN ITS BUDGET
+ *
+ * The Atlas Globe page (/atlas/globe) draws with three.js through
+ * react-globe.gl, together well over a megabyte. Both get the same
+ * lazy-only rule as Cortex, one marker string each (see LAZY_ONLY). The
+ * page's own code has a size budget measured from the Globe UI plan's
+ * baseline (docs/globe-ui/BASELINE.md): the atlas route chunk
+ * (`assets/atlas-*.js`) and everything it imports statically beyond the
+ * entry chunks may each grow at most 5% over the baseline. When a change
+ * shrinks the page on purpose, lower the numbers in GLOBE_BUDGET to the new
+ * sizes; when one grows it on purpose, raise them in the same commit and say
+ * why in BASELINE.md.
+ *
  * The folder scanned is `dist/`, or the one named as the first argument
  * (`node scripts/verifyProdBundle.mjs /tmp/build`), so a build made into a
  * scratch folder can be checked without touching the repo's own `dist/`.
@@ -122,13 +135,54 @@ const FORBIDDEN = [
     marker: '/dev/studio/ui-gallery',
     why: 'Studio UI gallery route (App.tsx)',
   },
+  // The Globe page's measuring hook (scripts/measureGlobe.mjs): installed in
+  // BaseGlobe.tsx behind a literal DEV guard.
+  {
+    marker: '__atlasGlobeDebug',
+    why: "the Globe page's dev-only measuring hook (Globe/BaseGlobe.tsx)",
+  },
 ];
 
 /**
- * The shader uniform only Cortex's WebGL renderer declares
- * (map/render/shaders.ts). It may ship, but only in a lazy chunk.
+ * Code that may ship, but only in lazy chunks: never in an entry chunk or a
+ * chunk index.html preloads. Each marker is a string only that code
+ * carries; it must also be somewhere in the build, or the check would pass
+ * whatever happened.
  */
-const LAZY_ONLY_MARKER = 'u_atlasNodePositions';
+const LAZY_ONLY = [
+  {
+    // The shader uniform only Cortex's renderer declares (map/render/shaders.ts).
+    marker: 'u_atlasNodePositions',
+    name: "Cortex's WebGL renderer",
+    loadsWith: 'the Cortex page',
+  },
+  {
+    // three.js's WebGL build (three.module.js) logs under this name.
+    marker: 'THREE.WebGLRenderer',
+    name: 'three.js',
+    loadsWith: 'the Atlas Globe page',
+  },
+  {
+    // The container class three-render-objects gives the globe's canvas
+    // (react-globe.gl → globe.gl → three-render-objects).
+    marker: 'scene-container',
+    name: 'react-globe.gl',
+    loadsWith: 'the Atlas Globe page',
+  },
+];
+
+/**
+ * The Globe page's size budget, in raw (minified) bytes, from the baseline
+ * of 12 Oct 2026 (docs/globe-ui/BASELINE.md, docs/globe-ui/baseline.json).
+ * `routeChunk` is assets/atlas-*.js; `routeStatic` is it plus every chunk it
+ * imports statically that the entry does not already load (data, three.js's
+ * WebGL build, icons). react-globe.gl, imported dynamically, is in neither.
+ */
+const GLOBE_BUDGET = {
+  routeChunk: 70_808,
+  routeStatic: 1_086_089,
+  headroom: 1.05,
+};
 
 /** Text-ish files worth scanning; images and fonts cannot carry a marker. */
 const SCANNABLE = /\.(js|mjs|cjs|css|html|json|map|txt|svg)$/i;
@@ -189,6 +243,32 @@ const entryChunks = () => {
   return [...refs];
 };
 
+/** Static imports between chunks, as Vite (Rolldown) writes them. */
+const STATIC_IMPORT =
+  /(?:import|export)\s*(?:[^"'();]*?from\s*)?["']\.\/([\w.-]+\.js)["']/g;
+
+/** `files` and every chunk they import statically, as paths in DIST. */
+const staticClosure = (files) => {
+  const seen = new Set();
+  const stack = [...files];
+  while (stack.length) {
+    const file = stack.pop();
+    if (seen.has(file)) continue;
+    seen.add(file);
+    let text = '';
+    try {
+      text = readFileSync(join(DIST, file), 'utf8');
+    } catch {
+      continue;
+    }
+    const dir = file.includes('/') ? file.slice(0, file.lastIndexOf('/')) : '';
+    for (const match of text.matchAll(STATIC_IMPORT)) {
+      stack.push(dir ? `${dir}/${match[1]}` : match[1]);
+    }
+  }
+  return seen;
+};
+
 const entries = entryChunks();
 if (entries === null || entries.length === 0) {
   hits.push({
@@ -209,24 +289,64 @@ if (entries === null || entries.length === 0) {
       });
       continue;
     }
-    if (text.includes(LAZY_ONLY_MARKER)) {
-      hits.push({
-        file: join(DIST, entry),
-        marker: LAZY_ONLY_MARKER,
-        why: "Cortex's WebGL renderer is in an entry chunk; it must load only with the Cortex page (lazy)",
-      });
+    for (const { marker, name, loadsWith } of LAZY_ONLY) {
+      if (text.includes(marker)) {
+        hits.push({
+          file: join(DIST, entry),
+          marker,
+          why: `${name} is in an entry chunk; it must load only with ${loadsWith} (lazy)`,
+        });
+      }
     }
   }
 }
-const lazyHome = files.filter((file) =>
-  readFileSync(file, 'utf8').includes(LAZY_ONLY_MARKER),
+const lazyHomes = LAZY_ONLY.map(({ marker, name }) => {
+  const home = files.filter((file) =>
+    readFileSync(file, 'utf8').includes(marker),
+  );
+  if (home.length === 0) {
+    hits.push({
+      file: DIST,
+      marker,
+      why: `${name}'s marker is nowhere in the build, so the entry-chunk check above proves nothing (renamed or removed?)`,
+    });
+  }
+  return `${name} in ${home.length}`;
+});
+
+// The Globe page's budget.
+const atlasChunks = readdirSync(join(DIST, 'assets')).filter((file) =>
+  /^atlas-[\w-]+\.js$/.test(file),
 );
-if (lazyHome.length === 0) {
+let globeSizes = '';
+if (atlasChunks.length !== 1) {
   hits.push({
-    file: DIST,
-    marker: LAZY_ONLY_MARKER,
-    why: "the renderer's shader marker is nowhere in the build, so the entry-chunk check above proves nothing (renamed in shaders.ts?)",
+    file: join(DIST, 'assets'),
+    marker: 'assets/atlas-*.js',
+    why: `expected one atlas route chunk, found ${atlasChunks.length}, so the Globe page's budget cannot be checked (renamed atlas.tsx?)`,
   });
+} else {
+  const routeChunk = `assets/${atlasChunks[0]}`;
+  const entryClosure = staticClosure(entries ?? []);
+  const routeStatic = [...staticClosure([routeChunk])].filter(
+    (file) => !entryClosure.has(file),
+  );
+  const bytes = (file) => statSync(join(DIST, file)).size;
+  const sizes = {
+    routeChunk: bytes(routeChunk),
+    routeStatic: routeStatic.reduce((sum, file) => sum + bytes(file), 0),
+  };
+  for (const key of ['routeChunk', 'routeStatic']) {
+    const limit = Math.round(GLOBE_BUDGET[key] * GLOBE_BUDGET.headroom);
+    if (sizes[key] > limit) {
+      hits.push({
+        file: join(DIST, routeChunk),
+        marker: `Globe budget: ${key}`,
+        why: `${sizes[key]} bytes, over the limit of ${limit} (baseline ${GLOBE_BUDGET[key]} + 5%; docs/globe-ui/BASELINE.md)`,
+      });
+    }
+  }
+  globeSizes = `the Globe route chunk is ${sizes.routeChunk} bytes and its static imports ${sizes.routeStatic} (${routeStatic.length} chunks), within budget`;
 }
 
 if (hits.length > 0) {
@@ -243,11 +363,12 @@ if (hits.length > 0) {
       'a literal `import.meta.env.DEV` that Vite can statically replace, and\n' +
       "that every import of repo mode code is guarded the same way. Cortex's\n" +
       'graph (its renderer and its dev hook) must load only through the\n' +
-      'lazy Cortex page.\n',
+      'lazy Cortex page, and three.js and react-globe.gl only through the\n' +
+      'lazy Globe page.\n',
   );
   process.exit(1);
 }
 
 console.log(
-  `verify:prod OK — scanned ${files.length} file(s) in ${DIST}/, no DEV-bypass, content-mock, repo-mode or graph-debug markers shipped; Cortex's renderer is in ${lazyHome.length} lazy chunk(s) and none of the ${entries.length} entry chunk(s).`,
+  `verify:prod OK — scanned ${files.length} file(s) in ${DIST}/, no DEV-bypass, content-mock, repo-mode or graph-debug markers shipped; lazy-only code (${lazyHomes.join(', ')} chunk(s)) is in none of the ${entries.length} entry chunk(s); ${globeSizes}.`,
 );

@@ -149,6 +149,43 @@ same dev server, 3 runs each (median); screenshots are in
   primitives replace long repeated class strings. The budget is left where
   prompt 3 set it; prompt 7 resets it.
 
+### Prompt 5: zones, phones, keyboard
+
+Prompt 5 put every overlay in a fixed zone (a grid on desktop, a bottom sheet
+on phones), named the z-index layers, and added Escape, focus and
+reduced-motion handling. Screenshots are in [screens/](screens/) as `p5-*`:
+the city card with the mind map at 1440x900 and 1280x720 (no overlaps at
+either), and the phone at 375x812 with the sheet at peek, half and full,
+plus the details card and the mind map sharing the sheet.
+
+**The resize handle was not working before this prompt.** Prompt 4 put the
+event list in a positioned scroll body that paints over the handle, so a
+press on the middle of the handle landed on the list, and the measuring
+script's drag left the card at 480 px. Prompt 4's faster drag figures
+measure a drag that did nothing. The handle now sits on its own layer and the
+drag resizes the card (480 to 634 px in the script).
+
+So the fair comparison is prompt 4 with only the handle fixed (`z-10`), both
+served from a clean copy of the commit, Metal, 3 runs each (median):
+
+| Measure                           | Prompt 4, handle fixed | Prompt 5     |
+| --------------------------------- | ---------------------- | ------------ |
+| Dragging the card (4x CPU)        | 14.4 fps               | 17.6 fps     |
+| Long tasks dragging (4x CPU)      | 31, 2,064 ms           | 22, 1,294 ms |
+| Long tasks typing search (4x CPU) | 46, 2,686 ms           | 6, 308 ms    |
+| Globe renders while dragging      | 0                      | 0            |
+| City click to card                | 488 ms                 | 458 ms       |
+
+- **Search swings between runs.** The same prompt 4 code read 15 long tasks in
+  one run and 46 over three, so read that row as "no slower", not as a gain.
+- **No pointer capture on drag handles.** The first version captured the
+  pointer to the handle (`setPointerCapture`); the drag then ran at 12 fps
+  and the slowed page kept about twice the long tasks afterwards. Listening
+  on the window instead brought it back. The card's handle and the phone
+  sheet's handle both work that way now.
+- Single sets of 3 runs on a busy machine; differences of a few percent are
+  noise.
+
 ## Budgets
 
 `scripts/verifyProdBundle.mjs` now checks three things:
@@ -167,10 +204,11 @@ same dev server, 3 runs each (median); screenshots are in
 
 ### Budget changes
 
-| Date        | Change                                  | `routeChunk`      | `routeStatic`       | Why                                                                                                                                                                                                                                                                                                                                                                            |
-| ----------- | --------------------------------------- | ----------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 12 Oct 2026 | Baseline                                | 70,808            | 1,086,089           | The page before the Globe UI work.                                                                                                                                                                                                                                                                                                                                             |
-| 12 Oct 2026 | Prompt 3: video, thumbnails, long lists | 103,658 (+32,850) | 1,120,778 (+34,689) | `@tanstack/react-virtual` (new dependency) is 26.5 kB minified, 7.3 kB gzip, of it; it virtualizes the detail card's event list and the search panel's full groups. The other ~6 kB is the click-to-play video, the timeline's clusters and their list, the trail window and the id lookups. In exchange the page loads no YouTube player until play and draws far fewer rows. |
+| Date        | Change                                  | `routeChunk`      | `routeStatic`       | Why                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ----------- | --------------------------------------- | ----------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 12 Oct 2026 | Baseline                                | 70,808            | 1,086,089           | The page before the Globe UI work.                                                                                                                                                                                                                                                                                                                                                                                             |
+| 12 Oct 2026 | Prompt 3: video, thumbnails, long lists | 103,658 (+32,850) | 1,120,778 (+34,689) | `@tanstack/react-virtual` (new dependency) is 26.5 kB minified, 7.3 kB gzip, of it; it virtualizes the detail card's event list and the search panel's full groups. The other ~6 kB is the click-to-play video, the timeline's clusters and their list, the trail window and the id lookups. In exchange the page loads no YouTube player until play and draws far fewer rows.                                                 |
+| 12 Oct 2026 | Prompt 5: layout, phones, accessibility | 107,836 (+4,178)  | 1,131,110 (+10,332) | Measured against prompt 4's build (97,779 / 1,120,448; prompt 4 stayed under the prompt 3 budget), the route chunk grew 10,057 B minified, 2,953 B gzip, all of it this prompt's: the zone grid, the phone bottom sheet and its snapping, focus handling for panels, the Escape stack, the reduced-motion and phone media hooks, and the card's keyboard resize. Shared chunks moved 0.6 kB (primitives, lucide's chevron-up). |
 
 ## What this baseline added to the page
 

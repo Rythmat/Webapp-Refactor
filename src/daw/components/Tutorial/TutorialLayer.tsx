@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useStore } from '@/daw/store';
 import { useDawBodyTokens } from '@/daw/hooks/useDawBodyTokens';
@@ -9,6 +9,7 @@ import { Spotlight } from './Spotlight';
 import { CoachCard } from './CoachCard';
 import { Confetti } from './Confetti';
 import { useTutorialDetection } from './useTutorialDetection';
+import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 
 // ── TutorialLayer ───────────────────────────────────────────────────────────
 // Global overlay that drives a running lesson: applies each step's
@@ -16,10 +17,13 @@ import { useTutorialDetection } from './useTutorialDetection';
 // celebrates, and auto-advances. Mounted once in DawApp. Renders nothing when
 // no tutorial is active.
 
+// Both pulses animate opacity only (the spotlight's is the wider glow over
+// its ring), so they run on the compositor. Neither is defined, nor used,
+// under prefers-reduced-motion.
 const PULSE_KEYFRAMES = `
 @keyframes tutorialPulse {
-  0%, 100% { box-shadow: 0 0 0 9999px rgba(6,8,12,0.4), 0 0 0 2px var(--color-accent, #7ecfcf), 0 0 16px 4px var(--color-accent, #7ecfcf); }
-  50%      { box-shadow: 0 0 0 9999px rgba(6,8,12,0.4), 0 0 0 3px var(--color-accent, #7ecfcf), 0 0 30px 10px var(--color-accent, #7ecfcf); }
+  0%, 100% { opacity: 0; }
+  50%      { opacity: 1; }
 }
 @keyframes tutorialDot {
   0%, 100% { opacity: 0.35; }
@@ -55,7 +59,17 @@ export function TutorialLayer() {
   const isLast = tutorial ? stepIndex >= total - 1 : false;
   const isValidated = !!(step?.check || step?.synthCheck);
 
-  const [confettiKey, setConfettiKey] = useState(0);
+  // The burst on screen (a fresh key replays it), or null once it is done:
+  // the full-screen canvas is unmounted between bursts, and skipped under
+  // reduced motion.
+  const reducedMotion = usePrefersReducedMotion();
+  const [confettiKey, setConfettiKey] = useState<number | null>(null);
+  const burst = useCallback(() => {
+    if (!reducedMotion) setConfettiKey((k) => (k ?? 0) + 1);
+  }, [reducedMotion]);
+  const endBurst = useCallback(() => setConfettiKey(null), []);
+  // A new lesson (or none) never inherits a burst from the last one.
+  useEffect(() => setConfettiKey(null), [activeId]);
 
   // Apply the step's preconditions when it becomes active.
   useEffect(() => {
@@ -94,7 +108,7 @@ export function TutorialLayer() {
   // On completion: celebrate (if earned), then auto-advance / finish.
   useEffect(() => {
     if (!tutorial || status !== 'done') return;
-    if (celebrate) setConfettiKey((k) => k + 1);
+    if (celebrate) burst();
     const delay = celebrate ? 950 : 300;
     const id = window.setTimeout(() => {
       if (isLast) {
@@ -116,6 +130,7 @@ export function TutorialLayer() {
     quit,
     markComplete,
     reportCompletion,
+    burst,
   ]);
 
   if (!tutorial || !step) return null;
@@ -131,7 +146,7 @@ export function TutorialLayer() {
   const onNext = () => {
     // Validated steps advance via detection; Next is only enabled once done.
     if (isValidated && status !== 'done') return;
-    if (!isValidated) setConfettiKey((k) => k + 1); // free-form: celebrate on Next
+    if (!isValidated) burst(); // free-form: celebrate on Next
     if (isLast) finishNow();
     else goTo(stepIndex + 1);
   };
@@ -145,15 +160,16 @@ export function TutorialLayer() {
         pointerEvents: 'none',
       }}
     >
-      <style>{PULSE_KEYFRAMES}</style>
-      <Spotlight target={step.target} />
-      {confettiKey > 0 && <Confetti key={confettiKey} />}
+      {!reducedMotion && <style>{PULSE_KEYFRAMES}</style>}
+      <Spotlight target={step.target} rack={step.rack} />
+      {confettiKey !== null && <Confetti key={confettiKey} onDone={endBurst} />}
       <CoachCard
         title={tutorial.title}
         stage={step.stage}
         instruction={step.instruction}
         hint={step.hint}
         target={step.target}
+        rack={step.rack}
         stepIndex={stepIndex}
         total={total}
         status={status}

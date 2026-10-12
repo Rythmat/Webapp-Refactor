@@ -170,11 +170,15 @@ const STABLE_WARNINGS = new Set([
  * Runs in the page (installed as window.__MA_MEASURE_ANCHOR__), so it must be
  * self-contained. Resolves a step's anchor as the walkthrough's contract
  * reads it, the first of `ids` present in the DOM, and says whether a
- * student can see it. Also returns the id the spotlight itself uses (the
- * first with a non-zero box, targetRect.ts), where the coach card is and
- * which step it shows, and whether the spotlight ring sits on the anchor.
+ * student can see it. An anchor stamped with the rack it belongs to
+ * (`data-tutorial-target`, the FX list's fx-add-* rows) counts only in the
+ * step's `rack` (default: the track dock); an older build stamps none. Also
+ * returns the id the spotlight itself rings (its ring's
+ * data-tutorial-anchor; on an older build, the first with a non-zero box),
+ * where the coach card is and which step it shows, and whether the
+ * spotlight ring sits on the anchor.
  */
-function measureAnchor(ids) {
+function measureAnchor(ids, rack = null) {
   const round = (n) => Math.round(n * 10) / 10;
   const toBox = (r) => ({
     x: round(r.left),
@@ -199,12 +203,23 @@ function measureAnchor(ids) {
       text ? ` "${text.slice(0, 40)}"` : '',
     ].join('');
   };
-  const find = (id) => document.querySelectorAll(`[data-tutorial-id="${id}"]`);
+  const inRack = rack ?? 'track';
+  const find = (id) =>
+    document.querySelectorAll(
+      `[data-tutorial-id="${id}"]:not([data-tutorial-target]), [data-tutorial-id="${id}"][data-tutorial-target="${inRack}"]`,
+    );
   const vw = document.documentElement.clientWidth;
   const vh = document.documentElement.clientHeight;
   const state = window.__MA_STORE__?.getState();
+  // The coach card and the spotlight ring by their test hooks; an older
+  // build (--prev-base) has none, and is found the way it always was.
   const quit = document.querySelector('button[aria-label="Quit tutorial"]');
-  const card = quit ? quit.closest('div[style*="position: fixed"]') : null;
+  const card =
+    document.querySelector('[data-testid="tutorial-coach-card"]') ??
+    (quit ? quit.closest('div[style*="position: fixed"]') : null);
+  const ringEl =
+    document.querySelector('[data-testid="tutorial-spotlight-ring"]') ??
+    document.querySelector('div[aria-hidden="true"][style*="tutorialPulse"]');
   const counter = card ? /(\d+)\s*\/\s*(\d+)/.exec(card.innerText) : null;
   const present = ids
     .map((id) => ({ id, count: find(id).length }))
@@ -214,11 +229,13 @@ function measureAnchor(ids) {
     present,
     anchorId: present[0]?.id ?? null,
     spotlightId:
+      ringEl?.getAttribute('data-tutorial-anchor') ??
       ids.find((id) => {
         const el = find(id)[0];
         const r = el?.getBoundingClientRect();
         return !!r && (r.width > 0 || r.height > 0);
-      }) ?? null,
+      }) ??
+      null,
     store: state
       ? { lesson: state.activeTutorialId, step: state.tutorialStepIndex }
       : null,
@@ -260,9 +277,6 @@ function measureAnchor(ids) {
   const el = find(out.anchorId)[0];
   const r = el.getBoundingClientRect();
   out.box = toBox(r);
-  const ringEl = document.querySelector(
-    'div[aria-hidden="true"][style*="tutorialPulse"]',
-  );
   if (ringEl) {
     // Spotlight.tsx draws its ring 6 px outside the target's box.
     const g = ringEl.getBoundingClientRect();
@@ -457,7 +471,7 @@ function measureAnchor(ids) {
  * moment a student first sees it. That early measurement is the only one a
  * step that advances by itself gets.
  */
-function installLessonTrace(targetsByStep) {
+function installLessonTrace(anchorsByStep) {
   if (window !== window.top || window.__MA_LESSON_TRACE__) return;
   const trace = { events: [], early: {}, attachedAt: null };
   window.__MA_LESSON_TRACE__ = trace;
@@ -490,7 +504,10 @@ function installLessonTrace(targetsByStep) {
             const now = store.getState();
             const at = Math.round(performance.now());
             trace.early[index] = {
-              ...window.__MA_MEASURE_ANCHOR__(targetsByStep[index] ?? []),
+              ...window.__MA_MEASURE_ANCHOR__(
+                anchorsByStep[index]?.targets ?? [],
+                anchorsByStep[index]?.rack ?? null,
+              ),
               atMs: at,
               afterMs: at - t,
               stillUp:
@@ -700,6 +717,7 @@ async function readLessons(browser, base) {
           stage: s.stage,
           instruction: s.instruction,
           targets: idsOf(s.target),
+          rack: s.rack ?? null,
           requires: s.requires ?? null,
           detection: s.synthCheck ? 'synthCheck' : s.check ? 'check' : 'next',
         })),
@@ -743,11 +761,19 @@ async function waitForAdvance(page, lessonId, index, timeout) {
  * dock opens with a spring, the card glides to its place), measured while
  * the card shows `stepNumber`.
  */
-async function measureSettled(page, ids, stepNumber = null, timeout = 4000) {
+async function measureSettled(
+  page,
+  ids,
+  stepNumber = null,
+  { rack = null, timeout = 4000 } = {},
+) {
   const started = Date.now();
   let previous = null;
   for (;;) {
-    const m = await page.evaluate((t) => window.__MA_MEASURE_ANCHOR__(t), ids);
+    const m = await page.evaluate(
+      ([t, r]) => window.__MA_MEASURE_ANCHOR__(t, r),
+      [ids, rack],
+    );
     const moved =
       stepNumber !== null && m.store && m.store.step !== stepNumber - 1;
     const ready = stepNumber === null || m.card?.step === stepNumber;
@@ -832,11 +858,19 @@ const checkNow = (page, lessonId, index) =>
     { path: TUTORIALS_MODULE, id: lessonId, i: index },
   );
 
-/** The coach card's Next (Finish on the last step) button. */
+/**
+ * The coach card's Next (Finish on the last step) button. The card by its
+ * test hook, or on an older build as the fixed box around Quit.
+ */
 const nextButton = (page) =>
   page
-    .locator('button[aria-label="Quit tutorial"]')
-    .locator('xpath=ancestor::div[contains(@style, "position: fixed")][1]')
+    .locator('[data-testid="tutorial-coach-card"]')
+    .or(
+      page
+        .locator('button[aria-label="Quit tutorial"]')
+        .locator('xpath=ancestor::div[contains(@style, "position: fixed")][1]'),
+    )
+    .first()
     .getByRole('button', { name: /^(Next|Finish)$/ });
 
 /**
@@ -864,15 +898,22 @@ function makeDriverContext(page, res, actionTimeout) {
       throw tagged;
     }
   };
-  const anchorLocator = (id) =>
-    page.locator(`[data-tutorial-id="${id}"]`).first();
+  // An anchor stamped with its rack (the FX list's fx-add-* rows) in `rack`
+  // only, the track dock's by default; an older build stamps none.
+  const anchorLocator = (id, rack = 'track') =>
+    page
+      .locator(
+        `[data-tutorial-id="${id}"]:not([data-tutorial-target]), [data-tutorial-id="${id}"][data-tutorial-target="${rack}"]`,
+      )
+      .first();
   const ctx = {
     page,
     click: (locator, label) =>
       record(`click ${label}`, 'click', () =>
         locator.click({ timeout: actionTimeout }),
       ),
-    clickAnchor: (id, label = id) => ctx.click(anchorLocator(id), label),
+    clickAnchor: (id, label = id, { rack } = {}) =>
+      ctx.click(anchorLocator(id, rack), label),
     clickAt: (locator, fx, fy, label) =>
       record(`click ${label}`, 'click', async () => {
         const box = await locator.boundingBox({ timeout: actionTimeout });
@@ -1142,7 +1183,9 @@ async function runStep(env, step, index) {
   }
 
   if (!passedBy(state)) {
-    res.anchor = await measureSettled(page, step.targets, index + 1);
+    res.anchor = await measureSettled(page, step.targets, index + 1, {
+      rack: step.rack,
+    });
     state = await tutorialState(page);
   }
   let seen = await traceOf(page, index);
@@ -1384,7 +1427,7 @@ async function runLesson(env) {
     });
     await page.addInitScript(
       installLessonTrace,
-      lesson.steps.map((s) => s.targets),
+      lesson.steps.map((s) => ({ targets: s.targets, rack: s.rack })),
     );
     const stepEnv = { ...env, page, console: consoleErrors };
     await openEditor(page, base, `?tutorial=${encodeURIComponent(lesson.id)}`);
@@ -1399,7 +1442,9 @@ async function runLesson(env) {
       // The lesson open on step 1 with nothing happening, against the same
       // empty editor without a lesson (report.idleWithoutLesson): the
       // difference is what the overlay costs while a student reads.
-      await measureSettled(page, lesson.steps[0].targets, 1);
+      await measureSettled(page, lesson.steps[0].targets, 1, {
+        rack: lesson.steps[0].rack,
+      });
       run.idle = await recordIdle(page, env.idleSeconds);
     }
     for (let i = 0; i < lesson.steps.length; i++) {

@@ -1,6 +1,7 @@
 import type { AllSlices } from '@/daw/store';
 import type { ViewType, ChannelStripTabId } from '@/daw/store/uiSlice';
 import type { SynthStore } from '@/daw/oracle-synth/store';
+import type { AnchorRack } from './anchorRegistry';
 import { GENRE_MAP } from '@prism/engine';
 import {
   TUTORIAL_CATALOG,
@@ -69,9 +70,13 @@ export interface TutorialStep {
   /** Optional secondary line. */
   hint?: string;
   /** data-tutorial-id(s) of the region to spotlight. When an array, the first
-   *  id currently present in the DOM wins — e.g. a button, then a modal card
-   *  that appears after it's clicked. Omit for a centered card, no ring. */
+   *  id currently on screen wins — e.g. a button, then a modal card that
+   *  appears after it's clicked. Omit for a centered card, no ring. Renamed
+   *  ids resolve through ANCHOR_ALIASES (anchorRegistry.ts). */
   target?: string | string[];
+  /** Which effect rack an `fx-add-*` target means. The FX list is mounted per
+   *  rack with the same ids; the default is the selected track's dock. */
+  rack?: AnchorRack;
   requires?: StepRequires;
   check?: StepCheck;
   synthCheck?: SynthStepCheck;
@@ -670,6 +675,7 @@ const LESSON_STEPS: Record<TutorialId, TutorialStep[]> = {
       instruction:
         'Add polish to the whole mix — in **Mastering**, click an effect in the **FX** list (try the Compressor) to add it to the master chain.',
       target: ['fx-add-compressor', 'mastering-section'],
+      rack: 'master',
       requires: { view: 'studio' },
       check: (s, armed) =>
         s.masteringFxChain.length > armed.masteringFxChain.length,

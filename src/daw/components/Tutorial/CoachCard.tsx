@@ -2,7 +2,15 @@ import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, ArrowLeft, ArrowRight, GraduationCap } from 'lucide-react';
 import type { TutorialStepStatus } from '@/daw/store/tutorialSlice';
-import { type Rect, type Target, idsOf, resolveTargetRect } from './targetRect';
+import {
+  type AnchorRack,
+  type Rect,
+  type Target,
+  anchorKey,
+  idsOf,
+  subscribeAnchorRect,
+} from './anchorRegistry';
+import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 
 // ── CoachCard ───────────────────────────────────────────────────────────────
 // Floating, draggable step card shown over the Studio while a lesson runs.
@@ -18,6 +26,8 @@ interface CoachCardProps {
   hint?: string;
   /** Same target as the spotlight — used to position the card clear of it. */
   target?: Target;
+  /** Same rack as the spotlight (see anchorRegistry.ts). */
+  rack?: AnchorRack;
   stepIndex: number;
   total: number;
   status: TutorialStepStatus;
@@ -134,6 +144,7 @@ export function CoachCard({
   instruction,
   hint,
   target,
+  rack,
   stepIndex,
   total,
   status,
@@ -158,15 +169,18 @@ export function CoachCard({
     ),
   );
 
-  // Re-anchor clear of the target. Sampled on a light interval (not per-frame,
-  // so the card glides), which also catches the target moving mid-step (e.g. the
-  // add-track menu opening → spotlight jumps from the button to the Synth card).
-  const targetKey = idsOf(target).join('|');
+  // Re-anchor clear of the target whenever the anchor registry reports it
+  // moved (a spring, a scroll, the add-track menu opening → the spotlight
+  // jumps from the button to the Synth card), the card itself changes size
+  // (a longer instruction) or the window resizes. The card glides there.
+  const reducedMotion = usePrefersReducedMotion();
+  const targetRect = useRef<Rect | null>(null);
+  const key = anchorKey(target, rack);
   useEffect(() => {
     const recompute = () => {
       const box = cardRef.current?.getBoundingClientRect();
       const next = computeCardPos(
-        resolveTargetRect(target),
+        targetRect.current,
         box?.width || CARD_WIDTH,
         box?.height || 220,
         window.innerWidth,
@@ -178,22 +192,43 @@ export function CoachCard({
           : next,
       );
     };
-    recompute();
-    const id = window.setInterval(recompute, 150);
+    // Until the registry measures the new target (next frame), the card
+    // stays clear of the last one.
+    const unsubscribe = subscribeAnchorRect(
+      target,
+      (rect) => {
+        targetRect.current = rect;
+        recompute();
+      },
+      { rack },
+    );
+    if (idsOf(target).length === 0) {
+      targetRect.current = null;
+      recompute();
+    }
+    const card = cardRef.current;
+    const ro =
+      card && typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(recompute)
+        : null;
+    if (card) ro?.observe(card);
     window.addEventListener('resize', recompute);
     return () => {
-      window.clearInterval(id);
+      unsubscribe();
+      ro?.disconnect();
       window.removeEventListener('resize', recompute);
     };
+    // `key` is the value-stable form of `target` + `rack`.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [targetKey]);
+  }, [key]);
 
   return (
     <motion.div
       ref={cardRef}
+      data-testid="tutorial-coach-card"
       drag
       dragMomentum={false}
-      initial={{ opacity: 0 }}
+      initial={reducedMotion ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
       style={{
         position: 'fixed',
@@ -209,7 +244,7 @@ export function CoachCard({
         boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
         overflow: 'hidden',
         cursor: 'grab',
-        transition: 'top 0.3s ease, left 0.3s ease',
+        transition: reducedMotion ? 'none' : 'top 0.3s ease, left 0.3s ease',
       }}
     >
       {/* Header */}
@@ -267,7 +302,7 @@ export function CoachCard({
             height: '100%',
             width: `${progress * 100}%`,
             background: 'var(--color-accent)',
-            transition: 'width 240ms ease',
+            transition: reducedMotion ? 'none' : 'width 240ms ease',
           }}
         />
       </div>
@@ -331,7 +366,9 @@ export function CoachCard({
                     height: 7,
                     borderRadius: '50%',
                     background: 'var(--color-accent)',
-                    animation: 'tutorialDot 1.1s ease-in-out infinite',
+                    animation: reducedMotion
+                      ? 'none'
+                      : 'tutorialDot 1.1s ease-in-out infinite',
                   }}
                 />
                 <span style={{ color: 'var(--color-text)' }}>

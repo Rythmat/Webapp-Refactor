@@ -8,6 +8,10 @@ import {
 } from '@/daw/data/libraryItems';
 import type { EffectSlotType } from '@/daw/audio/EffectChain';
 import { FxBlockIcon } from './EffectsPanel';
+import {
+  type AnchorRack,
+  rackOfFxTrack,
+} from '@/daw/components/Tutorial/anchorRegistry';
 
 // A rack holds at most five effects: this list enforces it for tracks, and
 // the return and master stores also refuse a sixth. The list shows the count
@@ -32,6 +36,9 @@ export function FxBrowser({
   // key-source resolver wired, so hide it on the master + return racks where it
   // could never function (a dead control otherwise).
   const isBusRack = trackId === 'master' || trackId.startsWith('return-');
+  // This list is mounted once per rack with the same fx-add-* ids; the stamp
+  // tells a lesson's spotlight which rack each row is in.
+  const rack = rackOfFxTrack(trackId);
 
   const categories = useMemo(() => {
     const map = new Map<LibraryCategory, LibraryItem[]>();
@@ -109,6 +116,7 @@ export function FxBrowser({
                 key={item.id}
                 item={item}
                 trackId={trackId}
+                rack={rack}
                 isActive={
                   item.dragPayload.kind === 'audio-effect' &&
                   activeEffects.includes(item.dragPayload.effectType)
@@ -127,12 +135,14 @@ export function FxBrowser({
 function FxRow({
   item,
   trackId,
+  rack,
   isActive,
   atMax,
   onAddEffect,
 }: {
   item: LibraryItem;
   trackId: string;
+  rack: AnchorRack;
   isActive: boolean;
   atMax: boolean;
   onAddEffect: (trackId: string, effectType: EffectSlotType) => void;
@@ -154,6 +164,9 @@ function FxRow({
         item.dragPayload.kind === 'audio-effect'
           ? `fx-add-${item.dragPayload.effectType}`
           : undefined
+      }
+      data-tutorial-target={
+        item.dragPayload.kind === 'audio-effect' ? rack : undefined
       }
       onClick={handleClick}
       className="flex items-center gap-2 w-full text-left px-3 py-1.5 cursor-pointer hover:bg-white/10"

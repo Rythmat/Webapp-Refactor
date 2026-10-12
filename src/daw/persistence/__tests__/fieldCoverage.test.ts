@@ -1170,6 +1170,9 @@ const TRACK_IN_PAYLOAD: Record<string, string> = {
 const SETTINGS_ELSEWHERE = [
   'settings.oracleSynth',
   'settings.masterAutomation',
+  // Milestone 1.5's interim fallback: the cloud document on the first track.
+  'settings.projectDoc',
+  'settings.projectDocSchema',
 ];
 const NOTE_COLUMNS: Record<string, string> = {
   notes: 'note',

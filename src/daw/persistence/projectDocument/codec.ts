@@ -28,6 +28,7 @@ import type {
 } from '@/daw/store/tracksSlice';
 import type { LeadSheetChordFormat, ViewType } from '@/daw/store/uiSlice';
 import type { DawTrackRole } from '@/daw/utils/trackRole';
+import type { CloudDocument } from './cloudDocument';
 import { planCloudTrackIds, rewriteTrackRefs } from './cloudIds';
 import { keyColourFor, nextChordsFor } from './derived';
 import {
@@ -172,7 +173,7 @@ export function decodeMidiEvents(columnar: MidiClipEvents): MidiNoteEvent[] {
 }
 
 /** A clip's notes in the draft: the five v2 columns and, from v3, their ids. */
-interface DraftNoteColumns extends MidiClipEvents {
+export interface DraftNoteColumns extends MidiClipEvents {
   /** Each note's id, in the columns' (sorted) order. */
   ids?: string[];
 }
@@ -223,7 +224,7 @@ function encodeNoteColumns(
  * like its notes. Sorted by tick only, keeping the order of events on one
  * tick: the last value written on a tick is the one that holds.
  */
-interface DraftCcColumns {
+export interface DraftCcColumns {
   tickDeltas: number[];
   controllers: number[];
   values: number[];
@@ -384,10 +385,15 @@ export interface SerializedTrackSettings
   // Cloud saves only: the role the student picked for chord analysis. The
   // API has no column for it either; a save without it re-guesses it.
   trackRole?: DawTrackRole;
+  // Cloud saves only, on the first track, until music-atlas-api has its
+  // document field (milestone 1.5's interim fallback): the cloud document
+  // and its schema. A cloud open finds it on any track (cloudDocument.ts).
+  projectDoc?: CloudDocument;
+  projectDocSchema?: number;
 }
 
 /** A MIDI clip in the draft: the v2 clip and the columns v3 adds. */
-interface DraftMidiClip {
+export interface DraftMidiClip {
   id: string;
   name?: string;
   startTick: number;
@@ -410,7 +416,7 @@ interface DraftAudioClip {
 }
 
 /** A track in the draft: the Track's top-level fields and its settings. */
-interface DraftTrack {
+export interface DraftTrack {
   id: string;
   name: string;
   type: TrackType;
@@ -1353,11 +1359,22 @@ function decodeAudioClip(
   return clip;
 }
 
+/**
+ * Track ids a caller planned itself (planCloudTrackIds): the id each track
+ * loads under, in order, and every saved id → the id it loads under. The
+ * cloud open plans them from the ids its payload saved, minting fresh ones
+ * where it must.
+ */
+export interface PlannedTrackIds {
+  ids: readonly string[];
+  remap: ReadonlyMap<string, string>;
+}
+
 /** Decoded tracks, with the patches to seed and the saved → loaded ids. */
 interface DecodedTracks {
   tracks: Track[];
   synthPatches: [string, SynthTrackState][];
-  remap: Map<string, string>;
+  remap: ReadonlyMap<string, string>;
 }
 
 /**
@@ -1370,15 +1387,18 @@ interface DecodedTracks {
 function decodeTracks(
   raws: readonly DraftTrack[],
   repairs: Repairs,
+  planned?: PlannedTrackIds,
 ): DecodedTracks {
   // A draft written by the app never repeats a track id; one that does (or
   // holds an id no track may have) gets `track-<n>`, so loading it twice
   // still gives the same ids.
   let minted = 0;
-  const { ids, remap } = planCloudTrackIds(
-    raws.map((raw) => raw.id),
-    () => `track-${++minted}`,
-  );
+  const { ids, remap } =
+    planned ??
+    planCloudTrackIds(
+      raws.map((raw) => raw.id),
+      () => `track-${++minted}`,
+    );
   const synthPatches: [string, SynthTrackState][] = [];
   const tracks = raws.map((raw, t): Track => {
     const id = ids[t];
@@ -1508,8 +1528,15 @@ export interface DecodedSession {
  * project, note ids included, and nothing is minted. A repeated track or
  * chord id, which only a damaged draft holds, gets one derived from its
  * place.
+ *
+ * `trackIds`: ids the caller planned (the cloud open, cloudDocument.ts),
+ * used in place of the draft's own; references to tracks are written in the
+ * saved ids its remap maps.
  */
-export function decodeSession(session: StoredSession): DecodedSession {
+export function decodeSession(
+  session: StoredSession,
+  { trackIds }: { trackIds?: PlannedTrackIds } = {},
+): DecodedSession {
   const repairs: Repairs = { count: 0 };
   const data = session.data;
   const sections: Record<DraftSectionName, Record<string, unknown>> = {
@@ -1534,7 +1561,7 @@ export function decodeSession(session: StoredSession): DecodedSession {
 
   // The tracks have no default to fall back on: one that can't be read
   // throws, and the draft is kept aside whole (see the top of this file).
-  const decoded = decodeTracks(data.tracks, repairs);
+  const decoded = decodeTracks(data.tracks, repairs, trackIds);
   // Every note leaves with a whole id: the id it was saved with, or for one
   // saved without (any v1 or v2 draft), legacyNoteId of its clip and place.
   const withIds = ensureProjectNoteIds(decoded.tracks);
@@ -1660,8 +1687,9 @@ function checkedKey<K extends SectionKey>(
 
 /**
  * `raw` as `key` loads from a draft: the value when it checks out, else the
- * key's registry default. The cloud open reads the keys its payload shares
- * with the draft through this, so both load them alike. Never throws.
+ * key's registry default. Never throws. (The cloud open, which read its
+ * payload's keys through this, decodes a whole draft since milestone 1.5:
+ * cloudDocument.ts.)
  */
 export function checkedValue<K extends SectionKey>(
   key: K,

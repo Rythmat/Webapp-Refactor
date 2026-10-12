@@ -118,7 +118,11 @@ describe('a cloud project opens', () => {
     buildProject();
     const before = s().tracks.map((t) => t.id);
     const body = serializeSessionForCloud();
-    for (const track of body.tracks) delete track.settings?.sourceTrackId;
+    // Such a save had no cloud document either (milestone 1.5).
+    for (const track of body.tracks) {
+      delete track.settings?.sourceTrackId;
+      delete track.settings?.projectDoc;
+    }
     deserializeCloudProject(fromServer(body));
     const after = s().tracks.map((t) => t.id);
     expect(after.some((id) => before.includes(id))).toBe(false);
@@ -126,6 +130,16 @@ describe('a cloud project opens', () => {
     // Nothing says which track the ducker keyed from, so it stops ducking
     // and shows None, as every cloud open did before ids travelled.
     expect(byName('Keys').effects.ducker.keyTrackId).toBeNull();
+  });
+
+  it('with the ids its document lists when the settings lost theirs', () => {
+    buildProject();
+    const before = s().tracks.map((t) => t.id);
+    const body = serializeSessionForCloud();
+    for (const track of body.tracks) delete track.settings?.sourceTrackId;
+    deserializeCloudProject(fromServer(body));
+    expect(s().tracks.map((t) => t.id)).toEqual(before);
+    expect(byName('Keys').effects.ducker.keyTrackId).toBe(byName('Drums').id);
   });
 
   it('with a fresh id for a saved one no track may have, references following', () => {

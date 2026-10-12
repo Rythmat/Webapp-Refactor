@@ -123,7 +123,7 @@ describe('deriveSaveChip', () => {
       announce: null,
     });
     expect(chip.tooltip).toBe(
-      'Saved to your account. Chord symbols and notation stay on this device until an update.',
+      'Saved to your account. Chord symbols and notation stay on this device for now.',
     );
     const noGroups = deriveSaveChip(
       savedProject({
@@ -132,7 +132,7 @@ describe('deriveSaveChip', () => {
     );
     expect(noGroups.reason).toBe('partial');
     expect(noGroups.tooltip).toBe(
-      'Saved to your account. Some parts stay on this device until an update.',
+      'Saved to your account. Some parts stay on this device for now.',
     );
     // One group named in the singular takes 'stays', as the save toast does.
     const single = (gapGroups: string[]) =>
@@ -143,13 +143,13 @@ describe('deriveSaveChip', () => {
         }),
       ).tooltip;
     expect(single(['notation'])).toBe(
-      'Saved to your account. Notation stays on this device until an update.',
+      'Saved to your account. Notation stays on this device for now.',
     );
     expect(single(['mode'])).toBe(
-      'Saved to your account. Mode stays on this device until an update.',
+      'Saved to your account. Mode stays on this device for now.',
     );
     expect(single(['markers'])).toBe(
-      'Saved to your account. Markers stay on this device until an update.',
+      'Saved to your account. Markers stay on this device for now.',
     );
     // Audio the save couldn't upload: the tooltip says so, and how to fix it.
     const audio = deriveSaveChip(
@@ -171,7 +171,7 @@ describe('deriveSaveChip', () => {
         }),
       ).tooltip,
     ).toBe(
-      'Saved to your account except some audio. Press Ctrl+S to upload it. Notation stays on this device until an update.',
+      'Saved to your account except some audio. Press Ctrl+S to upload it. Notation stays on this device for now.',
     );
     // Edited since: the account no longer has this document, even in part.
     const edited = deriveSaveChip(
@@ -213,6 +213,30 @@ describe('deriveSaveChip', () => {
       inputs({ ...pending, media: { pendingInMemory: 1, missing: 0 } }),
     );
     expect(inMemory.state).toBe('audio-pending');
+  });
+
+  it('offers a reload when a newer app saved the project, and asks again after a conflict', () => {
+    const failed = (kind: 'outdated' | 'conflict' | 'server') =>
+      deriveSaveChip(
+        inputs({
+          cloud: {
+            phase: 'error',
+            error: { kind, message: 'Couldn’t save.' },
+            lastSaved: null,
+          },
+        }),
+      );
+    expect(failed('outdated')).toMatchObject({
+      state: 'error',
+      fix: 'reload',
+      label: "Can't save – Reload",
+    });
+    expect(failed('conflict')).toMatchObject({
+      fix: 'resolve',
+      label: "Couldn't save – Retry",
+    });
+    expect(failed('server')).toMatchObject({ fix: 'retry' });
+    expect(deriveSaveChip(inputs()).fix).toBeNull();
   });
 
   it('reads error for a device write failure, with reason device', () => {

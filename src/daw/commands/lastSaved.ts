@@ -1,11 +1,14 @@
 import { useStore, type AllSlices } from '@/daw/store';
+import type { CloudWriteMode } from '@/daw/persistence/SessionSerializer';
 import {
   cloudSaveGaps,
   documentFingerprint,
   useSaveStatusStore,
+  type CloudSaveMode,
 } from '@/daw/persistence/saveStatusStore';
 import { getSessionGeneration } from '@/daw/session/sessionGeneration';
 import { hashFingerprint } from '@/lib/studio-projects/drafts/fingerprintHash';
+import { cloudDocumentFieldSupported } from '@/lib/studio-projects/cloudDocumentSupport';
 import type { DraftCloudRecord } from '@/lib/studio-projects/drafts/types';
 import { serverTimeIso } from '@/lib/studio-projects/projectsClient';
 import type { LastSaved } from './cloudSaveStore';
@@ -18,22 +21,47 @@ import type { LastSaved } from './cloudSaveStore';
 // draft that remembers its last save) and says what today's cloud payload
 // leaves out, in words a student reads in the save toast and the chip.
 //
-// Until milestone 1.5's document field, the payload has no place for the
-// chord lane, the mode, the metre, markers, mastering, the Score and Lead
-// Sheet, the Prism builder and clip lengths. 1.3's cloudSaveGaps names them
-// by registry key (decision D7); a save that leaves any of them out is
+// Today's payload has no place for the chord lane, the mode, the metre,
+// markers, mastering, the Score and Lead Sheet, the Prism builder and clip
+// lengths: milestone 1.5's cloud document carries them, in the API's
+// document field or, until the API has one, on the first track's settings.
+// A project without tracks has nowhere to put that fallback, so its save
+// leaves them out. 1.3's cloudSaveGaps names what a save leaves out by
+// registry key (decision D7); a save that leaves any of it out is
 // complete=false, and the chip reads 'Saved on this device' after it.
 
 /**
- * Whether a cloud save of `state` would leave anything out: content only
- * 1.5's document carries, or audio whose bytes never reached the cloud.
- * 1.3's cloudSaveGaps in its legacy mode (which already drops note ids, a
- * load derives them again).
+ * Where the next cloud save puts the cloud document: the API's field once a
+ * response showed it has one (cloudDocumentSupport.ts), else the interim
+ * fallback on the first track.
+ */
+export function cloudWriteMode(): CloudWriteMode {
+  return cloudDocumentFieldSupported() === true ? 'document' : 'interim';
+}
+
+/**
+ * What a cloud save written in `write` holds of `state`, as cloudSaveGaps
+ * counts it: the whole document ('document'), unless it is the interim
+ * fallback and the project has no track to carry it ('legacy').
+ */
+export function cloudGapMode(
+  state: AllSlices = useStore.getState(),
+  write: CloudWriteMode = cloudWriteMode(),
+): CloudSaveMode {
+  return write === 'document' || state.tracks.length > 0
+    ? 'document'
+    : 'legacy';
+}
+
+/**
+ * Whether a cloud save of `state` now would leave anything out: content the
+ * cloud document can't carry yet (cloudGapMode), or audio whose bytes never
+ * reached the cloud.
  */
 export function projectHoldsDocumentOnlyData(
   state: AllSlices = useStore.getState(),
 ): boolean {
-  return cloudSaveGaps(state, 'legacy').length > 0;
+  return cloudSaveGaps(state, cloudGapMode(state)).length > 0;
 }
 
 /** cloudSaveGaps names of audio a save couldn't upload (not document data). */
@@ -110,7 +138,7 @@ function groupOf(gap: string): string {
 export function documentOnlyGroups(
   state: AllSlices = useStore.getState(),
 ): string[] {
-  return groupsFromGaps(cloudSaveGaps(state, 'legacy'));
+  return groupsFromGaps(cloudSaveGaps(state, cloudGapMode(state)));
 }
 
 /**
@@ -166,11 +194,15 @@ export function stayVerb(groups: readonly string[]): 'stays' | 'stay' {
 /**
  * The save toast's caveat for `groups`: ' — chord symbols and notation stay
  * on this device for now', ' — notation stays on this device for now', or
- * '' when there are none.
+ * '' when there are none. `until` replaces 'for now' ('until the project
+ * has a track').
  */
-export function stayOnDevicePhrase(groups: readonly string[]): string {
+export function stayOnDevicePhrase(
+  groups: readonly string[],
+  until = 'for now',
+): string {
   if (groups.length === 0) return '';
-  return ` — ${formatGroups(groups)} ${stayVerb(groups)} on this device for now`;
+  return ` — ${formatGroups(groups)} ${stayVerb(groups)} on this device ${until}`;
 }
 
 /**
@@ -181,6 +213,7 @@ export function stayOnDevicePhrase(groups: readonly string[]): string {
 export function cloudOpenedRecord(project: {
   id: string;
   updatedAt: Date | string | null;
+  revision?: number;
 }): LastSaved {
   const state = useStore.getState();
   return {
@@ -189,6 +222,7 @@ export function cloudOpenedRecord(project: {
     version: useSaveStatusStore.getState().documentVersion,
     complete: !projectHoldsDocumentOnlyData(state),
     updatedAt: serverTimeIso(project.updatedAt),
+    revision: revisionOf(project.revision),
     at: Date.now(),
     generation: getSessionGeneration(),
   };
@@ -211,6 +245,7 @@ export function lastSavedFromDraft(
     version: -1,
     complete: cloud.savedComplete,
     updatedAt: cloud.updatedAt,
+    revision: revisionOf(cloud.revision),
     at: cloud.savedAt,
     generation: getSessionGeneration(),
   };
@@ -224,5 +259,13 @@ export function cloudRecordFromLastSaved(saved: LastSaved): DraftCloudRecord {
     savedFingerprint: saved.fingerprint,
     savedComplete: saved.complete,
     savedAt: saved.at,
+    ...(typeof saved.revision === 'number' ? { revision: saved.revision } : {}),
   };
+}
+
+/** A revision the server gave (a whole number from 0), else null. */
+export function revisionOf(value: unknown): number | null {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0
+    ? value
+    : null;
 }

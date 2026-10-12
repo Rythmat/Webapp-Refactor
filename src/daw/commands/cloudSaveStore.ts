@@ -27,6 +27,7 @@ export type SaveErrorKind =
   | 'server'
   | 'too-large'
   | 'conflict'
+  | 'outdated'
   | 'superseded'
   | 'unknown';
 
@@ -37,6 +38,11 @@ export interface SaveError {
   /** The HTTP status, for logs only (0 = network). */
   status?: number;
   uploads?: { succeeded: number; failed: number };
+  /**
+   * A conflict: the project's revision now, which an Overwrite is based on
+   * (milestone 1.5). Absent when the server didn't say.
+   */
+  revision?: number;
 }
 
 export type SaveResult =
@@ -64,6 +70,12 @@ export interface LastSaved {
   complete: boolean;
   /** The server's ISO updatedAt. */
   updatedAt: string | null;
+  /**
+   * The project's revision (milestone 1.5), from an API with the document
+   * field: what the next save says it is based on (baseRevision). Absent
+   * or null when unknown.
+   */
+  revision?: number | null;
   /** Date.now() when it finished. */
   at: number;
   /** The session generation it belongs to. */

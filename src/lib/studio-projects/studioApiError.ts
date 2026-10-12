@@ -15,6 +15,11 @@ export interface StudioApiErrorInit {
   status: number;
   /** A machine-readable code from the JSON error body, when it had one. */
   code?: string | null;
+  /**
+   * The JSON error body itself, when it was an object: a 409's current
+   * `revision` and `updatedAt` (milestone 1.5's contract).
+   */
+  body?: Record<string, unknown> | null;
   method: string;
   path: string;
   /** For logs: method, path, status and the server's own message. */
@@ -25,6 +30,7 @@ export interface StudioApiErrorInit {
 export class StudioApiError extends Error {
   readonly status: number;
   readonly code: string | null;
+  readonly body: Record<string, unknown> | null;
   readonly method: string;
   readonly path: string;
   // lib ES2020 has no ErrorOptions: keep the cause ourselves.
@@ -35,6 +41,7 @@ export class StudioApiError extends Error {
     this.name = 'StudioApiError';
     this.status = init.status;
     this.code = init.code ?? null;
+    this.body = init.body ?? null;
     this.method = init.method;
     this.path = init.path;
     this.cause = init.cause;

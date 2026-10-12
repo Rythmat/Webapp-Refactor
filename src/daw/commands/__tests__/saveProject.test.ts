@@ -33,12 +33,17 @@ import {
   type StudioProjectDetail,
   type StudioProjectInput,
 } from '@/lib/studio-projects/api';
+import {
+  noteCloudDocumentSupport,
+  resetCloudDocumentSupport,
+} from '@/lib/studio-projects/cloudDocumentSupport';
 import { StudioApiError } from '@/lib/studio-projects/studioApiError';
 import {
   INITIAL_CLOUD_SAVE_STATE,
   useCloudSaveStore,
   whenSavesSettled,
 } from '../cloudSaveStore';
+import { useSaveConflictStore } from '../saveConflict';
 import { registerSaveAuth, saveProject } from '../saveProject';
 
 vi.mock('@/lib/studio-assets/upload-pending', () => ({
@@ -167,6 +172,8 @@ afterEach(async () => {
   await whenSavesSettled(2000);
   unregisterAuth();
   vi.restoreAllMocks();
+  resetCloudDocumentSupport();
+  useSaveConflictStore.setState({ conflict: null });
 });
 
 describe('saveProject', () => {
@@ -251,15 +258,32 @@ describe('saveProject', () => {
     expect(isDocumentDirty()).toBe(true);
   });
 
-  it('says which parts stay on this device when the cloud holds it in part', async () => {
+  it('saves the chord lane and the mode whole, riding on the first track', async () => {
     trackProject('Night Drive');
+    s().setChordRegions([REGION], true);
+    s().setMode('dorian');
+    const result = await saveProject({ source: 'shortcut' });
+
+    expect(result).toMatchObject({ status: 'saved', complete: true });
+    expect(showSuccess).toHaveBeenCalledWith('Project saved');
+    const sent = api.create.mock.calls[0][1] as CloudProjectInput;
+    expect(sent.tracks[0].settings?.projectDoc).toMatchObject({
+      chordRegions: [REGION],
+      prism: { mode: 'dorian' },
+    });
+    expect(sent.document).toBeUndefined();
+  });
+
+  it('says which parts stay on this device when no track can carry them', async () => {
+    resetSessionToEmpty();
+    s().setProjectName('Night Drive');
     s().setChordRegions([REGION], true);
     s().setMode('dorian');
     const result = await saveProject({ source: 'shortcut' });
 
     expect(result).toMatchObject({ status: 'saved', complete: false });
     expect(showSuccess).toHaveBeenCalledWith(
-      'Project saved — chord symbols and mode stay on this device for now',
+      'Project saved — chord symbols and mode stay on this device until the project has a track',
     );
     expect(cloudSave().lastSaved?.complete).toBe(false);
   });
@@ -280,11 +304,11 @@ describe('saveProject', () => {
   });
 
   it('says a single group “stays”', async () => {
-    trackProject();
+    resetSessionToEmpty();
     s().setMode('dorian');
     await saveProject({ source: 'menu' });
     expect(showSuccess).toHaveBeenCalledWith(
-      'Project saved — mode stays on this device for now',
+      'Project saved — mode stays on this device until the project has a track',
     );
   });
 
@@ -569,5 +593,152 @@ describe('saveProject', () => {
     release();
     await saving;
     expect(await whenSavesSettled(20)).toBe(true);
+  });
+});
+
+describe('saveProject against an API with the document field (milestone 1.5)', () => {
+  let revision = 0;
+  const revisions = new Map<string, number>();
+
+  /** The server's answer: the stored body, its revision and the document's. */
+  const answer = (id: string, body: StudioProjectInput) => {
+    const next = (revisions.get(id) ?? 0) + 1;
+    revisions.set(id, next);
+    revision = next;
+    return {
+      ...stored(id, body),
+      document: body.document ?? null,
+      documentSchema: body.documentSchema ?? null,
+      revision: next,
+      writtenAtRevision: next,
+    } as StudioProjectDetail;
+  };
+
+  const conflict = (code: string, current: number) =>
+    new StudioApiError({
+      status: 409,
+      code,
+      body: { error: 'conflict', code, revision: current },
+      method: 'PUT',
+      path: '/api/studio/projects/p1',
+      message: 'conflict',
+    });
+
+  beforeEach(() => {
+    revisions.clear();
+    noteCloudDocumentSupport({ id: 'any', tracks: [], document: null });
+    api.create.mockImplementation(async (_t, body) => {
+      const id = `p${++minted}`;
+      cloud.set(id, body);
+      return answer(id, body);
+    });
+    api.update.mockImplementation(async (_t, id, body) => {
+      cloud.set(id, body);
+      return answer(id, body);
+    });
+  });
+
+  it('sends the cloud document in its own field, and nothing on the tracks', async () => {
+    trackProject();
+    s().setChordRegions([REGION], true);
+    const result = await saveProject({ source: 'menu' });
+
+    expect(result).toMatchObject({ status: 'saved', complete: true });
+    const sent = api.create.mock.calls[0][1] as CloudProjectInput;
+    expect(sent.document).toMatchObject({ chordRegions: [REGION] });
+    expect(sent.documentSchema).toBe(3);
+    expect(sent.tracks[0].settings?.projectDoc).toBeUndefined();
+    expect(cloudSave().lastSaved?.revision).toBe(1);
+  });
+
+  it('holds a project without tracks whole', async () => {
+    resetSessionToEmpty();
+    s().setMode('dorian');
+    expect(await saveProject({ source: 'menu' })).toMatchObject({
+      complete: true,
+    });
+    expect(showSuccess).toHaveBeenCalledWith('Project saved');
+  });
+
+  it('says which revision each save is based on', async () => {
+    trackProject();
+    await saveProject({ source: 'menu' });
+    s().setBpm(97);
+    await saveProject({ source: 'menu' });
+    s().setBpm(98);
+    await saveProject({ source: 'menu' });
+
+    const bases = api.update.mock.calls.map(
+      ([, , body]) => (body as { baseRevision?: number }).baseRevision,
+    );
+    expect(bases).toEqual([1, 2]);
+    expect(cloudSave().lastSaved?.revision).toBe(3);
+  });
+
+  it('counts a save incomplete when the answer lost the document', async () => {
+    trackProject();
+    await saveProject({ source: 'menu' });
+    api.update.mockImplementationOnce(async (_t, id, body) => ({
+      ...answer(id, body),
+      document: null,
+    }));
+    s().setBpm(97);
+    expect(await saveProject({ source: 'menu' })).toMatchObject({
+      status: 'saved',
+      complete: false,
+    });
+  });
+
+  it('asks what to do when the project changed elsewhere, and writes nothing', async () => {
+    trackProject();
+    await saveProject({ source: 'menu' });
+    api.update.mockRejectedValueOnce(conflict('revision_conflict', 5));
+    s().setBpm(97);
+    const result = await saveProject({ source: 'shortcut' });
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      error: { kind: 'conflict', revision: 5 },
+    });
+    expect(useSaveConflictStore.getState().conflict).toMatchObject({
+      revision: 5,
+      source: 'shortcut',
+    });
+    // The dialog says it; no error toast on top.
+    expect(showError).not.toHaveBeenCalled();
+    expect(cloudSave().phase).toBe('error');
+  });
+
+  it('overwrites on the revision the conflict reported', async () => {
+    trackProject();
+    await saveProject({ source: 'menu' });
+    s().setBpm(97);
+    const result = await saveProject({
+      source: 'chip',
+      overwrite: { revision: 5 },
+    });
+    expect(result).toMatchObject({ status: 'saved' });
+    const body = api.update.mock.calls.at(-1)![2] as {
+      baseRevision?: number;
+    };
+    expect(body.baseRevision).toBe(5);
+  });
+
+  it('asks for a reload when a newer app saved the project', async () => {
+    trackProject();
+    await saveProject({ source: 'menu' });
+    api.update.mockRejectedValueOnce(conflict('document_schema_too_old', 4));
+    s().setBpm(97);
+    const result = await saveProject({ source: 'menu' });
+
+    expect(result).toMatchObject({
+      status: 'failed',
+      error: { kind: 'outdated' },
+    });
+    expect(showError).toHaveBeenCalledWith(
+      "Couldn't save: a newer version of Music Atlas saved this project. Reload to update.",
+    );
+    expect(useSaveConflictStore.getState().conflict).toBeNull();
+    expect(revision).toBe(1);
   });
 });

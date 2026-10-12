@@ -245,15 +245,36 @@ afterEach(() => {
 describe('a link after a cloud save', () => {
   // The 1.1 regression: "Project saved", then a template link, and the chord
   // lane, the mode, the marker and the metre were gone.
-  it('leaves work to keep in a project the cloud holds only in part', async () => {
+  it('keeps nothing of a harmony project the cloud document holds whole', async () => {
     harmonyProject();
     await save();
 
-    // What the cloud copy holds: no chord lane, no mode, no markers, no metre.
-    const sent = cloud.get('p1') as unknown as Record<string, unknown>;
-    expect(sent).not.toHaveProperty('chordRegions');
-    expect(sent).not.toHaveProperty('markers');
-    expect(sent.prism).not.toHaveProperty('mode');
+    // The cloud document rides on the first track (the interim fallback).
+    const sent = cloud.get('p1') as unknown as CloudProjectInput;
+    expect(sent.tracks[0].settings?.projectDoc).toMatchObject({
+      chordRegions: [REGION],
+      prism: { mode: 'dorian' },
+    });
+    expect(useSaveStatusStore.getState().savedComplete).toBe(true);
+
+    const opened = await replaceSession(openTemplate);
+
+    expect(opened.hadWork).toBe(false);
+  });
+
+  it('leaves work to keep in a project the cloud holds only in part', async () => {
+    // No track for the interim fallback to ride on.
+    resetSessionToEmpty();
+    s().setProjectName('Night Drive');
+    s().setMode('dorian');
+    s().setChordRegions([REGION], true);
+    s().addMarker(1920, 'Chorus');
+    await save();
+
+    // What the cloud copy holds: no chord lane, no mode, no markers.
+    const sent = cloud.get('p1') as unknown as CloudProjectInput;
+    expect(sent.tracks).toEqual([]);
+    expect(sent.document).toBeUndefined();
     expect(useSaveStatusStore.getState().savedComplete).toBe(false);
     expect(isDocumentDirty()).toBe(false);
 

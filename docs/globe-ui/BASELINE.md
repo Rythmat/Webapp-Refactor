@@ -121,6 +121,34 @@ windows by frame rate, or against a run of the same code, not against the
 baseline's long-task counts. Opening the card (before anything is expanded)
 was never affected.
 
+### Prompt 4: one look, no blur
+
+Prompt 4 put every overlay on one surface (`#151518` at 95%, no
+`backdrop-blur`) and shared tokens and primitives. Before and after, on the
+same dev server, 3 runs each (median); screenshots are in
+[screens/](screens/) as `p4-*-before.png` and `p4-*-after.png`.
+
+| Measure                           | Metal before | Metal after  | SwiftShader before | SwiftShader after |
+| --------------------------------- | ------------ | ------------ | ------------------ | ----------------- |
+| Frame rate, Spin on               | 60 fps       | 60 fps       | 5.6 fps            | 6.6 fps           |
+| Frame gap p95, Spin on            | 16.8 ms      | 16.7 ms      | 300 ms             | 167 ms            |
+| Dragging the card (4× CPU)        | 16.7 fps     | 18.5 fps     | 1.7 fps            | 1.4 fps           |
+| Long tasks dragging (4× CPU)      | 36, 2,168 ms | 19, 1,148 ms | 4, 377 ms          | 3, 256 ms         |
+| Long tasks typing search (4× CPU) | 48, 2,661 ms | 29, 1,557 ms | 4, 359 ms          | 3, 208 ms         |
+
+- **On the M3 Max the spin is pinned at the display's 60 Hz** before and
+  after, so Metal cannot show a frame-rate change there. SwiftShader
+  (`--gpu=swiftshader`), which draws on the CPU the way a weak GPU struggles,
+  went from 5.6 to 6.6 fps with the frame gaps nearly halved.
+- **The slowed windows halved their long tasks on Metal**, most likely
+  because the browser no longer re-blurs the animating canvas under the
+  timeline, the Spin pill and the card on every frame. The software-GL drag stays at 1 to 2 fps either way, because there
+  the globe's own WebGL frame is the whole cost.
+- These are single sets of 3 runs; differences of a few percent are noise.
+- The atlas route chunk went from 103,658 to 97,779 bytes, because the
+  primitives replace long repeated class strings. The budget is left where
+  prompt 3 set it; prompt 7 resets it.
+
 ## Budgets
 
 `scripts/verifyProdBundle.mjs` now checks three things:

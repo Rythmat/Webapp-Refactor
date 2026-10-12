@@ -127,12 +127,13 @@ export function useVirtualRows({
     listRef.current?.querySelector<HTMLElement>(`[data-index="${index}"]`) ??
     null;
 
-  // Focus a row's own control: the row itself when it takes focus, or the
-  // first button inside it.
+  // Focus a row's own control: the row itself when it takes focus, the
+  // control it marks `data-row-control`, or else the first button inside it.
   const focusTarget = (row: HTMLElement): HTMLElement | null =>
     row.tabIndex >= 0
       ? row
-      : row.querySelector<HTMLElement>('button, [href], [tabindex="0"]');
+      : (row.querySelector<HTMLElement>('[data-row-control]') ??
+        row.querySelector<HTMLElement>('button, [href], [tabindex="0"]'));
 
   const focusRow = (index: number) => {
     const row = rowElement(index);

@@ -7,11 +7,17 @@ import {
   AtlasIconButton,
   AtlasPillButton,
 } from '@/components/atlas/components/UI/primitives';
+import {
+  scrollBehavior,
+  usePrefersReducedMotion,
+} from '@/components/atlas/hooks/useMediaQuery';
 import { describeStop } from '@/components/atlas/navigation/describeStop';
 import {
   useAtlasTrail,
   type TrailEntry,
 } from '@/components/atlas/navigation/useAtlasTrail';
+import { ATLAS_Z } from '@/components/atlas/theme/layers';
+import { cn } from '@/lib/utils';
 
 /** Trail steps drawn at once; the rest wait behind "+N earlier / later". */
 export const TRAIL_WINDOW = 16;
@@ -82,6 +88,7 @@ export function AtlasToolbar() {
   const trail = useAtlasTrail();
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
+  const reducedMotion = usePrefersReducedMotion();
   // An 80-step trail is 80 thumbnails; draw a window of it until asked for
   // the rest, then scroll toward what was asked for.
   const [showAll, setShowAll] = useState<'earlier' | 'later' | null>(null);
@@ -98,7 +105,7 @@ export function AtlasToolbar() {
     if (!scroller) return;
     scroller.scrollTo({
       left: showAll === 'earlier' ? 0 : scroller.scrollWidth,
-      behavior: 'smooth',
+      behavior: scrollBehavior(reducedMotion),
     });
   }, [showAll]);
 
@@ -116,7 +123,7 @@ export function AtlasToolbar() {
       ?.scrollIntoView({
         block: 'nearest',
         inline: 'nearest',
-        behavior: 'smooth',
+        behavior: scrollBehavior(reducedMotion),
       });
   }, [current]);
 
@@ -139,9 +146,17 @@ export function AtlasToolbar() {
 
   return (
     // Above the globe, not over it, so it takes the opaque panel colour and
-    // needs no blur.
-    <div className="relative z-[1200] flex shrink-0 items-center gap-2 border-b border-atlas-panel-border bg-atlas-panel px-3 py-2 text-atlas-text">
-      <div className="flex items-center gap-1">
+    // needs no blur. On the popover layer: the search dropdown opens from
+    // here over the panels below.
+    <div
+      className={cn(
+        'relative flex shrink-0 items-center gap-1.5 border-b border-atlas-panel-border bg-atlas-panel px-2 py-2 text-atlas-text sm:gap-2 sm:px-3',
+        ATLAS_Z.popovers,
+      )}
+    >
+      {/* Walking the trail opens panels; focus stays here while it does
+          (layout/usePanelFocus). */}
+      <div className="flex shrink-0 items-center gap-1" data-atlas-keep-focus>
         <AtlasIconButton
           aria-label="Back"
           disabled={!trail.canBack}
@@ -163,7 +178,10 @@ export function AtlasToolbar() {
       <nav
         ref={scrollerRef}
         aria-label="Your path through the globe"
-        className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:thin]"
+        // Hidden on phones, where the search field needs the width; Back and
+        // Forward still walk it.
+        className="hidden min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:thin] sm:flex"
+        data-atlas-keep-focus
       >
         {trail.entries.length > 1 && earlier > 0 && (
           <AtlasPillButton
@@ -212,6 +230,7 @@ export function AtlasToolbar() {
 
       {trail.entries.length > 1 && (
         <AtlasPillButton
+          className="hidden sm:inline-flex"
           size="sm"
           title="Start a fresh trail from here"
           onClick={trail.clear}
@@ -221,6 +240,8 @@ export function AtlasToolbar() {
       )}
 
       <AtlasPillButton
+        // The label hides on phones, so the name cannot rest on it.
+        aria-label="Copy link"
         size="sm"
         title="Copy a link to exactly this view — for a lesson, a presentation, or a bookmark"
         onClick={copyLink}
@@ -230,10 +251,14 @@ export function AtlasToolbar() {
         ) : (
           <Link2 aria-hidden className="size-3.5" />
         )}
-        <span className="hidden sm:inline">
+        <span aria-hidden className="hidden sm:inline">
           {copied ? 'Link copied' : 'Copy link'}
         </span>
       </AtlasPillButton>
+      {/* Said once, politely, whatever the screen width. */}
+      <span aria-live="polite" className="sr-only" role="status">
+        {copied ? 'Link copied' : ''}
+      </span>
     </div>
   );
 }

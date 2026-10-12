@@ -17,6 +17,7 @@ import { MUSICAL_ERAS } from '@/components/atlas/data';
 import { getArtist, getEventsForArtist } from '@/components/atlas/data/artists';
 import { getCityById, getCityByName } from '@/components/atlas/data/lookups';
 import type { MusicalEra } from '@/components/atlas/data/musicalEras';
+import { useEscapeLayer } from '@/components/atlas/hooks/useEscapeLayer';
 import {
   useAtlasNavigate,
   useAtlasStopSelector,
@@ -211,8 +212,19 @@ export function RegionTimeline() {
     return () => document.removeEventListener('pointerdown', onPointerDown);
   }, [openCluster]);
 
-  // The track's width in px, which is what decides when dots overlap.
   const trackRef = useRef<HTMLDivElement>(null);
+
+  // Escape closes the list (before the panel under it) and returns focus to
+  // its cluster.
+  useEscapeLayer(openCluster !== null, () => {
+    const key = openCluster?.key;
+    setOpenCluster(null);
+    trackRef.current
+      ?.querySelector<HTMLElement>(`[aria-expanded][data-cluster-key="${key}"]`)
+      ?.focus();
+  });
+
+  // The track's width in px, which is what decides when dots overlap.
   const [trackWidth, setTrackWidth] = useState(0);
   useLayoutEffect(() => {
     const el = trackRef.current;
@@ -301,8 +313,9 @@ export function RegionTimeline() {
   const handleSelect = (event: HistoricalEvent) => navigate.toEvent(event);
 
   return (
-    <div className="absolute bottom-6 left-1/2 z-[1000] w-[min(90vw,800px)] -translate-x-1/2">
-      <div className={`px-6 py-4 ${ATLAS_SURFACE}`}>
+    // The bottom zone places it (layout/AtlasZones.tsx).
+    <div className="w-full">
+      <div className={`px-4 py-4 sm:px-6 ${ATLAS_SURFACE}`}>
         {/* Region header */}
         <div className="mb-2 text-center">
           <h3 className="text-sm font-bold text-atlas-text">{country}</h3>
@@ -414,17 +427,6 @@ export function RegionTimeline() {
                   className={`absolute bottom-full z-10 mb-2 max-h-56 w-64 -translate-x-1/2 overflow-y-auto p-1 ${ATLAS_POPOVER}`}
                   style={{
                     left: `${Math.min(80, Math.max(20, openCluster.x))}%`,
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key !== 'Escape') return;
-                    e.stopPropagation();
-                    const key = openCluster.key;
-                    setOpenCluster(null);
-                    trackRef.current
-                      ?.querySelector<HTMLElement>(
-                        `[aria-expanded][data-cluster-key="${key}"]`,
-                      )
-                      ?.focus();
                   }}
                 >
                   {openCluster.events.map((e) => (

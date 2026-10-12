@@ -10,7 +10,8 @@ import {
 } from '@/components/atlas/data/artists';
 import type { HistoricalEvent } from '@/components/atlas/types';
 
-const LINK_CLASS = `rounded-sm underline decoration-white/30 decoration-dotted underline-offset-2 transition-colors hover:bg-white/10 hover:decoration-solid hover:decoration-white ${ATLAS_FOCUS}`;
+// relative z-10: above an event row's stretched toggle (DetailsCard).
+const LINK_CLASS = `relative z-10 rounded-sm underline decoration-white/30 decoration-dotted underline-offset-2 transition-colors hover:bg-white/10 hover:decoration-solid hover:decoration-white ${ATLAS_FOCUS}`;
 
 /**
  * An event title with every artist it names turned into a link to that
@@ -67,11 +68,7 @@ export function TitleWithArtists({
             className={LINK_CLASS}
             title={`Everything on the globe about ${segment.artist.name}`}
             type="button"
-            onClick={(e) => {
-              // The card row is itself clickable (expand/collapse).
-              e.stopPropagation();
-              onSelectArtist(segment.artist);
-            }}
+            onClick={() => onSelectArtist(segment.artist)}
           >
             {segment.text}
           </button>

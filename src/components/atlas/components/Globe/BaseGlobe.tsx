@@ -14,6 +14,7 @@ import {
   getContrastColor,
 } from '@/components/atlas/data/continentColors';
 import { useGeoData, useGlobeLighting } from '@/components/atlas/hooks';
+import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery';
 import { stopKey } from '@/components/atlas/navigation/atlasStop';
 import { markFlown } from '@/components/atlas/navigation/focusEvent';
 import {
@@ -180,6 +181,8 @@ type GlobeComponent = typeof import('react-globe.gl').default;
  *
  * When an event card is expanded it overlays the left, so the globe slides
  * right by half the card's occluding width and the centred region clears it.
+ * On a phone the bottom sheet covers the bottom instead, and the globe rises
+ * by half the sheet's height.
  * This lives in its own component, subscribed to the card's width alone, so a
  * resize — and every frame of the ~500 ms tween after it — re-renders only
  * this wrapper. react-kapsule then forwards just the one prop that changed;
@@ -194,22 +197,30 @@ function OffsetGlobe({
   globeRef: React.MutableRefObject<GlobeMethods | undefined>;
 }) {
   const detailsPanelWidth = useAtlasSelector((s) => s.detailsPanelWidth);
+  const sheetOcclusion = useAtlasSelector((s) => s.sheetOcclusion);
+  const reducedMotion = usePrefersReducedMotion();
   const targetShiftX = detailsPanelWidth
     ? Math.round((16 + detailsPanelWidth) / 2)
     : 0;
+  // A phone's bottom sheet covers the bottom: lift the globe by half of it.
+  const targetShiftY = sheetOcclusion ? -Math.round(sheetOcclusion / 2) : 0;
 
   // Animate the lens-shift so the region glides into view instead of jumping
-  // when a card opens / closes / resizes. Tweens the offset over ~500ms via rAF;
-  // a new target mid-tween eases from the current value (no snap).
-  const [shiftX, setShiftX] = useState(0);
-  const shiftRef = useRef(0);
+  // when a card or the sheet opens / closes / resizes. Tweens the offset over
+  // ~500ms via rAF; a new target mid-tween eases from the current value (no
+  // snap). Reduced motion moves it at once.
+  const [shift, setShift] = useState<[number, number]>([0, 0]);
+  const shiftRef = useRef<[number, number]>([0, 0]);
   const shiftRaf = useRef<number | null>(null);
   useEffect(() => {
     const from = shiftRef.current;
-    const to = targetShiftX;
-    if (Math.abs(from - to) < 0.5) {
+    const to: [number, number] = [targetShiftX, targetShiftY];
+    if (
+      (Math.abs(from[0] - to[0]) < 0.5 && Math.abs(from[1] - to[1]) < 0.5) ||
+      reducedMotion
+    ) {
       shiftRef.current = to;
-      setShiftX(to);
+      setShift(to);
       return;
     }
     const duration = 500;
@@ -218,9 +229,12 @@ function OffsetGlobe({
       startTs ??= ts;
       const p = Math.min(1, (ts - startTs) / duration);
       const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
-      const value = from + (to - from) * eased;
+      const value: [number, number] = [
+        from[0] + (to[0] - from[0]) * eased,
+        from[1] + (to[1] - from[1]) * eased,
+      ];
       shiftRef.current = value;
-      setShiftX(value);
+      setShift(value);
       shiftRaf.current = p < 1 ? requestAnimationFrame(tick) : null;
     };
     if (shiftRaf.current) cancelAnimationFrame(shiftRaf.current);
@@ -228,11 +242,12 @@ function OffsetGlobe({
     return () => {
       if (shiftRaf.current) cancelAnimationFrame(shiftRaf.current);
     };
-  }, [targetShiftX]);
+  }, [targetShiftX, targetShiftY, reducedMotion]);
 
   // Off-axis lens-shift via react-globe.gl's globeOffset (px): positive x frames
-  // the region to the right while the canvas keeps rendering the full viewport.
-  const globeOffset = useMemo<[number, number]>(() => [shiftX, 0], [shiftX]);
+  // the region to the right and negative y frames it higher, while the canvas
+  // keeps rendering the full viewport.
+  const globeOffset = shift;
 
   return <Globe ref={globeRef} {...props} globeOffset={globeOffset} />;
 }
@@ -249,6 +264,9 @@ export function BaseGlobe() {
   const activeTour = useAtlasSelector((s) => s.activeTour);
   const dispatch = useAtlasDispatch();
   const navigate = useAtlasNavigate();
+  // Reduced motion: the arc dashes hold still and layers change without
+  // tweening (camera flights cut, in GlobeController).
+  const reducedMotion = usePrefersReducedMotion();
   const [GlobeModule, setGlobeModule] = useState<
     typeof import('react-globe.gl').default | null
   >(null);
@@ -662,7 +680,7 @@ export function BaseGlobe() {
           rendererConfig={RENDERER_CONFIG}
           arcAltitudeAutoScale={0.4}
           arcColor={arcColorAccessor}
-          arcDashAnimateTime={1500}
+          arcDashAnimateTime={reducedMotion ? 0 : 1500}
           arcDashGap={0.2}
           arcDashLength={0.4}
           arcEndLat="endLat"
@@ -696,7 +714,7 @@ export function BaseGlobe() {
           hexMargin={0.05}
           hexSideColor={hexSideColor}
           hexTopColor={hexTopColor}
-          hexTransitionDuration={800}
+          hexTransitionDuration={reducedMotion ? 0 : 800}
           pointAltitude={0.03}
           pointLabel={pointLabelAccessor}
           // Influence arcs
@@ -710,7 +728,7 @@ export function BaseGlobe() {
           polygonGeoJsonGeometry="geometry"
           polygonSideMaterial={polygonSideMaterial}
           polygonStrokeColor={polygonStrokeColor}
-          polygonsTransitionDuration={250}
+          polygonsTransitionDuration={reducedMotion ? 0 : 250}
           showAtmosphere={true}
           width={size.width}
           onPolygonClick={handlePolygonClick}

@@ -110,19 +110,19 @@ describe('DetailsCard', () => {
 
   it('lets the keyboard reach the last event', async () => {
     const { cards } = renderCard(makeEvents(300));
-    cards()[0].focus();
+    const focusedCard = () =>
+      document.activeElement
+        ?.closest('[data-event-id]')
+        ?.getAttribute('data-event-id');
+    cards()[0].querySelector<HTMLElement>('[data-row-control]')!.focus();
     await act(async () => {
       fireEvent.keyDown(document.activeElement!, { key: 'End' });
     });
-    expect(document.activeElement?.getAttribute('data-event-id')).toBe(
-      'test-299',
-    );
+    expect(focusedCard()).toBe('test-299');
     await act(async () => {
       fireEvent.keyDown(document.activeElement!, { key: 'ArrowUp' });
     });
-    expect(document.activeElement?.getAttribute('data-event-id')).toBe(
-      'test-298',
-    );
+    expect(focusedCard()).toBe('test-298');
     expect(cards().length).toBeLessThan(60);
   });
 
@@ -143,5 +143,57 @@ describe('DetailsCard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Shrink' }));
     expect(cards()).toHaveLength(5);
     expect(cards()[2]).toBe(shown);
+  });
+
+  it('nests no control inside another: each row has one toggle beside its buttons', () => {
+    const { cards } = renderCard(makeEvents(3));
+    for (const card of cards()) {
+      expect(card.getAttribute('role')).toBeNull();
+      expect(card.tabIndex).toBe(-1);
+      const toggle = card.querySelector('[data-row-control]')!;
+      expect(toggle.tagName).toBe('BUTTON');
+      expect(toggle.getAttribute('aria-expanded')).toBe('false');
+      expect(toggle.querySelector('button')).toBeNull();
+    }
+  });
+
+  it('resizes from the keyboard through its separator', () => {
+    const { container } = renderCard(makeEvents(3));
+    const handle = screen.getByRole('separator', {
+      name: 'Resize the details panel',
+    });
+    const card = handle.parentElement!;
+    expect(handle.getAttribute('aria-orientation')).toBe('vertical');
+    expect(handle.getAttribute('aria-valuenow')).toBe('480');
+    expect(handle.getAttribute('aria-valuemin')).toBe('280');
+    expect(Number(handle.getAttribute('aria-valuemax'))).toBeGreaterThan(480);
+
+    fireEvent.keyDown(handle, { key: 'ArrowRight' });
+    expect(handle.getAttribute('aria-valuenow')).toBe('496');
+    expect(card.style.width).toContain('496px');
+
+    fireEvent.keyDown(handle, { key: 'ArrowLeft', shiftKey: true });
+    expect(handle.getAttribute('aria-valuenow')).toBe('432');
+
+    fireEvent.keyDown(handle, { key: 'Home' });
+    expect(handle.getAttribute('aria-valuenow')).toBe('280');
+    fireEvent.keyDown(handle, { key: 'ArrowLeft' });
+    expect(handle.getAttribute('aria-valuenow')).toBe('280');
+
+    fireEvent.keyDown(handle, { key: 'End' });
+    expect(handle.getAttribute('aria-valuenow')).toBe(
+      handle.getAttribute('aria-valuemax'),
+    );
+    expect(container.contains(handle)).toBe(true);
+  });
+
+  it('leaves Enlarge on Escape before anything closes', () => {
+    const events = makeEvents(3);
+    const { cards, store } = renderCard(events);
+    act(() => store.dispatch({ type: 'PIN_EVENT', payload: events[1] }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Enlarge' })[1]);
+    expect(cards()).toHaveLength(1);
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(cards()).toHaveLength(3);
   });
 });

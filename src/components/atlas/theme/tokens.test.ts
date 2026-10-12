@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { ATLAS_LAYER, ATLAS_Z } from '@/components/atlas/theme/layers';
 import {
   ATLAS_COLOR,
   ATLAS_TAILWIND_COLORS,
@@ -130,6 +131,20 @@ describe("the Globe's overlays keep to the tokens", () => {
   it('sets no text under 12 px', () => {
     for (const [path, text] of files) {
       expect(text, path).not.toMatch(/text-\[(?:[0-9]|1[01])px\]/);
+    }
+  });
+
+  it('stacks every overlay on a named layer, never an arbitrary z-index', () => {
+    for (const [path, text] of files) {
+      if (path.endsWith('/layers.ts')) continue;
+      const code = text.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '');
+      expect(code, path).not.toMatch(/\bz-\[/);
+    }
+  });
+
+  it('spells each layer class as its number', () => {
+    for (const [name, z] of Object.entries(ATLAS_LAYER)) {
+      expect(ATLAS_Z[name as keyof typeof ATLAS_Z]).toBe(`z-${z}`);
     }
   });
 

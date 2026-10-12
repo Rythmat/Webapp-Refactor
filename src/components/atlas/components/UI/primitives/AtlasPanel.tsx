@@ -1,17 +1,26 @@
 import { forwardRef, useId, type CSSProperties, type ReactNode } from 'react';
 import { AtlasEyebrow } from '@/components/atlas/components/UI/primitives/AtlasEyebrow';
 import {
+  ATLAS_FOCUS,
   ATLAS_HEADING,
   ATLAS_SURFACE,
 } from '@/components/atlas/components/UI/primitives/styles';
+import { useAtlasZone } from '@/components/atlas/layout/zoneContext';
 import { cn } from '@/lib/utils';
 
 /**
  * A panel over the globe: the shared surface, then an optional header (an
  * eyebrow, the title, a subtitle, actions at the right, and anything else
  * that belongs above the fold), then its children. Put a scrolling list in
- * an {@link AtlasPanelBody}. The caller places it (`className`); the panel
- * only decides how it looks.
+ * an {@link AtlasPanelBody}. The zone it sits in places it
+ * (layout/AtlasZones.tsx); `className` and `style` size it there.
+ *
+ * Inside the phone's bottom sheet the sheet is the surface, so the panel
+ * drops its own, fills the sheet, and ignores `className`, `style` and
+ * `edge` (a desktop resize handle).
+ *
+ * The title is where focus lands when the panel opens (layout/usePanelFocus):
+ * it takes focus from script (tabIndex -1), never from Tab.
  */
 export const AtlasPanel = forwardRef<
   HTMLDivElement,
@@ -48,25 +57,35 @@ export const AtlasPanel = forwardRef<
   ref,
 ) {
   const titleId = useId();
+  const inSheet = useAtlasZone().kind === 'sheet';
   const hasHeader = eyebrow || title || subtitle || actions || header;
   return (
     <Tag
       ref={ref}
       aria-label={ariaLabel}
       aria-labelledby={!ariaLabel && title ? titleId : undefined}
-      className={cn(ATLAS_SURFACE, 'flex flex-col', className)}
-      style={style}
+      className={
+        inSheet
+          ? 'flex min-h-0 flex-1 flex-col text-atlas-text'
+          : cn(ATLAS_SURFACE, 'flex min-h-0 max-w-full flex-col', className)
+      }
+      style={inSheet ? undefined : style}
     >
-      {edge}
+      {!inSheet && edge}
       {hasHeader && (
-        <header className="shrink-0 p-4">
+        <header className={cn('shrink-0', inSheet ? 'px-4 pb-3 pt-1' : 'p-4')}>
           <div className="flex items-start gap-3">
             <div className="min-w-0 flex-1">
               {eyebrow && (
                 <AtlasEyebrow className="mb-1">{eyebrow}</AtlasEyebrow>
               )}
               {title && (
-                <h3 className={ATLAS_HEADING} id={titleId}>
+                <h3
+                  className={cn(ATLAS_HEADING, ATLAS_FOCUS, 'rounded-sm')}
+                  data-atlas-panel-heading
+                  id={titleId}
+                  tabIndex={-1}
+                >
                   {title}
                 </h3>
               )}

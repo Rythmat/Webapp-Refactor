@@ -180,12 +180,14 @@ const LAZY_ONLY = [
  *
  * Raised on purpose by Globe UI prompt 3 (from 70,808 and 1,086,089):
  * @tanstack/react-virtual for the long lists, 26.5 kB of it, and the
- * click-to-play video, timeline clusters and trail window. See "Budget
- * changes" in BASELINE.md.
+ * click-to-play video, timeline clusters and trail window. Raised again by
+ * prompt 5 (from 103,658 and 1,120,778): the layout zones, the phone bottom
+ * sheet, panel focus and Escape handling, 10 kB minified and 3 kB gzip. See
+ * "Budget changes" in BASELINE.md.
  */
 const GLOBE_BUDGET = {
-  routeChunk: 103_658,
-  routeStatic: 1_120_778,
+  routeChunk: 107_836,
+  routeStatic: 1_131_110,
   headroom: 1.05,
 };
 

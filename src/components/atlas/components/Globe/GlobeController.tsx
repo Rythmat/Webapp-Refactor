@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { GlobeMethods } from 'react-globe.gl';
+import { usePrefersReducedMotion } from '@/components/atlas/hooks/useMediaQuery';
 import {
   useAtlasDispatch,
   useAtlasSelector,
@@ -15,6 +16,10 @@ function zoomToAltitude(zoom: number): number {
   return Math.max(0.3, 3.5 - zoom * 0.3);
 }
 
+/** A camera flight's length; with reduced motion the camera cuts instead. */
+export const flightDuration = (reducedMotion: boolean): number =>
+  reducedMotion ? 0 : 1500;
+
 /**
  * Spin speed for OrbitControls' own auto-rotation: the angle per second is
  * `2π/60 × speed`, so 2.3 is a little under 14°/s — roughly 26 seconds for a
@@ -26,6 +31,7 @@ export function GlobeController({ globeRef, ready }: Props) {
   const dispatch = useAtlasDispatch();
   const searchFlyTarget = useAtlasSelector((s) => s.searchFlyTarget);
   const globeRotating = useAtlasSelector((s) => s.globeRotating);
+  const reducedMotion = usePrefersReducedMotion();
   const prevReady = useRef(false);
 
   // Fly to search target. Depends on `ready` so a target set before the globe
@@ -48,7 +54,7 @@ export function GlobeController({ globeRef, ready }: Props) {
     if (justReady) {
       globe.pointOfView({ lat: target.lat, lng: target.lng, altitude: 2.5 }, 0);
     }
-    globe.pointOfView(target, 1500);
+    globe.pointOfView(target, flightDuration(reducedMotion));
     dispatch({ type: 'CLEAR_FLY_TARGET' });
   }, [searchFlyTarget, ready, globeRef, dispatch]);
 
@@ -61,6 +67,9 @@ export function GlobeController({ globeRef, ready }: Props) {
    * being touched is disorienting, and it fought anyone reading a card, so both
    * the automatic zoom and the automatic spin are gone. The control now lives
    * in the corner of the globe page.
+   *
+   * It starts off for everyone, so reduced motion needs nothing more here:
+   * a spin only ever begins from a press of the control.
    *
    * Rotation is handed to OrbitControls rather than driven from a rAF loop:
    * it already ticks every frame (three-render-objects calls `controls.update`),

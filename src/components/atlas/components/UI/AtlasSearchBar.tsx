@@ -13,6 +13,7 @@ import {
   ATLAS_POPOVER,
   AtlasEyebrow,
 } from '@/components/atlas/components/UI/primitives';
+import { useEscapeLayer } from '@/components/atlas/hooks/useEscapeLayer';
 import type { AtlasStop } from '@/components/atlas/navigation/atlasStop';
 import { describeStop } from '@/components/atlas/navigation/describeStop';
 import {
@@ -59,6 +60,7 @@ export function AtlasSearchBar() {
   const inputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const listboxId = useId();
+  const groupId = useId();
 
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
@@ -79,6 +81,10 @@ export function AtlasSearchBar() {
   const total = groups.reduce((sum, g) => sum + g.total, 0);
 
   useEffect(() => setActive(-1), [deferred]);
+
+  const showDropdown = open && deferred.trim().length >= 2;
+  // Escape from anywhere closes the dropdown before anything under it.
+  useEscapeLayer(showDropdown, () => setOpen(false));
 
   // ⌘K / Ctrl+K from anywhere on the globe.
   useEffect(() => {
@@ -104,11 +110,12 @@ export function AtlasSearchBar() {
     return () => window.removeEventListener('pointerdown', onPointer);
   }, [open]);
 
+  // Choosing leaves focus where it is: the panel that opens takes it, and
+  // gives it back here when it closes (layout/usePanelFocus).
   const choose = (result: GlobeResult) => {
     navigate.go(resultToStop(result));
     setQuery('');
     setOpen(false);
-    inputRef.current?.blur();
   };
 
   const commit = () => {
@@ -116,7 +123,6 @@ export function AtlasSearchBar() {
     if (q.length < 2) return;
     navigate.toSearch(q);
     setOpen(false);
-    inputRef.current?.blur();
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -132,16 +138,16 @@ export function AtlasSearchBar() {
       if (active >= 0 && flat[active]) choose(flat[active]);
       else commit();
     } else if (e.key === 'Escape') {
-      if (open) setOpen(false);
+      // The field's own Escape: the panel under it stays open.
+      e.preventDefault();
+      if (showDropdown) setOpen(false);
       else inputRef.current?.blur();
     }
   };
-
-  const showDropdown = open && deferred.trim().length >= 2;
   let rowIndex = -1;
 
   return (
-    <div ref={rootRef} className="relative w-full max-w-md">
+    <div ref={rootRef} className="relative w-full min-w-0 max-w-md">
       <div className="relative">
         <Search
           aria-hidden
@@ -193,7 +199,7 @@ export function AtlasSearchBar() {
 
       {showDropdown && (
         <div
-          className={`absolute inset-x-0 top-full z-[1100] mt-1.5 max-h-[min(70vh,560px)] overflow-y-auto py-1.5 ${ATLAS_POPOVER}`}
+          className={`absolute inset-x-0 top-full mt-1.5 max-h-[min(70vh,560px)] overflow-y-auto py-1.5 ${ATLAS_POPOVER}`}
           id={listboxId}
           role="listbox"
         >
@@ -203,11 +209,17 @@ export function AtlasSearchBar() {
             </p>
           ) : (
             groups.map((group) => (
-              <div key={group.kind} className="py-1" role="presentation">
+              <div
+                key={group.kind}
+                aria-labelledby={`${groupId}-${group.kind}`}
+                className="py-1"
+                role="group"
+              >
                 <AtlasEyebrow
                   as="p"
                   className="px-3 pb-1 pt-1.5"
                   dot={atlasVar(group.kind)}
+                  id={`${groupId}-${group.kind}`}
                 >
                   {group.label}
                   {group.total > group.results.length && (

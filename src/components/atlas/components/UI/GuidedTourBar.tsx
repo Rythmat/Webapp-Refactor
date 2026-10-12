@@ -60,7 +60,8 @@ export function GuidedTourBar() {
   const exit = () => dispatch({ type: 'EXIT_TOUR' });
 
   return (
-    <div className="absolute bottom-4 left-1/2 z-[1000] w-[min(640px,calc(100%-2rem))] -translate-x-1/2">
+    // The bottom zone places it (layout/AtlasZones.tsx).
+    <div className="w-full">
       <div className={`px-4 py-3 ${ATLAS_SURFACE}`}>
         {/* Header row: tour title + step info + exit */}
         <div className="mb-2 flex items-center justify-between gap-3">

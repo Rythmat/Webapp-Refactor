@@ -14,14 +14,9 @@ import {
  * spin belonged to that one event. Rotation is a property of the globe, so the
  * control belongs on the globe.
  *
- * Top right specifically. The bottom looks free but is not: the timeline is
- * `bottom-6 w-[min(90vw,800px)]` and the pathway/tour bars are
- * `bottom-4 w-[min(640px,calc(100%-2rem))]`, all centred — centred but wide
- * enough to reach both corners, and all at `z-[1000]`, rendered after this in
- * atlas.tsx. A bottom-right pill was therefore painted over and unclickable on
- * any window narrower than about 1010px. The left column is taken by the
- * details card and the artist/search panels (all `left-4 top-4`), which leaves
- * the top right — and `z-[1001]` so nothing can win a tie against it.
+ * It lives in the map-control cluster at the top right (layout/AtlasZones.tsx),
+ * a zone of its own that the panels and the bottom bar are laid out around,
+ * so nothing can paint over it.
  */
 export function GlobeSpinToggle() {
   const globeRotating = useAtlasSelector((s) => s.globeRotating);
@@ -34,7 +29,7 @@ export function GlobeSpinToggle() {
       title={globeRotating ? 'Stop spinning' : 'Spin the globe'}
       // An outline pill on the panel surface: over the globe, the pill's own
       // white/4 fill would leave the label on whatever colour spins past.
-      className="absolute right-4 top-4 z-[1001] h-10 gap-2 bg-atlas-panel/95 px-3.5 shadow-2xl hover:bg-atlas-panel"
+      className="h-10 gap-2 bg-atlas-panel/95 px-3.5 shadow-2xl hover:bg-atlas-panel"
       onClick={() =>
         dispatch({ type: 'SET_GLOBE_ROTATING', payload: !globeRotating })
       }

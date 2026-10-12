@@ -1,5 +1,12 @@
 import './index.css';
-import { Component, Suspense, lazy, type ReactNode } from 'react';
+import {
+  Component,
+  Suspense,
+  lazy,
+  useCallback,
+  useMemo,
+  type ReactNode,
+} from 'react';
 import { BaseGlobe } from '@/components/atlas/components/Globe';
 import { ArtistPanel } from '@/components/atlas/components/UI/ArtistPanel';
 import { AtlasToolbar } from '@/components/atlas/components/UI/AtlasToolbar';
@@ -13,14 +20,24 @@ import {
   ATLAS_HEADING,
   ATLAS_SURFACE,
 } from '@/components/atlas/components/UI/primitives';
+import { useIsPhone } from '@/components/atlas/hooks/useMediaQuery';
+import {
+  DesktopZones,
+  PhoneZones,
+  type BottomBarSlot,
+  type LeftPanelSlot,
+} from '@/components/atlas/layout/AtlasZones';
+import { stopKey } from '@/components/atlas/navigation/atlasStop';
 import {
   AtlasNavigationProvider,
+  useAtlasNavigate,
   useAtlasParams,
   useAtlasStop,
 } from '@/components/atlas/navigation/useAtlasNavigate';
 import { useAtlasUrlSync } from '@/components/atlas/navigation/useAtlasUrlSync';
 import {
   AtlasStoreProvider,
+  useAtlasDispatch,
   useAtlasSelector,
 } from '@/components/atlas/state/atlasStore';
 import { cn } from '@/lib/utils';
@@ -78,52 +95,121 @@ function AtlasUrlSync() {
  * The left panel follows the stop: an artist or a search has its own panel;
  * otherwise the selected region's details card.
  */
-function LeftPanel() {
+function useLeftPanel(): LeftPanelSlot | null {
+  const navigate = useAtlasNavigate();
   const stop = useAtlasStop();
-  const showDetails = useAtlasSelector(
-    (s) =>
-      s.selectedLocation !== null &&
-      (s.activeTour === null || s.pinnedEvent !== null),
+  const place = useAtlasSelector((s) =>
+    s.selectedLocation !== null &&
+    (s.activeTour === null || s.pinnedEvent !== null)
+      ? s.selectedLocation
+      : null,
   );
-  if (stop.kind === 'artist') return <ArtistPanel name={stop.artist} />;
-  if (stop.kind === 'search') return <SearchResultsPanel query={stop.query} />;
-  return showDetails ? <DetailsCard /> : null;
+  return useMemo(() => {
+    const onClose = navigate.home;
+    if (stop.kind === 'artist') {
+      return {
+        key: stopKey(stop),
+        node: <ArtistPanel name={stop.artist} />,
+        onClose,
+      };
+    }
+    if (stop.kind === 'search') {
+      return {
+        key: stopKey(stop),
+        node: <SearchResultsPanel query={stop.query} />,
+        onClose,
+      };
+    }
+    if (!place) return null;
+    return {
+      key: stopKey({ kind: 'place', place }),
+      node: <DetailsCard />,
+      onClose,
+    };
+  }, [navigate, stop, place]);
 }
 
-function MindMap() {
+/** A Cortex lesson's mind map, when the URL asks for it. */
+function useMindMap(): ReactNode | null {
   // Not a stop param, so it stays on the URL however the student explores.
   const open = useAtlasParams((params) => params.get('mindmap') === '1');
-  if (!open) return null;
-  return (
-    <Suspense fallback={null}>
-      <MindMapPanel />
-    </Suspense>
+  return useMemo(
+    () =>
+      open ? (
+        <Suspense fallback={null}>
+          <MindMapPanel />
+        </Suspense>
+      ) : null,
+    [open],
+  );
+}
+
+const TIMELINE: BottomBarSlot = {
+  label: 'timeline',
+  maxWidth: 800,
+  node: <RegionTimeline />,
+};
+const PATHWAY: BottomBarSlot = {
+  label: 'pathway',
+  maxWidth: 640,
+  node: <ModuleProgressBar />,
+};
+const TOUR: BottomBarSlot = {
+  label: 'tour',
+  maxWidth: 640,
+  node: <GuidedTourBar />,
+};
+
+/** The bottom bar: a pathway's or a tour's progress, else the timeline. */
+function useBottomBar(): BottomBarSlot {
+  const inModule = useAtlasSelector((s) => s.activeModule !== null);
+  const inTour = useAtlasSelector((s) => s.activeTour !== null);
+  return inTour ? TOUR : inModule ? PATHWAY : TIMELINE;
+}
+
+const CONTROLS = <GlobeSpinToggle />;
+
+/**
+ * Everything over the globe, placed in its zone (layout/AtlasZones.tsx): a
+ * grid on desktop, a bottom sheet on phones.
+ */
+function AtlasOverlays() {
+  const isPhone = useIsPhone();
+  const dispatch = useAtlasDispatch();
+  const onSheetOcclusion = useCallback(
+    (px: number | null) =>
+      dispatch({ type: 'SET_SHEET_OCCLUSION', payload: px }),
+    [dispatch],
+  );
+  const zones = {
+    left: useLeftPanel(),
+    right: useMindMap(),
+    controls: CONTROLS,
+    bottom: useBottomBar(),
+  };
+  return isPhone ? (
+    <PhoneZones {...zones} onSheetOcclusion={onSheetOcclusion} />
+  ) : (
+    <DesktopZones {...zones} />
   );
 }
 
 /**
- * The page's frame. It subscribes to two booleans and nothing else, so a
- * dispatch or a URL change re-renders only the pieces that read it — the
- * globe in particular.
+ * The page's frame. It subscribes to nothing, so a dispatch or a URL change
+ * re-renders only the pieces that read it — the globe in particular.
  */
 function AppLayout() {
-  const inModule = useAtlasSelector((s) => s.activeModule !== null);
-  const inTour = useAtlasSelector((s) => s.activeTour !== null);
-
   return (
     <div
-      className="atlas-root flex h-full w-full flex-col overflow-hidden bg-atlas-page text-atlas-text"
+      // isolate: the page's z-index layers (theme/layers.ts) order its own
+      // pieces and never compete with the app around it.
+      className="atlas-root isolate flex h-full w-full flex-col overflow-hidden bg-atlas-page text-atlas-text"
       data-tab="globe"
     >
       <AtlasToolbar />
       <div className="relative flex-1">
         <BaseGlobe />
-        <GlobeSpinToggle />
-        <LeftPanel />
-        {!inModule && !inTour && <RegionTimeline />}
-        {inModule && <ModuleProgressBar />}
-        {inTour && <GuidedTourBar />}
-        <MindMap />
+        <AtlasOverlays />
       </div>
       <AtlasUrlSync />
     </div>

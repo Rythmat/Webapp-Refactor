@@ -9,6 +9,7 @@ export const initialAppState: AppState = {
   searchFlyTarget: null,
   visibleArcDirections: new Set(),
   detailsPanelWidth: null,
+  sheetOcclusion: null,
   globeRotating: false,
 };
 
@@ -24,6 +25,10 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return state.detailsPanelWidth === action.payload
         ? state
         : { ...state, detailsPanelWidth: action.payload };
+    case 'SET_SHEET_OCCLUSION':
+      return state.sheetOcclusion === action.payload
+        ? state
+        : { ...state, sheetOcclusion: action.payload };
     case 'SET_GLOBE_ROTATING':
       return state.globeRotating === action.payload
         ? state

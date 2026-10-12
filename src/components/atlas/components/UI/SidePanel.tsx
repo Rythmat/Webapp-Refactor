@@ -12,7 +12,7 @@ import type { StopPresentation } from '@/components/atlas/navigation/describeSto
 
 /**
  * The left-hand panel shell the artist and search views share — the same
- * panel, position, and close control as the region DetailsCard, so moving
+ * panel, zone, and close control as the region DetailsCard, so moving
  * between a place, an artist, and a search feels like one surface changing
  * rather than three different ones.
  */
@@ -37,7 +37,7 @@ export function SidePanel({
           <X aria-hidden className="size-4" />
         </AtlasIconButton>
       }
-      className="absolute left-4 top-4 z-[1000] max-h-[calc(100%-11rem)] w-[min(440px,calc(100%-2rem))]"
+      className="w-[440px]"
       subtitle={subtitle}
       title={title}
     >

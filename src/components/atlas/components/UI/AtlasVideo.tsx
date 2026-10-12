@@ -181,7 +181,7 @@ export function AtlasVideo({
             aria-hidden
             className="absolute left-1/2 top-1/2 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-black/70 text-white shadow-lg transition group-hover/play:scale-110 group-hover/play:bg-black/85 group-focus-visible/play:scale-110"
           >
-            <Play className="ml-0.5 size-6 fill-current" />
+            <Play aria-hidden className="ml-0.5 size-6 fill-current" />
           </span>
         </button>
       )}

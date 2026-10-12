@@ -99,3 +99,20 @@ describe('atlas reducer — details panel width', () => {
     ).toBe(wide);
   });
 });
+
+describe('atlas reducer — phone sheet occlusion', () => {
+  it('records how much of the globe the sheet covers, and clears it', () => {
+    const covered = appReducer(initialAppState, {
+      type: 'SET_SHEET_OCCLUSION',
+      payload: 406,
+    });
+    expect(covered.sheetOcclusion).toBe(406);
+    expect(
+      appReducer(covered, { type: 'SET_SHEET_OCCLUSION', payload: 406 }),
+    ).toBe(covered);
+    expect(
+      appReducer(covered, { type: 'SET_SHEET_OCCLUSION', payload: null })
+        .sheetOcclusion,
+    ).toBeNull();
+  });
+});

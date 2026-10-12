@@ -15,12 +15,14 @@
 import { CheckCircle2, MapPin, Plus, Send, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  ATLAS_FOCUS,
   ATLAS_HEADING,
   ATLAS_ROW,
   ATLAS_SURFACE,
   AtlasEyebrow,
   AtlasPillButton,
 } from '@/components/atlas/components/UI/primitives';
+import { useAtlasZone } from '@/components/atlas/layout/zoneContext';
 import {
   decodePlace,
   type AtlasStop,
@@ -49,10 +51,18 @@ import { readMindMapHandoff } from '@/features/classroom/msp/mindMapHandoff';
 import { useMspModuleCompletion } from '@/features/classroom/msp/useMspModuleCompletion';
 import { cn } from '@/lib/utils';
 
-const PANEL = cn(
-  ATLAS_SURFACE,
-  'absolute inset-x-2 bottom-2 z-[1000] flex max-h-[60%] flex-col overflow-hidden sm:inset-x-auto sm:bottom-auto sm:right-4 sm:top-20 sm:max-h-[calc(100%-7rem)] sm:w-[360px]',
-);
+/**
+ * The zone places the panel (layout/AtlasZones.tsx): the right column on
+ * desktop, under the map controls; on a phone, the bottom sheet it shares
+ * with the left panel, which is then the surface.
+ */
+const PANEL = {
+  column: cn(
+    ATLAS_SURFACE,
+    'flex min-h-0 w-[360px] max-w-full flex-col overflow-hidden',
+  ),
+  sheet: 'flex min-h-0 flex-1 flex-col overflow-hidden text-atlas-text',
+} as const;
 
 /** Leads shown at once: enough to choose from, not a list to copy down. */
 const MAX_LEADS = 6;
@@ -128,6 +138,7 @@ const leadReason = (
 };
 
 export default function MindMapPanel() {
+  const panel = PANEL[useAtlasZone().kind];
   const { launch, reportResult } = useMspModuleCompletion();
   const [launchParams] = useState(() => launch());
   const interactionId = launchParams?.interactionId ?? null;
@@ -168,7 +179,7 @@ export default function MindMapPanel() {
 
   if (!board) {
     return (
-      <aside className={PANEL} aria-label="Mind map">
+      <aside className={panel} aria-label="Mind map">
         <div className="flex flex-col gap-2 p-4">
           <AtlasEyebrow>Mind map</AtlasEyebrow>
           <p className="text-sm text-atlas-text-2">
@@ -203,10 +214,16 @@ export default function MindMapPanel() {
   const addable = hereStatus.addable;
 
   return (
-    <aside className={PANEL} aria-label="Mind map">
+    <aside className={panel} aria-label="Mind map">
       <header className="flex flex-col gap-1 border-b border-atlas-panel-border p-4">
         <AtlasEyebrow>Mind map</AtlasEyebrow>
-        <h2 className={ATLAS_HEADING}>{focus?.label}</h2>
+        <h2
+          className={cn(ATLAS_HEADING, ATLAS_FOCUS, 'rounded-sm')}
+          data-atlas-panel-heading
+          tabIndex={-1}
+        >
+          {focus?.label}
+        </h2>
         {handoff?.question.en && (
           <p className="text-sm text-atlas-text-2">{handoff.question.en}</p>
         )}

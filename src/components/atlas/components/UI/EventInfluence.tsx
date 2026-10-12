@@ -1,5 +1,5 @@
 import { ArrowUpRight, ArrowDownRight, ChevronDown } from 'lucide-react';
-import { memo, useMemo, useState } from 'react';
+import { memo, useId, useMemo, useState } from 'react';
 import { ATLAS_FOCUS } from '@/components/atlas/components/UI/primitives';
 import {
   getUpstreamChain,
@@ -44,10 +44,8 @@ const InfluenceTree = memo(function InfluenceTree({
               className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-left text-xs font-medium hover:brightness-110 ${ATLAS_FOCUS}`}
               // The event's country colour, from the data.
               style={{ backgroundColor: hex, color: text }}
-              onClick={(e) => {
-                e.stopPropagation();
-                onNavigate(node.event);
-              }}
+              type="button"
+              onClick={() => onNavigate(node.event)}
             >
               <Icon aria-hidden className="size-3 shrink-0" />
               <span>{node.event.title}</span>
@@ -104,12 +102,15 @@ function CollapsibleInfluence({
   // starting the video (which opens both arcs) also expands these sections.
   // Modal (affectsGlobe=false): purely local, since the globe is hidden.
   const open = affectsGlobe ? arcsShown : localOpen;
+  const treeId = useId();
   return (
     <div>
       <button
+        aria-controls={open ? treeId : undefined}
+        aria-expanded={open}
         className={`mb-1 flex items-center gap-1 rounded-full text-xs font-bold text-atlas-text-2 transition-colors hover:text-atlas-text ${ATLAS_FOCUS}`}
-        onClick={(e) => {
-          e.stopPropagation();
+        type="button"
+        onClick={() => {
           // Toggle the globe arcs. In the modal, just toggle the local
           // section.
           if (affectsGlobe)
@@ -123,7 +124,7 @@ function CollapsibleInfluence({
         />
         {label} ({count})
       </button>
-      {open && children}
+      {open && <div id={treeId}>{children}</div>}
     </div>
   );
 }

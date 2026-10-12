@@ -108,6 +108,11 @@ export interface AppState {
    */
   detailsPanelWidth: number | null;
   /**
+   * Height (px) of the phone bottom sheet over the globe's lower part, or
+   * null. The globe shifts up by half of this so the region clears the sheet.
+   */
+  sheetOcclusion: number | null;
+  /**
    * True while the globe is spinning. Only ever set by the user, from the spin
    * control on the globe page — nothing starts it automatically.
    */
@@ -131,5 +136,6 @@ export type AppAction =
   | { type: 'EXIT_TOUR' }
   | { type: 'SET_ERA'; payload: string | null }
   | { type: 'SET_DETAILS_PANEL_WIDTH'; payload: number | null }
+  | { type: 'SET_SHEET_OCCLUSION'; payload: number | null }
   | { type: 'TOGGLE_ARC_DIRECTION'; payload: 'upstream' | 'downstream' }
   | { type: 'OPEN_INFLUENCE_ARCS' };

@@ -50,6 +50,7 @@ export const MindMapDialog = ({
           added={added}
           width={576}
           height={360}
+          listConnections
           className="mx-auto"
         />
         <MindMapLegend />

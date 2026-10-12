@@ -53,7 +53,7 @@ const OUTLINE =
 const MAX_LEADS = 6;
 /** The map's width inside the panel's padding. */
 const MAP_WIDTH = 328;
-const MAP_HEIGHT = 220;
+const MAP_HEIGHT = 260;
 
 const progressKey = (interactionId: string) =>
   `ma:mindmap:added:v1:${interactionId}`;
@@ -232,6 +232,7 @@ export default function MindMapPanel() {
           width={MAP_WIDTH}
           height={MAP_HEIGHT}
           highlight={here?.id ?? null}
+          edgeLabels="around"
           onSelect={fly}
           className="mx-auto"
         />
